@@ -10,13 +10,13 @@ produces:
   - application/json
 paths:
   /file/:
-    put:
-      summary: create new file (request body JSON object with file metadata, without PID)
+    post:
+      summary: create new file metadata (request body JSON object with file metadata, without PID)
       consumes:
         - application/json
       responses:
         '201':
-          description: new file created, return Location with the new URL containing PID
+          description: new file metadata created, return Location with the new URL containing PID
   /file/{PID}:
     get:
       summary: get file metadata
@@ -65,7 +65,7 @@ paths:
         '200':
           description: list of PIDs
     delete:
-      summary: delete all files in directory, recursively
+      summary: delete all files' metadata in directory, recursively
       parameters:
         - name: path
           in: path
