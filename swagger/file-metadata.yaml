@@ -1,0 +1,188 @@
+swagger: '2.0'
+info:
+  title: METAX file API
+  version: v1
+host: file.metax.example.org
+schemes:
+  - https
+basePath: /rest/v1/
+produces:
+  - application/json
+paths:
+  /file/:
+    put:
+      summary: create new file (request body JSON object with file metadata, without PID)
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: new file created, return Location with the new URL containing PID
+  /file/{PID}:
+    get:
+      summary: get file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return file metadata
+    put:
+      summary: replace file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+    patch:
+      summary: replace part of file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, full content returned
+          
+  /directory/{path}:
+    get:
+      summary: get list of PIDs in directory
+      parameters:
+        - name: path
+          in: path
+          description: directory path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: list of PIDs
+    delete:
+      summary: delete all files in directory, recursively
+      parameters:
+        - name: path
+          in: path
+          description: directory path
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+
+
+# Finto examples below, kept for now so that we have examples of Swagger descriptions
+# but not intended to be part of the final API spec
+
+  /vocabularies:
+    get:
+      summary: list vocabularies
+      parameters:
+        - name: lang
+          in: query
+          description: 'language of labels, e.g. "en" or "fi"'
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: a list of vocabularies on the server
+          schema:
+            $ref: '#/definitions/VocabularyList'
+  /data:
+    get:
+      summary: RDF data of the requested concept
+      parameters:
+        - name: uri
+          in: query
+          description: URI of the concept whose data to return
+          required: true
+          type: string
+        - name: format
+          in: query
+          description: >-
+            the MIME type of the serialization format, e.g. "text/turtle" or
+            "application/rdf+xml"
+          required: false
+          type: string
+      produces:
+        - application/rdf+xml
+        - text/turtle
+        - application/ld+json
+        - application/json
+      responses:
+        '200':
+          description: the data of the requested concept
+        '404':
+          description: the URI did not match any known concept
+  /types:
+    get:
+      summary: >-
+        Return information about the types (classes) of objects contained in all
+        the vocabularies
+      parameters:
+        - name: lang
+          in: query
+          description: 'language of labels, e.g. "en" or "fi"'
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: the data of the requested concept
+          schema:
+            $ref: '#/definitions/TypeList'
+definitions:
+  VocabularyList:
+    type: object
+    properties:
+      uri:
+        type: string
+      vocabularies:
+        type: array
+        items:
+          $ref: '#/definitions/Vocabulary'
+    required:
+      - uri
+      - vocabularies
+  Vocabulary:
+    type: object
+    properties:
+      uri:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+    required:
+      - uri
+      - id
+      - title
+  TypeList:
+    type: object
+    properties:
+      uri:
+        type: string
+      types:
+        type: array
+        items:
+          $ref: '#/definitions/Type'
+  Type:
+    type: object
+    properties:
+      uri:
+        type: string
+      label:
+        type: string
+      superclass:
+        type: string
+    required:
+      - uri
