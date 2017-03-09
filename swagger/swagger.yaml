@@ -1,0 +1,228 @@
+swagger: '2.0'
+info:
+  title: METAX REST API
+  version: v1
+host: metax.example.org
+schemes:
+  - https
+basePath: /rest/v1/
+produces:
+  - application/json
+paths:
+
+# File API
+  /files:
+    post:
+      summary: create new file metadata (request body JSON object with file metadata, without PID)
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: new file metadata created, return Location with the new URL containing PID
+  /files/{PID}:
+    get:
+      summary: get file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return file metadata
+    put:
+      summary: replace file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+    patch:
+      summary: replace part of file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, full content returned
+          
+  /directories/{path}:
+    get:
+      summary: get list of PIDs in directory
+      parameters:
+        - name: path
+          in: path
+          description: directory path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: list of PIDs
+    delete:
+      summary: delete all files' metadata in directory, recursively
+      parameters:
+        - name: path
+          in: path
+          description: directory path
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+
+# Dataset API
+  /datasets:
+    # some of the parameters and returned fiels are for TPAS usage only
+    get:
+      summary: "list datasets"
+      parameters:
+        - name: owner
+          in: query
+          description: owner organization ID
+          required: false
+          type: string
+        - name: state
+          in: query
+          description: TPAS state (proposed for midterm PAS / proposed for longterm PAS / in packaging / in dissemination / in midterm PAS / in longterm PAS)
+          required: false
+          type: string
+        - name: offset
+          in: query
+          description: offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: limit for paging
+          required: false
+          type: integer
+      responses:
+        "200":
+          description: successful operation, return list of datasets containing PID, name, owner org, argument for PAS storage, name of proposer, TPAS state, contract PID, size of dataset, structure (folders) of dataset, provenance, descriptive metadata, access rights metadata, TPAS SIP ID (METSOBJID)
+    post:
+      summary: create new dataset metadata (request body JSON object with dataset metadata, without PID)
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: new dataset metadata created, return Location with the new URL containing PID
+  /datasets/{PID}:
+    get:
+      summary: get dataset metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return dataset metadata (including total size of files)
+    put:
+      summary: replace dataset metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+    patch:
+      summary: replace part of dataset metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, full content returned
+
+  /datasets/{PID}/statistics:
+    get:
+      summary: get statistics for dataset
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, return statistics
+
+# Contract API
+  /contracts:
+    get:
+      summary: "list contracts"
+      parameters:
+        - name: organization
+          in: query
+          description: organization ID
+          required: false
+          type: string
+        - name: offset
+          in: query
+          description: offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: limit for paging
+          required: false
+          type: integer
+      responses:
+        "200":
+          description: successful operation, return list of contracts optionally filtered by organization
+    post:
+      summary: create new contract metadata (request body JSON object with contract metadata, without PID)
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: new contract metadata created, return Location with the new URL containing PID
+  /contracts/{PID}:
+    get:
+      summary: get contract metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of contract
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return contract metadata (name, organization, quota)
+    put:
+      summary: replace contract metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of contract
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+    patch:
+      summary: replace part of contract metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of contract
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, full content returned
