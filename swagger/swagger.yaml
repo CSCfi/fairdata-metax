@@ -19,6 +19,8 @@ paths:
       responses:
         '201':
           description: new file metadata created, return Location with the new URL containing PID
+      tags:
+        - File API
   /files/{PID}:
     get:
       summary: get file metadata
@@ -31,6 +33,8 @@ paths:
       responses:
         '200':
           description: return file metadata
+      tags:
+        - File API
     put:
       summary: replace file metadata
       parameters:
@@ -42,6 +46,8 @@ paths:
       responses:
         '204':
           description: successful operation, no content returned
+      tags:
+        - File API
     patch:
       summary: replace part of file metadata
       parameters:
@@ -53,6 +59,8 @@ paths:
       responses:
         '200':
           description: successful operation, full content returned
+      tags:
+        - File API
           
   /directories/{path}:
     get:
@@ -77,6 +85,8 @@ paths:
       responses:
         '204':
           description: successful operation, no content returned
+      tags:
+        - File API
 
 # Dataset API
   /datasets:
@@ -107,6 +117,8 @@ paths:
       responses:
         "200":
           description: successful operation, return list of datasets containing PID, name, owner org, argument for PAS storage, name of proposer, TPAS state, contract PID, size of dataset, structure (folders) of dataset, provenance, descriptive metadata, access rights metadata, TPAS SIP ID (METSOBJID)
+      tags:
+        - Dataset API
     post:
       summary: create new dataset metadata (request body JSON object with dataset metadata, without PID)
       consumes:
@@ -114,6 +126,8 @@ paths:
       responses:
         '201':
           description: new dataset metadata created, return Location with the new URL containing PID
+      tags:
+        - Dataset API
   /datasets/{PID}:
     get:
       summary: get dataset metadata
@@ -126,6 +140,8 @@ paths:
       responses:
         '200':
           description: return dataset metadata (including total size of files)
+      tags:
+        - Dataset API
     put:
       summary: replace dataset metadata
       parameters:
@@ -137,6 +153,8 @@ paths:
       responses:
         '204':
           description: successful operation, no content returned
+      tags:
+        - Dataset API
     patch:
       summary: replace part of dataset metadata
       parameters:
@@ -148,6 +166,8 @@ paths:
       responses:
         '200':
           description: successful operation, full content returned
+      tags:
+        - Dataset API
 
   /datasets/{PID}/statistics:
     get:
@@ -161,6 +181,8 @@ paths:
       responses:
         '200':
           description: successful operation, return statistics
+      tags:
+        - Dataset API
 
 # Contract API
   /contracts:
@@ -185,6 +207,8 @@ paths:
       responses:
         "200":
           description: successful operation, return list of contracts optionally filtered by organization
+      tags:
+        - Contract API
     post:
       summary: create new contract metadata (request body JSON object with contract metadata, without PID)
       consumes:
@@ -192,6 +216,8 @@ paths:
       responses:
         '201':
           description: new contract metadata created, return Location with the new URL containing PID
+      tags:
+        - Contract API
   /contracts/{PID}:
     get:
       summary: get contract metadata
@@ -204,6 +230,8 @@ paths:
       responses:
         '200':
           description: return contract metadata (name, organization, quota)
+      tags:
+        - Contract API
     put:
       summary: replace contract metadata
       parameters:
@@ -215,6 +243,8 @@ paths:
       responses:
         '204':
           description: successful operation, no content returned
+      tags:
+        - Contract API
     patch:
       summary: replace part of contract metadata
       parameters:
@@ -226,3 +256,5 @@ paths:
       responses:
         '200':
           description: successful operation, full content returned
+      tags:
+        - Contract API
