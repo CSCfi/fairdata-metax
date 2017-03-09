@@ -180,9 +180,24 @@ paths:
           type: string
       responses:
         '200':
-          description: successful operation, return statistics
+          description: successful operation, return statistics (e.g. number of downloads, number of permissions asked, number of permissions granted, dissemination service used)
       tags:
         - Dataset API
+  /datasets/{PID}/files:
+    get:
+      summary: get list of files in a dataset
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, return file PIDs
+      tags:
+        - Dataset API
+
 
 # Contract API
   /contracts:
