@@ -9,7 +9,7 @@ basePath: /rest/v1/
 produces:
   - application/json
 paths:
-  /file/:
+  /files:
     post:
       summary: create new file metadata (request body JSON object with file metadata, without PID)
       consumes:
@@ -17,7 +17,7 @@ paths:
       responses:
         '201':
           description: new file metadata created, return Location with the new URL containing PID
-  /file/{PID}:
+  /files/{PID}:
     get:
       summary: get file metadata
       parameters:
@@ -52,7 +52,7 @@ paths:
         '200':
           description: successful operation, full content returned
           
-  /directory/{path}:
+  /directories/{path}:
     get:
       summary: get list of PIDs in directory
       parameters:

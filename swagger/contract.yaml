@@ -9,7 +9,18 @@ basePath: /rest/v1/
 produces:
   - application/json
 paths:
-  /contract/:
+  /contracts:
+    get:
+      summary: "list contracts"
+      parameters:
+        - name: organization
+          in: query
+          description: organization ID
+          required: false
+          type: string
+      responses:
+        "200":
+          description: successful operation, return list of contracts optionally filtered by organization
     post:
       summary: create new contract metadata (request body JSON object with contract metadata, without PID)
       consumes:
@@ -17,7 +28,7 @@ paths:
       responses:
         '201':
           description: new contract metadata created, return Location with the new URL containing PID
-  /contract/{PID}:
+  /contracts/{PID}:
     get:
       summary: get contract metadata
       parameters:
@@ -52,17 +63,5 @@ paths:
         '200':
           description: successful operation, full content returned
 
-  /contract:
-    get:
-      summary: "search contracts"
-      parameters:
-        - name: organization
-          in: query
-          description: organization ID
-          required: false
-          type: string
-      responses:
-        "200":
-          description: successful operation, return list of contracts optionally filtered by organization
 
 
