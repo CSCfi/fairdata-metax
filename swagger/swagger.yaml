@@ -12,6 +12,41 @@ paths:
 
 # File API
   /files:
+    get:
+      summary: get list of files, optionally filtered by request parameters
+      parameters:
+        - name: dataset
+          in: query
+          description: filter results by PID of dataset containing file
+          required: false
+          type: string
+        - name: owner_email
+          in: query
+          description: filter results by owner e-mail address
+          required: false
+          type: string
+        - name: fields
+          in: query
+          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
+          required: false
+          type: string
+          default: PID
+        - name: offset
+          in: query
+          description: offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: limit for paging
+          required: false
+          type: integer
+          default: 100
+      responses:
+        "200":
+          description: successful operation, return list of files containing PID and other file metadata
+      tags:
+        - File API
     post:
       summary: create new file metadata (request body JSON object with file metadata, without PID)
       consumes:
@@ -61,6 +96,19 @@ paths:
           description: successful operation, full content returned
       tags:
         - File API
+    delete:
+      summary: delete a file
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+      tags:
+        - File API
           
   /directories/{path}:
     get:
@@ -74,6 +122,24 @@ paths:
       responses:
         '200':
           description: list of PIDs
+    patch:
+      summary: change directory path
+      parameters:
+        - name: path
+          in: path
+          description: current directory path
+          required: true
+          type: string
+        - name: newpath
+          in: query
+          description: new directory path (TODO is it good to have this in the query? Body instead?)
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, full content returned
+      tags:
+        - File API
     delete:
       summary: delete all files' metadata in directory, recursively
       parameters:
@@ -104,6 +170,12 @@ paths:
           description: TPAS state (proposed for midterm PAS / proposed for longterm PAS / in packaging / in dissemination / in midterm PAS / in longterm PAS)
           required: false
           type: string
+        - name: fields
+          in: query
+          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
+          required: false
+          type: string
+          default: PID
         - name: offset
           in: query
           description: offset for paging
@@ -114,6 +186,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
+          default: 100
       responses:
         "200":
           description: successful operation, return list of datasets containing PID, name, owner org, argument for PAS storage, name of proposer, TPAS state, contract PID, size of dataset, structure (folders) of dataset, provenance, descriptive metadata, access rights metadata, TPAS SIP ID (METSOBJID)
