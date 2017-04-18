@@ -109,7 +109,7 @@ paths:
           description: successful operation, no content returned
       tags:
         - File API
-          
+
   /directories/{path}:
     get:
       summary: get list of PIDs in directory
@@ -167,7 +167,7 @@ paths:
           type: string
         - name: state
           in: query
-          description: TPAS state (proposed for midterm PAS / proposed for longterm PAS / in packaging / in dissemination / in midterm PAS / in longterm PAS)
+          description: TPAS state (proposed for midterm PAS / proposed for longterm PAS / in packaging / in dissemination / in midterm PAS / in longterm PAS). Multiple states using OR-logic should be queriable in the same request, e.g. state=midterm,longterm (if comma is agreed as the OR-operator).
           required: false
           type: string
         - name: fields
