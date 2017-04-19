@@ -27,10 +27,13 @@ paths:
           type: string
         - name: fields
           in: query
-          description: fields to return, as a comma-separated list
+          description: fields to return
           required: false
-          type: string
-          default: PID
+          type: array
+          items:
+            type: string
+          default:
+            - PID
         - name: offset
           in: query
           description: offset for paging
@@ -180,10 +183,13 @@ paths:
           format: dateTime
         - name: fields
           in: query
-          description: fields to return, as a comma-separated list
+          description: fields to return
           required: false
-          type: string
-          default: PID
+          type: array
+          items:
+            type: string
+          default:
+            - PID
         - name: offset
           in: query
           description: offset for paging
@@ -297,10 +303,13 @@ paths:
           type: string
         - name: fields
           in: query
-          description: fields to return, as a comma-separated list
+          description: fields to return
           required: false
-          type: string
-          default: PID
+          type: array
+          items:
+            type: string
+          default:
+            - PID
         - name: offset
           in: query
           description: offset for paging
@@ -362,10 +371,13 @@ paths:
           type: string
         - name: fields
           in: query
-          description: fields to return, as a comma-separated list
+          description: fields to return
           required: false
-          type: string
-          default: PID
+          type: array
+          items:
+            type: string
+          default:
+            - PID
         - name: offset
           in: query
           description: offset for paging
@@ -428,6 +440,15 @@ paths:
           description: organization ID
           required: false
           type: string
+        - name: fields
+          in: query
+          description: fields to return
+          required: false
+          type: array
+          items:
+            type: string
+          default:
+            - PID
         - name: offset
           in: query
           description: offset for paging
