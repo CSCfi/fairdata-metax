@@ -252,11 +252,19 @@ paths:
           description: Persistent ID of dataset
           required: true
           type: string
+        - name: If-Unmodified-Since
+          in: header
+          description: timestamp of the original resource that the new resource is based on
+          required: true
+          type: string
+          format: dateTime
       responses:
         '204':
           description: successful operation, no content returned
-        '409':
-          description: conflict error, the timestamp in the request body is older than the equivalent timestamp within MetaX
+        '412':
+          description: the timestamp in the If-Unmodified-Since header does not match the equivalent timestamp within MetaX, indicating that it is based on an outdated version
+        '428':
+          description: If-Unmodified-Since header was not provided even though it is required
       tags:
         - Dataset API
     patch:
