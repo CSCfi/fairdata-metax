@@ -172,6 +172,12 @@ paths:
           description: TPAS state (proposed for midterm PAS / proposed for longterm PAS / in packaging / in dissemination / in midterm PAS / in longterm PAS). Multiple states using OR-logic should be queriable in the same request, e.g. state=midterm,longterm (if comma is agreed as the OR-operator).
           required: false
           type: string
+        - name: modifiedSince
+          in: query
+          description: return only datasets that have been modified (or created) since the given timestamp
+          required: false
+          type: string
+          format: dateTime
         - name: fields
           in: query
           description: fields to return, as a comma-separated list
