@@ -122,6 +122,8 @@ paths:
       responses:
         '200':
           description: list of PIDs
+      tags:
+        - File API
     patch:
       summary: change directory path
       parameters:
@@ -268,6 +270,65 @@ paths:
       responses:
         '200':
           description: successful operation, return file PIDs
+      tags:
+        - Dataset API
+  /datasets/{PID}/feedback:
+    get:
+      summary: get feedback (comments and ratings) for a dataset
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset
+          required: true
+          type: string
+        - name: offset
+          in: query
+          description: offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: limit for paging
+          required: false
+          type: integer
+          default: 100
+      responses:
+        '200':
+          description: successful operation, return feedback objects
+      tags:
+        - Dataset API
+    post:
+      summary: create new feedback for dataset
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset
+          required: true
+          type: string
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: new feedback created, return Location with the new URL containing feedback ID
+      tags:
+        - Dataset API
+  /datasets/{PID}/feedback/{ID}:
+    get:
+      summary: get a single feedback object for a dataset
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset
+          required: true
+          type: string
+        - name: ID
+          in: path
+          description: ID of feedback object
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, return feedback object
       tags:
         - Dataset API
 
