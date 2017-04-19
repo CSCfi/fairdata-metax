@@ -165,9 +165,14 @@ paths:
     get:
       summary: "list datasets"
       parameters:
+        - name: creator
+          in: query
+          description: filter by dataset creator (user ID)
+          required: false
+          type: string
         - name: owner
           in: query
-          description: owner organization ID
+          description: filter by dataset owner ID (user, organization or group)
           required: false
           type: string
         - name: state
@@ -250,6 +255,8 @@ paths:
       responses:
         '204':
           description: successful operation, no content returned
+        '409':
+          description: conflict error, the timestamp in the request body is older than the equivalent timestamp within MetaX
       tags:
         - Dataset API
     patch:
