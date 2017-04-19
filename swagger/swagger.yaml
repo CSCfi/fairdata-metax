@@ -27,7 +27,7 @@ paths:
           type: string
         - name: fields
           in: query
-          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
+          description: fields to return, as a comma-separated list
           required: false
           type: string
           default: PID
@@ -174,7 +174,7 @@ paths:
           type: string
         - name: fields
           in: query
-          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
+          description: fields to return, as a comma-separated list
           required: false
           type: string
           default: PID
@@ -281,6 +281,12 @@ paths:
           description: Persistent ID of dataset
           required: true
           type: string
+        - name: fields
+          in: query
+          description: fields to return, as a comma-separated list
+          required: false
+          type: string
+          default: PID
         - name: offset
           in: query
           description: offset for paging
@@ -340,6 +346,12 @@ paths:
           description: Persistent ID of dataset
           required: true
           type: string
+        - name: fields
+          in: query
+          description: fields to return, as a comma-separated list
+          required: false
+          type: string
+          default: PID
         - name: offset
           in: query
           description: offset for paging
