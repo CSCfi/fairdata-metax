@@ -218,9 +218,17 @@ paths:
           description: Persistent ID of dataset
           required: true
           type: string
+        - name: If-Modified-Since
+          in: header
+          description: Only return the full resource if it has changed since the given timestamp
+          required: false
+          type: string
+          format: dateTime
       responses:
         '200':
           description: return dataset metadata (including total size of files)
+        '304':
+          description: the resource has not been modified since the timestamp given in the If-Modified-Since header
       tags:
         - Dataset API
     put:
