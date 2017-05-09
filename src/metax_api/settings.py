@@ -12,6 +12,22 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+"""
+The following uses the 'TRAVIS' (== True) environment variable on Travis
+to detect the session, and changes the default database accordingly.
+"""
+if os.getenv('TRAVIS', None):
+    DATABASES = {
+        'default': {
+            'ENGINE':   'django.db.backends.postgresql_psycopg2',
+            'NAME':     'NAME_OF_METAX_DB_IN_TRAVIS',
+            'USER':     'NAME_OF_METAX_DB_USER_IN_TRAVIS',
+            'PASSWORD': '',
+            'HOST':     'localhost'
+        }
+    }
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
