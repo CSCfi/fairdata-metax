@@ -14,3 +14,4 @@ pyflakes==1.5.0  # MIT-license
 requests==2.13.0  # Apache 2.0-license
 simplejson==3.10.0  # MIT-license
 uritemplate==3.0.0  # BSD 3-Clause License or Apache License, Version 2.0
+psycopg2==2.7.1
