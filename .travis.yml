@@ -24,7 +24,7 @@ install:
 before_script:
   - psql -U postgres -c "create extension postgis"
 #  - psql -U postgres < resources/sql/init.sql Place here something that will create db user, metax db and what is needed before django generated the tables etc and populated with test data
-#script:
+script: true
  # - flake8 .
 #  - coverage run manage.py test metax-api
 #  - python manage.py test
