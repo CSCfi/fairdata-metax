@@ -27,7 +27,6 @@ if os.getenv('TRAVIS', None):
         }
     }
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -93,7 +92,7 @@ WSGI_APPLICATION = 'metax_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'metax_api', # name of db
+        'NAME': 'metax_api',
         'USER': 'metax_api',
         'PASSWORD': 'metax_api',
         'HOST': 'localhost',
