@@ -77,8 +77,8 @@ WSGI_APPLICATION = 'metax_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'metax_api', # name of db
-        'USER': 'metax_api',
+        'NAME': 'metax_db', # name of db
+        'USER': 'metax_user',
         'PASSWORD': 'metax_api',
         'HOST': 'localhost',
         'PORT': '',
@@ -122,5 +122,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-# STATIC_URL = '/static/'
-STATIC_URL = '/opt/metax_api/venv/djangoapp/metax_api/metax_api/static/'
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+STATIC_URL = '/static/'
