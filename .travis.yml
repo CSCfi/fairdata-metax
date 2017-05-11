@@ -18,8 +18,8 @@ services:
 install:
   - sudo pip install ansible
 #  - sudo apt-get install -y postgresql-9.6-postgis-2.3
-    - pip install -r requirements.txt
-    - sudo service postgresql restart
+  - pip install -r requirements.txt
+  - sudo service postgresql restart
 #  - pip install coveralls this is used in junction script coverage.. and after_success coveralls. Would require using coveralls.io
 before_script:
 #  - psql -U postgres -c "create extension postgis"
