@@ -3,11 +3,13 @@ language: python
 python: 3.5.1
 branches:
   only:
+    - dev
     - staging
+    - master
 cache: pip
-#env:
-#  global:
-#    - DJANGO_SETTINGS_MODULE="./src/metax_api/settings_staging.py"
+env:
+  global:
+    - DJANGO_SETTINGS_MODULE="$TRAVIS_BUILD_DIR/src/metax_api/settings.py"
 #before_install:
 addons:
   postgresql: "9.6"
@@ -16,20 +18,23 @@ services:
 install:
   - sudo pip install ansible
 #  - sudo apt-get install -y postgresql-9.6-postgis-2.3
-  - sudo service postgresql restart
-  - pip install -r requirements.txt This should be run automatically by Travis
+    - pip install -r requirements.txt
+    - sudo service postgresql restart
 #  - pip install coveralls this is used in junction script coverage.. and after_success coveralls. Would require using coveralls.io
 before_script:
 #  - psql -U postgres -c "create extension postgis"
-#  - psql -U postgres < resources/sql/init.sql Place here something that will create db user, metax db and what is needed before django generated the tables etc and populated with test data
+  - psql -U postgres < resources/sql/init_test.sql
 script: true
  # - flake8 .
+#  - python manage.py makemigrations
+#  - python manage.py migrate
+#  - python manage.py populate_history --auto
+#  - python manage.py loaddata resources/data/test_data.json
+#  - python manage.py test OR
 #  - coverage run manage.py test metax-api
-#  - python manage.py test
 after_success:
 #  - coveralls
-  - git clone https://github.com/CSCfi/metax-ops
-  - cd metax-ops/ansible/ && ansible-playbook -vv -i staging deploy.yml
+  - ./.travis-deploy.sh
 notifications:
   flowdock:
     secure: "knEJ+vdnX/bocuR+qxXlU7EwyjuhUZX9RMEx4BPNy6eILCb1gUbDodzg+PgWKn+7feLLLhizkcBi5inZ8nzwfeMFkWEHAfKESq2ameYuXCKur1E9T9w8g9GIuxPamxgtIiC+ZOoeYrX2nwKXf2YwkBVeoavsldr4Tpx/6k7p2YPaRaJfLPxpmCsXwmyxdTtp0Q1J7gfdxEAlIwNxZxK1fkGT+JMHa7Q5CcXNijvyrXltb8ncgBrEYoUrmXZTCeSeRdkD+qxjMchc5l/pJ3xLRTe3jkrqM7ECLpA4fSkLmn/DuoHNKc7pzEtCznr4KRegA6Fejo2gIbY+iqxR83ha7N204dkW/3sgwWZtx14GW7VGEV/48sGwrfaLf6FL5aIqd1L7qi8V2bzrVMNxsC/5N59LFOEWAhiczJ7tPn2QW+dGVlKoFFQbZmfyRbu8gxuo5USuCdNwTryVfv0qXk8nfCqtRiqsYvVUEvj0F7Q4zPjaOWgm0+oetzgGCLAR+NRzs+aYwvghV+4144vivlAIJgGt1zTytT/WADHNno7dHOT/oHCUCWBqxzLlneM8KdD380p7py7/qb0pBZw1eptMCg9vwdsuin6tDOy7L9ZxIEVHKxaOojsvt2exR4u5nVpdPPpjmH07j8CP6XSQX+gyFscJ5Jou6Iazy9tVL/sDj3o="
