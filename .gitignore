@@ -1,5 +1,5 @@
 *~
 *.pyc
 /src/__pycache__/*
-/src/metax_api/static/*
+/src/static/*
 .idea/
