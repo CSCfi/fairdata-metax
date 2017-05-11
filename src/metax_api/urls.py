@@ -15,7 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from rest_framework.routers import DefaultRouter
 
-urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-]
+from metax_api.views import FileViewSet
+
+router = DefaultRouter()
+router.register(r'files', FileViewSet)
+urlpatterns = router.urls
+
+# django default admin site
+# urlpatterns.append(url(r'^admin/', admin.site.urls))
