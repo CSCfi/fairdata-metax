@@ -27,7 +27,7 @@ install:
 - sudo service postgresql restart
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
-script: true
+script:
 #- flake8 .
 #- python manage.py makemigrations
 #- python manage.py migrate
