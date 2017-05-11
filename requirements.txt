@@ -3,6 +3,7 @@ coreschema==0.0.4  # BSD-license
 Django==1.11.1  # BSD-license
 django-rest-swagger==2.1.2  # FreeBSD-license
 djangorestframework==3.6.2  # BSD-license
+django-simple-history==1.8.2  # BSD-license
 flake8==3.3.0 # MIT-license
 gevent==1.2.1
 gunicorn==19.7.0 # MIT-license

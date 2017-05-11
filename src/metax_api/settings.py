@@ -20,8 +20,8 @@ if os.getenv('TRAVIS', None):
     DATABASES = {
         'default': {
             'ENGINE':   'django.db.backends.postgresql_psycopg2',
-            'NAME':     'NAME_OF_METAX_DB_IN_TRAVIS',
-            'USER':     'NAME_OF_METAX_DB_USER_IN_TRAVIS',
+            'NAME':     'metax_db_test',
+            'USER':     'metax_test',
             'PASSWORD': '',
             'HOST':     'localhost'
         }
