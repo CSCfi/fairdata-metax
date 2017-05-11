@@ -24,16 +24,8 @@ install:
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
 script: true
-#  - flake8 .
-#  - python manage.py makemigrations
-#  - python manage.py migrate
-#  - python manage.py populate_history --auto
-#  - python manage.py loaddata resources/data/test_data.json
-#  - python manage.py test OR
-#  - coverage run manage.py test metax-api
 after_success:
 - ./.travis-deploy.sh
 notifications:
   flowdock:
     secure: knEJ+vdnX/bocuR+qxXlU7EwyjuhUZX9RMEx4BPNy6eILCb1gUbDodzg+PgWKn+7feLLLhizkcBi5inZ8nzwfeMFkWEHAfKESq2ameYuXCKur1E9T9w8g9GIuxPamxgtIiC+ZOoeYrX2nwKXf2YwkBVeoavsldr4Tpx/6k7p2YPaRaJfLPxpmCsXwmyxdTtp0Q1J7gfdxEAlIwNxZxK1fkGT+JMHa7Q5CcXNijvyrXltb8ncgBrEYoUrmXZTCeSeRdkD+qxjMchc5l/pJ3xLRTe3jkrqM7ECLpA4fSkLmn/DuoHNKc7pzEtCznr4KRegA6Fejo2gIbY+iqxR83ha7N204dkW/3sgwWZtx14GW7VGEV/48sGwrfaLf6FL5aIqd1L7qi8V2bzrVMNxsC/5N59LFOEWAhiczJ7tPn2QW+dGVlKoFFQbZmfyRbu8gxuo5USuCdNwTryVfv0qXk8nfCqtRiqsYvVUEvj0F7Q4zPjaOWgm0+oetzgGCLAR+NRzs+aYwvghV+4144vivlAIJgGt1zTytT/WADHNno7dHOT/oHCUCWBqxzLlneM8KdD380p7py7/qb0pBZw1eptMCg9vwdsuin6tDOy7L9ZxIEVHKxaOojsvt2exR4u5nVpdPPpjmH07j8CP6XSQX+gyFscJ5Jou6Iazy9tVL/sDj3o=
-
