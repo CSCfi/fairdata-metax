@@ -9,7 +9,7 @@ branches:
 cache: pip
 env:
   global:
-  - DJANGO_SETTINGS_MODULE="$TRAVIS_BUILD_DIR/src/metax_api/settings.py"
+  - DJANGO_SETTINGS_MODULE="settings.py"
 addons:
   postgresql: '9.6'
 services:
@@ -28,7 +28,16 @@ install:
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
 script: true
+#- flake8 .
+#- python manage.py makemigrations
+#- python manage.py migrate
+#- python manage.py populate_history --auto
+#- python manage.py loaddata resources/data/test_data.json
+- python manage.py test
+#- coverage run manage.py test metax-api
 after_success:
+- ./.travis-deploy.sh
+after_failure:
 - ./.travis-deploy.sh
 notifications:
   flowdock:
