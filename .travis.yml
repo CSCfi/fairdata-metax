@@ -22,23 +22,21 @@ before_install:
 - eval "$(ssh-agent -s)"
 - ssh-add ~/.ssh/id_rsa
 install:
-- sudo pip install ansible
+- pip install ansible
 - pip install -r requirements.txt
 - sudo service postgresql restart
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
-script:
+script: true
 #- flake8 .
 #- python manage.py makemigrations
 #- python manage.py migrate
 #- python manage.py populate_history --auto
 #- python manage.py loaddata resources/data/test_data.json
-- python manage.py test
+#- python manage.py test
 #- coverage run manage.py test metax-api
 after_success:
-- ./.travis-deploy.sh
-after_failure:
-- ./.travis-deploy.sh
+- $TRAVIS_BUILD_DIR/.travis-deploy.sh
 notifications:
   flowdock:
     secure: jhiaL7JtDydpDMc/N5KNqBoDyS0rOBA+RsN+O5K3byi8B8TPVqsZjoO90RLbAm4prJOUgerRnVGDLTFWsb6RChuHTpqoctNFOQwcXheNOJjob8u94o2ENC/yYBQ56fPVKvAy6IXpND2KPXX92DoPxE0UXntGIk88/E+OcBfg7ohnUMzGImHzEGUd1z7iTV+JCHAmdrrmvQydYK7PQIa3jPPOCdgN7zQGWFSImiljbXd/2Q6xKuTue80kbGxlRIEVEm1sKzPRim3HDPYsmk+K8BQvfpjzlbMO9rhlxiOzyr6SfZaEQFVlZ7QLPj/SilguZc75/xp/2PenrO2V8uCdjBlAhLLFhdDHF2dONZ+8RmawOaPe+4DAQaPXlCepc79xI0HqxFGJ6Sh+deK67Ehk0uUIOavxSUF7cOfJjO3QupH2WOQVcUb/iyYkNuXRcBmd20zY0QSjX8Yy6WZqz66OHBrVKOX91bATUrAoIfZpzsWfJoo0/kJ0ap4Pq6VUujT9M1/z7vYCf6ybB3sedzvJy6N/sb56aZuRjKT2l3IFU0vFDkLM3YebaBkCvoTsnjtHu/CUXg8xiuPloctDBaJmkLO7UxIld7cvV6ZUl53WGZHPYjy2xjPR5KozXDLmkp4OmF7rqlO8RuhK/rZiy2JzFxV4b0PKrxlSWcab9/ouB3Y=
