@@ -16,6 +16,10 @@ services:
 - postgresql
 before_install:
 - openssl aes-256-cbc -K $encrypted_596a6d1c4f83_key -iv $encrypted_596a6d1c4f83_iv -in deploy-key.enc -out deploy-key -d
+- rm deploy-key.enc # Don't need it anymore
+- chmod 600 deploy-key
+- mv deploy-key ~/.ssh/id_rsa
+#- ssh-add ~/.ssh/id_rsa
 install:
 - sudo pip install ansible
 - pip install -r requirements.txt
@@ -27,4 +31,4 @@ after_success:
 - ./.travis-deploy.sh
 notifications:
   flowdock:
-    secure: knEJ+vdnX/bocuR+qxXlU7EwyjuhUZX9RMEx4BPNy6eILCb1gUbDodzg+PgWKn+7feLLLhizkcBi5inZ8nzwfeMFkWEHAfKESq2ameYuXCKur1E9T9w8g9GIuxPamxgtIiC+ZOoeYrX2nwKXf2YwkBVeoavsldr4Tpx/6k7p2YPaRaJfLPxpmCsXwmyxdTtp0Q1J7gfdxEAlIwNxZxK1fkGT+JMHa7Q5CcXNijvyrXltb8ncgBrEYoUrmXZTCeSeRdkD+qxjMchc5l/pJ3xLRTe3jkrqM7ECLpA4fSkLmn/DuoHNKc7pzEtCznr4KRegA6Fejo2gIbY+iqxR83ha7N204dkW/3sgwWZtx14GW7VGEV/48sGwrfaLf6FL5aIqd1L7qi8V2bzrVMNxsC/5N59LFOEWAhiczJ7tPn2QW+dGVlKoFFQbZmfyRbu8gxuo5USuCdNwTryVfv0qXk8nfCqtRiqsYvVUEvj0F7Q4zPjaOWgm0+oetzgGCLAR+NRzs+aYwvghV+4144vivlAIJgGt1zTytT/WADHNno7dHOT/oHCUCWBqxzLlneM8KdD380p7py7/qb0pBZw1eptMCg9vwdsuin6tDOy7L9ZxIEVHKxaOojsvt2exR4u5nVpdPPpjmH07j8CP6XSQX+gyFscJ5Jou6Iazy9tVL/sDj3o=
+    secure: jhiaL7JtDydpDMc/N5KNqBoDyS0rOBA+RsN+O5K3byi8B8TPVqsZjoO90RLbAm4prJOUgerRnVGDLTFWsb6RChuHTpqoctNFOQwcXheNOJjob8u94o2ENC/yYBQ56fPVKvAy6IXpND2KPXX92DoPxE0UXntGIk88/E+OcBfg7ohnUMzGImHzEGUd1z7iTV+JCHAmdrrmvQydYK7PQIa3jPPOCdgN7zQGWFSImiljbXd/2Q6xKuTue80kbGxlRIEVEm1sKzPRim3HDPYsmk+K8BQvfpjzlbMO9rhlxiOzyr6SfZaEQFVlZ7QLPj/SilguZc75/xp/2PenrO2V8uCdjBlAhLLFhdDHF2dONZ+8RmawOaPe+4DAQaPXlCepc79xI0HqxFGJ6Sh+deK67Ehk0uUIOavxSUF7cOfJjO3QupH2WOQVcUb/iyYkNuXRcBmd20zY0QSjX8Yy6WZqz66OHBrVKOX91bATUrAoIfZpzsWfJoo0/kJ0ap4Pq6VUujT9M1/z7vYCf6ybB3sedzvJy6N/sb56aZuRjKT2l3IFU0vFDkLM3YebaBkCvoTsnjtHu/CUXg8xiuPloctDBaJmkLO7UxIld7cvV6ZUl53WGZHPYjy2xjPR5KozXDLmkp4OmF7rqlO8RuhK/rZiy2JzFxV4b0PKrxlSWcab9/ouB3Y=
