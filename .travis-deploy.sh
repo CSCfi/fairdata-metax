@@ -1,7 +1,7 @@
 #!/bin/bash -xeu
 
 # Run as the after_success step of a travis build.
-
+echo $TRAVIS_BRANCH
 if [[ "$TRAVIS_BRANCH" == "dev" ]]; then
     git clone https://github.com/CSCfi/metax-ops
     cd metax-ops/ansible/ && ansible-playbook -vv -i environments/development deploy.yml
