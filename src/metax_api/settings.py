@@ -12,21 +12,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
-"""
-The following uses the 'TRAVIS' (== True) environment variable on Travis
-to detect the session, and changes the default database accordingly.
-"""
-if os.getenv('TRAVIS', None):
-    DATABASES = {
-        'default': {
-            'ENGINE':   'django.db.backends.postgresql_psycopg2',
-            'NAME':     'metax_db_test',
-            'USER':     'metax_test',
-            'PASSWORD': '',
-            'HOST':     'localhost'
-        }
-    }
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -110,16 +95,31 @@ WSGI_APPLICATION = 'metax_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('METAX_DATABASE', 'metax_db'),
-        'USER': os.getenv('METAX_DATABASE_USER', 'metax_user'),
-        'PASSWORD': os.getenv('METAX_DATABASE_PASSWORD', 'YMDLekQMqrVKcs37'),
-        'HOST': os.getenv('METAX_DATABASE_HOST', 'localhost'),
-        'PORT': ''
+"""
+The following uses the 'TRAVIS' (== True) environment variable on Travis
+to detect the session, and changes the default database accordingly.
+"""
+if os.getenv('TRAVIS', None):
+    DATABASES = {
+        'default': {
+            'ENGINE':   'django.db.backends.postgresql_psycopg2',
+            'NAME':     'metax_db_test',
+            'USER':     'metax_test',
+            'PASSWORD': '',
+            'HOST':     'localhost'
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv('METAX_DATABASE', 'metax_db'),
+            'USER': os.getenv('METAX_DATABASE_USER', 'metax_user'),
+            'PASSWORD': os.getenv('METAX_DATABASE_PASSWORD', 'YMDLekQMqrVKcs37'),
+            'HOST': os.getenv('METAX_DATABASE_HOST', 'localhost'),
+            'PORT': ''
+        }
+    }
 
 
 # Password validation
