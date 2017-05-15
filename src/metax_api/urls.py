@@ -23,6 +23,9 @@ from metax_api.api.base.router import api_urlpatterns as api_v1
 urlpatterns = [
     url(r'^schema/$', get_schema_view(title='Metax API')),
     url(r'^swagger/$', get_swagger_view(title='Metax API')),
+
+    # root of the api should always use the newest version
+    url(r'^rest/', include(api_v1)),
     url(r'^rest/v1/', include(api_v1)),
 ]
 
