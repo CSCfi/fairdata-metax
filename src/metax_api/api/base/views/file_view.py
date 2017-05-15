@@ -2,7 +2,7 @@ from rest_framework import authentication, permissions
 from rest_framework.viewsets import ModelViewSet
 
 from metax_api.models import File
-from metax_api.serializers import FileSerializer
+from ..serializers import FileSerializer
 
 # import logging
 # d = logging.getLogger(__name__).debug
