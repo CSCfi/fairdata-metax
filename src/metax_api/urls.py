@@ -15,10 +15,14 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 # from django.contrib import admin
+from rest_framework.schemas import get_schema_view
+from rest_framework_swagger.views import get_swagger_view
 
 from metax_api.api.base.router import api_urlpatterns as api_v1
 
 urlpatterns = [
+    url(r'^schema/$', get_schema_view(title='Metax API')),
+    url(r'^swagger/$', get_swagger_view(title='Metax API')),
     url(r'^rest/v1/', include(api_v1)),
 ]
 
