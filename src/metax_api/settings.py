@@ -144,16 +144,26 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fi-FI'
 
 TIME_ZONE = 'Europe/Helsinki'
 
+# A boolean that specifies whether Django’s translation system should
+# be enabled. This provides an easy way to turn it off, for performance.
+# If this is set to False, Django will make some optimizations so as not
+# to load the translation machinery.
 USE_I18N = True
 
-USE_L10N = True
+# A boolean that specifies if localized formatting of data will
+# be enabled by default or not. If this is set to True,
+# e.g. Django will display numbers and dates using the format
+# of the current locale.
+USE_L10N = False
 
-USE_TZ = True
-
+# A boolean that specifies if datetimes will be timezone-aware by default
+# or not. If this is set to True, Django will use timezone-aware datetimes
+# internally. Otherwise, Django will use naive datetimes in local time.
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
