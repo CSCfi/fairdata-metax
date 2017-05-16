@@ -3,37 +3,33 @@ language: python
 python: 3.5.1
 branches:
   only:
-  - dev
   - staging
+  - stable
   - master
 cache: pip
-env:
-  global:
-  - DJANGO_SETTINGS_MODULE="settings.py"
 addons:
   postgresql: '9.6'
 services:
 - postgresql
-before_install:
-- openssl aes-256-cbc -K $encrypted_596a6d1c4f83_key -iv $encrypted_596a6d1c4f83_iv -in deploy-key.enc -out deploy-key -d
-- rm deploy-key.enc
-- chmod 600 deploy-key
-- mv deploy-key ~/.ssh/id_rsa
-- eval "$(ssh-agent -s)"
-- ssh-add ~/.ssh/id_rsa
+# before_install:
+# - openssl aes-256-cbc -K $encrypted_596a6d1c4f83_key -iv $encrypted_596a6d1c4f83_iv -in deploy-key.enc -out deploy-key -d
+# - rm deploy-key.enc
+# - chmod 600 deploy-key
+# - mv deploy-key ~/.ssh/id_rsa
+# - eval "$(ssh-agent -s)"
+# - ssh-add ~/.ssh/id_rsa
 install:
 - pip install ansible
 - pip install -r requirements.txt
 - sudo service postgresql restart
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
-script: true
-#- flake8 .
-#- python manage.py makemigrations
-#- python manage.py migrate
-#- python manage.py populate_history --auto
-#- python manage.py loaddata resources/data/test_data.json
-#- python manage.py test
+script:
+- cd src
+- flake8 .
+- python manage.py makemigrations metax_api
+- python manage.py migrate metax_api
+- python manage.py test
 #- coverage run manage.py test metax-api
 after_success:
 - $TRAVIS_BUILD_DIR/.travis-deploy.sh
