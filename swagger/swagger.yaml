@@ -27,13 +27,10 @@ paths:
           type: string
         - name: fields
           in: query
-          description: fields to return
+          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
           required: false
-          type: array
-          items:
-            type: string
-          default:
-            - PID
+          type: string
+          default: PID
         - name: offset
           in: query
           description: offset for paging
@@ -112,7 +109,47 @@ paths:
           description: successful operation, no content returned
       tags:
         - File API
-
+  /files/{PID}/XML:
+    get:
+      summary: get XML metadata from file
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: Namespace of the schema
+          required: true
+          type: string
+      responses:
+        '200':
+          description: XML returned
+        '404':
+          description: not defined
+      tags:
+        - File API
+    put:
+      summary: replace XML metadata
+      parameters:
+        - name: PID
+          in: path
+          description: persistent ID of file
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: namespace of the schema
+          required: true
+          type: string
+      responses:
+        '204':
+          description: XML saved
+        '404':
+          description: file does not exist
+      tags:
+        - File API
   /directories/{path}:
     get:
       summary: get list of PIDs in directory
@@ -165,38 +202,22 @@ paths:
     get:
       summary: "list datasets"
       parameters:
-        - name: creator
-          in: query
-          description: filter by dataset creator (user ID)
-          required: false
-          type: string
         - name: owner
           in: query
-          description: filter by dataset owner ID (user, organization or group)
+          description: owner organization ID
           required: false
           type: string
         - name: state
           in: query
-          description: TPAS state (proposed for midterm PAS / proposed for longterm PAS / in packaging / in dissemination / in midterm PAS / in longterm PAS). Multiple values are combined using OR logic, e.g. state=midterm,longterm
-          required: false
-          type: array
-          items:
-            type: string
-        - name: modifiedSince
-          in: query
-          description: return only datasets that have been modified (or created) since the given timestamp
+          description: TPAS state (proposed for midterm PAS / proposed for longterm PAS / in packaging / in dissemination / in midterm PAS / in longterm PAS). Multiple states using OR-logic should be queriable in the same request, e.g. state=midterm,longterm (if comma is agreed as the OR-operator).
           required: false
           type: string
-          format: dateTime
         - name: fields
           in: query
-          description: fields to return
+          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
           required: false
-          type: array
-          items:
-            type: string
-          default:
-            - PID
+          type: string
+          default: PID
         - name: offset
           in: query
           description: offset for paging
@@ -231,17 +252,9 @@ paths:
           description: Persistent ID of dataset
           required: true
           type: string
-        - name: If-Modified-Since
-          in: header
-          description: Only return the full resource if it has changed since the given timestamp
-          required: false
-          type: string
-          format: dateTime
       responses:
         '200':
           description: return dataset metadata (including total size of files)
-        '304':
-          description: the resource has not been modified since the timestamp given in the If-Modified-Since header
       tags:
         - Dataset API
     put:
@@ -252,19 +265,9 @@ paths:
           description: Persistent ID of dataset
           required: true
           type: string
-        - name: If-Unmodified-Since
-          in: header
-          description: timestamp of the original resource that the new resource is based on
-          required: true
-          type: string
-          format: dateTime
       responses:
         '204':
           description: successful operation, no content returned
-        '412':
-          description: the timestamp in the If-Unmodified-Since header does not match the equivalent timestamp within MetaX, indicating that it is based on an outdated version
-        '428':
-          description: If-Unmodified-Since header was not provided even though it is required
       tags:
         - Dataset API
     patch:
@@ -318,15 +321,6 @@ paths:
           description: Persistent ID of dataset
           required: true
           type: string
-        - name: fields
-          in: query
-          description: fields to return
-          required: false
-          type: array
-          items:
-            type: string
-          default:
-            - PID
         - name: offset
           in: query
           description: offset for paging
@@ -377,74 +371,6 @@ paths:
           description: successful operation, return feedback object
       tags:
         - Dataset API
-  /datasets/{PID}/usage:
-    get:
-      summary: get usage descriptions for a dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset
-          required: true
-          type: string
-        - name: fields
-          in: query
-          description: fields to return
-          required: false
-          type: array
-          items:
-            type: string
-          default:
-            - PID
-        - name: offset
-          in: query
-          description: offset for paging
-          required: false
-          type: integer
-        - name: limit
-          in: query
-          description: limit for paging
-          required: false
-          type: integer
-          default: 100
-      responses:
-        '200':
-          description: successful operation, return usage descriptions
-      tags:
-        - Dataset API
-    post:
-      summary: create new usage for dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset
-          required: true
-          type: string
-      consumes:
-        - application/json
-      responses:
-        '201':
-          description: new usage description created, return Location with the new URL containing usage ID
-      tags:
-        - Dataset API
-  /datasets/{PID}/usage/{ID}:
-    get:
-      summary: get a single usage description for a dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset
-          required: true
-          type: string
-        - name: ID
-          in: path
-          description: ID of usage object
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, return usage description
-      tags:
-        - Dataset API
 
 
 # Contract API
@@ -457,15 +383,6 @@ paths:
           description: organization ID
           required: false
           type: string
-        - name: fields
-          in: query
-          description: fields to return
-          required: false
-          type: array
-          items:
-            type: string
-          default:
-            - PID
         - name: offset
           in: query
           description: offset for paging
