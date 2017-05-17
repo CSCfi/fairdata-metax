@@ -12,21 +12,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
-"""
-The following uses the 'TRAVIS' (== True) environment variable on Travis
-to detect the session, and changes the default database accordingly.
-"""
-if os.getenv('TRAVIS', None):
-    DATABASES = {
-        'default': {
-            'ENGINE':   'django.db.backends.postgresql_psycopg2',
-            'NAME':     'metax_db_test',
-            'USER':     'metax_test',
-            'PASSWORD': '',
-            'HOST':     'localhost'
-        }
-    }
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -35,12 +20,23 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if "METAX_ENVIRONMENT" in os.environ:
+    #CSRF_COOKIE_SECURE = True
+    #SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    #SECURE_SSL_REDIRECT = True
+    #SESSION_COOKIE_SECURE = True
 
-ALLOWED_HOSTS = []
+    if os.environ['METAX_ENVIRONMENT'] == 'development':
+        DEBUG = True
+    elif os.environ['METAX_ENVIRONMENT'] == 'staging':
+        DEBUG = True
+    elif os.environ['METAX_ENVIRONMENT'] == 'production':
+        DEBUG = False
+else: # local development environment
+    DEBUG = True
 
 
 # Application definition
@@ -53,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'metax_api',
+    'rest_framework',
+    'rest_framework_swagger',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +62,14 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 ROOT_URLCONF = 'metax_api.urls'
 
@@ -89,16 +95,31 @@ WSGI_APPLICATION = 'metax_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'metax_db',
-        'USER': 'metax_user',
-        'PASSWORD': 'metax_api',
-        'HOST': 'localhost',
-        'PORT': '',
+"""
+The following uses the 'TRAVIS' (== True) environment variable on Travis
+to detect the session, and changes the default database accordingly.
+"""
+if os.getenv('TRAVIS', None):
+    DATABASES = {
+        'default': {
+            'ENGINE':   'django.db.backends.postgresql_psycopg2',
+            'NAME':     'metax_db_test',
+            'USER':     'metax_test',
+            'PASSWORD': '',
+            'HOST':     'localhost'
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv('METAX_DATABASE', 'metax_db'),
+            'USER': os.getenv('METAX_DATABASE_USER', 'metax_user'),
+            'PASSWORD': os.getenv('METAX_DATABASE_PASSWORD', 'YMDLekQMqrVKcs37'),
+            'HOST': os.getenv('METAX_DATABASE_HOST', 'localhost'),
+            'PORT': ''
+        }
+    }
 
 
 # Password validation
@@ -123,20 +144,31 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fi-FI'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Helsinki'
 
+# A boolean that specifies whether Django’s translation system should
+# be enabled. This provides an easy way to turn it off, for performance.
+# If this is set to False, Django will make some optimizations so as not
+# to load the translation machinery.
 USE_I18N = True
 
-USE_L10N = True
+# A boolean that specifies if localized formatting of data will
+# be enabled by default or not. If this is set to True,
+# e.g. Django will display numbers and dates using the format
+# of the current locale.
+USE_L10N = False
 
-USE_TZ = True
-
+# A boolean that specifies if datetimes will be timezone-aware by default
+# or not. If this is set to True, Django will use timezone-aware datetimes
+# internally. Otherwise, Django will use naive datetimes in local time.
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+# same dir as manage.py
+STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
