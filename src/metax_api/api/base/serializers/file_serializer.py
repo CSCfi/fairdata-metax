@@ -5,4 +5,4 @@ class FileSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = File
-        fields = ('id', 'file_name', )
+        fields = ('id', 'file_name', 'json')
