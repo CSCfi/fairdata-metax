@@ -153,17 +153,6 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "technicalMetadata":{
-                    "title":"Technical metadata",
-                    "description":"Technical metadata in certain format",
-                    "@id":"http://iow.csc.fi/ns/mfs#technicalmetadata",
-                    "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/XMLMetadata"
-                    }
-                },
                 "checksum":{
                     "title":"checksum",
                     "description":"Checksum of the file",
