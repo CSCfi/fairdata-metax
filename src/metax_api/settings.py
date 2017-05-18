@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
+import logging.config
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -37,7 +38,6 @@ if "METAX_ENVIRONMENT" in os.environ:
         DEBUG = False
 else: # local development environment
     DEBUG = True
-
 
 # Application definition
 
@@ -121,6 +121,63 @@ else:
         }
     }
 
+"""
+Logging rules:
+- Django DEBUG enabled: Print everything from logging level DEBUG and up, to
+both console, and log file.
+- Django DEBUG disabled: Print everything from logging level INFO and up, only
+to log file.
+"""
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(name)s %(levelname)s: %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+        'debug': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/metax_api/metax_api.log',
+            'formatter': 'standard',
+            'filters': ['require_debug_true'],
+        },
+        'general': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/metax_api/metax_api.log',
+            'formatter': 'standard',
+            'filters': ['require_debug_false'],
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['general', 'console', 'debug'],
+        },
+        'metax_api': {
+            'handlers': ['general', 'console', 'debug'],
+        }
+    }
+}
+
+logger = logging.getLogger('metax_api')
+logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
