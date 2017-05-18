@@ -3,8 +3,6 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.api.base.serializers import FileSerializer
-
 class ReadFilesTest(APITestCase):
 
     def setUp(self):

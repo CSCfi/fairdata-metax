@@ -1,5 +1,3 @@
-from rest_framework import authentication, permissions
-
 from metax_api.models import File
 from .common_view import CommonViewSet
 from ..serializers import FileSerializer
