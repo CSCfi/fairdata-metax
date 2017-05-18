@@ -3,6 +3,7 @@ language: python
 python: 3.5.1
 branches:
   only:
+  - playground
   - staging
   - stable
   - master
@@ -29,8 +30,8 @@ script:
 - flake8 .
 - python manage.py makemigrations metax_api
 - python manage.py migrate metax_api
-- python manage.py test
-#- coverage run manage.py test metax-api
+- coverage run --source="." manage.py test metax_api
+- COVERALLS_REPO_TOKEN=$coveralls_token coveralls
 after_success:
 - $TRAVIS_BUILD_DIR/.travis-deploy.sh
 notifications:
