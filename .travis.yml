@@ -25,6 +25,7 @@ install:
 - sudo service postgresql restart
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
+- mkdir /var/log/metax_api
 script:
 - cd src
 - flake8 .
