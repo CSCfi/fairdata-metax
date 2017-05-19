@@ -30,13 +30,13 @@ if "METAX_ENVIRONMENT" in os.environ:
     #SECURE_SSL_REDIRECT = True
     #SESSION_COOKIE_SECURE = True
 
-    if os.environ['METAX_ENVIRONMENT'] == 'development':
+    if os.environ['METAX_ENVIRONMENT'] == 'staging':
         DEBUG = True
-    elif os.environ['METAX_ENVIRONMENT'] == 'staging':
+    elif os.environ['METAX_ENVIRONMENT'] == 'stable':
         DEBUG = True
     elif os.environ['METAX_ENVIRONMENT'] == 'production':
         DEBUG = False
-else: # local development environment
+else: # local development environment or cloud playground
     DEBUG = True
 
 # Application definition

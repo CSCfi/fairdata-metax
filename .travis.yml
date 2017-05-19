@@ -12,13 +12,13 @@ addons:
   postgresql: '9.6'
 services:
 - postgresql
-# before_install:
-# - openssl aes-256-cbc -K $encrypted_596a6d1c4f83_key -iv $encrypted_596a6d1c4f83_iv -in deploy-key.enc -out deploy-key -d
-# - rm deploy-key.enc
-# - chmod 600 deploy-key
-# - mv deploy-key ~/.ssh/id_rsa
-# - eval "$(ssh-agent -s)"
-# - ssh-add ~/.ssh/id_rsa
+ before_install:
+ - openssl aes-256-cbc -K $encrypted_596a6d1c4f83_key -iv $encrypted_596a6d1c4f83_iv -in deploy-key.enc -out deploy-key -d
+ - rm deploy-key.enc
+ - chmod 600 deploy-key
+ - mv deploy-key ~/.ssh/id_rsa
+ - eval "$(ssh-agent -s)"
+ - ssh-add ~/.ssh/id_rsa
 install:
 - pip install ansible
 - pip install -r requirements.txt
