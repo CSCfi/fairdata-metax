@@ -3,7 +3,6 @@ language: python
 python: 3.5.1
 branches:
   only:
-  - playground
   - staging
   - stable
   - master
@@ -25,6 +24,8 @@ install:
 - sudo service postgresql restart
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
+- sudo mkdir /var/log/metax_api
+- sudo chown -R $USER:$USER /var/log/metax_api
 script:
 - cd src
 - flake8 .
