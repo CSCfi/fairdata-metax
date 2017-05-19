@@ -154,14 +154,14 @@ LOGGING = {
         'debug': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/var/log/metax_api/metax_api.log',
+            'filename': '/var/log/metax-api/metax_api.log',
             'formatter': 'standard',
             'filters': ['require_debug_true'],
         },
         'general': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': '/var/log/metax_api/metax_api.log',
+            'filename': '/var/log/metax-api/metax_api.log',
             'formatter': 'standard',
             'filters': ['require_debug_false'],
         }
