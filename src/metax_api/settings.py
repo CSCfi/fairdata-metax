@@ -114,7 +114,7 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': os.getenv('METAX_DATABASE', 'metax_db'),
-            'USER': os.getenv('METAX_DATABASE_USER', 'metax_user'),
+            'USER': os.getenv('METAX_DATABASE_USER', 'metax_db_user'),
             'PASSWORD': os.getenv('METAX_DATABASE_PASSWORD', 'YMDLekQMqrVKcs37'),
             'HOST': os.getenv('METAX_DATABASE_HOST', 'localhost'),
             'PORT': ''
