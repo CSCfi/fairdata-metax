@@ -121,6 +121,8 @@ else:
         }
     }
 
+DATABASES['default']['ATOMIC_REQUESTS'] = True
+
 """
 Logging rules:
 - Django DEBUG enabled: Print everything from logging level DEBUG and up, to
