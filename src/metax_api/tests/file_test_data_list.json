@@ -1,0 +1,4457 @@
+[
+    {
+        "model": "metax_api.file",
+        "pk": "6253027c-6740-4fcb-ae91-3adc0db0efce",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000001",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000001.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000001.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000001",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000001"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "9778fdc7-4a62-4536-b78a-89b2edf53bfc",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000002",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000002.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000002.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000002",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000002"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "4d9bbf97-25fe-4c64-9a81-ddc360fc76ba",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000003",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000003.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000003.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000003",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000003"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "dd8c3b88-a2c4-491d-ac0b-4455eb4685ea",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000004",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000004.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000004.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000004",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000004"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "6886d3ce-d751-4add-b2b5-254a0bd41298",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000005",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000005.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000005.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000005",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000005"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "e9bacc7f-9808-4f0b-81b2-06e26068dfda",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000006",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000006.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000006.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000006",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000006"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "9172252b-a4ad-440e-9db4-7c84f31287c3",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000007",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000007.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000007.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000007",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000007"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "2a469217-e159-47d7-ab98-db69585d9015",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000008",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000008.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000008.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000008",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000008"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "47a710b6-126f-427f-82bc-84dad8f8910b",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000009",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000009.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000009.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000009",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000009"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "e011af41-6937-44bf-9151-3e4272f53cc4",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000010",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000010.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000010.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000010",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000010"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "0e9a0401-b171-4e48-a566-4676ed4aad8d",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000011",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000011.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000011.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000011",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000011"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "c19bdfc6-2842-4b13-adc2-0444a401e35d",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000012",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000012.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000012.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000012",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000012"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "d1e2804b-7630-46db-a93f-6d0d70bcc795",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000013",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000013.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000013.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000013",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000013"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "b26e146b-4171-434f-a131-62d93d81788b",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000014",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000014.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000014.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000014",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000014"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "696ceae2-22e5-4efc-8f69-4b11553b8ad4",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000015",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000015.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000015.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000015",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000015"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "b59d98a8-e7d1-41e1-8d94-cb430be31ce4",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000016",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000016.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000016.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000016",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000016"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "74f8979e-a55a-40e4-8bd1-0e1e1d260229",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000017",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000017.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000017.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000017",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000017"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "a61b1d1b-5446-41a2-b8a5-3e2dbe5505a8",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000018",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000018.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000018.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000018",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000018"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "0b22bd1a-ed25-45be-b320-8b34ac5aa098",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000019",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000019.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000019.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000019",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000019"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "23971228-7a0a-47d7-902b-559857dd51be",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000020",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000020.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000020.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000020",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000020"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "356e9401-5665-4ea5-98fa-c2ee605875a9",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000021",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000021.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000021.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000021",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000021"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "51acbce4-ba3e-4723-b729-b85d7ed3d5cd",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000022",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000022.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000022.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000022",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000022"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "8d99e840-0062-49c4-896f-98742614cf77",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000023",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000023.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000023.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000023",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000023"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "2cf68f9b-a790-4979-85eb-c130a09ac43b",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000024",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000024.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000024.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000024",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000024"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "cf2df5e4-5987-4651-b3f9-f1b9e14d85dc",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000025",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000025.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000025.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000025",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000025"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "8e99f5bf-14e3-421a-9718-6f9d8b950b53",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000026",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000026.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000026.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000026",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000026"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "02139d47-162e-4529-8460-6e92b6549f3f",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000027",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000027.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000027.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000027",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000027"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "2cc034a2-c378-4aae-bf3f-d1175c200b34",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000028",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000028.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000028.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000028",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000028"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "0232524d-2cbe-47fa-b611-4003d1b81110",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000029",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000029.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000029.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000029",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000029"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "affbc707-7ae3-44c3-9e76-6cc6581c2e07",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000030",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000030.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000030.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000030",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000030"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "a5ed5979-3562-43d9-9b7e-af521518a718",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000031",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000031.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000031.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000031",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000031"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "3a3d63da-799e-4f0f-bdff-62cba8cf93bd",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000032",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000032.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000032.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000032",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000032"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "c413f350-6b89-4582-9977-d7c7a940f216",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000033",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000033.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000033.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000033",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000033"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "adef7abf-13ab-4465-a3f1-dfba75a66843",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000034",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000034.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000034.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000034",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000034"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "c61260e9-5ee4-4a3b-a03f-3e61e85dd052",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000035",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000035.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000035.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000035",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000035"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "09da5e86-47bf-4926-a77b-7a554fd6acd4",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000036",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000036.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000036.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000036",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000036"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "0bcbeb0d-d191-499c-ac3e-4d04c9a355e1",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000037",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000037.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000037.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000037",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000037"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "b7e4d13b-1cd6-45ad-a2cf-a3d2b9ab9a30",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000038",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000038.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000038.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000038",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000038"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "5a2d43a4-cc7a-4e60-82ac-0eca3394037f",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000039",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000039.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000039.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000039",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000039"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "53dd9e63-b4bd-4686-ad03-384afbd4bbc0",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000040",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000040.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000040.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000040",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000040"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "4d179e46-dca4-41c1-97cc-4003c40cd235",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000041",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000041.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000041.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000041",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000041"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "3d00c72e-2ee7-49d4-aeb5-ac559e70b135",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000042",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000042.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000042.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000042",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000042"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "1c37b9ee-1c5a-4004-b319-34a9beadbfbf",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000043",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000043.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000043.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000043",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000043"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "a4642a17-b3bc-474b-92d2-bde569607fa6",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000044",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000044.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000044.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000044",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000044"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "2f697826-adee-43ea-a0ef-efcd3b6da2d2",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000045",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000045.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000045.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000045",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000045"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "bd54a030-7753-4b3b-abe2-8f8dd7125370",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000046",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000046.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000046.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000046",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000046"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "37545180-0627-43f3-b355-646ae790e9c5",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000047",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000047.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000047.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000047",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000047"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "ff350240-a2ef-4f8e-8a02-c48f8d3cafd1",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000048",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000048.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000048.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000048",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000048"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "2671c0ac-9ab2-42f7-8aba-474f0b2b7624",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000049",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000049.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000049.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000049",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000049"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "4e6e1bed-05f9-4d3f-9c54-0538e1f5dff6",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000050",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000050.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000050.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000050",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000050"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "1878d850-e7f6-4d01-ae18-8db4cac14d4e",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000051",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000051.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000051.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000051",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000051"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "bf9085c1-88bd-4531-8255-94e5e692b3ac",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000052",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000052.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000052.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000052",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000052"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "1ba4200c-adca-45a7-88b7-dc1f2d8bed12",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000053",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000053.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000053.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000053",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000053"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "23482599-f8ea-4889-a3b8-c204758c18dd",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000054",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000054.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000054.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000054",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000054"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "49eea3d5-ec6f-4fcd-8a5d-902a22875f44",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000055",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000055.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000055.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000055",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000055"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "af990e08-d3bc-4157-b1e5-95aa8462c24c",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000056",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000056.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000056.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000056",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000056"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "3e25d244-df9e-4e81-abf2-3ab4cfb51e5b",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000057",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000057.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000057.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000057",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000057"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "37af3a0b-ed58-49fd-b84c-26d24fb4d778",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000058",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000058.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000058.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000058",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000058"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "a38da26a-e003-4c90-b0a2-9702ba1d4216",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000059",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000059.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000059.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000059",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000059"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "c6c2e398-e354-4cf9-bb3c-ce5258c50280",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000060",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000060.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000060.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000060",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000060"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "54f3ff2e-25b9-45e1-8389-562c4b2e00ea",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000061",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000061.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000061.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000061",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000061"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "94dbcefb-6b00-4807-8066-f09f992fb91d",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000062",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000062.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000062.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000062",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000062"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "604fe209-8b96-4f42-aa64-bb799dd7261f",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000063",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000063.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000063.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000063",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000063"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "ecd92fc0-7d08-48c9-9961-959190050516",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000064",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000064.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000064.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000064",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000064"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "2280d71e-4579-469d-9e6c-327e70a29e45",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000065",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000065.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000065.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000065",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000065"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "ec5948a9-4b09-4299-9dce-16bb3f178109",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000066",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000066.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000066.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000066",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000066"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "43ca6fcd-0416-490c-b1c5-e144d2c1085e",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000067",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000067.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000067.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000067",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000067"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "1ee2f00c-d237-44a2-b049-ec1c3593767e",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000068",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000068.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000068.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000068",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000068"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "1f8ccd3f-8ba5-45d4-9932-8eb6e5d0b5a7",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000069",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000069.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000069.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000069",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000069"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "5428fd25-f806-48af-85d9-3ad2baff9627",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000070",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000070.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000070.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000070",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000070"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "bc14f087-b779-4f80-94b6-85dcd60c54c9",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000071",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000071.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000071.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000071",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000071"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "0fc876f3-97bc-4d61-b343-3b7f55faf9e5",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000072",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000072.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000072.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000072",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000072"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "66175ea1-4c4e-4352-863f-4a24888ae8f9",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000073",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000073.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000073.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000073",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000073"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "43034195-9fba-4923-b069-86b8a0c25f14",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000074",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000074.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000074.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000074",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000074"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "225c366e-b5d8-496d-aa67-e6eaf1e2e59f",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000075",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000075.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000075.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000075",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000075"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "54c14737-6492-47a8-a7f5-a7543b4a2dc8",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000076",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000076.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000076.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000076",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000076"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "1b5e79a5-df84-4a17-a484-653013a6f0c3",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000077",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000077.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000077.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000077",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000077"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "2120beba-5d61-4e39-b464-3efd847267ca",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000078",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000078.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000078.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000078",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000078"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "793fb0e2-77d5-44c1-8eb1-2348f822361a",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000079",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000079.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000079.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000079",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000079"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "b12c56cb-f322-4902-9a4e-a908049c83a3",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000080",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000080.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000080.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000080",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000080"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "dfd0a3e2-9e43-42e5-ae15-ea36abce582b",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000081",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000081.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000081.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000081",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000081"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "12437e96-64e4-4748-b149-8709a2422526",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000082",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000082.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000082.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000082",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000082"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "7b4b1a2e-f224-41fd-a75c-f328b227737f",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000083",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000083.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000083.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000083",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000083"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "02a25b73-8c95-4409-b88d-eb86af173895",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000084",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000084.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000084.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000084",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000084"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "ee097eb1-5b1a-481d-bec2-58ece80ac3a7",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000085",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000085.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000085.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000085",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000085"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "61423bff-45d6-4d5a-8b7d-144c150143e1",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000086",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000086.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000086.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000086",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000086"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "b5721ac0-6ff5-40d6-a3a8-9839cdda6ccb",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000087",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000087.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000087.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000087",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000087"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "fe9a732f-927a-43be-96ea-d219bff677fd",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000088",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000088.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000088.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000088",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000088"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "23fa5bfd-98d2-4b1d-aa96-eb3cb5b07d1a",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000089",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000089.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000089.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000089",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000089"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "2735b6b9-c83e-4c0b-8145-feb8b1323942",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000090",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000090.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000090.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000090",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000090"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "493217c2-ac9d-427a-92bf-cd9bec79a052",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000091",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000091.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000091.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000091",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000091"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "6556753f-78ad-4b8e-86c8-7281b9c97d15",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000092",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000092.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000092.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000092",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000092"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "0374e842-dfa5-43c1-bfc3-c3da2a8102e3",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000093",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000093.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000093.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000093",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000093"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "723a63da-f02e-4ef2-8322-67b10b9653d7",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000094",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000094.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000094.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000094",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000094"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "28c19b4d-b69c-4889-b7b7-f239c4158a2e",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000095",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000095.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000095.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000095",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000095"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "628b20ba-7c39-4568-b8d4-947cf7a95889",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000096",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000096.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000096.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000096",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000096"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "a57a0ea0-cb56-4de6-bfc1-645158879c39",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000097",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000097.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000097.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000097",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000097"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "b2f93d2c-dc9d-4ad1-abbb-d9d9ccf2e101",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000098",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000098.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000098.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000098",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000098"
+            },
+            "open_access": false
+        }
+    },
+    {
+        "model": "metax_api.file",
+        "pk": "ee8a38c8-50a3-452d-9e13-70282c34bf4c",
+        "fields": {
+            "replication_path": "",
+            "file_path": "",
+            "byte_size": 0,
+            "file_format": "",
+            "file_name": "file_name_0000099",
+            "download_url": "",
+            "checksum_value": "",
+            "checksum_algorithm": "",
+            "file_modified": "2017-05-23T14:41:59.507392",
+            "created_by_api": "2017-05-23 10:07:22.559656+03",
+            "access_group": "",
+            "removed": false,
+            "checksum_checked": null,
+            "modified_by_api": "2017-05-23 10:07:22.559656+03",
+            "json": {
+                "isStoredTo": {
+                    "identifier": "https://avaa.tdata.fi/openida/",
+                    "url": "https://avaa.tdata.fi/openida/",
+                    "title": "UIDA"
+                },
+                "byteSize": "13551556",
+                "group": "sa123456",
+                "checksum": {
+                    "algorithm": "sha2",
+                    "checksumValue": "sha2:RPTdyuVFNcfEQMLcKrCwKYFlWwQf+8z+dFYsFEAhqUM=",
+                    "checksumchecked": "2017-01-17T08:19:31Z"
+                },
+                "fileName": "file_name_0000099.csv",
+                "modified": "2014-01-17T08:19:31Z",
+                "replicationPath": "file:/nfs/tape-1/sa/smear/data/smear/database/KUM/file_name_0000099.csv",
+                "optionalMetadata": {
+                    "fileCreated": "2014-01-17T08:19:31Z",
+                    "openaccess": true
+                },
+                "identifier": "urn:nbn:fi:csc-ida201401200000099",
+                "fileFormat": "text/csv",
+                "url": "https://avaa.tdata.fi/openida/dl.jsp?pid=urn:nbn:fi:csc-ida201401200000099"
+            },
+            "open_access": false
+        }
+    }
+]
