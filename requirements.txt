@@ -3,6 +3,8 @@ coreschema==0.0.4  # BSD-license
 coverage==4.4.1
 coveralls==1.1
 Django==1.11.1  # BSD-license
+django-redis-cache==1.7.1
+hiredis==0.2.0 # Used by django-redis-cache for parser class
 django-rest-swagger==2.1.2  # FreeBSD-license
 djangorestframework==3.6.2  # BSD-license
 django-simple-history==1.8.2  # BSD-license
