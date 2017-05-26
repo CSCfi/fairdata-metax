@@ -13,7 +13,11 @@ ignore =
     # no newline at end of file
     W292,
     # multiple spaces after ':'
-    E241
+    E241,
+    # whitespace before '}'
+    E202,
+    # whitespace before '{'
+    E201
 
 # often contains "unused" imports
 exclude = __init__.py
