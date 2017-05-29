@@ -7,7 +7,7 @@
     "type":"object",
     "allOf": [
         {
-            "$ref": "#/definitions/File"
+            "$ref": "#/definitions/FileCharacteristics"
         }
     ],
     "definitions":{
