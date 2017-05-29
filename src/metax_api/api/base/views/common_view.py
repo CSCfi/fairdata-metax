@@ -1,9 +1,9 @@
 from datetime import datetime
+from hashlib import sha256
 from json import load as json_load
-from jsonschema import validate as json_validate
 from os import path
 
-from django.core.exceptions import FieldDoesNotExist
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -25,83 +25,131 @@ class CommonViewSet(ModelViewSet):
     which include fields like modified and created timestamps, uuid, active flags etc.
     """
 
-    json_schema = False
-    validate_json_schema = False
+    # def retrieve(self, request, *args, **kwargs):
+    #     return super(CommonViewSet, self).retrieve(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        request = self._update_common_info(request)
-        if self.validate_json_schema:
-            self._do_validate_json_schema(request)
+        self._update_common_info(request)
         return super(CommonViewSet, self).update(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
-        request = self._update_common_info(request)
-        if self.validate_json_schema:
-            self._do_validate_json_schema(request)
+        self._update_common_info(request)
         return super(CommonViewSet, self).partial_update(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        request = self._update_common_info(request)
-        if self.validate_json_schema:
-            self._do_validate_json_schema(request)
-        return super(CommonViewSet, self).create(request, *args, **kwargs)
+        self._update_common_info(request)
+
+        is_many = isinstance(request.data, list)
+
+        if is_many:
+
+            # dont fail the entire request if only some inserts fail.
+            # successfully created rows are added to 'successful', and
+            # failed inserts are added to 'failed', with a related error message.
+            results = { 'successful': [], 'failed': []}
+
+            for row in request.data:
+
+                serializer = self.get_serializer(data=row)
+
+                try:
+                    serializer.is_valid(raise_exception=True)
+                except Exception as e:
+                    results['failed'].append({ 'object': row, 'error': serializer.errors, })
+                else:
+                    serializer.save()
+                    results['successful'].append(row)
+
+            if len(results['successful']):
+                # if even one insert was successful, general status of the request is success
+                http_status = status.HTTP_201_CREATED
+            else:
+                # only if all inserts have failed, return a general failure for the whole request
+                http_status = status.HTTP_400_BAD_REQUEST
+
+        else:
+            serializer = self.get_serializer(data=request.data)
+            try:
+                serializer.is_valid(raise_exception=True)
+            except Exception as e:
+                return Response({ 'object': request.data, 'error': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.save()
+            http_status = status.HTTP_201_CREATED
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(results if is_many else serializer.data, status=http_status, headers=headers)
 
     def destroy(self, request, *args, **kwargs):
-        """
-        Mark record as removed, never delete it completely.
-        """
-        request = self._update_common_info(request, delete=True)
-        request.data.update({ 'removed': True })
+        self._update_common_info(request)
+        return super(CommonViewSet, self).destroy(request, *args, **kwargs)
 
-        # filter is usually either json__identifier, if searching primarily from the model's json-field,
-        # or pk, if model does not contain a json-field, and search happens from standard id-field of the model.
-        filter = { self.lookup_field: kwargs[self.lookup_field] }
-        ser = self.serializer_class(self.queryset.filter(**filter).update(**request.data))
-        return Response(ser.data)
-
-    def _update_common_info(self, request, delete=False):
+    def _update_common_info(self, request):
         """
         Update fields common for all tables and most actions:
         - last modified timestamp and user
         - created on timestamp and user
-
-        flags:
-        - delete: Makes sure to update last modified timestamp as well, because
-        by default (django field options) it is updated only on regular update.
-
-        Note: returns request to be more obvious, even though request is
-        modified in-place as a reference
         """
         user_id = request.user.id or None
 
         if not user_id:
             _logger.warning("User id not set; unknown user")
 
-        if delete:
-            # delete
-            request.data.update({ 'modified_by_user_id': user_id, 'modified_by_api': datetime.now() })
-        elif request.data.get(self.lookup_field, False):
-            # update
-            request.data.update({ 'modified_by_user_id': user_id })
+        method = request.stream and request.stream.method or False
+        current_time = datetime.now()
+        common_info = {}
+
+        if method in ('PUT', 'PATCH', 'DELETE'):
+            common_info.update({
+                'modified_by_user_id': user_id,
+                'modified_by_api': current_time
+            })
+        elif method == 'POST':
+            common_info.update({
+                'created_by_user_id': user_id,
+                'created_by_api': current_time,
+            })
         else:
-            # create - lookup field was not present in request.data
-            request.data.update({ 'created_by_user_id': user_id })
+            pass
 
-        return request
+        if common_info:
 
-    def use_json_schema_validation(self, view_file):
+            if isinstance(request.data, list):
+                for row in request.data:
+                    row.update(common_info)
+            else:
+                request.data.update(common_info)
+
+    def set_json_schema(self, view_file):
         """
-        An inheriting class can call this method in its constructor if it wants to do
-        json schema validation automatically for update and create methods.
+        An inheriting class can call this method in its constructor to get its json
+        schema. The validation is done in the serializer's validate_<field> method.
 
-        view_file is __file__ of the inheriting object. This way get_schema()
+        Parameters:
+        - view_file: __file__ of the inheriting object. This way get_schema()
         always looks for the schema from a directory relative to the view's location,
         taking into account its version.
         """
         self.json_schema = get_schema(view_file, self.__class__.__name__.lower()[:-(len('viewset'))])
-        self.validate_json_schema = True
 
-    def _do_validate_json_schema(self, request):
-        if not self.json_schema:
-            raise Exception("schema missing")
-        json_validate(request.data['json'], self.json_schema)
+    def _string_to_int(self, string):
+        """
+        Convert string (= urn) to unique int, to search from indexed DecimalField fields instead of
+        char fields.
+        """
+        if not string:
+            _logger.warning('converting string to float: string was empty, returning 0')
+            return
+        elif isinstance(string, int):
+            pass
+        else:
+            return int(sha256(string.encode('utf-8')).hexdigest(), 16)
+
+    def _convert_identifier_to_internal(self):
+        """
+        The identifier that is passed in the url is an urn, and is in a field whose name
+        is specified in self.lookup_field. Convert the field to self.lookup_field_internal,
+        and let the rest of the framework do its work using an sha256 int for faster lookup.
+        """
+        if isinstance(self.kwargs[self.lookup_field], str):
+            self.kwargs[self.lookup_field_internal] = self._string_to_int(self.kwargs[self.lookup_field])
