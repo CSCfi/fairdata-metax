@@ -26,16 +26,17 @@ class CommonViewSet(ModelViewSet):
 
     lookup_field_internal = None
 
-    # def retrieve(self, request, *args, **kwargs):
-    #     return super(CommonViewSet, self).retrieve(request, *args, **kwargs)
-
     def update(self, request, *args, **kwargs):
         self._update_common_info(request)
-        return super(CommonViewSet, self).update(request, *args, **kwargs)
+        res = super(CommonViewSet, self).update(request, *args, **kwargs)
+        res.data = {}
+        res.status_code = status.HTTP_204_NO_CONTENT
+        return res
 
     def partial_update(self, request, *args, **kwargs):
         self._update_common_info(request)
-        return super(CommonViewSet, self).partial_update(request, *args, **kwargs)
+        kwargs['partial'] = True
+        return super(CommonViewSet, self).update(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         self._update_common_info(request)
@@ -56,10 +57,10 @@ class CommonViewSet(ModelViewSet):
                 try:
                     serializer.is_valid(raise_exception=True)
                 except Exception as e:
-                    results['failed'].append(serializer.http_repr)
+                    results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
                 else:
                     serializer.save()
-                    results['success'].append(serializer.http_repr)
+                    results['success'].append({ 'object': serializer.data, 'errors': serializer.errors })
 
             if len(results['success']):
                 # if even one insert was successful, general status of the request is success
@@ -70,16 +71,12 @@ class CommonViewSet(ModelViewSet):
 
         else:
             serializer = self.get_serializer(data=request.data)
-            try:
-                serializer.is_valid(raise_exception=True)
-            except Exception as e:
-                return Response(serializer.http_repr, status=status.HTTP_400_BAD_REQUEST)
-
+            serializer.is_valid(raise_exception=True)
             serializer.save()
             http_status = status.HTTP_201_CREATED
 
         headers = self.get_success_headers(serializer.data)
-        return Response(results if is_many else serializer.http_repr, status=http_status, headers=headers)
+        return Response(results if is_many else serializer.data, status=http_status, headers=headers)
 
     def destroy(self, request, *args, **kwargs):
         self._update_common_info(request)

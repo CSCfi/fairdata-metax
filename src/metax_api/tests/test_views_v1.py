@@ -102,15 +102,13 @@ class FileApiWriteTestV1(APITestCase):
         response = self.client.post('/rest/files/', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual('object' in response.data.keys(), True)
-        self.assertEqual('file_name' in response.data['object'].keys(), True)
-        self.assertEqual(response.data['object']['file_name'], newly_created_file_name)
+        self.assertEqual('file_name' in response.data.keys(), True)
+        self.assertEqual(response.data['file_name'], newly_created_file_name)
 
     def test_create_file_error_identifier_exists(self):
         response = self.client.post('/rest/files/', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('errors' in response.data.keys(), True, 'Response data should include an error')
-        self.assertEqual('identifier' in response.data['errors'].keys(), True, 'The error should be about an already existing identifier')
+        self.assertEqual('identifier' in response.data.keys(), True, 'The error should be about an already existing identifier')
 
     def test_create_file_error_json_validation(self):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
@@ -126,10 +124,8 @@ class FileApiWriteTestV1(APITestCase):
         response = self.client.post('/rest/files/', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('object' in response.data.keys(), True, 'Response data should include the sent object')
-        self.assertEqual('errors' in response.data.keys(), True, 'Response data should include an error')
-        self.assertEqual('file_characteristics' in response.data['errors'].keys(), True, 'The error should concern the field file_characteristics')
-        self.assertEqual('field: metadata_modified' in response.data['errors']['file_characteristics'][0], True, 'The error should contain the name of the erroneous field')
+        self.assertEqual('file_characteristics' in response.data.keys(), True, 'The error should concern the field file_characteristics')
+        self.assertEqual('field: metadata_modified' in response.data['file_characteristics'][0], True, 'The error should contain the name of the erroneous field')
 
     def test_create_file_list(self):
         newly_created_file_name = 'newly_created_file_name'
@@ -153,8 +149,8 @@ class FileApiWriteTestV1(APITestCase):
         response = self.client.post('/rest/files/', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['object']['file_storage_id']['file_storage_json']['title'], original_title)
-        file_storage = FileStorage.objects.get(pk=response.data['object']['file_storage_id']['id'])
+        self.assertEqual(response.data['file_storage_id']['file_storage_json']['title'], original_title)
+        file_storage = FileStorage.objects.get(pk=response.data['file_storage_id']['id'])
         self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
     def test_create_file_list_error_one_fails(self):
@@ -206,11 +202,8 @@ class FileApiWriteTestV1(APITestCase):
 
     def test_update_file(self):
         response = self.client.put('/rest/files/%s/' % self.identifier, self.test_new_data, format="json")
-
-        # todo 204 no content according to swagger...?
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('file_name' in response.data.keys(), True)
-        self.assertEqual(response.data['file_name'], 'new_file_name', 'Field file_name was not updated')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
 
     def test_update_file_error_required_fields(self):
         """
@@ -239,9 +232,8 @@ class FileApiWriteTestV1(APITestCase):
         self.test_new_data['file_storage_id']['file_storage_json']['title'] = 'new title'
 
         response = self.client.put('/rest/files/%s/' % self.identifier, self.test_new_data, format="json")
-
-        self.assertEqual(response.data['file_storage_id']['file_storage_json']['title'], original_title)
-        file_storage = FileStorage.objects.get(pk=response.data['file_storage_id']['id'])
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        file_storage = FileStorage.objects.get(pk=self.test_new_data['file_storage_id']['id'])
         self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
     def test_update_file_not_found(self):

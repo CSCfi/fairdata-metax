@@ -10,19 +10,6 @@ import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
-# todo to common serializers probably
-class HttpReprMixin():
-
-    @property
-    def http_repr(self):
-        """
-        Used to serialize the fields in a serializers to the form below
-        """
-        obj = { 'object': self.data }
-        if self.errors:
-            obj['errors'] = self.errors
-        return obj
-
 class FileStorageReadSerializer(ModelSerializer):
 
     class Meta:
@@ -61,7 +48,7 @@ class FileReadSerializer(ModelSerializer):
             'created_by_api',
         )
 
-class FileWriteSerializer(ModelSerializer, HttpReprMixin):
+class FileWriteSerializer(ModelSerializer):
 
     class Meta:
         model = File
@@ -117,13 +104,6 @@ class FileWriteSerializer(ModelSerializer, HttpReprMixin):
             self.initial_data['file_storage_id'] = uuid_obj
         super(FileWriteSerializer, self).is_valid(raise_exception=raise_exception)
 
-    # def update(self, instance, validated_data):
-    #     # todo looks like not needed?
-    #     file_storage_id = validated_data.pop('file_storage_id', False)
-    #     if file_storage_id:
-    #         instance.file_storage_id = file_storage_id
-    #     return super(FileWriteSerializer, self).update(instance, validated_data)
-
     def to_representation(self, data):
         res = super(FileWriteSerializer, self).to_representation(data)
         fsrs = FileStorageReadSerializer(FileStorage.objects.get(id=res['file_storage_id']))
@@ -137,7 +117,7 @@ class FileWriteSerializer(ModelSerializer, HttpReprMixin):
             raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
         return value
 
-class FileDebugSerializer(ModelSerializer, HttpReprMixin):
+class FileDebugSerializer(ModelSerializer):
 
     """
     Used when the following query params are used in any request to /fields/:
