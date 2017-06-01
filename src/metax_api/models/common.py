@@ -9,8 +9,8 @@ d = logging.getLogger(__name__).debug
 
 class Common(models.Model):
 
+    # todo decide on UUID. random, sequential, place of generation (metax, client?)
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    identifier_sha256 = models.DecimalField(max_digits=79, decimal_places=0, blank=False, unique=True)
     active = models.BooleanField(default=True)
     removed = models.BooleanField(default=False)
     modified_by_api = models.DateTimeField(null=True)
@@ -22,9 +22,6 @@ class Common(models.Model):
 
     class Meta:
         abstract = True
-        indexes = [
-            models.Index(fields=['identifier_sha256']),
-        ]
 
     def delete(self):
         """

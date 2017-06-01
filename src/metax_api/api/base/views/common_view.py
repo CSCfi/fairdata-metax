@@ -1,5 +1,4 @@
 from datetime import datetime
-from hashlib import sha256
 from json import load as json_load
 from os import path
 
@@ -25,6 +24,8 @@ class CommonViewSet(ModelViewSet):
     which include fields like modified and created timestamps, uuid, active flags etc.
     """
 
+    lookup_field_internal = None
+
     # def retrieve(self, request, *args, **kwargs):
     #     return super(CommonViewSet, self).retrieve(request, *args, **kwargs)
 
@@ -46,7 +47,7 @@ class CommonViewSet(ModelViewSet):
             # dont fail the entire request if only some inserts fail.
             # successfully created rows are added to 'successful', and
             # failed inserts are added to 'failed', with a related error message.
-            results = { 'successful': [], 'failed': []}
+            results = { 'success': [], 'failed': []}
 
             for row in request.data:
 
@@ -55,12 +56,12 @@ class CommonViewSet(ModelViewSet):
                 try:
                     serializer.is_valid(raise_exception=True)
                 except Exception as e:
-                    results['failed'].append({ 'object': row, 'error': serializer.errors, })
+                    results['failed'].append(serializer.http_repr)
                 else:
                     serializer.save()
-                    results['successful'].append(row)
+                    results['success'].append(serializer.http_repr)
 
-            if len(results['successful']):
+            if len(results['success']):
                 # if even one insert was successful, general status of the request is success
                 http_status = status.HTTP_201_CREATED
             else:
@@ -72,13 +73,13 @@ class CommonViewSet(ModelViewSet):
             try:
                 serializer.is_valid(raise_exception=True)
             except Exception as e:
-                return Response({ 'object': request.data, 'error': serializer.errors }, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serializer.http_repr, status=status.HTTP_400_BAD_REQUEST)
 
             serializer.save()
             http_status = status.HTTP_201_CREATED
 
         headers = self.get_success_headers(serializer.data)
-        return Response(results if is_many else serializer.data, status=http_status, headers=headers)
+        return Response(results if is_many else serializer.http_repr, status=http_status, headers=headers)
 
     def destroy(self, request, *args, **kwargs):
         self._update_common_info(request)
@@ -131,25 +132,3 @@ class CommonViewSet(ModelViewSet):
         taking into account its version.
         """
         self.json_schema = get_schema(view_file, self.__class__.__name__.lower()[:-(len('viewset'))])
-
-    def _string_to_int(self, string):
-        """
-        Convert string (= urn) to unique int, to search from indexed DecimalField fields instead of
-        char fields.
-        """
-        if not string:
-            _logger.warning('converting string to float: string was empty, returning 0')
-            return
-        elif isinstance(string, int):
-            pass
-        else:
-            return int(sha256(string.encode('utf-8')).hexdigest(), 16)
-
-    def _convert_identifier_to_internal(self):
-        """
-        The identifier that is passed in the url is an urn, and is in a field whose name
-        is specified in self.lookup_field. Convert the field to self.lookup_field_internal,
-        and let the rest of the framework do its work using an sha256 int for faster lookup.
-        """
-        if isinstance(self.kwargs[self.lookup_field], str):
-            self.kwargs[self.lookup_field_internal] = self._string_to_int(self.kwargs[self.lookup_field])

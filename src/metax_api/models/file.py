@@ -5,8 +5,10 @@ from .common import Common
 
 class FileStorage(Common):
 
-    title = models.CharField(max_length=200, blank=True)
-    access_url = models.CharField(max_length=200, blank=True)
+    file_storage_json = JSONField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'metax_api_file_storage'
 
 class File(Common):
 
@@ -19,9 +21,13 @@ class File(Common):
     file_format = models.CharField(max_length=200)
     file_modified = models.DateTimeField(auto_now=True)
     file_name = models.CharField(max_length=64)
-    file_storage_id = models.ForeignKey('FileStorage', null=True, db_column='file_storage_id')
+    file_storage_id = models.ForeignKey(FileStorage, null=True, db_column='file_storage_id', related_name='files')
     file_path = models.CharField(max_length=200)
     identifier = models.CharField(max_length=200, unique=True)
     file_characteristics = JSONField(blank=True, null=True)
     open_access = models.BooleanField(default=False)
     replication_path = models.CharField(max_length=200, blank=True, null=True)
+
+    indexes = [
+        models.Index(fields=['identifier']),
+    ]
