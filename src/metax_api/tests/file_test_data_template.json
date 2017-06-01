@@ -6,18 +6,17 @@
     "checksum_value": "habeebit",
     "download_url": "http://some.url.csc.fi/%s",
     "file_format": "html/text",
-    "file_modified": "2017-05-23T14:41:59.507392",
+    "file_modified": "2017-05-23T14:41:59.507392Z",
     "file_name": "file_name_%s",
-    "file_path": "/some/path/file_name_%s",
+    "file_path": "/some/path/",
     "identifier": "urn:nbn:fi:csc-ida20140120%s",
     "file_characteristics": {
       "title": "A title %s",
       "description": "A nice description %s",
       "encoding": "utf-8",
-      "hasCreatingApplicationName": "Application Name",
-      "openaccess": true,
-      "fileCreated": "2014-01-17T08:19:31Z",
-      "metadataMmodified": "2014-01-17T08:19:31Z"
+      "application_name": "Application Name",
+      "file_created": "2014-01-17T08:19:31Z",
+      "metadata_modified": "2014-01-17T08:19:31Z"
     },
     "open_access": false,
     "removed": false,
