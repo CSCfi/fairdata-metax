@@ -223,9 +223,9 @@ class FileApiWriteTestV1(APITestCase):
         }
         response = self.client.patch('/rest/files/%s' % self.identifier, new_data, format="json")
 
-        # todo 204 no content according to swagger...?
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('file_name' in response.data.keys(), True)
+        self.assertEqual('file_path' in response.data.keys(), True, 'PATCH operation should return full content')
         self.assertEqual(response.data['file_name'], 'new_file_name', 'Field file_name was not updated')
 
     def test_update_file_dont_allow_file_storage_fields_update(self):
