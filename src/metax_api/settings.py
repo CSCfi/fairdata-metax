@@ -73,6 +73,8 @@ REST_FRAMEWORK = {
 
 ROOT_URLCONF = 'metax_api.urls'
 
+APPEND_SLASH = False
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

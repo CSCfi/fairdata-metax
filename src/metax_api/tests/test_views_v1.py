@@ -47,22 +47,23 @@ class FileApiReadTestV1(APITestCase):
         super(FileApiReadTestV1, cls).setUpClass()
 
     def test_read_file_list(self):
-        response = self.client.get('/rest/files/')
+        response = self.client.get('/rest/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_file_details(self):
-        response = self.client.get('/rest/files/%s/' % self.identifier)
+        response = self.client.get('/rest/files/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(hasattr(response, 'data'), True, 'Request response object is missing attribute \'data\'')
         self.assertEqual('file_name' in response.data.keys(), True)
         self.assertEqual(response.data['identifier'], self.identifier)
 
     def test_read_file_details_not_found(self):
-        response = self.client.get('/rest/files/shouldnotexist/')
+        response = self.client.get('/rest/files/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_model_fields_as_expected(self):
-        response = self.client.get('/rest/files/%s/' % self.identifier)
+        response = self.client.get('/rest/files/%s' % self.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         actual_received_fields = [field for field in response.data.keys()]
         self._test_model_fields_as_expected(self.file_field_names, actual_received_fields)
 
@@ -99,14 +100,14 @@ class FileApiWriteTestV1(APITestCase):
         self.test_new_data['file_name'] = newly_created_file_name
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
-        response = self.client.post('/rest/files/', self.test_new_data, format="json")
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual('file_name' in response.data.keys(), True)
         self.assertEqual(response.data['file_name'], newly_created_file_name)
 
     def test_create_file_error_identifier_exists(self):
-        response = self.client.post('/rest/files/', self.test_new_data, format="json")
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('identifier' in response.data.keys(), True, 'The error should be about an already existing identifier')
 
@@ -121,7 +122,7 @@ class FileApiWriteTestV1(APITestCase):
             "title": "A title 0000000010"
         }
 
-        response = self.client.post('/rest/files/', self.test_new_data, format="json")
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_characteristics' in response.data.keys(), True, 'The error should concern the field file_characteristics')
@@ -133,7 +134,7 @@ class FileApiWriteTestV1(APITestCase):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
         self.second_test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurnalso'
 
-        response = self.client.post('/rest/files/', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.post('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
@@ -146,7 +147,7 @@ class FileApiWriteTestV1(APITestCase):
         original_title = self.test_new_data['file_storage_id']['file_storage_json']['title']
         self.test_new_data['file_storage_id']['file_storage_json']['title'] = 'new title'
 
-        response = self.client.post('/rest/files/', self.test_new_data, format="json")
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['file_storage_id']['file_storage_json']['title'], original_title)
@@ -160,7 +161,7 @@ class FileApiWriteTestV1(APITestCase):
         # same as above - should fail
         self.second_test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
-        response = self.client.post('/rest/files/', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.post('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
 
         """
         List response looks like
@@ -192,7 +193,7 @@ class FileApiWriteTestV1(APITestCase):
         self.test_new_data['identifier'] = None
         self.second_test_new_data['identifier'] = None
 
-        response = self.client.post('/rest/files/', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.post('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
@@ -201,7 +202,7 @@ class FileApiWriteTestV1(APITestCase):
         self.assertEqual(len(response.data['failed']), 2)
 
     def test_update_file(self):
-        response = self.client.put('/rest/files/%s/' % self.identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
 
@@ -211,7 +212,7 @@ class FileApiWriteTestV1(APITestCase):
         replaces an object and requires all 'required' fields to be present.
         """
         self.test_new_data.pop('access_group')
-        response = self.client.put('/rest/files/%s/' % self.identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('access_group' in response.data.keys(), True, 'Error for field \'access_group\' is missing from response.data')
@@ -220,7 +221,7 @@ class FileApiWriteTestV1(APITestCase):
         new_data = {
             "file_name": "new_file_name",
         }
-        response = self.client.patch('/rest/files/%s/' % self.identifier, new_data, format="json")
+        response = self.client.patch('/rest/files/%s' % self.identifier, new_data, format="json")
 
         # todo 204 no content according to swagger...?
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -231,17 +232,17 @@ class FileApiWriteTestV1(APITestCase):
         original_title = self.test_new_data['file_storage_id']['file_storage_json']['title']
         self.test_new_data['file_storage_id']['file_storage_json']['title'] = 'new title'
 
-        response = self.client.put('/rest/files/%s/' % self.identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         file_storage = FileStorage.objects.get(pk=self.test_new_data['file_storage_id']['id'])
         self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
     def test_update_file_not_found(self):
-        response = self.client.put('/rest/files/doesnotexist/', self.test_new_data, format="json")
+        response = self.client.put('/rest/files/doesnotexist', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_file(self):
-        url = '/rest/files/%s/' % self.identifier
+        url = '/rest/files/%s' % self.identifier
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         response = self.client.get(url)
