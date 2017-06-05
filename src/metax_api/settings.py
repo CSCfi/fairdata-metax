@@ -73,6 +73,8 @@ REST_FRAMEWORK = {
 
 ROOT_URLCONF = 'metax_api.urls'
 
+APPEND_SLASH = False
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -90,7 +92,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'metax_api.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -120,6 +121,14 @@ else:
             'PORT': ''
         }
     }
+
+DATABASES['default']['ATOMIC_REQUESTS'] = True
+
+"""
+Colorize automated test console output
+"""
+RAINBOWTESTS_HIGHLIGHT_PATH = BASE_DIR
+TEST_RUNNER = 'rainbowtests.test.runner.RainbowDiscoverRunner'
 
 """
 Logging rules:
@@ -220,6 +229,8 @@ USE_L10N = False
 # or not. If this is set to True, Django will use timezone-aware datetimes
 # internally. Otherwise, Django will use naive datetimes in local time.
 USE_TZ = False
+
+DATETIME_INPUT_FORMATS = ['%Y-%m-%dT%H:%M:%S.%fZ']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/

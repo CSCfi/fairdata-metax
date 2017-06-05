@@ -1,12 +1,33 @@
-from uuid import uuid4
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
-class File(models.Model):
+from .common import Common
 
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    file_name = models.CharField(max_length=64, blank=True, null=True)
-    json = JSONField(blank=True, null=True)
+class FileStorage(Common):
 
-    def __str__(self):
-        return str(self.id)
+    file_storage_json = JSONField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'metax_api_file_storage'
+
+class File(Common):
+
+    access_group = models.CharField(max_length=200)
+    byte_size = models.PositiveIntegerField(default=0)
+    checksum_algorithm = models.CharField(max_length=200)
+    checksum_checked = models.DateTimeField(null=True)
+    checksum_value = models.CharField(max_length=200)
+    download_url = models.URLField()
+    file_format = models.CharField(max_length=200)
+    file_modified = models.DateTimeField(auto_now=True)
+    file_name = models.CharField(max_length=64)
+    file_storage_id = models.ForeignKey(FileStorage, null=True, db_column='file_storage_id', related_name='files')
+    file_path = models.CharField(max_length=200)
+    identifier = models.CharField(max_length=200, unique=True)
+    file_characteristics = JSONField(blank=True, null=True)
+    open_access = models.BooleanField(default=False)
+    replication_path = models.CharField(max_length=200, blank=True, null=True)
+
+    indexes = [
+        models.Index(fields=['identifier']),
+    ]
