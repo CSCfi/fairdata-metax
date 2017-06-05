@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
+import logging.config
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -29,15 +30,14 @@ if "METAX_ENVIRONMENT" in os.environ:
     #SECURE_SSL_REDIRECT = True
     #SESSION_COOKIE_SECURE = True
 
-    if os.environ['METAX_ENVIRONMENT'] == 'development':
+    if os.environ['METAX_ENVIRONMENT'] == 'staging':
         DEBUG = True
-    elif os.environ['METAX_ENVIRONMENT'] == 'staging':
+    elif os.environ['METAX_ENVIRONMENT'] == 'stable':
         DEBUG = True
     elif os.environ['METAX_ENVIRONMENT'] == 'production':
         DEBUG = False
-else: # local development environment
+else: # local development environment or cloud playground
     DEBUG = True
-
 
 # Application definition
 
@@ -73,6 +73,8 @@ REST_FRAMEWORK = {
 
 ROOT_URLCONF = 'metax_api.urls'
 
+APPEND_SLASH = False
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -90,7 +92,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'metax_api.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -114,13 +115,78 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': os.getenv('METAX_DATABASE', 'metax_db'),
-            'USER': os.getenv('METAX_DATABASE_USER', 'metax_user'),
+            'USER': os.getenv('METAX_DATABASE_USER', 'metax_db_user'),
             'PASSWORD': os.getenv('METAX_DATABASE_PASSWORD', 'YMDLekQMqrVKcs37'),
             'HOST': os.getenv('METAX_DATABASE_HOST', 'localhost'),
             'PORT': ''
         }
     }
 
+DATABASES['default']['ATOMIC_REQUESTS'] = True
+
+"""
+Colorize automated test console output
+"""
+RAINBOWTESTS_HIGHLIGHT_PATH = BASE_DIR
+TEST_RUNNER = 'rainbowtests.test.runner.RainbowDiscoverRunner'
+
+"""
+Logging rules:
+- Django DEBUG enabled: Print everything from logging level DEBUG and up, to
+both console, and log file.
+- Django DEBUG disabled: Print everything from logging level INFO and up, only
+to log file.
+"""
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(name)s %(levelname)s: %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+        'debug': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/metax-api/metax_api.log',
+            'formatter': 'standard',
+            'filters': ['require_debug_true'],
+        },
+        'general': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/metax-api/metax_api.log',
+            'formatter': 'standard',
+            'filters': ['require_debug_false'],
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['general', 'console', 'debug'],
+        },
+        'metax_api': {
+            'handlers': ['general', 'console', 'debug'],
+        }
+    }
+}
+
+logger = logging.getLogger('metax_api')
+logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -139,7 +205,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -165,6 +230,8 @@ USE_L10N = False
 # internally. Otherwise, Django will use naive datetimes in local time.
 USE_TZ = False
 
+DATETIME_INPUT_FORMATS = ['%Y-%m-%dT%H:%M:%S.%fZ']
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
@@ -172,3 +239,21 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 # same dir as manage.py
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
+
+
+# Redis Cache
+# https://www.peterbe.com/plog/fastest-redis-optimization-for-django
+# Currently using this (pip: django-redis-cache): https://github.com/sebleier/django-redis-cache
+# Consider alternatively pip:django-redis: https://github.com/niwinz/django-redis
+CACHES = {
+    'default': {
+        'BACKEND': "redis_cache.RedisCache",
+        'LOCATION': "/run/redis/redis.sock",
+        'OPTIONS': {
+            'DB': 1,
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
+            'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
+        }
+    }
+}

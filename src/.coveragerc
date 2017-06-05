@@ -1,0 +1,20 @@
+[run]
+omit =
+    */migrations/*
+    */__init__.py
+    metax_api/settings.py
+    metax_api/wsgi.py
+
+[report]
+exclude_lines =
+    # type a python comment to exclude line or branch: # pragma: no cover
+    pragma: no cover
+    # todo include these or not?
+    # def __repr__
+    # def __str__
+    if self.debug
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
