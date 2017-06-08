@@ -69,7 +69,6 @@ class CommonViewSet(ModelViewSet):
 
         return obj
 
-
     def update(self, request, *args, **kwargs):
         self._update_common_info(request)
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
