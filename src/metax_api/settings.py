@@ -71,6 +71,9 @@ REST_FRAMEWORK = {
     ]
 }
 
+if not DEBUG:
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ['rest_framework.renderers.JSONRenderer']
+
 ROOT_URLCONF = 'metax_api.urls'
 
 APPEND_SLASH = False
@@ -209,7 +212,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'fi-FI'
+LANGUAGE_CODE = 'en-US'
 
 TIME_ZONE = 'Europe/Helsinki'
 
