@@ -1,1 +1,2 @@
 from .file_serializer import FileReadSerializer, FileWriteSerializer, FileDebugSerializer
+from .xml_metadata_serializer import XmlMetadataReadSerializer, XmlMetadataWriteSerializer

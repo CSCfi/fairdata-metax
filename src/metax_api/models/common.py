@@ -2,11 +2,6 @@ from uuid import uuid4
 from django.db import models
 from django.contrib.auth.models import User
 
-
-import logging
-_logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
-
 class Common(models.Model):
 
     # todo decide on UUID. random, sequential, place of generation (metax, client?)
@@ -22,6 +17,10 @@ class Common(models.Model):
 
     class Meta:
         abstract = True
+
+    def get(self, **kwargs):
+        kwargs.update({ 'active': True, 'removed': False })
+        return super(Common, self).get(**kwargs)
 
     def delete(self):
         """
