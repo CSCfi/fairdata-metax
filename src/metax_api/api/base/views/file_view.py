@@ -1,27 +1,16 @@
 from django.conf import settings
 from django.http import Http404
-from rest_framework.generics import get_object_or_404
+from rest_framework import status
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
 
 from metax_api.models import File
 from .common_view import CommonViewSet
-from ..serializers import FileReadSerializer, FileWriteSerializer, FileDebugSerializer
+from ..serializers import FileReadSerializer, FileWriteSerializer, FileDebugSerializer, XmlMetadataWriteSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
-
-def debug_request(request, *args, **kwargs):
-    d("====================")
-    d(request)
-    d(request.query_params)
-    d(dir(request))
-    d(request.user)
-    d(dir(request.user))
-    d(args)
-    d(kwargs)
-    d(request.data)
-    d('------------------')
-    # raise Exception("stop")
 
 class FileViewSet(CommonViewSet):
 
@@ -44,49 +33,14 @@ class FileViewSet(CommonViewSet):
 
     def get_object(self):
         """
-        Overrided from rest_framework generics.py method to also allow searching by the field
-        lookup_field_other
-
         future todo:
         - query params:
-            - dataset (string)
             - owner_email (string)
             - fields (list of strings)
             - offset (integer) (paging)
             - limit (integer) (limit for paging)
         """
-
-        if self.kwargs.get(self.lookup_field, False) and ':' in self.kwargs[self.lookup_field]:
-            # lookup by alternative field lookup_field_other
-            lookup_url_kwarg = self.lookup_field_other
-
-            # replace original field name with field name in lookup_field_other
-            self.kwargs[lookup_url_kwarg] = self.kwargs.pop(self.lookup_field)
-        else:
-            # lookup by originak lookup_field. standard django procedure
-            lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-
-        queryset = self.filter_queryset(self.get_queryset())
-
-        assert lookup_url_kwarg in self.kwargs, (
-            'Expected view %s to be called with a URL keyword argument '
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            'attribute on the view correctly.' %
-            (self.__class__.__name__, lookup_url_kwarg)
-        )
-
-        filter_kwargs = { lookup_url_kwarg: self.kwargs[lookup_url_kwarg] }
-
-        try:
-            obj = get_object_or_404(queryset, **filter_kwargs)
-        except Exception as e:
-            _logger.debug('get_object(): could not find an object with field and value: %s: %s' % (lookup_url_kwarg, filter_kwargs[lookup_url_kwarg]))
-            raise Http404
-
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-
-        return obj
+        return super(FileViewSet, self).get_object()
 
     def get_serializer_class(self, *args, **kwargs):
         if settings.DEBUG:
@@ -105,8 +59,29 @@ class FileViewSet(CommonViewSet):
             _logger.error('get_serializer_class() received unexpected HTTP method: %s. returning FileReadSerializer' % method)
             return FileReadSerializer
 
-    def list(self, request, *args, **kwargs):
-        return super(FileViewSet, self).list(request, *args, **kwargs)
+    @detail_route(methods=['get'], url_path="xml")
+    def xml_get(self, request, pk=None):
+        file = self.get_object()
+        try:
+            xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params.get('namespace', False))
+        except Exception as e:
+            raise Http404
 
-    def create(self, request, *args, **kwargs):
-        return super(FileViewSet, self).create(request, *args, **kwargs)
+        # return Response(data=xml_metadata.xml, status=status.HTTP_200_OK, content_type='text/xml')
+        return Response(data=xml_metadata.xml, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['put'], url_path="xml")
+    def xml_put(self, request, pk=None):
+        file = self.get_object()
+        self._update_common_info(request)
+        try:
+            xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params.get('namespace', False))
+            request.data['id'] = xml_metadata.id
+        except Exception as e:
+            # not found - create for the first time
+            pass
+        request.data['file_id'] = file.id
+        serializer = XmlMetadataWriteSerializer(request.data)
+        serializer.is_valid()
+        serializer.save()
+        return Response(data=None, status=status.HTTP_204_NO_CONTENT)

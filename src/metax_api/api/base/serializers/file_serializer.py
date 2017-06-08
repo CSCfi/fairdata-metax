@@ -5,19 +5,11 @@ from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from metax_api.models import File, FileStorage
+from .file_storage_serializer import FileStorageReadSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
-
-class FileStorageReadSerializer(ModelSerializer):
-
-    class Meta:
-        model = FileStorage
-        fields = (
-            'id',
-            'file_storage_json',
-        )
 
 class FileReadSerializer(ModelSerializer):
 
@@ -47,6 +39,7 @@ class FileReadSerializer(ModelSerializer):
             'created_by_user_id',
             'created_by_api',
         )
+
 
 class FileWriteSerializer(ModelSerializer):
 
@@ -106,6 +99,8 @@ class FileWriteSerializer(ModelSerializer):
 
     def to_representation(self, data):
         res = super(FileWriteSerializer, self).to_representation(data)
+        # todo this is an extra query... (albeit qty of storages in db is tiny)
+        # get FileStorage dict from context somehow ?
         fsrs = FileStorageReadSerializer(FileStorage.objects.get(id=res['file_storage_id']))
         res['file_storage_id'] = fsrs.data
         return res
@@ -117,7 +112,8 @@ class FileWriteSerializer(ModelSerializer):
             raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
         return value
 
-class FileDebugSerializer(ModelSerializer):
+
+class FileDebugSerializer(FileWriteSerializer):
 
     """
     Used when the following query params are used in any request to /fields/:

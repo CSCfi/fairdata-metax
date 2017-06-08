@@ -38,6 +38,7 @@ class FileModelBasicTest(TestCase):
         'open_access',
         'file_characteristics',
         'file_storage_id',
+        'xmlmetadata',
     )
 
     common_fields_names = (
