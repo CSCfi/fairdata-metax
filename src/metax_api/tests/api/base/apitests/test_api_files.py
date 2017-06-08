@@ -5,10 +5,11 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import File, FileStorage
+from metax_api.tests.utils import test_data_file_path, TestModelFieldsMixin
 
 d = print
 
-class FileApiReadTestV1(APITestCase):
+class FileApiReadTestV1(APITestCase, TestModelFieldsMixin):
 
     identifier = 'urn:nbn:fi:csc-ida201401200000000001'
 
@@ -43,7 +44,7 @@ class FileApiReadTestV1(APITestCase):
         """
         Loaded only once for test cases inside this class.
         """
-        call_command('loaddata', 'metax_api/tests/test_data.json')
+        call_command('loaddata', test_data_file_path)
         super(FileApiReadTestV1, cls).setUpClass()
 
     def test_read_file_list(self):
@@ -67,16 +68,6 @@ class FileApiReadTestV1(APITestCase):
         actual_received_fields = [field for field in response.data.keys()]
         self._test_model_fields_as_expected(self.file_field_names, actual_received_fields)
 
-    def _test_model_fields_as_expected(self, expected_fields, actual_fields):
-        # todo add to parent class, because useful also in model tests
-
-        for field in expected_fields:
-            if field not in actual_fields:
-                raise Exception('Model is missing an expected field: %s' % field)
-            actual_fields.remove(field)
-
-        self.assertEqual(len(actual_fields), 0, 'Model contains unexpected fields: %s' % str(actual_fields))
-
 
 class FileApiWriteTestV1(APITestCase):
 
@@ -86,7 +77,7 @@ class FileApiWriteTestV1(APITestCase):
         """
         Reloaded for every test case
         """
-        call_command('loaddata', 'metax_api/tests/test_data.json')
+        call_command('loaddata', test_data_file_path)
 
         """
         New data that is sent to the server for POST, PUT, PATCH requests. Modifier
@@ -313,7 +304,7 @@ class FileApiWriteTestV1(APITestCase):
         }
 
     def _get_file_storage_from_test_data(self):
-        with open('metax_api/tests/test_data.json') as test_data_file:
+        with open(test_data_file_path) as test_data_file:
             test_data_dict = json_load(test_data_file)
             return {
                 'id': test_data_dict[0]['pk'],

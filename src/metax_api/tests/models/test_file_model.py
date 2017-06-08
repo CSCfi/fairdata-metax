@@ -6,13 +6,12 @@ from uuid import UUID
 from django.core.management import call_command
 from django.test import TestCase
 
-from .utils import get_json_schema, datetime_format
+from metax_api.tests.utils import get_json_schema, datetime_format, test_data_file_path, TestModelFieldsMixin
 from metax_api.models import File
-from metax_api.api.base.views import FileViewSet
 
 d = print
 
-class FileModelBasicTest(TestCase):
+class FileModelBasicTest(TestCase, TestModelFieldsMixin):
 
     """
     Verify that at least test data is correct on a basic level, and the model contains
@@ -56,7 +55,7 @@ class FileModelBasicTest(TestCase):
         """
         Loaded only once for test cases inside this class.
         """
-        call_command('loaddata', 'metax_api/tests/test_data.json')
+        call_command('loaddata', test_data_file_path)
         super(FileModelBasicTest, cls).setUpClass()
 
     def test_get_by_identifier(self):
@@ -141,18 +140,3 @@ class FileModelBasicTest(TestCase):
                 d(test_data[field])
                 d(value)
                 raise
-
-    def _test_model_fields_as_expected(self, expected_fields, actual_fields):
-        for field in expected_fields:
-            if field not in actual_fields:
-                raise Exception('Model is missing an expected field: %s' % field)
-            actual_fields.remove(field)
-
-        self.assertEqual(len(actual_fields), 0, 'Model contains unexpected fields: %s' % str(actual_fields))
-
-
-class FileViewSetTests(TestCase):
-
-    def test_has_json_schema_set_on_init(self):
-        fvs = FileViewSet()
-        self.assertEqual(isinstance(fvs.json_schema, dict), True, 'JSON schema missing after object init')
