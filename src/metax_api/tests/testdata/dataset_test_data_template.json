@@ -1,0 +1,24 @@
+{
+    "dataset_catalog_id": null,
+    "dataset_json": {
+        "identifier": "http://urn.fi/urn:nbn:fi%s",
+        "modified": "2014-01-17T08:19:58Z",
+        "versionNotes": [
+            "This version contains changes to x and y."
+        ],
+        "title": [{
+            "en": "Wonderful Title"
+        }],
+        "description": [{
+            "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+        }],
+        "creator":[{
+            "name": "Teppo Testaaja"
+        }],
+        "language":[{
+            "title": ["en"],
+            "identifier": "http://lang.ident.ifier/en"
+        }],
+        "totalbytesize": 1024
+    }
+}
