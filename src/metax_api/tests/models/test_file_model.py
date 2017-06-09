@@ -6,20 +6,17 @@ from uuid import UUID
 from django.core.management import call_command
 from django.test import TestCase
 
-from metax_api.tests.utils import get_json_schema, datetime_format, test_data_file_path, TestModelFieldsMixin
+from metax_api.tests.utils import get_json_schema, datetime_format, test_data_file_path, TestClassUtils
 from metax_api.models import File
 
 d = print
 
-class FileModelBasicTest(TestCase, TestModelFieldsMixin):
+class FileModelBasicTest(TestCase, TestClassUtils):
 
     """
     Verify that at least test data is correct on a basic level, and the model contains
     the expected fields.
     """
-
-    identifier = 'urn:nbn:fi:csc-ida201401200000000001'
-    result_file_name = 'file_name_0000000001'
 
     file_field_names = (
         'download_url',
@@ -58,6 +55,11 @@ class FileModelBasicTest(TestCase, TestModelFieldsMixin):
         call_command('loaddata', test_data_file_path)
         super(FileModelBasicTest, cls).setUpClass()
 
+    def setUp(self):
+        file_from_test_data = self._get_object_from_test_data('file')
+        self.identifier = file_from_test_data['identifier']
+        self.result_file_name = file_from_test_data['file_name']
+
     def test_get_by_identifier(self):
         file = File.objects.get(identifier=self.identifier)
         self.assertEqual(file.file_name, self.result_file_name)
@@ -80,14 +82,14 @@ class FileModelBasicTest(TestCase, TestModelFieldsMixin):
 
     def test_model_field_values(self):
         test_file_data = {
-            "download_url": "http://some.url.csc.fi/0000000001",
+            "download_url": "http://some.url.csc.fi/1",
             "replication_path": "empty",
             "identifier": self.identifier,
             "byte_size": 0,
             "removed": False,
             "checksum_value": "habeebit",
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_name": "file_name_0000000001",
+            "file_name": "file_name_1",
             "file_format": "html/text",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_path": "/some/path/",
@@ -99,11 +101,11 @@ class FileModelBasicTest(TestCase, TestModelFieldsMixin):
         }
         test_file_characteristics = {
             "application_name": "Application Name",
-            "description": "A nice description 0000000010",
+            "description": "A nice description 10",
             "metadata_modified": "2014-01-17T08:19:31Z",
             "file_created": "2014-01-17T08:19:31Z",
             "encoding": "utf-8",
-            "title": "A title 0000000010"
+            "title": "A title 10"
         }
 
         file = File.objects.get(identifier=self.identifier)
