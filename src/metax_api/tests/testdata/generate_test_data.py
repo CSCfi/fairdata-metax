@@ -3,11 +3,14 @@ from json import load as json_load
 from json import dump as json_dump
 from json import dumps as json_dumps
 from jsonschema import validate as json_validate
+import os
 import requests
+import sys
 import time
 import urllib3
 from uuid import uuid4
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import get_json_schema
 
 """
@@ -41,6 +44,12 @@ file_max_rows = 10
 # how many filestorage rows to generate
 file_storage_max_rows = 3
 
+dataset_catalog_max_rows = 3
+
+dataset_max_rows = 10
+
+files_per_dataset = 1
+
 # mode: json for json-file, request for request per row, request_list for bulk post
 mode = 'json'
 
@@ -50,7 +59,6 @@ batch_size = 0
 
 # very slow with a large number of rows. we'll always validate the first loop tho
 validate_json = False
-json_schema = get_json_schema('file')
 
 # where to send POST requests if using it
 url = 'https://metax.csc.local/rest/files/'
@@ -72,7 +80,7 @@ def generate_file_storages(mode, file_storage_max_rows):
             row_template = json_load(json_file)
 
         title = row_template['file_storage_json']['title']
-        identifier = row_template['file_storage_json']['identifier']
+        identifier = "pid:urn:" + row_template['file_storage_json']['identifier']
 
         for i in range(1, file_storage_max_rows + 1):
             new = {
@@ -93,7 +101,7 @@ def generate_file_storages(mode, file_storage_max_rows):
     return test_file_storage_list
 
 
-def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, json_schema, url):
+def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, url):
 
     print('generating files%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
 
@@ -106,6 +114,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, j
     download_url = row_template['download_url']
     json_title = json_template['title']
     json_description = json_template['description']
+    json_schema = get_json_schema('file')
     total_time_elapsed = 0
 
     if mode == "json":
@@ -131,7 +140,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, j
             }
 
             new['fields']['file_name'] = file_name % loop
-            new['fields']['identifier'] = uuid_str
+            new['fields']['identifier'] = "pid:urn:" + uuid_str
             new['fields']['download_url'] = download_url % loop
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
@@ -151,7 +160,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, j
             new = row_template.copy()
 
             new['file_name'] = file_name % loop
-            new['identifier'] = uuid_str
+            new['identifier'] = "pid:urn:" + uuid_str
             new['download_url'] = download_url % loop
             new['file_characteristics']['title'] = json_title % loop
             new['file_characteristics']['description'] = json_description % loop
@@ -165,6 +174,10 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, j
                 res = requests.post(url, data=json_dumps(new), headers={ 'Content-Type': 'application/json' }, verify=False)
                 end = time.time()
                 total_time_elapsed += (end - start)
+
+                if res.status_code == 201:
+                    # to be used in creating datasets
+                    test_data_list.append(res.data)
 
                 if DEBUG:
                     print(res.status_code)
@@ -187,23 +200,22 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, j
     if mode in ("json", 'request_list'):
         print('generated files into a list')
     elif mode == 'request':
+        print('collected created objects from responses into a list')
         print('total time elapsed for %d rows: %.3f seconds' % (file_max_rows, total_time_elapsed))
+
     return test_data_list
 
 
-def save_test_data(mode, test_data_list, test_file_storage_list, batch_size):
+def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, dataset_list, batch_size):
     if mode == 'json':
 
-        if test_data_list:
-            with open('file_test_data_list.json', 'w') as f:
-                print('dumping test data as json to metax_api/tests/file_test_data_list.json...')
-                json_dump(test_file_storage_list + test_data_list, f, indent=4)
-        else:
-            print('test data list is empty? something went wrong')
+        with open('test_data.json', 'w') as f:
+            print('dumping test data as json to metax_api/tests/test_data.json...')
+            json_dump(file_storage_list + file_list + dataset_catalogs_list + dataset_list, f, indent=4)
 
     elif mode == 'request_list':
 
-        total_rows_count = len(test_data_list)
+        total_rows_count = len(file_list)
         start = 0
         end = batch_size or total_rows_count
         i = 0
@@ -214,7 +226,7 @@ def save_test_data(mode, test_data_list, test_file_storage_list, batch_size):
         while end <= total_rows_count:
 
             batch_start = time.time()
-            res = requests.post(url, data=json_dumps(test_data_list[start:end]),
+            res = requests.post(url, data=json_dumps(file_list[start:end]),
                                 headers={ 'Content-Type': 'application/json' }, verify=False)
             batch_end = time.time()
             batch_time_elapsed = batch_end - batch_start
@@ -243,6 +255,137 @@ def save_test_data(mode, test_data_list, test_file_storage_list, batch_size):
         pass
 
 
+def generate_dataset_catalogs(mode, dataset_catalog_max_rows):
+
+    test_dataset_catalog_list = []
+
+    if mode == 'json':
+
+        with open('dataset_catalog_test_data_template.json') as json_file:
+            row_template = json_load(json_file)
+
+        for i in range(1, file_storage_max_rows + 1):
+
+            uuid_str = str(uuid4())
+
+            new = {
+                'fields': row_template.copy(),
+                'model': "metax_api.datasetcatalog",
+                'pk': uuid_str,
+            }
+            new['fields']['modified_by_api'] = '2017-05-15T10:07:22.559656Z'
+            new['fields']['created_by_api'] = '2017-05-15T10:07:22.559656Z'
+            new['fields']['catalog_json']['identifier'] = "pid:urn:" + uuid_str
+            test_dataset_catalog_list.append(new)
+
+    return test_dataset_catalog_list
+
+
+def generate_datasets(mode, dataset_max_rows, dataset_catalogs_list, file_list, validate_json, url):
+
+    print('generating datasets%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
+
+    with open('dataset_test_data_template.json') as json_file:
+        row_template = json_load(json_file)
+
+    test_data_list = []
+    json_schema = get_json_schema('dataset')
+    total_time_elapsed = 0
+    files_start_idx = 0
+
+    if mode == "json":
+        dataset_catalog_id = dataset_catalogs_list[0]['pk']
+
+    for i in range(1, dataset_max_rows + 1):
+
+        # loop = str(i)
+        uuid_str = str(uuid4())
+
+        if mode == 'json':
+
+            new = {
+                'fields': row_template.copy(),
+                'model': 'metax_api.dataset',
+                'pk': uuid_str,
+            }
+
+            # comment this line. i dare you.
+            # for real tho, required to prevent some strange behaving references to old data
+            new['fields']['dataset_json'] = row_template['dataset_json'].copy()
+
+            new['fields']['identifier'] = "pid:urn:" + uuid_str
+            new['fields']['dataset_catalog_id'] = dataset_catalog_id
+            new['fields']['dataset_json']['identifier'] = "pid:urn:" + uuid_str
+            new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
+            new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
+
+            files = []
+
+            for j in range(files_start_idx, files_start_idx + files_per_dataset):
+                files.append({
+                    'identifier': file_list[j]['fields']['identifier'],
+                    'title': 'File metadata title %d' % j,
+                })
+
+            new['fields']['dataset_json']['files'] = files
+            files_start_idx += files_per_dataset
+
+            if validate_json or i == 1:
+                json_validate(new['fields']['dataset_json'], json_schema)
+
+            test_data_list.append(new)
+
+        # else:
+        #     # http POST requests
+
+        #     new = row_template.copy()
+
+        #     new['file_name'] = file_name % loop
+        #     new['identifier'] = uuid_str
+        #     new['download_url'] = download_url % loop
+        #     new['file_characteristics']['title'] = json_title % loop
+        #     new['file_characteristics']['description'] = json_description % loop
+        #     new['file_storage_id'] = file_storage_id
+
+        #     if validate_json or i == 1:
+        #         json_validate(new['file_characteristics'], json_schema)
+
+        #     if mode == 'request':
+        #         start = time.time()
+        #         res = requests.post(url, data=json_dumps(new), headers={ 'Content-Type': 'application/json' }, verify=False)
+        #         end = time.time()
+        #         total_time_elapsed += (end - start)
+
+        #         if res.status_code == 201:
+        #             # to be used in creating datasets
+        #             test_data_list.append(res.data)
+
+        #         if DEBUG:
+        #             print(res.status_code)
+        #             if res.status_code == 201:
+        #                 print(res.text)
+        #             else:
+        #                 print('request failed:')
+        #                 print(res.text)
+        #                 print('------------------------------------------')
+        #                 return
+        #     else:
+        #         # sent later in bulk request
+        #         test_data_list.append(new)
+
+        percent = i / float(dataset_max_rows) * 100.0
+
+        if percent % 10 == 0:
+            print("%d%%%s" % (percent, '' if percent == 100.0 else '...'))
+
+    if mode in ("json", 'request_list'):
+        print('generated datasets into a list')
+    elif mode == 'request':
+        print('collected created objects from responses into a list')
+        print('total time elapsed for %d rows: %.3f seconds' % (dataset_max_rows, total_time_elapsed))
+    return test_data_list
+
+
 print('generating %d test file rows' % file_max_rows)
 print('mode: %s' % mode)
 if 'request' in mode:
@@ -252,7 +395,9 @@ print('generating %d test file storage rows' % file_storage_max_rows)
 print('DEBUG: %s' % str(DEBUG))
 
 file_storage_list = generate_file_storages(mode, file_storage_max_rows)
-test_data_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, json_schema, url)
-save_test_data(mode, test_data_list, file_storage_list, batch_size)
+file_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
+dataset_catalogs_list = generate_dataset_catalogs(mode, dataset_catalog_max_rows)
+dataset_list = generate_datasets(mode, dataset_max_rows, dataset_catalogs_list, file_list, validate_json, url)
+save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, dataset_list, batch_size)
 
 print('done')
