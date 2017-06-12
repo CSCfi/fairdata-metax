@@ -71,7 +71,12 @@ REST_FRAMEWORK = {
     ]
 }
 
+if not DEBUG:
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ['rest_framework.renderers.JSONRenderer']
+
 ROOT_URLCONF = 'metax_api.urls'
+
+APPEND_SLASH = False
 
 TEMPLATES = [
     {
@@ -90,7 +95,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'metax_api.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -120,6 +124,14 @@ else:
             'PORT': ''
         }
     }
+
+DATABASES['default']['ATOMIC_REQUESTS'] = True
+
+"""
+Colorize automated test console output
+"""
+RAINBOWTESTS_HIGHLIGHT_PATH = BASE_DIR
+TEST_RUNNER = 'rainbowtests.test.runner.RainbowDiscoverRunner'
 
 """
 Logging rules:
@@ -200,7 +212,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'fi-FI'
+LANGUAGE_CODE = 'en-US'
 
 TIME_ZONE = 'Europe/Helsinki'
 
@@ -221,6 +233,8 @@ USE_L10N = False
 # internally. Otherwise, Django will use naive datetimes in local time.
 USE_TZ = False
 
+DATETIME_INPUT_FORMATS = ['%Y-%m-%dT%H:%M:%S.%fZ']
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
@@ -228,3 +242,21 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 # same dir as manage.py
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
+
+
+# Redis Cache
+# https://www.peterbe.com/plog/fastest-redis-optimization-for-django
+# Currently using this (pip: django-redis-cache): https://github.com/sebleier/django-redis-cache
+# Consider alternatively pip:django-redis: https://github.com/niwinz/django-redis
+CACHES = {
+    'default': {
+        'BACKEND': "redis_cache.RedisCache",
+        'LOCATION': "/run/redis/redis.sock",
+        'OPTIONS': {
+            'DB': 1,
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
+            'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
+        }
+    }
+}

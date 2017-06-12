@@ -1,36 +1,87 @@
+from django.conf import settings
+from django.http import Http404
+from rest_framework import status
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+
 from metax_api.models import File
 from .common_view import CommonViewSet
-from ..serializers import FileSerializer
+from ..serializers import FileReadSerializer, FileWriteSerializer, FileDebugSerializer, XmlMetadataWriteSerializer
+
+import logging
+_logger = logging.getLogger(__name__)
+d = logging.getLogger(__name__).debug
 
 class FileViewSet(CommonViewSet):
 
     authentication_classes = ()
     permission_classes = ()
 
-    queryset = File.objects.all()
-    serializer_class = FileSerializer
+    # note: override get_queryset() to get more control
+    queryset = File.objects.filter(active=True, removed=False)
+    serializer_class = FileReadSerializer
+    object = File
+
+    lookup_field = 'pk'
+
+    # allow search by external identifier (urn, or whatever string in practice) as well
+    lookup_field_other = 'identifier'
 
     def __init__(self, *args, **kwargs):
-        self.use_json_schema_validation(__file__)
+        self.set_json_schema(__file__)
         super(FileViewSet, self).__init__(*args, **kwargs)
 
-    # def get_queryset(self):
-    #     return File.objects.all()
+    def get_object(self):
+        """
+        future todo:
+        - query params:
+            - owner_email (string)
+            - fields (list of strings)
+            - offset (integer) (paging)
+            - limit (integer) (limit for paging)
+        """
+        return super(FileViewSet, self).get_object()
 
-    # def list(self, request, *args, **kwargs):
-    #     return super(FileViewSet, self).list(request, *args, **kwargs)
+    def get_serializer_class(self, *args, **kwargs):
+        if settings.DEBUG:
+            debug = self.request.query_params.get('debug', False)
+            if debug and debug == 'true':
+                _logger.debug('get_serializer_class(): returning FileDebugSerializer')
+                return FileDebugSerializer
 
-    # def retrieve(self, request, *args, **kwargs):
-    #     return super(FileViewSet, self).retrieve(request, *args, **kwargs)
+        method = self.request.method
 
-    # def update(self, request, *args, **kwargs):
-    #     return super(FileViewSet, self).update(request, *args, **kwargs)
+        if method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+            return FileWriteSerializer
+        elif method == 'GET':
+            return FileReadSerializer
+        else:
+            _logger.error('get_serializer_class() received unexpected HTTP method: %s. returning FileReadSerializer' % method)
+            return FileReadSerializer
 
-    # def partial_update(self, request, *args, **kwargs):
-    #     return super(FileViewSet, self).partial_update(request, *args, **kwargs)
+    @detail_route(methods=['get'], url_path="xml")
+    def xml_get(self, request, pk=None):
+        file = self.get_object()
+        try:
+            xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params.get('namespace', False))
+        except Exception as e:
+            raise Http404
 
-    # def create(self, request, *args, **kwargs):
-    #     return super(FileViewSet, self).create(request, *args, **kwargs)
+        # return Response(data=xml_metadata.xml, status=status.HTTP_200_OK, content_type='text/xml')
+        return Response(data=xml_metadata.xml, status=status.HTTP_200_OK)
 
-    # def destroy(self, request, *args, **kwargs):
-    #     return super(FileViewSet, self).destroy(request, *args, **kwargs)
+    @detail_route(methods=['put'], url_path="xml")
+    def xml_put(self, request, pk=None):
+        file = self.get_object()
+        self._update_common_info(request)
+        try:
+            xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params.get('namespace', False))
+            request.data['id'] = xml_metadata.id
+        except Exception as e:
+            # not found - create for the first time
+            pass
+        request.data['file_id'] = file.id
+        serializer = XmlMetadataWriteSerializer(request.data)
+        serializer.is_valid()
+        serializer.save()
+        return Response(data=None, status=status.HTTP_204_NO_CONTENT)

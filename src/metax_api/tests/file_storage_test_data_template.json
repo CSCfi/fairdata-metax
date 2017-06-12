@@ -1,0 +1,7 @@
+{
+    "file_storage_json": {
+      "title": "Title %s",
+      "identifier": "identifier%s",
+      "url": "https://some.storage.url"
+    }
+}
