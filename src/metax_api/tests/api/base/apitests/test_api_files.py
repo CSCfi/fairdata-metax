@@ -1,16 +1,13 @@
-from json import load as json_load
-
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import File, FileStorage
+from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 d = print
 
-class FileApiReadTestV1(APITestCase):
-
-    identifier = 'urn:nbn:fi:csc-ida201401200000000001'
+class FileApiReadTestV1(APITestCase, TestClassUtils):
 
     """
     Fields defined in FileReadSerializer
@@ -43,14 +40,26 @@ class FileApiReadTestV1(APITestCase):
         """
         Loaded only once for test cases inside this class.
         """
-        call_command('loaddata', 'metax_api/tests/test_data.json')
+        call_command('loaddata', test_data_file_path, verbosity=0)
         super(FileApiReadTestV1, cls).setUpClass()
+
+    def setUp(self):
+        file_from_test_data = self._get_object_from_test_data('file')
+        self.identifier = file_from_test_data['identifier']
+        self.pk = file_from_test_data['id']
 
     def test_read_file_list(self):
         response = self.client.get('/rest/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_read_file_details(self):
+    def test_read_file_details_by_pk(self):
+        response = self.client.get('/rest/files/%s' % self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(hasattr(response, 'data'), True, 'Request response object is missing attribute \'data\'')
+        self.assertEqual('file_name' in response.data.keys(), True)
+        self.assertEqual(response.data['identifier'], self.identifier)
+
+    def test_read_file_details_by_identifier(self):
         response = self.client.get('/rest/files/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(hasattr(response, 'data'), True, 'Request response object is missing attribute \'data\'')
@@ -67,29 +76,20 @@ class FileApiReadTestV1(APITestCase):
         actual_received_fields = [field for field in response.data.keys()]
         self._test_model_fields_as_expected(self.file_field_names, actual_received_fields)
 
-    def _test_model_fields_as_expected(self, expected_fields, actual_fields):
-        # todo add to parent class, because useful also in model tests
 
-        for field in expected_fields:
-            if field not in actual_fields:
-                raise Exception('Model is missing an expected field: %s' % field)
-            actual_fields.remove(field)
-
-        self.assertEqual(len(actual_fields), 0, 'Model contains unexpected fields: %s' % str(actual_fields))
-
-
-class FileApiWriteTestV1(APITestCase):
-
-    identifier = 'urn:nbn:fi:csc-ida201401200000000001'
+class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
     def setUp(self):
         """
         Reloaded for every test case
         """
-        call_command('loaddata', 'metax_api/tests/test_data.json')
+        call_command('loaddata', test_data_file_path, verbosity=0)
+        file_from_test_data = self._get_object_from_test_data('file')
+        self.identifier = file_from_test_data['identifier']
+        self.file_name = file_from_test_data['file_name']
 
         """
-        New data that is sent to the server for POST, PUT, PATCH requests. Modifier
+        New data that is sent to the server for POST, PUT, PATCH requests. Modified
         slightly as approriate for different purposes
         """
         self.test_new_data = self._get_new_test_data()
@@ -107,6 +107,9 @@ class FileApiWriteTestV1(APITestCase):
         self.assertEqual(response.data['file_name'], newly_created_file_name)
 
     def test_create_file_error_identifier_exists(self):
+        # first ok
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        # second should give error
         response = self.client.post('/rest/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('identifier' in response.data.keys(), True, 'The error should be about an already existing identifier')
@@ -254,7 +257,7 @@ class FileApiWriteTestV1(APITestCase):
             raise Exception('Deleted file should not be deleted from the db, but marked as removed')
 
         self.assertEqual(deleted_file.removed, True)
-        self.assertEqual(deleted_file.file_name, 'file_name_0000000001')
+        self.assertEqual(deleted_file.file_name, self.file_name)
 
     def _get_new_test_data(self):
         return {
@@ -273,7 +276,7 @@ class FileApiWriteTestV1(APITestCase):
             "checksum_algorithm": "sha2",
             "replication_path": "empty",
             "checksum_checked": None,
-            "file_storage_id": self._get_file_storage_from_test_data(),
+            "file_storage_id": self._get_object_from_test_data('filestorage', requested_index=0),
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 0000000010",
@@ -301,7 +304,7 @@ class FileApiWriteTestV1(APITestCase):
             "checksum_algorithm": "sha2",
             "replication_path": "empty",
             "checksum_checked": None,
-            "file_storage_id": self._get_file_storage_from_test_data(),
+            "file_storage_id": self._get_object_from_test_data('filestorage', requested_index=0),
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 0000000010",
@@ -311,11 +314,3 @@ class FileApiWriteTestV1(APITestCase):
                 "title": "A title 0000000010"
             }
         }
-
-    def _get_file_storage_from_test_data(self):
-        with open('metax_api/tests/test_data.json') as test_data_file:
-            test_data_dict = json_load(test_data_file)
-            return {
-                'id': test_data_dict[0]['pk'],
-                'file_storage_json': test_data_dict[0]['fields']['file_storage_json'],
-            }

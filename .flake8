@@ -17,7 +17,9 @@ ignore =
     # whitespace before '}'
     E202,
     # whitespace before '{'
-    E201
+    E201,
+    # module level import not at top of file
+    E402
 
 # often contains "unused" imports
 exclude = __init__.py
