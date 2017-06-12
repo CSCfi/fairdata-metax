@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+import yaml
+
+with open('/home/metax-user/app_config') as app_config:
+    app_config_dict = yaml.load(app_config)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,23 +25,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b')
+SECRET_KEY = app_config_dict['django_secret_key']
+
+# Consider enabling these
+#CSRF_COOKIE_SECURE = True
+#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+#SECURE_SSL_REDIRECT = True
+#SESSION_COOKIE_SECURE = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if "METAX_ENVIRONMENT" in os.environ:
-    #CSRF_COOKIE_SECURE = True
-    #SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    #SECURE_SSL_REDIRECT = True
-    #SESSION_COOKIE_SECURE = True
-
-    if os.environ['METAX_ENVIRONMENT'] == 'staging':
-        DEBUG = True
-    elif os.environ['METAX_ENVIRONMENT'] == 'stable':
-        DEBUG = True
-    elif os.environ['METAX_ENVIRONMENT'] == 'production':
-        DEBUG = False
-else: # local development environment or cloud playground
-    DEBUG = True
+DEBUG = app_config_dict['debug']
 
 # Application definition
 
@@ -117,15 +114,14 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.getenv('METAX_DATABASE', 'metax_db'),
-            'USER': os.getenv('METAX_DATABASE_USER', 'metax_db_user'),
-            'PASSWORD': os.getenv('METAX_DATABASE_PASSWORD', 'YMDLekQMqrVKcs37'),
-            'HOST': os.getenv('METAX_DATABASE_HOST', 'localhost'),
-            'PORT': ''
+            'NAME': app_config_dict['metax_database'],
+            'USER': app_config_dict['metax_database_user'],
+            'PASSWORD': app_config_dict['metax_database_password'],
+            'HOST': app_config_dict['metax_database_host'],
+            'PORT': '',
+            'ATOMIC_REQUESTS': True
         }
     }
-
-DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 """
 Colorize automated test console output
