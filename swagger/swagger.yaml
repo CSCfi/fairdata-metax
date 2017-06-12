@@ -12,7 +12,7 @@ paths:
 
 
 # File Storage API
-  /FileStorage:
+  /file_storages:
     get:
       summary: "list of file storage systems"
       responses:
@@ -31,7 +31,7 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - File Storage API
-  /FileStorage/{PID}:
+  /file_storages/{PID}:
     get:
       summary: get file storage metadata
       parameters:
@@ -264,8 +264,7 @@ paths:
 
 
 # Data Catalog API
-
-  /DataCatalog:
+  /data_catalogs:
     get:
       summary: "list of data catalogs"
       responses:
@@ -284,7 +283,7 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - Data Catalog API
-  /DataCatalog/{PID}:
+  /data_catalogs/{PID}:
     get:
       summary: get data catalog metadata
       parameters:
