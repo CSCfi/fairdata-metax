@@ -14,8 +14,9 @@ import logging.config
 import os
 import yaml
 
-with open('/home/metax-user/app_config') as app_config:
-    app_config_dict = yaml.load(app_config)
+if not os.getenv('TRAVIS', None):
+    with open('/home/metax-user/app_config') as app_config:
+        app_config_dict = yaml.load(app_config)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +26,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = app_config_dict['django_secret_key']
+if os.getenv('TRAVIS', None):
+    SECRET_KEY = '^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b'
+else:
+    SECRET_KEY = app_config_dict['django_secret_key']
 
 # Consider enabling these
 #CSRF_COOKIE_SECURE = True
@@ -34,7 +38,10 @@ SECRET_KEY = app_config_dict['django_secret_key']
 #SESSION_COOKIE_SECURE = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = app_config_dict['debug']
+if os.getenv('TRAVIS', None):
+    DEBUG = True
+else:
+    DEBUG = app_config_dict['debug']
 
 # Application definition
 
