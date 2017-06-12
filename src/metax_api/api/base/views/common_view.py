@@ -16,7 +16,7 @@ def get_schema(view_file, model_name):
     """
     view_file is a __file__ variable
     """
-    with open(path.dirname(view_file) + '/../schemas/json_schema_%s.json' % model_name) as f:
+    with open(path.dirname(view_file) + '/../schemas/json_schema_%s.json' % model_name, encoding='utf-8') as f:
         return json_load(f)
 
 class CommonViewSet(ModelViewSet):
