@@ -10,6 +10,57 @@ produces:
   - application/json
 paths:
 
+
+# File Storage API
+  /file_storages:
+    get:
+      summary: "list of file storage systems"
+      responses:
+        "200":
+          description: return list of file storage systems
+      tags:
+        - File Storage API
+    post:
+      summary: create file storage system
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: new file storage created, return UUID of the system
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - File Storage API
+  /file_storages/{PID}:
+    get:
+      summary: get file storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: UUID of the system
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return file storage metadata
+      tags:
+        - File Storage API
+    put:
+      summary: replace File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: UUID of the system
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - File Storage API
+        
 # File API
   /files:
     get:
@@ -48,12 +99,14 @@ paths:
       tags:
         - File API
     post:
-      summary: create new file metadata (request body JSON object with file metadata, without PID)
+      summary: create multiple file metadata from array of objects
       consumes:
         - application/json
       responses:
         '201':
-          description: new file metadata created, return Location with the new URL containing PID
+          description: Returns the HTTP status for each item and the PIDs of resources that were created
+        '400': 
+          description: Invalid list of objects
       tags:
         - File API
   /files/{PID}:
@@ -68,6 +121,19 @@ paths:
       responses:
         '200':
           description: return file metadata
+      tags:
+        - File API
+    post:
+      summary: create new file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
       tags:
         - File API
     put:
@@ -195,6 +261,63 @@ paths:
           description: successful operation, no content returned
       tags:
         - File API
+
+
+# Data Catalog API
+  /data_catalogs:
+    get:
+      summary: "list of data catalogs"
+      responses:
+        "200":
+          description: return list of file data catalogs
+      tags:
+        - Data Catalog API
+    post:
+      summary: create new data catalog
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: new data catalog created, return UUID of the catalog
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - Data Catalog API
+  /data_catalogs/{PID}:
+    get:
+      summary: get data catalog metadata
+      parameters:
+        - name: PID
+          in: path
+          description: UUID of the catalog
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return data catalog metadata
+      tags:
+        - Data Catalog API
+    put:
+      summary: replace data catalog metadata
+      parameters:
+        - name: PID
+          in: path
+          description: UUID of the data catalog
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - Data Catalog API
+
+
+
+
+
+
 
 # Dataset API
   /datasets:
