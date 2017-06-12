@@ -175,7 +175,7 @@ paths:
           description: successful operation, no content returned
       tags:
         - File API
-  /file/{PID}/XML:
+  /files/{PID}/XML:
     get:
       summary: get XML metadata from file
       parameters:
