@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from jsonschema import validate as json_validate
-from jsonschema.exceptions import ValidationError as JsonValidationError
+# validation disabled until schema is updated
+# from jsonschema import validate as json_validate
+# from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ModelSerializer, ValidationError
 
-from metax_api.models import Dataset, DatasetCatalog
+from metax_api.models import Dataset, DatasetCatalog, File
 from .dataset_catalog_serializer import DatasetCatalogReadSerializer
 
 import logging
@@ -49,6 +50,26 @@ class DatasetReadSerializer(ModelSerializer):
             self.initial_data['dataset_catalog_id'] = uuid_obj
         super(DatasetReadSerializer, self).is_valid(raise_exception=raise_exception)
 
+    def update(self, instance, validated_data):
+        instance = super(DatasetReadSerializer, self).update(instance, validated_data)
+        files_dict = validated_data.get('dataset_json', None) and validated_data['dataset_json'].get('files', None) or None
+        if files_dict:
+            file_pids = [ f['identifier'] for f in files_dict ]
+            files = File.objects.filter(identifier__in=file_pids)
+            instance.files.clear()
+            instance.files.add(*files)
+            instance.save()
+        return instance
+
+    def create(self, validated_data):
+        instance = super(DatasetReadSerializer, self).create(validated_data)
+        files_dict = validated_data['dataset_json']['files'].copy()
+        file_pids = [ f['identifier'] for f in files_dict ]
+        files = File.objects.filter(identifier__in=file_pids)
+        instance.files.add(*files)
+        instance.save()
+        return instance
+
     def to_representation(self, data):
         res = super(DatasetReadSerializer, self).to_representation(data)
         # todo this is an extra query... (albeit qty of storages in db is tiny)
@@ -58,8 +79,10 @@ class DatasetReadSerializer(ModelSerializer):
         return res
 
     def validate_dataset_json(self, value):
-        try:
-            json_validate(value, self.context['view'].json_schema)
-        except JsonValidationError as e:
-            raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
+        # todo enable validation until json schema is somewhat stable again
         return value
+        # try:
+        #     json_validate(value, self.context['view'].json_schema)
+        # except JsonValidationError as e:
+        #     raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
+        # return value
