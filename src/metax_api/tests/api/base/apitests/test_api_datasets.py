@@ -227,6 +227,7 @@ class DatasetApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(deleted_dataset.identifier, self.identifier)
 
     def _get_new_test_data(self):
+        dataset_from_test_data = self._get_object_from_test_data('dataset', requested_index=0)
         return {
             "dataset_catalog_id": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "dataset_json": {
@@ -248,11 +249,13 @@ class DatasetApiWriteTestV1(APITestCase, TestClassUtils):
                     "title": ["en"],
                     "identifier": "http://lang.ident.ifier/en"
                 }],
-                "totalbytesize": 1024
+                "totalbytesize": 1024,
+                "files": dataset_from_test_data['dataset_json']['files']
             }
         }
 
     def _get_second_new_test_data(self):
+        dataset_from_test_data = self._get_object_from_test_data('dataset', requested_index=0)
         return {
             "dataset_catalog_id": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "dataset_json": {
@@ -274,6 +277,7 @@ class DatasetApiWriteTestV1(APITestCase, TestClassUtils):
                     "title": ["en"],
                     "identifier": "http://lang.ident.ifier/en"
                 }],
-                "totalbytesize": 1024
+                "totalbytesize": 1024,
+                "files": dataset_from_test_data['dataset_json']['files']
             }
         }

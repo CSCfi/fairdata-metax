@@ -19,6 +19,7 @@ class DatasetModelBasicTest(TestCase, TestClassUtils):
         'identifier',
         'dataset_json',
         'dataset_catalog_id',
+        'files',
     )
 
     common_fields_names = (

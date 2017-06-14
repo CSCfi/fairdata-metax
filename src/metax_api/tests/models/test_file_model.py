@@ -35,6 +35,7 @@ class FileModelBasicTest(TestCase, TestClassUtils):
         'file_characteristics',
         'file_storage_id',
         'xmlmetadata',
+        'dataset',
     )
 
     common_fields_names = (
@@ -81,35 +82,10 @@ class FileModelBasicTest(TestCase, TestClassUtils):
         self._test_model_fields_as_expected(self.file_field_names + self.common_fields_names, actual_model_fields)
 
     def test_model_field_values(self):
-        test_file_data = {
-            "download_url": "http://some.url.csc.fi/1",
-            "replication_path": "empty",
-            "identifier": self.identifier,
-            "byte_size": 0,
-            "removed": False,
-            "checksum_value": "habeebit",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_name": "file_name_1",
-            "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_path": "/some/path/",
-            "checksum_checked": None,
-            "checksum_algorithm": "sha2",
-            "access_group": "my group",
-            "open_access": False,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-        }
-        test_file_characteristics = {
-            "application_name": "Application Name",
-            "description": "A nice description 10",
-            "metadata_modified": "2014-01-17T08:19:31Z",
-            "file_created": "2014-01-17T08:19:31Z",
-            "encoding": "utf-8",
-            "title": "A title 10"
-        }
-
+        test_file_data = self._get_object_from_test_data('file')
+        test_file_characteristics = test_file_data.pop('file_characteristics')
+        test_file_data.pop('file_storage_id')
         file = File.objects.get(identifier=self.identifier)
-
         self._dict_comparison(test_file_data, file)
         self._dict_comparison(test_file_characteristics, file.file_characteristics)
 
@@ -139,6 +115,7 @@ class FileModelBasicTest(TestCase, TestClassUtils):
                     self.assertEqual(test_data[field], value)
             except Exception as e:
                 d(type(value))
+                d(field)
                 d(test_data[field])
                 d(value)
                 raise
