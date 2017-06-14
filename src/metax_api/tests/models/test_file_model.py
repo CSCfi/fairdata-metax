@@ -35,7 +35,7 @@ class FileModelBasicTest(TestCase, TestClassUtils):
         'file_characteristics',
         'file_storage_id',
         'xmlmetadata',
-        'dataset',
+        'catalogrecord',
     )
 
     common_fields_names = (

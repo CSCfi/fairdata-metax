@@ -46,7 +46,7 @@ file_storage_max_rows = 3
 
 dataset_catalog_max_rows = 3
 
-dataset_max_rows = 10
+catalog_record_max_rows = 10
 
 files_per_dataset = 1
 
@@ -206,12 +206,12 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
     return test_data_list
 
 
-def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, dataset_list, batch_size):
+def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, catalog_record_list, batch_size):
     if mode == 'json':
 
         with open('test_data.json', 'w') as f:
             print('dumping test data as json to metax_api/tests/test_data.json...')
-            json_dump(file_storage_list + file_list + dataset_catalogs_list + dataset_list, f, indent=4)
+            json_dump(file_storage_list + file_list + dataset_catalogs_list + catalog_record_list, f, indent=4)
 
     elif mode == 'request_list':
 
@@ -281,11 +281,11 @@ def generate_dataset_catalogs(mode, dataset_catalog_max_rows):
     return test_dataset_catalog_list
 
 
-def generate_datasets(mode, dataset_max_rows, dataset_catalogs_list, file_list, validate_json, url):
+def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, file_list, validate_json, url):
 
-    print('generating datasets%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
+    print('generating catalog records%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
 
-    with open('dataset_test_data_template.json') as json_file:
+    with open('catalog_record_test_data_template.json') as json_file:
         row_template = json_load(json_file)
 
     test_data_list = []
@@ -294,9 +294,9 @@ def generate_datasets(mode, dataset_max_rows, dataset_catalogs_list, file_list, 
     files_start_idx = 0
 
     if mode == "json":
-        dataset_catalog_id = dataset_catalogs_list[0]['pk']
+        dataset_catalog = dataset_catalogs_list[0]['pk']
 
-    for i in range(1, dataset_max_rows + 1):
+    for i in range(1, catalog_record_max_rows + 1):
 
         # loop = str(i)
         uuid_str = str(uuid4())
@@ -305,17 +305,17 @@ def generate_datasets(mode, dataset_max_rows, dataset_catalogs_list, file_list, 
 
             new = {
                 'fields': row_template.copy(),
-                'model': 'metax_api.dataset',
+                'model': 'metax_api.catalogrecord',
                 'pk': uuid_str,
             }
 
             # comment this line. i dare you.
             # for real tho, required to prevent some strange behaving references to old data
-            new['fields']['dataset_json'] = row_template['dataset_json'].copy()
+            new['fields']['research_dataset'] = row_template['research_dataset'].copy()
 
             new['fields']['identifier'] = "pid:urn:" + uuid_str
-            new['fields']['dataset_catalog_id'] = dataset_catalog_id
-            new['fields']['dataset_json']['identifier'] = "pid:urn:" + uuid_str
+            new['fields']['dataset_catalog'] = dataset_catalog
+            new['fields']['research_dataset']['identifier'] = "pid:urn:" + uuid_str
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
 
@@ -327,11 +327,11 @@ def generate_datasets(mode, dataset_max_rows, dataset_catalogs_list, file_list, 
                     'title': 'File metadata title %d' % j,
                 })
 
-            new['fields']['dataset_json']['files'] = files
+            new['fields']['research_dataset']['files'] = files
             files_start_idx += files_per_dataset
 
             if validate_json or i == 1:
-                json_validate(new['fields']['dataset_json'], json_schema)
+                json_validate(new['fields']['research_dataset'], json_schema)
 
             test_data_list.append(new)
 
@@ -373,16 +373,16 @@ def generate_datasets(mode, dataset_max_rows, dataset_catalogs_list, file_list, 
         #         # sent later in bulk request
         #         test_data_list.append(new)
 
-        percent = i / float(dataset_max_rows) * 100.0
+        percent = i / float(catalog_record_max_rows) * 100.0
 
         if percent % 10 == 0:
             print("%d%%%s" % (percent, '' if percent == 100.0 else '...'))
 
     if mode in ("json", 'request_list'):
-        print('generated datasets into a list')
+        print('generated catalog records into a list')
     elif mode == 'request':
         print('collected created objects from responses into a list')
-        print('total time elapsed for %d rows: %.3f seconds' % (dataset_max_rows, total_time_elapsed))
+        print('total time elapsed for %d rows: %.3f seconds' % (catalog_record_max_rows, total_time_elapsed))
     return test_data_list
 
 
@@ -397,7 +397,7 @@ print('DEBUG: %s' % str(DEBUG))
 file_storage_list = generate_file_storages(mode, file_storage_max_rows)
 file_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
 dataset_catalogs_list = generate_dataset_catalogs(mode, dataset_catalog_max_rows)
-dataset_list = generate_datasets(mode, dataset_max_rows, dataset_catalogs_list, file_list, validate_json, url)
-save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, dataset_list, batch_size)
+catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, file_list, validate_json, url)
+save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, catalog_record_list, batch_size)
 
 print('done')

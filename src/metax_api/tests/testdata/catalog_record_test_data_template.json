@@ -1,6 +1,6 @@
 {
-    "dataset_catalog_id": null,
-    "dataset_json": {
+    "dataset_catalog": null,
+    "research_dataset": {
         "identifier": "http://urn.fi/urn:nbn:fi%s",
         "modified": "2014-01-17T08:19:58Z",
         "versionNotes": [

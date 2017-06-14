@@ -1,4 +1,4 @@
 from .dataset_catalog_serializer import DatasetCatalogReadSerializer
-from .dataset_serializer import DatasetReadSerializer
+from .catalog_record_serializer import CatalogRecordReadSerializer
 from .file_serializer import FileReadSerializer, FileWriteSerializer, FileDebugSerializer
 from .xml_metadata_serializer import XmlMetadataReadSerializer, XmlMetadataWriteSerializer

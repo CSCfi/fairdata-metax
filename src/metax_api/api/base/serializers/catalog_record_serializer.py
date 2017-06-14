@@ -5,22 +5,22 @@ from uuid import UUID
 # from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ModelSerializer, ValidationError
 
-from metax_api.models import Dataset, DatasetCatalog, File
+from metax_api.models import CatalogRecord, DatasetCatalog, File
 from .dataset_catalog_serializer import DatasetCatalogReadSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
-class DatasetReadSerializer(ModelSerializer):
+class CatalogRecordReadSerializer(ModelSerializer):
 
     class Meta:
-        model = Dataset
+        model = CatalogRecord
         fields = (
             'id',
             'identifier',
-            'dataset_json',
-            'dataset_catalog_id',
+            'research_dataset',
+            'dataset_catalog',
             'modified_by_user_id',
             'modified_by_api',
             'created_by_user_id',
@@ -36,23 +36,23 @@ class DatasetReadSerializer(ModelSerializer):
         }
 
     def is_valid(self, raise_exception=False):
-        if self.initial_data.get('dataset_catalog_id', False):
-            if isinstance(self.initial_data['dataset_catalog_id'], str):
-                uuid_obj = UUID(self.initial_data['dataset_catalog_id'])
-            elif isinstance(self.initial_data['dataset_catalog_id'], dict):
-                uuid_obj = UUID(self.initial_data['dataset_catalog_id']['id'])
-            elif isinstance(self.initial_data['dataset_catalog_id'], UUID):
-                uuid_obj = self.initial_data['dataset_catalog_id']
+        if self.initial_data.get('dataset_catalog', False):
+            if isinstance(self.initial_data['dataset_catalog'], str):
+                uuid_obj = UUID(self.initial_data['dataset_catalog'])
+            elif isinstance(self.initial_data['dataset_catalog'], dict):
+                uuid_obj = UUID(self.initial_data['dataset_catalog']['id'])
+            elif isinstance(self.initial_data['dataset_catalog'], UUID):
+                uuid_obj = self.initial_data['dataset_catalog']
             else:
-                _logger.error('is_valid() field validation for dataset_catalog_id: unexpected type: %s'
-                              % type(self.initial_data['dataset_catalog_id']))
-                raise ValidationError('Validation error for field dataset_catalog_id. Data in unexpected format')
-            self.initial_data['dataset_catalog_id'] = uuid_obj
-        super(DatasetReadSerializer, self).is_valid(raise_exception=raise_exception)
+                _logger.error('is_valid() field validation for dataset_catalog: unexpected type: %s'
+                              % type(self.initial_data['dataset_catalog']))
+                raise ValidationError('Validation error for field dataset_catalog. Data in unexpected format')
+            self.initial_data['dataset_catalog'] = uuid_obj
+        super(CatalogRecordReadSerializer, self).is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
-        instance = super(DatasetReadSerializer, self).update(instance, validated_data)
-        files_dict = validated_data.get('dataset_json', None) and validated_data['dataset_json'].get('files', None) or None
+        instance = super(CatalogRecordReadSerializer, self).update(instance, validated_data)
+        files_dict = validated_data.get('research_dataset', None) and validated_data['research_dataset'].get('files', None) or None
         if files_dict:
             file_pids = [ f['identifier'] for f in files_dict ]
             files = File.objects.filter(identifier__in=file_pids)
@@ -62,8 +62,8 @@ class DatasetReadSerializer(ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        instance = super(DatasetReadSerializer, self).create(validated_data)
-        files_dict = validated_data['dataset_json']['files'].copy()
+        instance = super(CatalogRecordReadSerializer, self).create(validated_data)
+        files_dict = validated_data['research_dataset']['files'].copy()
         file_pids = [ f['identifier'] for f in files_dict ]
         files = File.objects.filter(identifier__in=file_pids)
         instance.files.add(*files)
@@ -71,14 +71,14 @@ class DatasetReadSerializer(ModelSerializer):
         return instance
 
     def to_representation(self, data):
-        res = super(DatasetReadSerializer, self).to_representation(data)
+        res = super(CatalogRecordReadSerializer, self).to_representation(data)
         # todo this is an extra query... (albeit qty of storages in db is tiny)
         # get FileStorage dict from context somehow ?
-        fsrs = DatasetCatalogReadSerializer(DatasetCatalog.objects.get(id=res['dataset_catalog_id']))
-        res['dataset_catalog_id'] = fsrs.data
+        fsrs = DatasetCatalogReadSerializer(DatasetCatalog.objects.get(id=res['dataset_catalog']))
+        res['dataset_catalog'] = fsrs.data
         return res
 
-    def validate_dataset_json(self, value):
+    def validate_research_dataset(self, value):
         # todo enable validation until json schema is somewhat stable again
         return value
         # try:
