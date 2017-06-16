@@ -38,16 +38,16 @@ class CatalogRecord(Common):
     dataset_catalog = models.ForeignKey(DatasetCatalog)
     files = models.ManyToManyField(File)
 
-    preservation_state = models.CharField(max_length=1, choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS,
-        help_text='Record state in PAS.')
-    preservation_state_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
+    preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
+    preservation_state_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
+    preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
     ready_status = models.CharField(max_length=20, choices=READY_STATUS_CHOICES, default=READY_STATUS_UNFINISHED,
         help_text='Status of the record. Unfinished: allow changes in any dataset field and adding files. '
                   'Finished: Dataset metadata can be updated, but files can no longer be added or removed. '
                   'At finished state, altering included files requires creating a new version.')
     contract_identifier = models.CharField(max_length=200, blank=True, null=True)
-    mets_object_identifier = ArrayField(models.CharField(max_length=200, blank=True), null=True)
+    mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
     catalog_record_modified = models.DateTimeField(null=True, help_text='Date of last change in Catalog Record -specific fields.')
     dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
 
