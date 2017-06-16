@@ -2,21 +2,7 @@ from rest_framework.serializers import ModelSerializer
 
 from metax_api.models import XmlMetadata
 
-class XmlMetadataReadSerializer(ModelSerializer):
-
-    class Meta:
-        model = XmlMetadata
-        fields = (
-            'id',
-            'namespace',
-            'xml',
-            'modified_by_user_id',
-            'modified_by_api',
-            'created_by_user_id',
-            'created_by_api',
-        )
-
-class XmlMetadataWriteSerializer(ModelSerializer):
+class XmlMetadataSerializer(ModelSerializer):
 
     class Meta:
         model = XmlMetadata

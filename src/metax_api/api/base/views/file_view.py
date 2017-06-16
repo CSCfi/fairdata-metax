@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from metax_api.models import File
 from .common_view import CommonViewSet
-from ..serializers import FileReadSerializer, FileWriteSerializer, FileDebugSerializer, XmlMetadataWriteSerializer
+from ..serializers import FileSerializer, FileDebugSerializer, XmlMetadataSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class FileViewSet(CommonViewSet):
 
     # note: override get_queryset() to get more control
     queryset = File.objects.filter(active=True, removed=False)
-    serializer_class = FileReadSerializer
+    serializer_class = FileSerializer
     object = File
 
     lookup_field = 'pk'
@@ -48,16 +48,7 @@ class FileViewSet(CommonViewSet):
             if debug and debug == 'true':
                 _logger.debug('get_serializer_class(): returning FileDebugSerializer')
                 return FileDebugSerializer
-
-        method = self.request.method
-
-        if method in ('POST', 'PUT', 'PATCH', 'DELETE'):
-            return FileWriteSerializer
-        elif method == 'GET':
-            return FileReadSerializer
-        else:
-            _logger.error('get_serializer_class() received unexpected HTTP method: %s. returning FileReadSerializer' % method)
-            return FileReadSerializer
+        return FileSerializer
 
     @detail_route(methods=['get'], url_path="xml")
     def xml_get(self, request, pk=None):
@@ -81,7 +72,7 @@ class FileViewSet(CommonViewSet):
             # not found - create for the first time
             pass
         request.data['file_id'] = file.id
-        serializer = XmlMetadataWriteSerializer(request.data)
+        serializer = XmlMetadataSerializer(request.data)
         serializer.is_valid()
         serializer.save()
         return Response(data=None, status=status.HTTP_204_NO_CONTENT)

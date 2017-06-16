@@ -15,7 +15,7 @@ class File(Common):
     file_format = models.CharField(max_length=200)
     file_modified = models.DateTimeField(auto_now=True)
     file_name = models.CharField(max_length=64)
-    file_storage_id = models.ForeignKey(FileStorage, db_column='file_storage_id', related_name='files')
+    file_storage = models.ForeignKey(FileStorage)
     file_path = models.CharField(max_length=200)
     identifier = models.CharField(max_length=200, unique=True)
     file_characteristics = JSONField(blank=True, null=True)

@@ -1,2 +1,2 @@
 from .test_api_files import FileApiReadTestV1, FileApiWriteTestV1
-from .test_api_datasets import DatasetApiReadTestV1, DatasetApiWriteTestV1
+from .test_api_catalog_records import CatalogRecordApiReadTestV1, CatalogRecordApiWriteTestV1

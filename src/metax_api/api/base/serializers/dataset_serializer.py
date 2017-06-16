@@ -1,25 +1,23 @@
-from uuid import UUID
+from collections import OrderedDict
 
-from jsonschema import validate as json_validate
-from jsonschema.exceptions import ValidationError as JsonValidationError
-from rest_framework.serializers import ModelSerializer, ValidationError
+from rest_framework.fields import SkipField
+from rest_framework.relations import PKOnlyObject
 
-from metax_api.models import Dataset, DatasetCatalog
-from .dataset_catalog_serializer import DatasetCatalogReadSerializer
+from metax_api.models import CatalogRecord
+from .catalog_record_serializer import CatalogRecordSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
-class DatasetReadSerializer(ModelSerializer):
+class DatasetSerializer(CatalogRecordSerializer):
 
     class Meta:
-        model = Dataset
+        model = CatalogRecord
         fields = (
             'id',
             'identifier',
-            'dataset_json',
-            'dataset_catalog_id',
+            'research_dataset',
             'modified_by_user_id',
             'modified_by_api',
             'created_by_user_id',
@@ -34,32 +32,23 @@ class DatasetReadSerializer(ModelSerializer):
             'created_by_api': { 'required': False },
         }
 
-    def is_valid(self, raise_exception=False):
-        if self.initial_data.get('dataset_catalog_id', False):
-            if isinstance(self.initial_data['dataset_catalog_id'], str):
-                uuid_obj = UUID(self.initial_data['dataset_catalog_id'])
-            elif isinstance(self.initial_data['dataset_catalog_id'], dict):
-                uuid_obj = UUID(self.initial_data['dataset_catalog_id']['id'])
-            elif isinstance(self.initial_data['dataset_catalog_id'], UUID):
-                uuid_obj = self.initial_data['dataset_catalog_id']
+    def to_representation(self, instance):
+        """
+        copy-pasta from REST framework to_representation method, because we want to skip the direct
+        parent method
+        """
+        ret = OrderedDict()
+
+        for field in self._readable_fields:
+            try:
+                attribute = field.get_attribute(instance)
+            except SkipField:
+                continue
+
+            check_for_none = attribute.pk if isinstance(attribute, PKOnlyObject) else attribute
+            if check_for_none is None:
+                ret[field.field_name] = None
             else:
-                _logger.error('is_valid() field validation for dataset_catalog_id: unexpected type: %s'
-                              % type(self.initial_data['dataset_catalog_id']))
-                raise ValidationError('Validation error for field dataset_catalog_id. Data in unexpected format')
-            self.initial_data['dataset_catalog_id'] = uuid_obj
-        super(DatasetReadSerializer, self).is_valid(raise_exception=raise_exception)
+                ret[field.field_name] = field.to_representation(attribute)
 
-    def to_representation(self, data):
-        res = super(DatasetReadSerializer, self).to_representation(data)
-        # todo this is an extra query... (albeit qty of storages in db is tiny)
-        # get FileStorage dict from context somehow ?
-        fsrs = DatasetCatalogReadSerializer(DatasetCatalog.objects.get(id=res['dataset_catalog_id']))
-        res['dataset_catalog_id'] = fsrs.data
-        return res
-
-    def validate_dataset_json(self, value):
-        try:
-            json_validate(value, self.context['view'].json_schema)
-        except JsonValidationError as e:
-            raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
-        return value
+        return ret

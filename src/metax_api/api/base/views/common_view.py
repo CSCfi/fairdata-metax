@@ -96,7 +96,7 @@ class CommonViewSet(ModelViewSet):
             for row in request.data:
 
                 # todo test with single serializer but change data (performance)
-                serializer = self.get_serializer(data=row)
+                serializer = self.get_serializer(data=row, **kwargs)
 
                 try:
                     serializer.is_valid(raise_exception=True)
