@@ -313,6 +313,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
             new['fields']['research_dataset']['identifier'] = "pid:urn:cr%d" % i
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
+            new['fields']['files'] = []
 
             files = []
 
@@ -321,6 +322,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
                     'identifier': file_list[j]['fields']['identifier'],
                     'title': 'File metadata title %d' % j,
                 })
+                new['fields']['files'].append(file_list[j]['pk'])
 
             new['fields']['research_dataset']['files'] = files
             files_start_idx += files_per_dataset
@@ -393,6 +395,7 @@ file_storage_list = generate_file_storages(mode, file_storage_max_rows)
 file_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
 dataset_catalogs_list = generate_dataset_catalogs(mode, dataset_catalog_max_rows)
 catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, file_list, validate_json, url)
+
 save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, catalog_record_list, batch_size)
 
 print('done')
