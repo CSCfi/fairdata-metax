@@ -10,13 +10,21 @@ d = print
 class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
 
     """
-    Fields defined in CatalogRecordReadSerializer
+    Fields defined in CatalogRecordSerializer
     """
     file_field_names = (
         'id',
         'identifier',
-        'research_dataset',
         'dataset_catalog',
+        'research_dataset',
+        'preservation_state',
+        'preservation_state_description',
+        'preservation_state_modified',
+        'ready_status',
+        'contract_identifier',
+        'mets_object_identifier',
+        'catalog_record_modified',
+        'dataset_group_edit',
         'modified_by_user_id',
         'modified_by_api',
         'created_by_user_id',

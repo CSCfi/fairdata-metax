@@ -4,26 +4,15 @@ from rest_framework.serializers import ModelSerializer, ValidationError
 
 from metax_api.models import DatasetCatalog
 
-class DatasetCatalogReadSerializer(ModelSerializer):
+class DatasetCatalogSerializer(ModelSerializer):
 
     class Meta:
         model = DatasetCatalog
         fields = (
             'id',
             'catalog_json',
-            'modified_by_user_id',
-            'modified_by_api',
-            'created_by_user_id',
-            'created_by_api',
-        )
-
-class DatasetCatalogWriteSerializer(ModelSerializer):
-
-    class Meta:
-        model = DatasetCatalog
-        fields = (
-            'id',
-            'catalog_json',
+            'catalog_record_group_edit',
+            'catalog_record_group_create',
             'modified_by_user_id',
             'modified_by_api',
             'created_by_user_id',

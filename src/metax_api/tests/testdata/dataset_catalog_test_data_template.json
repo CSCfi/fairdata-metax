@@ -1,4 +1,6 @@
 {
+    "catalog_record_group_edit": "default-record-edit-group",
+    "catalog_record_group_create": "default-record-create-group",
     "catalog_json": {
         "identifier": "http://urn.fi/urn:nbn:fi:csc-898976%s",
         "title": [{

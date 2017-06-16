@@ -7,8 +7,8 @@ import os
 import requests
 import sys
 import time
-import urllib3
 from uuid import uuid4
+import urllib3
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import get_json_schema
@@ -20,7 +20,7 @@ file_test_data_template.json as template, and slightly modifies fields each loop
 When sending generated files immediately using requests for the first time, make sure to
 load data from a json-generated list first, because file storages are only generated when
 usind mode=json for now. After that, sending requests will work too because then they can
-use the file_storage_id from the json-generated file. If you are flushing the db at times,
+use the file_storage from the json-generated file. If you are flushing the db at times,
 remember to load file storages from json-file again.
 
 Data input options:
@@ -39,7 +39,7 @@ todo:
 """
 
 # how many file rows to generate
-file_max_rows = 10
+file_max_rows = 100
 
 # how many filestorage rows to generate
 file_storage_max_rows = 3
@@ -48,7 +48,7 @@ dataset_catalog_max_rows = 3
 
 catalog_record_max_rows = 10
 
-files_per_dataset = 1
+files_per_dataset = 3
 
 # mode: json for json-file, request for request per row, request_list for bulk post
 mode = 'json'
@@ -80,7 +80,7 @@ def generate_file_storages(mode, file_storage_max_rows):
             row_template = json_load(json_file)
 
         title = row_template['file_storage_json']['title']
-        identifier = "pid:urn:" + row_template['file_storage_json']['identifier']
+        identifier = "pid:urn:storage" + row_template['file_storage_json']['identifier']
 
         for i in range(1, file_storage_max_rows + 1):
             new = {
@@ -94,7 +94,7 @@ def generate_file_storages(mode, file_storage_max_rows):
                     }
                 },
                 'model': "metax_api.filestorage",
-                'pk': str(uuid4())
+                'pk': i
             }
             test_file_storage_list.append(new)
 
@@ -119,18 +119,17 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
 
     if mode == "json":
         # use the file storage id from the file storage created previously during this script execution
-        file_storage_id = test_file_storage_list[0]['pk']
+        file_storage = test_file_storage_list[0]['pk']
     else:
         # with POST requests, new file storages are not generated. instead, it is expected that they have
         # been already loaded in from previous test data
         with open('file_test_data_list.json') as old_test_data_file:
             file_test_data = json_load(old_test_data_file)
-            file_storage_id = file_test_data[0]['pk']
+            file_storage = file_test_data[0]['pk']
 
     for i in range(1, file_max_rows + 1):
 
         loop = str(i)
-        uuid_str = str(uuid4())
 
         if mode == 'json':
 
@@ -140,14 +139,14 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
             }
 
             new['fields']['file_name'] = file_name % loop
-            new['fields']['identifier'] = "pid:urn:" + uuid_str
+            new['fields']['identifier'] = "pid:urn:" + loop
             new['fields']['download_url'] = download_url % loop
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['file_characteristics']['title'] = json_title % loop
             new['fields']['file_characteristics']['description'] = json_description % loop
-            new['fields']['file_storage_id'] = file_storage_id
-            new['pk'] = uuid_str
+            new['fields']['file_storage'] = file_storage
+            new['pk'] = i
 
             if validate_json or i == 1:
                 json_validate(new['fields']['file_characteristics'], json_schema)
@@ -158,13 +157,14 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
             # http POST requests
 
             new = row_template.copy()
+            uuid_str = str(uuid4())
 
             new['file_name'] = file_name % loop
             new['identifier'] = "pid:urn:" + uuid_str
             new['download_url'] = download_url % loop
             new['file_characteristics']['title'] = json_title % loop
             new['file_characteristics']['description'] = json_description % loop
-            new['file_storage_id'] = file_storage_id
+            new['file_storage'] = file_storage
 
             if validate_json or i == 1:
                 json_validate(new['file_characteristics'], json_schema)
@@ -266,16 +266,14 @@ def generate_dataset_catalogs(mode, dataset_catalog_max_rows):
 
         for i in range(1, file_storage_max_rows + 1):
 
-            uuid_str = str(uuid4())
-
             new = {
                 'fields': row_template.copy(),
                 'model': "metax_api.datasetcatalog",
-                'pk': uuid_str,
+                'pk': i,
             }
             new['fields']['modified_by_api'] = '2017-05-15T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-15T10:07:22.559656Z'
-            new['fields']['catalog_json']['identifier'] = "pid:urn:" + uuid_str
+            new['fields']['catalog_json']['identifier'] = "pid:urn:catalog%d" % i
             test_dataset_catalog_list.append(new)
 
     return test_dataset_catalog_list
@@ -298,24 +296,21 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
 
     for i in range(1, catalog_record_max_rows + 1):
 
-        # loop = str(i)
-        uuid_str = str(uuid4())
-
         if mode == 'json':
 
             new = {
                 'fields': row_template.copy(),
                 'model': 'metax_api.catalogrecord',
-                'pk': uuid_str,
+                'pk': i,
             }
 
             # comment this line. i dare you.
             # for real tho, required to prevent some strange behaving references to old data
             new['fields']['research_dataset'] = row_template['research_dataset'].copy()
 
-            new['fields']['identifier'] = "pid:urn:" + uuid_str
+            new['fields']['identifier'] = "pid:urn:cr%d" % i
             new['fields']['dataset_catalog'] = dataset_catalog
-            new['fields']['research_dataset']['identifier'] = "pid:urn:" + uuid_str
+            new['fields']['research_dataset']['identifier'] = "pid:urn:cr%d" % i
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
 
@@ -345,7 +340,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
         #     new['download_url'] = download_url % loop
         #     new['file_characteristics']['title'] = json_title % loop
         #     new['file_characteristics']['description'] = json_description % loop
-        #     new['file_storage_id'] = file_storage_id
+        #     new['file_storage'] = file_storage
 
         #     if validate_json or i == 1:
         #         json_validate(new['file_characteristics'], json_schema)

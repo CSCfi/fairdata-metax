@@ -1,6 +1,6 @@
 from metax_api.models import DatasetCatalog
 from .common_view import CommonViewSet
-from ..serializers import DatasetCatalogReadSerializer
+from ..serializers import DatasetCatalogSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ class DatasetCatalogViewSet(CommonViewSet):
 
     # note: override get_queryset() to get more control
     queryset = DatasetCatalog.objects.filter(active=True, removed=False)
-    serializer_class = DatasetCatalogReadSerializer
+    serializer_class = DatasetCatalogSerializer
     object = DatasetCatalog
 
     lookup_field = 'pk'

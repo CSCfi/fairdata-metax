@@ -1,5 +1,10 @@
 {
     "dataset_catalog": null,
+    "preservation_state_modified": null,
+    "catalog_record_modified": "2014-01-17T08:19:58Z",
+    "mets_object_identifier": ["a", "b", "c"],
+    "dataset_group_edit": "default-dataset-edit-group",
+    "contract_identifier": "pid:of:a:contract",
     "research_dataset": {
         "identifier": "http://urn.fi/urn:nbn:fi%s",
         "modified": "2014-01-17T08:19:58Z",

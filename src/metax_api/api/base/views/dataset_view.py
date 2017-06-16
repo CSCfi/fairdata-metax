@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from metax_api.models import CatalogRecord
 from .common_view import CommonViewSet
-from ..serializers import CatalogRecordReadSerializer, FileReadSerializer
+from ..serializers import CatalogRecordSerializer, FileSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ class DatasetViewSet(CommonViewSet):
 
     # note: override get_queryset() to get more control
     queryset = CatalogRecord.objects.filter(active=True, removed=False)
-    serializer_class = CatalogRecordReadSerializer
+    serializer_class = CatalogRecordSerializer
     object = CatalogRecord
 
     lookup_field = 'pk'
@@ -45,11 +45,21 @@ class DatasetViewSet(CommonViewSet):
             if query_params.get('owner', False):
                 additional_filters['research_dataset__contains'] = { 'rightsHolder': { 'name': query_params['owner'] }}
             if query_params.get('state', False):
-                additional_filters['pas_state'] = query_params['state']
+                additional_filters['preservation_state'] = query_params['state']
             return self.queryset.filter(**additional_filters)
+
+    # def update(self, *args, **kwargs):
+    #     # causes the serializer later on to return only fields relevant to a dataset
+    #     kwargs.update({ 'dataset_only': True, 'partial': True })
+    #     return super(DatasetViewSet, self).update(*args, **kwargs)
+
+    # def partial_update(self, *args, **kwargs):
+    #     # causes the serializer later on to return only fields relevant to a dataset
+    #     kwargs.update({ 'dataset_only': True, 'partial': True })
+    #     return super(DatasetViewSet, self).update(*args, **kwargs)
 
     @detail_route(methods=['get'], url_path="files")
     def files_get(self, request, pk=None):
         catalog_record = self.get_object()
-        files = [ FileReadSerializer(f).data for f in catalog_record.files.all() ]
+        files = [ FileSerializer(f).data for f in catalog_record.files.all() ]
         return Response(data=files, status=status.HTTP_200_OK)

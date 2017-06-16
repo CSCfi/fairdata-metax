@@ -1,11 +1,9 @@
-from uuid import uuid4
 from django.db import models
 from django.contrib.auth.models import User
 
 class Common(models.Model):
 
-    # todo decide on UUID. random, sequential, place of generation (metax, client?)
-    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    id = models.BigAutoField(primary_key=True, editable=False)
     active = models.BooleanField(default=True)
     removed = models.BooleanField(default=False)
     modified_by_api = models.DateTimeField(null=True)

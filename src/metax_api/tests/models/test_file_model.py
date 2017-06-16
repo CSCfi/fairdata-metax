@@ -33,7 +33,7 @@ class FileModelBasicTest(TestCase, TestClassUtils):
         'access_group',
         'open_access',
         'file_characteristics',
-        'file_storage_id',
+        'file_storage',
         'xmlmetadata',
         'catalogrecord',
     )
@@ -84,7 +84,7 @@ class FileModelBasicTest(TestCase, TestClassUtils):
     def test_model_field_values(self):
         test_file_data = self._get_object_from_test_data('file')
         test_file_characteristics = test_file_data.pop('file_characteristics')
-        test_file_data.pop('file_storage_id')
+        test_file_data.pop('file_storage')
         file = File.objects.get(identifier=self.identifier)
         self._dict_comparison(test_file_data, file)
         self._dict_comparison(test_file_characteristics, file.file_characteristics)

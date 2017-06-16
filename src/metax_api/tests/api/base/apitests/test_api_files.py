@@ -10,7 +10,7 @@ d = print
 class FileApiReadTestV1(APITestCase, TestClassUtils):
 
     """
-    Fields defined in FileReadSerializer
+    Fields defined in FileSerializer
     """
     file_field_names = (
         'id',
@@ -23,7 +23,7 @@ class FileApiReadTestV1(APITestCase, TestClassUtils):
         'file_format',
         'file_modified',
         'file_name',
-        'file_storage_id',
+        'file_storage',
         'file_path',
         'identifier',
         'file_characteristics',
@@ -147,14 +147,14 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_create_file_dont_allow_file_storage_fields_update(self):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
-        original_title = self.test_new_data['file_storage_id']['file_storage_json']['title']
-        self.test_new_data['file_storage_id']['file_storage_json']['title'] = 'new title'
+        original_title = self.test_new_data['file_storage']['file_storage_json']['title']
+        self.test_new_data['file_storage']['file_storage_json']['title'] = 'new title'
 
         response = self.client.post('/rest/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['file_storage_id']['file_storage_json']['title'], original_title)
-        file_storage = FileStorage.objects.get(pk=response.data['file_storage_id']['id'])
+        self.assertEqual(response.data['file_storage']['file_storage_json']['title'], original_title)
+        file_storage = FileStorage.objects.get(pk=response.data['file_storage']['id'])
         self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
     def test_create_file_list_error_one_fails(self):
@@ -232,12 +232,12 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.data['file_name'], 'new_file_name', 'Field file_name was not updated')
 
     def test_update_file_dont_allow_file_storage_fields_update(self):
-        original_title = self.test_new_data['file_storage_id']['file_storage_json']['title']
-        self.test_new_data['file_storage_id']['file_storage_json']['title'] = 'new title'
+        original_title = self.test_new_data['file_storage']['file_storage_json']['title']
+        self.test_new_data['file_storage']['file_storage_json']['title'] = 'new title'
 
         response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        file_storage = FileStorage.objects.get(pk=self.test_new_data['file_storage_id']['id'])
+        file_storage = FileStorage.objects.get(pk=self.test_new_data['file_storage']['id'])
         self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
     def test_update_file_not_found(self):
@@ -276,7 +276,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "checksum_algorithm": "sha2",
             "replication_path": "empty",
             "checksum_checked": None,
-            "file_storage_id": self._get_object_from_test_data('filestorage', requested_index=0),
+            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0),
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 0000000010",
@@ -304,7 +304,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "checksum_algorithm": "sha2",
             "replication_path": "empty",
             "checksum_checked": None,
-            "file_storage_id": self._get_object_from_test_data('filestorage', requested_index=0),
+            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0),
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 0000000010",
