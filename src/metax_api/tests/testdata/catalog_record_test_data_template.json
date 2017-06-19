@@ -6,9 +6,10 @@
     "dataset_group_edit": "default-dataset-edit-group",
     "contract_identifier": "pid:of:a:contract",
     "research_dataset": {
-        "identifier": "http://urn.fi/urn:nbn:fi%s",
+        "urn_identifier": "http://urn.fi/urn:nbn:fi%s",
+        "preferred_identifier": "http://urn.fi/urn:nbn:fi%s",
         "modified": "2014-01-17T08:19:58Z",
-        "versionNotes": [
+        "version_notes": [
             "This version contains changes to x and y."
         ],
         "title": [{
@@ -21,9 +22,10 @@
             "name": "Teppo Testaaja"
         }],
         "language":[{
-            "title": ["en"],
+            "title": "en",
             "identifier": "http://lang.ident.ifier/en"
         }],
-        "totalbytesize": 1024
+        "total_byte_size": 12345,
+        "ready_status": "Unfinished"
     }
 }

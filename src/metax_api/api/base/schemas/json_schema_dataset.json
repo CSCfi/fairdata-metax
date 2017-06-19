@@ -1,8 +1,7 @@
-
 {
     "@id":"http://iow.csc.fi/ns/mrd#",
     "title":"Metax Research Datasets",
-    "modified":"Mon, 24 Apr 2017 10:32:28 EEST",
+    "modified":"Tue, 13 Jun 2017 16:09:27 EEST",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "allOf":[
@@ -58,7 +57,7 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 },
-                "used":{
+                "used_entity":{
                     "title":"Used entity",
                     "description":"Resource that was used in this activity",
                     "@id":"http://www.w3.org/ns/prov#used",
@@ -69,7 +68,7 @@
                         "$ref":"#/definitions/RelatedEntity"
                     }
                 },
-                "wasAssociatedWith":{
+                "was_associated_with":{
                     "title":"wasAssociatedWith",
                     "description":"An activity association is an assignment of responsibility to an agent for an activity, indicating that the agent had a role in the activity.",
                     "@id":"http://www.w3.org/ns/prov#wasAssociatedWith",
@@ -106,7 +105,7 @@
                     "minItems":1,
                     "maxItems":1
                 },
-                "catalogidentifier":{
+                "catalog_identifier":{
                     "title":"Catalog identifier",
                     "description":"Unique identifier for the catalog that the catalog record is stored to",
                     "@id":"http://iow.csc.fi/ns/mrd#catalogidentifier",
@@ -114,41 +113,26 @@
                     "minItems":1,
                     "maxItems":1
                 },
-                "created":{
+                "created_by_api":{
                     "title":"Date Created",
                     "description":"Date of creation of the resource.",
                     "@id":"http://purl.org/dc/terms/created",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    },
+                    "maxItems":1,
+                    "type":"string",
                     "format":"date-time"
                 },
-                "modified":{
+                "modified_by_api":{
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",
                     "@id":"http://purl.org/dc/terms/modified",
-                    "@type":"http://www.w3.org/2001/XMLSchema#date",
+                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "minItems":1,
                     "maxItems":1,
-                    "type":"string"
+                    "type":"string",
+                    "format":"date-time"
                 },
-                "readystatus":{
-                    "title":"Catalog record status",
-                    "description":"Status of the catalog record",
-                    "@id":"http://iow.csc.fi/ns/mrd#readystatus",
-                    "enum":[
-                        "Unfinished",
-                        "Ready",
-                        "Removed"
-                    ],
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
-                    "type":"string"
-                },
-                "primaryTopic":{
+                "dataset_json":{
                     "title":"Primary topic",
                     "description":"Dataset described by this metadata record.",
                     "@id":"http://xmlns.com/foaf/0.1/primaryTopic",
@@ -156,16 +140,8 @@
                     "type":"object",
                     "$ref":"#/definitions/ResearchDataset"
                 },
-                "conformsTo":{
-                    "title":"Application profile",
-                    "description":"This property refers to an Application Profile that the Dataset’s metadata conforms to",
-                    "@id":"http://purl.org/dc/terms/conformsTo",
-                    "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Document"
-                },
-                "contractidentifier":{
-                    "title":"PAS Contract identifier",
+                "contract_identifier":{
+                    "title":"Contract identifier",
                     "description":"identifies the contract",
                     "@id":"http://iow.csc.fi/ns/mrd#contractidentifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
@@ -173,8 +149,8 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "passtate":{
-                    "title":"PAS state",
+                "preservation_state":{
+                    "title":"Preservation state",
                     "description":"state of dataset in PAS cycle: 0 = Not in PAS, 1 = Proposed for midtterm, 2 = Proposed for long term, 3, =in packaging service, 4 = in dissemination, 5 = in midterm PAS, 6 = in longterm PAS",
                     "@id":"http://iow.csc.fi/ns/mrd#passtate",
                     "enum":[
@@ -191,7 +167,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "metsobjectidentifier":{
+                "mets_object_identifier":{
                     "title":"Mets object identifier",
                     "description":"PID in mid/longterm preservation",
                     "@id":"http://iow.csc.fi/ns/mrd#metsobjectidentifier",
@@ -201,47 +177,39 @@
                         "type":"string"
                     }
                 },
-                "description":{
-                    "title":"PAS system description",
-                    "description":"Status of PAS described",
+                "preservation_description":{
+                    "title":"Preservation system description",
+                    "description":"Preservation status described for the user",
                     "@id":"http://purl.org/dc/terms/description",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
+                    "maxItems":1,
+                    "type":"string"
                 },
-                "pASuserdescription":{
-                    "title":"PAS user description",
-                    "description":"PAS user description",
+                "preservation_reason_description":{
+                    "title":"Preservation reason description",
+                    "description":"Reason for the preservation from the user",
                     "@id":"http://iow.csc.fi/ns/mrd#pASuserdescription",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
+                    "maxItems":1,
+                    "type":"string"
                 },
-                "creator":{
-                    "title":"Metadata creator",
-                    "description":"Creator of the metadata",
-                    "@id":"http://purl.org/dc/terms/creator",
-                    "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/ResearchAgent"
-                    }
+                "status_modified":{
+                    "title":"Preservation status modified",
+                    "description":"Date when status was modified",
+                    "@id":"http://iow.csc.fi/ns/mrd#statusmodified",
+                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time"
                 }
             },
             "required":[
                 "identifier",
-                "catalogidentifier",
-                "modified",
-                "readystatus",
-                "primaryTopic",
-                "conformsTo",
-                "contractidentifier",
-                "passtate"
+                "catalog_identifier",
+                "modified_by_api",
+                "dataset_json",
+                "contract_identifier",
+                "preservation_state"
             ]
         },
         "Checksum":{
@@ -258,7 +226,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "checksumValue":{
+                "checksum_value":{
                     "title":"Checksum value",
                     "description":"Value of the checksum. xsd:hexBinary",
                     "@id":"http://spdx.org/rdf/terms#checksumValue",
@@ -269,7 +237,7 @@
             },
             "required":[
                 "algorithm",
-                "checksumValue"
+                "checksum_value"
             ]
         },
         "Concept":{
@@ -285,7 +253,7 @@
                     "minItems":1,
                     "maxItems":1
                 },
-                "prefLabel":{
+                "pref_label":{
                     "title":"Preferred label",
                     "description":"The preferred lexical label for a resource, in a given language. A resource has no more than one value of skos:prefLabel per language tag, and no more than one value of skos:prefLabel without language tag. The range of skos:prefLabel is the class of RDF plain literals. skos:prefLabel, skos:altLabel and skos:hiddenLabel are pairwise\n      disjoint properties.",
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -309,7 +277,7 @@
                         "$ref":"#/definitions/langString"
                     }
                 },
-                "inScheme":{
+                "in_scheme":{
                     "title":"Is in scheme",
                     "description":"Relates a resource (for example a concept) to a concept scheme in which it is included.",
                     "@id":"http://www.w3.org/2004/02/skos/core#inScheme",
@@ -323,7 +291,7 @@
             },
             "required":[
                 "identifier",
-                "prefLabel",
+                "pref_label",
                 "definition"
             ]
         },
@@ -332,7 +300,7 @@
             "@id":"http://www.w3.org/2004/02/skos/core#ConceptScheme",
             "description":"A set of concepts, optionally including statements about semantic relationships between those concepts.",
             "properties":{
-                "prefLabel":{
+                "pref_label":{
                     "title":"Preferred label",
                     "description":"The preferred lexical label for a resource, in a given language. A resource has no more than one value of skos:prefLabel per language tag, and no more than one value of skos:prefLabel without language tag. The range of skos:prefLabel is the class of RDF plain literals. skos:prefLabel, skos:altLabel and skos:hiddenLabel are pairwise\n      disjoint properties.",
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -378,7 +346,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "hasCreatingApplicationName":{
+                "application_name":{
                     "title":"Application name",
                     "description":"A designation for the name of the software program that created the object",
                     "@id":"http://www.loc.gov/premis/rdf/v1#hasCreatingApplicationName",
@@ -468,7 +436,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "accessURL":{
+                "access_url":{
                     "title":"access URL",
                     "description":"Could be any kind of URL that gives access to a distribution of the dataset. E.g. landing page download, feed URL, SPARQL endpoint. Use when your catalog does not have information on which it is or when it is definitely not a download.",
                     "@id":"http://www.w3.org/ns/dcat#accessURL",
@@ -499,10 +467,8 @@
                     "description":"A name given to the resource.",
                     "@id":"http://purl.org/dc/terms/title",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
+                    "maxItems":1,
+                    "type":"string"
                 },
                 "identifier":{
                     "title":"Identifier",
@@ -523,7 +489,7 @@
             "@id":"http://purl.org/dc/terms/Location",
             "description":"A spatial region or named place.",
             "properties":{
-                "geographicName":{
+                "geographic_name":{
                     "title":"Geographic name",
                     "description":"A geographic name is a proper noun applied to a spatial object. Taking the example used in the relevant INSPIRE data specification (page 18), the following are all valid geographic names for the Greek capital:\n- Αθήνα (the Greek endonym written in the Greek script)\n- Athína (the standard Romanisation of the endonym)\n- Athens (the English language exonym)\nFor INSPIRE-conformant data, provide the metadata for the geographic name using a skos:Concept as a datatype.",
                     "@id":"http://www.w3.org/ns/locn#geographicName",
@@ -552,22 +518,18 @@
                     "description":"The WGS84 altitude of a SpatialThing (decimal meters \nabove the local reference ellipsoid).",
                     "@id":"http://www.w3.org/2003/01/geo/wgs84_pos#alt",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
+                    "maxItems":1,
+                    "type":"string"
                 },
-                "addressCountry":{
+                "address_country":{
                     "title":"Country",
                     "description":"Country code",
                     "@id":"http://schema.org/addressCountry",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
+                    "maxItems":1,
+                    "type":"string"
                 },
-                "fullAddress":{
+                "full_address":{
                     "title":"Full address",
                     "description":"The complete address written as a string, with or without formatting.",
                     "@id":"http://www.w3.org/ns/locn#fullAddress",
@@ -582,24 +544,20 @@
             "@id":"http://purl.org/dc/terms/PeriodOfTime",
             "description":"An interval of time that is named or defined by its start and end dates.",
             "properties":{
-                "startDate":{
+                "start_date":{
                     "title":"Start of the pediod",
                     "@id":"http://schema.org/startDate",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    },
+                    "maxItems":1,
+                    "type":"string",
                     "format":"date-time"
                 },
-                "endDate":{
+                "end_date":{
                     "title":"End of the period",
                     "@id":"http://schema.org/endDate",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    },
+                    "maxItems":1,
+                    "type":"string",
                     "format":"date-time"
                 }
             }
@@ -628,15 +586,13 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "hasFunderIdentifier":{
+                "has_funder_identifier":{
                     "title":"Project funding identifier",
                     "description":"Unique identifier for the project that is being used by the project funder",
                     "@id":"http://purl.org/cerif/frapo/hasFunderIdentifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
+                    "maxItems":1,
+                    "type":"string"
                 },
                 "homepage":{
                     "title":"Homepage",
@@ -645,7 +601,7 @@
                     "type":"object",
                     "$ref":"#/definitions/Document"
                 },
-                "hasFundingAgency":{
+                "has_funding_agency":{
                     "title":"Funding agency",
                     "@id":"http://purl.org/cerif/frapo/hasFundingAgency",
                     "@type":"@id",
@@ -655,7 +611,7 @@
                         "$ref":"#/definitions/ResearchAgent"
                     }
                 },
-                "sourceOrganization":{
+                "source_organization":{
                     "title":"Organization",
                     "description":"The Organization(s) who is/are participating to the project",
                     "@id":"http://schema.org/sourceOrganization",
@@ -671,7 +627,7 @@
             "required":[
                 "name",
                 "identifier",
-                "sourceOrganization"
+                "source_organization"
             ]
         },
         "RelatedEntity":{
@@ -734,7 +690,7 @@
                     "description":"An unambiguous reference to the resource within a given context.",
                     "@id":"http://purl.org/dc/terms/identifier",
                     "@type":"@id",
-                    "type":"array"
+                    "maxItems":1
                 },
                 "name":{
                     "title":"Name",
@@ -848,8 +804,17 @@
             "@id":"http://www.w3.org/ns/dcat#Dataset",
             "description":"A collection of data, published or curated by a single source, and available for access or download in one or more formats",
             "properties":{
-                "identifier":{
-                    "title":"Dataset identifier",
+                "urn_identifier":{
+                    "title":"Dataset URN identifier",
+                    "description":"Dataset identifier",
+                    "@id":"http://iow.csc.fi/ns/mrd#datasetidentifier",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minItems":1,
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "preferred_identifier":{
+                    "title":"Preferred identifier",
                     "description":"Unique identifier for the dataset. URN or URI.",
                     "@id":"http://purl.org/dc/terms/identifier",
                     "@type":"@id",
@@ -860,12 +825,13 @@
                     "title":"Dataset modification date",
                     "description":"Last date when a dataset was produced having the identifiers expressed in this metadata record. An automatic transformation process e.g. between file types is not considered an update of the content.",
                     "@id":"http://purl.org/dc/terms/modified",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "minItems":1,
                     "maxItems":1,
-                    "type":"string"
+                    "type":"string",
+                    "format":"date-time"
                 },
-                "versionInfo":{
+                "version_info":{
                     "title":"Version",
                     "description":"This property contains a version number or other version designation of the Dataset.",
                     "@id":"http://www.w3.org/2002/07/owl#versionInfo",
@@ -873,7 +839,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "versionNotes":{
+                "version_notes":{
                     "title":"Version notes",
                     "description":"This property contains a description of the differences between this version and a previous version of the Dataset. This property can be repeated for parallel language versions of the version notes.",
                     "@id":"http://www.w3.org/ns/adms#versionNotes",
@@ -926,7 +892,7 @@
                         "$ref":"#/definitions/langString"
                     }
                 },
-                "bibliographicCitation":{
+                "bibliographic_citation":{
                     "title":"Preferred Bibliographic Citation",
                     "description":"Preferred bibliographic reference for the resource.",
                     "@id":"http://purl.org/dc/terms/bibliographicCitation",
@@ -934,7 +900,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "otherIdentifier":{
+                "other_identifier":{
                     "title":"Other identifier",
                     "description":"",
                     "@id":"http://www.w3.org/ns/adms#identifier",
@@ -976,7 +942,7 @@
                         "$ref":"#/definitions/ResearchAgent"
                     }
                 },
-                "isOutputOf":{
+                "is_output_of":{
                     "title":"Producer project",
                     "description":"A project that has caused the dataset to be created",
                     "@id":"http://purl.org/cerif/frapo/isOutputOf",
@@ -987,7 +953,7 @@
                         "$ref":"#/definitions/Project"
                     }
                 },
-                "rightsHolder":{
+                "rights_holder":{
                     "title":"Dataset owner",
                     "description":"A person or organisation who holds the copyright of the dataset at the current moment, usually the organization of the author – this does not mean the owner of the storage media (such as a memory stick) but the rights holder",
                     "@id":"http://purl.org/dc/terms/rightsHolder",
@@ -1040,7 +1006,7 @@
                         "$ref":"#/definitions/PeriodOfTime"
                     }
                 },
-                "relatedEntity":{
+                "related_entity":{
                     "title":"Related entity",
                     "description":"A related entity. It is recommended to use one of the subproperties.",
                     "@id":"http://purl.org/dc/terms/relation",
@@ -1073,7 +1039,7 @@
                         "$ref":"#/definitions/Concept"
                     }
                 },
-                "remoteResources":{
+                "remote_resources":{
                     "title":"Remote resources",
                     "description":"A concrete storage or expression format for the data in the dataset, for example a file, a database or a query interface to the data.",
                     "@id":"http://www.w3.org/ns/dcat#distribution",
@@ -1084,7 +1050,7 @@
                         "$ref":"#/definitions/WebResource"
                     }
                 },
-                "accessRights":{
+                "access_rights":{
                     "title":"Access rights",
                     "@id":"http://www.w3.org/ns/dcat#accessRights",
                     "@type":"@id",
@@ -1102,7 +1068,7 @@
                         "$ref":"#/definitions/Activity"
                     }
                 },
-                "totalbytesize":{
+                "total_byte_size":{
                     "title":"Total byte size",
                     "description":"Sum of all distribution byte size",
                     "@id":"http://iow.csc.fi/ns/mrd#totalbytesize",
@@ -1131,17 +1097,33 @@
                         "type":"object",
                         "$ref":"#/definitions/File"
                     }
+                },
+                "ready_status":{
+                    "title":"Dataset status",
+                    "description":"Status of the catalog record",
+                    "@id":"http://iow.csc.fi/ns/mrd#readystatus",
+                    "enum":[
+                        "Unfinished",
+                        "Ready",
+                        "Removed"
+                    ],
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minItems":1,
+                    "maxItems":1,
+                    "type":"string"
                 }
             },
             "required":[
-                "identifier",
+                "urn_identifier",
+                "preferred_identifier",
                 "modified",
-                "versionNotes",
+                "version_notes",
                 "title",
                 "description",
                 "creator",
                 "language",
-                "totalbytesize"
+                "total_byte_size",
+                "ready_status"
             ]
         },
         "RightsStatement":{
@@ -1165,10 +1147,8 @@
                     "description":"Date (often a range) that the resource became or will become available.",
                     "@id":"http://purl.org/dc/terms/available",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
+                    "maxItems":1,
+                    "type":"string"
                 },
                 "type":{
                     "title":"Type",
@@ -1181,7 +1161,7 @@
                         "$ref":"#/definitions/Concept"
                     }
                 },
-                "hasRightRelatedAgent":{
+                "has_right_related_agent":{
                     "title":"Related agent",
                     "@id":"http://www.loc.gov/premis/rdf/v1#hasRightRelatedAgent",
                     "@type":"@id",
@@ -1222,7 +1202,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "localIdentifierType":{
+                "local_identifier_type":{
                     "title":"Local identifier type",
                     "description":"Local identifier type defines use of the identifier in given context.",
                     "@id":"http://purl.org/dc/terms/identifier",
@@ -1355,7 +1335,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "accessURL":{
+                "access_url":{
                     "title":"access URL",
                     "description":"Could be any kind of URL that gives access to a distribution of the dataset. E.g. landing page download, feed URL, SPARQL endpoint. Use when your catalog does not have information on which it is or when it is definitely not a download.",
                     "@id":"http://www.w3.org/ns/dcat#accessURL",
@@ -1363,7 +1343,7 @@
                     "type":"object",
                     "$ref":"#/definitions/Document"
                 },
-                "downloadURL":{
+                "download_url":{
                     "title":"download URL",
                     "description":"This is a direct link to a downloadable file in a given format. E.g. CSV file or RDF file. The format is described by the distribution's dc:format and/or dcat:mediaType",
                     "@id":"http://www.w3.org/ns/dcat#downloadURL",
@@ -1398,7 +1378,7 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 },
-                "hasObjectCharacteristics":{
+                "has_object_characteristics":{
                     "title":"File charasteristics",
                     "description":"Fileformat specific charasteristics",
                     "@id":"http://www.loc.gov/premis/rdf/v1#hasObjectCharacteristics",

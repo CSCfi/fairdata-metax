@@ -15,9 +15,6 @@ class CatalogRecord(Common):
     PRESERVATION_STATE_IN_MIDTERM_PAS = 5
     PRESERVATION_STATE_IN_LONGTERM_PAS = 6
 
-    READY_STATUS_FINISHED = 'finished'
-    READY_STATUS_UNFINISHED = 'unfinished'
-
     PRESERVATION_STATE_CHOICES = (
         (PRESERVATION_STATE_NOT_IN_PAS, 'Not in PAS'),
         (PRESERVATION_STATE_PROPOSED_MIDTERM, 'Proposed for midtterm'),
@@ -26,11 +23,6 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_IN_DISSEMINATION, 'In dissemination'),
         (PRESERVATION_STATE_IN_MIDTERM_PAS, 'In midterm PAS'),
         (PRESERVATION_STATE_IN_LONGTERM_PAS, 'In longterm PAS'),
-    )
-
-    READY_STATUS_CHOICES = (
-        (READY_STATUS_FINISHED, 'Finished'),
-        (READY_STATUS_UNFINISHED, 'Unfinished'),
     )
 
     identifier = models.CharField(max_length=200, unique=True)
@@ -42,10 +34,6 @@ class CatalogRecord(Common):
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
     preservation_state_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
     preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
-    ready_status = models.CharField(max_length=20, choices=READY_STATUS_CHOICES, default=READY_STATUS_UNFINISHED,
-        help_text='Status of the record. Unfinished: allow changes in any dataset field and adding files. '
-                  'Finished: Dataset metadata can be updated, but files can no longer be added or removed. '
-                  'At finished state, altering included files requires creating a new version.')
     contract_identifier = models.CharField(max_length=200, blank=True, null=True)
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
     catalog_record_modified = models.DateTimeField(null=True, help_text='Date of last change in Catalog Record -specific fields.')

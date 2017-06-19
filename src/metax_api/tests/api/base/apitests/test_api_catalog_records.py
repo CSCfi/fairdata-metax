@@ -21,7 +21,6 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         'preservation_state_modified',
         'preservation_state_description',
         'preservation_reason_description',
-        'ready_status',
         'contract_identifier',
         'mets_object_identifier',
         'catalog_record_modified',
