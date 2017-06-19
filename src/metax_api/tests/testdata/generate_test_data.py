@@ -310,7 +310,8 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
 
             new['fields']['identifier'] = "pid:urn:cr%d" % i
             new['fields']['dataset_catalog'] = dataset_catalog
-            new['fields']['research_dataset']['identifier'] = "pid:urn:cr%d" % i
+            new['fields']['research_dataset']['urn_identifier'] = "pid:urn:dataset%d" % i
+            new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['files'] = []
