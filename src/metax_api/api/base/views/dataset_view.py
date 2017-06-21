@@ -1,5 +1,8 @@
+from django.http import Http404
+
 from rest_framework import status
 from rest_framework.decorators import detail_route
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from metax_api.models import CatalogRecord
@@ -30,11 +33,17 @@ class DatasetViewSet(CommonViewSet):
         super(DatasetViewSet, self).__init__(*args, **kwargs)
 
     def get_object(self):
-        """
-        todo:
-        - look also by json field otherIdentifier, if no match is found?
-        """
-        return super(DatasetViewSet, self).get_object()
+        try:
+            return super(DatasetViewSet, self).get_object()
+        except Http404:
+            if self.is_primary_key(self.kwargs.get(self.lookup_field, False)):
+                # fail on pk search is clear, but other identifiers can have matches
+                # in a dataset's other identifier fields
+                raise
+        except Exception:
+            raise
+
+        return self._search_using_other_dataset_identifiers()
 
     def get_queryset(self):
         if not self.request.query_params:
@@ -63,3 +72,33 @@ class DatasetViewSet(CommonViewSet):
         catalog_record = self.get_object()
         files = [ FileSerializer(f).data for f in catalog_record.files.all() ]
         return Response(data=files, status=status.HTTP_200_OK)
+
+    def _search_using_other_dataset_identifiers(self):
+        """
+        URN-lookup from self.lookup_field_other failed. Look from dataset json fields
+        preferred_identifier first, and array other_identifier after, if there are matches
+        """
+        lookup_value = self.kwargs[self.lookup_field_other]
+        search_params = { 'research_dataset__contains': { 'urn_identifier': lookup_value }}
+        try:
+            return super(DatasetViewSet, self).get_object(search_params=search_params)
+        except Http404:
+            # more fields to try, dont raise yet...
+            pass
+        except Exception:
+            raise
+
+        # finally try search the array other_identifier
+        queryset = self.filter_queryset(self.get_queryset())
+        filter_kwargs = { 'research_dataset__contains': { 'other_identifier': [{ 'local_identifier': lookup_value }]}}
+
+        try:
+            obj = get_object_or_404(queryset, **filter_kwargs)
+        except Exception:
+            # this was last chance, now raise 404
+            raise Http404
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj

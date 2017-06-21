@@ -32,36 +32,40 @@ class CommonViewSet(ModelViewSet):
         self.queryset = self.object.objects.filter(active=True, removed=False)
         super(CommonViewSet, self).__init__(*args, **kwargs)
 
-    def get_object(self):
+    def get_object(self, search_params=None):
         """
         Overrided from rest_framework generics.py method to also allow searching by the field
         lookup_field_other.
-        """
-        if self.is_primary_key(self.kwargs.get(self.lookup_field, False)) or not hasattr(self, 'lookup_field_other'):
-            # lookup by originak lookup_field. standard django procedure
-            lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        else:
-            # lookup by alternative field lookup_field_other
-            lookup_url_kwarg = self.lookup_field_other
 
-            # replace original field name with field name in lookup_field_other
-            self.kwargs[lookup_url_kwarg] = self.kwargs.pop(self.lookup_field)
+        param search_params: pass a custom filter instead of using the default search mechanism
+        """
+        if search_params:
+            filter_kwargs = search_params
+        else:
+            if self.is_primary_key(self.kwargs.get(self.lookup_field, False)) or not hasattr(self, 'lookup_field_other'):
+                # lookup by originak lookup_field. standard django procedure
+                lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+            else:
+                # lookup by alternative field lookup_field_other
+                lookup_url_kwarg = self.lookup_field_other
+
+                # replace original field name with field name in lookup_field_other
+                self.kwargs[lookup_url_kwarg] = self.kwargs.pop(self.lookup_field)
+
+            assert lookup_url_kwarg in self.kwargs, (
+                'Expected view %s to be called with a URL keyword argument '
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                'attribute on the view correctly.' %
+                (self.__class__.__name__, lookup_url_kwarg)
+            )
+
+            filter_kwargs = { lookup_url_kwarg: self.kwargs[lookup_url_kwarg] }
 
         queryset = self.filter_queryset(self.get_queryset())
 
-        assert lookup_url_kwarg in self.kwargs, (
-            'Expected view %s to be called with a URL keyword argument '
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            'attribute on the view correctly.' %
-            (self.__class__.__name__, lookup_url_kwarg)
-        )
-
-        filter_kwargs = { lookup_url_kwarg: self.kwargs[lookup_url_kwarg] }
-
         try:
             obj = get_object_or_404(queryset, **filter_kwargs)
-        except Exception as e:
-            _logger.debug('get_object(): could not find an object with field and value: %s: %s' % (lookup_url_kwarg, filter_kwargs[lookup_url_kwarg]))
+        except Exception:
             raise Http404
 
         # May raise a permission denied
@@ -100,7 +104,7 @@ class CommonViewSet(ModelViewSet):
 
                 try:
                     serializer.is_valid(raise_exception=True)
-                except Exception as e:
+                except Exception:
                     results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
                 else:
                     serializer.save()
