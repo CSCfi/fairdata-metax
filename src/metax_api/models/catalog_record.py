@@ -4,6 +4,7 @@ from django.db import models
 from .common import Common
 from .file import File
 from .dataset_catalog import DatasetCatalog
+from .contract import Contract
 
 class CatalogRecord(Common):
 
@@ -28,8 +29,8 @@ class CatalogRecord(Common):
     identifier = models.CharField(max_length=200, unique=True)
     research_dataset = JSONField()
     dataset_catalog = models.ForeignKey(DatasetCatalog)
+    contract = models.ForeignKey(Contract, on_delete=models.DO_NOTHING)
     files = models.ManyToManyField(File)
-
     preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
     preservation_state_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
@@ -39,6 +40,7 @@ class CatalogRecord(Common):
     catalog_record_modified = models.DateTimeField(null=True, help_text='Date of last change in Catalog Record -specific fields.')
     dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
 
-    indexes = [
-        models.Index(fields=['identifier']),
-    ]
+    class Meta:
+        indexes = [
+            models.Index(fields=['identifier'])
+        ]
