@@ -28,10 +28,6 @@ class CommonViewSet(ModelViewSet):
 
     lookup_field_internal = None
 
-    def __init__(self, *args, **kwargs):
-        self.queryset = self.object.objects.filter(active=True, removed=False)
-        super(CommonViewSet, self).__init__(*args, **kwargs)
-
     def get_object(self, search_params=None):
         """
         Overrided from rest_framework generics.py method to also allow searching by the field

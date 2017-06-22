@@ -226,8 +226,18 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+        deleted_catalog_record = None
+
         try:
             deleted_catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
+        except CatalogRecord.DoesNotExist:
+            pass
+
+        if deleted_catalog_record:
+            raise Exception('Deleted CatalogRecord should not be retrievable from the default objects table')
+
+        try:
+            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(identifier=self.identifier)
         except CatalogRecord.DoesNotExist:
             raise Exception('Deleted CatalogRecord should not be deleted from the db, but marked as removed')
 

@@ -1,6 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class CommonManager(models.Manager):
+
+    def get_queryset(self):
+        return super(CommonManager, self).get_queryset().filter(active=True, removed=False)
+
+
 class Common(models.Model):
 
     id = models.BigAutoField(primary_key=True, editable=False)
@@ -13,12 +19,14 @@ class Common(models.Model):
     created_by_user_id = models.ForeignKey(User, related_name='%(class)s_created_by_user',
                                            null=True, db_column='created_by_user_id')
 
+    # all queries made using the default 'objects' table are filtered with active=True and removed=False
+    objects = CommonManager()
+
+    # to access removed or inactive records, use this manager instead
+    objects_unfiltered = models.Manager()
+
     class Meta:
         abstract = True
-
-    def get(self, **kwargs):
-        kwargs.update({ 'active': True, 'removed': False })
-        return super(Common, self).get(**kwargs)
 
     def delete(self):
         """

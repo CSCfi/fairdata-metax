@@ -252,7 +252,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         try:
-            deleted_file = File.objects.get(identifier=self.identifier)
+            deleted_file = File.objects_unfiltered.get(identifier=self.identifier)
         except File.DoesNotExist:
             raise Exception('Deleted file should not be deleted from the db, but marked as removed')
 
