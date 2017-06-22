@@ -18,7 +18,7 @@ class FileViewSet(CommonViewSet):
     permission_classes = ()
 
     # note: override get_queryset() to get more control
-    queryset = File.objects.filter(active=True, removed=False)
+    queryset = File.objects.all()
     serializer_class = FileSerializer
     object = File
 

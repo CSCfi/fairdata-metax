@@ -1,3 +1,4 @@
+from copy import deepcopy
 import json
 from json import load as json_load
 from json import dump as json_dump
@@ -39,16 +40,20 @@ todo:
 """
 
 # how many file rows to generate
-file_max_rows = 100
+file_max_rows = 20
 
 # how many filestorage rows to generate
-file_storage_max_rows = 3
+file_storage_max_rows = 2
 
-dataset_catalog_max_rows = 3
+dataset_catalog_max_rows = 2
+
+contract_max_rows = 5
 
 catalog_record_max_rows = 10
 
-files_per_dataset = 3
+files_per_dataset = 2
+
+catalog_records_per_contract = 2
 
 # mode: json for json-file, request for request per row, request_list for bulk post
 mode = 'json'
@@ -206,12 +211,12 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
     return test_data_list
 
 
-def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, catalog_record_list, batch_size):
+def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, contract_list, catalog_record_list, batch_size):
     if mode == 'json':
 
         with open('test_data.json', 'w') as f:
             print('dumping test data as json to metax_api/tests/test_data.json...')
-            json_dump(file_storage_list + file_list + dataset_catalogs_list + catalog_record_list, f, indent=4)
+            json_dump(file_storage_list + file_list + dataset_catalogs_list + contract_list + catalog_record_list, f, indent=4)
 
     elif mode == 'request_list':
 
@@ -239,7 +244,7 @@ def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, ca
 
             try:
                 res_json = json.loads(res.text)
-            except Exception as e:
+            except Exception:
                 print('something went wrong when loading res.text to json, here is the text:')
                 print(res.text)
                 return
@@ -279,7 +284,34 @@ def generate_dataset_catalogs(mode, dataset_catalog_max_rows):
     return test_dataset_catalog_list
 
 
-def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, file_list, validate_json, url):
+def generate_contracts(mode, contract_max_rows):
+
+    test_contract_list = []
+
+    if mode == 'json':
+
+        with open('contract_test_data_template.json') as json_file:
+            row_template = json_load(json_file)
+
+        for i in range(1, contract_max_rows + 1):
+
+            new = {
+                'fields': deepcopy(row_template),
+                'model': "metax_api.contract",
+                'pk': i,
+            }
+
+            new['fields']['contract_json']['identifier'] = "optional:contract:identifier%d" % i
+            new['fields']['contract_json']['title'] = "Title of Contract %d" % i
+            new['fields']['contract_json']['organization']['organization_identifier'] = "1234567-%d" % i
+            new['fields']['modified_by_api'] = '2017-05-15T10:07:22.559656Z'
+            new['fields']['created_by_api'] = '2017-05-15T10:07:22.559656Z'
+            test_contract_list.append(new)
+
+    return test_contract_list
+
+
+def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, contract_list, file_list, validate_json, url):
 
     print('generating catalog records%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
 
@@ -290,9 +322,9 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
     json_schema = get_json_schema('dataset')
     total_time_elapsed = 0
     files_start_idx = 0
-
-    if mode == "json":
-        dataset_catalog = dataset_catalogs_list[0]['pk']
+    dataset_catalog_id = dataset_catalogs_list[0]['pk']
+    contracts_added = 0
+    contract_id = contract_list[0]['pk']
 
     for i in range(1, catalog_record_max_rows + 1):
 
@@ -309,12 +341,14 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
             new['fields']['research_dataset'] = row_template['research_dataset'].copy()
 
             new['fields']['identifier'] = "pid:urn:cr%d" % i
-            new['fields']['dataset_catalog'] = dataset_catalog
-            new['fields']['research_dataset']['urn_identifier'] = "pid:urn:dataset%d" % i
+            new['fields']['dataset_catalog'] = dataset_catalog_id
+            new['fields']['research_dataset']['urn_identifier'] = "pid:urn:cr%d" % i
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['files'] = []
+
+            # add files
 
             files = []
 
@@ -327,6 +361,15 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
 
             new['fields']['research_dataset']['files'] = files
             files_start_idx += files_per_dataset
+
+            # add contract
+
+            new['fields']['contract'] = contract_id
+            contracts_added += 1
+
+            if contracts_added >= catalog_records_per_contract:
+                contracts_added = 0
+                contract_id += 1
 
             if validate_json or i == 1:
                 json_validate(new['fields']['research_dataset'], json_schema)
@@ -395,8 +438,9 @@ print('DEBUG: %s' % str(DEBUG))
 file_storage_list = generate_file_storages(mode, file_storage_max_rows)
 file_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
 dataset_catalogs_list = generate_dataset_catalogs(mode, dataset_catalog_max_rows)
-catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, file_list, validate_json, url)
+contract_list = generate_contracts(mode, contract_max_rows)
+catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, contract_list, file_list, validate_json, url)
 
-save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, catalog_record_list, batch_size)
+save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, contract_list, catalog_record_list, batch_size)
 
 print('done')

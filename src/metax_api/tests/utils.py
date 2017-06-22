@@ -20,7 +20,7 @@ class TestClassUtils():
 
         for field in expected_fields:
             if field not in actual_fields:
-                raise Exception('Model is missing an expected field: %s' % field)
+                raise Exception('Model is missing an expected field: %s. Did you add new fields to this model recently?' % field)
             actual_fields.remove(field)
 
         self.assertEqual(len(actual_fields), 0, 'Model contains unexpected fields: %s' % str(actual_fields))
@@ -43,4 +43,6 @@ class TestClassUtils():
                 else:
                     i += 1
 
-        raise Exception('Could not find model %s from test data with index == %d' % (model_name, requested_index))
+        raise Exception('Could not find model %s from test data with index == %d.'
+            ' Are you certain you generated rows for model %s in generate_test_data.py?'
+            % (model_name, requested_index))

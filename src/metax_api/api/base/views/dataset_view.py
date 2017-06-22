@@ -19,7 +19,7 @@ class DatasetViewSet(CommonViewSet):
     permission_classes = ()
 
     # note: override get_queryset() to get more control
-    queryset = CatalogRecord.objects.filter(active=True, removed=False)
+    queryset = CatalogRecord.objects.all()
     serializer_class = CatalogRecordSerializer
     object = CatalogRecord
 

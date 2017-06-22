@@ -1,0 +1,26 @@
+{
+    "contract_json": {
+        "title": "Title of contract",
+        "identifier": "optional-identifier",
+        "quota": 111204,
+        "created": "2014-01-17T08:19:58Z",
+        "modified": "2014-01-17T08:19:58Z",
+        "description": "Description of unknown length",
+        "contact": [{
+            "name": "Contact Name",
+            "phone": "+358501231234",
+            "email": "contact.email@csc.fi"
+        }],
+        "organization": {
+            "organization_identifier": "1234567abc",
+            "name": ["Mysterious organization"]
+        },
+        "service": [{
+            "identifier": "local:service:id",
+            "name": "Name of Service"
+        }],
+        "validity": {
+            "start_date": "2014-01-17T08:19:58Z"
+        }
+    }
+}

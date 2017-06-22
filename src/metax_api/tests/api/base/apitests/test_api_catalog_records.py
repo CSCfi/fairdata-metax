@@ -5,8 +5,6 @@ from rest_framework.test import APITestCase
 from metax_api.models import CatalogRecord, DatasetCatalog
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
-d = print
-
 class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
 
     """
@@ -15,6 +13,7 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
     file_field_names = (
         'id',
         'identifier',
+        'contract',
         'dataset_catalog',
         'research_dataset',
         'preservation_state',
@@ -40,7 +39,7 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         super(CatalogRecordApiReadTestV1, cls).setUpClass()
 
     def setUp(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord')
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         self.identifier = catalog_record_from_test_data['identifier']
         self.pk = catalog_record_from_test_data['id']
 
@@ -220,24 +219,42 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         response = self.client.put('/rest/datasets/doesnotexist', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_delete_file(self):
+    def test_delete_catalog_record(self):
         url = '/rest/datasets/%s' % self.identifier
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+        deleted_catalog_record = None
+
         try:
             deleted_catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
         except CatalogRecord.DoesNotExist:
-            raise Exception('Deleted file should not be deleted from the db, but marked as removed')
+            pass
+
+        if deleted_catalog_record:
+            raise Exception('Deleted CatalogRecord should not be retrievable from the default objects table')
+
+        try:
+            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(identifier=self.identifier)
+        except CatalogRecord.DoesNotExist:
+            raise Exception('Deleted CatalogRecord should not be deleted from the db, but marked as removed')
 
         self.assertEqual(deleted_catalog_record.removed, True)
         self.assertEqual(deleted_catalog_record.identifier, self.identifier)
 
+    def test_delete_catalog_record_contract_is_not_deleted(self):
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+        url = '/rest/datasets/%s' % catalog_record_from_test_data['identifier']
+        self.client.delete(url)
+        response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
+        self.assertEqual(response2.status_code, status.HTTP_200_OK, 'The contract of the CatalogRecord should not be deleted when deleting a single CatalogRecord.')
+
     def _get_new_test_data(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         return {
+            "contract": self._get_object_from_test_data('contract', requested_index=0),
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
                 "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
@@ -266,6 +283,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
     def _get_second_new_test_data(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         return {
+            "contract": self._get_object_from_test_data('contract', requested_index=0),
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
                 "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier2",

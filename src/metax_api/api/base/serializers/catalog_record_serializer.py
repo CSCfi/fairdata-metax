@@ -3,8 +3,9 @@
 # from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ModelSerializer, ValidationError
 
-from metax_api.models import CatalogRecord, DatasetCatalog, File
+from metax_api.models import CatalogRecord, DatasetCatalog, File, Contract
 from .dataset_catalog_serializer import DatasetCatalogSerializer
+from .contract_serializer import ContractSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ class CatalogRecordSerializer(ModelSerializer):
         fields = (
             'id',
             'identifier',
+            'contract',
             'dataset_catalog',
             'research_dataset',
             'preservation_state',
@@ -53,15 +55,9 @@ class CatalogRecordSerializer(ModelSerializer):
 
     def is_valid(self, raise_exception=False):
         if self.initial_data.get('dataset_catalog', False):
-            if type(self.initial_data['dataset_catalog']) in (int, str):
-                id = self.initial_data['dataset_catalog']
-            elif isinstance(self.initial_data['dataset_catalog'], dict):
-                id = int(self.initial_data['dataset_catalog']['id'])
-            else:
-                _logger.error('is_valid() field validation for dataset_catalog: unexpected type: %s'
-                              % type(self.initial_data['dataset_catalog']))
-                raise ValidationError('Validation error for field dataset_catalog. Data in unexpected format')
-            self.initial_data['dataset_catalog'] = id
+            self.initial_data['dataset_catalog'] = self._get_id_from_related_object(self.initial_data, 'dataset_catalog')
+        if self.initial_data.get('contract', False):
+            self.initial_data['contract'] = self._get_id_from_related_object(self.initial_data, 'contract')
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
@@ -89,7 +85,9 @@ class CatalogRecordSerializer(ModelSerializer):
         # todo this is an extra query... (albeit qty of storages in db is tiny)
         # get FileStorage dict from context somehow ? self.initial_data ?
         fsrs = DatasetCatalogSerializer(DatasetCatalog.objects.get(id=res['dataset_catalog']))
+        contract_serializer = ContractSerializer(Contract.objects.get(id=res['contract']))
         res['dataset_catalog'] = fsrs.data
+        res['contract'] = contract_serializer.data
         return res
 
     def validate_research_dataset(self, value):
@@ -100,3 +98,15 @@ class CatalogRecordSerializer(ModelSerializer):
         # except JsonValidationError as e:
         #     raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
         # return value
+
+    def _get_id_from_related_object(self, initial_data, relation_field):
+        id = False
+        if type(initial_data[relation_field]) in (int, str):
+            id = initial_data[relation_field]
+        elif isinstance(initial_data[relation_field], dict):
+            id = int(initial_data[relation_field]['id'])
+        else:
+            _logger.error('is_valid() field validation for relation %s: unexpected type: %s'
+                          % (relation_field, type(initial_data[relation_field])))
+            raise ValidationError('Validation error for relation %s. Data in unexpected format' % relation_field)
+        return id
