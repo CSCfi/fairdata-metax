@@ -40,18 +40,20 @@ todo:
 """
 
 # how many file rows to generate
-file_max_rows = 10
+file_max_rows = 20
 
 # how many filestorage rows to generate
-file_storage_max_rows = 3
+file_storage_max_rows = 2
 
-dataset_catalog_max_rows = 3
+dataset_catalog_max_rows = 2
 
-contract_max_rows = 3
+contract_max_rows = 5
 
 catalog_record_max_rows = 10
 
-files_per_dataset = 1
+files_per_dataset = 2
+
+catalog_records_per_contract = 2
 
 # mode: json for json-file, request for request per row, request_list for bulk post
 mode = 'json'
@@ -291,7 +293,7 @@ def generate_contracts(mode, contract_max_rows):
         with open('contract_test_data_template.json') as json_file:
             row_template = json_load(json_file)
 
-        for i in range(1, file_storage_max_rows + 1):
+        for i in range(1, contract_max_rows + 1):
 
             new = {
                 'fields': deepcopy(row_template),
@@ -320,10 +322,9 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
     json_schema = get_json_schema('dataset')
     total_time_elapsed = 0
     files_start_idx = 0
-
-    if mode == "json":
-        dataset_catalog = dataset_catalogs_list[0]['pk']
-        contract = contract_list[0]['pk']
+    dataset_catalog_id = dataset_catalogs_list[0]['pk']
+    contracts_added = 0
+    contract_id = contract_list[0]['pk']
 
     for i in range(1, catalog_record_max_rows + 1):
 
@@ -340,13 +341,14 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
             new['fields']['research_dataset'] = row_template['research_dataset'].copy()
 
             new['fields']['identifier'] = "pid:urn:cr%d" % i
-            new['fields']['dataset_catalog'] = dataset_catalog
-            new['fields']['contract'] = contract
+            new['fields']['dataset_catalog'] = dataset_catalog_id
             new['fields']['research_dataset']['urn_identifier'] = "pid:urn:cr%d" % i
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
             new['fields']['files'] = []
+
+            # add files
 
             files = []
 
@@ -359,6 +361,15 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
 
             new['fields']['research_dataset']['files'] = files
             files_start_idx += files_per_dataset
+
+            # add contract
+
+            new['fields']['contract'] = contract_id
+            contracts_added += 1
+
+            if contracts_added >= catalog_records_per_contract:
+                contracts_added = 0
+                contract_id += 1
 
             if validate_json or i == 1:
                 json_validate(new['fields']['research_dataset'], json_schema)
