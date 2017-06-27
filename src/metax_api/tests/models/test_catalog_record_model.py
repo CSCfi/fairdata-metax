@@ -8,8 +8,6 @@ from django.test import TestCase
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.models import CatalogRecord
 
-d = print
-
 class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
 
     """

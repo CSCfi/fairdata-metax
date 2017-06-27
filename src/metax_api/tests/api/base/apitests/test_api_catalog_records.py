@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -91,6 +93,8 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(response.data['identifier'], self.test_new_data['identifier'])
+        cr = CatalogRecord.objects.get(pk=response.data['id'])
+        self.assertEqual(cr.created_by_api >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object creation')
 
     def test_create_catalog_record_error_identifier_exists(self):
         # first ok
@@ -180,6 +184,8 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         response = self.client.put('/rest/datasets/%s' % self.identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        self.assertEqual(cr.modified_by_api >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object update')
 
     def test_update_catalog_record_error_required_fields(self):
         """
@@ -230,6 +236,14 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         response = self.client.put('/rest/datasets/%s' % self.identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'HTTP status should be 400 due to invalid value')
         self.assertEqual('preservation_state' in response.data.keys(), True, 'The error should mention the field preservation_state')
+
+    def test_update_catalog_record_preservation_state_modified_is_updated(self):
+        self.test_new_data['identifier'] = self.identifier
+        self.test_new_data['preservation_state'] = 4
+        response = self.client.put('/rest/datasets/%s' % self.identifier, self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        self.assertEqual(cr.preservation_state_modified >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object update')
 
     def test_delete_catalog_record(self):
         url = '/rest/datasets/%s' % self.identifier
