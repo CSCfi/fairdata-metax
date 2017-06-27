@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 
@@ -47,3 +49,12 @@ class CatalogRecord(Common):
         indexes = [
             models.Index(fields=['identifier'])
         ]
+
+    def __init__(self, *args, **kwargs):
+        super(CatalogRecord, self).__init__(*args, **kwargs)
+        self.track_fields('preservation_state')
+
+    def save(self, *args, **kwargs):
+        if self.field_changed('preservation_state'):
+            self.preservation_state_modified = datetime.now()
+        super(CatalogRecord, self).save(*args, **kwargs)
