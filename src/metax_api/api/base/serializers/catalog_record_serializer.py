@@ -27,7 +27,6 @@ class CatalogRecordSerializer(ModelSerializer):
             'preservation_reason_description',
             'contract_identifier',
             'mets_object_identifier',
-            'catalog_record_modified',
             'dataset_group_edit',
             'modified_by_user_id',
             'modified_by_api',

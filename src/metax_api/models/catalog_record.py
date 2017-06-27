@@ -41,7 +41,6 @@ class CatalogRecord(Common):
     preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
     contract_identifier = models.CharField(max_length=200, blank=True, null=True)
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
-    catalog_record_modified = models.DateTimeField(null=True, help_text='Date of last change in Catalog Record -specific fields.')
     dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
 
     class Meta:

@@ -28,7 +28,6 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
         'preservation_reason_description',
         'contract_identifier',
         'mets_object_identifier',
-        'catalog_record_modified',
         'dataset_group_edit',
         'files',
     )
