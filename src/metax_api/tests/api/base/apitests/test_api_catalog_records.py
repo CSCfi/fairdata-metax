@@ -346,6 +346,15 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
         self.assertEqual(response2.status_code, status.HTTP_200_OK, 'The contract of the CatalogRecord should not be deleted when deleting a single CatalogRecord.')
 
+    def test_delete_catalog_record_not_found_with_search_by_owner(self):
+        # owner of pk=1 is Default Owner. Delete pk=2 == first dataset owner by Rahikainen.
+        # After deleting, first dataset owned by Rahikainen should be pk=3
+        response = self.client.delete('/rest/datasets/2')
+        response = self.client.get('/rest/datasets?owner=Rahikainen')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 4)
+        self.assertEqual(response.data[0]['id'], 3)
+
     def _get_new_test_data(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         return {
