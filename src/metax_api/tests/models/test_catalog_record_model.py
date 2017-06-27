@@ -1,11 +1,10 @@
 # todo validation disabled until schema updated
-# from jsonschema import validate as json_validate
+from jsonschema import validate as json_validate
 
 from django.core.management import call_command
 from django.test import TestCase
 
-# from metax_api.tests.utils import get_json_schema, test_data_file_path, TestClassUtils
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import get_json_schema, test_data_file_path, TestClassUtils
 from metax_api.models import CatalogRecord
 
 class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
@@ -56,18 +55,17 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
         catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
         self.assertEqual(catalog_record.identifier, self.identifier)
 
-    # todo validation disabled until schema updated
-    # def test_validate_research_dataset(self):
-    #    catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
+    def test_validate_research_dataset(self):
+        catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
 
-    #     try:
-    #         json_validate(catalog_record.research_dataset, get_json_schema('catalog_record'))
-    #         json_validation_success = True
-    #     except Exception as e:
-    #         d(e)
-    #         json_validation_success = False
+        try:
+            json_validate(catalog_record.research_dataset, get_json_schema('dataset'))
+            json_validation_success = True
+        except Exception as e:
+            print(e)
+            json_validation_success = False
 
-    #     self.assertEqual(json_validation_success, True, 'catalog_record.research_dataset failed json schema validation')
+        self.assertEqual(json_validation_success, True, 'catalog_record.research_dataset failed json schema validation')
 
     def test_model_fields_as_expected(self):
         actual_model_fields = [ f.name for f in CatalogRecord._meta.get_fields() ]

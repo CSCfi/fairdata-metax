@@ -1,11 +1,9 @@
-# validation disabled until schema is updated
-# from jsonschema import validate as json_validate
-# from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from metax_api.models import CatalogRecord, DatasetCatalog, File, Contract
 from .dataset_catalog_serializer import DatasetCatalogSerializer
 from .contract_serializer import ContractSerializer
+from .serializer_utils import validate_json
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -90,13 +88,8 @@ class CatalogRecordSerializer(ModelSerializer):
         return res
 
     def validate_research_dataset(self, value):
-        # todo enable validation until json schema is somewhat stable again
+        validate_json(value, self.context['view'].json_schema)
         return value
-        # try:
-        #     json_validate(value, self.context['view'].json_schema)
-        # except JsonValidationError as e:
-        #     raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
-        # return value
 
     def _get_id_from_related_object(self, initial_data, relation_field):
         id = False

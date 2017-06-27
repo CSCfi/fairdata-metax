@@ -1,8 +1,6 @@
-from jsonschema import validate as json_validate
-from jsonschema.exceptions import ValidationError as JsonValidationError
-from rest_framework.serializers import ModelSerializer, ValidationError
-
+from rest_framework.serializers import ModelSerializer
 from metax_api.models import Contract
+from .serializer_utils import validate_json
 
 class ContractSerializer(ModelSerializer):
 
@@ -24,8 +22,5 @@ class ContractSerializer(ModelSerializer):
         }
 
     def validate_contract_json(self, value):
-        try:
-            json_validate(value, self.context['view'].json_schema)
-        except JsonValidationError as e:
-            raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
+        validate_json(value, self.context['view'].json_schema)
         return value

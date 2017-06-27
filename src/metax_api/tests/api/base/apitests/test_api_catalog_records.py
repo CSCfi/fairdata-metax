@@ -105,13 +105,14 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('identifier' in response.data.keys(), True, 'The error should be about an already existing identifier')
 
     # todo validation disabled until schema updated
-    # def test_create_catalog_record_error_json_validation(self):
-    #     self.test_new_data['research_dataset']["title"] = 1234456
-    #     response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+    def test_create_catalog_record_error_json_validation(self):
+        self.test_new_data['identifier'] = "neeeeeeeeew:id"
+        self.test_new_data['research_dataset']["title"] = 1234456
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
 
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    #     self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
-    #     self.assertEqual('field: title' in response.data['research_dataset'][0], True, 'The error should contain the name of the erroneous field')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
+        self.assertEqual('field: title' in response.data['research_dataset'][0], True, 'The error should contain the name of the erroneous field')
 
     def test_create_catalog_record_list(self):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
@@ -283,9 +284,10 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             "contract": self._get_object_from_test_data('contract', requested_index=0),
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
-                "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
+                "urn_identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
+                "preferred_identifier": "http://urn.fi/urn:nbn:fi:preferred1",
                 "modified": "2014-01-17T08:19:58Z",
-                "versionNotes": [
+                "version_notes": [
                     "This version contains changes to x and y."
                 ],
                 "title": [{
@@ -298,10 +300,11 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                     "name": "Teppo Testaaja"
                 }],
                 "language": [{
-                    "title": ["en"],
+                    "title": "en",
                     "identifier": "http://lang.ident.ifier/en"
                 }],
-                "totalbytesize": 1024,
+                "total_byte_size": 1024,
+                "ready_status": "Unfinished",
                 "files": catalog_record_from_test_data['research_dataset']['files']
             }
         }
@@ -312,9 +315,10 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             "contract": self._get_object_from_test_data('contract', requested_index=0),
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
-                "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier2",
+                "urn_identifier": "http://urn.fi/urn:nbn:fi:iiidentifier2",
+                "preferred_identifier": "http://urn.fi/urn:nbn:fi:preferred2",
                 "modified": "2014-01-17T08:19:58Z",
-                "versionNotes": [
+                "version_notes": [
                     "This version contains changes to x and y."
                 ],
                 "title": [{
@@ -327,10 +331,11 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                     "name": "Teppo Testaaja"
                 }],
                 "language": [{
-                    "title": ["en"],
+                    "title": "en",
                     "identifier": "http://lang.ident.ifier/en"
                 }],
-                "totalbytesize": 1024,
+                "total_byte_size": 1024,
+                "ready_status": "Unfinished",
                 "files": catalog_record_from_test_data['research_dataset']['files']
             }
         }
