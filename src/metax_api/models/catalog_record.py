@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 
@@ -41,10 +43,18 @@ class CatalogRecord(Common):
     preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
     contract_identifier = models.CharField(max_length=200, blank=True, null=True)
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
-    catalog_record_modified = models.DateTimeField(null=True, help_text='Date of last change in Catalog Record -specific fields.')
     dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
 
     class Meta:
         indexes = [
             models.Index(fields=['identifier'])
         ]
+
+    def __init__(self, *args, **kwargs):
+        super(CatalogRecord, self).__init__(*args, **kwargs)
+        self.track_fields('preservation_state')
+
+    def save(self, *args, **kwargs):
+        if self.field_changed('preservation_state'):
+            self.preservation_state_modified = datetime.now()
+        super(CatalogRecord, self).save(*args, **kwargs)

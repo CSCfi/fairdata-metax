@@ -88,7 +88,11 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         response = self.client.post('/rest/datasets', new_catalog_record, format="json")
         created_catalog_record = response.data
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        try:
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        except Exception:
+            print(response.data)
+            raise
         self.assertEqual('research_dataset' in created_catalog_record.keys(), True)
         self.assertEqual(created_catalog_record['contract']['id'], self.pk)
 
@@ -203,12 +207,13 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         return {
             "contract": "update me",
-            "identifier": 'urn:nbn:fi:csc-thisisanewurn',
+            "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
-                "identifier": "http://urn.fi/urn:nbn:fi:new:addition123",
+                "urn_identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
+                "preferred_identifier": "http://urn.fi/urn:nbn:fi:preferred1",
                 "modified": "2014-01-17T08:19:58Z",
-                "versionNotes": [
+                "version_notes": [
                     "This version contains changes to x and y."
                 ],
                 "title": [{
@@ -220,11 +225,15 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                 "creator": [{
                     "name": "Teppo Testaaja"
                 }],
+                "curator": [{
+                    "name": "Default Owner"
+                }],
                 "language": [{
-                    "title": ["en"],
+                    "title": "en",
                     "identifier": "http://lang.ident.ifier/en"
                 }],
-                "totalbytesize": 1024,
+                "total_byte_size": 1024,
+                "ready_status": "Unfinished",
                 "files": catalog_record_from_test_data['research_dataset']['files']
             }
         }

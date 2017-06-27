@@ -1,9 +1,8 @@
-from jsonschema import validate as json_validate
-from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from metax_api.models import File, FileStorage
 from .file_storage_serializer import FileStorageSerializer
+from .serializer_utils import validate_json
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -72,10 +71,7 @@ class FileSerializer(ModelSerializer):
         return res
 
     def validate_file_characteristics(self, value):
-        try:
-            json_validate(value, self.context['view'].json_schema)
-        except JsonValidationError as e:
-            raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
+        validate_json(value, self.context['view'].json_schema)
         return value
 
 

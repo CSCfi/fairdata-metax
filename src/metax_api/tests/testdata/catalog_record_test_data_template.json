@@ -1,10 +1,10 @@
 {
     "dataset_catalog": null,
+    "preservation_state": 0,
     "preservation_state_modified": null,
-    "catalog_record_modified": "2014-01-17T08:19:58Z",
     "mets_object_identifier": ["a", "b", "c"],
     "dataset_group_edit": "default-dataset-edit-group",
-    "contract_identifier": "pid:of:a:contract",
+    "contract": 1,
     "research_dataset": {
         "urn_identifier": "http://urn.fi/urn:nbn:fi%s",
         "preferred_identifier": "http://urn.fi/urn:nbn:fi%s",
@@ -20,6 +20,9 @@
         }],
         "creator":[{
             "name": "Teppo Testaaja"
+        }],
+        "curator":[{
+            "name": "Default Owner"
         }],
         "language":[{
             "title": "en",
