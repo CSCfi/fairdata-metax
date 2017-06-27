@@ -419,6 +419,21 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
         if percent % 10 == 0:
             print("%d%%%s" % (percent, '' if percent == 100.0 else '...'))
 
+    # set some preservation states and owners
+    for i in range(1, 6):
+        test_data_list[i]['fields']['preservation_state'] = i
+        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Rahikainen" }]
+
+    # set different owner
+    for i in range(6, len(test_data_list)):
+        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Jarski" }]
+
+    # if preservation_state is other than 0, means it has been modified at some point,
+    # so set timestamp
+    for row in test_data_list:
+        if row['fields']['preservation_state'] != 0:
+            row['fields']['preservation_state_modified'] = '2017-05-23T10:07:22.559656Z'
+
     if mode in ("json", 'request_list'):
         print('generated catalog records into a list')
     elif mode == 'request':

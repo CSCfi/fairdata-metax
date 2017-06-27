@@ -62,6 +62,74 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         response = self.client.get('/rest/datasets/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_read_catalog_record_search_by_preservation_state_0(self):
+        response = self.client.get('/rest/datasets?state=0')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data) > 2, True, 'There should have been multiple results for state=0 request')
+        self.assertEqual(response.data[0]['id'], 1)
+
+    def test_read_catalog_record_search_by_preservation_state_1(self):
+        response = self.client.get('/rest/datasets?state=1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], 2)
+
+    def test_read_catalog_record_search_by_preservation_state_2(self):
+        response = self.client.get('/rest/datasets?state=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], 3)
+
+    def test_read_catalog_record_search_by_preservation_state_666(self):
+        response = self.client.get('/rest/datasets?state=666')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_read_catalog_record_search_by_owner_1(self):
+        response = self.client.get('/rest/datasets?owner=Rahikainen')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 5)
+        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
+        self.assertEqual(response.data[4]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
+
+    def test_read_catalog_record_search_by_owner_2(self):
+        response = self.client.get('/rest/datasets?owner=Jarski')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 4)
+        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Jarski', 'Owner name is not matching')
+        self.assertEqual(response.data[3]['research_dataset']['curator'][0]['name'], 'Jarski', 'Owner name is not matching')
+
+    def test_read_catalog_record_search_by_owner_not_found_1(self):
+        response = self.client.get('/rest/datasets?owner=Not Found')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_read_catalog_record_search_by_owner_not_found_case_sensitivity(self):
+        response = self.client.get('/rest/datasets?owner=rahikainen')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_read_catalog_record_search_by_owner_and_state_1(self):
+        response = self.client.get('/rest/datasets?owner=Rahikainen&state=1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], 2)
+        self.assertEqual(response.data[0]['preservation_state'], 1)
+        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
+
+    def test_read_catalog_record_search_by_owner_and_state_2(self):
+        response = self.client.get('/rest/datasets?owner=Rahikainen&state=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], 3)
+        self.assertEqual(response.data[0]['preservation_state'], 2)
+        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
+
+    def test_read_catalog_record_search_by_owner_and_state_not_found(self):
+        response = self.client.get('/rest/datasets?owner=Rahikainen&state=55')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
     def test_model_fields_as_expected(self):
         response = self.client.get('/rest/datasets/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -299,6 +367,9 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                 "creator": [{
                     "name": "Teppo Testaaja"
                 }],
+                "curator": [{
+                    "name": "Default Owner"
+                }],
                 "language": [{
                     "title": "en",
                     "identifier": "http://lang.ident.ifier/en"
@@ -329,6 +400,9 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                 }],
                 "creator": [{
                     "name": "Teppo Testaaja"
+                }],
+                "curator": [{
+                    "name": "Default Owner"
                 }],
                 "language": [{
                     "title": "en",

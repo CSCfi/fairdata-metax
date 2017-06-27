@@ -225,6 +225,9 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                 "creator": [{
                     "name": "Teppo Testaaja"
                 }],
+                "curator": [{
+                    "name": "Default Owner"
+                }],
                 "language": [{
                     "title": "en",
                     "identifier": "http://lang.ident.ifier/en"

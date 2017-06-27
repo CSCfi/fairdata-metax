@@ -1,5 +1,6 @@
 {
     "dataset_catalog": null,
+    "preservation_state": 0,
     "preservation_state_modified": null,
     "mets_object_identifier": ["a", "b", "c"],
     "dataset_group_edit": "default-dataset-edit-group",
@@ -19,6 +20,9 @@
         }],
         "creator":[{
             "name": "Teppo Testaaja"
+        }],
+        "curator":[{
+            "name": "Default Owner"
         }],
         "language":[{
             "title": "en",
