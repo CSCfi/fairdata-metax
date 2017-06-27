@@ -219,6 +219,19 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         response = self.client.put('/rest/datasets/doesnotexist', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_update_catalog_record_pas_state_allowed_value(self):
+        self.test_new_data['identifier'] = self.identifier
+        self.test_new_data['preservation_state'] = 3
+        response = self.client.put('/rest/datasets/%s' % self.identifier, self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_update_catalog_record_pas_state_unallowed_value(self):
+        self.test_new_data['identifier'] = self.identifier
+        self.test_new_data['preservation_state'] = 111
+        response = self.client.put('/rest/datasets/%s' % self.identifier, self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'HTTP status should be 400 due to invalid value')
+        self.assertEqual('preservation_state' in response.data.keys(), True, 'The error should mention the field preservation_state')
+
     def test_delete_catalog_record(self):
         url = '/rest/datasets/%s' % self.identifier
         response = self.client.delete(url)

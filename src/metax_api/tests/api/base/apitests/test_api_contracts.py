@@ -30,6 +30,7 @@ class ContractApiReadTestV1(APITestCase, TestClassUtils):
     def setUp(self):
         contract_from_test_data = self._get_object_from_test_data('contract', requested_index=0)
         self.pk = contract_from_test_data['id']
+        self.identifier = contract_from_test_data['contract_json']['identifier']
 
     def test_read_contract_list(self):
         response = self.client.get('/rest/datasets')
@@ -37,6 +38,10 @@ class ContractApiReadTestV1(APITestCase, TestClassUtils):
 
     def test_read_contract_details_by_pk(self):
         response = self.client.get('/rest/contracts/%s' % self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_read_contract_details_by_identifier(self):
+        response = self.client.get('/rest/contracts/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_contract_details_not_found(self):

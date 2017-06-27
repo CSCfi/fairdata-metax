@@ -25,6 +25,13 @@ class ContractViewSet(CommonViewSet):
         self.set_json_schema(__file__)
         super(ContractViewSet, self).__init__(*args, **kwargs)
 
+    def get_object(self):
+        lookup_value = self.kwargs.get(self.lookup_field, False)
+        search_params = None
+        if not self.is_primary_key(lookup_value):
+            search_params = { 'contract_json__contains': { 'identifier': lookup_value }}
+        return super(ContractViewSet, self).get_object(search_params=search_params)
+
     def get_queryset(self):
         if not self.request.query_params:
             return super(ContractViewSet, self).get_queryset()
