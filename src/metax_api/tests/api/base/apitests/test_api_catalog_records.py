@@ -62,6 +62,18 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         response = self.client.get('/rest/datasets/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_read_catalog_record_list_pagination_1(self):
+        response = self.client.get('/rest/datasets?limit=2&offset=0')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
+        self.assertEqual(response.data['results'][0]['id'], 1, 'Id of first result should have been 1')
+
+    def test_read_catalog_record_list_pagination_2(self):
+        response = self.client.get('/rest/datasets?limit=2&offset=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
+        self.assertEqual(response.data['results'][0]['id'], 3, 'Id of first result should have been 3')
+
     def test_read_catalog_record_search_by_preservation_state_0(self):
         response = self.client.get('/rest/datasets?state=0')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
