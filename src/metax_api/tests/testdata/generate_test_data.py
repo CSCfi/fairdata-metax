@@ -422,11 +422,11 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
     # set some preservation states and owners
     for i in range(1, 6):
         test_data_list[i]['fields']['preservation_state'] = i
-        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Rahikainen" }]
+        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Rahikainen", "identifier": "id:of:curator:rahikainen" }]
 
     # set different owner
     for i in range(6, len(test_data_list)):
-        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Jarski" }]
+        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Jarski", "identifier": "id:of:curator:jarski" }]
 
     # if preservation_state is other than 0, means it has been modified at some point,
     # so set timestamp
