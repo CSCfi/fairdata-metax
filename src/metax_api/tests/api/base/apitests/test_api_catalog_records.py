@@ -85,6 +85,18 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
+    def test_read_catalog_record_search_by_preservation_state_many(self):
+        response = self.client.get('/rest/datasets?state=1,2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]['preservation_state'], 1)
+        self.assertEqual(response.data[1]['preservation_state'], 2)
+
+    def test_read_catalog_record_search_by_preservation_state_invalid_value(self):
+        response = self.client.get('/rest/datasets?state=1,a')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('is not an integer' in response.data['state'][0], True, 'Error should say letter a is not an integer')
+
     def test_read_catalog_record_search_by_owner_1(self):
         response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

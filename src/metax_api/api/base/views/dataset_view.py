@@ -54,8 +54,17 @@ class DatasetViewSet(CommonViewSet):
             if query_params.get('owner', False):
                 additional_filters['research_dataset__contains'] = { 'curator': [{ 'identifier': query_params['owner'] }]}
             if query_params.get('state', False):
-                additional_filters['preservation_state'] = query_params['state']
+                additional_filters['preservation_state__in'] = query_params['state'].split(',')
             return self.queryset.filter(**additional_filters)
+
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get('state', False):
+            for val in request.query_params['state'].split(','):
+                try:
+                    int(val)
+                except ValueError:
+                    return Response(data={ 'state': ['Value \'%s\' is not an integer' % val] }, status=status.HTTP_400_BAD_REQUEST)
+        return super(DatasetViewSet, self).list(request, *args, **kwargs)
 
     @detail_route(methods=['get'], url_path="files")
     def files_get(self, request, pk=None):
