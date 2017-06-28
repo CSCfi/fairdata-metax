@@ -86,14 +86,14 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data), 0)
 
     def test_read_catalog_record_search_by_owner_1(self):
-        response = self.client.get('/rest/datasets?owner=Rahikainen')
+        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 5)
         self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
         self.assertEqual(response.data[4]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
 
     def test_read_catalog_record_search_by_owner_2(self):
-        response = self.client.get('/rest/datasets?owner=Jarski')
+        response = self.client.get('/rest/datasets?owner=id:of:curator:jarski')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Jarski', 'Owner name is not matching')
@@ -105,12 +105,12 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data), 0)
 
     def test_read_catalog_record_search_by_owner_not_found_case_sensitivity(self):
-        response = self.client.get('/rest/datasets?owner=rahikainen')
+        response = self.client.get('/rest/datasets?owner=id:of:curator:Rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
     def test_read_catalog_record_search_by_owner_and_state_1(self):
-        response = self.client.get('/rest/datasets?owner=Rahikainen&state=1')
+        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen&state=1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], 2)
@@ -118,7 +118,7 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
 
     def test_read_catalog_record_search_by_owner_and_state_2(self):
-        response = self.client.get('/rest/datasets?owner=Rahikainen&state=2')
+        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen&state=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], 3)
@@ -126,7 +126,7 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
 
     def test_read_catalog_record_search_by_owner_and_state_not_found(self):
-        response = self.client.get('/rest/datasets?owner=Rahikainen&state=55')
+        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen&state=55')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
@@ -350,7 +350,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         # owner of pk=1 is Default Owner. Delete pk=2 == first dataset owner by Rahikainen.
         # After deleting, first dataset owned by Rahikainen should be pk=3
         response = self.client.delete('/rest/datasets/2')
-        response = self.client.get('/rest/datasets?owner=Rahikainen')
+        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]['id'], 3)

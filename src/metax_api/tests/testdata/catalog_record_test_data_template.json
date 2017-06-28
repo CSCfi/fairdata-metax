@@ -22,6 +22,7 @@
             "name": "Teppo Testaaja"
         }],
         "curator":[{
+            "identifier": "id:of:curator:default",
             "name": "Default Owner"
         }],
         "language":[{

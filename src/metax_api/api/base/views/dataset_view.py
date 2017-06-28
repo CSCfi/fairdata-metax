@@ -52,7 +52,7 @@ class DatasetViewSet(CommonViewSet):
             query_params = self.request.query_params
             additional_filters = {}
             if query_params.get('owner', False):
-                additional_filters['research_dataset__contains'] = { 'curator': [{ 'name': query_params['owner'] }]}
+                additional_filters['research_dataset__contains'] = { 'curator': [{ 'identifier': query_params['owner'] }]}
             if query_params.get('state', False):
                 additional_filters['preservation_state'] = query_params['state']
             return self.queryset.filter(**additional_filters)
