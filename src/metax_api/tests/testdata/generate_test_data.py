@@ -216,7 +216,8 @@ def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, co
 
         with open('test_data.json', 'w') as f:
             print('dumping test data as json to metax_api/tests/test_data.json...')
-            json_dump(file_storage_list + file_list + dataset_catalogs_list + contract_list + catalog_record_list, f, indent=4)
+            json_dump(file_storage_list + file_list + dataset_catalogs_list + contract_list + catalog_record_list,
+                f, indent=4, sort_keys=True)
 
     elif mode == 'request_list':
 

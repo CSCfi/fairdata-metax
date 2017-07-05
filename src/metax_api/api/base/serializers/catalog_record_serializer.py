@@ -26,6 +26,11 @@ class CatalogRecordSerializer(ModelSerializer):
             'contract_identifier',
             'mets_object_identifier',
             'dataset_group_edit',
+            'next_version_id',
+            'next_version_identifier',
+            'previous_version_id',
+            'previous_version_identifier',
+            'version_created',
             'modified_by_user_id',
             'modified_by_api',
             'created_by_user_id',
@@ -48,6 +53,12 @@ class CatalogRecordSerializer(ModelSerializer):
             'contract_identifier':      { 'required': False },
             'mets_object_identifier':   { 'required': False },
             'catalog_record_modified':  { 'required': False },
+
+            'next_version_id':              { 'required': False },
+            'next_version_identifier':      { 'required': False },
+            'previous_version_id':          { 'required': False },
+            'previous_version_identifier':  { 'required': False },
+            'version_created':              { 'required': False },
         }
 
     def is_valid(self, raise_exception=False):
