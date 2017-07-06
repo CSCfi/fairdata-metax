@@ -29,6 +29,11 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         'modified_by_api',
         'created_by_user_id',
         'created_by_api',
+        'next_version_id',
+        'next_version_identifier',
+        'previous_version_id',
+        'previous_version_identifier',
+        'version_created',
     )
 
     @classmethod
@@ -196,7 +201,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('identifier' in response.data.keys(), True, 'The error should be about an already existing identifier')
 
-    # todo validation disabled until schema updated
     def test_create_catalog_record_error_json_validation(self):
         self.test_new_data['identifier'] = "neeeeeeeeew:id"
         self.test_new_data['research_dataset']["title"] = 1234456
@@ -378,6 +382,107 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]['id'], 3)
+
+    def test_catalog_record_propose_to_pas_success(self):
+        catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
+        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.save()
+
+        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
+            (
+                self.identifier,
+                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
+            ),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        catalog_record_after = CatalogRecord.objects.get(pk=self.pk)
+        self.assertEqual(catalog_record_after.preservation_state, CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM)
+
+    def test_catalog_record_propose_to_pas_missing_parameter_state(self):
+        response = self.client.post('/rest/datasets/%s/proposetopas?contract=%s' %
+            (
+                self.identifier,
+                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
+            ),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('state' in response.data, True, 'Response data should contain an error about the field')
+
+    def test_catalog_record_propose_to_pas_wrong_parameter_state(self):
+        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
+            (
+                self.identifier,
+                15,
+                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
+            ),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('state' in response.data, True, 'Response data should contain an error about the field')
+
+    def test_catalog_record_propose_to_pas_missing_parameter_contract(self):
+        response = self.client.post('/rest/datasets/%s/proposetopas?state=%s' %
+            (
+                self.identifier,
+                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+            ),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('contract' in response.data, True, 'Response data should contain an error about the field')
+
+    def test_catalog_record_propose_to_pas_contract_not_found(self):
+        catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
+        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.save()
+
+        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
+            (
+                self.identifier,
+                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+                'does-not-exist'
+            ),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('contract' in response.data, True, 'Response data should contain an error about the field')
+
+    def test_catalog_record_propose_to_pas_wrong_ready_status(self):
+        catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
+        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_UNFINISHED
+        catalog_record_before.save()
+
+        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
+            (
+                self.identifier,
+                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
+            ),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual('research_dataset' in response.data, True, 'Response data should contain an error about the field')
+        self.assertEqual('ready_status' in response.data['research_dataset'], True, 'Response data should contain an error about the field')
+
+    def test_catalog_record_propose_to_pas_wrong_preservation_state(self):
+        catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
+        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.preservation_state = CatalogRecord.PRESERVATION_STATE_IN_LONGTERM_PAS
+        catalog_record_before.save()
+
+        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
+            (
+                self.identifier,
+                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
+            ),
+            format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual('preservation_state' in response.data, True, 'Response data should contain an error about the field')
 
     def _get_new_test_data(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)

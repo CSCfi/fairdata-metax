@@ -1,12 +1,12 @@
 [
     {
         "fields": {
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "file_storage_json": {
+                "identifier": "pid:urn:storageidentifier1",
                 "title": "Title 1",
-                "url": "https://metax.csc.local/rest/files/",
-                "identifier": "pid:urn:storageidentifier1"
+                "url": "https://metax.csc.local/rest/files/"
             },
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "modified_by_api": "2017-05-23T10:07:22.559656Z"
         },
         "model": "metax_api.filestorage",
@@ -14,12 +14,12 @@
     },
     {
         "fields": {
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "file_storage_json": {
+                "identifier": "pid:urn:storageidentifier2",
                 "title": "Title 2",
-                "url": "https://metax.csc.local/rest/files/",
-                "identifier": "pid:urn:storageidentifier2"
+                "url": "https://metax.csc.local/rest/files/"
             },
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "modified_by_api": "2017-05-23T10:07:22.559656Z"
         },
         "model": "metax_api.filestorage",
@@ -27,642 +27,636 @@
     },
     {
         "fields": {
-            "file_name": "file_name_1",
-            "download_url": "http://some.url.csc.fi/1",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:1"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/1",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_1",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:1",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 1
     },
     {
         "fields": {
-            "file_name": "file_name_2",
-            "download_url": "http://some.url.csc.fi/2",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:2"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/2",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_2",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:2",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 2
     },
     {
         "fields": {
-            "file_name": "file_name_3",
-            "download_url": "http://some.url.csc.fi/3",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:3"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/3",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_3",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:3",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 3
     },
     {
         "fields": {
-            "file_name": "file_name_4",
-            "download_url": "http://some.url.csc.fi/4",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:4"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/4",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_4",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:4",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 4
     },
     {
         "fields": {
-            "file_name": "file_name_5",
-            "download_url": "http://some.url.csc.fi/5",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:5"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/5",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_5",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:5",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 5
     },
     {
         "fields": {
-            "file_name": "file_name_6",
-            "download_url": "http://some.url.csc.fi/6",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:6"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/6",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_6",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:6",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 6
     },
     {
         "fields": {
-            "file_name": "file_name_7",
-            "download_url": "http://some.url.csc.fi/7",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:7"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/7",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_7",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:7",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 7
     },
     {
         "fields": {
-            "file_name": "file_name_8",
-            "download_url": "http://some.url.csc.fi/8",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:8"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/8",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_8",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:8",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 8
     },
     {
         "fields": {
-            "file_name": "file_name_9",
-            "download_url": "http://some.url.csc.fi/9",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:9"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/9",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_9",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:9",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 9
     },
     {
         "fields": {
-            "file_name": "file_name_10",
-            "download_url": "http://some.url.csc.fi/10",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:10"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/10",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_10",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:10",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 10
     },
     {
         "fields": {
-            "file_name": "file_name_11",
-            "download_url": "http://some.url.csc.fi/11",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:11"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/11",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_11",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:11",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 11
     },
     {
         "fields": {
-            "file_name": "file_name_12",
-            "download_url": "http://some.url.csc.fi/12",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:12"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/12",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_12",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:12",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 12
     },
     {
         "fields": {
-            "file_name": "file_name_13",
-            "download_url": "http://some.url.csc.fi/13",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:13"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/13",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_13",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:13",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 13
     },
     {
         "fields": {
-            "file_name": "file_name_14",
-            "download_url": "http://some.url.csc.fi/14",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:14"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/14",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_14",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:14",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 14
     },
     {
         "fields": {
-            "file_name": "file_name_15",
-            "download_url": "http://some.url.csc.fi/15",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:15"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/15",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_15",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:15",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 15
     },
     {
         "fields": {
-            "file_name": "file_name_16",
-            "download_url": "http://some.url.csc.fi/16",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:16"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/16",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_16",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:16",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 16
     },
     {
         "fields": {
-            "file_name": "file_name_17",
-            "download_url": "http://some.url.csc.fi/17",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:17"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/17",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_17",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:17",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 17
     },
     {
         "fields": {
-            "file_name": "file_name_18",
-            "download_url": "http://some.url.csc.fi/18",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:18"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/18",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_18",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:18",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 18
     },
     {
         "fields": {
-            "file_name": "file_name_19",
-            "download_url": "http://some.url.csc.fi/19",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:19"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/19",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_19",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:19",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 19
     },
     {
         "fields": {
-            "file_name": "file_name_20",
-            "download_url": "http://some.url.csc.fi/20",
-            "checksum_value": "habeebit",
-            "byte_size": 5512,
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
-            "replication_path": "/path/to/copy/of/file",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_path": "/some/path/",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "file_characteristics": {
-                "file_created": "2014-01-17T08:19:31Z",
-                "description": "A nice description 20",
-                "application_name": "Application Name",
-                "title": "A title 20",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8"
-            },
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "file_format": "html/text",
-            "open_access": false,
-            "file_storage": 1,
-            "removed": false,
-            "checksum_algorithm": "sha2",
             "access_group": "my group",
-            "identifier": "pid:urn:20"
+            "byte_size": 5512,
+            "checksum_algorithm": "sha2",
+            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_value": "habeebit",
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "download_url": "http://some.url.csc.fi/20",
+            "file_characteristics": {
+                "application_name": "Application Name",
+                "description": "A nice description 20",
+                "encoding": "utf-8",
+                "file_created": "2014-01-17T08:19:31Z",
+                "metadata_modified": "2014-01-17T08:19:31Z",
+                "title": "A title 20"
+            },
+            "file_format": "html/text",
+            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_name": "file_name_20",
+            "file_path": "/some/path/",
+            "file_storage": 1,
+            "identifier": "pid:urn:20",
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "open_access": false,
+            "removed": false,
+            "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 20
     },
     {
         "fields": {
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "catalog_json": {
+                "identifier": "pid:urn:catalog2",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
-                        "notation": "en",
-                        "identifier": "http://lang.uage.ident.ifier"
+                        "identifier": "http://lang.uage.ident.ifier",
+                        "notation": "en"
                     }
                 ],
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "modified": "2014-01-17T08:19:58Z",
                 "publisher": [
                     {
                         "name": "Teppo Testaaja"
@@ -670,17 +664,23 @@
                 ],
                 "rights": {
                     "license": {
+                        "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675",
                         "title": [
                             {
                                 "en": "Title here"
                             }
-                        ],
-                        "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675"
+                        ]
                     }
                 },
-                "modified": "2014-01-17T08:19:58Z",
-                "identifier": "pid:urn:catalog2"
+                "title": [
+                    {
+                        "en": "Wonderful Title"
+                    }
+                ]
             },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
         "model": "metax_api.datasetcatalog",
@@ -688,22 +688,16 @@
     },
     {
         "fields": {
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "catalog_json": {
+                "identifier": "pid:urn:catalog2",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
-                        "notation": "en",
-                        "identifier": "http://lang.uage.ident.ifier"
+                        "identifier": "http://lang.uage.ident.ifier",
+                        "notation": "en"
                     }
                 ],
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "modified": "2014-01-17T08:19:58Z",
                 "publisher": [
                     {
                         "name": "Teppo Testaaja"
@@ -711,17 +705,23 @@
                 ],
                 "rights": {
                     "license": {
+                        "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675",
                         "title": [
                             {
                                 "en": "Title here"
                             }
-                        ],
-                        "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675"
+                        ]
                     }
                 },
-                "modified": "2014-01-17T08:19:58Z",
-                "identifier": "pid:urn:catalog2"
+                "title": [
+                    {
+                        "en": "Wonderful Title"
+                    }
+                ]
             },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
         "model": "metax_api.datasetcatalog",
@@ -729,37 +729,37 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "contract_json": {
-                "title": "Title of Contract 1",
-                "quota": 111204,
+                "contact": [
+                    {
+                        "email": "contact.email@csc.fi",
+                        "name": "Contact Name",
+                        "phone": "+358501231234"
+                    }
+                ],
                 "created": "2014-01-17T08:19:58Z",
-                "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
-                },
                 "description": "Description of unknown length",
+                "identifier": "optional:contract:identifier1",
+                "modified": "2014-01-17T08:19:58Z",
                 "organization": {
                     "name": [
                         "Mysterious organization"
                     ],
                     "organization_identifier": "1234567-1"
                 },
-                "contact": [
-                    {
-                        "name": "Contact Name",
-                        "phone": "+358501231234",
-                        "email": "contact.email@csc.fi"
-                    }
-                ],
+                "quota": 111204,
                 "service": [
                     {
-                        "name": "Name of Service",
-                        "identifier": "local:service:id"
+                        "identifier": "local:service:id",
+                        "name": "Name of Service"
                     }
                 ],
-                "modified": "2014-01-17T08:19:58Z",
-                "identifier": "optional:contract:identifier1"
+                "title": "Title of Contract 1",
+                "validity": {
+                    "start_date": "2014-01-17T08:19:58Z"
+                }
             },
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
         "model": "metax_api.contract",
@@ -767,37 +767,37 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "contract_json": {
-                "title": "Title of Contract 2",
-                "quota": 111204,
+                "contact": [
+                    {
+                        "email": "contact.email@csc.fi",
+                        "name": "Contact Name",
+                        "phone": "+358501231234"
+                    }
+                ],
                 "created": "2014-01-17T08:19:58Z",
-                "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
-                },
                 "description": "Description of unknown length",
+                "identifier": "optional:contract:identifier2",
+                "modified": "2014-01-17T08:19:58Z",
                 "organization": {
                     "name": [
                         "Mysterious organization"
                     ],
                     "organization_identifier": "1234567-2"
                 },
-                "contact": [
-                    {
-                        "name": "Contact Name",
-                        "phone": "+358501231234",
-                        "email": "contact.email@csc.fi"
-                    }
-                ],
+                "quota": 111204,
                 "service": [
                     {
-                        "name": "Name of Service",
-                        "identifier": "local:service:id"
+                        "identifier": "local:service:id",
+                        "name": "Name of Service"
                     }
                 ],
-                "modified": "2014-01-17T08:19:58Z",
-                "identifier": "optional:contract:identifier2"
+                "title": "Title of Contract 2",
+                "validity": {
+                    "start_date": "2014-01-17T08:19:58Z"
+                }
             },
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
         "model": "metax_api.contract",
@@ -805,37 +805,37 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "contract_json": {
-                "title": "Title of Contract 3",
-                "quota": 111204,
+                "contact": [
+                    {
+                        "email": "contact.email@csc.fi",
+                        "name": "Contact Name",
+                        "phone": "+358501231234"
+                    }
+                ],
                 "created": "2014-01-17T08:19:58Z",
-                "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
-                },
                 "description": "Description of unknown length",
+                "identifier": "optional:contract:identifier3",
+                "modified": "2014-01-17T08:19:58Z",
                 "organization": {
                     "name": [
                         "Mysterious organization"
                     ],
                     "organization_identifier": "1234567-3"
                 },
-                "contact": [
-                    {
-                        "name": "Contact Name",
-                        "phone": "+358501231234",
-                        "email": "contact.email@csc.fi"
-                    }
-                ],
+                "quota": 111204,
                 "service": [
                     {
-                        "name": "Name of Service",
-                        "identifier": "local:service:id"
+                        "identifier": "local:service:id",
+                        "name": "Name of Service"
                     }
                 ],
-                "modified": "2014-01-17T08:19:58Z",
-                "identifier": "optional:contract:identifier3"
+                "title": "Title of Contract 3",
+                "validity": {
+                    "start_date": "2014-01-17T08:19:58Z"
+                }
             },
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
         "model": "metax_api.contract",
@@ -843,37 +843,37 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "contract_json": {
-                "title": "Title of Contract 4",
-                "quota": 111204,
+                "contact": [
+                    {
+                        "email": "contact.email@csc.fi",
+                        "name": "Contact Name",
+                        "phone": "+358501231234"
+                    }
+                ],
                 "created": "2014-01-17T08:19:58Z",
-                "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
-                },
                 "description": "Description of unknown length",
+                "identifier": "optional:contract:identifier4",
+                "modified": "2014-01-17T08:19:58Z",
                 "organization": {
                     "name": [
                         "Mysterious organization"
                     ],
                     "organization_identifier": "1234567-4"
                 },
-                "contact": [
-                    {
-                        "name": "Contact Name",
-                        "phone": "+358501231234",
-                        "email": "contact.email@csc.fi"
-                    }
-                ],
+                "quota": 111204,
                 "service": [
                     {
-                        "name": "Name of Service",
-                        "identifier": "local:service:id"
+                        "identifier": "local:service:id",
+                        "name": "Name of Service"
                     }
                 ],
-                "modified": "2014-01-17T08:19:58Z",
-                "identifier": "optional:contract:identifier4"
+                "title": "Title of Contract 4",
+                "validity": {
+                    "start_date": "2014-01-17T08:19:58Z"
+                }
             },
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
         "model": "metax_api.contract",
@@ -881,37 +881,37 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "contract_json": {
-                "title": "Title of Contract 5",
-                "quota": 111204,
+                "contact": [
+                    {
+                        "email": "contact.email@csc.fi",
+                        "name": "Contact Name",
+                        "phone": "+358501231234"
+                    }
+                ],
                 "created": "2014-01-17T08:19:58Z",
-                "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
-                },
                 "description": "Description of unknown length",
+                "identifier": "optional:contract:identifier5",
+                "modified": "2014-01-17T08:19:58Z",
                 "organization": {
                     "name": [
                         "Mysterious organization"
                     ],
                     "organization_identifier": "1234567-5"
                 },
-                "contact": [
-                    {
-                        "name": "Contact Name",
-                        "phone": "+358501231234",
-                        "email": "contact.email@csc.fi"
-                    }
-                ],
+                "quota": 111204,
                 "service": [
                     {
-                        "name": "Name of Service",
-                        "identifier": "local:service:id"
+                        "identifier": "local:service:id",
+                        "name": "Name of Service"
                     }
                 ],
-                "modified": "2014-01-17T08:19:58Z",
-                "identifier": "optional:contract:identifier5"
+                "title": "Title of Contract 5",
+                "validity": {
+                    "start_date": "2014-01-17T08:19:58Z"
+                }
             },
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
         "model": "metax_api.contract",
@@ -919,25 +919,24 @@
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 1,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                1,
+                2
+            ],
+            "identifier": "pid:urn:cr1",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr1",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset1",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -945,69 +944,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Default Owner",
-                        "identifier": "id:of:curator"
+                        "identifier": "id:of:curator:default",
+                        "name": "Default Owner"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:1",
+                        "title": "File metadata title 0"
+                    },
+                    {
+                        "identifier": "pid:urn:2",
+                        "title": "File metadata title 1"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset1",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 0",
-                        "identifier": "pid:urn:1"
-                    },
-                    {
-                        "title": "File metadata title 1",
-                        "identifier": "pid:urn:2"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr1",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 1,
-            "preservation_state_modified": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr1",
-            "files": [
-                1,
-                2
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 1
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 1,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                3,
+                4
+            ],
+            "identifier": "pid:urn:cr2",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 1,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr2",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset2",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1015,69 +1014,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Rahikainen",
-                        "identifier": "id:of:curator:rahikainen"
+                        "identifier": "id:of:curator:rahikainen",
+                        "name": "Rahikainen"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:3",
+                        "title": "File metadata title 2"
+                    },
+                    {
+                        "identifier": "pid:urn:4",
+                        "title": "File metadata title 3"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset2",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 2",
-                        "identifier": "pid:urn:3"
-                    },
-                    {
-                        "title": "File metadata title 3",
-                        "identifier": "pid:urn:4"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr2",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 1,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr2",
-            "files": [
-                3,
-                4
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 2
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 2,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                5,
+                6
+            ],
+            "identifier": "pid:urn:cr3",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 2,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr3",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset3",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1085,69 +1084,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Rahikainen",
-                        "identifier": "id:of:curator:rahikainen"
+                        "identifier": "id:of:curator:rahikainen",
+                        "name": "Rahikainen"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:5",
+                        "title": "File metadata title 4"
+                    },
+                    {
+                        "identifier": "pid:urn:6",
+                        "title": "File metadata title 5"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset3",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 4",
-                        "identifier": "pid:urn:5"
-                    },
-                    {
-                        "title": "File metadata title 5",
-                        "identifier": "pid:urn:6"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr3",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 2,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr3",
-            "files": [
-                5,
-                6
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 3
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 2,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                7,
+                8
+            ],
+            "identifier": "pid:urn:cr4",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 3,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr4",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset4",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1155,69 +1154,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Rahikainen",
-                        "identifier": "id:of:curator:rahikainen"
+                        "identifier": "id:of:curator:rahikainen",
+                        "name": "Rahikainen"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:7",
+                        "title": "File metadata title 6"
+                    },
+                    {
+                        "identifier": "pid:urn:8",
+                        "title": "File metadata title 7"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset4",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 6",
-                        "identifier": "pid:urn:7"
-                    },
-                    {
-                        "title": "File metadata title 7",
-                        "identifier": "pid:urn:8"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr4",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 2,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr4",
-            "files": [
-                7,
-                8
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 4
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 3,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                9,
+                10
+            ],
+            "identifier": "pid:urn:cr5",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 4,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr5",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset5",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1225,69 +1224,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Rahikainen",
-                        "identifier": "id:of:curator:rahikainen"
+                        "identifier": "id:of:curator:rahikainen",
+                        "name": "Rahikainen"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:9",
+                        "title": "File metadata title 8"
+                    },
+                    {
+                        "identifier": "pid:urn:10",
+                        "title": "File metadata title 9"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset5",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 8",
-                        "identifier": "pid:urn:9"
-                    },
-                    {
-                        "title": "File metadata title 9",
-                        "identifier": "pid:urn:10"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr5",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 3,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr5",
-            "files": [
-                9,
-                10
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 5
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 3,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                11,
+                12
+            ],
+            "identifier": "pid:urn:cr6",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 5,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr6",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset6",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1295,69 +1294,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Rahikainen",
-                        "identifier": "id:of:curator:rahikainen"
+                        "identifier": "id:of:curator:rahikainen",
+                        "name": "Rahikainen"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:11",
+                        "title": "File metadata title 10"
+                    },
+                    {
+                        "identifier": "pid:urn:12",
+                        "title": "File metadata title 11"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset6",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 10",
-                        "identifier": "pid:urn:11"
-                    },
-                    {
-                        "title": "File metadata title 11",
-                        "identifier": "pid:urn:12"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr6",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 3,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr6",
-            "files": [
-                11,
-                12
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 6
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 4,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                13,
+                14
+            ],
+            "identifier": "pid:urn:cr7",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr7",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset7",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1365,69 +1364,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Jarski",
-                        "identifier": "id:of:curator:jarski"
+                        "identifier": "id:of:curator:jarski",
+                        "name": "Jarski"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:13",
+                        "title": "File metadata title 12"
+                    },
+                    {
+                        "identifier": "pid:urn:14",
+                        "title": "File metadata title 13"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset7",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 12",
-                        "identifier": "pid:urn:13"
-                    },
-                    {
-                        "title": "File metadata title 13",
-                        "identifier": "pid:urn:14"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr7",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 4,
-            "preservation_state_modified": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr7",
-            "files": [
-                13,
-                14
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 7
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 4,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                15,
+                16
+            ],
+            "identifier": "pid:urn:cr8",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr8",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset8",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1435,69 +1434,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Jarski",
-                        "identifier": "id:of:curator:jarski"
+                        "identifier": "id:of:curator:jarski",
+                        "name": "Jarski"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:15",
+                        "title": "File metadata title 14"
+                    },
+                    {
+                        "identifier": "pid:urn:16",
+                        "title": "File metadata title 15"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset8",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 14",
-                        "identifier": "pid:urn:15"
-                    },
-                    {
-                        "title": "File metadata title 15",
-                        "identifier": "pid:urn:16"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr8",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 4,
-            "preservation_state_modified": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr8",
-            "files": [
-                15,
-                16
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 8
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 5,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                17,
+                18
+            ],
+            "identifier": "pid:urn:cr9",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr9",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset9",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1505,69 +1504,69 @@
                 ],
                 "curator": [
                     {
-                        "name": "Jarski",
-                        "identifier": "id:of:curator:jarski"
+                        "identifier": "id:of:curator:jarski",
+                        "name": "Jarski"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:17",
+                        "title": "File metadata title 16"
+                    },
+                    {
+                        "identifier": "pid:urn:18",
+                        "title": "File metadata title 17"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset9",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 16",
-                        "identifier": "pid:urn:17"
-                    },
-                    {
-                        "title": "File metadata title 17",
-                        "identifier": "pid:urn:18"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr9",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 5,
-            "preservation_state_modified": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr9",
-            "files": [
-                17,
-                18
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 9
     },
     {
         "fields": {
-            "dataset_group_edit": "default-dataset-edit-group",
+            "contract": 5,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                19,
+                20
+            ],
+            "identifier": "pid:urn:cr10",
             "mets_object_identifier": [
                 "a",
                 "b",
                 "c"
             ],
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
-                "modified": "2014-01-17T08:19:58Z",
-                "urn_identifier": "pid:urn:cr10",
-                "language": [
-                    {
-                        "title": "en",
-                        "identifier": "http://lang.ident.ifier/en"
-                    }
-                ],
-                "preferred_identifier": "pid:urn:preferred:dataset10",
-                "total_byte_size": 12345,
                 "creator": [
                     {
                         "name": "Teppo Testaaja"
@@ -1575,44 +1574,45 @@
                 ],
                 "curator": [
                     {
-                        "name": "Jarski",
-                        "identifier": "id:of:curator:jarski"
+                        "identifier": "id:of:curator:jarski",
+                        "name": "Jarski"
                     }
                 ],
-                "ready_status": "Unfinished",
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:19",
+                        "title": "File metadata title 18"
+                    },
+                    {
+                        "identifier": "pid:urn:20",
+                        "title": "File metadata title 19"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lang.ident.ifier/en",
+                        "title": "en"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "ready_status": "Unfinished",
                 "title": [
                     {
                         "en": "Wonderful Title"
                     }
                 ],
-                "files": [
-                    {
-                        "title": "File metadata title 18",
-                        "identifier": "pid:urn:19"
-                    },
-                    {
-                        "title": "File metadata title 19",
-                        "identifier": "pid:urn:20"
-                    }
-                ],
+                "total_byte_size": 12345,
+                "urn_identifier": "pid:urn:cr10",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            },
-            "contract": 5,
-            "preservation_state_modified": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "identifier": "pid:urn:cr10",
-            "files": [
-                19,
-                20
-            ]
+            }
         },
         "model": "metax_api.catalogrecord",
         "pk": 10

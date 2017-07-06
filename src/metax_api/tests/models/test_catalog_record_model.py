@@ -1,4 +1,3 @@
-# todo validation disabled until schema updated
 from jsonschema import validate as json_validate
 
 from django.core.management import call_command
@@ -27,6 +26,15 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
         'mets_object_identifier',
         'dataset_group_edit',
         'files',
+        'next_version_id',
+        'next_version_identifier',
+        'previous_version_id',
+        'previous_version_identifier',
+        'version_created',
+
+        # the field through which the object of the next/prev version can be directly accessed
+        'next_version',
+        'previous_version',
     )
 
     common_fields_names = (

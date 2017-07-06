@@ -1,11 +1,11 @@
 from django.http import Http404
-
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from metax_api.models import CatalogRecord
+from metax_api.services import CatalogRecordService as CRS
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
@@ -36,7 +36,7 @@ class DatasetViewSet(CommonViewSet):
         try:
             return super(DatasetViewSet, self).get_object()
         except Http404:
-            if self.is_primary_key(self.kwargs.get(self.lookup_field, False)):
+            if CRS.is_primary_key(self.kwargs.get(self.lookup_field, False)):
                 # fail on pk search is clear, but other identifiers can have matches
                 # in a dataset's other identifier fields
                 raise
@@ -46,31 +46,51 @@ class DatasetViewSet(CommonViewSet):
         return self._search_using_other_dataset_identifiers()
 
     def get_queryset(self):
-        if not self.request.query_params:
-            return super(DatasetViewSet, self).get_queryset()
-        else:
-            query_params = self.request.query_params
+        if self.kwargs.get('pk', None):
+            # operations on individual resources can find old versions. those operations
+            # then decide if they allow modifying the resource or not
             additional_filters = {}
-            if query_params.get('owner', False):
-                additional_filters['research_dataset__contains'] = { 'curator': [{ 'identifier': query_params['owner'] }]}
-            if query_params.get('state', False):
-                additional_filters['preservation_state__in'] = query_params['state'].split(',')
-            return self.queryset.filter(**additional_filters)
+        else:
+            # list operations only list current versions
+            additional_filters = { 'next_version_id': None }
+
+        if hasattr(self, 'queryset_search_params'):
+            if self.queryset_search_params.get('owner', False):
+                additional_filters['research_dataset__contains'] = { 'curator': [{ 'identifier': self.queryset_search_params['owner'] }]}
+            if self.queryset_search_params.get('state', False):
+                additional_filters['preservation_state__in'] = self.queryset_search_params['state']
+
+        return super(DatasetViewSet, self).get_queryset().filter(**additional_filters)
 
     def list(self, request, *args, **kwargs):
-        if request.query_params.get('state', False):
-            for val in request.query_params['state'].split(','):
-                try:
-                    int(val)
-                except ValueError:
-                    return Response(data={ 'state': ['Value \'%s\' is not an integer' % val] }, status=status.HTTP_400_BAD_REQUEST)
+        # best to specify a variable for parameters intended for filtering purposes in get_queryset(),
+        # because other api's may use query parameters of the same name, which can
+        # mess up filtering if get_queryset() uses request.query_parameters directly.
+        self.queryset_search_params = CRS.get_queryset_search_params(request)
         return super(DatasetViewSet, self).list(request, *args, **kwargs)
 
     @detail_route(methods=['get'], url_path="files")
     def files_get(self, request, pk=None):
+        """
+        Get files associated to this dataset
+        """
         catalog_record = self.get_object()
         files = [ FileSerializer(f).data for f in catalog_record.files.all() ]
         return Response(data=files, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'], url_path="createversion")
+    def create_version(self, request, pk=None):
+        """
+        Create a new version from a dataset that has been marked as finished
+        """
+        kwargs = { 'context': self.get_serializer_context() }
+        new_version_data, http_status = CRS.create_new_dataset_version(request, self.get_object(), **kwargs)
+        return Response(data=new_version_data, status=http_status)
+
+    @detail_route(methods=['post'], url_path="proposetopas")
+    def propose_to_pas(self, request, pk=None):
+        CRS.propose_to_pas(request, self.get_object())
+        return Response(data={}, status=status.HTTP_204_NO_CONTENT)
 
     def _search_using_other_dataset_identifiers(self):
         """
