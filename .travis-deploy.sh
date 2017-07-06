@@ -11,6 +11,7 @@ cd metax-ops/ansible/
 
 if [[ "$TRAVIS_BRANCH" == "staging" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     echo "Deploying to staging.."
+    ansible-galaxy -r requirements.yml install --roles-path=roles
     ansible-playbook -vv -i environments/staging site_deploy.yml
 elif [[ "$TRAVIS_BRANCH" == "stable" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     echo "Stable"
