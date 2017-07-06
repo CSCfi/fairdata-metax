@@ -29,6 +29,11 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         'modified_by_api',
         'created_by_user_id',
         'created_by_api',
+        'next_version_id',
+        'next_version_identifier',
+        'previous_version_id',
+        'previous_version_identifier',
+        'version_created',
     )
 
     @classmethod
@@ -196,7 +201,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('identifier' in response.data.keys(), True, 'The error should be about an already existing identifier')
 
-    # todo validation disabled until schema updated
     def test_create_catalog_record_error_json_validation(self):
         self.test_new_data['identifier'] = "neeeeeeeeew:id"
         self.test_new_data['research_dataset']["title"] = 1234456

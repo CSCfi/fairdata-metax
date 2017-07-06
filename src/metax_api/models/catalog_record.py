@@ -45,10 +45,17 @@ class CatalogRecord(Common):
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
     dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
 
+    next_version_id = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True, db_column='next_version_id', related_name='next_version')
+    next_version_identifier = models.CharField(max_length=200, null=True)
+    previous_version_id = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True, db_column='previous_version_id', related_name='previous_version')
+    previous_version_identifier = models.CharField(max_length=200, null=True)
+    version_created = models.DateTimeField(help_text='Date when this version was first created.', null=True)
+
     class Meta:
         indexes = [
             models.Index(fields=['identifier'])
         ]
+        ordering = ['id']
 
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
