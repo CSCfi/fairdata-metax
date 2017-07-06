@@ -32,6 +32,10 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_MIDTERM_PAS_REJECTED, 'Midterm PAS rejected'),
     )
 
+    READY_STATUS_FINISHED = 'Finished'
+    READY_STATUS_UNFINISHED = 'Unfinished'
+    READY_STATUS_REMOVED = 'Removed'
+
     identifier = models.CharField(max_length=200, unique=True)
     research_dataset = JSONField()
     dataset_catalog = models.ForeignKey(DatasetCatalog)
@@ -65,3 +69,12 @@ class CatalogRecord(Common):
         if self.field_changed('preservation_state'):
             self.preservation_state_modified = datetime.now()
         super(CatalogRecord, self).save(*args, **kwargs)
+
+    def can_be_proposed_to_pas(self):
+        return self.preservation_state in (
+            CatalogRecord.PRESERVATION_STATE_NOT_IN_PAS,
+            CatalogRecord.PRESERVATION_STATE_LONGTERM_PAS_REJECTED,
+            CatalogRecord.PRESERVATION_STATE_MIDTERM_PAS_REJECTED)
+
+    def dataset_is_finished(self):
+        return self.research_dataset.get('ready_status', False) == self.READY_STATUS_FINISHED

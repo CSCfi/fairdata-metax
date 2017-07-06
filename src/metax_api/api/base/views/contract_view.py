@@ -3,6 +3,7 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from metax_api.models import Contract
+from metax_api.services import CommonService
 from .common_view import CommonViewSet
 from ..serializers import ContractSerializer, CatalogRecordSerializer
 
@@ -28,7 +29,7 @@ class ContractViewSet(CommonViewSet):
     def get_object(self):
         lookup_value = self.kwargs.get(self.lookup_field, False)
         search_params = None
-        if not self.is_primary_key(lookup_value):
+        if not CommonService.is_primary_key(lookup_value):
             search_params = { 'contract_json__contains': { 'identifier': lookup_value }}
         return super(ContractViewSet, self).get_object(search_params=search_params)
 
