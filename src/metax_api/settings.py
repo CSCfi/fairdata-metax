@@ -252,30 +252,27 @@ STATIC_URL = '/static/'
 # https://www.peterbe.com/plog/fastest-redis-optimization-for-django
 # Currently using this (pip: django-redis-cache): https://github.com/sebleier/django-redis-cache
 # Consider alternatively pip:django-redis: https://github.com/niwinz/django-redis
+CACHES = {
+    'default': {
+        'BACKEND': "redis_cache.RedisCache",
+        'LOCATION': [
+            '%s:%s' % (os.getenv('REDIS_MASTER_SERVICE_HOST', '127.0.0.1'),
+                       os.getenv('REDIS_MASTER_SERVICE_PORT', 6379)),
+            '%s:%s' % (os.getenv('REDIS_SLAVE_SERVICE_HOST', '127.0.0.1'),
+                       os.getenv('REDIS_SLAVE_SERVICE_PORT', 6379))
+        ],
+        'OPTIONS': {
+            'DB': 1,
+            'PARSER_CLASS': 'redis.connection.HiredisParser',
+            'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
+            'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor',
+            'MASTER_CACHE': '%s:%s' % (
+                os.getenv('REDIS_MASTER_SERVICE_HOST', '127.0.0.1'),
+                os.getenv('REDIS_MASTER_SERVICE_PORT', 6379))
+        }
+    }
+}
 
 if os.getenv('TRAVIS', None):
-    CACHES = {
-        'default': {
-            'BACKEND': "redis_cache.RedisCache",
-            'LOCATION': 'redis://127.0.0.1:6379/1',
-            'OPTIONS': {
-                'DB': 1,
-                'PARSER_CLASS': 'redis.connection.HiredisParser',
-                'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
-                'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
-            }
-        }
-    }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': "redis_cache.RedisCache",
-            'LOCATION': "/run/redis/redis.sock",
-            'OPTIONS': {
-                'DB': 1,
-                'PARSER_CLASS': 'redis.connection.HiredisParser',
-                'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
-                'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
-            }
-        }
-    }
+    CACHES['default']['LOCATION'] = '127.0.0.1:6379'
+    CACHES['default']['OPTIONS']['MASTER_CACHE'] = '127.0.0.1:6379'
