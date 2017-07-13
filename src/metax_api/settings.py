@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+import sys
 import yaml
 
 if not os.getenv('TRAVIS', None):
@@ -273,6 +274,6 @@ CACHES = {
     }
 }
 
-if os.getenv('TRAVIS', None):
-    CACHES['default']['LOCATION'] = '127.0.0.1:6379'
-    CACHES['default']['OPTIONS']['MASTER_CACHE'] = '127.0.0.1:6379'
+# automated tests or travis do not currently use any kind of caching
+if 'test' in sys.argv or os.getenv('TRAVIS', None):
+    CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
