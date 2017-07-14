@@ -62,7 +62,7 @@ class RedisSentinelCache():
             # (in case there was only one slave). # try master instead
             pass
         else:
-            return pickle_loads(res)
+            return pickle_loads(res) if res is not None else None
 
         master = self._get_master()
 
@@ -75,7 +75,7 @@ class RedisSentinelCache():
             # or there is a fail-over in process, and a new master will be in line in a moment
             return None
 
-        return pickle_loads(res)
+        return pickle_loads(res) if res is not None else None
 
     def _get_master(self):
         if self._DEBUG:
