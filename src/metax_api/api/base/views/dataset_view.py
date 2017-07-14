@@ -121,3 +121,26 @@ class DatasetViewSet(CommonViewSet):
         self.check_object_permissions(self.request, obj)
 
         return obj
+
+    @detail_route(methods=['get'], url_path="redis")
+    def redis_test(self, request, pk=None): # pragma: no cover
+        try:
+            cached = self.cache.get('cr-1211%s' % pk)
+        except:
+            d('redis: could not connect during read')
+            cached = None
+            raise
+
+        if cached:
+            d('found in cache, returning')
+            return Response(data=cached, status=status.HTTP_200_OK)
+
+        data = self.get_serializer(CatalogRecord.objects.get(pk=1)).data
+
+        try:
+            self.cache.set('cr-1211%s' % pk, data)
+        except:
+            d('redis: could not connect during write')
+            raise
+
+        return Response(data=data, status=status.HTTP_200_OK)

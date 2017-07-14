@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+import sys
 import yaml
 
 if not os.getenv('TRAVIS', None):
@@ -247,35 +248,19 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
 
+# settings for custom redis-py cache helper in utils/redis.py
+REDIS_SENTINEL = {
+    # at least three are required
+    'REDIS_SENTINEL_HOSTS': [('127.0.0.1', 5000), ('127.0.0.1', 5001), ('127.0.0.1', 5002)],
+    'REDIS_SENTINEL_SERVICE': 'metax-master',
 
-# Redis Cache
-# https://www.peterbe.com/plog/fastest-redis-optimization-for-django
-# Currently using this (pip: django-redis-cache): https://github.com/sebleier/django-redis-cache
-# Consider alternatively pip:django-redis: https://github.com/niwinz/django-redis
+    # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
+    'REDIS_SENTINEL_SOCKET_TIMEOUT': 0.1,
 
-if os.getenv('TRAVIS', None):
-    CACHES = {
-        'default': {
-            'BACKEND': "redis_cache.RedisCache",
-            'LOCATION': 'redis://127.0.0.1:6379/1',
-            'OPTIONS': {
-                'DB': 1,
-                'PARSER_CLASS': 'redis.connection.HiredisParser',
-                'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
-                'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
-            }
-        }
-    }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': "redis_cache.RedisCache",
-            'LOCATION': "/run/redis/redis.sock",
-            'OPTIONS': {
-                'DB': 1,
-                'PARSER_CLASS': 'redis.connection.HiredisParser',
-                'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
-                'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
-            }
-        }
-    }
+    # enables extra logging to console during cache usage
+    'REDIS_SENTINEL_DEBUG': False,
+}
+
+# automated tests or travis do not currently use any kind of caching
+if 'test' in sys.argv or os.getenv('TRAVIS', None):
+    CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}

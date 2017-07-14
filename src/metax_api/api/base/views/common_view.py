@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from metax_api.services import CommonService
+from metax_api.utils import RedisSentinelCache
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ class CommonViewSet(ModelViewSet):
     """
 
     lookup_field_internal = None
+    cache = RedisSentinelCache()
 
     def get_object(self, search_params=None):
         """
