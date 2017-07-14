@@ -48,6 +48,9 @@ class RedisSentinelCache():
                 d('cache: set() unsuccessful, could not get saved data?')
 
     def get(self, key, **kwargs):
+        # todo randomly select slave or master for max profit
+        # todo allow reading from cache when master is down? could possibly serve stale data.
+        # see redis.conf setting: slave-serve-stale-data
         if self._DEBUG:
             d('cache: get()...')
 
