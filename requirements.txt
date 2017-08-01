@@ -1,28 +1,28 @@
-celery==4.0.2
-coreapi==2.3.0  # BSD-license
+celery==4.1.0
+coreapi==2.3.1  # BSD-license
 coreschema==0.0.4  # BSD-license
 coverage==4.4.1
 coveralls==1.1
-Django==1.11.1  # BSD-license
+Django==1.11.3  # BSD-license
 hiredis==0.2.0 # Used by redis (redis-py) for parser
 django-rest-swagger==2.1.2  # FreeBSD-license
-djangorestframework==3.6.2  # BSD-license
+djangorestframework==3.6.3  # BSD-license
 django-rainbowtests==0.6.0
-django-simple-history==1.8.2  # BSD-license
-flake8==3.3.0 # MIT-license
-gevent==1.2.1
-gunicorn==19.7.0 # MIT-license
+django-simple-history==1.9.0  # BSD-license
+flake8==3.4.1 # MIT-license
+gevent==1.2.2
+gunicorn==19.7.1 # MIT-license
 ipdb==0.10.3
-Jinja2==2.9.5  # BSD-license
+Jinja2==2.9.6  # BSD-license
 jsonschema==2.6.0
 mccabe==0.6.1  # Expat license (same as MIT)
-openapi-codec==1.3.1  # BSD-license
-psycopg2==2.7.1  # LGPL with exceptions or ZPL
+openapi-codec==1.3.2  # BSD-license
+psycopg2==2.7.3  # LGPL with exceptions or ZPL
 pycodestyle==2.3.1  # Expat license (same as MIT)
 pyflakes==1.5.0  # MIT-license
 pyyaml==3.12
 redis==2.10.5
-requests==2.13.0  # Apache 2.0-license
-simplejson==3.10.0  # MIT-license
+requests==2.18.2  # Apache 2.0-license
+simplejson==3.11.1  # MIT-license
 uritemplate==3.0.0  # BSD 3-Clause License or Apache License, Version 2.0
-urllib3==1.21.1
+urllib3==1.22
