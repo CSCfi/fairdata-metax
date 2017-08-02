@@ -510,7 +510,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                 }],
                 "language": [{
                     "title": "en",
-                    "identifier": "http://lang.ident.ifier/en"
+                    "identifier": "http://lexvo.org/id/iso639-3/aar"
                 }],
                 "total_byte_size": 1024,
                 "ready_status": "Unfinished",
@@ -544,7 +544,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                 }],
                 "language": [{
                     "title": "en",
-                    "identifier": "http://lang.ident.ifier/en"
+                    "identifier": "http://lexvo.org/id/iso639-3/aar"
                 }],
                 "total_byte_size": 1024,
                 "ready_status": "Unfinished",

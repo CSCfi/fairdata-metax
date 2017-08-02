@@ -264,3 +264,11 @@ REDIS_SENTINEL = {
 # automated tests or travis do not currently use any kind of caching
 if 'test' in sys.argv or os.getenv('TRAVIS', None):
     CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
+
+ELASTICSEARCH = {
+    'HOST': 'localhost',
+    'PORT': 9200,
+    # normally cache is reloaded from elasticsearch only if reference data is missing.
+    # for one-off reload / debugging / development, use below flag
+    'ALWAYS_RELOAD_CACHE_ON_RESTART': False,
+}
