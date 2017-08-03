@@ -1,10 +1,12 @@
 from pickle import dumps as pickle_dumps, loads as pickle_loads
 from random import choice as random_choice
 
-from django.conf import settings
+from django.conf import settings as django_settings
 from redis.sentinel import Sentinel
 from redis.exceptions import TimeoutError
 from redis.sentinel import MasterNotFoundError
+
+from .utils import executing_test_case
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -12,25 +14,38 @@ d = logging.getLogger(__name__).debug
 
 class RedisSentinelCache():
 
-    def __init__(self, master_only=False):
-        if not hasattr(settings, 'REDIS_SENTINEL'):
-            raise Exception('Missing configuration from settings.py: REDIS_SENTINEL')
-        if not settings.REDIS_SENTINEL.get('REDIS_SENTINEL_HOSTS', None):
-            raise Exception('Missing configuration from settings.py for REDIS_SENTINEL: REDIS_SENTINEL_HOSTS')
-        if not settings.REDIS_SENTINEL.get('REDIS_SENTINEL_SERVICE', None):
-            raise Exception('Missing configuration from settings.py for REDIS_SENTINEL: REDIS_SENTINEL_SERVICE')
-        if len(settings.REDIS_SENTINEL['REDIS_SENTINEL_HOSTS']) < 3:
-            raise Exception('Invaling configuration in settings.py for REDIS_SENTINEL: REDIS_SENTINEL_HOSTS minimum number of hosts is 3')
+    def __init__(self, db=0, master_only=False, settings=django_settings):
+        """
+        db: database index to read/write to. available indexes 0-15.
+        master_only: always use master for read operations, for those times when you know you are going to
+                     read the same key again from cache very soon.
+        settings: override redis setttings in settings.py. easier to use class from outside context of django (i.e. cron)
+        """
 
-        self._sentinel = Sentinel(settings.REDIS_SENTINEL['REDIS_SENTINEL_HOSTS'],
-            socket_timeout=settings.REDIS_SENTINEL.get('SOCKET_TIMEOUT', 0.1))
-        self._service_name = settings.REDIS_SENTINEL['REDIS_SENTINEL_SERVICE']
-        self._DEBUG = settings.REDIS_SENTINEL.get('REDIS_SENTINEL_DEBUG', False)
-        self._node_count = self._node_count()
+        if not isinstance(settings, dict):
+            if not hasattr(settings, 'REDIS_SENTINEL'):
+                raise Exception('Missing configuration from settings.py: REDIS_SENTINEL')
+            settings = settings.REDIS_SENTINEL
 
-        # always use master for read operations, for those times when you know you are going
-        # to read the same key again from cache very soon
+        if not settings.get('HOSTS', None):
+            raise Exception('Missing configuration from settings for REDIS_SENTINEL: HOSTS')
+        if not settings.get('SERVICE', None):
+            raise Exception('Missing configuration from settings for REDIS_SENTINEL: SERVICE')
+        if not settings.get('TEST_DB', None):
+            raise Exception('Missing configuration from settings for REDIS_SENTINEL: TEST_DB')
+        if len(settings['HOSTS']) < 3:
+            raise Exception('Invalid configuration in settings for REDIS_SENTINEL: HOSTS minimum number of hosts is 3')
+
+        if executing_test_case():
+            db = settings['TEST_DB']
+        elif db == settings['TEST_DB']:
+            raise Exception('Invalid db: db index %d is reserved for test suite execution.' % db)
+
+        self._sentinel = Sentinel(settings['HOSTS'], socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1), db=db)
+        self._service_name = settings['SERVICE']
+        self._DEBUG = settings.get('DEBUG', False)
         self._read_from_master_only = master_only
+        self._node_count = self._node_count()
 
     def set(self, key, value, **kwargs):
         if self._DEBUG:
@@ -100,6 +115,12 @@ class RedisSentinelCache():
             # or there is a fail-over in process, and a new master will be in line in a moment
             return None
         return pickle_loads(res) if res is not None else None
+
+    def get_master(self):
+        """
+        Expose the master node to permit any operation in redis-py
+        """
+        return self._get_master()
 
     def _slave_chosen(self):
         return random_choice(range(0, self._node_count)) != 0
