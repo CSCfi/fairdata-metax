@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
-import sys
+# import sys
 import yaml
 
 if not os.getenv('TRAVIS', None):
@@ -251,24 +251,31 @@ STATIC_URL = '/static/'
 # settings for custom redis-py cache helper in utils/redis.py
 REDIS_SENTINEL = {
     # at least three are required
-    'REDIS_SENTINEL_HOSTS': [('127.0.0.1', 5000), ('127.0.0.1', 5001), ('127.0.0.1', 5002)],
-    'REDIS_SENTINEL_SERVICE': 'metax-master',
+    'HOSTS':    app_config_dict['REDIS']['HOSTS'],
+    'USER':     app_config_dict['REDIS']['USER'],
+    'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
+    'SERVICE':  app_config_dict['REDIS']['SERVICE'],
 
     # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
-    'REDIS_SENTINEL_SOCKET_TIMEOUT': 0.1,
+    'SOCKET_TIMEOUT': 0.1,
+
+    # db index reserved for test suites
+    'TEST_DB': app_config_dict['REDIS']['TEST_DB'],
 
     # enables extra logging to console during cache usage
-    'REDIS_SENTINEL_DEBUG': False,
+    'DEBUG': False,
 }
 
+# does not have effect since we are not using a django-specific cache currently !!!
 # automated tests or travis do not currently use any kind of caching
-if 'test' in sys.argv or os.getenv('TRAVIS', None):
-    CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
+# if 'test' in sys.argv or os.getenv('TRAVIS', None):
+#     CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
 
 ELASTICSEARCH = {
-    'HOST': 'localhost',
-    'PORT': 9200,
+    'HOSTS':    app_config_dict['ELASTICSEARCH']['HOSTS'],
+    'USER':     app_config_dict['ELASTICSEARCH']['USER'],
+    'PASSWORD': app_config_dict['ELASTICSEARCH']['PASSWORD'],
     # normally cache is reloaded from elasticsearch only if reference data is missing.
     # for one-off reload / debugging / development, use below flag
-    'ALWAYS_RELOAD_CACHE_ON_RESTART': False,
+    'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
 }
