@@ -26,30 +26,29 @@ class OnAppStart(AppConfig):
         """
         cache = RedisSentinelCache(master_only=True)
 
-        if cache.get('on_app_start_executing'):
+        # ex = expiration in seconds
+        if not cache.get_or_set('on_app_start_executing', True, ex=120):
             # d('another process is already executing startup tasks, skipping')
             return
 
-        cache.set('on_app_start_executing', True)
-
-        # ensure other processes have stopped at on_app_start_executing
-        # before we reset the flag.
-        sleep(2)
-
-        # reset the flag right after sleep, to ensure the reset is never prevented by any
-        # unforeseen errors or cosmic rays during execution, which might block this method on a future restart.
-        cache.set('on_app_start_executing', False)
-
         # actual startup tasks ->
 
-        if executing_test_case():
-            cache.get_master().flushdb()
+        try:
+            if executing_test_case():
+                cache.get_master().flushdb()
 
-        if settings.ELASTICSEARCH['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART']:
-            cache.set('reference_data', None)
+            if settings.ELASTICSEARCH['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART']:
+                cache.set('reference_data', None)
 
-        if cache.get('reference_data'):
-            # d('cache already populated')
-            return
-
-        ReferenceDataService.populate_cache_reference_data(cache)
+            if not cache.get('reference_data'):
+                ReferenceDataService.populate_cache_reference_data(cache)
+            else:
+                # d('cache already populated')
+                pass
+        except:
+            raise
+        finally:
+            # ensure other processes have stopped at on_app_start_executing
+            # before resetting the flag. (on local this method can be quite fast)
+            sleep(2)
+            cache.delete('on_app_start_executing')
