@@ -21,7 +21,6 @@ class RedisSentinelCache():
                      read the same key again from cache very soon.
         settings: override redis setttings in settings.py. easier to use class from outside context of django (i.e. cron)
         """
-
         if not isinstance(settings, dict):
             if not hasattr(settings, 'REDIS_SENTINEL'):
                 raise Exception('Missing configuration from settings.py: REDIS_SENTINEL')
@@ -54,10 +53,10 @@ class RedisSentinelCache():
         master = self._get_master()
 
         try:
-            master.set(key, pickled_data, **kwargs)
+            return master.set(key, pickled_data, **kwargs)
         except (TimeoutError, MasterNotFoundError):
             if self._DEBUG:
-                d('cache: master timed out or not found. no write instances available. raising error')
+                d('cache: master timed out or not found. no write instances available')
             # no master available
             return
 
@@ -67,6 +66,18 @@ class RedisSentinelCache():
                 d('cache: set() successful')
             else:
                 d('cache: set() unsuccessful, could not get saved data?')
+
+    def get_or_set(self, key, value, **kwargs):
+        """
+        Atomic set of value only if key did not exist yet.
+
+        Returns True if set was successful, None if set failed (= value existed)
+
+        https://redis.io/commands/setnx Not recommended any longer for distributed locks...
+        https://redis.io/topics/distlock However this is also just a proposal and no official
+        implementation exists yet
+        """
+        return self.set(key, value, nx=True, **kwargs)
 
     def get(self, key, **kwargs):
         """
@@ -90,6 +101,27 @@ class RedisSentinelCache():
                     pass
             # lady luck chose master, or read from slave had an error
             return self._get_from_master(key, **kwargs)
+
+    def delete(self, *keys):
+        if self._DEBUG:
+            d('cache: delete()...')
+
+        master = self._get_master()
+
+        try:
+            master.delete(*keys)
+        except (TimeoutError, MasterNotFoundError):
+            if self._DEBUG:
+                d('cache: master timed out or not found. no write instances available. raising error')
+            # no master available
+            return
+
+        if self._DEBUG:
+            test = master.get(keys[0])
+            if not test:
+                d('cache: delete() successful')
+            else:
+                d('cache: delete() unsuccessful, could not delete data?')
 
     def _get_from_slave(self, key, **kwargs):
         node = self._get_slave()
