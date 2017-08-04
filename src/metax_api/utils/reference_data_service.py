@@ -23,7 +23,6 @@ class ReferenceDataService():
 
         cache: cache object to use for saving
         settings: override elasticsearch settings in settings.py
-        print_stdout: print output also to stdout using print()
         """
 
         _logger.info('Metax API startup - populating cache with reference data...')
