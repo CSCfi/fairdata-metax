@@ -248,23 +248,23 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
 
-# settings for custom redis-py cache helper in utils/redis.py
-REDIS_SENTINEL = {
-    # at least three are required
-    'HOSTS':    app_config_dict['REDIS']['HOSTS'],
-    'USER':     app_config_dict['REDIS']['USER'],
-    'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
-    'SERVICE':  app_config_dict['REDIS']['SERVICE'],
+if not os.getenv('TRAVIS', None):
+    # settings for custom redis-py cache helper in utils/redis.py
+    REDIS_SENTINEL = {
+        # at least three are required
+        'HOSTS':    app_config_dict['REDIS']['HOSTS'],
+        'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
+        'SERVICE':  app_config_dict['REDIS']['SERVICE'],
 
-    # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
-    'SOCKET_TIMEOUT': 0.1,
+        # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
+        'SOCKET_TIMEOUT': 0.1,
 
-    # db index reserved for test suites
-    'TEST_DB': app_config_dict['REDIS']['TEST_DB'],
+        # db index reserved for test suites
+        'TEST_DB': app_config_dict['REDIS']['TEST_DB'],
 
-    # enables extra logging to console during cache usage
-    'DEBUG': False,
-}
+        # enables extra logging to console during cache usage
+        'DEBUG': False,
+    }
 
 # does not have effect since we are not using a django-specific cache currently !!!
 # automated tests or travis do not currently use any kind of caching

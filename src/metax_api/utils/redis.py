@@ -6,13 +6,26 @@ from redis.sentinel import Sentinel
 from redis.exceptions import TimeoutError
 from redis.sentinel import MasterNotFoundError
 
-from .utils import executing_test_case
+from .utils import executing_test_case, executing_travis
 
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
-class RedisSentinelCache():
+
+def RedisSentinelCache(*args, **kwargs):
+    """
+    A factory for the redis client.
+
+    Returns dummy cache with hardcoded dict as the storage when executing inside travis
+    """
+    if executing_travis() or kwargs.get('dummy', False):
+        return _RedisSentinelCacheDummy(*args, **kwargs)
+    else:
+        return _RedisSentinelCache(*args, **kwargs)
+
+
+class _RedisSentinelCache():
 
     def __init__(self, db=0, master_only=False, settings=django_settings):
         """
@@ -40,7 +53,7 @@ class RedisSentinelCache():
         elif db == settings['TEST_DB']:
             raise Exception('Invalid db: db index %d is reserved for test suite execution.' % db)
 
-        self._sentinel = Sentinel(settings['HOSTS'], socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1), db=db)
+        self._sentinel = Sentinel(settings['HOSTS'], password=settings['PASSWORD'], socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1), db=db)
         self._service_name = settings['SERVICE']
         self._DEBUG = settings.get('DEBUG', False)
         self._read_from_master_only = master_only
@@ -169,3 +182,54 @@ class RedisSentinelCache():
 
     def _node_count(self):
         return len(self._sentinel.discover_slaves(self._service_name)) + 1 # +1 is master
+
+
+class _RedisSentinelCacheDummy():
+
+    storage = {}
+
+    def __init__(self, *args, **kwargs):
+        self._init_dummy_storage()
+
+    def set(self, key, value, **kwargs):
+        self.storage[key] = value
+
+    def get(self, key, **kwargs):
+        return self.storage.get(key, None)
+
+    def get_or_set(self, key, value, **kwargs):
+        self.storage[key] = value
+        return True
+
+    def delete(self, key, **kwargs):
+        try:
+            self.storage.pop(key)
+        except:
+            pass
+
+    def get_master(self):
+        return self
+
+    def flushdb(self):
+        self._init_dummy_storage()
+        return True
+
+    def _init_dummy_storage(self):
+        """
+        Add stuff as required when cache has to be used inside test cases. This is the 'db'
+        that redis client has when running inside travis.
+        """
+        self.storage = {
+            'reference_data': {
+                'reference_data': {
+                    'language': [
+                        'http://lexvo.org/id/iso639-3/aar'
+                    ]
+                },
+                'organization_data': {
+                    'organization': [
+                        ''
+                    ]
+                }
+            }
+        }
