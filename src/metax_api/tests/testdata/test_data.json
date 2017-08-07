@@ -657,20 +657,20 @@
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "publisher": [
-                    {
-                        "name": "Teppo Testaaja"
-                    }
-                ],
+                "publisher": {
+                    "name": "Teppo Testaaja"
+                },
                 "rights": {
-                    "license": {
-                        "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675",
-                        "title": [
-                            {
-                                "en": "Title here"
-                            }
-                        ]
-                    }
+                    "license": [
+                        {
+                            "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675",
+                            "title": [
+                                {
+                                    "en": "Title here"
+                                }
+                            ]
+                        }
+                    ]
                 },
                 "title": [
                     {
@@ -698,20 +698,20 @@
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "publisher": [
-                    {
-                        "name": "Teppo Testaaja"
-                    }
-                ],
+                "publisher": {
+                    "name": "Teppo Testaaja"
+                },
                 "rights": {
-                    "license": {
-                        "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675",
-                        "title": [
-                            {
-                                "en": "Title here"
-                            }
-                        ]
-                    }
+                    "license": [
+                        {
+                            "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675",
+                            "title": [
+                                {
+                                    "en": "Title here"
+                                }
+                            ]
+                        }
+                    ]
                 },
                 "title": [
                     {
