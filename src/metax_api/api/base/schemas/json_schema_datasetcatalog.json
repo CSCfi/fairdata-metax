@@ -293,10 +293,11 @@
                     "title":"Name",
                     "description":"This property contains a name of the agent. This property can be repeated for different versions of the name (e.g. the name in different languages)",
                     "@id":"http://xmlns.com/foaf/0.1/name",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "minItems":1,
                     "maxItems":1,
-                    "type":"string"
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "email":{
                     "title":"Email",
