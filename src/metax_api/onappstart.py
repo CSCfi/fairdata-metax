@@ -1,4 +1,6 @@
 from time import sleep
+import sys
+
 from django.apps import AppConfig
 from django.conf import settings
 
@@ -24,6 +26,9 @@ class OnAppStart(AppConfig):
         once. The key 'on_app_start_executing' in the cache is set to true by the fastest process,
         informing other processes to not proceed further.
         """
+        if any(cmd in sys.argv for cmd in ['makemigrations', 'migrate']):
+            return
+
         cache = RedisSentinelCache(master_only=True)
 
         # ex = expiration in seconds
