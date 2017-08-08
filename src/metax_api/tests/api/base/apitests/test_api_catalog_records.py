@@ -48,6 +48,8 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         self.identifier = catalog_record_from_test_data['identifier']
         self.pk = catalog_record_from_test_data['id']
+        self.urn_identifier = catalog_record_from_test_data['research_dataset']['urn_identifier']
+        self.preferred_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
 
     def test_read_catalog_record_list(self):
         response = self.client.get('/rest/datasets')
@@ -158,6 +160,22 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen&state=55')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
+
+    def test_read_catalog_record_exists(self):
+        response = self.client.get('/rest/datasets/%s/exists' % self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data)
+        response = self.client.get('/rest/datasets/%s/exists' % self.urn_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data)
+        response = self.client.get('/rest/datasets/%s/exists' % self.preferred_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data)
+
+    def test_read_catalog_record_does_not_exist(self):
+        response = self.client.get('/rest/datasets/%s/exists' % 'urn:nbn:fi:non_existing_dataset_identifier')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(response.data)
 
     def test_model_fields_as_expected(self):
         response = self.client.get('/rest/datasets/%s' % self.identifier)
