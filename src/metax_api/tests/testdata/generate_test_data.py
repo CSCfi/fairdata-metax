@@ -261,9 +261,10 @@ def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, co
         pass
 
 
-def generate_dataset_catalogs(mode, dataset_catalog_max_rows):
+def generate_dataset_catalogs(mode, dataset_catalog_max_rows, validate_json):
 
     test_dataset_catalog_list = []
+    json_schema = get_json_schema('datasetcatalog')
 
     if mode == 'json':
 
@@ -282,12 +283,16 @@ def generate_dataset_catalogs(mode, dataset_catalog_max_rows):
             new['fields']['catalog_json']['identifier'] = "pid:urn:catalog%d" % i
             test_dataset_catalog_list.append(new)
 
+            if validate_json or i == 1:
+                json_validate(new['fields']['catalog_json'], json_schema)
+
     return test_dataset_catalog_list
 
 
-def generate_contracts(mode, contract_max_rows):
+def generate_contracts(mode, contract_max_rows, validate_json):
 
     test_contract_list = []
+    json_schema = get_json_schema('contract')
 
     if mode == 'json':
 
@@ -308,6 +313,9 @@ def generate_contracts(mode, contract_max_rows):
             new['fields']['modified_by_api'] = '2017-05-15T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-15T10:07:22.559656Z'
             test_contract_list.append(new)
+
+            if validate_json or i == 1:
+                json_validate(new['fields']['contract_json'], json_schema)
 
     return test_contract_list
 
@@ -453,8 +461,8 @@ print('DEBUG: %s' % str(DEBUG))
 
 file_storage_list = generate_file_storages(mode, file_storage_max_rows)
 file_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
-dataset_catalogs_list = generate_dataset_catalogs(mode, dataset_catalog_max_rows)
-contract_list = generate_contracts(mode, contract_max_rows)
+dataset_catalogs_list = generate_dataset_catalogs(mode, dataset_catalog_max_rows, validate_json)
+contract_list = generate_contracts(mode, contract_max_rows, validate_json)
 catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, contract_list, file_list, validate_json, url)
 
 save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, contract_list, catalog_record_list, batch_size)

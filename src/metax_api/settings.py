@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
-import sys
+# import sys
 import yaml
 
 if not os.getenv('TRAVIS', None):
@@ -248,19 +248,38 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
 
-# settings for custom redis-py cache helper in utils/redis.py
-REDIS_SENTINEL = {
-    # at least three are required
-    'REDIS_SENTINEL_HOSTS': [('127.0.0.1', 5000), ('127.0.0.1', 5001), ('127.0.0.1', 5002)],
-    'REDIS_SENTINEL_SERVICE': 'metax-master',
+if not os.getenv('TRAVIS', None):
+    # settings for custom redis-py cache helper in utils/redis.py
+    REDIS_SENTINEL = {
+        # at least three are required
+        'HOSTS':    app_config_dict['REDIS']['HOSTS'],
+        'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
+        'SERVICE':  app_config_dict['REDIS']['SERVICE'],
 
-    # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
-    'REDIS_SENTINEL_SOCKET_TIMEOUT': 0.1,
+        # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
+        'SOCKET_TIMEOUT': 0.1,
 
-    # enables extra logging to console during cache usage
-    'REDIS_SENTINEL_DEBUG': False,
-}
+        # db index reserved for test suites
+        'TEST_DB': app_config_dict['REDIS']['TEST_DB'],
 
+        # enables extra logging to console during cache usage
+        'DEBUG': False,
+    }
+
+# does not have effect since we are not using a django-specific cache currently !!!
 # automated tests or travis do not currently use any kind of caching
-if 'test' in sys.argv or os.getenv('TRAVIS', None):
-    CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
+# if 'test' in sys.argv or os.getenv('TRAVIS', None):
+#     CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
+
+if os.getenv('TRAVIS', None):
+    ELASTICSEARCH = {
+        'HOSTS': ['metax-test.csc.fi/es'],
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
+    }
+else:
+    ELASTICSEARCH = {
+        'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
+        # normally cache is reloaded from elasticsearch only if reference data is missing.
+        # for one-off reload / debugging / development, use below flag
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
+    }
