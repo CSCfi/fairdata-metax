@@ -4,8 +4,11 @@ from copy import deepcopy
 from rest_framework import status
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Contract
-from metax_api.api.base.serializers import CatalogRecordSerializer
 from .common_service import CommonService
+
+import logging
+_logger = logging.getLogger(__name__)
+d = logging.getLogger(__name__).debug
 
 class CatalogRecordService(CommonService):
 
@@ -20,6 +23,9 @@ class CatalogRecordService(CommonService):
 
         if catalog_record_current.research_dataset['ready_status'] != CatalogRecord.READY_STATUS_FINISHED:
             raise Http403({ 'research_dataset': { 'ready_status': ['Value has to be \'Ready\' in order to create a new version.'] }})
+
+        # import here instead of beginning of the file to avoid circular import in CR serializer
+        from metax_api.api.base.serializers import CatalogRecordSerializer
 
         serializer_current = CatalogRecordSerializer(catalog_record_current, **kwargs)
         current_time = datetime.now()
@@ -108,3 +114,54 @@ class CatalogRecordService(CommonService):
         catalog_record.save()
         contract.catalogrecord_set.add(catalog_record)
         contract.save()
+
+    @staticmethod
+    def validate_reference_data(research_dataset, cache):
+
+        def check_ref_data(index, datatype, obj, field_to_check, relation_name):
+            """
+            Check if the given field exists in the reference data.
+
+            In case the value is not found, an error is appended to the 'errors' dict.
+
+            params:
+            index:          the ES index to search from
+            datatype:       the ES datatype to search from
+            obj:            the dict to read the value from
+            field_to_check: the name of the field to read
+            relation_name:  the full relation path to the field to hand out in case of errors
+            """
+            rdtypes = refdata if index == 'ref' else orgdata
+            if obj[field_to_check] not in rdtypes[datatype]:
+                if not isinstance(errors.get(relation_name, None), list):
+                    errors[relation_name] = []
+                errors[relation_name].append('Identifier \'%s\' not found in reference data (type: %s)' % (obj[field_to_check], datatype))
+
+        reference_data = cache.get('reference_data')
+        refdata = reference_data['reference_data']
+        orgdata = reference_data['organization_data']
+        errors = {}
+
+        for theme in research_dataset.get('theme', []):
+            check_ref_data('ref', 'keyword', theme, 'identifier', 'research_dataset.theme.identifier')
+
+        for discipline in research_dataset.get('discipline', []):
+            check_ref_data('ref', 'field_of_science', discipline, 'identifier', 'research_dataset.discipline.identifier')
+
+        for remote_resource in research_dataset.get('remote_resources', []):
+            check_ref_data('ref', 'field_of_science', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
+
+        for language in research_dataset.get('language', []):
+            check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
+
+        access_rights = research_dataset.get('access_rights', None)
+        if access_rights:
+            for rights_statement_type in access_rights.get('type', []):
+                check_ref_data('ref', 'access_type', rights_statement_type, 'identifier', 'research_dataset.access_rights.type.identifier')
+
+        for project in research_dataset.get('is_output_of', []):
+            for organization in project.get('source_organization', []):
+                check_ref_data('org', 'organzation', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
+
+        if errors:
+            raise Http400(errors)
