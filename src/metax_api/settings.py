@@ -271,11 +271,15 @@ if not os.getenv('TRAVIS', None):
 # if 'test' in sys.argv or os.getenv('TRAVIS', None):
 #     CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
 
-ELASTICSEARCH = {
-    'HOSTS':    app_config_dict['ELASTICSEARCH']['HOSTS'],
-    'USER':     app_config_dict['ELASTICSEARCH']['USER'],
-    'PASSWORD': app_config_dict['ELASTICSEARCH']['PASSWORD'],
-    # normally cache is reloaded from elasticsearch only if reference data is missing.
-    # for one-off reload / debugging / development, use below flag
-    'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
-}
+if os.getenv('TRAVIS', None):
+    ELASTICSEARCH = {
+        'HOSTS': ['metax-test.csc.fi/es'],
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
+    }
+else:
+    ELASTICSEARCH = {
+        'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
+        # normally cache is reloaded from elasticsearch only if reference data is missing.
+        # for one-off reload / debugging / development, use below flag
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
+    }
