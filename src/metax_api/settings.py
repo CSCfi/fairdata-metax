@@ -274,6 +274,7 @@ if not os.getenv('TRAVIS', None):
 if os.getenv('TRAVIS', None):
     ELASTICSEARCH = {
         'HOSTS': ['metax-test.csc.fi/es'],
+        'USE_SSL': True,
         'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
     }
 else:
