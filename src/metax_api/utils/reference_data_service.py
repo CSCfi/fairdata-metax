@@ -74,5 +74,10 @@ class ReferenceDataService():
         https://docs.objectrocket.com/elastic_python_examples.html
         """
         if settings['HOSTS'][0] != 'localhost':
-            return { 'port': 443, 'use_ssl': True, 'verify_certs': True, 'send_get_body_as': 'GET' }
+            conf = { 'send_get_body_as': 'GET' }
+            if settings.get('USE_SSL', False):
+                conf.update({ 'port': 443, 'use_ssl': True, 'verify_certs': True, })
+            if settings.get('PORT', False):
+                conf.update('port', settings['PORT'])
+            return conf
         return {}
