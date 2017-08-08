@@ -1,3 +1,4 @@
+from json import dump as dump_json, load as load_json
 from pickle import dumps as pickle_dumps, loads as pickle_loads
 from random import choice as random_choice
 
@@ -186,50 +187,53 @@ class _RedisSentinelCache():
 
 class _RedisSentinelCacheDummy():
 
-    storage = {}
+    """
+    A dummy redis client that writes to a file on disk.
+    """
+
+    _storage_path = '/tmp/redis_dummy_storage'
 
     def __init__(self, *args, **kwargs):
-        self._init_dummy_storage()
+        d('Note: using dummy cache')
 
     def set(self, key, value, **kwargs):
-        self.storage[key] = value
+        storage = self._get_storage()
+        storage[key] = value
+        self._save_storage(storage)
 
     def get(self, key, **kwargs):
-        return self.storage.get(key, None)
+        return self._get_storage().get(key, None)
 
     def get_or_set(self, key, value, **kwargs):
-        self.storage[key] = value
-        return True
+        if self.get(key):
+            return False
+        else:
+            self.set(key, value,)
+            return True
 
     def delete(self, key, **kwargs):
-        try:
-            self.storage.pop(key)
-        except:
-            pass
+        storage = self._get_storage()
+        storage.pop(key, False)
+        self._save_storage(storage)
 
     def get_master(self):
         return self
 
     def flushdb(self):
-        self._init_dummy_storage()
+        self._save_storage({})
         return True
 
-    def _init_dummy_storage(self):
-        """
-        Add stuff as required when cache has to be used inside test cases. This is the 'db'
-        that redis client has when running inside travis.
-        """
-        self.storage = {
-            'reference_data': {
-                'reference_data': {
-                    'language': [
-                        'http://lexvo.org/id/iso639-3/aar'
-                    ]
-                },
-                'organization_data': {
-                    'organization': [
-                        ''
-                    ]
-                }
-            }
-        }
+    def _get_storage(self):
+        try:
+            with open(self._storage_path, 'r') as f:
+                return load_json(f)
+        except Exception as e:
+            _logger.error('Could not open dummy cache file at %s: %s' % (self._storage_path, str(e)))
+            return {}
+
+    def _save_storage(self, storage):
+        try:
+            with open(self._storage_path, 'w') as f:
+                dump_json(storage, f)
+        except Exception as e:
+            _logger.error('Could not open dummy cache file at %s: %s' % (self._storage_path, str(e)))
