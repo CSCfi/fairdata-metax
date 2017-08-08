@@ -648,7 +648,7 @@
     {
         "fields": {
             "catalog_json": {
-                "identifier": "pid:urn:catalog2",
+                "identifier": "pid:urn:catalog1",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
