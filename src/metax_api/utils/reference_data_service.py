@@ -9,6 +9,8 @@ import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
+ONE_DAY = 86400
+
 class ReferenceDataService():
 
     """
@@ -30,9 +32,13 @@ class ReferenceDataService():
         if executing_test_case():
             _logger.info('(Note: populating test suite cache)')
 
-        reference_data = cls._fetch_reference_data(settings)
+        try:
+            reference_data = cls._fetch_reference_data(settings)
+        except:
+            _logger.exception('Reference data fetch failed')
+            reference_data = {}
 
-        cache.set('reference_data', reference_data)
+        cache.set('reference_data', reference_data, ex=ONE_DAY * 2)
 
         reference_data_check = cache.get('reference_data')
 
@@ -68,5 +74,5 @@ class ReferenceDataService():
         https://docs.objectrocket.com/elastic_python_examples.html
         """
         if settings['HOSTS'][0] != 'localhost':
-            return { 'http_auth': (settings['USER'], settings['PASSWORD']), 'port': 443, 'use_ssl': True, 'verify_certs': True }
+            return { 'port': 443, 'use_ssl': True, 'verify_certs': True, 'send_get_body_as': 'GET' }
         return {}
