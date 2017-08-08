@@ -273,7 +273,7 @@ def generate_dataset_catalogs(mode, dataset_catalog_max_rows):
         for i in range(1, file_storage_max_rows + 1):
 
             new = {
-                'fields': row_template.copy(),
+                'fields': deepcopy(row_template),
                 'model': "metax_api.datasetcatalog",
                 'pk': i,
             }
