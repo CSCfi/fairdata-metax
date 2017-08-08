@@ -77,5 +77,7 @@ class ReferenceDataService():
             conf = { 'send_get_body_as': 'GET' }
             if settings.get('USE_SSL', False):
                 conf.update({ 'port': 443, 'use_ssl': True, 'verify_certs': True, })
+            if settings.get('PORT', False):
+                conf.update('port', settings['port'])
             return conf
         return {}
