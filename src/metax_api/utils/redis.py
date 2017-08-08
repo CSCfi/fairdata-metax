@@ -194,7 +194,8 @@ class _RedisSentinelCacheDummy():
     _storage_path = '/tmp/redis_dummy_storage'
 
     def __init__(self, *args, **kwargs):
-        d('Note: using dummy cache')
+        # d('Note: using dummy cache')
+        pass
 
     def set(self, key, value, **kwargs):
         storage = self._get_storage()
@@ -228,7 +229,7 @@ class _RedisSentinelCacheDummy():
             with open(self._storage_path, 'r') as f:
                 return load_json(f)
         except Exception as e:
-            _logger.error('Could not open dummy cache file at %s: %s' % (self._storage_path, str(e)))
+            _logger.error('Could not open dummy cache file for reading at %s: %s' % (self._storage_path, str(e)))
             return {}
 
     def _save_storage(self, storage):
@@ -236,4 +237,4 @@ class _RedisSentinelCacheDummy():
             with open(self._storage_path, 'w') as f:
                 dump_json(storage, f)
         except Exception as e:
-            _logger.error('Could not open dummy cache file at %s: %s' % (self._storage_path, str(e)))
+            _logger.error('Could not open dummy cache file for writing at %s: %s' % (self._storage_path, str(e)))
