@@ -48,9 +48,6 @@ class DatasetCatalogViewSet(CommonViewSet):
         except Exception:
             raise
 
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-
         return obj
 
     def _search_from_catalog_json(self, search_json, raise_on_404):
@@ -61,7 +58,7 @@ class DatasetCatalogViewSet(CommonViewSet):
             if raise_on_404:
                 raise
             else:
-                return {}
+                return None
         except Exception:
             raise
 
