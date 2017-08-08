@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from metax_api.models import CatalogRecord, DatasetCatalog, File, Contract
+from metax_api.services import CatalogRecordService as CRS
 from .dataset_catalog_serializer import DatasetCatalogSerializer
 from .contract_serializer import ContractSerializer
 from .serializer_utils import validate_json
@@ -100,6 +101,7 @@ class CatalogRecordSerializer(ModelSerializer):
 
     def validate_research_dataset(self, value):
         validate_json(value, self.context['view'].json_schema)
+        CRS.validate_reference_data(value, self.context['view'].cache)
         return value
 
     def _get_id_from_related_object(self, initial_data, relation_field):
