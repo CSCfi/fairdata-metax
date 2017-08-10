@@ -1107,7 +1107,7 @@
                     "@id":"http://iow.csc.fi/ns/mrd#readystatus",
                     "enum":[
                         "Unfinished",
-                        "Ready",
+                        "Finished",
                         "Removed"
                     ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",

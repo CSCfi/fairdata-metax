@@ -13,15 +13,15 @@
             "notation": "en"
         }],
         "rights": {
-            "license": {
+            "license": [{
                 "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675",
                 "title": [{
                     "en": "Title here"
                 }]
-            }
+            }]
         },
-        "publisher": [{
+        "publisher": {
             "name": "Teppo Testaaja"
-        }]
+        }
     }
 }
