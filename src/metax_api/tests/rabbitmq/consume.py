@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pika
+import yaml
 
 """
 for testing:
@@ -7,12 +8,21 @@ for testing:
 script to listen for messages sent when someone accesses /rest/datasets/pid/rabbitmq
 """
 
-credentials = pika.PlainCredentials('testaaja', 'testaaja')
+with open('/home/metax-user/app_config') as app_config:
+    settings = yaml.load(app_config)['RABBITMQ']
+
+def get_test_user():
+    for user in settings['CONSUMERS']:
+        if user['NAME'] == 'testaaja':
+            return user
+
+test_user = get_test_user()
+credentials = pika.PlainCredentials(test_user['NAME'], test_user['PASSWORD'])
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        'localhost',
-        5672,
-        'metax',
+        settings['HOSTS'],
+        settings['PORT'],
+        test_user['VHOST'],
         credentials))
 
 channel = connection.channel()
