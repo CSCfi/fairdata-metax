@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from metax_api.services import CommonService
-from metax_api.utils import RedisSentinelCache
+from metax_api.utils import RabbitMQ, RedisSentinelCache
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -84,6 +84,10 @@ class CommonViewSet(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         CommonService.update_common_info(request)
         return super(CommonViewSet, self).destroy(request, *args, **kwargs)
+
+    def _publish_message(self, body, routing_key='', exchange=''):
+        rabbitmq = RabbitMQ()
+        rabbitmq.publish(body, routing_key=routing_key, exchange=exchange)
 
     def set_json_schema(self, view_file):
         """
