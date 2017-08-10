@@ -65,6 +65,33 @@ class DatasetViewSet(CommonViewSet):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
         return super(DatasetViewSet, self).list(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        res = super(DatasetViewSet, self).update(request, *args, **kwargs)
+        if res.status_code == status.HTTP_204_NO_CONTENT:
+            # normally PUT returns no content. in this case update() has saved updated data into a variable
+            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        return res
+
+    def partial_update(self, request, *args, **kwargs):
+        res = super(DatasetViewSet, self).partial_update(request, *args, **kwargs)
+        if res.status_code == status.HTTP_200_OK:
+            self._publish_message(res.data, routing_key='update', exchange='datasets')
+        return res
+
+    def destroy(self, request, *args, **kwargs):
+        res = super(DatasetViewSet, self).destroy(request, *args, **kwargs)
+        if res.status_code == status.HTTP_204_NO_CONTENT:
+            removed_object = self._get_removed_dataset()
+            self._publish_message({ 'urn_identifier': removed_object.research_dataset['urn_identifier'] },
+                routing_key='delete', exchange='datasets')
+        return res
+
+    def create(self, request, *args, **kwargs):
+        res = super(DatasetViewSet, self).create(request, *args, **kwargs)
+        if res.status_code == status.HTTP_201_CREATED:
+            self._publish_message(res.data, routing_key='create', exchange='datasets')
+        return res
+
     @detail_route(methods=['get'], url_path="files")
     def files_get(self, request, pk=None):
         """
@@ -126,6 +153,24 @@ class DatasetViewSet(CommonViewSet):
                 return None
         except Exception:
             raise
+
+    def _get_removed_dataset(self):
+        """
+        Get dataset from self.object.objects_unfiltered so that removed objects can be found
+        """
+        lookup_value = self.kwargs.get('pk')
+        different_fields = [
+            {},
+            { 'search_params': { 'research_dataset__contains': {'urn_identifier': lookup_value }} },
+            { 'search_params': { 'research_dataset__contains': {'preferred_identifier': lookup_value }} },
+            { 'search_params': { 'research_dataset__contains': {'other_identifier': [{'local_identifier': lookup_value }]}}},
+        ]
+        for params in different_fields:
+            try:
+                return self.get_removed_object(**params)
+            except Http404:
+                pass
+        raise Http404
 
     @detail_route(methods=['get'], url_path="redis")
     def redis_test(self, request, pk=None): # pragma: no cover

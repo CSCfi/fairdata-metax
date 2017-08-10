@@ -89,6 +89,12 @@ class CommonViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
         CommonService.update_common_info(request)
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
+
+        # the normal case is that update (PUT) does not return the updated content.
+        # save the updated data in case someone (i.e. datasets) wants to do something with
+        # the updated data before returning, so that they are spared from the additional query.
+        self._updated_request_data = res.data
+
         res.data = {}
         res.status_code = status.HTTP_204_NO_CONTENT
         return res
