@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from metax_api.services import CommonService
-from metax_api.utils import RedisSentinelCache
+from metax_api.utils import RabbitMQ, RedisSentinelCache
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class CommonViewSet(ModelViewSet):
                 lookup_url_kwarg = self.lookup_field_other
 
                 # replace original field name with field name in lookup_field_other
-                self.kwargs[lookup_url_kwarg] = self.kwargs.pop(self.lookup_field)
+                self.kwargs[lookup_url_kwarg] = self.kwargs.get(self.lookup_field)
 
             assert lookup_url_kwarg in self.kwargs, (
                 'Expected view %s to be called with a URL keyword argument '
@@ -63,9 +63,38 @@ class CommonViewSet(ModelViewSet):
 
         return obj
 
+    def get_removed_object(self, search_params=None):
+        """
+        Find object using object.objects_unfiltered to find objects that have removed=True.
+
+        Looks using the identifier that was used in the original request, similar
+        to how get_object() works, if no search_params are passed.
+
+        Does not check permissions, because currently only used for notification after delete.
+        """
+        if not search_params:
+            lookup_value = self.kwargs.get(self.lookup_field)
+            if CommonService.is_primary_key(lookup_value):
+                search_params = { 'pk': lookup_value }
+            elif hasattr(self, 'lookup_field_other'):
+                search_params = { self.lookup_field_other: lookup_value }
+            else:
+                raise Http404
+
+        try:
+            return self.object.objects_unfiltered.get(active=True, **search_params)
+        except self.object.DoesNotExist:
+            raise Http404
+
     def update(self, request, *args, **kwargs):
         CommonService.update_common_info(request)
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
+
+        # the normal case is that update (PUT) does not return the updated content.
+        # save the updated data in case someone (i.e. datasets) wants to do something with
+        # the updated data before returning, so that they are spared from the additional query.
+        self._updated_request_data = res.data
+
         res.data = {}
         res.status_code = status.HTTP_204_NO_CONTENT
         return res
@@ -84,6 +113,10 @@ class CommonViewSet(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         CommonService.update_common_info(request)
         return super(CommonViewSet, self).destroy(request, *args, **kwargs)
+
+    def _publish_message(self, body, routing_key='', exchange=''):
+        rabbitmq = RabbitMQ()
+        rabbitmq.publish(body, routing_key=routing_key, exchange=exchange)
 
     def set_json_schema(self, view_file):
         """
