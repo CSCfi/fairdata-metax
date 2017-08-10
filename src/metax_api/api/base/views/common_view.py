@@ -40,7 +40,7 @@ class CommonViewSet(ModelViewSet):
                 lookup_url_kwarg = self.lookup_field_other
 
                 # replace original field name with field name in lookup_field_other
-                self.kwargs[lookup_url_kwarg] = self.kwargs.pop(self.lookup_field)
+                self.kwargs[lookup_url_kwarg] = self.kwargs.get(self.lookup_field)
 
             assert lookup_url_kwarg in self.kwargs, (
                 'Expected view %s to be called with a URL keyword argument '

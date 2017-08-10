@@ -103,7 +103,7 @@ class DatasetViewSet(CommonViewSet):
         URN-lookup from self.lookup_field failed. Look from dataset json fields
         preferred_identifier first, and array other_identifier after, if there are matches
         """
-        lookup_value = self.kwargs.pop(self.lookup_field)
+        lookup_value = self.kwargs.get(self.lookup_field)
         try:
             obj = self._search_from_research_dataset({'urn_identifier': lookup_value}, False)
             if not obj:
