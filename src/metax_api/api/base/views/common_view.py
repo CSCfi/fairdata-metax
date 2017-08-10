@@ -63,6 +63,29 @@ class CommonViewSet(ModelViewSet):
 
         return obj
 
+    def get_removed_object(self, search_params=None):
+        """
+        Find object using object.objects_unfiltered to find objects that have removed=True.
+
+        Looks using the identifier that was used in the original request, similar
+        to how get_object() works, if no search_params are passed.
+
+        Does not check permissions, because currently only used for notification after delete.
+        """
+        if not search_params:
+            lookup_value = self.kwargs.get(self.lookup_field)
+            if CommonService.is_primary_key(lookup_value):
+                search_params = { 'pk': lookup_value }
+            elif hasattr(self, 'lookup_field_other'):
+                search_params = { self.lookup_field_other: lookup_value }
+            else:
+                raise Http404
+
+        try:
+            return self.object.objects_unfiltered.get(active=True, **search_params)
+        except self.object.DoesNotExist:
+            raise Http404
+
     def update(self, request, *args, **kwargs):
         CommonService.update_common_info(request)
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
