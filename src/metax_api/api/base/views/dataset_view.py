@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from metax_api.models import CatalogRecord
 from metax_api.services import CatalogRecordService as CRS
+from metax_api.utils import RabbitMQ
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
@@ -88,6 +89,15 @@ class DatasetViewSet(CommonViewSet):
         CRS.propose_to_pas(request, self.get_object())
         return Response(data={}, status=status.HTTP_204_NO_CONTENT)
 
+    @detail_route(methods=['get'], url_path="exists")
+    def dataset_exists(self, request, pk=None):
+        try:
+            self.get_object()
+        except Exception:
+            return Response(data=False, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(data=True, status=status.HTTP_200_OK)
+
     def _search_using_other_dataset_identifiers(self):
         """
         URN-lookup from self.lookup_field failed. Look from dataset json fields
@@ -141,11 +151,9 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data=data, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], url_path="exists")
-    def dataset_exists(self, request, pk=None):
-        try:
-            self.get_object()
-        except Exception:
-            return Response(data=False, status=status.HTTP_404_NOT_FOUND)
-
-        return Response(data=True, status=status.HTTP_200_OK)
+    @detail_route(methods=['get'], url_path="rabbitmq")
+    def rabbitmq_test(self, request, pk=None): # pragma: no cover
+        rmq = RabbitMQ()
+        rmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
+        rmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
+        return Response(data={}, status=status.HTTP_200_OK)

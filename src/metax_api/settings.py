@@ -284,3 +284,23 @@ else:
         # for one-off reload / debugging / development, use below flag
         'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
     }
+
+if os.getenv('TRAVIS', None):
+    # travis will receive a dummy client
+    pass
+else:
+    RABBITMQ = {
+        'HOSTS':    app_config_dict['RABBITMQ']['HOSTS'],
+        'PORT':     app_config_dict['RABBITMQ']['PORT'],
+        'USER':     app_config_dict['RABBITMQ']['USER'],
+        'VHOST':    app_config_dict['RABBITMQ']['VHOST'],
+        'PASSWORD': app_config_dict['RABBITMQ']['PASSWORD'],
+        'EXCHANGES': [
+            {
+                'NAME': 'datasets',
+                'TYPE': 'direct',
+                # make rabbitmq remember queues after restarts
+                'DURABLE': True
+            }
+        ]
+    }
