@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+# import sys
 import yaml
 
 if not os.getenv('TRAVIS', None):
@@ -57,14 +58,14 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE = [  # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  # 'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 REST_FRAMEWORK = {
@@ -247,35 +248,39 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
 
+if not os.getenv('TRAVIS', None):
+    # settings for custom redis-py cache helper in utils/redis.py
+    REDIS_SENTINEL = {
+        # at least three are required
+        'HOSTS':    app_config_dict['REDIS']['HOSTS'],
+        'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
+        'SERVICE':  app_config_dict['REDIS']['SERVICE'],
 
-# Redis Cache
-# https://www.peterbe.com/plog/fastest-redis-optimization-for-django
-# Currently using this (pip: django-redis-cache): https://github.com/sebleier/django-redis-cache
-# Consider alternatively pip:django-redis: https://github.com/niwinz/django-redis
+        # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
+        'SOCKET_TIMEOUT': 0.1,
+
+        # db index reserved for test suites
+        'TEST_DB': app_config_dict['REDIS']['TEST_DB'],
+
+        # enables extra logging to console during cache usage
+        'DEBUG': False,
+    }
+
+# does not have effect since we are not using a django-specific cache currently !!!
+# automated tests or travis do not currently use any kind of caching
+# if 'test' in sys.argv or os.getenv('TRAVIS', None):
+#     CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
 
 if os.getenv('TRAVIS', None):
-    CACHES = {
-        'default': {
-            'BACKEND': "redis_cache.RedisCache",
-            'LOCATION': 'redis://127.0.0.1:6379/1',
-            'OPTIONS': {
-                'DB': 1,
-                'PARSER_CLASS': 'redis.connection.HiredisParser',
-                'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
-                'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
-            }
-        }
+    ELASTICSEARCH = {
+        'HOSTS': ['metax-test.csc.fi/es'],
+        'USE_SSL': True,
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
     }
 else:
-    CACHES = {
-        'default': {
-            'BACKEND': "redis_cache.RedisCache",
-            'LOCATION': "/run/redis/redis.sock",
-            'OPTIONS': {
-                'DB': 1,
-                'PARSER_CLASS': 'redis.connection.HiredisParser',
-                'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
-                'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
-            }
-        }
+    ELASTICSEARCH = {
+        'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
+        # normally cache is reloaded from elasticsearch only if reference data is missing.
+        # for one-off reload / debugging / development, use below flag
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
     }

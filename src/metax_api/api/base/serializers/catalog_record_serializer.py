@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from metax_api.models import CatalogRecord, DatasetCatalog, File, Contract
+from metax_api.services import CatalogRecordService as CRS
 from .dataset_catalog_serializer import DatasetCatalogSerializer
 from .contract_serializer import ContractSerializer
 from .serializer_utils import validate_json
@@ -26,6 +27,11 @@ class CatalogRecordSerializer(ModelSerializer):
             'contract_identifier',
             'mets_object_identifier',
             'dataset_group_edit',
+            'next_version_id',
+            'next_version_identifier',
+            'previous_version_id',
+            'previous_version_identifier',
+            'version_created',
             'modified_by_user_id',
             'modified_by_api',
             'created_by_user_id',
@@ -48,6 +54,12 @@ class CatalogRecordSerializer(ModelSerializer):
             'contract_identifier':      { 'required': False },
             'mets_object_identifier':   { 'required': False },
             'catalog_record_modified':  { 'required': False },
+
+            'next_version_id':              { 'required': False },
+            'next_version_identifier':      { 'required': False },
+            'previous_version_id':          { 'required': False },
+            'previous_version_identifier':  { 'required': False },
+            'version_created':              { 'required': False },
         }
 
     def is_valid(self, raise_exception=False):
@@ -89,6 +101,7 @@ class CatalogRecordSerializer(ModelSerializer):
 
     def validate_research_dataset(self, value):
         validate_json(value, self.context['view'].json_schema)
+        CRS.validate_reference_data(value, self.context['view'].cache)
         return value
 
     def _get_id_from_related_object(self, initial_data, relation_field):

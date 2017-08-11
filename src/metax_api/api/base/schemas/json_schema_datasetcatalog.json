@@ -52,7 +52,6 @@
                     "description":"Date on which the Catalogue was last modified",
                     "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "minItems":1,
                     "maxItems":1,
                     "type":"string"
                 },
@@ -61,7 +60,6 @@
                     "description":"Date of formal issuance (e.g., publication, release date) of the catalogue.",
                     "@id":"http://purl.org/dc/terms/issued",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "minItems":1,
                     "maxItems":1,
                     "type":"string"
                 },
@@ -101,7 +99,7 @@
                     "type":"object",
                     "$ref":"#/definitions/ResearchAgent"
                 },
-                "themeTaxonomy":{
+                "theme_taxonomy":{
                     "title":"Theme taxonomy",
                     "description":"The knowledge organization system (SKOS) used to classify catalog's datasets. Used scheme: http://finto.fi/okm-tieteenala/",
                     "@id":"http://www.w3.org/ns/dcat#themeTaxonomy",
@@ -111,13 +109,19 @@
                         "type":"object",
                         "$ref":"#/definitions/ConceptScheme"
                     }
+                },
+                "harvested":{
+                    "title":"Harvested",
+                    "description":"Information if the datasets this catalog are harvested from the other source",
+                    "@id":"http://iow.csc.fi/ns/mdc#harvested",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "maxItems":1,
+                    "type":"boolean"
                 }
             },
             "required":[
                 "identifier",
                 "title",
-                "modified",
-                "issued",
                 "language",
                 "rights",
                 "publisher"
@@ -136,7 +140,7 @@
                     "minItems":1,
                     "maxItems":1
                 },
-                "prefLabel":{
+                "pref_label":{
                     "title":"Preferred label",
                     "description":"The preferred lexical label for a resource, in a given language. A resource has no more than one value of skos:prefLabel per language tag, and no more than one value of skos:prefLabel without language tag. The range of skos:prefLabel is the class of RDF plain literals. skos:prefLabel, skos:altLabel and skos:hiddenLabel are pairwise\n      disjoint properties.",
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -160,7 +164,7 @@
                         "$ref":"#/definitions/langString"
                     }
                 },
-                "inScheme":{
+                "in_scheme":{
                     "title":"Is in scheme",
                     "description":"Relates a resource (for example a concept) to a concept scheme in which it is included.",
                     "@id":"http://www.w3.org/2004/02/skos/core#inScheme",
@@ -174,7 +178,7 @@
             },
             "required":[
                 "identifier",
-                "prefLabel",
+                "pref_label",
                 "definition"
             ]
         },
@@ -183,7 +187,7 @@
             "@id":"http://www.w3.org/2004/02/skos/core#ConceptScheme",
             "description":"A set of concepts, optionally including statements about semantic relationships between those concepts.",
             "properties":{
-                "prefLabel":{
+                "pref_label":{
                     "title":"Preferred label",
                     "description":"The preferred lexical label for a resource, in a given language. A resource has no more than one value of skos:prefLabel per language tag, and no more than one value of skos:prefLabel without language tag. The range of skos:prefLabel is the class of RDF plain literals. skos:prefLabel, skos:altLabel and skos:hiddenLabel are pairwise\n      disjoint properties.",
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -289,10 +293,11 @@
                     "title":"Name",
                     "description":"This property contains a name of the agent. This property can be repeated for different versions of the name (e.g. the name in different languages)",
                     "@id":"http://xmlns.com/foaf/0.1/name",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "minItems":1,
                     "maxItems":1,
-                    "type":"string"
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "email":{
                     "title":"Email",
@@ -319,7 +324,7 @@
                     "type":"object",
                     "$ref":"#/definitions/Document"
                 },
-                "isPartOf":{
+                "is_part_of":{
                     "title":"Is Part Of",
                     "description":"A related resource in which the described resource is physically or logically included.",
                     "@id":"http://purl.org/dc/terms/isPartOf",
@@ -350,7 +355,6 @@
                     "description":"A name given to the resource.",
                     "@id":"http://purl.org/dc/terms/title",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "minItems":1,
                     "type":"array",
                     "items":{
                         "type":"object",
@@ -388,8 +392,7 @@
                 }
             },
             "required":[
-                "identifier",
-                "title"
+                "identifier"
             ]
         },
         "RightsStatement":{
@@ -429,7 +432,7 @@
                         "$ref":"#/definitions/Concept"
                     }
                 },
-                "hasRightRelatedAgent":{
+                "has_right_related_agent":{
                     "title":"Related agent",
                     "@id":"http://www.loc.gov/premis/rdf/v1#hasRightRelatedAgent",
                     "@type":"@id",
