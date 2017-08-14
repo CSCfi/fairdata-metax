@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import time
 
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
@@ -55,6 +56,8 @@ class CatalogRecord(Common):
     previous_version_identifier = models.CharField(max_length=200, null=True)
     version_created = models.DateTimeField(help_text='Date when this version was first created.', null=True)
 
+    _operation_is_create = False
+
     class Meta:
         ordering = ['id']
 
@@ -63,9 +66,17 @@ class CatalogRecord(Common):
         self.track_fields('preservation_state')
 
     def save(self, *args, **kwargs):
+        if self.id is None:
+            self._operation_is_create = True
+
         if self.field_changed('preservation_state'):
             self.preservation_state_modified = datetime.now()
+
         super(CatalogRecord, self).save(*args, **kwargs)
+
+        if self._operation_is_create:
+            self._generate_urn_identifier()
+            self._operation_is_create = False
 
     def can_be_proposed_to_pas(self):
         return self.preservation_state in (
@@ -89,3 +100,13 @@ class CatalogRecord(Common):
 
     def dataset_is_finished(self):
         return self.research_dataset.get('ready_status', False) == self.READY_STATUS_FINISHED
+
+    def _generate_urn_identifier(self):
+        """
+        Field urn_identifier in research_dataset is always generated, and it can not be changed later.
+        If preferred_identifier is missing during create, copy urn_identifier to it also.
+        """
+        urn_identifier = 'pid:urn:%d-%d' % (self.id, int(round(time() * 1000)))
+        self.research_dataset['urn_identifier'] = urn_identifier
+        if not self.research_dataset.get('preferred_identifier', None):
+            self.research_dataset['preferred_identifier'] = urn_identifier
