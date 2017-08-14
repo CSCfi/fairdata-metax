@@ -349,7 +349,6 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
             # for real tho, required to prevent some strange behaving references to old data
             new['fields']['research_dataset'] = row_template['research_dataset'].copy()
 
-            new['fields']['identifier'] = "pid:urn:cr%d" % i
             new['fields']['dataset_catalog'] = dataset_catalog_id
             new['fields']['research_dataset']['urn_identifier'] = "pid:urn:cr%d" % i
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i

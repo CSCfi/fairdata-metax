@@ -21,7 +21,9 @@
             }]
         },
         "publisher": {
-            "name": "Teppo Testaaja"
+            "name": {
+                "en": "Teppo Testaaja"
+            }
         }
     }
 }
