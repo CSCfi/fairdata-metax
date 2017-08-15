@@ -231,6 +231,18 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
         self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier already existing')
 
+    def test_create_catalog_contract_string_identifier(self):
+        self.test_new_data['contract'] = 'optional:contract:identifier1'
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_create_catalog_error_contract_string_identifier_not_found(self):
+        self.test_new_data['contract'] = 'doesnotexist'
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Should have raised 404 not found')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('contract' in response.data, True, 'Error should have been about contract not found')
+
     def test_create_catalog_record_error_json_validation(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = "neeeeeeeeew:id"
         self.test_new_data['research_dataset']["title"] = 1234456
@@ -350,6 +362,16 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
     def test_update_catalog_record_not_found(self):
         response = self.client.put('/rest/datasets/doesnotexist', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_catalog_record_contract_string_identifier(self):
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        old_contract_identifier = cr.contract.contract_json['identifier']
+        self.test_new_data['contract'] = 'optional:contract:identifier2'
+        response = self.client.put('/rest/datasets/%d' % self.pk, self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        cr2 = CatalogRecord.objects.get(pk=self.pk)
+        new_contract_identifier = cr2.contract.contract_json['identifier']
+        self.assertNotEqual(old_contract_identifier, new_contract_identifier, 'Contract identifier should have changed')
 
     def test_update_catalog_record_pas_state_allowed_value(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
@@ -520,6 +542,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             "contract": self._get_object_from_test_data('contract', requested_index=0),
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
+                "urn_identifier": "pid:urn:new1",
                 "preferred_identifier": "http://urn.fi/urn:nbn:fi:preferred1",
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
@@ -553,6 +576,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             "contract": self._get_object_from_test_data('contract', requested_index=0),
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
+                "urn_identifier": "pid:urn:new2",
                 "preferred_identifier": "http://urn.fi/urn:nbn:fi:preferred2",
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
