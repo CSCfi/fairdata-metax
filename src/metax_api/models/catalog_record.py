@@ -8,6 +8,7 @@ from .file import File
 from .dataset_catalog import DatasetCatalog
 from .contract import Contract
 
+
 class CatalogRecord(Common):
 
     PRESERVATION_STATE_NOT_IN_PAS = 0
@@ -36,7 +37,6 @@ class CatalogRecord(Common):
     READY_STATUS_UNFINISHED = 'Unfinished'
     READY_STATUS_REMOVED = 'Removed'
 
-    identifier = models.CharField(max_length=200, unique=True)
     research_dataset = JSONField()
     dataset_catalog = models.ForeignKey(DatasetCatalog)
     contract = models.ForeignKey(Contract, on_delete=models.DO_NOTHING)
@@ -56,9 +56,6 @@ class CatalogRecord(Common):
     version_created = models.DateTimeField(help_text='Date when this version was first created.', null=True)
 
     class Meta:
-        indexes = [
-            models.Index(fields=['identifier'])
-        ]
         ordering = ['id']
 
     def __init__(self, *args, **kwargs):
@@ -75,6 +72,20 @@ class CatalogRecord(Common):
             CatalogRecord.PRESERVATION_STATE_NOT_IN_PAS,
             CatalogRecord.PRESERVATION_STATE_LONGTERM_PAS_REJECTED,
             CatalogRecord.PRESERVATION_STATE_MIDTERM_PAS_REJECTED)
+
+    @property
+    def preferred_identifier(self):
+        try:
+            return self.research_dataset['preferred_identifier']
+        except:
+            return None
+
+    @property
+    def urn_identifier(self):
+        try:
+            return self.research_dataset['urn_identifier']
+        except:
+            return None
 
     def dataset_is_finished(self):
         return self.research_dataset.get('ready_status', False) == self.READY_STATUS_FINISHED

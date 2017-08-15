@@ -14,7 +14,6 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
     """
 
     catalog_record_field_names = (
-        'identifier',
         'contract',
         'dataset_catalog',
         'research_dataset',
@@ -57,14 +56,14 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
 
     def setUp(self):
         dataset_from_test_data = self._get_object_from_test_data('catalogrecord')
-        self.identifier = dataset_from_test_data['identifier']
+        self.urn_identifier = dataset_from_test_data['research_dataset']['urn_identifier']
 
     def test_get_by_identifier(self):
-        catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
-        self.assertEqual(catalog_record.identifier, self.identifier)
+        catalog_record = CatalogRecord.objects.get(research_dataset__contains={ 'urn_identifier': self.urn_identifier })
+        self.assertEqual(catalog_record.urn_identifier, self.urn_identifier)
 
     def test_validate_research_dataset(self):
-        catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
+        catalog_record = CatalogRecord.objects.get(research_dataset__contains={ 'urn_identifier': self.urn_identifier })
 
         try:
             json_validate(catalog_record.research_dataset, get_json_schema('dataset'))
