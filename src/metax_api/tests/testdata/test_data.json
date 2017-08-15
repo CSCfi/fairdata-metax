@@ -658,7 +658,9 @@
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "publisher": {
-                    "name": "Teppo Testaaja"
+                    "name": {
+                        "en": "Teppo Testaaja"
+                    }
                 },
                 "rights": {
                     "license": [
@@ -699,7 +701,9 @@
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "publisher": {
-                    "name": "Teppo Testaaja"
+                    "name": {
+                        "en": "Teppo Testaaja"
+                    }
                 },
                 "rights": {
                     "license": [
@@ -927,7 +931,6 @@
                 1,
                 2
             ],
-            "identifier": "pid:urn:cr1",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -997,7 +1000,6 @@
                 3,
                 4
             ],
-            "identifier": "pid:urn:cr2",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -1067,7 +1069,6 @@
                 5,
                 6
             ],
-            "identifier": "pid:urn:cr3",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -1137,7 +1138,6 @@
                 7,
                 8
             ],
-            "identifier": "pid:urn:cr4",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -1207,7 +1207,6 @@
                 9,
                 10
             ],
-            "identifier": "pid:urn:cr5",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -1277,7 +1276,6 @@
                 11,
                 12
             ],
-            "identifier": "pid:urn:cr6",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -1347,7 +1345,6 @@
                 13,
                 14
             ],
-            "identifier": "pid:urn:cr7",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -1417,7 +1414,6 @@
                 15,
                 16
             ],
-            "identifier": "pid:urn:cr8",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -1487,7 +1483,6 @@
                 17,
                 18
             ],
-            "identifier": "pid:urn:cr9",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -1557,7 +1552,6 @@
                 19,
                 20
             ],
-            "identifier": "pid:urn:cr10",
             "mets_object_identifier": [
                 "a",
                 "b",
