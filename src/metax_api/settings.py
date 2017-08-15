@@ -30,7 +30,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if os.getenv('TRAVIS', None):
     SECRET_KEY = '^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b'
 else:
-    SECRET_KEY = app_config_dict['django_secret_key']
+    SECRET_KEY = app_config_dict['DJANGO_SECRET_KEY']
 
 # Consider enabling these
 #CSRF_COOKIE_SECURE = True
@@ -42,7 +42,7 @@ else:
 if os.getenv('TRAVIS', None):
     DEBUG = True
 else:
-    DEBUG = app_config_dict['debug']
+    DEBUG = app_config_dict['DEBUG']
 
 # Application definition
 
@@ -123,10 +123,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': app_config_dict['metax_database'],
-            'USER': app_config_dict['metax_database_user'],
-            'PASSWORD': app_config_dict['metax_database_password'],
-            'HOST': app_config_dict['metax_database_host'],
+            'NAME': app_config_dict['METAX_DATABASE'],
+            'USER': app_config_dict['METAX_DATABASE_USER'],
+            'PASSWORD': app_config_dict['METAX_DATABASE_PASSWORD'],
+            'HOST': app_config_dict['METAX_DATABASE_HOST'],
             'PORT': '',
             'ATOMIC_REQUESTS': True
         }
