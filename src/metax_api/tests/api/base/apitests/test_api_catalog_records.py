@@ -177,7 +177,7 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertFalse(response.data)
 
     def test_model_fields_as_expected(self):
-        response = self.client.get('/rest/datasets/%s' % self.preferred_identifier)
+        response = self.client.get('/rest/datasets/%s' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         actual_received_fields = [field for field in response.data.keys()]
         self._test_model_fields_as_expected(self.file_field_names, actual_received_fields)
@@ -320,11 +320,16 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_update_catalog_record(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
-        response = self.client.put('/rest/datasets/%s' % self.preferred_identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
         cr = CatalogRecord.objects.get(pk=self.pk)
         self.assertEqual(cr.modified_by_api >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object update')
+
+    def test_update_catalog_record_error_using_preferred_identifier(self):
+        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
+        response = self.client.put('/rest/datasets/%s' % self.preferred_identifier, self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Update operation should return 404 when using preferred_identifier')
 
     def test_update_catalog_record_error_required_fields(self):
         """
@@ -333,7 +338,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         """
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
         self.test_new_data.pop('research_dataset')
-        response = self.client.put('/rest/datasets/%s' % self.preferred_identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True, 'Error for field \'research_dataset\' is missing from response.data')
@@ -343,7 +348,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         new_data = {
             "dataset_catalog": new_dataset_catalog,
         }
-        response = self.client.patch('/rest/datasets/%s' % self.preferred_identifier, new_data, format="json")
+        response = self.client.patch('/rest/datasets/%s' % self.urn_identifier, new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('research_dataset' in response.data.keys(), True, 'PATCH operation should return full content')
@@ -354,7 +359,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.test_new_data['dataset_catalog']['catalog_json']['title'][0]['en'] = 'new title'
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
 
-        response = self.client.put('/rest/datasets/%s' % self.preferred_identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         dataset_catalog = DatasetCatalog.objects.get(pk=self.test_new_data['dataset_catalog']['id'])
         self.assertEqual(dataset_catalog.catalog_json['title'][0]['en'], original_title)
@@ -374,28 +379,25 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertNotEqual(old_contract_identifier, new_contract_identifier, 'Contract identifier should have changed')
 
     def test_update_catalog_record_pas_state_allowed_value(self):
-        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
         self.test_new_data['preservation_state'] = 3
-        response = self.client.put('/rest/datasets/%s' % self.preferred_identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_update_catalog_record_pas_state_unallowed_value(self):
-        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
         self.test_new_data['preservation_state'] = 111
-        response = self.client.put('/rest/datasets/%s' % self.preferred_identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'HTTP status should be 400 due to invalid value')
         self.assertEqual('preservation_state' in response.data.keys(), True, 'The error should mention the field preservation_state')
 
     def test_update_catalog_record_preservation_state_modified_is_updated(self):
-        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
         self.test_new_data['preservation_state'] = 4
-        response = self.client.put('/rest/datasets/%s' % self.preferred_identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         cr = CatalogRecord.objects.get(pk=self.pk)
         self.assertEqual(cr.preservation_state_modified >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object update')
 
     def test_delete_catalog_record(self):
-        url = '/rest/datasets/%s' % self.preferred_identifier
+        url = '/rest/datasets/%s' % self.urn_identifier
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         response = self.client.get(url)
@@ -404,7 +406,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         deleted_catalog_record = None
 
         try:
-            deleted_catalog_record = CatalogRecord.objects.get(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+            deleted_catalog_record = CatalogRecord.objects.get(research_dataset__contains={ 'urn_identifier': self.urn_identifier })
         except CatalogRecord.DoesNotExist:
             pass
 
@@ -412,16 +414,21 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             raise Exception('Deleted CatalogRecord should not be retrievable from the default objects table')
 
         try:
-            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(research_dataset__contains={ 'urn_identifier': self.urn_identifier })
         except CatalogRecord.DoesNotExist:
             raise Exception('Deleted CatalogRecord should not be deleted from the db, but marked as removed')
 
         self.assertEqual(deleted_catalog_record.removed, True)
-        self.assertEqual(deleted_catalog_record.preferred_identifier, self.preferred_identifier)
+        self.assertEqual(deleted_catalog_record.urn_identifier, self.urn_identifier)
+
+    def test_delete_catalog_record_error_using_preferred_identifier(self):
+        url = '/rest/datasets/%s' % self.preferred_identifier
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_catalog_record_contract_is_not_deleted(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        url = '/rest/datasets/%s' % catalog_record_from_test_data['research_dataset']['preferred_identifier']
+        url = '/rest/datasets/%s' % catalog_record_from_test_data['research_dataset']['urn_identifier']
         self.client.delete(url)
         response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
         self.assertEqual(response2.status_code, status.HTTP_200_OK, 'The contract of the CatalogRecord should not be deleted when deleting a single CatalogRecord.')
@@ -442,7 +449,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
             (
-                self.preferred_identifier,
+                self.urn_identifier,
                 CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
                 self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
             ),
@@ -455,7 +462,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
     def test_catalog_record_propose_to_pas_missing_parameter_state(self):
         response = self.client.post('/rest/datasets/%s/proposetopas?contract=%s' %
             (
-                self.preferred_identifier,
+                self.urn_identifier,
                 self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
             ),
             format="json")
@@ -466,7 +473,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
     def test_catalog_record_propose_to_pas_wrong_parameter_state(self):
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
             (
-                self.preferred_identifier,
+                self.urn_identifier,
                 15,
                 self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
             ),
@@ -478,7 +485,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
     def test_catalog_record_propose_to_pas_missing_parameter_contract(self):
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%s' %
             (
-                self.preferred_identifier,
+                self.urn_identifier,
                 CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
             ),
             format="json")
@@ -493,7 +500,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
             (
-                self.preferred_identifier,
+                self.urn_identifier,
                 CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
                 'does-not-exist'
             ),
@@ -509,7 +516,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
             (
-                self.preferred_identifier,
+                self.urn_identifier,
                 CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
                 self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
             ),
@@ -527,7 +534,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
             (
-                self.preferred_identifier,
+                self.urn_identifier,
                 CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
                 self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
             ),
