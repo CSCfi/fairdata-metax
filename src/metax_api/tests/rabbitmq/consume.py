@@ -11,12 +11,18 @@ script to listen for messages sent when someone accesses /rest/datasets/pid/rabb
 with open('/home/metax-user/app_config') as app_config:
     settings = yaml.load(app_config)['RABBITMQ']
 
-credentials = pika.PlainCredentials(settings['TEST_USER'], settings['TEST_PASSWORD'])
+def get_test_user():
+    for user in settings['CONSUMERS']:
+        if user['is_test_user']:
+            return user
+
+test_user = get_test_user()
+credentials = pika.PlainCredentials(test_user['name'], test_user['password'])
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
         settings['HOSTS'],
         settings['PORT'],
-        settings['VHOST'],
+        test_user['vhost'],
         credentials))
 
 channel = connection.channel()
