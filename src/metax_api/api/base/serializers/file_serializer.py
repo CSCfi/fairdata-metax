@@ -8,6 +8,7 @@ import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
+
 class FileSerializer(ModelSerializer):
 
     class Meta:
@@ -73,17 +74,3 @@ class FileSerializer(ModelSerializer):
     def validate_file_characteristics(self, value):
         validate_json(value, self.context['view'].json_schema)
         return value
-
-
-class FileDebugSerializer(FileSerializer):
-
-    """
-    Used when the following query params are used in any request to /fields/:
-    ?debug=true.
-
-    Includes all fields.
-    """
-
-    class Meta:
-        model = File
-        fields = '__all__'
