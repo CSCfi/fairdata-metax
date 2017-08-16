@@ -132,13 +132,19 @@ class DatasetViewSet(CommonViewSet):
         lookup_value = self.kwargs.get(self.lookup_field)
         try:
             obj = self._search_from_research_dataset({'urn_identifier': lookup_value}, False)
-            if not obj:
+
+            # allow preferred and other identifier searches only for GET, since their persistence
+            # is not guaranteed over time.
+            if not obj and self.request.method == 'GET':
                 obj = self._search_from_research_dataset({'preferred_identifier': lookup_value}, False)
                 if not obj:
                     obj = self._search_from_research_dataset(
                         {'other_identifier': [{'local_identifier': lookup_value}]}, True)
         except Exception:
             raise
+
+        if not obj:
+            raise Http404
 
         return obj
 

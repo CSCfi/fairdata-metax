@@ -21,9 +21,8 @@ class CatalogRecordSerializer(ModelSerializer):
             'research_dataset',
             'preservation_state',
             'preservation_state_modified',
-            'preservation_state_description',
+            'preservation_description',
             'preservation_reason_description',
-            'contract_identifier',
             'mets_object_identifier',
             'dataset_group_edit',
             'next_version_id',
@@ -47,10 +46,9 @@ class CatalogRecordSerializer(ModelSerializer):
             # these values are generated automatically or provide default values on creation.
             # some fields can be later updated by the user, some are generated
             'preservation_state':       { 'required': False },
-            'preservation_state_description': { 'required': False },
+            'preservation_description': { 'required': False },
             'preservation_state_modified':    { 'required': False },
             'ready_status':             { 'required': False },
-            'contract_identifier':      { 'required': False },
             'mets_object_identifier':   { 'required': False },
             'catalog_record_modified':  { 'required': False },
 
@@ -63,43 +61,52 @@ class CatalogRecordSerializer(ModelSerializer):
 
     def is_valid(self, raise_exception=False):
         if self.initial_data.get('dataset_catalog', False):
-            self.initial_data['dataset_catalog'] = self._get_id_from_related_object(self.initial_data, 'dataset_catalog')
+            self.initial_data['dataset_catalog'] = self._get_id_from_related_object('dataset_catalog')
         if self.initial_data.get('contract', False):
-            self.initial_data['contract'] = self._get_id_from_related_object(self.initial_data, 'contract')
+            self.initial_data['contract'] = self._get_id_from_related_object('contract')
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
         instance = super(CatalogRecordSerializer, self).update(instance, validated_data)
+
+        # for partial updates research_dataset is not necessarily set
         files_dict = validated_data.get('research_dataset', None) and validated_data['research_dataset'].get('files', None) or None
+
         if files_dict:
-            file_pids = [ f['identifier'] for f in files_dict ]
-            files = File.objects.filter(identifier__in=file_pids)
             instance.files.clear()
-            instance.files.add(*files)
+            instance.files.add(*self._get_file_objects(files_dict))
             instance.save()
+
         return instance
 
     def create(self, validated_data):
         instance = super(CatalogRecordSerializer, self).create(validated_data)
-        files_dict = validated_data['research_dataset']['files'].copy()
-        file_pids = [ f['identifier'] for f in files_dict ]
-        files = File.objects.filter(identifier__in=file_pids)
-        instance.files.add(*files)
-        instance.save()
+        files_dict = validated_data['research_dataset'].get('files', None)
+        if files_dict:
+            instance.files.add(*self._get_file_objects(files_dict))
+            instance.save()
         return instance
 
     def to_representation(self, data):
         res = super(CatalogRecordSerializer, self).to_representation(data)
         # todo this is an extra query... (albeit qty of storages in db is tiny)
         # get FileStorage dict from context somehow ? self.initial_data ?
-        fsrs = DatasetCatalogSerializer(DatasetCatalog.objects.get(id=res['dataset_catalog']))
+        dscs = DatasetCatalogSerializer(DatasetCatalog.objects.get(id=res['dataset_catalog']))
         contract_serializer = ContractSerializer(Contract.objects.get(id=res['contract']))
-        res['dataset_catalog'] = fsrs.data
+        res['dataset_catalog'] = dscs.data
         res['contract'] = contract_serializer.data
         return res
 
     def validate_research_dataset(self, value):
-        validate_json(value, self.context['view'].json_schema)
+        if self._operation_is_create():
+            # add urn_identifier temporarily to pass schema validation. proper value
+            # will be generated later in CatalogRecord model save().
+            value['urn_identifier'] = 'temp'
+            validate_json(value, self.context['view'].json_schema)
+            value.pop('urn_identifier')
+        else:
+            validate_json(value, self.context['view'].json_schema)
+
         self._validate_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
         return value
@@ -109,12 +116,10 @@ class CatalogRecordSerializer(ModelSerializer):
         Unfortunately for unique fields inside a jsonfield, Django does not offer a neat
         http400 error with an error message, so have to do it ourselves.
         """
-        for field_name in ('urn_identifier', 'preferred_identifier'):
-            found_obj = self._get_object(field_name, value[field_name])
-            if found_obj:
-                http_method = self.context['view'].request.stream.method
-                if http_method == 'POST' or self.instance.id != found_obj.id:
-                    raise ValidationError(['catalog record with this research_dataset ->> %s already exists.' % field_name])
+        field_name = 'preferred_identifier'
+        found_obj = self._get_object(field_name, value[field_name])
+        if found_obj and (self._operation_is_create() or self.instance.id != found_obj.id):
+            raise ValidationError(['catalog record with this research_dataset ->> %s already exists.' % field_name])
 
     def _get_object(self, field_name, identifier):
         # check cache
@@ -127,14 +132,36 @@ class CatalogRecordSerializer(ModelSerializer):
         except CatalogRecord.DoesNotExist:
             return None
 
-    def _get_id_from_related_object(self, initial_data, relation_field):
+    def _operation_is_create(self):
+        return self.context['view'].request.stream.method == 'POST'
+
+    def _get_file_objects(self, files_dict):
+        file_pids = [ f['identifier'] for f in files_dict ]
+        return File.objects.filter(identifier__in=file_pids)
+
+    def _get_id_from_related_object(self, relation_field):
+        identifier_value = self.initial_data[relation_field]
         id = False
-        if type(initial_data[relation_field]) in (int, str):
-            id = initial_data[relation_field]
-        elif isinstance(initial_data[relation_field], dict):
-            id = int(initial_data[relation_field]['id'])
+        if isinstance(identifier_value, int):
+            id = identifier_value
+        elif isinstance(identifier_value, str):
+            # some kind of longer string (urn) identifier
+            if relation_field == 'contract':
+                try:
+                    id = Contract.objects.get(contract_json__contains={ 'identifier': identifier_value }).id
+                except Contract.DoesNotExist:
+                    raise ValidationError({ 'contract': ['contract with identifier %s not found.' % str(identifier_value)]})
+            elif relation_field == 'dataset_catalog':
+                try:
+                    id = DatasetCatalog.objects.get(catalog_json__contains={ 'identifier': identifier_value }).id
+                except DatasetCatalog.DoesNotExist:
+                    raise ValidationError({ 'dataset_catalog': ['dataset catalog with identifier %s not found' % str(identifier_value)]})
+            else:
+                pass
+        elif isinstance(identifier_value, dict):
+            id = int(identifier_value['id'])
         else:
             _logger.error('is_valid() field validation for relation %s: unexpected type: %s'
-                          % (relation_field, type(initial_data[relation_field])))
+                          % (relation_field, type(identifier_value)))
             raise ValidationError('Validation error for relation %s. Data in unexpected format' % relation_field)
         return id
