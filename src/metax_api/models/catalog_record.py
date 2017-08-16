@@ -44,9 +44,8 @@ class CatalogRecord(Common):
     files = models.ManyToManyField(File)
     preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
-    preservation_state_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
+    preservation_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
     preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
-    contract_identifier = models.CharField(max_length=200, blank=True, null=True)
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
     dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
 
