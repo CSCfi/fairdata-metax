@@ -18,6 +18,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # datasets
         migrations.RunSQL("CREATE UNIQUE INDEX IF NOT EXISTS cat_rec_urn_ident ON metax_api_catalogrecord ((research_dataset->>'urn_identifier'));"),
-        migrations.RunSQL("CREATE UNIQUE INDEX IF NOT EXISTS cat_rec_preferred_ident ON metax_api_catalogrecord ((research_dataset->>'preferred_identifier'));")
+        migrations.RunSQL("CREATE UNIQUE INDEX IF NOT EXISTS cat_rec_preferred_ident ON metax_api_catalogrecord ((research_dataset->>'preferred_identifier'));"),
+
+        # dataset catalogs
+        migrations.RunSQL("CREATE UNIQUE INDEX IF NOT EXISTS dat_cat_ident ON metax_api_datasetcatalog ((catalog_json->>'identifier'));"),
+
+        # contracts
+        migrations.RunSQL("CREATE UNIQUE INDEX IF NOT EXISTS contract_ident ON metax_api_contract ((contract_json->>'indetifier'));"),
+
+        # file storages
+        migrations.RunSQL("CREATE UNIQUE INDEX IF NOT EXISTS file_storage_ident ON metax_api_filestorage ((file_storage_json->>'identifier'));"),
     ]
