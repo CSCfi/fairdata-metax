@@ -21,9 +21,8 @@ class CatalogRecordSerializer(ModelSerializer):
             'research_dataset',
             'preservation_state',
             'preservation_state_modified',
-            'preservation_state_description',
+            'preservation_description',
             'preservation_reason_description',
-            'contract_identifier',
             'mets_object_identifier',
             'dataset_group_edit',
             'next_version_id',
@@ -47,10 +46,9 @@ class CatalogRecordSerializer(ModelSerializer):
             # these values are generated automatically or provide default values on creation.
             # some fields can be later updated by the user, some are generated
             'preservation_state':       { 'required': False },
-            'preservation_state_description': { 'required': False },
+            'preservation_description': { 'required': False },
             'preservation_state_modified':    { 'required': False },
             'ready_status':             { 'required': False },
-            'contract_identifier':      { 'required': False },
             'mets_object_identifier':   { 'required': False },
             'catalog_record_modified':  { 'required': False },
 
