@@ -1,5 +1,5 @@
 {
-    "access_group": "my group",
+    "project_identifier": "my group",
     "byte_size": 5512,
     "checksum_algorithm": "sha2",
     "checksum_checked": "2017-05-23T14:41:59.507392Z",
