@@ -67,6 +67,10 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         response = self.client.get('/rest/datasets/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    #
+    # pagination
+    #
+
     def test_read_catalog_record_list_pagination_1(self):
         response = self.client.get('/rest/datasets?limit=2&offset=0')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -78,6 +82,10 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
         self.assertEqual(response.data['results'][0]['id'], 3, 'Id of first result should have been 3')
+
+    #
+    # preservation_state filtering
+    #
 
     def test_read_catalog_record_search_by_preservation_state_0(self):
         response = self.client.get('/rest/datasets?state=0')
@@ -113,6 +121,10 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         response = self.client.get('/rest/datasets?state=1,a')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('is not an integer' in response.data['state'][0], True, 'Error should say letter a is not an integer')
+
+    #
+    # query_params
+    #
 
     def test_read_catalog_record_search_by_owner_1(self):
         response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen')
@@ -159,6 +171,10 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
+    #
+    # misc
+    #
+
     def test_read_catalog_record_exists(self):
         response = self.client.get('/rest/datasets/%s/exists' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -200,6 +216,14 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         """
         self.test_new_data = self._get_new_test_data()
         self.second_test_new_data = self._get_second_new_test_data()
+
+    #
+    #
+    #
+    # create apis
+    #
+    #
+    #
 
     def test_create_catalog_record(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
@@ -255,18 +279,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
         self.assertEqual('field: title' in response.data['research_dataset'][0], True, 'The error should contain the name of the erroneous field')
 
-    def test_create_catalog_record_list(self):
-        self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
-        self.second_test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurnalso'
-
-        response = self.client.post('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual('success' in response.data.keys(), True)
-        self.assertEqual('failed' in response.data.keys(), True)
-        self.assertEqual('object' in response.data['success'][0].keys(), True)
-        self.assertEqual(len(response.data['success']), 2)
-        self.assertEqual(len(response.data['failed']), 0)
-
     def test_create_catalog_record_dont_allow_dataset_catalog_fields_update(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
         original_title = self.test_new_data['dataset_catalog']['catalog_json']['title'][0]['en']
@@ -278,6 +290,22 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.data['dataset_catalog']['catalog_json']['title'][0]['en'], original_title)
         dataset_catalog = DatasetCatalog.objects.get(pk=response.data['dataset_catalog']['id'])
         self.assertEqual(dataset_catalog.catalog_json['title'][0]['en'], original_title)
+
+    #
+    # create list operations
+    #
+
+    def test_create_catalog_record_list(self):
+        self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
+        self.second_test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurnalso'
+
+        response = self.client.post('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual('failed' in response.data.keys(), True)
+        self.assertEqual('object' in response.data['success'][0].keys(), True)
+        self.assertEqual(len(response.data['success']), 2)
+        self.assertEqual(len(response.data['failed']), 0)
 
     def test_create_catalog_record_list_error_one_fails(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
@@ -320,6 +348,12 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('object' in response.data['failed'][0].keys(), True)
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
+
+    #
+    #
+    # update apis
+    #
+    #
 
     def test_update_catalog_record(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
@@ -381,6 +415,10 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         new_contract_identifier = cr2.contract.contract_json['identifier']
         self.assertNotEqual(old_contract_identifier, new_contract_identifier, 'Contract identifier should have changed')
 
+    #
+    # update preservation_state operations
+    #
+
     def test_update_catalog_record_pas_state_allowed_value(self):
         self.test_new_data['preservation_state'] = 3
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
@@ -398,6 +436,60 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         cr = CatalogRecord.objects.get(pk=self.pk)
         self.assertEqual(cr.preservation_state_modified >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object update')
+
+    #
+    # update list operations
+    #
+
+    def test_catalog_record_update_list(self):
+        self.test_new_data['id'] = 1
+        self.test_new_data['research_dataset']['description'] = [{ 'en': 'updated description' }]
+
+        self.second_test_new_data['id'] = 2
+        self.second_test_new_data['research_dataset']['description'] = [{ 'en': 'second updated description' }]
+
+        response = self.client.put('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(response.data, {}, 'response.data should be empty object')
+
+    def catalog_record_list_update_list_error_one_fails(self):
+        self.test_new_data['id'] = 1
+        self.test_new_data['research_dataset']['description'] = [{ 'en': 'updated description' }]
+
+        # this value should already exist, therefore should fail
+        self.second_test_new_data['research_dataset']['preferred_identifier'] = self.urn_identifier
+        self.second_test_new_data['id'] = 2
+
+        response = self.client.put('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual('failed' in response.data.keys(), True)
+        self.assertEqual(isinstance(response.data['success'], list), True, 'return data should contain key success, which is a list')
+        self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
+        self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
+
+    def test_catalog_record_update_list_error_key_not_found(self):
+        # does not have identifier key
+        self.test_new_data['research_dataset'].pop('urn_identifier')
+        self.test_new_data['research_dataset']['description'] = [{ 'en': 'updated description' }]
+
+        self.second_test_new_data['id'] = 2
+        self.second_test_new_data['research_dataset']['description'] = [{ 'en': 'second updated description' }]
+
+        response = self.client.put('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual('failed' in response.data.keys(), True)
+        self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
+        self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
+
+    #
+    #
+    #
+    # delete apis
+    #
+    #
+    #
 
     def test_delete_catalog_record(self):
         url = '/rest/datasets/%s' % self.urn_identifier
@@ -444,6 +536,14 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]['id'], 3)
+
+    #
+    #
+    #
+    # proposetopas apis
+    #
+    #
+    #
 
     def test_catalog_record_propose_to_pas_success(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
@@ -545,6 +645,14 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual('preservation_state' in response.data, True, 'Response data should contain an error about the field')
+
+    #
+    #
+    #
+    # internal helper methods
+    #
+    #
+    #
 
     def _get_new_test_data(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
