@@ -3,11 +3,32 @@ from time import time
 
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
+from rest_framework.serializers import ValidationError
 
-from .common import Common
+from .common import Common, CommonManager
 from .file import File
 from .dataset_catalog import DatasetCatalog
 from .contract import Contract
+
+
+class CatalogRecordManager(CommonManager):
+
+    def get(self, *args, **kwargs):
+        if kwargs.get('using_dict', None):
+            # for a simple "just get me the instance that equals this dict i have" search.
+            # preferred_identifier is not a valid search key, since it wouldnt necessarily
+            # work during an update (if preferred_identifier is being updated).
+
+            # this is useful if during a request the url does not contain the identifier (bulk update),
+            # and in generic operations where the type of object being handled is not known (also bulk operations).
+            row = kwargs.pop('using_dict')
+            if row.get('id', None):
+                kwargs['id'] = row['id']
+            elif row.get('research_dataset', None) and row['research_dataset'].get('urn_identifier', None):
+                kwargs['research_dataset__contains'] = { 'urn_identifier': row['research_dataset']['urn_identifier'] }
+            else:
+                raise ValidationError('this operation requires an identifying key to be present: id, or research_dataset ->> urn_identifier')
+        return super(CatalogRecordManager, self).get(*args, **kwargs)
 
 
 class CatalogRecord(Common):
@@ -56,6 +77,8 @@ class CatalogRecord(Common):
     version_created = models.DateTimeField(help_text='Date when this version was first created.', null=True)
 
     _need_to_generate_urn_identifier = False
+
+    objects = CatalogRecordManager()
 
     class Meta:
         ordering = ['id']
