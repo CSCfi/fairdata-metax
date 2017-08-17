@@ -67,7 +67,7 @@ class DatasetViewSet(CommonViewSet):
 
     def update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update(request, *args, **kwargs)
-        if res.status_code == status.HTTP_204_NO_CONTENT:
+        if res.status_code in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK) and hasattr(self, '_updated_request_data'):
             # normally PUT returns no content. in this case update() has saved updated data into a variable
             self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
         return res

@@ -25,7 +25,7 @@ class CommonService():
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):
         """
-        Note: BOTH single and list update
+        Note: BOTH single and list create
 
         Create objects to database from a list of dicts or a single dict, and return a list
         of created objects or a single object.
