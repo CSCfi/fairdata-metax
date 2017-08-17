@@ -224,8 +224,12 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
     def test_create_catalog_record_error_identifier_exists(self):
         # first ok
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+
         # second should give error
+        existing_identifier = response.data['research_dataset']['urn_identifier']
+        self.test_new_data['research_dataset']['preferred_identifier'] = existing_identifier
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
         self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier already existing')
@@ -372,7 +376,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         old_contract_identifier = cr.contract.contract_json['identifier']
         self.test_new_data['contract'] = 'optional:contract:identifier2'
         response = self.client.put('/rest/datasets/%d' % self.pk, self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         cr2 = CatalogRecord.objects.get(pk=self.pk)
         new_contract_identifier = cr2.contract.contract_json['identifier']
         self.assertNotEqual(old_contract_identifier, new_contract_identifier, 'Contract identifier should have changed')
@@ -549,7 +553,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
                 "urn_identifier": "pid:urn:new1",
-                "preferred_identifier": "http://urn.fi/urn:nbn:fi:preferred1",
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -583,7 +586,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
                 "urn_identifier": "pid:urn:new2",
-                "preferred_identifier": "http://urn.fi/urn:nbn:fi:preferred2",
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
                     "This version contains changes to x and y."
