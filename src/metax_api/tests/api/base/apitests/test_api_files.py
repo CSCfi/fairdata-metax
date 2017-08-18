@@ -14,20 +14,24 @@ class FileApiReadTestV1(APITestCase, TestClassUtils):
     """
     file_field_names = (
         'id',
-        'access_group',
         'byte_size',
         'checksum_algorithm',
         'checksum_checked',
         'checksum_value',
         'download_url',
+        'file_deleted',
+        'file_frozen',
         'file_format',
         'file_modified',
         'file_name',
-        'file_storage',
         'file_path',
+        'file_storage',
+        'file_uploaded',
         'identifier',
         'file_characteristics',
+        'file_characteristics_extension',
         'open_access',
+        'project_identifier',
         'replication_path',
         'modified_by_user_id',
         'modified_by_api',
@@ -211,14 +215,14 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_update_file_error_required_fields(self):
         """
-        Field 'access_group' is missing, which should result in an error, since PUT
+        Field 'project_identifier' is missing, which should result in an error, since PUT
         replaces an object and requires all 'required' fields to be present.
         """
-        self.test_new_data.pop('access_group')
+        self.test_new_data.pop('project_identifier')
         response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('access_group' in response.data.keys(), True, 'Error for field \'access_group\' is missing from response.data')
+        self.assertEqual('project_identifier' in response.data.keys(), True, 'Error for field \'project_identifier\' is missing from response.data')
 
     def test_update_file_partial(self):
         new_data = {
@@ -265,7 +269,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "checksum_value": "habeebit",
-            "access_group": "my group",
+            "project_identifier": "my group",
             "identifier": "urn:nbn:fi:csc-ida201401200000000001",
             "download_url": "http://some.url.csc.fi/0000000001",
             "file_name": "new_file_name",
@@ -293,7 +297,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "checksum_value": "habeebit",
-            "access_group": "my group",
+            "project_identifier": "my group",
             "identifier": None,
             "download_url": "http://some.url.csc.fi/0000000001",
             "file_name": "second_new_file_name",

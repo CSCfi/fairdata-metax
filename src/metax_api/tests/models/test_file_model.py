@@ -19,21 +19,27 @@ class FileModelBasicTest(TestCase, TestClassUtils):
     """
 
     file_field_names = (
-        'download_url',
-        'replication_path',
-        'identifier',
         'byte_size',
+        'checksum_algorithm',
+        'checksum_checked',
         'checksum_value',
-        'file_name',
+        'download_url',
+        'file_deleted',
+        'file_frozen',
         'file_format',
         'file_modified',
+        'file_name',
         'file_path',
-        'checksum_checked',
-        'checksum_algorithm',
-        'access_group',
-        'open_access',
-        'file_characteristics',
         'file_storage',
+        'file_uploaded',
+        'identifier',
+        'file_characteristics',
+        'file_characteristics_extension',
+        'open_access',
+        'project_identifier',
+        'replication_path',
+
+        # backwards relations
         'xmlmetadata',
         'catalogrecord',
     )

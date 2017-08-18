@@ -8,26 +8,31 @@ import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
+
 class FileSerializer(ModelSerializer):
 
     class Meta:
         model = File
         fields = (
             'id',
-            'access_group',
             'byte_size',
             'checksum_algorithm',
             'checksum_checked',
             'checksum_value',
             'download_url',
+            'file_deleted',
+            'file_frozen',
             'file_format',
             'file_modified',
             'file_name',
-            'file_storage',
             'file_path',
+            'file_storage',
+            'file_uploaded',
             'identifier',
             'file_characteristics',
+            'file_characteristics_extension',
             'open_access',
+            'project_identifier',
             'replication_path',
             'modified_by_user_id',
             'modified_by_api',
@@ -73,17 +78,3 @@ class FileSerializer(ModelSerializer):
     def validate_file_characteristics(self, value):
         validate_json(value, self.context['view'].json_schema)
         return value
-
-
-class FileDebugSerializer(FileSerializer):
-
-    """
-    Used when the following query params are used in any request to /fields/:
-    ?debug=true.
-
-    Includes all fields.
-    """
-
-    class Meta:
-        model = File
-        fields = '__all__'
