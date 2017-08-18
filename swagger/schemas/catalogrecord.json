@@ -1,8 +1,6 @@
 {
-    "@id":"http://iow.csc.fi/ns/mrd#",
     "title":"Metax Research Datasets",
     "modified":"Tue, 13 Jun 2017 16:09:27 EEST",
-    "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "allOf":[
         {
@@ -23,20 +21,23 @@
                 },
                 "created_by_api":{
                     "title":"Date Created",
-                    "description":"Date of creation of the resource.",
+                    "description":"Date of creation of the resource. Can't be updated once set.",
                     "maxItems":1,
                     "type":"string",
-                    "format":"date-time"
+                    "format":"date-time",
+                    "readonly": true
                 },
                 "modified_by_api":{
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",
                     "maxItems":1,
                     "type":"string",
-                    "format":"date-time"
+                    "format":"date-time",
+                    "readonly": true
                 },
                 "research_dataset":{
                     "title":"Primary topic",
+                    "schema": "http://iow.csc.fi/model/mrd/ResearchDataset/",
                     "description":"Dataset described by this metadata record.",
                     "type":"object"
                 },
@@ -60,6 +61,7 @@
                         7,
                         8
                     ],
+                    "default": 0,
                     "maxItems":1,
                     "type":"integer"
                 },
@@ -84,11 +86,29 @@
                     "type":"string"
                 },
                 "preservation_state_modified":{
-                    "title":"Preservation status modified",
-                    "description":"Date when status was modified",
+                    "title":"Preservation state modified",
+                    "description":"Date when preservation state was last changed",
                     "maxItems":1,
                     "type":"string",
                     "format":"date-time"
+                },
+                "dataset_group_edit":{
+                    "title":"Dataset group edit",
+                    "description":"Group allowed to edit this record",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "created_by_user_id":{
+                    "title":"Created by user id",
+                    "description":"User id of the person who created this record. Can't be updated once set.",
+                    "maxItems":1,
+                    "type":"integer"
+                },
+                "modified_by_user_id":{
+                    "title":"Modified by user id",
+                    "description":"User id of the person who last edited this record",
+                    "maxItems":1,
+                    "type":"integer"
                 }
             },
             "required":[
