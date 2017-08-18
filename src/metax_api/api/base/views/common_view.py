@@ -108,7 +108,7 @@ class CommonViewSet(ModelViewSet):
         # the method only returns data because we need to place it in self._updated_request_data
 
         if results['success']:
-            self._updated_request_data = results['success']
+            self._updated_request_data = [ r['object'] for r in results['success'] ]
             results['success'] = []
         if not results['failed']:
             results = {}
@@ -118,11 +118,23 @@ class CommonViewSet(ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         CommonService.update_common_info(request)
         kwargs['partial'] = True
-        return super(CommonViewSet, self).update(request, *args, **kwargs)
+        res = super(CommonViewSet, self).update(request, *args, **kwargs)
+
+        if res.status_code == status.HTTP_200_OK:
+            self._updated_request_data = res.data
+
+        return res
 
     def partial_update_bulk(self, request, *args, **kwargs):
-        d('partial update bulk TODO')
-        return Response(data={'asd': 'yisss'}, status=status.HTTP_200_OK)
+        serializer_class = self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        kwargs['partial'] = True
+        results, http_status = CommonService.update_bulk(request, self.object, serializer_class, **kwargs)
+
+        if results['success']:
+            self._updated_request_data = [ r['object'] for r in results['success'] ]
+
+        return Response(data=results, status=http_status)
 
     def create(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()

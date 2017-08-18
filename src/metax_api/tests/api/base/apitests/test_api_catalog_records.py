@@ -438,7 +438,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(cr.preservation_state_modified >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object update')
 
     #
-    # update list operations
+    # update list operations PUT
     #
 
     def test_catalog_record_update_list(self):
@@ -452,7 +452,11 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertEqual(response.data, {}, 'response.data should be empty object')
 
-    def catalog_record_list_update_list_error_one_fails(self):
+        updated_cr = CatalogRecord.objects.get(pk=1)
+        desc = updated_cr.research_dataset['description']
+        self.assertEqual(desc[0]['en'], 'updated description', 'description did not update')
+
+    def test_catalog_record_update_list_error_one_fails(self):
         self.test_new_data['id'] = 1
         self.test_new_data['research_dataset']['description'] = [{ 'en': 'updated description' }]
 
@@ -468,6 +472,10 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
 
+        updated_cr = CatalogRecord.objects.get(pk=1)
+        desc = updated_cr.research_dataset['description']
+        self.assertEqual(desc[0]['en'], 'updated description', 'description did not update for first item')
+
     def test_catalog_record_update_list_error_key_not_found(self):
         # does not have identifier key
         self.test_new_data['research_dataset'].pop('urn_identifier')
@@ -482,6 +490,63 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('failed' in response.data.keys(), True)
         self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
+
+    #
+    # update list operations PATCH
+    #
+
+    def test_catalog_record_partial_update_list(self):
+        test_data = {}
+        test_data['id'] = 1
+        test_data['preservation_state'] = 1
+
+        second_test_data = {}
+        second_test_data['id'] = 2
+        second_test_data['preservation_state'] = 2
+
+        response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('success' in response.data, True, 'response.data should contain list of changed objects')
+        self.assertEqual(len(response.data), 2, 'response.data should contain 2 changed objects')
+        self.assertEqual('research_dataset' in response.data['success'][0]['object'], True, 'response.data should contain full objects')
+
+        updated_cr = CatalogRecord.objects.get(pk=1)
+        self.assertEqual(updated_cr.preservation_state, 1, 'preservation state should have changed to 1')
+
+    def test_catalog_record_partial_update_list_error_one_fails(self):
+        test_data = {}
+        test_data['id'] = 1
+        test_data['preservation_state'] = 1
+
+        second_test_data = {}
+        second_test_data['preservation_state'] = 555 # value not allowed
+        second_test_data['id'] = 2
+
+        response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual('failed' in response.data.keys(), True)
+        self.assertEqual(len(response.data['success']), 1, 'success list should contain one item')
+        self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
+        self.assertEqual('preservation_state' in response.data['failed'][0]['errors'], True, response.data['failed'][0]['errors'])
+
+    def test_catalog_record_partial_update_list_error_key_not_found(self):
+        # does not have identifier key
+        test_data = {}
+        test_data['preservation_state'] = 1
+
+        second_test_data = {}
+        second_test_data['id'] = 2
+        second_test_data['preservation_state'] = 2
+
+        response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual('failed' in response.data.keys(), True)
+        self.assertEqual(len(response.data['success']), 1, 'success list should contain one item')
+        self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
+        self.assertEqual('detail' in response.data['failed'][0]['errors'], True, response.data['failed'][0]['errors'])
+        self.assertEqual('identifying key' in response.data['failed'][0]['errors']['detail'][0], True, response.data['failed'][0]['errors'])
 
     #
     #

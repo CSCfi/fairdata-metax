@@ -85,13 +85,12 @@ class CommonService():
     @classmethod
     def update_bulk(cls, request, model_obj, serializer_class, **kwargs):
         """
-        Note: ONLY list update
+        Note: ONLY list update (PUT and PATCH)
 
         Update objects to database from a list of dicts. Bulk update operations requires
         that the payload dict contains a field that can be used to identify the target row
         that is being updated, since a PUT or PATCH to i.e. /datasets or /files will not have
-        an identifier in the url. PUT is going to have these identifying fields anyway, so
-        this is only relevant to PATCH.
+        an identifier in the url.
 
         params:
         request: the http request object

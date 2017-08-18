@@ -67,15 +67,14 @@ class DatasetViewSet(CommonViewSet):
 
     def update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update(request, *args, **kwargs)
-        if res.status_code in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK) and hasattr(self, '_updated_request_data'):
-            # normally PUT returns no content. in this case update() has saved updated data into a variable
+        if res.status_code in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK):
             self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
         return res
 
     def partial_update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).partial_update(request, *args, **kwargs)
         if res.status_code == status.HTTP_200_OK:
-            self._publish_message(res.data, routing_key='update', exchange='datasets')
+            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
         return res
 
     def destroy(self, request, *args, **kwargs):
@@ -88,8 +87,15 @@ class DatasetViewSet(CommonViewSet):
 
     def create(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).create(request, *args, **kwargs)
+
         if res.status_code == status.HTTP_201_CREATED:
-            self._publish_message(res.data, routing_key='create', exchange='datasets')
+            if 'success' in res.data:
+                # was bulk create
+                message = [ r['object'] for r in res.data['success'] ]
+            else:
+                message = res.data
+            self._publish_message(message, routing_key='create', exchange='datasets')
+
         return res
 
     @detail_route(methods=['get'], url_path="files")
