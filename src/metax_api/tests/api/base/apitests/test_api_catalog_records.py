@@ -373,8 +373,8 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_update_catalog_record_contract_string_identifier(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
-        old_contract_identifier = cr.contract.contract_json['identifier']
-        self.test_new_data['contract'] = 'optional:contract:identifier2'
+        old_contract_identifier = cr.contract
+        self.test_new_data['contract'] = 1
         response = self.client.put('/rest/datasets/%d' % self.pk, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         cr2 = CatalogRecord.objects.get(pk=self.pk)
@@ -430,10 +430,12 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_catalog_record_contract_is_not_deleted(self):
+        contract_id = 1
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        url = '/rest/datasets/%s' % catalog_record_from_test_data['research_dataset']['urn_identifier']
+        url = '/rest/datasets/%s' % catalog_record_from_test_data['id']
+        self.client.patch(url, { 'contract': contract_id }, format='json')
         self.client.delete(url)
-        response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
+        response2 = self.client.get('/rest/contracts/%d' % contract_id)
         self.assertEqual(response2.status_code, status.HTTP_200_OK, 'The contract of the CatalogRecord should not be deleted when deleting a single CatalogRecord.')
 
     def test_delete_catalog_record_not_found_with_search_by_owner(self):

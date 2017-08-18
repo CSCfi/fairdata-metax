@@ -746,13 +746,11 @@
                 "identifier": "optional:contract:identifier1",
                 "modified": "2014-01-17T08:19:58Z",
                 "organization": {
-                    "name": [
-                        "Mysterious organization"
-                    ],
+                    "name": "Mysterious organization",
                     "organization_identifier": "1234567-1"
                 },
                 "quota": 111204,
-                "service": [
+                "related_service": [
                     {
                         "identifier": "local:service:id",
                         "name": "Name of Service"
@@ -784,13 +782,11 @@
                 "identifier": "optional:contract:identifier2",
                 "modified": "2014-01-17T08:19:58Z",
                 "organization": {
-                    "name": [
-                        "Mysterious organization"
-                    ],
+                    "name": "Mysterious organization",
                     "organization_identifier": "1234567-2"
                 },
                 "quota": 111204,
-                "service": [
+                "related_service": [
                     {
                         "identifier": "local:service:id",
                         "name": "Name of Service"
@@ -822,13 +818,11 @@
                 "identifier": "optional:contract:identifier3",
                 "modified": "2014-01-17T08:19:58Z",
                 "organization": {
-                    "name": [
-                        "Mysterious organization"
-                    ],
+                    "name": "Mysterious organization",
                     "organization_identifier": "1234567-3"
                 },
                 "quota": 111204,
-                "service": [
+                "related_service": [
                     {
                         "identifier": "local:service:id",
                         "name": "Name of Service"
@@ -860,13 +854,11 @@
                 "identifier": "optional:contract:identifier4",
                 "modified": "2014-01-17T08:19:58Z",
                 "organization": {
-                    "name": [
-                        "Mysterious organization"
-                    ],
+                    "name": "Mysterious organization",
                     "organization_identifier": "1234567-4"
                 },
                 "quota": 111204,
-                "service": [
+                "related_service": [
                     {
                         "identifier": "local:service:id",
                         "name": "Name of Service"
@@ -898,13 +890,11 @@
                 "identifier": "optional:contract:identifier5",
                 "modified": "2014-01-17T08:19:58Z",
                 "organization": {
-                    "name": [
-                        "Mysterious organization"
-                    ],
+                    "name": "Mysterious organization",
                     "organization_identifier": "1234567-5"
                 },
                 "quota": 111204,
-                "service": [
+                "related_service": [
                     {
                         "identifier": "local:service:id",
                         "name": "Name of Service"
@@ -923,7 +913,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -992,7 +981,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1061,7 +1049,6 @@
     },
     {
         "fields": {
-            "contract": 2,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1130,7 +1117,6 @@
     },
     {
         "fields": {
-            "contract": 2,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1199,7 +1185,6 @@
     },
     {
         "fields": {
-            "contract": 3,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1268,7 +1253,6 @@
     },
     {
         "fields": {
-            "contract": 3,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1337,7 +1321,7 @@
     },
     {
         "fields": {
-            "contract": 4,
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1406,7 +1390,7 @@
     },
     {
         "fields": {
-            "contract": 4,
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1475,7 +1459,7 @@
     },
     {
         "fields": {
-            "contract": 5,
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1544,7 +1528,7 @@
     },
     {
         "fields": {
-            "contract": 5,
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",

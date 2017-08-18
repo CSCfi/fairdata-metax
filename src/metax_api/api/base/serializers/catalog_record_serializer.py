@@ -92,9 +92,12 @@ class CatalogRecordSerializer(ModelSerializer):
         # todo this is an extra query... (albeit qty of storages in db is tiny)
         # get FileStorage dict from context somehow ? self.initial_data ?
         dscs = DatasetCatalogSerializer(DatasetCatalog.objects.get(id=res['dataset_catalog']))
-        contract_serializer = ContractSerializer(Contract.objects.get(id=res['contract']))
         res['dataset_catalog'] = dscs.data
-        res['contract'] = contract_serializer.data
+
+        if res.get('contract'):
+            contract_serializer = ContractSerializer(Contract.objects.get(id=res['contract']))
+            res['contract'] = contract_serializer.data
+
         return res
 
     def validate_research_dataset(self, value):

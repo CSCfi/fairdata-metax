@@ -4,7 +4,6 @@
     "preservation_state_modified": null,
     "mets_object_identifier": ["a", "b", "c"],
     "dataset_group_edit": "default-dataset-edit-group",
-    "contract": 1,
     "research_dataset": {
         "urn_identifier": "http://urn.fi/urn:nbn:fi%s",
         "preferred_identifier": "http://urn.fi/urn:nbn:fi%s",
