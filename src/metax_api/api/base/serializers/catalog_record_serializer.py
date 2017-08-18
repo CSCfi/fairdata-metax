@@ -98,18 +98,39 @@ class CatalogRecordSerializer(ModelSerializer):
         return res
 
     def validate_research_dataset(self, value):
-        if self._operation_is_create():
-            # add urn_identifier temporarily to pass schema validation. proper value
-            # will be generated later in CatalogRecord model save().
-            value['urn_identifier'] = 'temp'
-            validate_json(value, self.context['view'].json_schema)
-            value.pop('urn_identifier')
-        else:
-            validate_json(value, self.context['view'].json_schema)
-
+        self._validate_json_schema(value)
         self._validate_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
         return value
+
+    def _validate_json_schema(self, value):
+        if self._operation_is_create():
+            # urn_identifier cant be provided by the user, but it is a required field =>
+            # add urn_identifier temporarily to pass schema validation. proper value
+            # will be generated later in CatalogRecord model save().
+            value['urn_identifier'] = 'temp'
+
+            if not value.get('preferred_identifier', None):
+                # mandatory, but might not be present (urn_identifier copied to it later).
+                # use temporary value and remove after schema validation.
+                value['preferred_identifier'] = 'temp'
+
+            validate_json(value, self.context['view'].json_schema)
+
+            value.pop('urn_identifier')
+
+            if value['preferred_identifier'] == 'temp':
+                value.pop('preferred_identifier')
+
+        else:
+            # update operations
+
+            if not value.get('preferred_identifier', None):
+                # preferred_identifier can not be updated to empty. if the user is trying to
+                # do so, copy urn_identifier to it.
+                value['preferred_identifier'] = value['urn_identifier']
+
+            validate_json(value, self.context['view'].json_schema)
 
     def _validate_uniqueness(self, value):
         """
@@ -117,6 +138,11 @@ class CatalogRecordSerializer(ModelSerializer):
         http400 error with an error message, so have to do it ourselves.
         """
         field_name = 'preferred_identifier'
+
+        if not value.get(field_name, None):
+            # during create preferred_identifier is not necessarily set
+            return
+
         found_obj = self._get_object(field_name, value[field_name])
         if found_obj and (self._operation_is_create() or self.instance.id != found_obj.id):
             raise ValidationError(['catalog record with this research_dataset ->> %s already exists.' % field_name])
