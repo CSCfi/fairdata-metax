@@ -1,0 +1,100 @@
+{
+    "@id":"http://iow.csc.fi/ns/mrd#",
+    "title":"Metax Research Datasets",
+    "modified":"Tue, 13 Jun 2017 16:09:27 EEST",
+    "$schema":"http://json-schema.org/draft-04/schema#",
+    "type":"object",
+    "allOf":[
+        {
+            "$ref":"#/definitions/CatalogRecord"
+        }
+    ],
+    "definitions":{
+        "CatalogRecord":{
+            "title":"Catalog Record",
+            "description":"A record in a data catalog, describing a single dataset.",
+            "properties":{
+                "dataset_catalog":{
+                    "title":"Dataset catalog",
+                    "description":"Dataset Catalog",
+                    "type":["object", "integer", "string"],
+                    "minItems":1,
+                    "maxItems":1
+                },
+                "created_by_api":{
+                    "title":"Date Created",
+                    "description":"Date of creation of the resource.",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "modified_by_api":{
+                    "title":"Date Modified",
+                    "description":"Date on which the resource was changed.",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "research_dataset":{
+                    "title":"Primary topic",
+                    "description":"Dataset described by this metadata record.",
+                    "type":"object"
+                },
+                "contract":{
+                    "title":"Contract",
+                    "description":"Contract identifier or embedded contract object",
+                    "maxItems":1,
+                    "type":["object", "integer", "string"]
+                },
+                "preservation_state":{
+                    "title":"Preservation state",
+                    "description":"state of dataset in PAS cycle: 0 = Not in PAS, 1 = Proposed for midtterm, 2 = Proposed for long term, 3, =in packaging service, 4 = in dissemination, 5 = in midterm preservation, 6 = in longterm preservation, 7 = Rejected long-term preservation, 8 = Rejected mid-term preservation",
+                    "enum":[
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8
+                    ],
+                    "maxItems":1,
+                    "type":"integer"
+                },
+                "mets_object_identifier":{
+                    "title":"Mets object identifier",
+                    "description":"PID in mid/longterm preservation",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    }
+                },
+                "preservation_description":{
+                    "title":"Preservation system description",
+                    "description":"Preservation status described for the user",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "preservation_reason_description":{
+                    "title":"Preservation reason description",
+                    "description":"Reason for the preservation from the user",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "preservation_state_modified":{
+                    "title":"Preservation status modified",
+                    "description":"Date when status was modified",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time"
+                }
+            },
+            "required":[
+                "dataset_catalog",
+                "research_dataset"
+            ]
+        }
+    }
+}
