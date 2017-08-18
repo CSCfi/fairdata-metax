@@ -1,6 +1,6 @@
 from .contract_serializer import ContractSerializer
 from .catalog_record_serializer import CatalogRecordSerializer
 from .dataset_catalog_serializer import DatasetCatalogSerializer
-from .file_serializer import FileSerializer, FileDebugSerializer
+from .file_serializer import FileSerializer
 from .dataset_serializer import DatasetSerializer
 from .xml_metadata_serializer import XmlMetadataSerializer
