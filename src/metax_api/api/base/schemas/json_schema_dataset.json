@@ -102,6 +102,7 @@
                     "description":"Catalog identifier or embedded object to dataset_catalog property in embedded object.",
                     "@id":"http://iow.csc.fi/ns/mrd#catalogidentifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "minItems":1,
                     "maxItems":1
                 },
                 "created_by_api":{
@@ -183,7 +184,7 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "status_modified":{
+                "preservation_state_modified":{
                     "title":"Preservation status modified",
                     "description":"Date when status was modified",
                     "@id":"http://iow.csc.fi/ns/mrd#statusmodified",
@@ -194,6 +195,7 @@
                 }
             },
             "required":[
+                "dataset_catalog",
                 "dataset_json"
             ]
         },
