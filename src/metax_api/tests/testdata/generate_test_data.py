@@ -427,6 +427,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
 
     # set contracts for last few datasets
     for i in range(6, len(test_data_list)):
+        test_data_list[i]['fields']['preservation_state'] = 1
         test_data_list[i]['fields']['contract'] = 1
 
     # if preservation_state is other than 0, means it has been modified at some point,

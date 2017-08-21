@@ -1335,8 +1335,8 @@
                 "c"
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 1,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -1404,8 +1404,8 @@
                 "c"
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 1,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -1473,8 +1473,8 @@
                 "c"
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 1,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -1542,8 +1542,8 @@
                 "c"
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 1,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
