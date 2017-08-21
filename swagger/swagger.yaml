@@ -2,40 +2,6 @@ swagger: '2.0'
 info:
   title: METAX REST API
   version: v1
-  description: |
-    # Describing relations in objects
-    When creating or updating objects in any api, the value of the relation field can be the internal database primary key (integer), unique urn or other identifier (string), or the actual related object itself (json object). In other words, the object being saved or updated can include relations in any of the following ways (CatalogRecord relations used as an example):
-    ```
-    {
-        "dataset_catalog": 3,
-        "contract": "one:fancy:identifier"
-    }
-
-    {
-        "dataset_catalog": {
-            "id": 3,
-            "other": "fields"
-        },
-        "contract": 13
-    }
-    ```
-    # POST (create) operations
-    POST requests generally accept both individual objects or a list of objects to create from for bulk creation. The response contains the created object, or in case a list was given, a list of successfully created objects, and a list of errors for the failed ones:
-    ```
-    {
-        'success': [
-            { 'object': object },
-            { 'object': object }
-        ],
-        'failed': [
-            { 'object': object, 'errors': {'some_field': ['message'], 'other_field': ['message']} },
-            { 'object': object, 'errors': {'some_field': ['message'] } }
-        ]
-    }
-    ```
-    In list create, if even one object was successfully created, return code will be 201. Only if all create operations have failed, return code will be 400.
-    # PUT and PATCH bulk update
-    stuff
 host: metax.example.org
 schemes:
   - https
