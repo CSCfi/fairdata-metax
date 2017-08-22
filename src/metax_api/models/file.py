@@ -1,8 +1,28 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from rest_framework.serializers import ValidationError
 
-from .common import Common
+from .common import Common, CommonManager
 from .file_storage import FileStorage
+
+
+class FileManager(CommonManager):
+
+    def get(self, *args, **kwargs):
+        if kwargs.get('using_dict', None):
+            # for a simple "just get me the instance that equals this dict i have" search.
+
+            # this is useful if during a request the url does not contain the identifier (bulk update),
+            # and in generic operations where the type of object being handled is not known (also bulk operations).
+            row = kwargs.pop('using_dict')
+            if row.get('id', None):
+                kwargs['id'] = row['id']
+            elif row.get('identifier', None):
+                kwargs['identifier'] = row['identifier']
+            else:
+                raise ValidationError(['this operation requires one of the following identifying keys to be present: %s' % ', '.join([ 'id', 'identifier' ])])
+        return super(FileManager, self).get(*args, **kwargs)
+
 
 class File(Common):
 
@@ -18,10 +38,12 @@ class File(Common):
     file_storage = models.ForeignKey(FileStorage)
     file_path = models.CharField(max_length=200)
     identifier = models.CharField(max_length=200, unique=True)
-    file_characteristics = JSONField(blank=True, null=True)
+    file_characteristics = JSONField()
     open_access = models.BooleanField(default=False)
     replication_path = models.CharField(max_length=200, blank=True, null=True)
 
     indexes = [
         models.Index(fields=['identifier']),
     ]
+
+    objects = FileManager()
