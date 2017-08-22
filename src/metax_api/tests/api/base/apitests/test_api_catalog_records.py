@@ -370,10 +370,9 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_update_catalog_record_error_required_fields(self):
         """
-        Field 'access_group' is missing, which should result in an error, since PUT
+        Field 'research_dataset' is missing, which should result in an error, since PUT
         replaces an object and requires all 'required' fields to be present.
         """
-        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
         self.test_new_data.pop('research_dataset')
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
 

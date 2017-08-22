@@ -95,6 +95,14 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.test_new_data = self._get_new_test_data()
         self.second_test_new_data = self._get_second_new_test_data()
 
+    #
+    #
+    #
+    # create apis
+    #
+    #
+    #
+
     def test_create_file(self):
         newly_created_file_name = 'newly_created_file_name'
         self.test_new_data['file_name'] = newly_created_file_name
@@ -131,6 +139,22 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('file_characteristics' in response.data.keys(), True, 'The error should concern the field file_characteristics')
         self.assertEqual('field: metadata_modified' in response.data['file_characteristics'][0], True, 'The error should contain the name of the erroneous field')
 
+    def test_create_file_dont_allow_file_storage_fields_update(self):
+        self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
+        original_title = self.test_new_data['file_storage']['file_storage_json']['title']
+        self.test_new_data['file_storage']['file_storage_json']['title'] = 'new title'
+
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['file_storage']['file_storage_json']['title'], original_title)
+        file_storage = FileStorage.objects.get(pk=response.data['file_storage']['id'])
+        self.assertEqual(file_storage.file_storage_json['title'], original_title)
+
+    #
+    # create list operations
+    #
+
     def test_create_file_list(self):
         newly_created_file_name = 'newly_created_file_name'
         self.test_new_data['file_name'] = newly_created_file_name
@@ -144,18 +168,6 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('object' in response.data['success'][0].keys(), True)
         self.assertEqual(len(response.data['success']), 2)
         self.assertEqual(len(response.data['failed']), 0)
-
-    def test_create_file_dont_allow_file_storage_fields_update(self):
-        self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
-        original_title = self.test_new_data['file_storage']['file_storage_json']['title']
-        self.test_new_data['file_storage']['file_storage_json']['title'] = 'new title'
-
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['file_storage']['file_storage_json']['title'], original_title)
-        file_storage = FileStorage.objects.get(pk=response.data['file_storage']['id'])
-        self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
     def test_create_file_list_error_one_fails(self):
         newly_created_file_name = 'newly_created_file_name'
@@ -204,6 +216,14 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
 
+    #
+    #
+    #
+    # update apis
+    #
+    #
+    #
+
     def test_update_file(self):
         response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -243,6 +263,98 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
     def test_update_file_not_found(self):
         response = self.client.put('/rest/files/doesnotexist', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    #
+    # update list operations PUT
+    #
+
+    def test_file_update_list(self):
+        new_access_group = 'changed-access-group'
+        new_access_group_2 = 'changed-access-group-2'
+        self.test_new_data['id'] = 1
+        self.test_new_data['access_group'] = new_access_group
+
+        self.second_test_new_data['id'] = 2
+        self.second_test_new_data['access_group'] = new_access_group_2
+
+        response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(response.data, {}, 'response.data should be empty object, since all operations succeeded')
+
+        updated_file = File.objects.get(pk=1)
+        self.assertEqual(updated_file.access_group, new_access_group, 'access_group did not update')
+
+    def test_file_update_list_error_one_fails(self):
+        new_access_group = 'changed-access-group'
+        self.test_new_data['id'] = 1
+        self.test_new_data['access_group'] = new_access_group
+
+        self.second_test_new_data['id'] = 2
+        # cant be null - should fail
+        self.second_test_new_data['file_characteristics'] = None
+
+        response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
+        self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
+        self.assertEqual('file_characteristics' in response.data['failed'][0]['errors'], True, 'error should be about file_characteristics missing')
+
+        updated_file = File.objects.get(pk=1)
+        self.assertEqual(updated_file.access_group, new_access_group, 'access_group did not update for first item')
+
+    def test_file_update_list_error_key_not_found(self):
+        new_access_group = 'changed-access-group'
+        new_access_group_2 = 'changed-access-group-2'
+        self.test_new_data['id'] = 1
+        self.test_new_data['access_group'] = new_access_group
+
+        # has no lookup key - should fail
+        self.second_test_new_data.pop('id', False)
+        self.second_test_new_data.pop('identifier')
+        self.second_test_new_data['access_group'] = new_access_group_2
+
+        response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
+        self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
+        error_msg_of_failed_row = response.data['failed'][0]['errors']['detail'][0]
+        self.assertEqual('identifying keys' in error_msg_of_failed_row, True, 'error should be about identifying keys missing')
+
+        updated_file = File.objects.get(pk=1)
+        self.assertEqual(updated_file.access_group, new_access_group, 'access_group did not update for first item')
+
+    #
+    # update list operations PATCH
+    #
+
+    def test_file_partial_update_list(self):
+        new_access_group = 'changed-access-group'
+        new_access_group_2 = 'changed-access-group-2'
+
+        test_data = {}
+        test_data['id'] = 1
+        test_data['access_group'] = new_access_group
+
+        second_test_data = {}
+        second_test_data['id'] = 2
+        second_test_data['access_group'] = new_access_group_2
+
+        response = self.client.patch('/rest/files', [test_data, second_test_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('success' in response.data, True, 'response.data should contain list of changed objects')
+        self.assertEqual(len(response.data['success']), 2, 'response.data should contain 2 changed objects')
+        self.assertEqual('file_characteristics' in response.data['success'][0]['object'], True, 'response.data should contain full objects')
+
+        updated_file = File.objects.get(pk=1)
+        self.assertEqual(updated_file.access_group, new_access_group, 'access_group did not update')
+
+    #
+    #
+    #
+    # delete apis
+    #
+    #
+    #
 
     def test_delete_file(self):
         url = '/rest/files/%s' % self.identifier
@@ -294,8 +406,8 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "checksum_value": "habeebit",
             "access_group": "my group",
-            "identifier": None,
-            "download_url": "http://some.url.csc.fi/0000000001",
+            "identifier": "urn:nbn:fi:csc-ida201401200000000002",
+            "download_url": "http://some.url.csc.fi/0000000002",
             "file_name": "second_new_file_name",
             "file_format": "html/text",
             "file_path": "/some/path/",
