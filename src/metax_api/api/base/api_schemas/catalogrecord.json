@@ -19,33 +19,17 @@
                     "minItems":1,
                     "maxItems":1
                 },
-                "created_by_api":{
-                    "title":"Date Created",
-                    "description":"Date of creation of the resource. Can't be updated once set.",
+                "contract":{
+                    "title":"Contract",
+                    "description":"Contract identifier or embedded contract object",
                     "maxItems":1,
-                    "type":"string",
-                    "format":"date-time",
-                    "readonly": true
-                },
-                "modified_by_api":{
-                    "title":"Date Modified",
-                    "description":"Date on which the resource was changed.",
-                    "maxItems":1,
-                    "type":"string",
-                    "format":"date-time",
-                    "readonly": true
+                    "type":["object", "integer", "string"]
                 },
                 "research_dataset":{
                     "title":"Primary topic",
                     "schema": "http://iow.csc.fi/model/mrd/ResearchDataset/",
                     "description":"Dataset described by this metadata record.",
                     "type":"object"
-                },
-                "contract":{
-                    "title":"Contract",
-                    "description":"Contract identifier or embedded contract object",
-                    "maxItems":1,
-                    "type":["object", "integer", "string"]
                 },
                 "preservation_state":{
                     "title":"Preservation state",
@@ -64,14 +48,6 @@
                     "default": 0,
                     "maxItems":1,
                     "type":"integer"
-                },
-                "mets_object_identifier":{
-                    "title":"Mets object identifier",
-                    "description":"PID in mid/longterm preservation",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
                 },
                 "preservation_description":{
                     "title":"Preservation system description",
@@ -92,21 +68,45 @@
                     "type":"string",
                     "format":"date-time"
                 },
+                "mets_object_identifier":{
+                    "title":"Mets object identifier",
+                    "description":"PID in mid/longterm preservation",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    }
+                },
                 "dataset_group_edit":{
                     "title":"Dataset group edit",
                     "description":"Group allowed to edit this record",
                     "maxItems":1,
                     "type":"string"
                 },
-                "created_by_user_id":{
-                    "title":"Created by user id",
-                    "description":"User id of the person who created this record. Can't be updated once set.",
+                "modified_by_api":{
+                    "title":"Date Modified",
+                    "description":"Date on which the resource was changed.",
                     "maxItems":1,
-                    "type":"integer"
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
                 },
                 "modified_by_user_id":{
                     "title":"Modified by user id",
                     "description":"User id of the person who last edited this record",
+                    "maxItems":1,
+                    "type":"integer"
+                },
+                "created_by_api":{
+                    "title":"Date Created",
+                    "description":"Date of creation of the resource. Can't be updated once set.",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "created_by_user_id":{
+                    "title":"Created by user id",
+                    "description":"User id of the person who created this record. Can't be updated once set.",
                     "maxItems":1,
                     "type":"integer"
                 }

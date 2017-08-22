@@ -367,12 +367,14 @@ paths:
       responses:
         "200":
           description: successful operation, returns a list of datasets containing full dataset objects including their dataset catalog and contract information. when using query parameters, search result can be an empty list.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset API
     post:
       summary: create new dataset metadata
       description: |
-        # Identifiers inside field research_dataset
+        # research_dataset identifiers
         The field <b>urn_identifier</b> is always generated for the user. <b>preferred_identifier</b> can be provided by the user, and if omitted, the value of <b>urn_identifier</b> is copied to it.
       consumes:
         - application/json
@@ -382,7 +384,7 @@ paths:
         description: "Object or a list of objects to create."
         required: true
         schema:
-          $ref: "https://raw.githubusercontent.com/CSCfi/metax-api/CSCMETAX-139-update-swagger-docs/swagger/schemas/catalogrecord.json#/definitions/CatalogRecord"
+          $ref: '#/definitions/CatalogRecord'
       responses:
         '201':
           description: Returns the created object, or if a list was given, a list of objects and errors.
@@ -402,13 +404,24 @@ paths:
       responses:
         '200':
           description: return dataset metadata
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         '404':
           description: not found
       tags:
         - Dataset API
     put:
       summary: replace dataset metadata
+      description: |
+        # research_dataset identifiers
+        The field <b>urn_identifier</b> is read only.
       parameters:
+        - in: "body"
+          name: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
@@ -423,7 +436,16 @@ paths:
         - Dataset API
     patch:
       summary: replace part of dataset metadata
+      description: |
+        # research_dataset identifiers
+        The field <b>urn_identifier</b> is read only.
       parameters:
+        - in: "body"
+          name: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
@@ -432,6 +454,8 @@ paths:
       responses:
         '200':
           description: successful operation, full content returned
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         '400':
           description: parameters contained errors, response includes details
       tags:
@@ -667,3 +691,6 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Contract API
+definitions:
+  CatalogRecord:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
