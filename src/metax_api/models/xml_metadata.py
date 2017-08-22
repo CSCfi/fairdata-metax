@@ -10,7 +10,6 @@ class XmlMetadata(Common):
     file_id = models.ForeignKey(File, db_column='file_id')
 
     class Meta:
-        db_table = 'metax_api_xml_metadata'
         unique_together = ('namespace', 'file_id')
 
     indexes = [

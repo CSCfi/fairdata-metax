@@ -130,6 +130,12 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(deleted_contract.removed, True, 'Deleted contract should be marked removed in the db')
 
     def test_delete_contract_catalog_records_are_marked_removed(self):
+        # add two new records to contract
+        new_catalog_record = self._get_new_catalog_record_test_data()
+        new_catalog_record['contract'] = self.pk
+        self.client.post('/rest/datasets', new_catalog_record, format="json")
+        self.client.post('/rest/datasets', new_catalog_record, format="json")
+
         self.client.delete('/rest/contracts/%s' % self.pk)
         contract = Contract.objects_unfiltered.get(pk=self.pk)
         related_crs = contract.catalogrecord_set(manager='objects_unfiltered').all()
@@ -163,9 +169,9 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                 }],
                 "organization": {
                     "organization_identifier": "1234567abc",
-                    "name": ["Mysterious organization"]
+                    "name": "Mysterious organization"
                 },
-                "service": [{
+                "related_service": [{
                     "identifier": "local:service:id",
                     "name": "Name of Service"
                 }],
@@ -191,9 +197,9 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                 }],
                 "organization": {
                     "organization_identifier": "1234567abc",
-                    "name": ["Mysterious organization"]
+                    "name": "Mysterious organization"
                 },
-                "service": [{
+                "related_service": [{
                     "identifier": "local:service:id",
                     "name": "Name of Service"
                 }],
@@ -206,12 +212,9 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
     def _get_new_catalog_record_test_data(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         return {
-            "contract": "update me",
             "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
             "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
             "research_dataset": {
-                "urn_identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
-                "preferred_identifier": "http://urn.fi/urn:nbn:fi:preferred1",
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
                     "This version contains changes to x and y."

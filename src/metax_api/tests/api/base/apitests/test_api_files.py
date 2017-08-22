@@ -14,20 +14,24 @@ class FileApiReadTestV1(APITestCase, TestClassUtils):
     """
     file_field_names = (
         'id',
-        'access_group',
         'byte_size',
         'checksum_algorithm',
         'checksum_checked',
         'checksum_value',
         'download_url',
+        'file_deleted',
+        'file_frozen',
         'file_format',
         'file_modified',
         'file_name',
-        'file_storage',
         'file_path',
+        'file_storage',
+        'file_uploaded',
         'identifier',
         'file_characteristics',
+        'file_characteristics_extension',
         'open_access',
+        'project_identifier',
         'replication_path',
         'modified_by_user_id',
         'modified_by_api',
@@ -231,14 +235,14 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_update_file_error_required_fields(self):
         """
-        Field 'access_group' is missing, which should result in an error, since PUT
+        Field 'project_identifier' is missing, which should result in an error, since PUT
         replaces an object and requires all 'required' fields to be present.
         """
-        self.test_new_data.pop('access_group')
+        self.test_new_data.pop('project_identifier')
         response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('access_group' in response.data.keys(), True, 'Error for field \'access_group\' is missing from response.data')
+        self.assertEqual('project_identifier' in response.data.keys(), True, 'Error for field \'project_identifier\' is missing from response.data')
 
     def test_update_file_partial(self):
         new_data = {
@@ -269,25 +273,25 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
     #
 
     def test_file_update_list(self):
-        new_access_group = 'changed-access-group'
-        new_access_group_2 = 'changed-access-group-2'
+        new_project_identifier = 'changed-project-identifier'
+        new_project_identifier_2 = 'changed-project-identifier-2'
         self.test_new_data['id'] = 1
-        self.test_new_data['access_group'] = new_access_group
+        self.test_new_data['project_identifier'] = new_project_identifier
 
         self.second_test_new_data['id'] = 2
-        self.second_test_new_data['access_group'] = new_access_group_2
+        self.second_test_new_data['project_identifier'] = new_project_identifier_2
 
         response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertEqual(response.data, {}, 'response.data should be empty object, since all operations succeeded')
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.access_group, new_access_group, 'access_group did not update')
+        self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update')
 
     def test_file_update_list_error_one_fails(self):
-        new_access_group = 'changed-access-group'
+        new_project_identifier = 'changed-project-identifier'
         self.test_new_data['id'] = 1
-        self.test_new_data['access_group'] = new_access_group
+        self.test_new_data['project_identifier'] = new_project_identifier
 
         self.second_test_new_data['id'] = 2
         # cant be null - should fail
@@ -300,18 +304,18 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('file_characteristics' in response.data['failed'][0]['errors'], True, 'error should be about file_characteristics missing')
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.access_group, new_access_group, 'access_group did not update for first item')
+        self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update for first item')
 
     def test_file_update_list_error_key_not_found(self):
-        new_access_group = 'changed-access-group'
-        new_access_group_2 = 'changed-access-group-2'
+        new_project_identifier = 'changed-project-identifier'
+        new_project_identifier_2 = 'changed-project-identifier-2'
         self.test_new_data['id'] = 1
-        self.test_new_data['access_group'] = new_access_group
+        self.test_new_data['project_identifier'] = new_project_identifier
 
         # has no lookup key - should fail
         self.second_test_new_data.pop('id', False)
         self.second_test_new_data.pop('identifier')
-        self.second_test_new_data['access_group'] = new_access_group_2
+        self.second_test_new_data['project_identifier'] = new_project_identifier_2
 
         response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -321,23 +325,23 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('identifying keys' in error_msg_of_failed_row, True, 'error should be about identifying keys missing')
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.access_group, new_access_group, 'access_group did not update for first item')
+        self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update for first item')
 
     #
     # update list operations PATCH
     #
 
     def test_file_partial_update_list(self):
-        new_access_group = 'changed-access-group'
-        new_access_group_2 = 'changed-access-group-2'
+        new_project_identifier = 'changed-project-identifier'
+        new_project_identifier_2 = 'changed-project-identifier-2'
 
         test_data = {}
         test_data['id'] = 1
-        test_data['access_group'] = new_access_group
+        test_data['project_identifier'] = new_project_identifier
 
         second_test_data = {}
         second_test_data['id'] = 2
-        second_test_data['access_group'] = new_access_group_2
+        second_test_data['project_identifier'] = new_project_identifier_2
 
         response = self.client.patch('/rest/files', [test_data, second_test_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -346,7 +350,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('file_characteristics' in response.data['success'][0]['object'], True, 'response.data should contain full objects')
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.access_group, new_access_group, 'access_group did not update')
+        self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update')
 
     #
     #
@@ -377,7 +381,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "checksum_value": "habeebit",
-            "access_group": "my group",
+            "project_identifier": "my group",
             "identifier": "urn:nbn:fi:csc-ida201401200000000001",
             "download_url": "http://some.url.csc.fi/0000000001",
             "file_name": "new_file_name",
@@ -405,9 +409,9 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "checksum_value": "habeebit",
-            "access_group": "my group",
-            "identifier": "urn:nbn:fi:csc-ida201401200000000002",
-            "download_url": "http://some.url.csc.fi/0000000002",
+            "project_identifier": "my group",
+            "identifier": None,
+            "download_url": "http://some.url.csc.fi/0000000001",
             "file_name": "second_new_file_name",
             "file_format": "html/text",
             "file_path": "/some/path/",

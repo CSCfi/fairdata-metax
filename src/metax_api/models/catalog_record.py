@@ -61,7 +61,7 @@ class CatalogRecord(Common):
 
     research_dataset = JSONField()
     dataset_catalog = models.ForeignKey(DatasetCatalog)
-    contract = models.ForeignKey(Contract, on_delete=models.DO_NOTHING)
+    contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
     files = models.ManyToManyField(File)
     preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')

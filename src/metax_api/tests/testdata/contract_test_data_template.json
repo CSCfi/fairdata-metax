@@ -13,9 +13,9 @@
         }],
         "organization": {
             "organization_identifier": "1234567abc",
-            "name": ["Mysterious organization"]
+            "name": "Mysterious organization"
         },
-        "service": [{
+        "related_service": [{
             "identifier": "local:service:id",
             "name": "Name of Service"
         }],

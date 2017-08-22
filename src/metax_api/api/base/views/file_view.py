@@ -1,12 +1,11 @@
-from django.conf import settings
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
-from metax_api.models import File
+from metax_api.models import File, XmlMetadata
 from .common_view import CommonViewSet
-from ..serializers import FileSerializer, FileDebugSerializer, XmlMetadataSerializer
+from ..serializers import FileSerializer, XmlMetadataSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -42,20 +41,12 @@ class FileViewSet(CommonViewSet):
         """
         return super(FileViewSet, self).get_object()
 
-    def get_serializer_class(self, *args, **kwargs):
-        if settings.DEBUG:
-            debug = self.request.query_params.get('debug', False)
-            if debug and debug == 'true':
-                _logger.debug('get_serializer_class(): returning FileDebugSerializer')
-                return FileDebugSerializer
-        return FileSerializer
-
     @detail_route(methods=['get'], url_path="xml")
     def xml_get(self, request, pk=None):
         file = self.get_object()
         try:
             xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params.get('namespace', False))
-        except Exception as e:
+        except XmlMetadata.DoesNotExist:
             raise Http404
 
         # return Response(data=xml_metadata.xml, status=status.HTTP_200_OK, content_type='text/xml')
@@ -67,10 +58,11 @@ class FileViewSet(CommonViewSet):
         self._update_common_info(request)
         try:
             xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params.get('namespace', False))
-            request.data['id'] = xml_metadata.id
-        except Exception as e:
+        except XmlMetadata.DoesNotExist:
             # not found - create for the first time
             pass
+        else:
+            request.data['id'] = xml_metadata.id
         request.data['file_id'] = file.id
         serializer = XmlMetadataSerializer(request.data)
         serializer.is_valid()

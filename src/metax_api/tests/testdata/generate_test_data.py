@@ -332,8 +332,6 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
     total_time_elapsed = 0
     files_start_idx = 0
     dataset_catalog_id = dataset_catalogs_list[0]['pk']
-    contracts_added = 0
-    contract_id = contract_list[0]['pk']
 
     for i in range(1, catalog_record_max_rows + 1):
 
@@ -369,15 +367,6 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
 
             new['fields']['research_dataset']['files'] = files
             files_start_idx += files_per_dataset
-
-            # add contract
-
-            new['fields']['contract'] = contract_id
-            contracts_added += 1
-
-            if contracts_added >= catalog_records_per_contract:
-                contracts_added = 0
-                contract_id += 1
 
             if validate_json or i == 1:
                 json_validate(new['fields']['research_dataset'], json_schema)
@@ -435,6 +424,10 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
     # set different owner
     for i in range(6, len(test_data_list)):
         test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Jarski", "identifier": "id:of:curator:jarski" }]
+
+    # set contracts for last few datasets
+    for i in range(6, len(test_data_list)):
+        test_data_list[i]['fields']['contract'] = 1
 
     # if preservation_state is other than 0, means it has been modified at some point,
     # so set timestamp
