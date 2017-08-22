@@ -72,10 +72,6 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         call_command('loaddata', test_data_file_path, verbosity=0)
         super(CatalogRecordManagerTests, cls).setUpClass()
 
-    def setUp(self):
-        dataset_from_test_data = self._get_object_from_test_data('catalogrecord')
-        self.urn_identifier = dataset_from_test_data['research_dataset']['urn_identifier']
-
     def test_get_using_dict_with_id(self):
         row = { 'id': 1, 'other_stuff': 'doesnt matter' }
         try:
