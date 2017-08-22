@@ -416,19 +416,22 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
         if percent % 10 == 0:
             print("%d%%%s" % (percent, '' if percent == 100.0 else '...'))
 
-    # set some preservation states and owners
+    # set some preservation_state dependent values
     for i in range(1, 6):
+
         test_data_list[i]['fields']['preservation_state'] = i
+
+        if i > 0:
+            test_data_list[i]['fields']['contract'] = 1
+
+        if 3 <= i <= 4:
+            test_data_list[i]['fields']['mets_object_identifier'] = ["a", "b", "c"]
+
         test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Rahikainen", "identifier": "id:of:curator:rahikainen" }]
 
     # set different owner
     for i in range(6, len(test_data_list)):
         test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Jarski", "identifier": "id:of:curator:jarski" }]
-
-    # set contracts for last few datasets
-    for i in range(6, len(test_data_list)):
-        test_data_list[i]['fields']['preservation_state'] = 1
-        test_data_list[i]['fields']['contract'] = 1
 
     # if preservation_state is other than 0, means it has been modified at some point,
     # so set timestamp
