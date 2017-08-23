@@ -6,7 +6,7 @@ from django.db import models
 
 from .common import Common
 from .file import File
-from .dataset_catalog import DatasetCatalog
+from .data_catalog import DataCatalog
 from .contract import Contract
 
 
@@ -39,7 +39,7 @@ class CatalogRecord(Common):
     READY_STATUS_REMOVED = 'Removed'
 
     research_dataset = JSONField()
-    dataset_catalog = models.ForeignKey(DatasetCatalog)
+    data_catalog = models.ForeignKey(DataCatalog)
     contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
     files = models.ManyToManyField(File)
     preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')

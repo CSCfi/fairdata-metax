@@ -213,7 +213,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         return {
             "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
-            "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
+            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
             "research_dataset": {
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [

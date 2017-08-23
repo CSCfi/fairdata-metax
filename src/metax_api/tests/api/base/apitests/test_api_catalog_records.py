@@ -4,7 +4,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import CatalogRecord, DatasetCatalog
+from metax_api.models import CatalogRecord, DataCatalog
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -16,7 +16,7 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
     file_field_names = (
         'id',
         'contract',
-        'dataset_catalog',
+        'data_catalog',
         'research_dataset',
         'preservation_state',
         'preservation_state_modified',
@@ -267,17 +267,17 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data['success']), 2)
         self.assertEqual(len(response.data['failed']), 0)
 
-    def test_create_catalog_record_dont_allow_dataset_catalog_fields_update(self):
+    def test_create_catalog_record_dont_allow_data_catalog_fields_update(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
-        original_title = self.test_new_data['dataset_catalog']['catalog_json']['title'][0]['en']
-        self.test_new_data['dataset_catalog']['catalog_json']['title'][0]['en'] = 'new title'
+        original_title = self.test_new_data['data_catalog']['catalog_json']['title'][0]['en']
+        self.test_new_data['data_catalog']['catalog_json']['title'][0]['en'] = 'new title'
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['dataset_catalog']['catalog_json']['title'][0]['en'], original_title)
-        dataset_catalog = DatasetCatalog.objects.get(pk=response.data['dataset_catalog']['id'])
-        self.assertEqual(dataset_catalog.catalog_json['title'][0]['en'], original_title)
+        self.assertEqual(response.data['data_catalog']['catalog_json']['title'][0]['en'], original_title)
+        data_catalog = DataCatalog.objects.get(pk=response.data['data_catalog']['id'])
+        self.assertEqual(data_catalog.catalog_json['title'][0]['en'], original_title)
 
     def test_create_catalog_record_list_error_one_fails(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
@@ -309,9 +309,9 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('research_dataset' in response.data['failed'][0]['errors'], True, 'The error should have been about an already existing identifier')
 
     def test_create_catalog_record_list_error_all_fail(self):
-        # dataset catalog is a required field, should fail
-        self.test_new_data['dataset_catalog'] = None
-        self.second_test_new_data['dataset_catalog'] = None
+        # data catalog is a required field, should fail
+        self.test_new_data['data_catalog'] = None
+        self.second_test_new_data['data_catalog'] = None
 
         response = self.client.post('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -347,25 +347,25 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('research_dataset' in response.data.keys(), True, 'Error for field \'research_dataset\' is missing from response.data')
 
     def test_update_catalog_record_partial(self):
-        new_dataset_catalog = self._get_object_from_test_data('datasetcatalog', requested_index=1)['id']
+        new_data_catalog = self._get_object_from_test_data('datacatalog', requested_index=1)['id']
         new_data = {
-            "dataset_catalog": new_dataset_catalog,
+            "data_catalog": new_data_catalog,
         }
         response = self.client.patch('/rest/datasets/%s' % self.urn_identifier, new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('research_dataset' in response.data.keys(), True, 'PATCH operation should return full content')
-        self.assertEqual(response.data['dataset_catalog']['id'], new_dataset_catalog, 'Field dataset_catalog was not updated')
+        self.assertEqual(response.data['data_catalog']['id'], new_data_catalog, 'Field data_catalog was not updated')
 
-    def test_update_catalog_record_dont_allow_dataset_catalog_fields_update(self):
-        original_title = self.test_new_data['dataset_catalog']['catalog_json']['title'][0]['en']
-        self.test_new_data['dataset_catalog']['catalog_json']['title'][0]['en'] = 'new title'
+    def test_update_catalog_record_dont_allow_data_catalog_fields_update(self):
+        original_title = self.test_new_data['data_catalog']['catalog_json']['title'][0]['en']
+        self.test_new_data['data_catalog']['catalog_json']['title'][0]['en'] = 'new title'
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
 
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-        dataset_catalog = DatasetCatalog.objects.get(pk=self.test_new_data['dataset_catalog']['id'])
-        self.assertEqual(dataset_catalog.catalog_json['title'][0]['en'], original_title)
+        data_catalog = DataCatalog.objects.get(pk=self.test_new_data['data_catalog']['id'])
+        self.assertEqual(data_catalog.catalog_json['title'][0]['en'], original_title)
 
     def test_update_catalog_record_not_found(self):
         response = self.client.put('/rest/datasets/doesnotexist', self.test_new_data, format="json")
@@ -552,7 +552,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         return {
             "contract": self._get_object_from_test_data('contract', requested_index=0),
-            "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
+            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
             "research_dataset": {
                 "urn_identifier": "pid:urn:new1",
                 "modified": "2014-01-17T08:19:58Z",
@@ -585,7 +585,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         return {
             "contract": self._get_object_from_test_data('contract', requested_index=0),
-            "dataset_catalog": self._get_object_from_test_data('datasetcatalog', requested_index=0),
+            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
             "research_dataset": {
                 "urn_identifier": "pid:urn:new2",
                 "modified": "2014-01-17T08:19:58Z",

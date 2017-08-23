@@ -279,7 +279,7 @@ paths:
 
 
 # Data Catalog API
-  /datasetcatalogs:
+  /datacatalogs:
     get:
       summary: "list of data catalogs"
       responses:
@@ -298,7 +298,7 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - Data Catalog API
-  /datasetcatalogs/{PID}:
+  /datacatalogs/{PID}:
     get:
       summary: get data catalog metadata
       parameters:
@@ -367,7 +367,7 @@ paths:
           default: 100
       responses:
         "200":
-          description: successful operation, returns a list of datasets containing full dataset objects including their dataset catalog and contract information. when using query parameters, search result can be an empty list.
+          description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
       tags:
         - Dataset API
     post:
