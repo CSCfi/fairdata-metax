@@ -1,4 +1,3 @@
-
 {
     "description":"This is a subset of http://iow.csc.fi/model/att that defines API to describe Research Data Catalogs in METAX",
     "@id":"http://iow.csc.fi/ns/mdc#",

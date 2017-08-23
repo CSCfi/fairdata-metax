@@ -276,6 +276,14 @@
                     "maxItems":1,
                     "type":"string",
                     "format":"date-time"
+                },
+                "open_access":{
+                    "title":"Open access",
+                    "description":"This should be true if data is open and accessible. If attribute is not present it should be interpreted as implicit false.",
+                    "@id":"http://iow.csc.fi/ns/mfs#openaccess",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "maxItems":1,
+                    "type":"boolean"
                 }
             }
         },
