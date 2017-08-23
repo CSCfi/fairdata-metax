@@ -1,7 +1,7 @@
-from metax_api.models import DatasetCatalog
+from metax_api.models import DataCatalog
 from django.http import Http404
 from .common_view import CommonViewSet
-from ..serializers import DatasetCatalogSerializer
+from ..serializers import DataCatalogSerializer
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,33 +10,33 @@ import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
-class DatasetCatalogViewSet(CommonViewSet):
+class DataCatalogViewSet(CommonViewSet):
 
     authentication_classes = ()
     permission_classes = ()
 
     # note: override get_queryset() to get more control
-    queryset = DatasetCatalog.objects.filter(active=True, removed=False)
-    serializer_class = DatasetCatalogSerializer
-    object = DatasetCatalog
+    queryset = DataCatalog.objects.filter(active=True, removed=False)
+    serializer_class = DataCatalogSerializer
+    object = DataCatalog
 
     lookup_field = 'pk'
 
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)
-        super(DatasetCatalogViewSet, self).__init__(*args, **kwargs)
+        super(DataCatalogViewSet, self).__init__(*args, **kwargs)
 
     def get_object(self):
         try:
-            return super(DatasetCatalogViewSet, self).get_object()
+            return super(DataCatalogViewSet, self).get_object()
         except Http404:
             pass
         except Exception:
             raise
 
-        return self._search_using_other_dataset_catalog_identifiers()
+        return self._search_using_other_data_catalog_identifiers()
 
-    def _search_using_other_dataset_catalog_identifiers(self):
+    def _search_using_other_data_catalog_identifiers(self):
         """
         URN-lookup from self.lookup_field failed. Look from catalog json
         identifiers, if there are matches
@@ -52,7 +52,7 @@ class DatasetCatalogViewSet(CommonViewSet):
 
     def _search_from_catalog_json(self, search_json, raise_on_404):
         try:
-            return super(DatasetCatalogViewSet, self).get_object(
+            return super(DataCatalogViewSet, self).get_object(
                 search_params={'catalog_json__contains': search_json})
         except Http404:
             if raise_on_404:
@@ -63,7 +63,7 @@ class DatasetCatalogViewSet(CommonViewSet):
             raise
 
     @detail_route(methods=['get'], url_path="exists")
-    def dataset_catalog_exists(self, request, pk=None):
+    def data_catalog_exists(self, request, pk=None):
         try:
             self.get_object()
         except Exception:

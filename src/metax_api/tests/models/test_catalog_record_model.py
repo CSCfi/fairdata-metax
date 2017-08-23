@@ -15,7 +15,7 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
 
     catalog_record_field_names = (
         'contract',
-        'dataset_catalog',
+        'data_catalog',
         'research_dataset',
         'preservation_state',
         'preservation_state_modified',
