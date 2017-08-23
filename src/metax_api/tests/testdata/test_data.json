@@ -920,11 +920,7 @@
                 1,
                 2
             ],
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
+            "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -981,6 +977,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -988,11 +985,7 @@
                 3,
                 4
             ],
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
+            "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -1049,6 +1042,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1056,11 +1050,7 @@
                 5,
                 6
             ],
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
+            "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -1117,6 +1107,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1185,6 +1176,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1253,6 +1245,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1260,11 +1253,7 @@
                 11,
                 12
             ],
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
+            "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -1321,7 +1310,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1329,11 +1317,7 @@
                 13,
                 14
             ],
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
+            "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -1390,7 +1374,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1398,11 +1381,7 @@
                 15,
                 16
             ],
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
+            "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -1459,7 +1438,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1467,11 +1445,7 @@
                 17,
                 18
             ],
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
+            "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -1528,7 +1502,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "dataset_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -1536,11 +1509,7 @@
                 19,
                 20
             ],
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
+            "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
