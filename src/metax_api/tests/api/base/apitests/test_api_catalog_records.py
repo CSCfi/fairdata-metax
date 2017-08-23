@@ -405,12 +405,13 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_catalog_record_contract_string_identifier(self):
-        cr = CatalogRecord.objects.get(pk=self.pk)
+        cr_id = 2
+        cr = CatalogRecord.objects.get(pk=cr_id)
         old_contract_identifier = cr.contract.contract_json['identifier']
         self.test_new_data['contract'] = 'optional:contract:identifier2'
-        response = self.client.put('/rest/datasets/%d' % self.pk, self.test_new_data, format="json")
+        response = self.client.put('/rest/datasets/%d' % cr_id, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-        cr2 = CatalogRecord.objects.get(pk=self.pk)
+        cr2 = CatalogRecord.objects.get(pk=cr_id)
         new_contract_identifier = cr2.contract.contract_json['identifier']
         self.assertNotEqual(old_contract_identifier, new_contract_identifier, 'Contract identifier should have changed')
 
@@ -586,7 +587,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_catalog_record_contract_is_not_deleted(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=1)
         url = '/rest/datasets/%s' % catalog_record_from_test_data['research_dataset']['urn_identifier']
         self.client.delete(url)
         response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
