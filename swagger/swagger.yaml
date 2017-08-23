@@ -111,7 +111,7 @@ paths:
       responses:
         '201':
           description: Returns the HTTP status for each item and the PIDs of resources that were created
-        '400': 
+        '400':
           description: Invalid list of objects
       tags:
         - File API
@@ -330,6 +330,22 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - Data Catalog API
+  /datasetcatalogs/{PID}/exists:
+    get:
+      summary: indicate whether given data catalog exists
+      parameters:
+        - name: PID
+          in: path
+          description: UUID of the catalog
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return true
+        '404':
+          description: return false
+      tags:
+        - Data Catalog API
 
 
 
@@ -460,7 +476,22 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Dataset API
-
+  /datasets/{PID}/exists:
+    get:
+      summary: indicate whether given dataset exists
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return true
+        '404':
+          description: return false
+      tags:
+        - Dataset API
   /datasets/{PID}/statistics:
     get:
       summary: get statistics for dataset
