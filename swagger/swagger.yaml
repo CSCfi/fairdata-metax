@@ -2,7 +2,6 @@ swagger: '2.0'
 info:
   title: METAX REST API
   version: v1
-  description: A note about POST requests when creating objects. POST requests generally accept both individual objects or a list of objects to create from for bulk creation. The response contains the created object, or in case a list was given, a list of successfully created objects, and a list of errors for the failed ones.
 host: metax.example.org
 schemes:
   - https
@@ -112,7 +111,7 @@ paths:
       responses:
         '201':
           description: Returns the HTTP status for each item and the PIDs of resources that were created
-        '400': 
+        '400':
           description: Invalid list of objects
       tags:
         - File API
@@ -331,6 +330,22 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - Data Catalog API
+  /datasetcatalogs/{PID}/exists:
+    get:
+      summary: indicate whether given data catalog exists
+      parameters:
+        - name: PID
+          in: path
+          description: UUID of the catalog
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return true
+        '404':
+          description: return false
+      tags:
+        - Data Catalog API
 
 
 
@@ -368,15 +383,27 @@ paths:
       responses:
         "200":
           description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset API
     post:
       summary: create new dataset metadata
+      description: |
+        # research_dataset identifiers
+        The field <b>urn_identifier</b> is always generated for the user. <b>preferred_identifier</b> can be provided by the user, and if omitted, the value of <b>urn_identifier</b> is copied to it.
       consumes:
         - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object or a list of objects to create."
+        required: true
+        schema:
+          $ref: '#/definitions/CatalogRecord'
       responses:
         '201':
-          description: new dataset metadata created, returns the created object, or if a list was given, a list of objects
+          description: Returns the created object, or if a list was given, a list of objects and errors.
         '400':
           description: parameters contained errors, response includes details.
       tags:
@@ -393,13 +420,24 @@ paths:
       responses:
         '200':
           description: return dataset metadata
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         '404':
           description: not found
       tags:
         - Dataset API
     put:
       summary: replace dataset metadata
+      description: |
+        # research_dataset identifiers
+        The field <b>urn_identifier</b> is read only.
       parameters:
+        - in: "body"
+          name: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
@@ -414,7 +452,16 @@ paths:
         - Dataset API
     patch:
       summary: replace part of dataset metadata
+      description: |
+        # research_dataset identifiers
+        The field <b>urn_identifier</b> is read only.
       parameters:
+        - in: "body"
+          name: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
@@ -423,11 +470,28 @@ paths:
       responses:
         '200':
           description: successful operation, full content returned
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         '400':
           description: parameters contained errors, response includes details
       tags:
         - Dataset API
-
+  /datasets/{PID}/exists:
+    get:
+      summary: indicate whether given dataset exists
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return true
+        '404':
+          description: return false
+      tags:
+        - Dataset API
   /datasets/{PID}/statistics:
     get:
       summary: get statistics for dataset
@@ -658,3 +722,6 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Contract API
+definitions:
+  CatalogRecord:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
