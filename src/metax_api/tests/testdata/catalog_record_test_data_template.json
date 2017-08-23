@@ -2,7 +2,7 @@
     "dataset_catalog": null,
     "preservation_state": 0,
     "preservation_state_modified": null,
-    "mets_object_identifier": ["a", "b", "c"],
+    "mets_object_identifier": null,
     "dataset_group_edit": "default-dataset-edit-group",
     "research_dataset": {
         "urn_identifier": "http://urn.fi/urn:nbn:fi%s",
