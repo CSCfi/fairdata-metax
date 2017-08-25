@@ -4,6 +4,7 @@ from os import path
 import logging
 
 from rest_framework import status
+from rest_framework.serializers import ValidationError
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -24,6 +25,8 @@ class CommonService():
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):
         """
+        Note: BOTH single and list create
+
         Create objects to database from a list of dicts or a single dict, and return a list
         of created objects or a single object.
 
@@ -31,7 +34,7 @@ class CommonService():
         request: the http request object
         serializer_class: does the actual saving, knows what kind of object is in question
         """
-        cls.update_common_info(request)
+        common_info = { 'created_by_api': datetime.now() }
 
         results = None
 
@@ -51,10 +54,10 @@ class CommonService():
                 except Exception:
                     results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
                 else:
-                    serializer.save()
-                    results['success'].append({ 'object': serializer.data, 'errors': serializer.errors })
+                    serializer.save(**common_info)
+                    results['success'].append({ 'object': serializer.data })
 
-            if len(results['success']):
+            if results['success']:
                 # if even one insert was successful, general status of the request is success
                 http_status = status.HTTP_201_CREATED
             else:
@@ -64,7 +67,7 @@ class CommonService():
         else:
             serializer = serializer_class(data=request.data, **kwargs)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(**common_info)
             http_status = status.HTTP_201_CREATED
             results = serializer.data
 
@@ -78,6 +81,51 @@ class CommonService():
         """
         with open(path.dirname(view_file_location) + '/../schemas/json_schema_%s.json' % model_name, encoding='utf-8') as f:
             return json_load(f)
+
+    @classmethod
+    def update_bulk(cls, request, model_obj, serializer_class, **kwargs):
+        """
+        Note: ONLY list update (PUT and PATCH)
+
+        Update objects to database from a list of dicts. Bulk update operations requires
+        that the payload dict contains a field that can be used to identify the target row
+        that is being updated, since a PUT or PATCH to i.e. /datasets or /files will not have
+        an identifier in the url.
+
+        params:
+        request: the http request object
+        model_obj: the model, used to search the instance being updated
+        serializer_class: does the actual saving
+
+        """
+        if not isinstance(request.data, list):
+            raise ValidationError('request.data is not a list')
+
+        common_info = { 'modified_by_api': datetime.now() }
+
+        results = { 'success': [], 'failed': []}
+
+        for row in request.data:
+
+            instance = cls._get_object_for_update(model_obj, row, results)
+
+            if not instance:
+                continue
+
+            # note: kwargs will contain kw 'partial', when executed from PATCH
+            serializer = serializer_class(instance, data=row, **kwargs)
+
+            try:
+                serializer.is_valid(raise_exception=True)
+            except Exception:
+                results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+            else:
+                serializer.save(**common_info)
+                results['success'].append({ 'object': serializer.data })
+
+        http_status = cls._get_http_status_for_result(results, kwargs.get('partial', False))
+
+        return results, http_status
 
     @staticmethod
     def update_common_info(request):
@@ -108,10 +156,37 @@ class CommonService():
         else:
             pass
 
-        if common_info:
+        request.data.update(common_info)
 
-            if isinstance(request.data, list):
-                for row in request.data:
-                    row.update(common_info)
+    @staticmethod
+    def _get_http_status_for_result(results, partial_update):
+        if results['success']:
+            # if even one operation was successful, general status of the request is success
+            if partial_update:
+                # PATCH will contain full updated object
+                return status.HTTP_200_OK
             else:
-                request.data.update(common_info)
+                # PUT
+                if results['failed']:
+                    # some were ok, but since some failed, cant return 204 no_content
+                    return status.HTTP_200_OK
+                else:
+                    # to stay consistent with a single PUT operation, fully successful update
+                    # will return no data to the client
+                    return status.HTTP_204_NO_CONTENT
+        else:
+            # only if all rows have failed, return a general failure for the whole request
+            return status.HTTP_400_BAD_REQUEST
+
+    @staticmethod
+    def _get_object_for_update(model_obj, row, results):
+        """
+        Find the target object being updated using a row from the request payload
+        """
+        try:
+            return model_obj.objects.get(using_dict=row)
+        except model_obj.DoesNotExist:
+            results['failed'].append({ 'object': row, 'errors': { 'detail': ['object not found'] }})
+        except ValidationError as e:
+            results['failed'].append({ 'object': row, 'errors': { 'detail': e.detail } })
+        return None

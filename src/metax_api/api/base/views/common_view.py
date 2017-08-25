@@ -3,7 +3,6 @@ from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-
 from metax_api.services import CommonService
 from metax_api.utils import RabbitMQ, RedisSentinelCache
 
@@ -99,10 +98,43 @@ class CommonViewSet(ModelViewSet):
         res.status_code = status.HTTP_204_NO_CONTENT
         return res
 
+    def update_bulk(self, request, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        results, http_status = CommonService.update_bulk(request, self.object, serializer_class, **kwargs)
+
+        # PUT generally doesnt return any of the updated resources, so not returning
+        # them in the list update either. http_status is set accordingly inside update_bulk,
+        # the method only returns data because we need to place it in self._updated_request_data
+
+        if results['success']:
+            self._updated_request_data = [ r['object'] for r in results['success'] ]
+            results['success'] = []
+        if not results['failed']:
+            results = {}
+
+        return Response(data=results, status=http_status)
+
     def partial_update(self, request, *args, **kwargs):
         CommonService.update_common_info(request)
         kwargs['partial'] = True
-        return super(CommonViewSet, self).update(request, *args, **kwargs)
+        res = super(CommonViewSet, self).update(request, *args, **kwargs)
+
+        # for rabbitmq, in case somebody wants to publish it
+        self._updated_request_data = res.data
+
+        return res
+
+    def partial_update_bulk(self, request, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        kwargs['partial'] = True
+        results, http_status = CommonService.update_bulk(request, self.object, serializer_class, **kwargs)
+
+        if results['success']:
+            self._updated_request_data = [ r['object'] for r in results['success'] ]
+
+        return Response(data=results, status=http_status)
 
     def create(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
@@ -113,6 +145,10 @@ class CommonViewSet(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         CommonService.update_common_info(request)
         return super(CommonViewSet, self).destroy(request, *args, **kwargs)
+
+    def destroy_bulk(self, request, *args, **kwargs):
+        # not allowed... for now
+        return Response({}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def _publish_message(self, body, routing_key='', exchange=''):
         rabbitmq = RabbitMQ()

@@ -47,7 +47,8 @@ class _RabbitMQ():
         """
         Publish a message to an exchange, which might or might not have queues bound to it.
 
-        body: body of the message
+        body: body of the message. can be a list of messages, in which case each message is published
+              individually.
         routing_key: in direct-type exchanges, publish message to a specific route, which
                      clients can filter to in their queues. a required parameter for direct-type
                      exchanges (throws exception if missing).
@@ -62,10 +63,16 @@ class _RabbitMQ():
         if persistent:
             additional_args['properties'] = pika.BasicProperties(delivery_mode=2)
 
-        if isinstance(body, dict):
-            body = json_dumps(body)
+        if isinstance(body, list):
+            messages = body
+        else:
+            messages = [body]
 
-        self._channel.basic_publish(body=body, routing_key=routing_key, exchange=exchange, **additional_args)
+        for message in messages:
+            if isinstance(message, dict):
+                message = json_dumps(message)
+
+            self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
 
     def get_channel(self):
         return self._channel

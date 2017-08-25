@@ -147,6 +147,10 @@ class CatalogRecordSerializer(ModelSerializer):
             return
 
         found_obj = self._get_object(field_name, value[field_name])
+
+        if not found_obj:
+            found_obj = self._get_object('urn_identifier', value[field_name])
+
         if found_obj and (self._operation_is_create() or self.instance.id != found_obj.id):
             raise ValidationError(['catalog record with this research_dataset ->> %s already exists.' % field_name])
 
