@@ -34,7 +34,7 @@ class CommonService():
         request: the http request object
         serializer_class: does the actual saving, knows what kind of object is in question
         """
-        cls.update_common_info(request)
+        common_info = { 'created_by_api': datetime.now() }
 
         results = None
 
@@ -54,8 +54,8 @@ class CommonService():
                 except Exception:
                     results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
                 else:
-                    serializer.save()
-                    results['success'].append({ 'object': serializer.data, 'errors': serializer.errors })
+                    serializer.save(**common_info)
+                    results['success'].append({ 'object': serializer.data })
 
             if results['success']:
                 # if even one insert was successful, general status of the request is success
@@ -67,7 +67,7 @@ class CommonService():
         else:
             serializer = serializer_class(data=request.data, **kwargs)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(**common_info)
             http_status = status.HTTP_201_CREATED
             results = serializer.data
 
@@ -101,7 +101,7 @@ class CommonService():
         if not isinstance(request.data, list):
             raise ValidationError('request.data is not a list')
 
-        cls.update_common_info(request)
+        common_info = { 'modified_by_api': datetime.now() }
 
         results = { 'success': [], 'failed': []}
 
@@ -120,8 +120,8 @@ class CommonService():
             except Exception:
                 results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
             else:
-                serializer.save()
-                results['success'].append({ 'object': serializer.data, 'errors': serializer.errors })
+                serializer.save(**common_info)
+                results['success'].append({ 'object': serializer.data })
 
         http_status = cls._get_http_status_for_result(results, kwargs.get('partial', False))
 
@@ -156,13 +156,7 @@ class CommonService():
         else:
             pass
 
-        if common_info:
-
-            if isinstance(request.data, list):
-                for row in request.data:
-                    row.update(common_info)
-            else:
-                request.data.update(common_info)
+        request.data.update(common_info)
 
     @staticmethod
     def _get_http_status_for_result(results, partial_update):
