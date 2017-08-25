@@ -45,7 +45,7 @@ file_max_rows = 20
 # how many filestorage rows to generate
 file_storage_max_rows = 2
 
-dataset_catalog_max_rows = 2
+data_catalog_max_rows = 2
 
 contract_max_rows = 5
 
@@ -211,12 +211,12 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
     return test_data_list
 
 
-def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, contract_list, catalog_record_list, batch_size):
+def save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contract_list, catalog_record_list, batch_size):
     if mode == 'json':
 
         with open('test_data.json', 'w') as f:
             print('dumping test data as json to metax_api/tests/test_data.json...')
-            json_dump(file_storage_list + file_list + dataset_catalogs_list + contract_list + catalog_record_list,
+            json_dump(file_storage_list + file_list + data_catalogs_list + contract_list + catalog_record_list,
                 f, indent=4, sort_keys=True)
 
     elif mode == 'request_list':
@@ -261,32 +261,32 @@ def save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, co
         pass
 
 
-def generate_dataset_catalogs(mode, dataset_catalog_max_rows, validate_json):
+def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
 
-    test_dataset_catalog_list = []
-    json_schema = get_json_schema('datasetcatalog')
+    test_data_catalog_list = []
+    json_schema = get_json_schema('datacatalog')
 
     if mode == 'json':
 
-        with open('dataset_catalog_test_data_template.json') as json_file:
+        with open('data_catalog_test_data_template.json') as json_file:
             row_template = json_load(json_file)
 
         for i in range(1, file_storage_max_rows + 1):
 
             new = {
                 'fields': deepcopy(row_template),
-                'model': "metax_api.datasetcatalog",
+                'model': "metax_api.datacatalog",
                 'pk': i,
             }
             new['fields']['modified_by_api'] = '2017-05-15T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-15T10:07:22.559656Z'
             new['fields']['catalog_json']['identifier'] = "pid:urn:catalog%d" % i
-            test_dataset_catalog_list.append(new)
+            test_data_catalog_list.append(new)
 
             if validate_json or i == 1:
                 json_validate(new['fields']['catalog_json'], json_schema)
 
-    return test_dataset_catalog_list
+    return test_data_catalog_list
 
 
 def generate_contracts(mode, contract_max_rows, validate_json):
@@ -320,7 +320,7 @@ def generate_contracts(mode, contract_max_rows, validate_json):
     return test_contract_list
 
 
-def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, contract_list, file_list, validate_json, url):
+def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list, file_list, validate_json, url):
 
     print('generating catalog records%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
 
@@ -331,7 +331,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
     json_schema = get_json_schema('dataset')
     total_time_elapsed = 0
     files_start_idx = 0
-    dataset_catalog_id = dataset_catalogs_list[0]['pk']
+    data_catalog_id = data_catalogs_list[0]['pk']
 
     for i in range(1, catalog_record_max_rows + 1):
 
@@ -347,7 +347,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_lis
             # for real tho, required to prevent some strange behaving references to old data
             new['fields']['research_dataset'] = row_template['research_dataset'].copy()
 
-            new['fields']['dataset_catalog'] = dataset_catalog_id
+            new['fields']['data_catalog'] = data_catalog_id
             new['fields']['research_dataset']['urn_identifier'] = "pid:urn:cr%d" % i
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
@@ -457,10 +457,10 @@ print('DEBUG: %s' % str(DEBUG))
 
 file_storage_list = generate_file_storages(mode, file_storage_max_rows)
 file_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
-dataset_catalogs_list = generate_dataset_catalogs(mode, dataset_catalog_max_rows, validate_json)
+data_catalogs_list = generate_data_catalogs(mode, data_catalog_max_rows, validate_json)
 contract_list = generate_contracts(mode, contract_max_rows, validate_json)
-catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, dataset_catalogs_list, contract_list, file_list, validate_json, url)
+catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list, file_list, validate_json, url)
 
-save_test_data(mode, file_storage_list, file_list, dataset_catalogs_list, contract_list, catalog_record_list, batch_size)
+save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contract_list, catalog_record_list, batch_size)
 
 print('done')

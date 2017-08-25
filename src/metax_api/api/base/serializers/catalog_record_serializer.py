@@ -1,8 +1,8 @@
 from rest_framework.serializers import ModelSerializer, ValidationError
 
-from metax_api.models import CatalogRecord, DatasetCatalog, File, Contract
+from metax_api.models import CatalogRecord, DataCatalog, File, Contract
 from metax_api.services import CatalogRecordService as CRS
-from .dataset_catalog_serializer import DatasetCatalogSerializer
+from .data_catalog_serializer import DataCatalogSerializer
 from .contract_serializer import ContractSerializer
 from .serializer_utils import validate_json
 
@@ -17,7 +17,7 @@ class CatalogRecordSerializer(ModelSerializer):
         fields = (
             'id',
             'contract',
-            'dataset_catalog',
+            'data_catalog',
             'research_dataset',
             'preservation_state',
             'preservation_state_modified',
@@ -60,8 +60,8 @@ class CatalogRecordSerializer(ModelSerializer):
         }
 
     def is_valid(self, raise_exception=False):
-        if self.initial_data.get('dataset_catalog', False):
-            self.initial_data['dataset_catalog'] = self._get_id_from_related_object('dataset_catalog')
+        if self.initial_data.get('data_catalog', False):
+            self.initial_data['data_catalog'] = self._get_id_from_related_object('data_catalog')
         if self.initial_data.get('contract', False):
             self.initial_data['contract'] = self._get_id_from_related_object('contract')
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
@@ -91,8 +91,8 @@ class CatalogRecordSerializer(ModelSerializer):
         res = super(CatalogRecordSerializer, self).to_representation(data)
         # todo this is an extra query... (albeit qty of storages in db is tiny)
         # get FileStorage dict from context somehow ? self.initial_data ?
-        dscs = DatasetCatalogSerializer(DatasetCatalog.objects.get(id=res['dataset_catalog']))
-        res['dataset_catalog'] = dscs.data
+        dscs = DataCatalogSerializer(DataCatalog.objects.get(id=res['data_catalog']))
+        res['data_catalog'] = dscs.data
 
         if res.get('contract'):
             contract_serializer = ContractSerializer(Contract.objects.get(id=res['contract']))
@@ -184,11 +184,11 @@ class CatalogRecordSerializer(ModelSerializer):
                     id = Contract.objects.get(contract_json__contains={ 'identifier': identifier_value }).id
                 except Contract.DoesNotExist:
                     raise ValidationError({ 'contract': ['contract with identifier %s not found.' % str(identifier_value)]})
-            elif relation_field == 'dataset_catalog':
+            elif relation_field == 'data_catalog':
                 try:
-                    id = DatasetCatalog.objects.get(catalog_json__contains={ 'identifier': identifier_value }).id
-                except DatasetCatalog.DoesNotExist:
-                    raise ValidationError({ 'dataset_catalog': ['dataset catalog with identifier %s not found' % str(identifier_value)]})
+                    id = DataCatalog.objects.get(catalog_json__contains={ 'identifier': identifier_value }).id
+                except DataCatalog.DoesNotExist:
+                    raise ValidationError({ 'data_catalog': ['data catalog with identifier %s not found' % str(identifier_value)]})
             else:
                 pass
         elif isinstance(identifier_value, dict):

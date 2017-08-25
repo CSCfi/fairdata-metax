@@ -685,7 +685,7 @@
             "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
-        "model": "metax_api.datasetcatalog",
+        "model": "metax_api.datacatalog",
         "pk": 1
     },
     {
@@ -728,7 +728,7 @@
             "created_by_api": "2017-05-15T10:07:22.559656Z",
             "modified_by_api": "2017-05-15T10:07:22.559656Z"
         },
-        "model": "metax_api.datasetcatalog",
+        "model": "metax_api.datacatalog",
         "pk": 2
     },
     {
@@ -914,7 +914,7 @@
     {
         "fields": {
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 1,
@@ -979,7 +979,7 @@
         "fields": {
             "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 3,
@@ -1044,7 +1044,7 @@
         "fields": {
             "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 5,
@@ -1109,7 +1109,7 @@
         "fields": {
             "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 7,
@@ -1178,7 +1178,7 @@
         "fields": {
             "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 9,
@@ -1247,7 +1247,7 @@
         "fields": {
             "contract": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 11,
@@ -1311,7 +1311,7 @@
     {
         "fields": {
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 13,
@@ -1375,7 +1375,7 @@
     {
         "fields": {
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 15,
@@ -1439,7 +1439,7 @@
     {
         "fields": {
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 17,
@@ -1503,7 +1503,7 @@
     {
         "fields": {
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "dataset_catalog": 1,
+            "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 19,

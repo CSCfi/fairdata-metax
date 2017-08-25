@@ -97,9 +97,9 @@
             "@id":"http://www.w3.org/ns/dcat#CatalogRecord",
             "description":"A record in a data catalog, describing a single dataset.",
             "properties":{
-                "dataset_catalog":{
-                    "title":"Dataset catalog",
-                    "description":"Catalog identifier or embedded object to dataset_catalog property in embedded object.",
+                "data_catalog":{
+                    "title":"Data catalog",
+                    "description":"Catalog identifier or embedded object to data_catalog property in embedded object.",
                     "@id":"http://iow.csc.fi/ns/mrd#catalogidentifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "minItems":1,
@@ -195,7 +195,7 @@
                 }
             },
             "required":[
-                "dataset_catalog",
+                "data_catalog",
                 "dataset_json"
             ]
         },
