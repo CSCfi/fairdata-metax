@@ -120,8 +120,8 @@ class CommonViewSet(ModelViewSet):
         kwargs['partial'] = True
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
 
-        if res.status_code == status.HTTP_200_OK:
-            self._updated_request_data = res.data
+        # for rabbitmq, in case somebody wants to publish it
+        self._updated_request_data = res.data
 
         return res
 

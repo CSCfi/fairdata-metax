@@ -67,12 +67,29 @@ class DatasetViewSet(CommonViewSet):
 
     def update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update(request, *args, **kwargs)
+        if res.status_code == status.HTTP_204_NO_CONTENT:
+            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        return res
+
+    def update_bulk(self, request, *args, **kwargs):
+        res = super(DatasetViewSet, self).update_bulk(request, *args, **kwargs)
+
+        # successful operation returns no content at all.
+        # however, partially successful operation has to return
+        # the errors, so status code cant be 204
         if res.status_code in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK):
             self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+
         return res
 
     def partial_update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).partial_update(request, *args, **kwargs)
+        if res.status_code == status.HTTP_200_OK:
+            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        return res
+
+    def partial_update_bulk(self, request, *args, **kwargs):
+        res = super(DatasetViewSet, self).partial_update_bulk(request, *args, **kwargs)
         if res.status_code == status.HTTP_200_OK:
             self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
         return res
