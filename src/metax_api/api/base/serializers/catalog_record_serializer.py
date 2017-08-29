@@ -87,16 +87,12 @@ class CatalogRecordSerializer(ModelSerializer):
             instance.save()
         return instance
 
-    def to_representation(self, data):
-        res = super(CatalogRecordSerializer, self).to_representation(data)
-        # todo this is an extra query... (albeit qty of storages in db is tiny)
-        # get FileStorage dict from context somehow ? self.initial_data ?
-        dscs = DataCatalogSerializer(DataCatalog.objects.get(id=res['data_catalog']))
-        res['data_catalog'] = dscs.data
+    def to_representation(self, instance):
+        res = super(CatalogRecordSerializer, self).to_representation(instance)
+        res['data_catalog'] = DataCatalogSerializer(instance.data_catalog).data
 
-        if res.get('contract'):
-            contract_serializer = ContractSerializer(Contract.objects.get(id=res['contract']))
-            res['contract'] = contract_serializer.data
+        if res.get('contract', None):
+            res['contract'] = ContractSerializer(instance.contract).data
 
         return res
 
