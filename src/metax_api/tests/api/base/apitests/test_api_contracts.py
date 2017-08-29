@@ -7,18 +7,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 class ContractApiReadTestV1(APITestCase, TestClassUtils):
 
-    """
-    Fields defined in ContractSerializer
-    """
-    file_field_names = (
-        'id',
-        'contract_json',
-        'modified_by_user_id',
-        'modified_by_api',
-        'created_by_user_id',
-        'created_by_api',
-    )
-
     @classmethod
     def setUpClass(cls):
         """
@@ -47,12 +35,6 @@ class ContractApiReadTestV1(APITestCase, TestClassUtils):
     def test_read_contract_details_not_found(self):
         response = self.client.get('/rest/contracts/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_model_fields_as_expected(self):
-        response = self.client.get('/rest/contracts/%s' % self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        actual_received_fields = [field for field in response.data.keys()]
-        self._test_model_fields_as_expected(self.file_field_names, actual_received_fields)
 
 
 class ContractApiWriteTestV1(APITestCase, TestClassUtils):

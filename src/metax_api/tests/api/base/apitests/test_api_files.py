@@ -9,36 +9,6 @@ d = print
 
 class FileApiReadTestV1(APITestCase, TestClassUtils):
 
-    """
-    Fields defined in FileSerializer
-    """
-    file_field_names = (
-        'id',
-        'byte_size',
-        'checksum_algorithm',
-        'checksum_checked',
-        'checksum_value',
-        'download_url',
-        'file_deleted',
-        'file_frozen',
-        'file_format',
-        'file_modified',
-        'file_name',
-        'file_path',
-        'file_storage',
-        'file_uploaded',
-        'identifier',
-        'file_characteristics',
-        'file_characteristics_extension',
-        'open_access',
-        'project_identifier',
-        'replication_path',
-        'modified_by_user_id',
-        'modified_by_api',
-        'created_by_user_id',
-        'created_by_api',
-    )
-
     @classmethod
     def setUpClass(cls):
         """
@@ -73,12 +43,6 @@ class FileApiReadTestV1(APITestCase, TestClassUtils):
     def test_read_file_details_not_found(self):
         response = self.client.get('/rest/files/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_model_fields_as_expected(self):
-        response = self.client.get('/rest/files/%s' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        actual_received_fields = [field for field in response.data.keys()]
-        self._test_model_fields_as_expected(self.file_field_names, actual_received_fields)
 
 
 class FileApiWriteTestV1(APITestCase, TestClassUtils):

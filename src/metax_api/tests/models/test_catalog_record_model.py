@@ -8,41 +8,8 @@ from metax_api.models import CatalogRecord
 class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
 
     """
-    Verify that at least test data is correct on a basic level, and the model contains
-    the expected fields.
+    Verify that the model at least works on the basic level.
     """
-
-    catalog_record_field_names = (
-        'contract',
-        'data_catalog',
-        'research_dataset',
-        'preservation_state',
-        'preservation_state_modified',
-        'preservation_description',
-        'preservation_reason_description',
-        'mets_object_identifier',
-        'dataset_group_edit',
-        'files',
-        'next_version_id',
-        'next_version_identifier',
-        'previous_version_id',
-        'previous_version_identifier',
-        'version_created',
-
-        # the field through which the object of the next/prev version can be directly accessed
-        'next_version',
-        'previous_version',
-    )
-
-    common_fields_names = (
-        'id',
-        'active',
-        'removed',
-        'modified_by_api',
-        'modified_by_user_id',
-        'created_by_api',
-        'created_by_user_id',
-    )
 
     @classmethod
     def setUpClass(cls):
@@ -59,10 +26,6 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
     def test_get_by_identifier(self):
         catalog_record = CatalogRecord.objects.get(research_dataset__contains={ 'urn_identifier': self.urn_identifier })
         self.assertEqual(catalog_record.urn_identifier, self.urn_identifier)
-
-    def test_model_fields_as_expected(self):
-        actual_model_fields = [ f.name for f in CatalogRecord._meta.get_fields() ]
-        self._test_model_fields_as_expected(self.catalog_record_field_names + self.common_fields_names, actual_model_fields)
 
 
 class CatalogRecordManagerTests(TestCase, TestClassUtils):

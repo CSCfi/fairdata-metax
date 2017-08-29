@@ -10,31 +10,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
 
-    """
-    Fields defined in CatalogRecordSerializer
-    """
-    file_field_names = (
-        'id',
-        'contract',
-        'data_catalog',
-        'research_dataset',
-        'preservation_state',
-        'preservation_state_modified',
-        'preservation_description',
-        'preservation_reason_description',
-        'mets_object_identifier',
-        'dataset_group_edit',
-        'modified_by_user_id',
-        'modified_by_api',
-        'created_by_user_id',
-        'created_by_api',
-        'next_version_id',
-        'next_version_identifier',
-        'previous_version_id',
-        'previous_version_identifier',
-        'version_created',
-    )
-
     @classmethod
     def setUpClass(cls):
         """
@@ -190,12 +165,6 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         response = self.client.get('/rest/datasets/%s/exists' % 'urn:nbn:fi:non_existing_dataset_identifier')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertFalse(response.data)
-
-    def test_model_fields_as_expected(self):
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        actual_received_fields = [field for field in response.data.keys()]
-        self._test_model_fields_as_expected(self.file_field_names, actual_received_fields)
 
 
 class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
