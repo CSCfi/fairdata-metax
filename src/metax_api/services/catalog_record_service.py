@@ -161,7 +161,7 @@ class CatalogRecordService(CommonService):
 
         for project in research_dataset.get('is_output_of', []):
             for organization in project.get('source_organization', []):
-                check_ref_data('org', 'organzation', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
+                check_ref_data('org', 'organization', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
 
         if errors:
             raise Http400(errors)
