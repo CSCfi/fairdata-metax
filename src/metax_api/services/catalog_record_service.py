@@ -149,7 +149,7 @@ class CatalogRecordService(CommonService):
             check_ref_data('ref', 'field_of_science', discipline, 'identifier', 'research_dataset.discipline.identifier')
 
         for remote_resource in research_dataset.get('remote_resources', []):
-            check_ref_data('ref', 'field_of_science', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
+            check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
 
         for language in research_dataset.get('language', []):
             check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
