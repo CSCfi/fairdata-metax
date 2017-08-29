@@ -1,10 +1,10 @@
 {
     "@id":"http://iow.csc.fi/ns/mrd#",
     "title":"Metax Research Datasets",
-    "modified":"Tue, 13 Jun 2017 16:09:27 EEST",
+    "modified":"Mon, 28 Aug 2017 16:33:40 EEST",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
-        "allOf":[
+    "allOf":[
         {
             "$ref":"#/definitions/ResearchDataset"
         }
@@ -98,8 +98,8 @@
             "description":"A record in a data catalog, describing a single dataset.",
             "properties":{
                 "data_catalog":{
-                    "title":"Data catalog",
-                    "description":"Catalog identifier or embedded object to data_catalog property in embedded object.",
+                    "title":"Research data catalog",
+                    "description":"Research Data Catalog identifier or embedded object to data_catalog property in embedded object.",
                     "@id":"http://iow.csc.fi/ns/mrd#catalogidentifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "minItems":1,
@@ -123,8 +123,8 @@
                     "type":"string",
                     "format":"date-time"
                 },
-                "dataset_json":{
-                    "title":"Primary topic",
+                "research_dataset":{
+                    "title":"Research Dataset",
                     "description":"Dataset described by this metadata record.",
                     "@id":"http://xmlns.com/foaf/0.1/primaryTopic",
                     "@type":"@id",
@@ -196,7 +196,7 @@
             },
             "required":[
                 "data_catalog",
-                "dataset_json"
+                "research_dataset"
             ]
         },
         "Checksum":{
@@ -523,6 +523,27 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "maxItems":1,
                     "type":"string"
+                },
+                "polygon":{
+                    "title":"Polygon",
+                    "description":"A polygon is the area enclosed by a point-to-point path for which the starting and ending points are the same. A polygon is expressed as a series of four or more space delimited points where the first and final points are identical.",
+                    "@id":"http://schema.org/polygon",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    }
+                },
+                "subject":{
+                    "title":"Finto place",
+                    "description":"Finto place from reference data",
+                    "@id":"http://purl.org/dc/terms/subject",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 }
             }
         },
@@ -713,10 +734,10 @@
                     "type":"object",
                     "$ref":"#/definitions/Document"
                 },
-                "isPartOf":{
+                "is_part_of":{
                     "title":"Is Part Of",
                     "description":"A related resource in which the described resource is physically or logically included.",
-                    "@id":"http://purl.org/dc/terms/isPartOf",
+                    "@id":"http://purl.org/dc/terms/is_part_of",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/ResearchAgent"
@@ -797,10 +818,9 @@
                 },
                 "modified":{
                     "title":"Dataset modification date",
-                    "description":"Last date when a dataset was produced having the identifiers expressed in this metadata record. An automatic transformation process e.g. between file types is not considered an update of the content.",
+                    "description":"Last date when a dataset metadata was modified.",
                     "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
                     "maxItems":1,
                     "type":"string",
                     "format":"date-time"
@@ -818,7 +838,6 @@
                     "description":"This property contains a description of the differences between this version and a previous version of the Dataset. This property can be repeated for parallel language versions of the version notes.",
                     "@id":"http://www.w3.org/ns/adms#versionNotes",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
                     "type":"array",
                     "items":{
                         "type":"string"
@@ -1044,10 +1063,9 @@
                 },
                 "total_byte_size":{
                     "title":"Total byte size",
-                    "description":"Sum of all distribution byte size",
+                    "description":"Sum of all distribution byte size. Read only field.",
                     "@id":"http://iow.csc.fi/ns/mrd#totalbytesize",
                     "@type":"http://www.w3.org/2001/XMLSchema#decimal",
-                    "minItems":1,
                     "maxItems":1,
                     "type":"number"
                 },
@@ -1074,7 +1092,7 @@
                 },
                 "ready_status":{
                     "title":"Dataset status",
-                    "description":"Status of the catalog record",
+                    "description":"Status of the catalog record. Read only field.",
                     "@id":"http://iow.csc.fi/ns/mrd#readystatus",
                     "enum":[
                         "Unfinished",
@@ -1082,7 +1100,6 @@
                         "Removed"
                     ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
                     "maxItems":1,
                     "type":"string"
                 },
@@ -1102,14 +1119,10 @@
             "required":[
                 "urn_identifier",
                 "preferred_identifier",
-                "modified",
-                "version_notes",
                 "title",
                 "description",
                 "creator",
                 "language",
-                "total_byte_size",
-                "ready_status",
                 "curator"
             ]
         },
@@ -1223,7 +1236,7 @@
             "@id":"http://rdf-vocabulary.ddialliance.org/discovery#Variable",
             "description":"",
             "properties":{
-                "prefLabel":{
+                "pref_label":{
                     "title":"Preferred label",
                     "description":"Preferred label for the variable",
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -1272,7 +1285,7 @@
                 }
             },
             "required":[
-                "prefLabel"
+                "pref_label"
             ]
         },
         "WebResource":{
