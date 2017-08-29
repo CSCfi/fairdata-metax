@@ -1574,7 +1574,7 @@
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
-                "accessRights": {
+                "access_rights": {
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
@@ -1611,36 +1611,11 @@
                                     "en": "Free account of the rights"
                                 }
                             ],
-                            "identifier": "https://license.uri.identifier.fi",
+                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": [
                                 {
                                     "en": "A name given to the resource"
-                                }
-                            ],
-                            "type": [
-                                {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
-                                    "identifier": "licencetypeidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.license.concept/scheme",
-                                            "pref_label": [
-                                                {
-                                                    "en": "The preferred lexical label for a resource"
-                                                }
-                                            ]
-                                        }
-                                    ],
-                                    "pref_label": [
-                                        {
-                                            "en": "pref label for this type"
-                                        }
-                                    ]
                                 }
                             ]
                         }
@@ -1652,7 +1627,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "accessrightsypeidentifier",
+                            "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.accessrights.concept/scheme",
@@ -2153,7 +2128,7 @@
                                 "en": "An account of the resource"
                             }
                         ],
-                        "identifier": "relatedentityidentifier",
+                        "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
                         "title": [
                             {
                                 "en": "A name given to the resource"
@@ -2232,36 +2207,11 @@
                                         "en": "Free account of the rights"
                                     }
                                 ],
-                                "identifier": "licenseidentifier",
+                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": [
                                     {
                                         "en": "A name given to the resource"
-                                    }
-                                ],
-                                "type": [
-                                    {
-                                        "definition": [
-                                            {
-                                                "en": "A statement or formal explanation of the meaning of a concept."
-                                            }
-                                        ],
-                                        "identifier": "licencetypeidentifier",
-                                        "in_scheme": [
-                                            {
-                                                "identifier": "http://uri.of.license.concept/scheme",
-                                                "pref_label": [
-                                                    {
-                                                        "en": "The preferred lexical label for a resource"
-                                                    }
-                                                ]
-                                            }
-                                        ],
-                                        "pref_label": [
-                                            {
-                                                "en": "pref label for this type"
-                                            }
-                                        ]
                                     }
                                 ]
                             }
@@ -2275,7 +2225,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "resourcetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_software",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.resource.concept/scheme",
@@ -2309,7 +2259,10 @@
                         "full_address": "The complete address written as a string, with or without formatting",
                         "geographic_name": "Geographic name",
                         "lat": 22.222,
-                        "long": 33.333
+                        "long": 33.333,
+                        "polygon": [
+                            "11.11,22.22 33.33,44.44 55.55,66.66 11.11,22.22"
+                        ]
                     }
                 ],
                 "temporal": [
@@ -2372,7 +2325,7 @@
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
-                "accessRights": {
+                "access_rights": {
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
@@ -2409,36 +2362,11 @@
                                     "en": "Free account of the rights"
                                 }
                             ],
-                            "identifier": "https://license.uri.identifier.fi",
+                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": [
                                 {
                                     "en": "A name given to the resource"
-                                }
-                            ],
-                            "type": [
-                                {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
-                                    "identifier": "licencetypeidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.license.concept/scheme",
-                                            "pref_label": [
-                                                {
-                                                    "en": "The preferred lexical label for a resource"
-                                                }
-                                            ]
-                                        }
-                                    ],
-                                    "pref_label": [
-                                        {
-                                            "en": "pref label for this type"
-                                        }
-                                    ]
                                 }
                             ]
                         }
@@ -2450,7 +2378,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "accessrightsypeidentifier",
+                            "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.accessrights.concept/scheme",
@@ -2951,7 +2879,7 @@
                                 "en": "An account of the resource"
                             }
                         ],
-                        "identifier": "relatedentityidentifier",
+                        "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
                         "title": [
                             {
                                 "en": "A name given to the resource"
@@ -3030,36 +2958,11 @@
                                         "en": "Free account of the rights"
                                     }
                                 ],
-                                "identifier": "licenseidentifier",
+                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": [
                                     {
                                         "en": "A name given to the resource"
-                                    }
-                                ],
-                                "type": [
-                                    {
-                                        "definition": [
-                                            {
-                                                "en": "A statement or formal explanation of the meaning of a concept."
-                                            }
-                                        ],
-                                        "identifier": "licencetypeidentifier",
-                                        "in_scheme": [
-                                            {
-                                                "identifier": "http://uri.of.license.concept/scheme",
-                                                "pref_label": [
-                                                    {
-                                                        "en": "The preferred lexical label for a resource"
-                                                    }
-                                                ]
-                                            }
-                                        ],
-                                        "pref_label": [
-                                            {
-                                                "en": "pref label for this type"
-                                            }
-                                        ]
                                     }
                                 ]
                             }
@@ -3073,7 +2976,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "resourcetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_software",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.resource.concept/scheme",
@@ -3107,7 +3010,10 @@
                         "full_address": "The complete address written as a string, with or without formatting",
                         "geographic_name": "Geographic name",
                         "lat": 22.222,
-                        "long": 33.333
+                        "long": 33.333,
+                        "polygon": [
+                            "11.11,22.22 33.33,44.44 55.55,66.66 11.11,22.22"
+                        ]
                     }
                 ],
                 "temporal": [
