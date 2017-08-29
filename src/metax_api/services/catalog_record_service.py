@@ -149,7 +149,10 @@ class CatalogRecordService(CommonService):
             check_ref_data('ref', 'field_of_science', discipline, 'identifier', 'research_dataset.discipline.identifier')
 
         for remote_resource in research_dataset.get('remote_resources', []):
-            check_ref_data('ref', 'field_of_science', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
+            check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
+
+            for license in remote_resource.get('license', []):
+                check_ref_data('ref', 'license', license, 'identifier', 'research_dataset.remote_resources.license.identifier')
 
         for language in research_dataset.get('language', []):
             check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
@@ -159,9 +162,12 @@ class CatalogRecordService(CommonService):
             for rights_statement_type in access_rights.get('type', []):
                 check_ref_data('ref', 'access_type', rights_statement_type, 'identifier', 'research_dataset.access_rights.type.identifier')
 
+            for rights_statement_license in access_rights.get('license', []):
+                check_ref_data('ref', 'license', rights_statement_license, 'identifier', 'research_dataset.access_rights.license.identifier')
+
         for project in research_dataset.get('is_output_of', []):
             for organization in project.get('source_organization', []):
-                check_ref_data('org', 'organzation', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
+                check_ref_data('org', 'organization', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
 
         if errors:
             raise Http400(errors)
