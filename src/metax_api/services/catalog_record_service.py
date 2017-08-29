@@ -151,6 +151,9 @@ class CatalogRecordService(CommonService):
         for remote_resource in research_dataset.get('remote_resources', []):
             check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
 
+            for license in remote_resource.get('license', []):
+                check_ref_data('ref', 'license', license, 'identifier', 'research_dataset.remote_resources.license.identifier')
+
         for language in research_dataset.get('language', []):
             check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
 
@@ -158,6 +161,9 @@ class CatalogRecordService(CommonService):
         if access_rights:
             for rights_statement_type in access_rights.get('type', []):
                 check_ref_data('ref', 'access_type', rights_statement_type, 'identifier', 'research_dataset.access_rights.type.identifier')
+
+            for rights_statement_license in access_rights.get('license', []):
+                check_ref_data('ref', 'license', rights_statement_license, 'identifier', 'research_dataset.access_rights.license.identifier')
 
         for project in research_dataset.get('is_output_of', []):
             for organization in project.get('source_organization', []):
