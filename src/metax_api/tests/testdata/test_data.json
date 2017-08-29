@@ -1573,7 +1573,6 @@
                 2
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "preservation_state": 0,
             "research_dataset": {
                 "accessRights": {
                     "available": "2014-01-15T08:19:58Z",
@@ -1598,7 +1597,7 @@
                                     }
                                 ]
                             },
-                            "identifier": "identifieroforganization",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -1679,7 +1678,7 @@
                         "identifier": "contributorid",
                         "is_part_of": {
                             "email": "info@csc.fi",
-                            "identifier": "identifieroforganization",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -1695,7 +1694,7 @@
                         "identifier": "contributorid2",
                         "is_part_of": {
                             "email": "info@csc.fi",
-                            "identifier": "identifieroforganization",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -1730,7 +1729,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             }
                         ],
-                        "identifier": "disciplineidentifier",
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
                         "in_scheme": [
                             {
                                 "identifier": "http://uri.of.that.concept/scheme",
@@ -1852,7 +1851,7 @@
                         "source_organization": [
                             {
                                 "email": "info@csc.fi",
-                                "identifier": "identifieroforganization",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -1881,7 +1880,7 @@
                             "identifier": "teppoidentifier",
                             "is_part_of": {
                                 "email": "info@csc.fi",
-                                "identifier": "identifieroforganization",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -1925,7 +1924,7 @@
                             "is_part_of": {
                                 "email": "info@csc.fi",
                                 "identifier": [
-                                    "identifieroforganization"
+                                    "http://purl.org/att/es/organization_data/organization/organization_01904-240331"
                                 ],
                                 "name": "Mysterious Organization",
                                 "telephone": [
@@ -2121,7 +2120,7 @@
                         "was_associated_with": [
                             {
                                 "email": "info@csc.fi",
-                                "identifier": "identifieroforganization",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -2135,7 +2134,7 @@
                     "identifier": "teppoidentifier",
                     "is_part_of": {
                         "email": "info@csc.fi",
-                        "identifier": "identifieroforganization",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                         "name": "Mysterious Organization",
                         "telephone": [
                             "+358501231235"
@@ -2202,7 +2201,7 @@
                         },
                         "bytesize": "2048",
                         "checksum": {
-                            "algorithm": "sha2",
+                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_sha-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the distribution.",
@@ -2297,7 +2296,7 @@
                 ],
                 "rightsHolder": {
                     "email": "info@csc.fi",
-                    "identifier": "identifieroforganization",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                     "name": "Mysterious Organization",
                     "telephone": [
                         "+358501231235"
@@ -2326,7 +2325,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             }
                         ],
-                        "identifier": "themeidentifier",
+                        "identifier": "http://www.yso.fi/onto/yso/p20518",
                         "in_scheme": [
                             {
                                 "identifier": "http://uri.of.concept/scheme",
@@ -2372,7 +2371,6 @@
                 2
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "preservation_state": 0,
             "research_dataset": {
                 "accessRights": {
                     "available": "2014-01-15T08:19:58Z",
@@ -2397,7 +2395,7 @@
                                     }
                                 ]
                             },
-                            "identifier": "identifieroforganization",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -2478,7 +2476,7 @@
                         "identifier": "contributorid",
                         "is_part_of": {
                             "email": "info@csc.fi",
-                            "identifier": "identifieroforganization",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -2494,7 +2492,7 @@
                         "identifier": "contributorid2",
                         "is_part_of": {
                             "email": "info@csc.fi",
-                            "identifier": "identifieroforganization",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -2529,7 +2527,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             }
                         ],
-                        "identifier": "disciplineidentifier",
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
                         "in_scheme": [
                             {
                                 "identifier": "http://uri.of.that.concept/scheme",
@@ -2651,7 +2649,7 @@
                         "source_organization": [
                             {
                                 "email": "info@csc.fi",
-                                "identifier": "identifieroforganization",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -2680,7 +2678,7 @@
                             "identifier": "teppoidentifier",
                             "is_part_of": {
                                 "email": "info@csc.fi",
-                                "identifier": "identifieroforganization",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -2724,7 +2722,7 @@
                             "is_part_of": {
                                 "email": "info@csc.fi",
                                 "identifier": [
-                                    "identifieroforganization"
+                                    "http://purl.org/att/es/organization_data/organization/organization_01904-240331"
                                 ],
                                 "name": "Mysterious Organization",
                                 "telephone": [
@@ -2920,7 +2918,7 @@
                         "was_associated_with": [
                             {
                                 "email": "info@csc.fi",
-                                "identifier": "identifieroforganization",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -2934,7 +2932,7 @@
                     "identifier": "teppoidentifier",
                     "is_part_of": {
                         "email": "info@csc.fi",
-                        "identifier": "identifieroforganization",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                         "name": "Mysterious Organization",
                         "telephone": [
                             "+358501231235"
@@ -3001,7 +2999,7 @@
                         },
                         "bytesize": "2048",
                         "checksum": {
-                            "algorithm": "sha2",
+                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_sha-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the distribution.",
@@ -3096,7 +3094,7 @@
                 ],
                 "rightsHolder": {
                     "email": "info@csc.fi",
-                    "identifier": "identifieroforganization",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                     "name": "Mysterious Organization",
                     "telephone": [
                         "+358501231235"
@@ -3125,7 +3123,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             }
                         ],
-                        "identifier": "themeidentifier",
+                        "identifier": "http://www.yso.fi/onto/yso/p20518",
                         "in_scheme": [
                             {
                                 "identifier": "http://uri.of.concept/scheme",
