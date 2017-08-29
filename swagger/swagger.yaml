@@ -330,7 +330,7 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - Data Catalog API
-  /datasetcatalogs/{PID}/exists:
+  /datacatalogs/{PID}/exists:
     get:
       summary: indicate whether given data catalog exists
       parameters:

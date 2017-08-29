@@ -12,9 +12,9 @@
             "title":"Catalog Record",
             "description":"A record in a data catalog, describing a single dataset.",
             "properties":{
-                "dataset_catalog":{
-                    "title":"Dataset catalog",
-                    "description":"Dataset Catalog",
+                "data_catalog":{
+                    "title":"Data catalog",
+                    "description":"Data Catalog",
                     "type":["object", "integer", "string"],
                     "minItems":1,
                     "maxItems":1
@@ -112,7 +112,7 @@
                 }
             },
             "required":[
-                "dataset_catalog",
+                "data_catalog",
                 "research_dataset"
             ]
         }
