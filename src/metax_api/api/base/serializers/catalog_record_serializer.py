@@ -1,8 +1,9 @@
-from rest_framework.serializers import ModelSerializer, ValidationError
+from rest_framework.serializers import ValidationError
 
 from metax_api.models import CatalogRecord, DataCatalog, File, Contract
 from metax_api.services import CatalogRecordService as CRS
 from .data_catalog_serializer import DataCatalogSerializer
+from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
 from .serializer_utils import validate_json
 
@@ -10,7 +11,7 @@ import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
-class CatalogRecordSerializer(ModelSerializer):
+class CatalogRecordSerializer(CommonSerializer):
 
     class Meta:
         model = CatalogRecord

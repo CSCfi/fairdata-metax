@@ -1,8 +1,7 @@
-from rest_framework.serializers import ModelSerializer
-
 from metax_api.models import XmlMetadata
+from .common_serializer import CommonSerializer
 
-class XmlMetadataSerializer(ModelSerializer):
+class XmlMetadataSerializer(CommonSerializer):
 
     class Meta:
         model = XmlMetadata

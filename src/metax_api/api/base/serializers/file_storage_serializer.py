@@ -1,8 +1,7 @@
-from rest_framework.serializers import ModelSerializer
-
 from metax_api.models import FileStorage
+from .common_serializer import CommonSerializer
 
-class FileStorageSerializer(ModelSerializer):
+class FileStorageSerializer(CommonSerializer):
 
     class Meta:
         model = FileStorage

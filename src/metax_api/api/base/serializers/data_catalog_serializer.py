@@ -1,8 +1,8 @@
-from rest_framework.serializers import ModelSerializer
 from metax_api.models import DataCatalog
+from .common_serializer import CommonSerializer
 from .serializer_utils import validate_json
 
-class DataCatalogSerializer(ModelSerializer):
+class DataCatalogSerializer(CommonSerializer):
 
     class Meta:
         model = DataCatalog
