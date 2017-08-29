@@ -439,11 +439,32 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         if row['fields']['preservation_state'] != 0:
             row['fields']['preservation_state_modified'] = '2017-05-23T10:07:22.559656Z'
 
+    # add a couple of catalog records with fuller research_dataset fields
+    with open('catalog_record_test_data_template_full.json') as json_file:
+        row_template_full = json_load(json_file)
+
+    for j in [0, 1]:
+        new = {
+            'fields': deepcopy(row_template_full),
+            'model': 'metax_api.catalogrecord',
+            'pk': len(test_data_list) + 1,
+        }
+        file_identifier = file_list[j]['fields']['identifier']
+        new['fields']['files'] = [1, 2] # for the relation in the db
+        new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
+        new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
+        new['fields']['research_dataset']['urn_identifier'] = 'very:unique:urn-%d' % j
+        new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
+        new['fields']['research_dataset']['files'][j]['identifier'] = file_identifier
+        json_validate(new['fields']['research_dataset'], json_schema)
+        test_data_list.append(new)
+
     if mode in ("json", 'request_list'):
         print('generated catalog records into a list')
     elif mode == 'request':
         print('collected created objects from responses into a list')
         print('total time elapsed for %d rows: %.3f seconds' % (catalog_record_max_rows, total_time_elapsed))
+
     return test_data_list
 
 
