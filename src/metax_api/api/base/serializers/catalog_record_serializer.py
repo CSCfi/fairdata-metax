@@ -31,6 +31,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'previous_version_id',
             'previous_version_identifier',
             'version_created',
+            'owner_id',
             'modified_by_user_id',
             'modified_by_api',
             'created_by_user_id',
@@ -51,7 +52,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_state_modified':    { 'required': False },
             'ready_status':             { 'required': False },
             'mets_object_identifier':   { 'required': False },
-            'catalog_record_modified':  { 'required': False },
+            'owner_id':                 { 'required': False },
 
             'next_version_id':              { 'required': False },
             'next_version_identifier':      { 'required': False },
