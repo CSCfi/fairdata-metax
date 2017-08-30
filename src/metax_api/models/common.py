@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.core.exceptions import FieldError
 
 class CommonManager(models.Manager):
@@ -14,11 +13,9 @@ class Common(models.Model):
     active = models.BooleanField(default=True)
     removed = models.BooleanField(default=False)
     modified_by_api = models.DateTimeField(null=True)
-    modified_by_user_id = models.ForeignKey(User, related_name='%(class)s_modified_by_user',
-                                            null=True, db_column='modified_by_user_id')
+    modified_by_user_id = models.CharField(max_length=200, null=True)
     created_by_api = models.DateTimeField()
-    created_by_user_id = models.ForeignKey(User, related_name='%(class)s_created_by_user',
-                                           null=True, db_column='created_by_user_id')
+    created_by_user_id = models.CharField(max_length=200, null=True)
 
     # all queries made using the default 'objects' table are filtered with active=True and removed=False
     objects = CommonManager()
