@@ -75,13 +75,16 @@ class CatalogRecordService(CommonService):
                     int(val)
                 except ValueError:
                     raise Http400({ 'state': ['Value \'%s\' is not an integer' % val] })
-            queryset_search_params['state'] = state_vals
+            queryset_search_params['preservation_state__in'] = state_vals
 
         if request.query_params.get('curator', False):
-            queryset_search_params['curator'] = request.query_params['curator']
+            queryset_search_params['research_dataset__contains'] = { 'curator': [{ 'identifier': request.query_params['curator'] }]}
 
         if request.query_params.get('owner_id', False):
             queryset_search_params['owner_id'] = request.query_params['owner_id']
+
+        if request.query_params.get('created_by_user_id', False):
+            queryset_search_params['created_by_user_id'] = request.query_params['created_by_user_id']
 
         return queryset_search_params
 

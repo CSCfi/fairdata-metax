@@ -51,12 +51,7 @@ class DatasetViewSet(CommonViewSet):
             additional_filters = { 'next_version_id': None }
 
         if hasattr(self, 'queryset_search_params'):
-            if self.queryset_search_params.get('curator', False):
-                additional_filters['research_dataset__contains'] = { 'curator': [{ 'identifier': self.queryset_search_params['curator'] }]}
-            if self.queryset_search_params.get('owner_id', False):
-                additional_filters['owner_id'] = self.queryset_search_params['owner_id']
-            if self.queryset_search_params.get('state', False):
-                additional_filters['preservation_state__in'] = self.queryset_search_params['state']
+            additional_filters.update(**self.queryset_search_params)
 
         return super(DatasetViewSet, self).get_queryset().filter(**additional_filters)
 

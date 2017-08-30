@@ -155,6 +155,15 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['owner_id'], '123')
 
+    def test_read_catalog_record_search_by_creator_id(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.created_by_user_id = '123'
+        cr.save()
+        response = self.client.get('/rest/datasets?created_by_user_id=123')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['created_by_user_id'], '123')
+
     #
     # misc
     #
