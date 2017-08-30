@@ -101,50 +101,68 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
     # query_params
     #
 
-    def test_read_catalog_record_search_by_owner_1(self):
-        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen')
+    def test_read_catalog_record_search_by_curator_1(self):
+        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 5)
-        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
-        self.assertEqual(response.data[4]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
+        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
+        self.assertEqual(response.data[4]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
 
-    def test_read_catalog_record_search_by_owner_2(self):
-        response = self.client.get('/rest/datasets?owner=id:of:curator:jarski')
+    def test_read_catalog_record_search_by_curator_2(self):
+        response = self.client.get('/rest/datasets?curator=id:of:curator:jarski')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
-        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Jarski', 'Owner name is not matching')
-        self.assertEqual(response.data[3]['research_dataset']['curator'][0]['name'], 'Jarski', 'Owner name is not matching')
+        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Jarski', 'Curator name is not matching')
+        self.assertEqual(response.data[3]['research_dataset']['curator'][0]['name'], 'Jarski', 'Curator name is not matching')
 
-    def test_read_catalog_record_search_by_owner_not_found_1(self):
-        response = self.client.get('/rest/datasets?owner=Not Found')
+    def test_read_catalog_record_search_by_curator_not_found_1(self):
+        response = self.client.get('/rest/datasets?curator=Not Found')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-    def test_read_catalog_record_search_by_owner_not_found_case_sensitivity(self):
-        response = self.client.get('/rest/datasets?owner=id:of:curator:Rahikainen')
+    def test_read_catalog_record_search_by_curator_not_found_case_sensitivity(self):
+        response = self.client.get('/rest/datasets?curator=id:of:curator:Rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-    def test_read_catalog_record_search_by_owner_and_state_1(self):
-        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen&state=1')
+    def test_read_catalog_record_search_by_curator_and_state_1(self):
+        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], 2)
         self.assertEqual(response.data[0]['preservation_state'], 1)
-        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
+        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
 
-    def test_read_catalog_record_search_by_owner_and_state_2(self):
-        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen&state=2')
+    def test_read_catalog_record_search_by_curator_and_state_2(self):
+        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['id'], 3)
         self.assertEqual(response.data[0]['preservation_state'], 2)
-        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Owner name is not matching')
+        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
 
-    def test_read_catalog_record_search_by_owner_and_state_not_found(self):
-        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen&state=55')
+    def test_read_catalog_record_search_by_curator_and_state_not_found(self):
+        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=55')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
+
+    def test_read_catalog_record_search_by_owner_id(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.owner_id = '123'
+        cr.save()
+        response = self.client.get('/rest/datasets?owner_id=123')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['owner_id'], '123')
+
+    def test_read_catalog_record_search_by_creator_id(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.created_by_user_id = '123'
+        cr.save()
+        response = self.client.get('/rest/datasets?created_by_user_id=123')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['created_by_user_id'], '123')
 
     #
     # misc
@@ -566,7 +584,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         # owner of pk=1 is Default Owner. Delete pk=2 == first dataset owner by Rahikainen.
         # After deleting, first dataset owned by Rahikainen should be pk=3
         response = self.client.delete('/rest/datasets/2')
-        response = self.client.get('/rest/datasets?owner=id:of:curator:rahikainen')
+        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]['id'], 3)

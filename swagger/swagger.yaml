@@ -359,7 +359,17 @@ paths:
     get:
       summary: "list datasets"
       parameters:
-        - name: owner
+        - name: owner_id
+          in: query
+          description: id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: created_by_user_id
+          in: query
+          description: id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
           in: query
           description: curator identifier (field research_dataset-> curator-> identifier)
           required: false
@@ -406,6 +416,42 @@ paths:
           description: Returns the created object, or if a list was given, a list of objects and errors.
         '400':
           description: parameters contained errors, response includes details.
+      tags:
+        - Dataset API
+    put:
+      summary: bulk update
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of objects to update."
+          required: true
+      responses:
+        '200':
+          description: Some objects were updated, but some contained errors. Return values include a list of errors. For PUT, response does not include created objects.
+        '204':
+          description: All updates were successful. No content returned.
+        '400':
+          description: All updates failed. A list of errors is returned.
+      tags:
+        - Dataset API
+    patch:
+      summary: bulk update partial
+      description: |
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, research_dataset->urn_identifier</b>
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of (partial) objects to update."
+          required: true
+      responses:
+        '200':
+          description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
+        '400':
+          description: All updates failed. A list of errors is returned.
       tags:
         - Dataset API
   /datasets/{PID}:

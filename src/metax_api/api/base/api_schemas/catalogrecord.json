@@ -82,6 +82,12 @@
                     "maxItems":1,
                     "type":"string"
                 },
+                "owner_id":{
+                    "title":"Owner id",
+                    "description":"User id of the person who owns this record",
+                    "maxItems":1,
+                    "type":"string"
+                },
                 "modified_by_api":{
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",
@@ -94,7 +100,7 @@
                     "title":"Modified by user id",
                     "description":"User id of the person who last edited this record",
                     "maxItems":1,
-                    "type":"integer"
+                    "type":"string"
                 },
                 "created_by_api":{
                     "title":"Date Created",
@@ -108,7 +114,7 @@
                     "title":"Created by user id",
                     "description":"User id of the person who created this record. Can't be updated once set.",
                     "maxItems":1,
-                    "type":"integer"
+                    "type":"string"
                 }
             },
             "required":[
