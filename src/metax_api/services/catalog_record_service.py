@@ -77,8 +77,11 @@ class CatalogRecordService(CommonService):
                     raise Http400({ 'state': ['Value \'%s\' is not an integer' % val] })
             queryset_search_params['state'] = state_vals
 
-        if request.query_params.get('owner', False):
-            queryset_search_params['owner'] = request.query_params['owner']
+        if request.query_params.get('curator', False):
+            queryset_search_params['curator'] = request.query_params['curator']
+
+        if request.query_params.get('owner_id', False):
+            queryset_search_params['owner_id'] = request.query_params['owner_id']
 
         return queryset_search_params
 
