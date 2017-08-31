@@ -402,6 +402,9 @@ paths:
       description: |
         # research_dataset identifiers
         The field <b>urn_identifier</b> is always generated for the user. <b>preferred_identifier</b> can be provided by the user, and if omitted, the value of <b>urn_identifier</b> is copied to it.
+        # research_dataset read-only fields
+        - urn_identifier
+        - total_byte_size (generated from files in the db according to files listed in the given dataset)
       consumes:
         - application/json
       parameters:
@@ -475,8 +478,9 @@ paths:
     put:
       summary: replace dataset metadata
       description: |
-        # research_dataset identifiers
-        The field <b>urn_identifier</b> is read only.
+        # research_dataset read-only fields
+        - urn_identifier
+        - total_byte_size (generated from files in the db according to files listed in the given dataset)
       parameters:
         - in: "body"
           name: "body"
@@ -499,8 +503,9 @@ paths:
     patch:
       summary: replace part of dataset metadata
       description: |
-        # research_dataset identifiers
-        The field <b>urn_identifier</b> is read only.
+        # research_dataset read-only fields
+        - urn_identifier
+        - total_byte_size (generated from files in the db according to files listed in the given dataset)
       parameters:
         - in: "body"
           name: "body"
