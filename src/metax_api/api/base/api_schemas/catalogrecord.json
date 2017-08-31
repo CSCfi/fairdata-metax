@@ -27,8 +27,7 @@
                 },
                 "research_dataset":{
                     "title":"Primary topic",
-                    "schema": "http://iow.csc.fi/model/mrd/ResearchDataset/",
-                    "description":"Dataset described by this metadata record.",
+                    "description":"Dataset described by this metadata record. Detailed in http://iow.csc.fi/model/mrd/ResearchDataset/",
                     "type":"object"
                 },
                 "preservation_state":{
