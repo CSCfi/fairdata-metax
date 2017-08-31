@@ -45,19 +45,43 @@ class Common(models.Model):
         """
         Save initial values from object fields when object is created (= retrieved from db),
         so that they can be checked at a later time if the value is being changed or not.
+
+        If field_name contains a dot, i.e. research_data.urn_identifier, it is assumed that
+        field_name is a dict (a JSON field). For now only one level of nesting is supported.
+        If a need arises, can be made mega generic.
         """
         for field_name in args:
-            self._initial_data[field_name] = getattr(self, field_name)
+            if '.' in field_name:
+                self._track_json_field(field_name)
+            else:
+                self._initial_data[field_name] = getattr(self, field_name)
 
     def field_changed(self, field_name):
         """
         Check if a tracked field has changed since last saved to db.
         """
+        if '.' in field_name:
+            return self._json_field_changed(field_name)
         try:
             initial_value = self._initial_data[field_name]
         except Exception:
             raise FieldError('Field %s is not being tracked for changes' % field_name)
         return getattr(self, field_name) != initial_value
+
+    def _json_field_changed(self, field_name):
+        field_name, json_field_name = field_name.split('.')
+        try:
+            json_field_value = self._initial_data[field_name][json_field_name]
+        except:
+            raise FieldError('Field %s.%s is not being tracked for changes' % (field_name, json_field_name))
+        return getattr(self, field_name).get(json_field_name) != json_field_value
+
+    def _track_json_field(self, field_name):
+        field_name, json_field_name = field_name.split('.')
+        json_field_value = getattr(self, field_name).get(json_field_name, None)
+        if not self._initial_data.get(field_name, None):
+            self._initial_data[field_name] = {}
+        self._initial_data[field_name][json_field_name] = json_field_value
 
     def _update_tracked_field_values(self):
         """
@@ -65,7 +89,12 @@ class Common(models.Model):
         field_changed() keeps working as expected
         """
         for field_name in self._initial_data.keys():
-            self._initial_data[field_name] = getattr(self, field_name)
+            if '.' in field_name:
+                field_name, json_field_name = field_name.split('.')
+                # by now should have crashed to checks in previous steps, so no need to check here
+                self._initial_data[field_name][json_field_name] = getattr(self, field_name).get(json_field_name, None)
+            else:
+                self._initial_data[field_name] = getattr(self, field_name)
 
     def __str__(self):
         return str(self.id)
