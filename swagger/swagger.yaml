@@ -293,6 +293,13 @@ paths:
         - identifier
       consumes:
         - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object or a list of objects to create."
+        required: true
+        schema:
+          $ref: '#/definitions/DataCatalog'
       responses:
         '201':
           description: new data catalog created
@@ -363,6 +370,15 @@ paths:
           description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
+      responses:
+        '200':
+          description: successful operation, full content returned
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        '400':
+          description: parameters contained errors, response includes details
+      tags:
+        - Data Catalog API
   /datacatalogs/{PID}/exists:
     get:
       summary: indicate whether given data catalog exists
@@ -810,4 +826,4 @@ definitions:
   CatalogRecord:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/Catalog'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
