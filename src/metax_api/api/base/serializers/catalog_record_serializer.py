@@ -163,9 +163,6 @@ class CatalogRecordSerializer(CommonSerializer):
         except CatalogRecord.DoesNotExist:
             return None
 
-    def _operation_is_create(self):
-        return self.context['view'].request.stream.method == 'POST'
-
     def _get_file_objects(self, files_dict):
         file_pids = [ f['identifier'] for f in files_dict ]
         return File.objects.filter(identifier__in=file_pids)
