@@ -151,6 +151,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
             new['fields']['file_characteristics']['title'] = json_title % loop
             new['fields']['file_characteristics']['description'] = json_description % loop
             new['fields']['file_storage'] = file_storage
+            new['fields']['byte_size'] = i * 100
             new['pk'] = i
 
             if validate_json or i == 1:
@@ -357,6 +358,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             # add files
 
             files = []
+            total_byte_size = 0
 
             for j in range(files_start_idx, files_start_idx + files_per_dataset):
                 files.append({
@@ -364,8 +366,10 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
                     'title': 'File metadata title %d' % j,
                 })
                 new['fields']['files'].append(file_list[j]['pk'])
+                total_byte_size += file_list[j]['fields']['byte_size']
 
             new['fields']['research_dataset']['files'] = files
+            new['fields']['research_dataset']['total_byte_size'] = total_byte_size
             files_start_idx += files_per_dataset
 
             if validate_json or i == 1:
@@ -443,19 +447,26 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
     with open('catalog_record_test_data_template_full.json') as json_file:
         row_template_full = json_load(json_file)
 
+    total_byte_size = 0
     for j in [0, 1]:
         new = {
             'fields': deepcopy(row_template_full),
             'model': 'metax_api.catalogrecord',
             'pk': len(test_data_list) + 1,
         }
-        file_identifier = file_list[j]['fields']['identifier']
         new['fields']['files'] = [1, 2] # for the relation in the db
         new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
         new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
         new['fields']['research_dataset']['urn_identifier'] = 'very:unique:urn-%d' % j
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
-        new['fields']['research_dataset']['files'][j]['identifier'] = file_identifier
+
+        file_identifier_0 = file_list[0]['fields']['identifier']
+        file_identifier_1 = file_list[1]['fields']['identifier']
+        total_byte_size = sum(f['fields']['byte_size'] for f in file_list[:2])
+
+        new['fields']['research_dataset']['total_byte_size'] = total_byte_size
+        new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
+        new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
         json_validate(new['fields']['research_dataset'], json_schema)
         test_data_list.append(new)
 

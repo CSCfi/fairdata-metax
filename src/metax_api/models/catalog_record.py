@@ -86,21 +86,32 @@ class CatalogRecord(Common):
 
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
-        self.track_fields('preservation_state')
-
-        # save original urn_identifier to change the value in research_dataset back
-        # to this value, in case someone is trying to change it.
-        self._original_urn_identifer = self.research_dataset and self.research_dataset.get('urn_identifier', None) or None
+        self.track_fields(
+            'preservation_state',
+            'research_dataset.files',
+            'research_dataset.total_byte_size',
+            'research_dataset.urn_identifier',
+        )
 
     def save(self, *args, **kwargs):
-        if self.field_changed('preservation_state'):
-            self.preservation_state_modified = datetime.now()
-
         if self._operation_is_create():
             self._need_to_generate_urn_identifier = True
-        elif self._urn_identifier_changed():
-            # dont allow updating urn_identifier
-            self.research_dataset['urn_identifier'] = self._original_urn_identifer
+            self._calculate_total_byte_size()
+        else:
+            if self.field_changed('preservation_state'):
+                self.preservation_state_modified = datetime.now()
+
+            if self.field_changed('research_dataset.urn_identifier'):
+                # read-only after creating
+                self.research_dataset['urn_identifier'] = self._initial_data['research_dataset']['urn_identifier']
+
+            if self._files_changed():
+                self._calculate_total_byte_size()
+            elif self.field_changed('research_dataset.total_byte_size'):
+                # somebody is trying to update total_byte_size manually. im afraid i cant let you do that
+                self.research_dataset['total_byte_size'] = self._initial_data['research_dataset']['total_byte_size']
+            else:
+                pass
 
         super(CatalogRecord, self).save(*args, **kwargs)
 
@@ -129,6 +140,30 @@ class CatalogRecord(Common):
 
     def dataset_is_finished(self):
         return self.research_dataset.get('ready_status', False) == self.READY_STATUS_FINISHED
+
+    def _calculate_total_byte_size(self):
+        """
+        Take identifiers from research_dataset.files, and check file sizes of the files from the db.
+        """
+        rd = self.research_dataset
+        if rd.get('files', None):
+            file_identifiers = [ f['identifier'] for f in rd['files'] ]
+            file_sizes = File.objects.filter(identifier__in=file_identifiers).values_list('byte_size', flat=True)
+            rd['total_byte_size'] = sum(file_sizes)
+        else:
+            rd['total_byte_size'] = 0
+
+    def _files_changed(self):
+        """
+        Check if research_dataset.files have changed. Since there are objects and not simple values,
+        easier to do a custom check because the target of checking is a specific field in the object.
+        If a need arises, more magic can be applied to track_fields() to be more generic.
+
+        Note: set removes duplicates. It is assumed that file listings do not include duplicate files.
+        """
+        initial_files = set( f['identifier'] for f in self._initial_data['research_dataset']['files'] )
+        received_files = set( f['identifier'] for f in self.research_dataset['files'] )
+        return initial_files != received_files
 
     def _generate_urn_identifier(self):
         """
