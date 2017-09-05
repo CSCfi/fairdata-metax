@@ -1,5 +1,4 @@
 from datetime import datetime
-from time import time
 
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
@@ -161,16 +160,17 @@ class CatalogRecord(Common):
 
         Note: set removes duplicates. It is assumed that file listings do not include duplicate files.
         """
-        initial_files = set( f['identifier'] for f in self._initial_data['research_dataset']['files'] )
-        received_files = set( f['identifier'] for f in self.research_dataset['files'] )
-        return initial_files != received_files
+        if self._initial_data['research_dataset'].get('files', None):
+            initial_files = set( f['identifier'] for f in self._initial_data['research_dataset']['files'] )
+            received_files = set( f['identifier'] for f in self.research_dataset['files'] )
+            return initial_files != received_files
 
     def _generate_urn_identifier(self):
         """
         Field urn_identifier in research_dataset is always generated, and it can not be changed later.
         If preferred_identifier is missing during create, copy urn_identifier to it also.
         """
-        urn_identifier = 'pid:urn:%d-%d' % (self.id, int(round(time() * 1000)))
+        urn_identifier = self._generate_identifier('cr')
         self.research_dataset['urn_identifier'] = urn_identifier
         if not self.research_dataset.get('preferred_identifier', None):
             self.research_dataset['preferred_identifier'] = urn_identifier
@@ -179,12 +179,3 @@ class CatalogRecord(Common):
         # save can be called several times during an object's lifetime in a request. make sure
         # not to generate urn again.
         self._need_to_generate_urn_identifier = False
-
-        # for the following update-operations, save value to prevent changes to urn_identifier
-        self._original_urn_identifer = urn_identifier
-
-    def _operation_is_create(self):
-        return self.id is None
-
-    def _urn_identifier_changed(self):
-        return self.research_dataset.get('urn_identifier', None) != self._original_urn_identifer

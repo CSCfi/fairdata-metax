@@ -26,5 +26,17 @@ class DataCatalogSerializer(CommonSerializer):
         }
 
     def validate_catalog_json(self, value):
-        validate_json(value, self.context['view'].json_schema)
+        self._validate_json_schema(value)
         return value
+
+    def _validate_json_schema(self, value):
+        if self._operation_is_create():
+            # identifier cant be provided by the user, but it is a required field =>
+            # add identifier temporarily to pass schema validation. proper value
+            # will be generated later in model save().
+            value['identifier'] = 'temp'
+            validate_json(value, self.context['view'].json_schema)
+            value.pop('identifier')
+        else:
+            # update operations
+            validate_json(value, self.context['view'].json_schema)

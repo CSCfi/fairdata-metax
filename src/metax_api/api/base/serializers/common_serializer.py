@@ -5,6 +5,9 @@ from rest_framework.relations import PKOnlyObject
 
 class CommonSerializer(ModelSerializer):
 
+    def _operation_is_create(self):
+        return self.context['view'].request.stream.method == 'POST'
+
     def to_representation(self, instance):
         """
         Copy-pasta / overrided from rest_framework code. Only return fields which have a non-null value

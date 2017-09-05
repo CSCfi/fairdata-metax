@@ -1,3 +1,4 @@
+
 {
     "description":"This is a subset of http://iow.csc.fi/model/att that defines API to describe Research Data Catalogs in METAX",
     "@id":"http://iow.csc.fi/ns/mdc#",
@@ -79,8 +80,11 @@
                     "description":"The homepage of the catalog",
                     "@id":"http://xmlns.com/foaf/0.1/homepage",
                     "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Document"
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Document"
+                    }
                 },
                 "rights":{
                     "title":"Rights",
@@ -98,17 +102,6 @@
                     "type":"object",
                     "$ref":"#/definitions/ResearchAgent"
                 },
-                "theme_taxonomy":{
-                    "title":"Theme taxonomy",
-                    "description":"The knowledge organization system (SKOS) used to classify catalog's datasets. Used scheme: http://finto.fi/okm-tieteenala/",
-                    "@id":"http://www.w3.org/ns/dcat#themeTaxonomy",
-                    "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/ConceptScheme"
-                    }
-                },
                 "harvested":{
                     "title":"Harvested",
                     "description":"Information if the datasets this catalog are harvested from the other source",
@@ -116,6 +109,17 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#boolean",
                     "maxItems":1,
                     "type":"boolean"
+                },
+                "field_of_science":{
+                    "title":"Field of Science",
+                    "description":"Theme from the reference data. https://purl.org/att/es/reference_data/field_of_science/",
+                    "@id":"http://purl.org/dc/terms/type",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 }
             },
             "required":[
@@ -144,66 +148,11 @@
                     "description":"The preferred lexical label for a resource, in a given language. A resource has no more than one value of skos:prefLabel per language tag, and no more than one value of skos:prefLabel without language tag. The range of skos:prefLabel is the class of RDF plain literals. skos:prefLabel, skos:altLabel and skos:hiddenLabel are pairwise\n      disjoint properties.",
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "minItems":1,
                     "type":"array",
                     "items":{
                         "type":"object",
                         "$ref":"#/definitions/langString"
                     }
-                },
-                "definition":{
-                    "title":"Definition",
-                    "description":"A statement or formal explanation of the meaning of a concept.",
-                    "@id":"http://www.w3.org/2004/02/skos/core#definition",
-                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "minItems":1,
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
-                },
-                "in_scheme":{
-                    "title":"Is in scheme",
-                    "description":"Relates a resource (for example a concept) to a concept scheme in which it is included.",
-                    "@id":"http://www.w3.org/2004/02/skos/core#inScheme",
-                    "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/ConceptScheme"
-                    }
-                }
-            },
-            "required":[
-                "identifier",
-                "pref_label",
-                "definition"
-            ]
-        },
-        "ConceptScheme":{
-            "title":"Concept Scheme",
-            "@id":"http://www.w3.org/2004/02/skos/core#ConceptScheme",
-            "description":"A set of concepts, optionally including statements about semantic relationships between those concepts.",
-            "properties":{
-                "pref_label":{
-                    "title":"Preferred label",
-                    "description":"The preferred lexical label for a resource, in a given language. A resource has no more than one value of skos:prefLabel per language tag, and no more than one value of skos:prefLabel without language tag. The range of skos:prefLabel is the class of RDF plain literals. skos:prefLabel, skos:altLabel and skos:hiddenLabel are pairwise\n      disjoint properties.",
-                    "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
-                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
-                },
-                "identifier":{
-                    "title":"Identifier",
-                    "description":"URI of the Concept Scheme",
-                    "@id":"http://purl.org/dc/terms/identifier",
-                    "@type":"@id",
-                    "minItems":1,
-                    "maxItems":1
                 }
             },
             "required":[
@@ -286,7 +235,7 @@
                     "description":"An unambiguous reference to the resource within a given context.",
                     "@id":"http://purl.org/dc/terms/identifier",
                     "@type":"@id",
-                    "type":"array"
+                    "maxItems":1
                 },
                 "name":{
                     "title":"Name",
@@ -320,8 +269,11 @@
                     "title":"Homepage",
                     "@id":"http://xmlns.com/foaf/0.1/homepage",
                     "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Document"
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Document"
+                    }
                 },
                 "is_part_of":{
                     "title":"Is Part Of",
@@ -377,17 +329,6 @@
                     "@id":"http://schema.org/license",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "maxItems":1
-                },
-                "type":{
-                    "title":"Type",
-                    "description":"The nature or genre of the resource.",
-                    "@id":"http://purl.org/dc/terms/type",
-                    "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/Concept"
-                    }
                 }
             },
             "required":[
