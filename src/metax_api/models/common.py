@@ -1,3 +1,5 @@
+from time import time
+
 from django.db import models
 from django.core.exceptions import FieldError
 
@@ -68,6 +70,9 @@ class Common(models.Model):
             raise FieldError('Field %s is not being tracked for changes' % field_name)
         return getattr(self, field_name) != initial_value
 
+    def _generate_identifier(self, salt):
+        return 'pid:urn:%s:%d-%d' % (str(salt), self.id, int(round(time() * 1000)))
+
     def _json_field_changed(self, field_name):
         field_name, json_field_name = field_name.split('.')
         try:
@@ -75,6 +80,9 @@ class Common(models.Model):
         except:
             raise FieldError('Field %s.%s is not being tracked for changes' % (field_name, json_field_name))
         return getattr(self, field_name).get(json_field_name) != json_field_value
+
+    def _operation_is_create(self):
+        return self.id is None
 
     def _track_json_field(self, field_name):
         field_name, json_field_name = field_name.split('.')
