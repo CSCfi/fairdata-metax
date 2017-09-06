@@ -288,11 +288,23 @@ paths:
         - Data Catalog API
     post:
       summary: create new data catalog
+      description: |
+        # catalog_json read-only fields
+        - identifier
       consumes:
         - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object or a list of objects to create."
+        required: true
+        schema:
+          $ref: '#/definitions/DataCatalog'
       responses:
         '201':
-          description: new data catalog created, return UUID of the catalog
+          description: new data catalog created
+          schema:
+            $ref: '#/definitions/DataCatalog'
         '401':
           description: Unauthorized. Reserved for admins only
       tags:
@@ -303,24 +315,35 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: UUID of the catalog
+          description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
       responses:
         '200':
           description: return data catalog metadata
+          schema:
+            $ref: '#/definitions/DataCatalog'
         '404':
           description: not found
       tags:
         - Data Catalog API
     put:
       summary: replace data catalog metadata
+      description: |
+        # catalog_json read-only fields
+        - identifier
       parameters:
         - name: PID
           in: path
-          description: UUID of the data catalog
+          description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
+        - in: "body"
+          name: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/DataCatalog'
       responses:
         '204':
           description: successful operation, no content returned
@@ -330,13 +353,39 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - Data Catalog API
+    patch:
+      summary: replace part of catalog metadata
+      description: |
+        # catalog_json read-only fields
+        - identifier
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, full content returned
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        '400':
+          description: parameters contained errors, response includes details
+      tags:
+        - Data Catalog API
   /datacatalogs/{PID}/exists:
     get:
       summary: indicate whether given data catalog exists
       parameters:
         - name: PID
           in: path
-          description: UUID of the catalog
+          description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
       responses:
@@ -776,3 +825,5 @@ paths:
 definitions:
   CatalogRecord:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
+  DataCatalog:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
