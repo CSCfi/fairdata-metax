@@ -46,6 +46,8 @@ else:
 
 # Application definition
 
+AUTH_USER_MODEL = 'metax_api.MetaxUser'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
