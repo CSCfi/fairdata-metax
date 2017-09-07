@@ -1,5 +1,7 @@
+from base64 import b64encode
 from os import path
 from json import load as json_load
+from django.conf import settings as django_settings
 
 datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -16,14 +18,29 @@ class TestClassUtils():
     Test classes may (multi-)inherit this class in addition to APITestCase to use these helpers
     """
 
-    def _test_model_fields_as_expected(self, expected_fields, actual_fields):
+    def _use_http_authorization(self, username='testuser', password=None, header_value=None):
+        """
+        Include a HTTP Authorization header in api requests. By default, the test
+        user specified in settings.py will be used. Different user credentials can be
+        passed in the parameters.
 
-        for field in expected_fields:
-            if field not in actual_fields:
-                raise Exception('Model is missing an expected field: %s. Did you add new fields to this model recently?' % field)
-            actual_fields.remove(field)
+        Parameter 'header_value' can be used to directly insert the header value, to for example
+        test for malformed values, or other auth methods than BA.
+        """
+        if username == 'testuser':
+            user = django_settings.API_TEST_USER
+            username = user['username']
+            if not password:
+                # password can still be passed as a param, to test wrong password
+                password = user['password']
+        else:
+            if not password:
+                raise Exception('Missing parameter \'password\' for HTTP Authorization header')
 
-        self.assertEqual(len(actual_fields), 0, 'Model contains unexpected fields: %s' % str(actual_fields))
+        if not header_value:
+            header_value = b'Basic %s' % b64encode(bytes('%s:%s' % (username, password), 'utf-8'))
+
+        self.client.credentials(HTTP_AUTHORIZATION=header_value)
 
     def _get_object_from_test_data(self, model_name, requested_index=0):
         with open(test_data_file_path) as test_data_file:
