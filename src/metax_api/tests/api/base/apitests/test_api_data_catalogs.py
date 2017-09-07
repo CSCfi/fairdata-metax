@@ -48,6 +48,7 @@ class DataCatalogApiWriteTestV1(APITestCase, TestClassUtils):
         data_catalog_from_test_data = self._get_object_from_test_data('datacatalog', requested_index=0)
         self.pk = data_catalog_from_test_data['id']
         self.identifier = data_catalog_from_test_data['catalog_json']['identifier']
+        self._use_http_authorization()
 
     def test_identifier_is_auto_generated(self):
         from_test_data = self._get_object_from_test_data('datacatalog')

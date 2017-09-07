@@ -12,10 +12,12 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
-# import sys
 import yaml
+from metax_api.utils import executing_test_case, executing_travis
 
-if not os.getenv('TRAVIS', None):
+executing_in_travis = executing_travis()
+
+if not executing_in_travis:
     with open('/home/metax-user/app_config') as app_config:
         app_config_dict = yaml.load(app_config)
 
@@ -27,10 +29,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if os.getenv('TRAVIS', None):
+if executing_in_travis:
     SECRET_KEY = '^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b'
 else:
     SECRET_KEY = app_config_dict['DJANGO_SECRET_KEY']
+
+if executing_test_case() or executing_in_travis:
+    # used by test cases and travis during test case execution to authenticate with certain api's
+    API_TEST_USER = {
+        'username': 'testuser',
+        'password': 'testuserpassword'
+    }
 
 # Consider enabling these
 #CSRF_COOKIE_SECURE = True
@@ -39,12 +48,14 @@ else:
 #SESSION_COOKIE_SECURE = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.getenv('TRAVIS', None):
+if executing_in_travis:
     DEBUG = True
 else:
     DEBUG = app_config_dict['DEBUG']
 
 # Application definition
+
+AUTH_USER_MODEL = 'metax_api.MetaxUser'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -66,6 +77,7 @@ MIDDLEWARE = [  # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',  # 'django.middleware.cache.FetchFromCacheMiddleware',
+    'metax_api.middleware.IdentifyApiCaller',
 ]
 
 REST_FRAMEWORK = {
@@ -109,7 +121,7 @@ WSGI_APPLICATION = 'metax_api.wsgi.application'
 The following uses the 'TRAVIS' (== True) environment variable on Travis
 to detect the session, and changes the default database accordingly.
 """
-if os.getenv('TRAVIS', None):
+if executing_in_travis:
     DATABASES = {
         'default': {
             'ENGINE':   'django.db.backends.postgresql_psycopg2',
@@ -248,7 +260,7 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
 
-if not os.getenv('TRAVIS', None):
+if not executing_in_travis:
     # settings for custom redis-py cache helper in utils/redis.py
     REDIS_SENTINEL = {
         # at least three are required
@@ -266,12 +278,7 @@ if not os.getenv('TRAVIS', None):
         'DEBUG': False,
     }
 
-# does not have effect since we are not using a django-specific cache currently !!!
-# automated tests or travis do not currently use any kind of caching
-# if 'test' in sys.argv or os.getenv('TRAVIS', None):
-#     CACHES = { 'default': { 'BACKEND': 'django.core.cache.backends.dummy.DummyCache' }}
-
-if os.getenv('TRAVIS', None):
+if executing_in_travis:
     ELASTICSEARCH = {
         'HOSTS': ['metax-test.csc.fi/es'],
         'USE_SSL': True,
@@ -285,10 +292,7 @@ else:
         'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
     }
 
-if os.getenv('TRAVIS', None):
-    # travis will receive a dummy client
-    pass
-else:
+if not executing_in_travis:
     RABBITMQ = {
         'HOSTS':    app_config_dict['RABBITMQ']['HOSTS'],
         'PORT':     app_config_dict['RABBITMQ']['PORT'],

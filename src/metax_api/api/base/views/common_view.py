@@ -1,6 +1,7 @@
 from django.http import Http404
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from metax_api.services import CommonService
@@ -149,6 +150,28 @@ class CommonViewSet(ModelViewSet):
     def destroy_bulk(self, request, *args, **kwargs):
         # not allowed... for now
         return Response({}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def initialize_request(self, request, *args, **kwargs):
+        """
+        Overrided from rest_framework to preserve the username set during
+        identifyapicaller middleware.
+        """
+        username = request.user.username
+
+        # original ->
+        parser_context = self.get_parser_context(request)
+
+        req = Request(
+            request,
+            parsers=self.get_parsers(),
+            authenticators=self.get_authenticators(),
+            negotiator=self.get_content_negotiator(),
+            parser_context=parser_context
+        )
+        # ^ original
+
+        req.user.username = username
+        return req
 
     def _publish_message(self, body, routing_key='', exchange=''):
         rabbitmq = RabbitMQ()
