@@ -95,7 +95,8 @@ class _IdentifyApiCaller():
         http_auth_header = request.META.get('HTTP_AUTHORIZATION', None)
 
         if not http_auth_header:
-            _logger.warning('Unauthenticated access attempt from ip: %s. Authorization header missing' % request.META['REMOTE_ADDR'])
+            if request.method != 'GET':
+                _logger.warning('Unauthenticated access attempt from ip: %s. Authorization header missing' % request.META['REMOTE_ADDR'])
             raise Http403
 
         if isinstance(http_auth_header, bytes):
