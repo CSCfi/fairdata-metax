@@ -46,18 +46,11 @@ class _IdentifyApiCaller():
         # Code to be executed for each request before
         # the view (and later middleware) are called.
 
-        try:
-            self._identify_api_caller(request)
-        except Http403:
-            if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+        if self._caller_should_be_identified(request):
+            try:
+                self._identify_api_caller(request)
+            except Http403:
                 return HttpResponseForbidden()
-            elif request.META.get('HTTP_AUTHORIZATION', None):
-                # if auth headers are included during GET, and they fail,
-                # access is forbidden also
-                return HttpResponseForbidden()
-            else:
-                # GET request with no auth is OK
-                pass
 
         response = self.get_response(request)
 
@@ -73,6 +66,13 @@ class _IdentifyApiCaller():
         if apikey != user['password']:
             return False
         return True
+
+    def _caller_should_be_identified(self, request):
+        if request.META.get('HTTP_AUTHORIZATION', None):
+            return True
+        elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+            return True
+        return False
 
     def _get_api_users(self):
         with open('/home/metax-user/app_config') as app_config:
@@ -95,8 +95,7 @@ class _IdentifyApiCaller():
         http_auth_header = request.META.get('HTTP_AUTHORIZATION', None)
 
         if not http_auth_header:
-            if request.method != 'GET':
-                _logger.warning('Unauthenticated access attempt from ip: %s. Authorization header missing' % request.META['REMOTE_ADDR'])
+            _logger.warning('Unauthenticated access attempt from ip: %s. Authorization header missing' % request.META['REMOTE_ADDR'])
             raise Http403
 
         if isinstance(http_auth_header, bytes):
