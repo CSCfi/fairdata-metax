@@ -24,3 +24,7 @@ class Http400(APIException):
 class Http403(APIException):
     # forbidden
     status_code = 403
+
+class Http412(APIException):
+    # precondition failed
+    status_code = 412
