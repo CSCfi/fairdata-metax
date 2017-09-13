@@ -1,3 +1,4 @@
+from datetime import datetime
 from time import time
 
 from django.db import models
@@ -42,6 +43,32 @@ class Common(models.Model):
         """
         self.removed = True
         self.save()
+
+    def modified_since(self, timestamp, http=False):
+        """
+        Return True if object has been modified since the given timestamp.
+
+        parameters:
+        timestamp: a date object, or a string that has the format of a default Date object,
+            or None, which implies 'the resource has never been modified before'
+        http: if True, the timestamp is received from a http header, and microseconds should
+            not be included in the comparison.
+        """
+        if not self.modified_by_api:
+            # server version has never been modified
+            return False
+        elif not timestamp:
+            # server version has been modified at some point, but the version being compared with
+            # has was never modified.
+            return True
+
+        if isinstance(timestamp, str):
+            timestamp = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f')
+
+        if http:
+            return timestamp < self.modified_by_api.replace(microsecond=0)
+        else:
+            return timestamp < self.modified_by_api
 
     def track_fields(self, *args):
         """

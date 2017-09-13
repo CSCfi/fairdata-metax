@@ -85,12 +85,19 @@ class CommonService():
     @classmethod
     def update_bulk(cls, request, model_obj, serializer_class, **kwargs):
         """
-        Note: ONLY list update (PUT and PATCH)
+        Note: ONLY list update (PUT and PATCH). Single update uses std rest_framework process.
 
-        Update objects to database from a list of dicts. Bulk update operations requires
+        Update objects to database from a list of dicts. Bulk update operation requires
         that the payload dict contains a field that can be used to identify the target row
         that is being updated, since a PUT or PATCH to i.e. /datasets or /files will not have
         an identifier in the url.
+
+        If the header If-Unmodified-Since is set, the field modified_by_api from the received
+        data row will be compared to same field in the instance being updated, to see if the
+        resource has been modified in the meantime. Only the presence of the header is checked
+        in bulk update, its value does not matter. For PATCH, the presence of the field
+        modified_by_api is an extra requirement in the received data, and an error will be
+        returned if it is missing, when the header is set.
 
         params:
         request: the http request object
@@ -101,13 +108,13 @@ class CommonService():
         if not isinstance(request.data, list):
             raise ValidationError('request.data is not a list')
 
+        check_modified_since = kwargs['context']['view']._request_has_header('If-Unmodified-Since')
         common_info = { 'modified_by_api': datetime.now() }
-
         results = { 'success': [], 'failed': []}
 
         for row in request.data:
 
-            instance = cls._get_object_for_update(model_obj, row, results)
+            instance = cls._get_object_for_update(model_obj, row, results, check_modified_since)
 
             if not instance:
                 continue
@@ -179,14 +186,38 @@ class CommonService():
             return status.HTTP_400_BAD_REQUEST
 
     @staticmethod
-    def _get_object_for_update(model_obj, row, results):
+    def _get_object_for_update(model_obj, row, results, check_modified_since):
         """
-        Find the target object being updated using a row from the request payload
+        Find the target object being updated using a row from the request payload.
+
+        parameters:
+        model_obj: the model object used to search the db
+        row: the payload from the request
+        results: the result-list that will be returned from the api
+        check_modified_since: retrieved object should compare its modified_by_api timestamp
+            to the corresponding field in the received row. this simulates the use of the
+            if-unmodified-since header that is used for single updates.
         """
+        instance = None
         try:
-            return model_obj.objects.get(using_dict=row)
+            instance = model_obj.objects.get(using_dict=row)
         except model_obj.DoesNotExist:
             results['failed'].append({ 'object': row, 'errors': { 'detail': ['object not found'] }})
         except ValidationError as e:
             results['failed'].append({ 'object': row, 'errors': { 'detail': e.detail } })
-        return None
+
+        if instance and check_modified_since:
+            if 'modified_by_api' not in row:
+                results['failed'].append({
+                    'object': row,
+                    'errors': {
+                        'detail': ['Field modified_by_api is required when the header If-Unmodified-Since is set']
+                    }
+                })
+            elif instance.modified_since(row['modified_by_api']):
+                results['failed'].append({ 'object': row, 'errors': { 'detail': ['Resource has been modified'] } })
+            else:
+                # good case - all is good
+                pass
+
+        return instance
