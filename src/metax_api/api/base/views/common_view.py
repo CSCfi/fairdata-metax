@@ -1,10 +1,14 @@
 from django.http import Http404
+
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+
+from metax_api.exceptions import Http400, Http412
 from metax_api.services import CommonService
-from metax_api.utils import RabbitMQ, RedisSentinelCache
+from metax_api.utils import RabbitMQ, RedisSentinelCache, parse_http_timestamp
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -56,6 +60,9 @@ class CommonViewSet(ModelViewSet):
             obj = get_object_or_404(queryset, **filter_kwargs)
         except Exception:
             raise Http404
+
+        if self._request_is_write_operation() and self._request_has_header('If-Unmodified-Since'):
+            self._check_if_unmodified_since_header(obj)
 
         # May raise a permission denied
         self.check_object_permissions(self.request, obj)
@@ -150,9 +157,47 @@ class CommonViewSet(ModelViewSet):
         # not allowed... for now
         return Response({}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    def initialize_request(self, request, *args, **kwargs):
+        """
+        Overrided from rest_framework to preserve the username set during
+        identifyapicaller middleware.
+        """
+        username = request.user.username
+
+        # original ->
+        parser_context = self.get_parser_context(request)
+
+        req = Request(
+            request,
+            parsers=self.get_parsers(),
+            authenticators=self.get_authenticators(),
+            negotiator=self.get_content_negotiator(),
+            parser_context=parser_context
+        )
+        # ^ original
+
+        req.user.username = username
+        return req
+
+    def _check_if_unmodified_since_header(self, instance):
+        try:
+            header_timestamp = parse_http_timestamp(self.request.META['headers'].get('If-Unmodified-Since'))
+        except:
+            raise Http400('Bad If-Unmodified-Since header')
+        if instance.modified_since(header_timestamp, http=True):
+            raise Http412('Resource has been modified')
+
     def _publish_message(self, body, routing_key='', exchange=''):
         rabbitmq = RabbitMQ()
         rabbitmq.publish(body, routing_key=routing_key, exchange=exchange)
+
+    def _request_has_header(self, header_name):
+        if 'headers' in self.request.META:
+            return header_name in self.request.META['headers']
+        return False
+
+    def _request_is_write_operation(self):
+        return self.request.method in ('POST', 'PUT', 'PATCH', 'DELETE')
 
     def set_json_schema(self, view_file):
         """

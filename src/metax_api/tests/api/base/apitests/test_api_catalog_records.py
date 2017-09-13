@@ -204,6 +204,8 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.test_new_data = self._get_new_test_data()
         self.second_test_new_data = self._get_second_new_test_data()
 
+        self._use_http_authorization()
+
     #
     #
     #
@@ -534,6 +536,96 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
         self.assertEqual('detail' in response.data['failed'][0]['errors'], True, response.data['failed'][0]['errors'])
         self.assertEqual('identifying key' in response.data['failed'][0]['errors']['detail'][0], True, response.data['failed'][0]['errors'])
+
+    #
+    # header if-modified-since tests, single
+    #
+
+    def test_update_with_if_unmodified_since_header_ok(self):
+        self.test_new_data['preservation_description'] = 'damn this is good coffee'
+        cr = CatalogRecord.objects.get(pk=1)
+        headers = { 'If-Unmodified-Since': cr.modified_by_api.strftime('%a, %d %b %Y %H:%M:%S %Z') }
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, headers=headers, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+    def test_update_with_if_unmodified_since_header_error(self):
+        self.test_new_data['preservation_description'] = 'the owls are not what they seem'
+        headers = { 'If-Unmodified-Since': 'Wed, 23 Sep 2009 22:15:29 GMT' }
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, headers=headers, format="json")
+        self.assertEqual(response.status_code, 412, 'http status should be 412 = precondition failed')
+
+    #
+    # header if-modified-since tests, list
+    #
+
+    def test_update_list_with_if_unmodified_since_header_ok(self):
+        response = self.client.get('/rest/datasets/1', format="json")
+        data_1 = response.data
+        response = self.client.get('/rest/datasets/2', format="json")
+        data_2 = response.data
+
+        data_1['preservation_description'] = 'damn this is good coffee'
+        data_2['preservation_description'] = 'damn this is good coffee also'
+
+        headers = { 'If-Unmodified-Since': 'value is not checked' }
+        response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+    def test_update_list_with_if_unmodified_since_header_error_1(self):
+        """
+        One resource being updated was updated in the meantime, resulting in an error
+        """
+        response = self.client.get('/rest/datasets/1', format="json")
+        data_1 = response.data
+        response = self.client.get('/rest/datasets/2', format="json")
+        data_2 = response.data
+
+        data_1['preservation_description'] = 'damn this is good coffee'
+
+        # should result in error for this record
+        data_2['modified_by_api'] = '2002-01-01T10:10:10.000000'
+
+        headers = { 'If-Unmodified-Since': 'value is not checked' }
+        response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
+        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True, 'error should indicate resource has been modified')
+
+    def test_update_list_with_if_unmodified_since_header_error_2(self):
+        """
+        Field modified_by_api is missing, while if-modified-since header is set, resulting in an error.
+        """
+        response = self.client.get('/rest/datasets/1', format="json")
+        data_1 = response.data
+        response = self.client.get('/rest/datasets/2', format="json")
+        data_2 = response.data
+
+        data_1['preservation_description'] = 'damn this is good coffee'
+
+        # should result in error for this record
+        data_2.pop('modified_by_api')
+
+        headers = { 'If-Unmodified-Since': 'value is not checked' }
+        response = self.client.patch('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
+        self.assertEqual('required' in response.data['failed'][0]['errors']['detail'][0], True, 'error should be about field modified_by_api is required')
+
+    def test_update_list_with_if_unmodified_since_header_error_3(self):
+        """
+        One resource being updated has never been modified before. Make sure that modified_by_api = None
+        is an accepted value. The end result should be that the resource has been modified, since the
+        server version has a timestamp set in modified_by_api.
+        """
+        response = self.client.get('/rest/datasets/1', format="json")
+        data_1 = response.data
+        response = self.client.get('/rest/datasets/2', format="json")
+        data_2 = response.data
+
+        data_1['preservation_description'] = 'damn this is good coffee'
+        data_2['preservation_description'] = 'damn this is good coffee also'
+        data_2['modified_by_api'] = None
+
+        headers = { 'If-Unmodified-Since': 'value is not checked' }
+        response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
+        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True, 'error should indicate resource has been modified')
 
     #
     #

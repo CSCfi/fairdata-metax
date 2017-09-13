@@ -62,6 +62,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         """
         self.test_new_data = self._get_new_test_data()
         self.second_test_new_data = self._get_second_new_test_data()
+        self._use_http_authorization()
 
     #
     #

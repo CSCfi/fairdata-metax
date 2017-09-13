@@ -53,6 +53,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         """
         self.test_new_data = self._get_new_test_data()
         self.second_test_new_data = self._get_second_new_test_data()
+        self._use_http_authorization()
 
     def test_update_contract(self):
         self.test_new_data['pk'] = self.pk
