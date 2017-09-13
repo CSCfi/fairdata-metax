@@ -43,9 +43,16 @@ if executing_test_case() or executing_in_travis:
 
 # Consider enabling these
 #CSRF_COOKIE_SECURE = True
-#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 #SECURE_SSL_REDIRECT = True
 #SESSION_COOKIE_SECURE = True
+
+# Allow only specific hosts to access the app
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
+if not os.getenv('TRAVIS', None):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
+    for allowed_host in app_config_dict['ALLOWED_HOSTS']:
+        ALLOWED_HOSTS.append(allowed_host)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if executing_in_travis:
