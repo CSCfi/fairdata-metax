@@ -608,6 +608,25 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         response = self.client.patch('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
         self.assertEqual('required' in response.data['failed'][0]['errors']['detail'][0], True, 'error should be about field modified_by_api is required')
 
+    def test_update_list_with_if_unmodified_since_header_error_3(self):
+        """
+        One resource being updated has never been modified before. Make sure that modified_by_api = None
+        is an accepted value. The end result should be that the resource has been modified, since the
+        server version has a timestamp set in modified_by_api.
+        """
+        response = self.client.get('/rest/datasets/1', format="json")
+        data_1 = response.data
+        response = self.client.get('/rest/datasets/2', format="json")
+        data_2 = response.data
+
+        data_1['preservation_description'] = 'damn this is good coffee'
+        data_2['preservation_description'] = 'damn this is good coffee also'
+        data_2['modified_by_api'] = None
+
+        headers = { 'If-Unmodified-Since': 'value is not checked' }
+        response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
+        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True, 'error should indicate resource has been modified')
+
     #
     #
     #
