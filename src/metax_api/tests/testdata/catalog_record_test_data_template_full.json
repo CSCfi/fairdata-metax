@@ -41,7 +41,7 @@
             "alt": "11.111",
             "address_country": "FI",
             "full_address": "The complete address written as a string, with or without formatting",
-            "polygon": ["11.11,22.22 33.33,44.44 55.55,66.66 11.11,22.22"]
+            "polygon": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"]
         }],
         "related_entity": [{
             "title": [{
