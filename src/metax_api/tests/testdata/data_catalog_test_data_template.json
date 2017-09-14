@@ -2,28 +2,82 @@
     "catalog_record_group_edit": "default-record-edit-group",
     "catalog_record_group_create": "default-record-create-group",
     "catalog_json": {
-        "identifier": "http://urn.fi/urn:nbn:fi:csc-898976%s",
-        "title": [{
-            "en": "Wonderful Title"
-        }],
         "modified": "2014-01-17T08:19:58Z",
         "issued": "2014-02-27T08:19:58Z",
-        "language":[{
-            "identifier": "http://lang.uage.ident.ifier",
-            "notation": "en"
+        "title": {
+          "fi": "Testidatakatalogin nimi",
+          "en": "Test data catalog name"
+        },
+        "harvested": false,
+        "language": [
+          {
+            "identifier": "http://lexvo.org/id/iso639-3/fin",
+            "notation": "fin"
+          },
+          {
+            "identifier": "http://lexvo.org/id/iso639-3/eng",
+            "notation": "eng"
+          }
+        ],
+        "homepage": [
+          {
+            "identifier": "http://testing.com",
+            "title": {
+              "en": "Test website",
+              "fi": "Testi-verkkopalvelu"
+            }
+          },
+          {
+            "identifier": "http://www.testing.fi",
+            "title": {
+              "en": "Another website",
+              "fi": "Toinen verkkopalvelu"
+            }
+          }
+        ],
+        "publisher": [{
+          "identifier": "http://isni.org/isni/0000000405129137",
+          "name": {
+            "fi": "Julkaisija",
+            "en": "Publisher"
+          },
+          "homepage": [{
+            "identifier": "http://www.publisher.fi/",
+            "title": {
+              "fi": "Julkaisijan kotisivu",
+              "en": "Publisher website"
+            }
+          }]
         }],
         "rights": {
-            "license": [{
-                "identifier": "http://urn.fi/urn:nbn:fi:csc-3388475675",
-                "title": [{
-                    "en": "Title here"
-                }]
-            }]
-        },
-        "publisher": {
-            "name": {
-                "en": "Teppo Testaaja"
+          "description": [
+            {"fi": "Käyttöehtojen kuvaus"}
+          ],
+          "type": [
+            {
+              "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
+              "pref_label": {
+                "fi": "Avoin",
+                "en": "Open"
+              }
             }
-        }
+          ],
+          "license": [{
+            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+            "title": [{
+              "fi": "CC BY 4.0",
+              "en": "CC BY 4.0"
+            }]
+          }]
+        },
+        "field_of_science": [
+          {
+            "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+            "pref_label": {
+              "fi": "Ympäristötiede",
+              "en": "Environmental sciences"
+            }
+          }
+        ]
     }
 }

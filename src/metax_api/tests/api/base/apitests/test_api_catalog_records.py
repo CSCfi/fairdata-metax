@@ -270,15 +270,15 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_create_catalog_record_dont_allow_data_catalog_fields_update(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
-        original_title = self.test_new_data['data_catalog']['catalog_json']['title'][0]['en']
-        self.test_new_data['data_catalog']['catalog_json']['title'][0]['en'] = 'new title'
+        original_title = self.test_new_data['data_catalog']['catalog_json']['title']['en']
+        self.test_new_data['data_catalog']['catalog_json']['title']['en'] = 'new title'
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['data_catalog']['catalog_json']['title'][0]['en'], original_title)
+        self.assertEqual(response.data['data_catalog']['catalog_json']['title']['en'], original_title)
         data_catalog = DataCatalog.objects.get(pk=response.data['data_catalog']['id'])
-        self.assertEqual(data_catalog.catalog_json['title'][0]['en'], original_title)
+        self.assertEqual(data_catalog.catalog_json['title']['en'], original_title)
 
     #
     # create list operations
@@ -380,14 +380,14 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.data['data_catalog']['id'], new_data_catalog, 'Field data_catalog was not updated')
 
     def test_update_catalog_record_dont_allow_data_catalog_fields_update(self):
-        original_title = self.test_new_data['data_catalog']['catalog_json']['title'][0]['en']
-        self.test_new_data['data_catalog']['catalog_json']['title'][0]['en'] = 'new title'
+        original_title = self.test_new_data['data_catalog']['catalog_json']['title']['en']
+        self.test_new_data['data_catalog']['catalog_json']['title']['en'] = 'new title'
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
 
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         data_catalog = DataCatalog.objects.get(pk=self.test_new_data['data_catalog']['id'])
-        self.assertEqual(data_catalog.catalog_json['title'][0]['en'], original_title)
+        self.assertEqual(data_catalog.catalog_json['title']['en'], original_title)
 
     def test_update_catalog_record_not_found(self):
         response = self.client.put('/rest/datasets/doesnotexist', self.test_new_data, format="json")
