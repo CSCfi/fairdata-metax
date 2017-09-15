@@ -74,12 +74,24 @@ class CommonService():
         return results, http_status
 
     @staticmethod
-    def get_json_schema(view_file_location, model_name):
+    def get_json_schema(view_file_location, model_name, data_catalog_prefix=None):
         """
         Get the json schema file for model model_name.
         view_file is a __file__ variable
         """
-        with open(path.dirname(view_file_location) + '/../schemas/json_schema_%s.json' % model_name, encoding='utf-8') as f:
+        schema_name = ''
+
+        if model_name == 'dataset':
+            if data_catalog_prefix:
+                schema_name = data_catalog_prefix
+            else:
+                schema_name = 'att'
+
+            schema_name += '_'
+
+        schema_name += '%s_schema.json' % model_name
+
+        with open(path.dirname(view_file_location) + '/../schemas/%s' % schema_name, encoding='utf-8') as f:
             return json_load(f)
 
     @classmethod
