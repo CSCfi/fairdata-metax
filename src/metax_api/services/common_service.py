@@ -1,7 +1,7 @@
 from datetime import datetime
 from json import load as json_load
-from os import path
 import logging
+from os import path
 
 from rest_framework import status
 from rest_framework.serializers import ValidationError
@@ -51,8 +51,8 @@ class CommonService():
 
                 try:
                     serializer.is_valid(raise_exception=True)
-                except Exception:
-                    results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+                except Exception as e:
+                    results['failed'].append({ 'object': serializer.initial_data, 'errors': str(e) })
                 else:
                     serializer.save(**common_info)
                     results['success'].append({ 'object': serializer.data })
@@ -74,10 +74,12 @@ class CommonService():
         return results, http_status
 
     @staticmethod
-    def get_json_schema(view_file_location, model_name, data_catalog_prefix=None):
+    def get_json_schema(schema_folder_path, model_name, data_catalog_prefix=False):
         """
         Get the json schema file for model model_name.
-        view_file is a __file__ variable
+        schema_folder_path is a the path to the folder where schemas are located
+        For datasets, a data catalog prefix can be given, in which case it will
+        be the prefix for the schema file name.
         """
         schema_name = ''
 
@@ -91,8 +93,13 @@ class CommonService():
 
         schema_name += '%s_schema.json' % model_name
 
-        with open(path.dirname(view_file_location) + '/../schemas/%s' % schema_name, encoding='utf-8') as f:
-            return json_load(f)
+        try:
+            with open(schema_folder_path + '/%s' % schema_name, encoding='utf-8') as f:
+                return json_load(f)
+        except IOError as e:
+            _logger.warning(e)
+            with open(path.dirname(__file__) + '../api/base/schemas/att_dataset_schema.json', encoding='utf-8') as f:
+                return json_load(f)
 
     @classmethod
     def update_bulk(cls, request, model_obj, serializer_class, **kwargs):

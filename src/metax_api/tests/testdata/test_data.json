@@ -648,83 +648,95 @@
     {
         "fields": {
             "catalog_json": {
-                "identifier": "pid:urn:data_catalog1",
-                "issued": "2014-02-27T08:19:58Z",
-                "title": {
-                  "fi": "Testidatakatalogin nimi",
-                  "en": "Test data catalog name"
-                },
-                "harvested": false,
-                "language": [
-                  {
-                    "identifier": "http://lexvo.org/id/iso639-3/fin",
-                    "notation": "fin"
-                  },
-                  {
-                    "identifier": "http://lexvo.org/id/iso639-3/eng",
-                    "notation": "eng"
-                  }
-                ],
-                "homepage": [
-                  {
-                    "identifier": "http://testing.com",
-                    "title": {
-                      "en": "Test website",
-                      "fi": "Testi-verkkopalvelu"
-                    }
-                  },
-                  {
-                    "identifier": "http://www.testing.fi",
-                    "title": {
-                      "en": "Another website",
-                      "fi": "Toinen verkkopalvelu"
-                    }
-                  }
-                ],
-                "publisher": [{
-                  "identifier": "http://isni.org/isni/0000000405129137",
-                  "name": {
-                    "fi": "Julkaisija",
-                    "en": "Publisher"
-                  },
-                  "homepage": [{
-                    "identifier": "http://www.publisher.fi/",
-                    "title": {
-                      "fi": "Julkaisijan kotisivu",
-                      "en": "Publisher website"
-                    }
-                  }]
-                }],
-                "rights": {
-                  "description": [
-                    {"fi": "Käyttöehtojen kuvaus"}
-                  ],
-                  "type": [
-                    {
-                      "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
-                      "pref_label": {
-                        "fi": "Avoin",
-                        "en": "Open"
-                      }
-                    }
-                  ],
-                  "license": [{
-                    "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                    "title": [{
-                      "fi": "CC BY 4.0",
-                      "en": "CC BY 4.0"
-                    }]
-                  }]
-                },
                 "field_of_science": [
-                  {
-                    "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
-                    "pref_label": {
-                      "fi": "Ympäristötiede",
-                      "en": "Environmental sciences"
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
                     }
-                  }
-                ]
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "pid:urn:catalog1",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin",
+                        "notation": "fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "notation": "eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": [
+                    {
+                        "homepage": [
+                            {
+                                "identifier": "http://www.publisher.fi/",
+                                "title": {
+                                    "en": "Publisher website",
+                                    "fi": "Julkaisijan kotisivu"
+                                }
+                            }
+                        ],
+                        "identifier": "http://isni.org/isni/0000000405129137",
+                        "name": {
+                            "en": "Publisher",
+                            "fi": "Julkaisija"
+                        }
+                    }
+                ],
+                "research_dataset_schema": "att",
+                "rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": [
+                                {
+                                    "en": "CC BY 4.0",
+                                    "fi": "CC BY 4.0"
+                                }
+                            ]
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
             },
             "catalog_record_group_create": "default-record-create-group",
             "catalog_record_group_edit": "default-record-edit-group",
@@ -737,83 +749,95 @@
     {
         "fields": {
             "catalog_json": {
-                "identifier": "pid:urn:data_catalog2",
-                "issued": "2014-02-27T08:19:58Z",
-                "title": {
-                  "fi": "Testidatakatalogin nimi",
-                  "en": "Test data catalog name"
-                },
-                "harvested": false,
-                "language": [
-                  {
-                    "identifier": "http://lexvo.org/id/iso639-3/fin",
-                    "notation": "fin"
-                  },
-                  {
-                    "identifier": "http://lexvo.org/id/iso639-3/eng",
-                    "notation": "eng"
-                  }
-                ],
-                "homepage": [
-                  {
-                    "identifier": "http://testing.com",
-                    "title": {
-                      "en": "Test website",
-                      "fi": "Testi-verkkopalvelu"
-                    }
-                  },
-                  {
-                    "identifier": "http://www.testing.fi",
-                    "title": {
-                      "en": "Another website",
-                      "fi": "Toinen verkkopalvelu"
-                    }
-                  }
-                ],
-                "publisher": [{
-                  "identifier": "http://isni.org/isni/0000000405129137",
-                  "name": {
-                    "fi": "Julkaisija",
-                    "en": "Publisher"
-                  },
-                  "homepage": [{
-                    "identifier": "http://www.publisher.fi/",
-                    "title": {
-                      "fi": "Julkaisijan kotisivu",
-                      "en": "Publisher website"
-                    }
-                  }]
-                }],
-                "rights": {
-                  "description": [
-                    {"fi": "Käyttöehtojen kuvaus"}
-                  ],
-                  "type": [
-                    {
-                      "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
-                      "pref_label": {
-                        "fi": "Avoin",
-                        "en": "Open"
-                      }
-                    }
-                  ],
-                  "license": [{
-                    "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                    "title": [{
-                      "fi": "CC BY 4.0",
-                      "en": "CC BY 4.0"
-                    }]
-                  }]
-                },
                 "field_of_science": [
-                  {
-                    "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
-                    "pref_label": {
-                      "fi": "Ympäristötiede",
-                      "en": "Environmental sciences"
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
                     }
-                  }
-                ]
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "pid:urn:catalog2",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin",
+                        "notation": "fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "notation": "eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": [
+                    {
+                        "homepage": [
+                            {
+                                "identifier": "http://www.publisher.fi/",
+                                "title": {
+                                    "en": "Publisher website",
+                                    "fi": "Julkaisijan kotisivu"
+                                }
+                            }
+                        ],
+                        "identifier": "http://isni.org/isni/0000000405129137",
+                        "name": {
+                            "en": "Publisher",
+                            "fi": "Julkaisija"
+                        }
+                    }
+                ],
+                "research_dataset_schema": "att",
+                "rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": [
+                                {
+                                    "en": "CC BY 4.0",
+                                    "fi": "CC BY 4.0"
+                                }
+                            ]
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
             },
             "catalog_record_group_create": "default-record-create-group",
             "catalog_record_group_edit": "default-record-edit-group",
@@ -1016,6 +1040,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1045,18 +1070,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset1",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 300,
                 "urn_identifier": "pid:urn:cr1",
                 "version_notes": [
@@ -1081,6 +1103,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1110,18 +1133,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset2",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 700,
                 "urn_identifier": "pid:urn:cr2",
                 "version_notes": [
@@ -1146,6 +1166,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1175,18 +1196,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset3",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 1100,
                 "urn_identifier": "pid:urn:cr3",
                 "version_notes": [
@@ -1215,6 +1233,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 3,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1244,18 +1263,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset4",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 1500,
                 "urn_identifier": "pid:urn:cr4",
                 "version_notes": [
@@ -1284,6 +1300,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 4,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1313,18 +1330,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset5",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 1900,
                 "urn_identifier": "pid:urn:cr5",
                 "version_notes": [
@@ -1349,6 +1363,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1378,18 +1393,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset6",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 2300,
                 "urn_identifier": "pid:urn:cr6",
                 "version_notes": [
@@ -1413,6 +1425,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1442,18 +1455,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset7",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 2700,
                 "urn_identifier": "pid:urn:cr7",
                 "version_notes": [
@@ -1477,6 +1487,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1506,18 +1517,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset8",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 3100,
                 "urn_identifier": "pid:urn:cr8",
                 "version_notes": [
@@ -1541,6 +1549,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1570,18 +1579,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset9",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 3500,
                 "urn_identifier": "pid:urn:cr9",
                 "version_notes": [
@@ -1605,6 +1611,7 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1634,18 +1641,15 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset10",
-                "ready_status": "Unfinished",
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 3900,
                 "urn_identifier": "pid:urn:cr10",
                 "version_notes": [
@@ -1665,6 +1669,7 @@
                 2
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "access_rights": {
                     "available": "2014-01-15T08:19:58Z",
@@ -1677,17 +1682,13 @@
                         {
                             "email": "info@csc.fi",
                             "homepage": {
-                                "description": [
-                                    {
-                                        "en": "homepage description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "homepage description"
+                                },
                                 "identifier": "https://www.csc.fi",
-                                "title": [
-                                    {
-                                        "en": "homepage title"
-                                    }
-                                ]
+                                "title": {
+                                    "en": "homepage title"
+                                }
                             },
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                             "name": "Mysterious Organization",
@@ -1730,11 +1731,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for this type"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
                         }
                     ]
                 },
@@ -1807,27 +1806,21 @@
                                 ]
                             }
                         ],
-                        "pref_label": [
-                            {
-                                "en": "pref label for this type"
-                            }
-                        ]
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
                     }
                 ],
                 "files": [
                     {
                         "access_url": {
-                            "description": [
-                                {
-                                    "en": "file url description"
-                                }
-                            ],
+                            "description": {
+                                "en": "file url description"
+                            },
                             "identifier": "https://www.url.address.perhaps.fi",
-                            "title": [
-                                {
-                                    "en": "file url title"
-                                }
-                            ]
+                            "title": {
+                                "en": "file url title"
+                            }
                         },
                         "description": "file description",
                         "identifier": "pid:urn:1",
@@ -1849,26 +1842,20 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label"
+                            }
                         }
                     },
                     {
                         "access_url": {
-                            "description": [
-                                {
-                                    "en": "file url description"
-                                }
-                            ],
+                            "description": {
+                                "en": "file url description"
+                            },
                             "identifier": "https://www.url.address.perhaps.fi",
-                            "title": [
-                                {
-                                    "en": "file url title"
-                                }
-                            ]
+                            "title": {
+                                "en": "file url title"
+                            }
                         },
                         "description": "file description",
                         "identifier": "pid:urn:2",
@@ -1890,11 +1877,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label"
+                            }
                         }
                     }
                 ],
@@ -1977,11 +1962,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label"
+                            }
                         }
                     },
                     {
@@ -2022,11 +2005,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for y"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for y"
+                            }
                         }
                     }
                 ],
@@ -2072,11 +2053,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for this type"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
                         },
                         "used_entity": [
                             {
@@ -2108,11 +2087,9 @@
                                             ]
                                         }
                                     ],
-                                    "pref_label": [
-                                        {
-                                            "en": "pref label for this type"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "pref label for this type"
+                                    }
                                 }
                             }
                         ],
@@ -2135,11 +2112,9 @@
                                             ]
                                         }
                                     ],
-                                    "pref_label": [
-                                        {
-                                            "en": "pref label"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "pref label"
+                                    }
                                 },
                                 "description": [
                                     {
@@ -2176,11 +2151,9 @@
                                             ]
                                         }
                                     ],
-                                    "pref_label": [
-                                        {
-                                            "en": "pref label"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "pref label"
+                                    }
                                 }
                             }
                         ],
@@ -2212,7 +2185,6 @@
                         "+358501231234"
                     ]
                 },
-                "ready_status": "Unfinished",
                 "related_entity": [
                     {
                         "description": [
@@ -2243,28 +2215,22 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for this type"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
                         }
                     }
                 ],
                 "remote_resources": [
                     {
                         "access_url": {
-                            "description": [
-                                {
-                                    "en": "Description of the link. For example to be used as hover text."
-                                }
-                            ],
+                            "description": {
+                                "en": "Description of the link. For example to be used as hover text."
+                            },
                             "identifier": "https://url.of.resource.com",
-                            "title": [
-                                {
-                                    "en": "A name given to the document, which may be e.g. a landing page"
-                                }
-                            ]
+                            "title": {
+                                "en": "A name given to the document, which may be e.g. a landing page"
+                            }
                         },
                         "bytesize": "2048",
                         "checksum": {
@@ -2273,17 +2239,13 @@
                         },
                         "description": "Free-text account of the distribution.",
                         "download_url": {
-                            "description": [
-                                {
-                                    "en": "Description of the link. For example to be used as hover text."
-                                }
-                            ],
+                            "description": {
+                                "en": "Description of the link. For example to be used as hover text."
+                            },
                             "identifier": "https://download.url.of.resource.com",
-                            "title": [
-                                {
-                                    "en": "A name given to the document, which would be an actual downloadable file"
-                                }
-                            ]
+                            "title": {
+                                "en": "A name given to the document, which would be an actual downloadable file"
+                            }
                         },
                         "has_object_characteristics": {
                             "description": "Description of file type",
@@ -2328,11 +2290,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for this type"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
                         }
                     }
                 ],
@@ -2346,15 +2306,12 @@
                 },
                 "spatial": [
                     {
-                        "address_country": "FI",
                         "alt": "11.111",
-                        "full_address": "The complete address written as a string, with or without formatting",
-                        "geographic_name": "Geographic name",
-                        "lat": 22.222,
-                        "long": 33.333,
-                        "polygon": [
+                        "as_wkt": [
                             "POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"
-                        ]
+                        ],
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name"
                     }
                 ],
                 "temporal": [
@@ -2381,18 +2338,14 @@
                                 ]
                             }
                         ],
-                        "pref_label": [
-                            {
-                                "en": "pref label for theme"
-                            }
-                        ]
+                        "pref_label": {
+                            "en": "pref label for theme"
+                        }
                     }
                 ],
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 300,
                 "urn_identifier": "very:unique:urn-0",
                 "value": [
@@ -2416,6 +2369,7 @@
                 2
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "access_rights": {
                     "available": "2014-01-15T08:19:58Z",
@@ -2428,17 +2382,13 @@
                         {
                             "email": "info@csc.fi",
                             "homepage": {
-                                "description": [
-                                    {
-                                        "en": "homepage description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "homepage description"
+                                },
                                 "identifier": "https://www.csc.fi",
-                                "title": [
-                                    {
-                                        "en": "homepage title"
-                                    }
-                                ]
+                                "title": {
+                                    "en": "homepage title"
+                                }
                             },
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
                             "name": "Mysterious Organization",
@@ -2481,11 +2431,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for this type"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
                         }
                     ]
                 },
@@ -2558,27 +2506,21 @@
                                 ]
                             }
                         ],
-                        "pref_label": [
-                            {
-                                "en": "pref label for this type"
-                            }
-                        ]
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
                     }
                 ],
                 "files": [
                     {
                         "access_url": {
-                            "description": [
-                                {
-                                    "en": "file url description"
-                                }
-                            ],
+                            "description": {
+                                "en": "file url description"
+                            },
                             "identifier": "https://www.url.address.perhaps.fi",
-                            "title": [
-                                {
-                                    "en": "file url title"
-                                }
-                            ]
+                            "title": {
+                                "en": "file url title"
+                            }
                         },
                         "description": "file description",
                         "identifier": "pid:urn:1",
@@ -2600,26 +2542,20 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label"
+                            }
                         }
                     },
                     {
                         "access_url": {
-                            "description": [
-                                {
-                                    "en": "file url description"
-                                }
-                            ],
+                            "description": {
+                                "en": "file url description"
+                            },
                             "identifier": "https://www.url.address.perhaps.fi",
-                            "title": [
-                                {
-                                    "en": "file url title"
-                                }
-                            ]
+                            "title": {
+                                "en": "file url title"
+                            }
                         },
                         "description": "file description",
                         "identifier": "pid:urn:2",
@@ -2641,11 +2577,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label"
+                            }
                         }
                     }
                 ],
@@ -2728,11 +2662,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label"
+                            }
                         }
                     },
                     {
@@ -2773,11 +2705,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for y"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for y"
+                            }
                         }
                     }
                 ],
@@ -2823,11 +2753,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for this type"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
                         },
                         "used_entity": [
                             {
@@ -2859,11 +2787,9 @@
                                             ]
                                         }
                                     ],
-                                    "pref_label": [
-                                        {
-                                            "en": "pref label for this type"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "pref label for this type"
+                                    }
                                 }
                             }
                         ],
@@ -2886,11 +2812,9 @@
                                             ]
                                         }
                                     ],
-                                    "pref_label": [
-                                        {
-                                            "en": "pref label"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "pref label"
+                                    }
                                 },
                                 "description": [
                                     {
@@ -2927,11 +2851,9 @@
                                             ]
                                         }
                                     ],
-                                    "pref_label": [
-                                        {
-                                            "en": "pref label"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "pref label"
+                                    }
                                 }
                             }
                         ],
@@ -2963,7 +2885,6 @@
                         "+358501231234"
                     ]
                 },
-                "ready_status": "Unfinished",
                 "related_entity": [
                     {
                         "description": [
@@ -2994,28 +2915,22 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for this type"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
                         }
                     }
                 ],
                 "remote_resources": [
                     {
                         "access_url": {
-                            "description": [
-                                {
-                                    "en": "Description of the link. For example to be used as hover text."
-                                }
-                            ],
+                            "description": {
+                                "en": "Description of the link. For example to be used as hover text."
+                            },
                             "identifier": "https://url.of.resource.com",
-                            "title": [
-                                {
-                                    "en": "A name given to the document, which may be e.g. a landing page"
-                                }
-                            ]
+                            "title": {
+                                "en": "A name given to the document, which may be e.g. a landing page"
+                            }
                         },
                         "bytesize": "2048",
                         "checksum": {
@@ -3024,17 +2939,13 @@
                         },
                         "description": "Free-text account of the distribution.",
                         "download_url": {
-                            "description": [
-                                {
-                                    "en": "Description of the link. For example to be used as hover text."
-                                }
-                            ],
+                            "description": {
+                                "en": "Description of the link. For example to be used as hover text."
+                            },
                             "identifier": "https://download.url.of.resource.com",
-                            "title": [
-                                {
-                                    "en": "A name given to the document, which would be an actual downloadable file"
-                                }
-                            ]
+                            "title": {
+                                "en": "A name given to the document, which would be an actual downloadable file"
+                            }
                         },
                         "has_object_characteristics": {
                             "description": "Description of file type",
@@ -3079,11 +2990,9 @@
                                     ]
                                 }
                             ],
-                            "pref_label": [
-                                {
-                                    "en": "pref label for this type"
-                                }
-                            ]
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
                         }
                     }
                 ],
@@ -3097,15 +3006,12 @@
                 },
                 "spatial": [
                     {
-                        "address_country": "FI",
                         "alt": "11.111",
-                        "full_address": "The complete address written as a string, with or without formatting",
-                        "geographic_name": "Geographic name",
-                        "lat": 22.222,
-                        "long": 33.333,
-                        "polygon": [
+                        "as_wkt": [
                             "POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"
-                        ]
+                        ],
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name"
                     }
                 ],
                 "temporal": [
@@ -3132,18 +3038,14 @@
                                 ]
                             }
                         ],
-                        "pref_label": [
-                            {
-                                "en": "pref label for theme"
-                            }
-                        ]
+                        "pref_label": {
+                            "en": "pref label for theme"
+                        }
                     }
                 ],
-                "title": [
-                    {
-                        "en": "Wonderful Title"
-                    }
-                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
                 "total_byte_size": 300,
                 "urn_identifier": "very:unique:urn-1",
                 "value": [

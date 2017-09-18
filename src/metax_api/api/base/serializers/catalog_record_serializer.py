@@ -2,11 +2,13 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.models import CatalogRecord, DataCatalog, File, Contract
 from metax_api.services import CatalogRecordService as CRS
+from metax_api.services import CommonService
 from .data_catalog_serializer import DataCatalogSerializer
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
 from .serializer_utils import validate_json
 
+from os import path
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -24,6 +26,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_state_modified',
             'preservation_description',
             'preservation_reason_description',
+            'ready_status',
             'mets_object_identifier',
             'dataset_group_edit',
             'next_version_id',
@@ -66,6 +69,8 @@ class CatalogRecordSerializer(CommonSerializer):
             self.initial_data['data_catalog'] = self._get_id_from_related_object('data_catalog')
         if self.initial_data.get('contract', False):
             self.initial_data['contract'] = self._get_id_from_related_object('contract')
+
+        self._set_dataset_schema()
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
@@ -116,7 +121,7 @@ class CatalogRecordSerializer(CommonSerializer):
                 # use temporary value and remove after schema validation.
                 value['preferred_identifier'] = 'temp'
 
-            validate_json(value, self.context['view'].json_schema)
+            validate_json(value, self.json_schema)
 
             value.pop('urn_identifier')
 
@@ -131,7 +136,7 @@ class CatalogRecordSerializer(CommonSerializer):
                 # do so, copy urn_identifier to it.
                 value['preferred_identifier'] = value['urn_identifier']
 
-            validate_json(value, self.context['view'].json_schema)
+            validate_json(value, self.json_schema)
 
     def _validate_uniqueness(self, value):
         """
@@ -168,6 +173,13 @@ class CatalogRecordSerializer(CommonSerializer):
         return File.objects.filter(identifier__in=file_pids)
 
     def _get_id_from_related_object(self, relation_field):
+        '''
+        Use for finding out a related object's id. The related object or its id or identifier
+        should be present in the initial data's relation field.
+
+        :param relation_field:
+        :return: id of the related object
+        '''
         identifier_value = self.initial_data[relation_field]
         id = False
         if isinstance(identifier_value, int):
@@ -193,3 +205,12 @@ class CatalogRecordSerializer(CommonSerializer):
                           % (relation_field, type(identifier_value)))
             raise ValidationError('Validation error for relation %s. Data in unexpected format' % relation_field)
         return id
+
+    def _set_dataset_schema(self):
+        if self.initial_data.get('data_catalog', False):
+            data_catalog_id = self.initial_data.get('data_catalog')
+            try:
+                catalog_json = DataCatalog.objects.get(pk=data_catalog_id).catalog_json
+                self.json_schema = CommonService.get_json_schema(path.dirname(__file__) + '/../schemas', 'dataset', catalog_json.get('research_dataset_schema', False))
+            except DataCatalog.DoesNotExist:
+                raise ValidationError({'data_catalog': ['data catalog with identifier %s not found' % str(data_catalog_id)]})

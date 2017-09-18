@@ -118,6 +118,14 @@
                         "type":"object",
                         "$ref":"#/definitions/Concept"
                     }
+                },
+                "research_dataset_schema":{
+                    "title":"Schema name",
+                    "description":"Name of the schema used by the catalog records",
+                    "@id":"http://iow.csc.fi/ns/mdc#schemaName",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "maxItems":1,
+                    "type":"string"
                 }
             },
             "required":[

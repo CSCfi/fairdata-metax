@@ -909,7 +909,6 @@
                     "description":"A person or organisation who originally produced the dataset, the original rights holder",
                     "@id":"http://purl.org/dc/terms/creator",
                     "@type":"@id",
-                    "minItems":1,
                     "type":"array",
                     "items":{
                         "type":"object",
@@ -1087,7 +1086,6 @@
                     "description":"Curator of the dataset",
                     "@id":"http://iow.csc.fi/ns/mrd#curator",
                     "@type":"@id",
-                    "minItems":1,
                     "type":"array",
                     "items":{
                         "type":"object",

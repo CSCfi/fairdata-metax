@@ -197,14 +197,15 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         return {
             "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
             "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ],
-                "title": [{
+                "title": {
                     "en": "Wonderful Title"
-                }],
+                },
                 "description": [{
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 }],
@@ -219,7 +220,6 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                     "identifier": "http://lexvo.org/id/iso639-3/aar"
                 }],
                 "total_byte_size": 1024,
-                "ready_status": "Unfinished",
                 "files": catalog_record_from_test_data['research_dataset']['files']
             }
         }

@@ -691,7 +691,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_catalog_record_propose_to_pas_success(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
@@ -742,7 +742,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_catalog_record_propose_to_pas_contract_not_found(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
@@ -758,7 +758,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_catalog_record_propose_to_pas_wrong_ready_status(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_UNFINISHED
+        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_UNFINISHED
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
@@ -770,12 +770,11 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual('research_dataset' in response.data, True, 'Response data should contain an error about the field')
-        self.assertEqual('ready_status' in response.data['research_dataset'], True, 'Response data should contain an error about the field')
+        self.assertEqual('ready_status' in response.data, True, 'Response data should contain an error about the field')
 
     def test_catalog_record_propose_to_pas_wrong_preservation_state(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.preservation_state = CatalogRecord.PRESERVATION_STATE_IN_LONGTERM_PAS
         catalog_record_before.save()
 
@@ -803,15 +802,16 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         return {
             "contract": self._get_object_from_test_data('contract', requested_index=0),
             "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "urn_identifier": "pid:urn:new1",
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ],
-                "title": [{
+                "title": {
                     "en": "Wonderful Title"
-                }],
+                },
                 "description": [{
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 }],
@@ -826,7 +826,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                     "identifier": "http://lexvo.org/id/iso639-3/aar"
                 }],
                 "total_byte_size": 1024,
-                "ready_status": "Unfinished",
                 "files": catalog_record_from_test_data['research_dataset']['files']
             }
         }
@@ -836,15 +835,16 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         return {
             "contract": self._get_object_from_test_data('contract', requested_index=0),
             "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
+            "ready_status": "Unfinished",
             "research_dataset": {
                 "urn_identifier": "pid:urn:new2",
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ],
-                "title": [{
+                "title": {
                     "en": "Wonderful Title"
-                }],
+                },
                 "description": [{
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 }],
@@ -859,7 +859,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                     "identifier": "http://lexvo.org/id/iso639-3/aar"
                 }],
                 "total_byte_size": 1024,
-                "ready_status": "Unfinished",
                 "files": catalog_record_from_test_data['research_dataset']['files']
             }
         }

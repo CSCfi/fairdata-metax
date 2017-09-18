@@ -24,7 +24,8 @@ class DatasetViewSet(CommonViewSet):
     lookup_field = 'pk'
 
     def __init__(self, *args, **kwargs):
-        self.set_json_schema(__file__)
+        # As opposed to other views, do not set json schema here
+        # It is done in the serializer
         super(DatasetViewSet, self).__init__(*args, **kwargs)
 
     def get_object(self):

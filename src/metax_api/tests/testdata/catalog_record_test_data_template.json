@@ -1,4 +1,5 @@
 {
+    "ready_status": "Unfinished",
     "data_catalog": null,
     "preservation_state": 0,
     "preservation_state_modified": null,
@@ -11,9 +12,9 @@
         "version_notes": [
             "This version contains changes to x and y."
         ],
-        "title": [{
+        "title": {
             "en": "Wonderful Title"
-        }],
+        },
         "description": [{
             "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
         }],
@@ -25,10 +26,8 @@
             "name": "Default Owner"
         }],
         "language":[{
-            "title": "en",
-            "identifier": "http://lexvo.org/id/iso639-3/aar"
-        }],
-        "total_byte_size": 12345,
-        "ready_status": "Unfinished"
+            "title": "English",
+            "identifier": "http://lexvo.org/id/iso639-3/eng"
+        }]
     }
 }

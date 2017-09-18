@@ -1,5 +1,6 @@
 {
     "data_catalog": 1,
+    "ready_status": "Unfinished",
     "research_dataset": {
         "urn_identifier": null,
         "preferred_identifier": null,
@@ -9,9 +10,9 @@
             "This version contains changes to x and y."
         ],
         "issued": "2014-01-17T08:19:58Z",
-        "title": [{
+        "title": {
             "en": "Wonderful Title"
-        }],
+        }   ,
         "keyword": [
             "keyword",
             "keyword2",
@@ -25,7 +26,6 @@
             0.111
         ],
         "total_byte_size": 12345,
-        "ready_status": "Unfinished",
         "language":[{
             "title": "en",
             "identifier": "http://lexvo.org/id/iso639-3/aar"
@@ -36,12 +36,9 @@
         }],
         "spatial": [{
             "geographic_name": "Geographic name",
-            "lat": 22.222,
-            "long": 33.333,
             "alt": "11.111",
-            "address_country": "FI",
             "full_address": "The complete address written as a string, with or without formatting",
-            "polygon": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"]
+            "as_wkt": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"]
         }],
         "related_entity": [{
             "title": [{
@@ -53,9 +50,9 @@
             "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
             "type": {
                 "identifier": "sometypeidentifier",
-                "pref_label": [{
+                "pref_label": {
                     "en": "pref label for this type"
-                }],
+                },
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
@@ -75,9 +72,9 @@
             "available": "2014-01-15T08:19:58Z",
             "type": [{
                 "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
-                "pref_label": [{
+                "pref_label": {
                     "en": "pref label for this type"
-                }],
+                },
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
@@ -97,12 +94,12 @@
                 ],
                 "homepage": {
                     "identifier": "https://www.csc.fi",
-                    "title": [{
+                    "title": {
                         "en": "homepage title"
-                    }],
-                    "description": [{
+                    },
+                    "description": {
                         "en": "homepage description"
-                    }]
+                    }
                 }
             }],
             "license": [{
@@ -137,9 +134,9 @@
                 },
                 "type": {
                     "identifier": "typeidentifier",
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "pref label"
-                    }],
+                    },
                     "definition": [{
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
@@ -172,9 +169,9 @@
                 },
                 "type": {
                     "identifier": "typeidentifier_y",
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "pref label for y"
-                    }],
+                    },
                     "definition": [{
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
@@ -189,9 +186,9 @@
         ],
         "discipline": [{
             "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
-            "pref_label": [{
+            "pref_label": {
                 "en": "pref label for this type"
-            }],
+            },
             "definition": [{
                 "en": "A statement or formal explanation of the meaning of a concept."
             }],
@@ -204,9 +201,9 @@
         }],
         "theme": [{
             "identifier": "http://www.yso.fi/onto/yso/p20518",
-            "pref_label": [{
+            "pref_label": {
                 "en": "pref label for theme"
-            }],
+            },
             "definition": [{
                 "en": "A statement or formal explanation of the meaning of a concept."
             }],
@@ -238,9 +235,9 @@
             }],
             "type": {
                 "identifier": "provenancetypeidentifier",
-                "pref_label": [{
+                "pref_label": {
                     "en": "pref label for this type"
-                }],
+                },
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
@@ -261,9 +258,9 @@
                 "identifier": "someidhereagain",
                 "type": {
                     "identifier": "thisisnotenoughconcepts",
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "pref label for this type"
-                    }],
+                    },
                     "definition": [{
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
@@ -292,9 +289,9 @@
                 }],
                 "concept": {
                     "identifier": "variableconceptidentifier",
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "pref label"
-                    }],
+                    },
                     "definition": [{
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
@@ -307,9 +304,9 @@
                 },
                 "universe": {
                     "identifier": "universeconceptidentifier",
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "pref label"
-                    }],
+                    },
                     "definition": [{
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
@@ -421,9 +418,9 @@
             "description": "file description",
             "type": {
                 "identifier": "filetypeidentifier",
-                "pref_label": [{
+                "pref_label": {
                     "en": "pref label"
-                }],
+                },
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
@@ -436,12 +433,12 @@
             },
             "access_url": {
                 "identifier": "https://www.url.address.perhaps.fi",
-                "title": [{
+                "title": {
                     "en": "file url title"
-                }],
-                "description": [{
+                },
+                "description": {
                     "en": "file url description"
-                }]
+                }
             }
         },
         {
@@ -450,9 +447,9 @@
             "description": "file description",
             "type": {
                 "identifier": "filetypeidentifier",
-                "pref_label": [{
+                "pref_label": {
                     "en": "pref label"
-                }],
+                },
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
@@ -465,12 +462,12 @@
             },
             "access_url": {
                 "identifier": "https://www.url.address.perhaps.fi",
-                "title": [{
+                "title": {
                     "en": "file url title"
-                }],
-                "description": [{
+                },
+                "description": {
                     "en": "file url description"
-                }]
+                }
             }
         }],
         "remote_resources": [{
@@ -481,21 +478,21 @@
             "bytesize": "2048",
             "access_url": {
                 "identifier": "https://url.of.resource.com",
-                "title": [{
+                "title": {
                     "en": "A name given to the document, which may be e.g. a landing page"
-                }],
-                "description" : [{
+                },
+                "description" : {
                     "en": "Description of the link. For example to be used as hover text."
-                }]
+                }
             },
             "download_url": {
                 "identifier": "https://download.url.of.resource.com",
-                "title": [{
+                "title": {
                     "en": "A name given to the document, which would be an actual downloadable file"
-                }],
-                "description" : [{
+                },
+                "description" : {
                     "en": "Description of the link. For example to be used as hover text."
-                }]
+                }
             },
             "checksum": {
                 "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_sha-512",
@@ -513,9 +510,9 @@
             }],
             "type": {
                 "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_software",
-                "pref_label": [{
+                "pref_label": {
                     "en": "pref label for this type"
-                }],
+                },
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
