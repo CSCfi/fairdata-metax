@@ -77,7 +77,8 @@ class CommonService():
     def get_json_schema(schema_folder_path, model_name, data_catalog_prefix=False):
         """
         Get the json schema file for model model_name.
-        schema_folder_path is a the path to the folder where schemas are located
+        schema_folder_path is a the path to the folder where schemas are located.
+        It can be given due to different api versions have different schema paths.
         For datasets, a data catalog prefix can be given, in which case it will
         be the prefix for the schema file name.
         """
@@ -98,7 +99,11 @@ class CommonService():
                 return json_load(f)
         except IOError as e:
             _logger.warning(e)
-            with open(path.dirname(__file__) + '../api/base/schemas/att_dataset_schema.json', encoding='utf-8') as f:
+            basepath = path.dirname(__file__) + '../api/base/schemas/'
+            if model_name == 'dataset':
+                basepath += 'att_'
+
+            with open(basepath + '%s_schema.json' % model_name, encoding='utf-8') as f:
                 return json_load(f)
 
     @classmethod

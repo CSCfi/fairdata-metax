@@ -4,7 +4,8 @@ from django.core.management import call_command
 from django.test import TestCase
 from rest_framework.serializers import ValidationError
 
-from metax_api.tests.utils import get_json_schema, test_data_file_path, TestClassUtils
+from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from ...services.common_service import CommonService
 from metax_api.models import File
 
 d = print
@@ -36,7 +37,7 @@ class FileModelBasicTest(TestCase, TestClassUtils):
         file = File.objects.get(identifier=self.identifier)
 
         try:
-            json_validate(file.file_characteristics, get_json_schema('file'))
+            json_validate(file.file_characteristics, CommonService.get_json_schema(TestClassUtils.get_json_schema_path(), 'file'))
             json_validation_success = True
         except Exception as e:
             d(e)

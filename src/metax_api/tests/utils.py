@@ -9,22 +9,6 @@ datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 test_data_file_path = 'metax_api/tests/testdata/test_data.json'
 
 
-def get_json_schema(model_name, data_catalog_prefix=None):
-    schema_name = ''
-
-    if model_name == 'dataset':
-        if data_catalog_prefix:
-            schema_name = data_catalog_prefix
-        else:
-            schema_name = 'att'
-
-        schema_name += '_'
-
-    schema_name += '%s_schema.json' % model_name
-
-    with open(path.dirname(path.realpath(__file__)) + '/../api/base/schemas/%s' % schema_name) as f:
-        return json_load(f)
-
 class TestClassUtils():
 
     """
@@ -76,3 +60,7 @@ class TestClassUtils():
         raise Exception('Could not find model %s from test data with index == %d.'
             ' Are you certain you generated rows for model %s in generate_test_data.py?'
             % (model_name, requested_index))
+
+    @staticmethod
+    def get_json_schema_path():
+        return path.dirname(__file__) + '/../api/base/schemas'
