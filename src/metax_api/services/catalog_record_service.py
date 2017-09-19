@@ -1,8 +1,13 @@
-from datetime import datetime
 from copy import deepcopy
+from datetime import datetime
+from os.path import dirname, join
 
+import simplexquery as sxq
+from dicttoxml import dicttoxml
 from rest_framework import status
-from metax_api.exceptions import Http400, Http403
+
+
+from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Contract
 from .common_service import CommonService
 
@@ -120,6 +125,43 @@ class CatalogRecordService(CommonService):
         catalog_record.save()
         contract.catalogrecord_set.add(catalog_record)
         contract.save()
+
+    @staticmethod
+    def transform_datasets_to_format(catalog_records, target_format):
+        """
+        params:
+        catalog_records: a list of catalog record dicts, or a single dict
+        """
+        if isinstance(catalog_records, dict):
+            is_list = False
+            content_to_transform = catalog_records['research_dataset']
+        else:
+            is_list = True
+            content_to_transform = (cr['research_dataset'] for cr in catalog_records)
+
+        xml_str = dicttoxml(
+            content_to_transform,
+            custom_root='ResearchDatasets' if is_list else 'ResearchDataset',
+            attr_type=False
+        ).decode('utf-8')
+
+        if target_format == 'metax':
+            return xml_str
+
+        target_xslt_file_path = join(dirname(dirname(__file__)), 'api/base/xslt/%s.xslt' % target_format)
+
+        try:
+            with open(target_xslt_file_path) as f:
+                xslt = f.read()
+        except OSError:
+            raise Http400('Requested format \'%s\' is not available' % target_format)
+
+        try:
+            transformed_xml = sxq.execute(xslt, xml_str)
+        except:
+            _logger.exception('Something is wrong with the xslt file at %s:' % target_xslt_file_path)
+            raise Http503('Requested format \'%s\' is currently unavailable' % target_format)
+        return transformed_xml
 
     @staticmethod
     def validate_reference_data(research_dataset, cache):

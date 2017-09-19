@@ -54,6 +54,13 @@ class DatasetViewSet(CommonViewSet):
 
         return super(DatasetViewSet, self).get_queryset().filter(**additional_filters)
 
+    def retrieve(self, request, *args, **kwargs):
+        res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
+        if 'dataset_format' in request.query_params:
+            res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
+            # returning xml as string until finding a way to return proper xml from a single endpoint...
+        return res
+
     def list(self, request, *args, **kwargs):
         # best to specify a variable for parameters intended for filtering purposes in get_queryset(),
         # because other api's may use query parameters of the same name, which can

@@ -28,3 +28,7 @@ class Http403(APIException):
 class Http412(APIException):
     # precondition failed
     status_code = 412
+
+class Http503(APIException):
+    # service unavailable
+    status_code = 503
