@@ -1,7 +1,6 @@
 from datetime import datetime
 from json import load as json_load
 import logging
-from os import path
 
 from rest_framework import status
 from rest_framework.serializers import ValidationError
@@ -95,15 +94,14 @@ class CommonService():
         schema_name += '%s_schema.json' % model_name
 
         try:
-            with open(schema_folder_path + '/%s' % schema_name, encoding='utf-8') as f:
+            with open('%s/%s' % (schema_folder_path, schema_name), encoding='utf-8') as f:
                 return json_load(f)
         except IOError as e:
+            if model_name != 'dataset':
+                # only datasets have a default schema
+                raise
             _logger.warning(e)
-            basepath = path.dirname(__file__) + '../api/base/schemas/'
-            if model_name == 'dataset':
-                basepath += 'att_'
-
-            with open(basepath + '%s_schema.json' % model_name, encoding='utf-8') as f:
+            with open('%s/att_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
                 return json_load(f)
 
     @classmethod
