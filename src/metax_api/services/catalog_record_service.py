@@ -25,8 +25,8 @@ class CatalogRecordService(CommonService):
         if catalog_record_current.next_version_identifier:
             raise Http403({ 'next_version_identifier': ['A newer version already exists. You can not create new versions from archived versions.'] })
 
-        if catalog_record_current.research_dataset['ready_status'] != CatalogRecord.READY_STATUS_FINISHED:
-            raise Http403({ 'research_dataset': { 'ready_status': ['Value has to be \'Ready\' in order to create a new version.'] }})
+        if not catalog_record_current.ready_status or catalog_record_current.ready_status != CatalogRecord.READY_STATUS_FINISHED:
+            raise Http403({ 'ready_status': ['Value has to be \'Ready\' in order to create a new version.'] })
 
         # import here instead of beginning of the file to avoid circular import in CR serializer
         from metax_api.api.base.serializers import CatalogRecordSerializer
@@ -41,7 +41,7 @@ class CatalogRecordService(CommonService):
         catalog_record_new['identifier'] = 'urn:nice:generated:identifier' # TODO
         catalog_record_new['research_dataset']['identifier'] = 'urn:nice:generated:identifier' # TODO
         catalog_record_new['research_dataset']['preferred_identifier'] = request.query_params.get('preferred_identifier', None)
-        catalog_record_new['research_dataset']['ready_status'] = 'Unfinished'
+        catalog_record_new['ready_status'] = 'Unfinished'
         catalog_record_new['previous_version_identifier'] = catalog_record_current.identifier
         catalog_record_new['previous_version_id'] = catalog_record_current.id
         catalog_record_new['version_created'] = current_time
@@ -108,7 +108,7 @@ class CatalogRecordService(CommonService):
             raise Http400({ 'contract': ['Query parameter \'contract\' is a required parameter.'] })
 
         if not catalog_record.dataset_is_finished():
-            raise Http403({ 'research_dataset': { 'ready_status': ['Value has to be \'Ready\' in order to propose to PAS.'] }})
+            raise Http403({ 'ready_status': ['Value has to be \'Ready\' in order to propose to PAS.'] })
 
         if not catalog_record.can_be_proposed_to_pas():
             raise Http403({ 'preservation_state': ['Value must be 0 (not proposed to PAS),'
@@ -192,8 +192,8 @@ class CatalogRecordService(CommonService):
         for theme in research_dataset.get('theme', []):
             check_ref_data('ref', 'keyword', theme, 'identifier', 'research_dataset.theme.identifier')
 
-        for discipline in research_dataset.get('discipline', []):
-            check_ref_data('ref', 'field_of_science', discipline, 'identifier', 'research_dataset.discipline.identifier')
+        for fos in research_dataset.get('field_of_science', []):
+            check_ref_data('ref', 'field_of_science', fos, 'identifier', 'research_dataset.field_of_science.identifier')
 
         for remote_resource in research_dataset.get('remote_resources', []):
             check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')

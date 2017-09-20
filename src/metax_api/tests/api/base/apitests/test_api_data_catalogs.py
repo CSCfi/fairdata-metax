@@ -45,15 +45,22 @@ class DataCatalogApiWriteTestV1(APITestCase, TestClassUtils):
         super(DataCatalogApiWriteTestV1, cls).setUpClass()
 
     def setUp(self):
-        data_catalog_from_test_data = self._get_object_from_test_data('datacatalog', requested_index=0)
-        self.pk = data_catalog_from_test_data['id']
-        self.identifier = data_catalog_from_test_data['catalog_json']['identifier']
+        self.new_test_data = self._get_object_from_test_data('datacatalog')
+        self.new_test_data.pop('id')
+        self.new_test_data['catalog_json'].pop('identifier')
         self._use_http_authorization()
 
     def test_identifier_is_auto_generated(self):
-        from_test_data = self._get_object_from_test_data('datacatalog')
-        from_test_data.pop('id')
-        from_test_data['catalog_json'].pop('identifier')
-        response = self.client.post('/rest/datacatalogs', from_test_data, format="json")
+        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertNotEqual(response.data['catalog_json'].get('identifier', None), None, 'identifier should be created')
+
+    def test_research_dataset_schema_missing_ok(self):
+        self.new_test_data['catalog_json'].pop('research_dataset_schema', None)
+        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_research_dataset_schema_not_found_error(self):
+        self.new_test_data['catalog_json']['research_dataset_schema'] = 'notfound'
+        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
