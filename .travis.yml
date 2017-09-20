@@ -24,7 +24,7 @@ before_install:
 - mv deploy-key ~/.ssh/id_rsa
 - eval "$(ssh-agent -s)"
 - ssh-add ~/.ssh/id_rsa
-- apt-get install xqilla
+- sudo apt-get install xqilla
 
 install:
 - pip install ansible
