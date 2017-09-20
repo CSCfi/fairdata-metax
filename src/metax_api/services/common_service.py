@@ -52,7 +52,7 @@ class CommonService():
                 try:
                     serializer.is_valid(raise_exception=True)
                 except Exception as e:
-                    results['failed'].append({ 'object': serializer.initial_data, 'errors': str(e) })
+                    cls._append_error(results, serializer, e)
                 else:
                     serializer.save(**common_info)
                     results['success'].append({ 'object': serializer.data })
@@ -148,8 +148,8 @@ class CommonService():
 
             try:
                 serializer.is_valid(raise_exception=True)
-            except Exception:
-                results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+            except Exception as e:
+                cls._append_error(results, serializer, e)
             else:
                 serializer.save(**common_info)
                 results['success'].append({ 'object': serializer.data })
@@ -188,6 +188,27 @@ class CommonService():
             pass
 
         request.data.update(common_info)
+
+    @staticmethod
+    def _append_error(results, serializer, error):
+        """
+        Handle the error and append it to the results list in list create or update operations
+        Sometimes the error is not a field validation error, but an actual programming error
+        resulting in a crash, in which case serializer.errors is not accessible. The error
+        is returned as str(error) to from the api anyway to make it easier to spot, but it
+        is still a crash, and should be fixed.
+        """
+        try:
+            results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+        except AssertionError:
+            _logger.exception(
+                'Looks like serializer.is_valid() tripped - could not access serializer.errors. '
+                'Returning str(e) instead. THIS SHOULD BE FIXED. YES, IM TALKING TO YOU'
+            )
+            # note that all cases where this happens should be fixed - this is a programming error.
+            # str(e) might show dicts or lists as strings, which would look silly to receiving
+            # humans
+            results['failed'].append({ 'object': serializer.initial_data, 'errors': str(error) })
 
     @staticmethod
     def _get_http_status_for_result(results, partial_update):
