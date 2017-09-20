@@ -1724,11 +1724,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.accessrights.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -1799,11 +1797,9 @@
                         "in_scheme": [
                             {
                                 "identifier": "http://uri.of.that.concept/scheme",
-                                "pref_label": [
-                                    {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                ]
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
                             }
                         ],
                         "pref_label": {
@@ -1835,11 +1831,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -1870,11 +1864,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -1955,11 +1947,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.some.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -1998,11 +1988,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.other.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2046,11 +2034,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.provenance.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2065,11 +2051,9 @@
                                     }
                                 ],
                                 "identifier": "someidhereagain",
-                                "title": [
-                                    {
-                                        "en": "Title"
-                                    }
-                                ],
+                                "title": {
+                                    "en": "Title"
+                                },
                                 "type": {
                                     "definition": [
                                         {
@@ -2080,11 +2064,9 @@
                                     "in_scheme": [
                                         {
                                             "identifier": "http://uri.of.used.concept/scheme",
-                                            "pref_label": [
-                                                {
-                                                    "en": "The preferred lexical label for a resource"
-                                                }
-                                            ]
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
                                         }
                                     ],
                                     "pref_label": {
@@ -2105,11 +2087,9 @@
                                     "in_scheme": [
                                         {
                                             "identifier": "http://uri.of.variable.concept/scheme",
-                                            "pref_label": [
-                                                {
-                                                    "en": "The preferred lexical label for a resource"
-                                                }
-                                            ]
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
                                         }
                                     ],
                                     "pref_label": {
@@ -2121,18 +2101,14 @@
                                         "en": "Description"
                                     }
                                 ],
-                                "pref_label": [
-                                    {
-                                        "en": "Preferred label"
-                                    }
-                                ],
+                                "pref_label": {
+                                    "en": "Preferred label"
+                                },
                                 "representation": {
                                     "identifier": "identifierheretoo",
-                                    "pref_label": [
-                                        {
-                                            "en": "Preferred label"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "Preferred label"
+                                    }
                                 },
                                 "universe": {
                                     "definition": [
@@ -2144,11 +2120,9 @@
                                     "in_scheme": [
                                         {
                                             "identifier": "http://uri.of.universe.concept/scheme",
-                                            "pref_label": [
-                                                {
-                                                    "en": "The preferred lexical label for a resource"
-                                                }
-                                            ]
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
                                         }
                                     ],
                                     "pref_label": {
@@ -2193,11 +2167,9 @@
                             }
                         ],
                         "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
-                        "title": [
-                            {
-                                "en": "A name given to the resource"
-                            }
-                        ],
+                        "title": {
+                            "en": "A name given to the resource"
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -2208,11 +2180,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.this.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2283,11 +2253,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2331,11 +2299,9 @@
                         "in_scheme": [
                             {
                                 "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": [
-                                    {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                ]
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
                             }
                         ],
                         "pref_label": {
@@ -2424,11 +2390,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.accessrights.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2499,11 +2463,9 @@
                         "in_scheme": [
                             {
                                 "identifier": "http://uri.of.that.concept/scheme",
-                                "pref_label": [
-                                    {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                ]
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
                             }
                         ],
                         "pref_label": {
@@ -2535,11 +2497,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2570,11 +2530,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2655,11 +2613,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.some.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2698,11 +2654,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.other.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2746,11 +2700,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.provenance.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2765,11 +2717,9 @@
                                     }
                                 ],
                                 "identifier": "someidhereagain",
-                                "title": [
-                                    {
-                                        "en": "Title"
-                                    }
-                                ],
+                                "title": {
+                                    "en": "Title"
+                                },
                                 "type": {
                                     "definition": [
                                         {
@@ -2780,11 +2730,9 @@
                                     "in_scheme": [
                                         {
                                             "identifier": "http://uri.of.used.concept/scheme",
-                                            "pref_label": [
-                                                {
-                                                    "en": "The preferred lexical label for a resource"
-                                                }
-                                            ]
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
                                         }
                                     ],
                                     "pref_label": {
@@ -2805,11 +2753,9 @@
                                     "in_scheme": [
                                         {
                                             "identifier": "http://uri.of.variable.concept/scheme",
-                                            "pref_label": [
-                                                {
-                                                    "en": "The preferred lexical label for a resource"
-                                                }
-                                            ]
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
                                         }
                                     ],
                                     "pref_label": {
@@ -2821,18 +2767,14 @@
                                         "en": "Description"
                                     }
                                 ],
-                                "pref_label": [
-                                    {
-                                        "en": "Preferred label"
-                                    }
-                                ],
+                                "pref_label": {
+                                    "en": "Preferred label"
+                                },
                                 "representation": {
                                     "identifier": "identifierheretoo",
-                                    "pref_label": [
-                                        {
-                                            "en": "Preferred label"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "Preferred label"
+                                    }
                                 },
                                 "universe": {
                                     "definition": [
@@ -2844,11 +2786,9 @@
                                     "in_scheme": [
                                         {
                                             "identifier": "http://uri.of.universe.concept/scheme",
-                                            "pref_label": [
-                                                {
-                                                    "en": "The preferred lexical label for a resource"
-                                                }
-                                            ]
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
                                         }
                                     ],
                                     "pref_label": {
@@ -2893,11 +2833,9 @@
                             }
                         ],
                         "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
-                        "title": [
-                            {
-                                "en": "A name given to the resource"
-                            }
-                        ],
+                        "title": {
+                            "en": "A name given to the resource"
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -2908,11 +2846,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.this.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -2983,11 +2919,9 @@
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": [
-                                        {
-                                            "en": "The preferred lexical label for a resource"
-                                        }
-                                    ]
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
                                 }
                             ],
                             "pref_label": {
@@ -3031,11 +2965,9 @@
                         "in_scheme": [
                             {
                                 "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": [
-                                    {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                ]
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
                             }
                         ],
                         "pref_label": {

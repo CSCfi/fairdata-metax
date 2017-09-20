@@ -8,6 +8,9 @@ datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 # path to data used by automatic tests
 test_data_file_path = 'metax_api/tests/testdata/test_data.json'
 
+def get_json_schema(model_name):
+    with open(path.dirname(path.realpath(__file__)) + '/../api/base/schemas/%s_schema.json' % model_name) as f:
+        return json_load(f)
 
 class TestClassUtils():
 
@@ -60,7 +63,3 @@ class TestClassUtils():
         raise Exception('Could not find model %s from test data with index == %d.'
             ' Are you certain you generated rows for model %s in generate_test_data.py?'
             % (model_name, requested_index))
-
-    @staticmethod
-    def get_json_schema_path():
-        return path.dirname(__file__) + '/../api/base/schemas'

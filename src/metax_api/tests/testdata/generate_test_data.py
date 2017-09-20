@@ -12,8 +12,7 @@ from uuid import uuid4
 import urllib3
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from ....metax_api.services.common_service import CommonService
-from ..utils import TestClassUtils
+from utils import get_json_schema
 
 """
 Execute this file to generate file_max_rows amount of rows to metax_api_file table. Uses
@@ -123,7 +122,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
     download_url = row_template['download_url']
     json_title = json_template['title']
     json_description = json_template['description']
-    json_schema = CommonService.get_json_schema(TestClassUtils.get_json_schema_path(), 'file')
+    json_schema = get_json_schema('file')
     total_time_elapsed = 0
 
     if mode == "json":
@@ -269,14 +268,14 @@ def save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contr
 def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
 
     test_data_catalog_list = []
-    json_schema = CommonService.get_json_schema(TestClassUtils.get_json_schema_path(), 'datacatalog')
+    json_schema = get_json_schema('datacatalog')
 
     if mode == 'json':
 
         with open('data_catalog_test_data_template.json') as json_file:
             row_template = json_load(json_file)
 
-        for i in range(1, file_storage_max_rows + 2):
+        for i in range(1, file_storage_max_rows + 1):
 
             new = {
                 'fields': deepcopy(row_template),
@@ -286,15 +285,10 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
             new['fields']['modified_by_api'] = '2017-05-15T10:07:22.559656Z'
             new['fields']['created_by_api'] = '2017-05-15T10:07:22.559656Z'
             new['fields']['catalog_json']['identifier'] = "pid:urn:catalog%d" % i
-            if i == file_storage_max_rows + 2:
-                new['fields']['catalog_json']['research_dataset_schema'] = 'nonexisting'
-
             test_data_catalog_list.append(new)
 
             if validate_json or i == 1:
                 json_validate(new['fields']['catalog_json'], json_schema)
-
-
 
     return test_data_catalog_list
 
@@ -302,7 +296,7 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
 def generate_contracts(mode, contract_max_rows, validate_json):
 
     test_contract_list = []
-    json_schema = CommonService.get_json_schema(TestClassUtils.get_json_schema_path(), 'contract')
+    json_schema = get_json_schema('contract')
 
     if mode == 'json':
 
@@ -346,7 +340,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
 
         if mode == 'json':
 
-            json_schema = CommonService.get_json_schema(TestClassUtils.get_json_schema_path(), 'dataset', data_catalogs_list[0]['catalog_json']['research_dataset_schema'])
+            json_schema = get_json_schema('att_dataset')
 
             new = {
                 'fields': row_template.copy(),

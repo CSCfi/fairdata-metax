@@ -41,9 +41,9 @@
             "as_wkt": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"]
         }],
         "related_entity": [{
-            "title": [{
+            "title": {
                 "en": "A name given to the resource"
-            }],
+            },
             "description": [{
                 "en": "An account of the resource"
             }],
@@ -57,9 +57,9 @@
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
                 "in_scheme": [{
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "The preferred lexical label for a resource"
-                    }],
+                    },
                     "identifier": "http://uri.of.this.concept/scheme"
                 }]
             }
@@ -79,9 +79,9 @@
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
                 "in_scheme": [{
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "The preferred lexical label for a resource"
-                    }],
+                    },
                     "identifier": "http://uri.of.accessrights.concept/scheme"
                 }]
             }],
@@ -141,9 +141,9 @@
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
                     "in_scheme": [{
-                        "pref_label": [{
+                        "pref_label": {
                             "en": "The preferred lexical label for a resource"
-                        }],
+                        },
                         "identifier": "http://uri.of.some.concept/scheme"
                     }]
                 }
@@ -176,9 +176,9 @@
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
                     "in_scheme": [{
-                        "pref_label": [{
+                        "pref_label": {
                             "en": "The preferred lexical label for a resource"
-                        }],
+                        },
                         "identifier": "http://uri.of.other.concept/scheme"
                     }]
                 }
@@ -193,9 +193,9 @@
                 "en": "A statement or formal explanation of the meaning of a concept."
             }],
             "in_scheme": [{
-                "pref_label": [{
+                "pref_label": {
                     "en": "The preferred lexical label for a resource"
-                }],
+                },
                 "identifier": "http://uri.of.that.concept/scheme"
             }]
         }],
@@ -208,9 +208,9 @@
                 "en": "A statement or formal explanation of the meaning of a concept."
             }],
             "in_scheme": [{
-                "pref_label": [{
+                "pref_label": {
                     "en": "The preferred lexical label for a resource"
-                }],
+                },
                 "identifier": "http://uri.of.concept/scheme"
             }]
         }],
@@ -242,16 +242,16 @@
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
                 "in_scheme": [{
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "The preferred lexical label for a resource"
-                    }],
+                    },
                     "identifier": "http://uri.of.provenance.concept/scheme"
                 }]
             },
             "used_entity": [{
-                "title": [{
+                "title": {
                     "en": "Title"
-                }],
+                },
                 "description": [{
                     "en": "Description"
                 }],
@@ -265,9 +265,9 @@
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
                     "in_scheme": [{
-                        "pref_label": [{
+                        "pref_label": {
                             "en": "The preferred lexical label for a resource"
-                        }],
+                        },
                         "identifier": "http://uri.of.used.concept/scheme"
                     }]
                 }
@@ -281,9 +281,9 @@
                 ]
             }],
             "variable": [{
-                "pref_label": [{
+                "pref_label": {
                     "en": "Preferred label"
-                }],
+                },
                 "description": [{
                     "en": "Description"
                 }],
@@ -296,9 +296,9 @@
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
                     "in_scheme": [{
-                        "pref_label": [{
+                        "pref_label": {
                             "en": "The preferred lexical label for a resource"
-                        }],
+                        },
                         "identifier": "http://uri.of.variable.concept/scheme"
                     }]
                 },
@@ -311,16 +311,16 @@
                         "en": "A statement or formal explanation of the meaning of a concept."
                     }],
                     "in_scheme": [{
-                        "pref_label": [{
+                        "pref_label": {
                             "en": "The preferred lexical label for a resource"
-                        }],
+                        },
                         "identifier": "http://uri.of.universe.concept/scheme"
                     }]
                 },
                 "representation": {
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "Preferred label"
-                    }],
+                    },
                     "identifier": "identifierheretoo"
                 }
             }]
@@ -425,9 +425,9 @@
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
                 "in_scheme": [{
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "The preferred lexical label for a resource"
-                    }],
+                    },
                     "identifier": "http://uri.of.filetype.concept/scheme"
                 }]
             },
@@ -454,9 +454,9 @@
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
                 "in_scheme": [{
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "The preferred lexical label for a resource"
-                    }],
+                    },
                     "identifier": "http://uri.of.filetype.concept/scheme"
                 }]
             },
@@ -517,9 +517,9 @@
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
                 "in_scheme": [{
-                    "pref_label": [{
+                    "pref_label": {
                         "en": "The preferred lexical label for a resource"
-                    }],
+                    },
                     "identifier": "http://uri.of.resource.concept/scheme"
                 }]
             },
