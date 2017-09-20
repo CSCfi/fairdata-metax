@@ -151,8 +151,8 @@ class CatalogRecordService(CommonService):
         for theme in research_dataset.get('theme', []):
             check_ref_data('ref', 'keyword', theme, 'identifier', 'research_dataset.theme.identifier')
 
-        for discipline in research_dataset.get('discipline', []):
-            check_ref_data('ref', 'field_of_science', discipline, 'identifier', 'research_dataset.discipline.identifier')
+        for fos in research_dataset.get('field_of_science', []):
+            check_ref_data('ref', 'field_of_science', fos, 'identifier', 'research_dataset.field_of_science.identifier')
 
         for remote_resource in research_dataset.get('remote_resources', []):
             check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')

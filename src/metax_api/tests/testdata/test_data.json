@@ -1786,7 +1786,7 @@
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
-                "discipline": [
+                "field_of_science": [
                     {
                         "definition": [
                             {
@@ -2452,7 +2452,7 @@
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                     }
                 ],
-                "discipline": [
+                "field_of_science": [
                     {
                         "definition": [
                             {

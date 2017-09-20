@@ -1008,7 +1008,7 @@
                         "$ref":"#/definitions/ResearchDataset"
                     }
                 },
-                "discipline":{
+                "field_of_science":{
                     "title":"Field of science",
                     "description":"Scientific discipline whose data collection has produced the dataset",
                     "@id":"http://iow.csc.fi/ns/att#discipline",

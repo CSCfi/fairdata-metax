@@ -184,7 +184,7 @@
                 }
             }
         ],
-        "discipline": [{
+        "field_of_science": [{
             "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
             "pref_label": {
                 "en": "pref label for this type"
