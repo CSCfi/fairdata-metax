@@ -215,7 +215,17 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
     #
 
     def test_catalog_record_with_not_found_json_schema_defaults_to_att_schema(self):
-        self.test_new_data['data_catalog']['catalog_json']['research_dataset_schema'] = 'nonexisting'
+        # catalog has dataset schema, but it is not found on the server
+        dc = DataCatalog.objects.get(pk=1)
+        dc.catalog_json['research_dataset_schema'] = 'nonexisting'
+        dc.save()
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # catalog has no dataset schema at all
+        dc = DataCatalog.objects.get(pk=1)
+        dc.catalog_json.pop('research_dataset_schema')
+        dc.save()
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -851,39 +861,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             "ready_status": "Unfinished",
             "research_dataset": {
                 "urn_identifier": "pid:urn:new2",
-                "modified": "2014-01-17T08:19:58Z",
-                "version_notes": [
-                    "This version contains changes to x and y."
-                ],
-                "title": {
-                    "en": "Wonderful Title"
-                },
-                "description": [{
-                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                }],
-                "creator": [{
-                    "name": "Teppo Testaaja"
-                }],
-                "curator": [{
-                    "name": "Default Owner"
-                }],
-                "language": [{
-                    "title": "en",
-                    "identifier": "http://lexvo.org/id/iso639-3/aar"
-                }],
-                "total_byte_size": 1024,
-                "files": catalog_record_from_test_data['research_dataset']['files']
-            }
-        }
-
-    def _get_third_new_test_data(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        return {
-            "contract": self._get_object_from_test_data('contract', requested_index=0),
-            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
-            "ready_status": "Unfinished",
-            "research_dataset": {
-                "urn_identifier": "pid:urn:new1",
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
                     "This version contains changes to x and y."

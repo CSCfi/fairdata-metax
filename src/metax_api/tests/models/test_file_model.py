@@ -1,11 +1,8 @@
-from jsonschema import validate as json_validate
-
 from django.core.management import call_command
 from django.test import TestCase
 from rest_framework.serializers import ValidationError
 
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
-from ...services.common_service import CommonService
 from metax_api.models import File
 
 d = print
@@ -32,18 +29,6 @@ class FileModelBasicTest(TestCase, TestClassUtils):
     def test_get_by_identifier(self):
         file = File.objects.get(identifier=self.identifier)
         self.assertEqual(file.file_name, self.result_file_name)
-
-    def test_validate_file_characteristics_json(self):
-        file = File.objects.get(identifier=self.identifier)
-
-        try:
-            json_validate(file.file_characteristics, CommonService.get_json_schema(TestClassUtils.get_json_schema_path(), 'file'))
-            json_validation_success = True
-        except Exception as e:
-            d(e)
-            json_validation_success = False
-
-        self.assertEqual(json_validation_success, True, 'file.file_characteristics failed json schema validation')
 
 
 class FileManagerTests(TestCase, TestClassUtils):
