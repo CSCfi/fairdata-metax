@@ -3,6 +3,7 @@ coreapi==2.3.1  # BSD-license
 coreschema==0.0.4  # BSD-license
 coverage==4.4.1
 coveralls==1.1
+dicttoxml==1.7.4
 Django==1.11.4  # BSD-license
 elasticsearch==5.4.0
 hiredis==0.2.0 # Used by redis (redis-py) for parser
