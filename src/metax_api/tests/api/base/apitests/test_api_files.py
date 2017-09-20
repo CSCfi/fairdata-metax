@@ -44,6 +44,12 @@ class FileApiReadTestV1(APITestCase, TestClassUtils):
         response = self.client.get('/rest/files/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_read_file_details_checksum_relation(self):
+        response = self.client.get('/rest/files/%s' % self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('checksum' in response.data, True)
+        self.assertEqual('value' in response.data['checksum'], True)
+
 
 class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
@@ -345,7 +351,11 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "open_access": False,
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "checksum_value": "habeebit",
+            "checksum": {
+                "value": "habeebit",
+                "algorithm": "sha2",
+                "checked": None,
+            },
             "project_identifier": "my group",
             "identifier": "urn:nbn:fi:csc-ida201401200000000001",
             "download_url": "http://some.url.csc.fi/0000000001",
@@ -354,9 +364,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "file_path": "/some/path/",
             "byte_size": 0,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "checksum_algorithm": "sha2",
             "replication_path": "empty",
-            "checksum_checked": None,
             "file_storage": self._get_object_from_test_data('filestorage', requested_index=0),
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -373,7 +381,11 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "open_access": False,
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "checksum_value": "habeebit",
+            "checksum": {
+                "value": "habeebit",
+                "algorithm": "sha2",
+                "checked": None,
+            },
             "project_identifier": "my group",
             "identifier": "urn:nbn:fi:csc-ida201401200000000002",
             "download_url": "http://some.url.csc.fi/0000000002",
@@ -382,9 +394,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
             "file_path": "/some/path/",
             "byte_size": 0,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "checksum_algorithm": "sha2",
             "replication_path": "empty",
-            "checksum_checked": None,
             "file_storage": self._get_object_from_test_data('filestorage', requested_index=0),
             "file_characteristics": {
                 "application_name": "Application Name",
