@@ -6,7 +6,6 @@ import simplexquery as sxq
 from dicttoxml import dicttoxml
 from rest_framework import status
 
-
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Contract
 from .common_service import CommonService

@@ -18,6 +18,7 @@ services:
 - postgresql
 
 before_install:
+- yum install xqilla
 - openssl aes-256-cbc -K $encrypted_596a6d1c4f83_key -iv $encrypted_596a6d1c4f83_iv -in deploy-key.enc -out deploy-key -d
 - rm deploy-key.enc
 - chmod 600 deploy-key
