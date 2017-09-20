@@ -1,4 +1,3 @@
-
 {
     "@id":"http://iow.csc.fi/ns/mrd#",
     "title":"Metax Research Datasets",
@@ -319,11 +318,9 @@
                     "description":"The preferred lexical label for a resource, in a given language. A resource has no more than one value of skos:prefLabel per language tag, and no more than one value of skos:prefLabel without language tag. The range of skos:prefLabel is the class of RDF plain literals. skos:prefLabel, skos:altLabel and skos:hiddenLabel are pairwise\n      disjoint properties.",
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "maxItems":1,
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "identifier":{
                     "title":"Identifier",
@@ -643,11 +640,9 @@
                     "@id":"http://purl.org/dc/terms/title",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "minItems":1,
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "maxItems":1,
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "description":{
                     "title":"Description",
@@ -1217,11 +1212,9 @@
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "minItems":1,
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "maxItems":1,
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "description":{
                     "title":"Description",
