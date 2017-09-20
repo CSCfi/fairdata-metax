@@ -1,8 +1,7 @@
 from rest_framework.serializers import ValidationError
 
 from metax_api.models import CatalogRecord, DataCatalog, File, Contract
-from metax_api.services import CatalogRecordService as CRS
-from metax_api.services import CommonService
+from metax_api.services import CatalogRecordService as CRS, CommonService
 from .data_catalog_serializer import DataCatalogSerializer
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
@@ -69,8 +68,6 @@ class CatalogRecordSerializer(CommonSerializer):
             self.initial_data['data_catalog'] = self._get_id_from_related_object('data_catalog')
         if self.initial_data.get('contract', False):
             self.initial_data['contract'] = self._get_id_from_related_object('contract')
-
-        self._set_dataset_schema()
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
@@ -110,6 +107,8 @@ class CatalogRecordSerializer(CommonSerializer):
         return value
 
     def _validate_json_schema(self, value):
+        self._set_dataset_schema()
+
         if self._operation_is_create():
             # urn_identifier cant be provided by the user, but it is a required field =>
             # add urn_identifier temporarily to pass schema validation. proper value
@@ -207,10 +206,23 @@ class CatalogRecordSerializer(CommonSerializer):
         return id
 
     def _set_dataset_schema(self):
-        if self.initial_data.get('data_catalog', False):
-            data_catalog_id = self.initial_data.get('data_catalog')
+        data_catalog = None
+        if self._operation_is_create():
             try:
-                catalog_json = DataCatalog.objects.get(pk=data_catalog_id).catalog_json
-                self.json_schema = CommonService.get_json_schema(path.dirname(__file__) + '/../schemas', 'dataset', catalog_json.get('research_dataset_schema', False))
-            except DataCatalog.DoesNotExist:
-                raise ValidationError({'data_catalog': ['data catalog with identifier %s not found' % str(data_catalog_id)]})
+                data_catalog_id = self._get_id_from_related_object('data_catalog')
+                data_catalog = DataCatalog.objects.get(pk=data_catalog_id)
+            except:
+                # whatever error happened with data catalog handling - invalid data_catalog
+                # value, not found, etc. the error about a required field is raised by django
+                # elsewhere. default schema will be used for dataset validation instead
+                pass
+        else:
+            # update operation, relation should be fetched already
+            data_catalog = self.instance.data_catalog
+
+        if data_catalog:
+            schema_prefix = data_catalog.catalog_json.get('research_dataset_schema', None)
+        else:
+            schema_prefix = None
+
+        self.json_schema = CommonService.get_json_schema(path.dirname(__file__) + '/../schemas', 'dataset', schema_prefix)
