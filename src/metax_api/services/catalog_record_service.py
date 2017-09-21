@@ -5,6 +5,7 @@ from os.path import dirname, join
 import simplexquery as sxq
 from dicttoxml import dicttoxml
 from rest_framework import status
+from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Contract
@@ -235,4 +236,4 @@ class CatalogRecordService(CommonService):
                 check_ref_data('ref', 'resource_type', file['type'], 'identifier', 'research_dataset.files.type.identifier')
 
         if errors:
-            raise Http400(errors)
+            raise ValidationError(errors)
