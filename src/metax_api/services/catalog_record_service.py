@@ -180,8 +180,8 @@ class CatalogRecordService(CommonService):
             """
             rdtypes = refdata if index == 'ref' else orgdata
             if not any(entry['uri'] == obj[field_to_check] or
-                        (entry.get('code', False) and entry['code'] == obj[field_to_check])
-                        for entry in rdtypes[datatype]):
+                       (entry.get('code', False) and entry['code'] == obj[field_to_check])
+                       for entry in rdtypes[datatype]):
                 if not isinstance(errors.get(relation_name, None), list):
                     errors[relation_name] = []
                 errors[relation_name].append('Identifier \'%s\' not found in reference data (type: %s)' % (obj[field_to_check], datatype))
@@ -205,7 +205,7 @@ class CatalogRecordService(CommonService):
 
             if remote_resource.get('type', False):
                 check_ref_data('ref', 'resource_type', remote_resource['type'], 'identifier',
-                           'research_dataset.remote_resources.type.identifier')
+                               'research_dataset.remote_resources.type.identifier')
 
         for language in research_dataset.get('language', []):
             check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
@@ -233,7 +233,6 @@ class CatalogRecordService(CommonService):
         for file in research_dataset.get('files', []):
             if file.get('type', False):
                 check_ref_data('ref', 'resource_type', file['type'], 'identifier', 'research_dataset.files.type.identifier')
-
 
         if errors:
             raise Http400(errors)
