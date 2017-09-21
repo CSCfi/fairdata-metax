@@ -179,7 +179,9 @@ class CatalogRecordService(CommonService):
             relation_name:  the full relation path to the field to hand out in case of errors
             """
             rdtypes = refdata if index == 'ref' else orgdata
-            if obj[field_to_check] not in rdtypes[datatype]:
+            if not any(entry['uri'] == obj[field_to_check] or
+                        (entry.get('code', False) and entry['code'] == obj[field_to_check])
+                        for entry in rdtypes[datatype]):
                 if not isinstance(errors.get(relation_name, None), list):
                     errors[relation_name] = []
                 errors[relation_name].append('Identifier \'%s\' not found in reference data (type: %s)' % (obj[field_to_check], datatype))
@@ -201,6 +203,10 @@ class CatalogRecordService(CommonService):
             for license in remote_resource.get('license', []):
                 check_ref_data('ref', 'license', license, 'identifier', 'research_dataset.remote_resources.license.identifier')
 
+            if remote_resource.get('type', False):
+                check_ref_data('ref', 'resource_type', remote_resource['type'], 'identifier',
+                           'research_dataset.remote_resources.type.identifier')
+
         for language in research_dataset.get('language', []):
             check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
 
@@ -215,6 +221,19 @@ class CatalogRecordService(CommonService):
         for project in research_dataset.get('is_output_of', []):
             for organization in project.get('source_organization', []):
                 check_ref_data('org', 'organization', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
+
+        for other_identifier in research_dataset.get('other_identifier', []):
+            if 'type' in other_identifier:
+                check_ref_data('ref', 'identifier_type', other_identifier['type'], 'identifier', 'research_dataset.other_identifier.type.identifier')
+
+        for spatial in research_dataset.get('spatial', []):
+            for place_uri in spatial.get('place_uri', []):
+                check_ref_data('ref', 'location', place_uri, 'identifier', 'research_dataset.spatial.place_uri.identifier')
+
+        for file in research_dataset.get('files', []):
+            if file.get('type', False):
+                check_ref_data('ref', 'resource_type', file['type'], 'identifier', 'research_dataset.files.type.identifier')
+
 
         if errors:
             raise Http400(errors)

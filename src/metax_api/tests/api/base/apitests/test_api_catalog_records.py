@@ -845,8 +845,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                     "name": "Default Owner"
                 }],
                 "language": [{
-                    "title": "en",
-                    "identifier": "http://lexvo.org/id/iso639-3/aar"
+                    "identifier": "http://lexvo.org/id/iso639-3/eng"
                 }],
                 "total_byte_size": 1024,
                 "files": catalog_record_from_test_data['research_dataset']['files']
@@ -878,8 +877,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                     "name": "Default Owner"
                 }],
                 "language": [{
-                    "title": "en",
-                    "identifier": "http://lexvo.org/id/iso639-3/aar"
+                    "identifier": "http://lexvo.org/id/iso639-3/eng"
                 }],
                 "total_byte_size": 1024,
                 "files": catalog_record_from_test_data['research_dataset']['files']
