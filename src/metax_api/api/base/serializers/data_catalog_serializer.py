@@ -1,3 +1,5 @@
+from os import path
+from rest_framework.serializers import ValidationError
 from metax_api.models import DataCatalog
 from .common_serializer import CommonSerializer
 from .serializer_utils import validate_json
@@ -25,6 +27,11 @@ class DataCatalogSerializer(CommonSerializer):
             'created_by_api': { 'required': False },
         }
 
+    def is_valid(self, raise_exception=False):
+        if 'catalog_json' in self.initial_data:
+            self._validate_dataset_schema()
+        super(DataCatalogSerializer, self).is_valid(raise_exception=raise_exception)
+
     def validate_catalog_json(self, value):
         self._validate_json_schema(value)
         return value
@@ -40,3 +47,11 @@ class DataCatalogSerializer(CommonSerializer):
         else:
             # update operations
             validate_json(value, self.context['view'].json_schema)
+
+    def _validate_dataset_schema(self):
+        rd_schema = self.initial_data['catalog_json'].get('research_dataset_schema', None)
+        if not rd_schema:
+            return
+        schema_path = '%s/../schemas/%s_dataset_schema.json' % (path.dirname(__file__), rd_schema)
+        if not path.isfile(schema_path):
+            raise ValidationError({'catalog_json': ['research dataset schema \'%s\' not found' % rd_schema]})

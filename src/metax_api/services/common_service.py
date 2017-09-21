@@ -1,6 +1,5 @@
 from datetime import datetime
 from json import load as json_load
-from os import path
 import logging
 
 from rest_framework import status
@@ -51,8 +50,8 @@ class CommonService():
 
                 try:
                     serializer.is_valid(raise_exception=True)
-                except Exception:
-                    results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+                except Exception as e:
+                    cls._append_error(results, serializer, e)
                 else:
                     serializer.save(**common_info)
                     results['success'].append({ 'object': serializer.data })
@@ -74,13 +73,36 @@ class CommonService():
         return results, http_status
 
     @staticmethod
-    def get_json_schema(view_file_location, model_name):
+    def get_json_schema(schema_folder_path, model_name, data_catalog_prefix=False):
         """
         Get the json schema file for model model_name.
-        view_file is a __file__ variable
+        schema_folder_path is a the path to the folder where schemas are located.
+        It can be given due to different api versions have different schema paths.
+        For datasets, a data catalog prefix can be given, in which case it will
+        be the prefix for the schema file name.
         """
-        with open(path.dirname(view_file_location) + '/../schemas/json_schema_%s.json' % model_name, encoding='utf-8') as f:
-            return json_load(f)
+        schema_name = ''
+
+        if model_name == 'dataset':
+            if data_catalog_prefix:
+                schema_name = data_catalog_prefix
+            else:
+                schema_name = 'att'
+
+            schema_name += '_'
+
+        schema_name += '%s_schema.json' % model_name
+
+        try:
+            with open('%s/%s' % (schema_folder_path, schema_name), encoding='utf-8') as f:
+                return json_load(f)
+        except IOError as e:
+            if model_name != 'dataset':
+                # only datasets have a default schema
+                raise
+            _logger.warning(e)
+            with open('%s/att_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
+                return json_load(f)
 
     @classmethod
     def update_bulk(cls, request, model_obj, serializer_class, **kwargs):
@@ -124,8 +146,8 @@ class CommonService():
 
             try:
                 serializer.is_valid(raise_exception=True)
-            except Exception:
-                results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+            except Exception as e:
+                cls._append_error(results, serializer, e)
             else:
                 serializer.save(**common_info)
                 results['success'].append({ 'object': serializer.data })
@@ -164,6 +186,27 @@ class CommonService():
             pass
 
         request.data.update(common_info)
+
+    @staticmethod
+    def _append_error(results, serializer, error):
+        """
+        Handle the error and append it to the results list in list create or update operations
+        Sometimes the error is not a field validation error, but an actual programming error
+        resulting in a crash, in which case serializer.errors is not accessible. The error
+        is returned as str(error) to from the api anyway to make it easier to spot, but it
+        is still a crash, and should be fixed.
+        """
+        try:
+            results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+        except AssertionError:
+            _logger.exception(
+                'Looks like serializer.is_valid() tripped - could not access serializer.errors. '
+                'Returning str(e) instead. THIS SHOULD BE FIXED. YES, IM TALKING TO YOU'
+            )
+            # note that all cases where this happens should be fixed - this is a programming error.
+            # str(e) might show dicts or lists as strings, which would look silly to receiving
+            # humans
+            results['failed'].append({ 'object': serializer.initial_data, 'errors': str(error) })
 
     @staticmethod
     def _get_http_status_for_result(results, partial_update):

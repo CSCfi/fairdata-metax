@@ -74,6 +74,9 @@ DEBUG = False
 #  to disable self-signed certificate warnings
 urllib3.disable_warnings()
 
+# Location of schema files
+schema_path = os.path.dirname(__file__) + '../api/base/schemas'
+
 
 def generate_file_storages(mode, file_storage_max_rows):
 
@@ -329,7 +332,6 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         row_template = json_load(json_file)
 
     test_data_list = []
-    json_schema = get_json_schema('dataset')
     total_time_elapsed = 0
     files_start_idx = 0
     data_catalog_id = data_catalogs_list[0]['pk']
@@ -337,6 +339,8 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
     for i in range(1, catalog_record_max_rows + 1):
 
         if mode == 'json':
+
+            json_schema = get_json_schema('att_dataset')
 
             new = {
                 'fields': row_template.copy(),

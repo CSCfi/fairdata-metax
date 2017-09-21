@@ -2,13 +2,13 @@ celery==4.1.0
 coreapi==2.3.1  # BSD-license
 coreschema==0.0.4  # BSD-license
 coverage==4.4.1
-coveralls==1.1
+coveralls==1.2.0
 dicttoxml==1.7.4
-Django==1.11.4  # BSD-license
+Django==1.11.5  # BSD-license
 elasticsearch==5.4.0
 hiredis==0.2.0 # Used by redis (redis-py) for parser
 django-rest-swagger==2.1.2  # FreeBSD-license
-djangorestframework==3.6.3  # BSD-license
+djangorestframework==3.6.4  # BSD-license
 django-rainbowtests==0.6.0
 django-simple-history==1.9.0  # BSD-license
 flake8==3.4.1 # MIT-license
@@ -19,14 +19,14 @@ Jinja2==2.9.6  # BSD-license
 jsonschema==2.6.0
 mccabe==0.6.1  # Expat license (same as MIT)
 openapi-codec==1.3.2  # BSD-license
-pika==0.10.0
-psycopg2==2.7.3  # LGPL with exceptions or ZPL
+pika==0.11.0
+psycopg2==2.7.3.1  # LGPL with exceptions or ZPL
 pycodestyle==2.3.1  # Expat license (same as MIT)
 pyflakes==1.6.0  # MIT-license
 python-simplexquery==1.0.5.3
 pyyaml==3.12
-redis==2.10.5
-requests==2.18.3  # Apache 2.0-license
+redis==2.10.6
+requests==2.18.4  # Apache 2.0-license
 simplejson==3.11.1  # MIT-license
 uritemplate==3.0.0  # BSD 3-Clause License or Apache License, Version 2.0
 urllib3==1.22
