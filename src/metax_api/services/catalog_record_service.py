@@ -174,7 +174,7 @@ class CatalogRecordService(CommonService):
             _logger.exception('Something is wrong with the xslt file at %s:' % target_xslt_file_path)
             raise Http503('Requested format \'%s\' is currently unavailable' % target_format)
 
-        return transformed_xml
+        return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
 
     @staticmethod
     def validate_reference_data(research_dataset, cache):
