@@ -66,11 +66,13 @@ class ReferenceDataService():
                 all_rows = scan(esclient, query={'query': {'match_all': {}}}, index=index_name, doc_type=type_name)
                 for row in all_rows:
                     entry = {}
-                    if row['_source'].get('uri', False):
-                        entry['uri'] = row['_source']['uri']
-                        if row['_source'].get('code', False):
-                            entry['code'] = row['_source']['code']
-                        reference_data[index_name][type_name].append(entry)
+                    if not row['_source'].get('uri', False):
+                        _logger.warning('Elasticsearch document missing uri in index {0} type {1}: {2}'.format(index_name, type_name, row))
+                        continue
+                    entry['uri'] = row['_source']['uri']
+                    if row['_source'].get('code', False):
+                        entry['code'] = row['_source']['code']
+                    reference_data[index_name][type_name].append(entry)
 
         return reference_data
 
