@@ -326,7 +326,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(len(response.data['research_dataset']), 12)
 
-
     #
     # create list operations
     #
@@ -1523,7 +1522,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
                             "POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"
                         ],
                         "full_address": "The complete address written as a string, with or without formatting",
-                                    "geographic_name": "Geographic name",
+                        "geographic_name": "Geographic name",
                         "place_uri": [
                             {"identifier": "http://www.yso.fi/onto/yso/p107966"}
                         ]
