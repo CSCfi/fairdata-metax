@@ -37,7 +37,10 @@
             "geographic_name": "Geographic name",
             "alt": "11.111",
             "full_address": "The complete address written as a string, with or without formatting",
-            "as_wkt": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"]
+            "as_wkt": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"],
+            "place_uri": [
+                {"identifier": "http://www.yso.fi/onto/yso/p107966"}
+            ]
         }],
         "related_entity": [{
             "title": {
@@ -226,11 +229,11 @@
             }],
             "spatial": [{
                 "geographic_name": "Geographic name",
-                "lat": 22.222,
-                "long": 33.333,
                 "alt": "11.111",
-                "address_country": "FI",
-                "fullAddress": "The complete address written as a string, with or without formatting"
+                "fullAddress": "The complete address written as a string, with or without formatting",
+                "place_uri": [
+                    {"identifier": "http://www.yso.fi/onto/yso/p107966"}
+                ]
             }],
             "type": {
                 "identifier": "provenancetypeidentifier",
