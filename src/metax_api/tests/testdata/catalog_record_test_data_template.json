@@ -1,0 +1,33 @@
+{
+    "ready_status": "Unfinished",
+    "data_catalog": null,
+    "preservation_state": 0,
+    "preservation_state_modified": null,
+    "mets_object_identifier": null,
+    "dataset_group_edit": "default-dataset-edit-group",
+    "research_dataset": {
+        "urn_identifier": "http://urn.fi/urn:nbn:fi%s",
+        "preferred_identifier": "http://urn.fi/urn:nbn:fi%s",
+        "modified": "2014-01-17T08:19:58Z",
+        "version_notes": [
+            "This version contains changes to x and y."
+        ],
+        "title": {
+            "en": "Wonderful Title"
+        },
+        "description": [{
+            "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+        }],
+        "creator":[{
+            "name": "Teppo Testaaja"
+        }],
+        "curator":[{
+            "identifier": "id:of:curator:default",
+            "name": "Default Owner"
+        }],
+        "language":[{
+            "title": "English",
+            "identifier": "http://lexvo.org/id/iso639-3/eng"
+        }]
+    }
+}

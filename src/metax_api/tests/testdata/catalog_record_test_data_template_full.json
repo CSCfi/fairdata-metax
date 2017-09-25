@@ -1,0 +1,537 @@
+{
+    "data_catalog": 1,
+    "ready_status": "Unfinished",
+    "research_dataset": {
+        "urn_identifier": null,
+        "preferred_identifier": null,
+        "modified": "2014-01-17T08:19:58Z",
+        "version_info": "0.1.2",
+        "version_notes": [
+            "This version contains changes to x and y."
+        ],
+        "issued": "2014-01-17T08:19:58Z",
+        "title": {
+            "en": "Wonderful Title"
+        }   ,
+        "keyword": [
+            "keyword",
+            "keyword2",
+            "keyword3"
+        ],
+        "description": [{
+            "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+        }],
+        "bibliographical_sitation": "whot",
+        "value": [
+            0.111
+        ],
+        "total_byte_size": 12345,
+        "language":[{
+            "identifier": "http://lexvo.org/id/iso639-3/eng"
+        }],
+        "temporal": [{
+            "start_date": "2014-01-01T08:19:58Z",
+            "end_date": "2014-12-31T08:19:58Z"
+        }],
+        "spatial": [{
+            "geographic_name": "Geographic name",
+            "alt": "11.111",
+            "full_address": "The complete address written as a string, with or without formatting",
+            "as_wkt": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"],
+            "place_uri": [
+                {"identifier": "http://www.yso.fi/onto/yso/p107966"}
+            ]
+        }],
+        "related_entity": [{
+            "title": {
+                "en": "A name given to the resource"
+            },
+            "description": [{
+                "en": "An account of the resource"
+            }],
+            "identifier": "urn:nbn:fi:research-infras-2016111647",
+            "type": {
+                "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
+                "pref_label": {
+                    "en": "pref label for this type"
+                },
+                "definition": [{
+                    "en": "A statement or formal explanation of the meaning of a concept."
+                }],
+                "in_scheme": [{
+                    "pref_label": {
+                        "en": "The preferred lexical label for a resource"
+                    },
+                    "identifier": "http://uri.of.this.concept/scheme"
+                }]
+            }
+        }],
+
+        "access_rights": {
+            "description": [{
+                "en": "Free account of the rights"
+            }],
+            "available": "2014-01-15T08:19:58Z",
+            "type": [{
+                "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                "pref_label": {
+                    "en": "pref label for this type"
+                },
+                "definition": [{
+                    "en": "A statement or formal explanation of the meaning of a concept."
+                }],
+                "in_scheme": [{
+                    "pref_label": {
+                        "en": "The preferred lexical label for a resource"
+                    },
+                    "identifier": "http://uri.of.accessrights.concept/scheme"
+                }]
+            }],
+            "has_right_related_agent": [{
+                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                "name": "Mysterious Organization",
+                "email": "info@csc.fi",
+                "telephone": [
+                    "+358501231235"
+                ],
+                "homepage": {
+                    "identifier": "https://www.csc.fi",
+                    "title": {
+                        "en": "homepage title"
+                    },
+                    "description": {
+                        "en": "homepage description"
+                    }
+                }
+            }],
+            "license": [{
+                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                "title": [{
+                    "en": "A name given to the resource"
+                }],
+                "description": [{
+                    "en": "Free account of the rights"
+                }],
+                "license": "https://url.of.license.which.applies.here.org"
+            }]
+        },
+        "other_identifier": [{
+                "notation": "doi:10.12345",
+                "local_identifier_type": "Local identifier type defines use of the identifier in given context",
+                "creator": {
+                    "identifier": "teppoidentifier",
+                    "name": "Teppo Testaaja",
+                    "email": "teppo.testaaja@csc.fi",
+                    "telephone": [
+                        "+358501231234"
+                    ],
+                    "is_part_of": {
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                        "name": "Mysterious Organization",
+                        "email": "info@csc.fi",
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                },
+                "type": {
+                    "identifier": "doi",
+                    "pref_label": {
+                        "en": "pref label"
+                    },
+                    "definition": [{
+                        "en": "A statement or formal explanation of the meaning of a concept."
+                    }],
+                    "in_scheme": [{
+                        "pref_label": {
+                            "en": "The preferred lexical label for a resource"
+                        },
+                        "identifier": "http://uri.of.some.concept/scheme"
+                    }]
+                }
+            },
+            {
+                "notation": "urn:nbn:fi-12345",
+                "local_identifier_type": "Local identifier type defines use of the identifier in given context",
+                "creator": {
+                    "identifier": "teppoidentifier",
+                    "name": "Teppo Testaaja",
+                    "email": "teppo.testaaja@csc.fi",
+                    "telephone": [
+                        "+358501231234"
+                    ],
+                    "is_part_of": {
+                        "identifier": ["http://purl.org/att/es/organization_data/organization/organization_1901"],
+                        "name": "Mysterious Organization",
+                        "email": "info@csc.fi",
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                },
+                "type": {
+                    "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                    "pref_label": {
+                        "en": "pref label for y"
+                    },
+                    "definition": [{
+                        "en": "A statement or formal explanation of the meaning of a concept."
+                    }],
+                    "in_scheme": [{
+                        "pref_label": {
+                            "en": "The preferred lexical label for a resource"
+                        },
+                        "identifier": "http://uri.of.other.concept/scheme"
+                    }]
+                }
+            }
+        ],
+        "field_of_science": [{
+            "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
+            "pref_label": {
+                "en": "pref label for this type"
+            },
+            "definition": [{
+                "en": "A statement or formal explanation of the meaning of a concept."
+            }],
+            "in_scheme": [{
+                "pref_label": {
+                    "en": "The preferred lexical label for a resource"
+                },
+                "identifier": "http://uri.of.that.concept/scheme"
+            }]
+        }],
+        "theme": [{
+            "identifier": "http://www.yso.fi/onto/yso/p20518",
+            "pref_label": {
+                "en": "pref label for theme"
+            },
+            "definition": [{
+                "en": "A statement or formal explanation of the meaning of a concept."
+            }],
+            "in_scheme": [{
+                "pref_label": {
+                    "en": "The preferred lexical label for a resource"
+                },
+                "identifier": "http://uri.of.concept/scheme"
+            }]
+        }],
+        "provenance": [{
+            "title": {
+                "en": "Title"
+            },
+            "description": {
+                "en": "Description of provenance"
+            },
+            "temporal": [{
+                "start_date": "2014-01-01T08:19:58Z",
+                "end_date": "2014-12-31T08:19:58Z"
+            }],
+            "spatial": [{
+                "geographic_name": "Geographic name",
+                "alt": "11.111",
+                "fullAddress": "The complete address written as a string, with or without formatting",
+                "place_uri": [
+                    {"identifier": "http://www.yso.fi/onto/yso/p107966"}
+                ]
+            }],
+            "type": {
+                "identifier": "provenancetypeidentifier",
+                "pref_label": {
+                    "en": "pref label for this type"
+                },
+                "definition": [{
+                    "en": "A statement or formal explanation of the meaning of a concept."
+                }],
+                "in_scheme": [{
+                    "pref_label": {
+                        "en": "The preferred lexical label for a resource"
+                    },
+                    "identifier": "http://uri.of.provenance.concept/scheme"
+                }]
+            },
+            "used_entity": [{
+                "title": {
+                    "en": "Title"
+                },
+                "description": [{
+                    "en": "Description"
+                }],
+                "identifier": "someidhereagain",
+                "type": {
+                    "identifier": "thisisnotenoughconcepts",
+                    "pref_label": {
+                        "en": "pref label for this type"
+                    },
+                    "definition": [{
+                        "en": "A statement or formal explanation of the meaning of a concept."
+                    }],
+                    "in_scheme": [{
+                        "pref_label": {
+                            "en": "The preferred lexical label for a resource"
+                        },
+                        "identifier": "http://uri.of.used.concept/scheme"
+                    }]
+                }
+            }],
+            "was_associated_with": [{
+                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                "name": "Mysterious Organization",
+                "email": "info@csc.fi",
+                "telephone": [
+                    "+358501231235"
+                ]
+            }],
+            "variable": [{
+                "pref_label": {
+                    "en": "Preferred label"
+                },
+                "description": [{
+                    "en": "Description"
+                }],
+                "concept": {
+                    "identifier": "variableconceptidentifier",
+                    "pref_label": {
+                        "en": "pref label"
+                    },
+                    "definition": [{
+                        "en": "A statement or formal explanation of the meaning of a concept."
+                    }],
+                    "in_scheme": [{
+                        "pref_label": {
+                            "en": "The preferred lexical label for a resource"
+                        },
+                        "identifier": "http://uri.of.variable.concept/scheme"
+                    }]
+                },
+                "universe": {
+                    "identifier": "universeconceptidentifier",
+                    "pref_label": {
+                        "en": "pref label"
+                    },
+                    "definition": [{
+                        "en": "A statement or formal explanation of the meaning of a concept."
+                    }],
+                    "in_scheme": [{
+                        "pref_label": {
+                            "en": "The preferred lexical label for a resource"
+                        },
+                        "identifier": "http://uri.of.universe.concept/scheme"
+                    }]
+                },
+                "representation": {
+                    "pref_label": {
+                        "en": "Preferred label"
+                    },
+                    "identifier": "identifierheretoo"
+                }
+            }]
+        }],
+        "rightsHolder": {
+            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+            "name": "Mysterious Organization",
+            "email": "info@csc.fi",
+            "telephone": [
+                "+358501231235"
+            ]
+        },
+        "creator":[{
+            "name": "Teppo Testaaja"
+        }],
+        "curator":[{
+            "identifier": "id:of:curator:default",
+            "name": "Default Owner"
+        }],
+        "publisher": {
+            "identifier": "teppoidentifier",
+            "name": "Teppo Testaaja",
+            "email": "teppo.testaaja@csc.fi",
+            "telephone": [
+                "+358501231234"
+            ],
+            "is_part_of": {
+                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                "name": "Mysterious Organization",
+                "email": "info@csc.fi",
+                "telephone": [
+                    "+358501231235"
+                ]
+            }
+        },
+        "contributor": [{
+                "identifier": "contributorid",
+                "name": "Kalle Kontribuuttaja",
+                "email": "kalle.kontribuuttaaja@csc.fi",
+                "telephone": [
+                    "+358501231122"
+                ],
+                "is_part_of": {
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "name": "Mysterious Organization",
+                    "email": "info@csc.fi",
+                    "telephone": [
+                        "+358501231235"
+                    ]
+                }
+            },
+            {
+                "identifier": "contributorid2",
+                "name": "Franzibald Kontribuuttaja",
+                "email": "franzibald.kontribuuttaaja@csc.fi",
+                "telephone": [
+                    "+358501231133"
+                ],
+                "is_part_of": {
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "name": "Mysterious Organization",
+                    "email": "info@csc.fi",
+                    "telephone": [
+                        "+358501231235"
+                    ]
+                }
+            }
+        ],
+        "is_output_of": [{
+            "name": {
+                "en": "Name of project"
+            },
+            "identifier": "projectidentifier",
+            "has_funder_identifier": "funderprojectidentifier",
+            "has_funding_agency": [{
+                "identifier": "fundingagencyidentifier",
+                "name": "Rahoittava Organisaatio",
+                "email": "rahoitus@rahaorg.fi",
+                "telephone": [
+                    "+358501232233"
+                ]
+            }],
+            "source_organization" : [{
+                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                "name": "Mysterious Organization",
+                "email": "info@csc.fi",
+                "telephone": [
+                    "+358501231235"
+                ]
+            }]
+        }],
+        "files": [{
+            "identifier": "urn:nbn:fi-12345",
+            "title": "file title",
+            "description": "file description",
+            "type": {
+                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_audiovisual",
+                "pref_label": {
+                    "en": "pref label"
+                },
+                "definition": [{
+                    "en": "A statement or formal explanation of the meaning of a concept."
+                }],
+                "in_scheme": [{
+                    "pref_label": {
+                        "en": "The preferred lexical label for a resource"
+                    },
+                    "identifier": "http://uri.of.filetype.concept/scheme"
+                }]
+            },
+            "access_url": {
+                "identifier": "https://www.url.address.perhaps.fi",
+                "title": {
+                    "en": "file url title"
+                },
+                "description": {
+                    "en": "file url description"
+                }
+            }
+        },
+        {
+            "identifier": "urn:nbn:fi:csc-att201401202",
+            "title": "file title",
+            "description": "file description",
+            "type": {
+                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_text",
+                "pref_label": {
+                    "en": "pref label"
+                },
+                "definition": [{
+                    "en": "A statement or formal explanation of the meaning of a concept."
+                }],
+                "in_scheme": [{
+                    "pref_label": {
+                        "en": "The preferred lexical label for a resource"
+                    },
+                    "identifier": "http://uri.of.filetype.concept/scheme"
+                }]
+            },
+            "access_url": {
+                "identifier": "https://www.url.address.perhaps.fi",
+                "title": {
+                    "en": "file url title"
+                },
+                "description": {
+                    "en": "file url description"
+                }
+            }
+        }],
+        "remote_resources": [{
+            "identifier": "identifierofresource",
+            "title": "A name given to the distribution",
+            "description": "Free-text account of the distribution.",
+            "modified": "2013-01-17T08:19:58Z",
+            "bytesize": "2048",
+            "access_url": {
+                "identifier": "https://url.of.resource.com",
+                "title": {
+                    "en": "A name given to the document, which may be e.g. a landing page"
+                },
+                "description" : {
+                    "en": "Description of the link. For example to be used as hover text."
+                }
+            },
+            "download_url": {
+                "identifier": "https://download.url.of.resource.com",
+                "title": {
+                    "en": "A name given to the document, which would be an actual downloadable file"
+                },
+                "description" : {
+                    "en": "Description of the link. For example to be used as hover text."
+                }
+            },
+            "checksum": {
+                "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                "checksum_value": "u5y6f4y68765ngf6ry8n"
+            },
+            "license": [{
+                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                "title": [{
+                    "en": "A name given to the resource"
+                }],
+                "description": [{
+                    "en": "Free account of the rights"
+                }],
+                "license": "https://url.of.license.which.applies.org"
+            }],
+            "type": {
+                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_software",
+                "pref_label": {
+                    "en": "pref label for this type"
+                },
+                "definition": [{
+                    "en": "A statement or formal explanation of the meaning of a concept."
+                }],
+                "in_scheme": [{
+                    "pref_label": {
+                        "en": "The preferred lexical label for a resource"
+                    },
+                    "identifier": "http://uri.of.resource.concept/scheme"
+                }]
+            },
+            "has_object_characteristics": {
+                "title": "File type name",
+                "description": "Description of file type",
+                "has_creating_application_name": "Creating application name",
+                "encoding": "utf-8"
+            },
+            "mediatype": "fileformat here"
+        }]
+    }
+}

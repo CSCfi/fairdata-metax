@@ -10,6 +10,63 @@ produces:
   - application/json
 paths:
 
+
+
+
+# File Storage API
+  /filestorages:
+    get:
+      summary: "list of file storage systems"
+      responses:
+        "200":
+          description: return list of file storages
+      tags:
+        - File Storage API (not implemented)
+    post:
+      summary: create file storage system
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: new file storage created, return UUID of the system
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - File Storage API (not implemented)
+  /filestorages/{PID}:
+    get:
+      summary: get file storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: UUID of the system
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return file storage metadata
+        '404':
+          description: not found
+      tags:
+        - File Storage API (not implemented)
+    put:
+      summary: replace File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: UUID of the system
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+        '400':
+          description: parameters contained errors, response includes details
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - File Storage API (not implemented)
+        
 # File API
   /files:
     get:
@@ -48,12 +105,14 @@ paths:
       tags:
         - File API
     post:
-      summary: create new file metadata (request body JSON object with file metadata, without PID)
+      summary: create multiple file metadata from array of objects
       consumes:
         - application/json
       responses:
         '201':
-          description: new file metadata created, return Location with the new URL containing PID
+          description: Returns the HTTP status for each item and the PIDs of resources that were created
+        '400':
+          description: Invalid list of objects
       tags:
         - File API
   /files/{PID}:
@@ -62,20 +121,22 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of file
+          description: Persistent ID of file OR the internal pk
           required: true
           type: string
       responses:
         '200':
           description: return file metadata
+        '404':
+          description: not found
       tags:
         - File API
-    put:
-      summary: replace file metadata
+    post:
+      summary: create new file metadata
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of file
+          description: Persistent ID of file OR the internal pk
           required: true
           type: string
       responses:
@@ -83,12 +144,27 @@ paths:
           description: successful operation, no content returned
       tags:
         - File API
+    put:
+      summary: replace file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation, no content returned
+        '400':
+          description: parameters contained errors, response includes details
+      tags:
+        - File API
     patch:
       summary: replace part of file metadata
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of file
+          description: Persistent ID of file OR the internal pk
           required: true
           type: string
       responses:
@@ -101,7 +177,7 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of file
+          description: Persistent ID of file OR the internal pk
           required: true
           type: string
       responses:
@@ -115,7 +191,7 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of file
+          description: Persistent ID of file OR the internal pk
           required: true
           type: string
         - name: namespace
@@ -127,7 +203,7 @@ paths:
         '200':
           description: XML returned
         '404':
-          description: not defined
+          description: not found
       tags:
         - File API
     put:
@@ -135,7 +211,7 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: persistent ID of file
+          description: persistent ID of file OR the internal pk
           required: true
           type: string
         - name: namespace
@@ -146,6 +222,8 @@ paths:
       responses:
         '204':
           description: XML saved
+        '400':
+          description: parameters contained errors, response includes details
         '404':
           description: file does not exist
       tags:
@@ -163,7 +241,7 @@ paths:
         '200':
           description: list of PIDs
       tags:
-        - File API
+        - File API (not implemented)
     patch:
       summary: change directory path
       parameters:
@@ -180,8 +258,10 @@ paths:
       responses:
         '200':
           description: successful operation, full content returned
+        '400':
+          description: parameters contained errors, response includes details
       tags:
-        - File API
+        - File API (not implemented)
     delete:
       summary: delete all files' metadata in directory, recursively
       parameters:
@@ -194,30 +274,160 @@ paths:
         '204':
           description: successful operation, no content returned
       tags:
-        - File API
+        - File API (not implemented)
+
+
+# Data Catalog API
+  /datacatalogs:
+    get:
+      summary: "list of data catalogs"
+      responses:
+        "200":
+          description: return list of file data catalogs
+      tags:
+        - Data Catalog API
+    post:
+      summary: create new data catalog
+      description: |
+        # catalog_json read-only fields
+        - identifier
+      consumes:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object or a list of objects to create."
+        required: true
+        schema:
+          $ref: '#/definitions/DataCatalog'
+      responses:
+        '201':
+          description: new data catalog created
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - Data Catalog API
+  /datacatalogs/{PID}:
+    get:
+      summary: get data catalog metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return data catalog metadata
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        '404':
+          description: not found
+      tags:
+        - Data Catalog API
+    put:
+      summary: replace data catalog metadata
+      description: |
+        # catalog_json read-only fields
+        - identifier
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+        - in: "body"
+          name: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/DataCatalog'
+      responses:
+        '204':
+          description: successful operation, no content returned
+        '400':
+          description: parameters contained errors, response includes details
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - Data Catalog API
+    patch:
+      summary: replace part of catalog metadata
+      description: |
+        # catalog_json read-only fields
+        - identifier
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, full content returned
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        '400':
+          description: parameters contained errors, response includes details
+      tags:
+        - Data Catalog API
+  /datacatalogs/{PID}/exists:
+    get:
+      summary: indicate whether given data catalog exists
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return true
+        '404':
+          description: return false
+      tags:
+        - Data Catalog API
+
+
+
+
+
+
 
 # Dataset API
   /datasets:
-    # some of the parameters and returned fiels are for TPAS usage only
+    # some of the parameters and returned fields are for TPAS usage only
     get:
       summary: "list datasets"
       parameters:
-        - name: owner
+        - name: owner_id
           in: query
-          description: owner organization ID
+          description: id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: created_by_user_id
+          in: query
+          description: id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
+          in: query
+          description: curator identifier (field research_dataset-> curator-> identifier)
           required: false
           type: string
         - name: state
           in: query
-          description: TPAS state (proposed for midterm PAS / proposed for longterm PAS / in packaging / in dissemination / in midterm PAS / in longterm PAS). Multiple states using OR-logic should be queriable in the same request, e.g. state=midterm,longterm (if comma is agreed as the OR-operator).
+          description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
           required: false
           type: string
-        - name: fields
-          in: query
-          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
-          required: false
-          type: string
-          default: PID
         - name: offset
           in: query
           description: offset for paging
@@ -231,16 +441,69 @@ paths:
           default: 100
       responses:
         "200":
-          description: successful operation, return list of datasets containing PID, name, owner org, argument for PAS storage, name of proposer, TPAS state, contract PID, size of dataset, structure (folders) of dataset, provenance, descriptive metadata, access rights metadata, TPAS SIP ID (METSOBJID)
+          description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset API
     post:
-      summary: create new dataset metadata (request body JSON object with dataset metadata, without PID)
+      summary: create new dataset metadata
+      description: |
+        # research_dataset identifiers
+        The field <b>urn_identifier</b> is always generated for the user. <b>preferred_identifier</b> can be provided by the user, and if omitted, the value of <b>urn_identifier</b> is copied to it.
+        # research_dataset read-only fields
+        - urn_identifier
+        - total_byte_size (generated from files in the db according to files listed in the given dataset)
       consumes:
         - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object or a list of objects to create."
+        required: true
+        schema:
+          $ref: '#/definitions/CatalogRecord'
       responses:
         '201':
-          description: new dataset metadata created, return Location with the new URL containing PID
+          description: Returns the created object, or if a list was given, a list of objects and errors.
+        '400':
+          description: parameters contained errors, response includes details.
+      tags:
+        - Dataset API
+    put:
+      summary: bulk update
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of objects to update."
+          required: true
+      responses:
+        '200':
+          description: Some objects were updated, but some contained errors. Return values include a list of errors. For PUT, response does not include created objects.
+        '204':
+          description: All updates were successful. No content returned.
+        '400':
+          description: All updates failed. A list of errors is returned.
+      tags:
+        - Dataset API
+    patch:
+      summary: bulk update partial
+      description: |
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, research_dataset->urn_identifier</b>
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of (partial) objects to update."
+          required: true
+      responses:
+        '200':
+          description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
+        '400':
+          description: All updates failed. A list of errors is returned.
       tags:
         - Dataset API
   /datasets/{PID}:
@@ -249,67 +512,118 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
+          type: string
+        - name: dataset_format
+          in: query
+          description: Name of the format the dataset should be returned in. <b>Note:</b> Using this parameter causes
+          the api to return only the field research_dataset, transformed to the requested format.
+          required: false
           type: string
       responses:
         '200':
-          description: return dataset metadata (including total size of files)
+          description: return dataset metadata
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        '404':
+          description: not found
       tags:
         - Dataset API
     put:
       summary: replace dataset metadata
+      description: |
+        # research_dataset read-only fields
+        - urn_identifier
+        - total_byte_size (generated from files in the db according to files listed in the given dataset)
       parameters:
+        - in: "body"
+          name: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
       responses:
         '204':
           description: successful operation, no content returned
+        '400':
+          description: parameters contained errors, response includes details
       tags:
         - Dataset API
     patch:
       summary: replace part of dataset metadata
+      description: |
+        # research_dataset read-only fields
+        - urn_identifier
+        - total_byte_size (generated from files in the db according to files listed in the given dataset)
       parameters:
+        - in: "body"
+          name: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
       responses:
         '200':
           description: successful operation, full content returned
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        '400':
+          description: parameters contained errors, response includes details
       tags:
         - Dataset API
-
+  /datasets/{PID}/exists:
+    get:
+      summary: indicate whether given dataset exists
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return true
+        '404':
+          description: return false
+      tags:
+        - Dataset API
   /datasets/{PID}/statistics:
     get:
       summary: get statistics for dataset
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
       responses:
         '200':
           description: successful operation, return statistics (e.g. number of downloads, number of permissions asked, number of permissions granted, dissemination service used)
       tags:
-        - Dataset API
+        - Dataset API (not implemented)
   /datasets/{PID}/files:
     get:
       summary: get list of files in a dataset
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
       responses:
         '200':
-          description: successful operation, return file PIDs
+          description: successful operation, return list of full files metadata
       tags:
         - Dataset API
   /datasets/{PID}/feedback:
@@ -318,7 +632,7 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
         - name: offset
@@ -336,13 +650,13 @@ paths:
         '200':
           description: successful operation, return feedback objects
       tags:
-        - Dataset API
+        - Dataset API (not implemented)
     post:
       summary: create new feedback for dataset
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
       consumes:
@@ -351,14 +665,14 @@ paths:
         '201':
           description: new feedback created, return Location with the new URL containing feedback ID
       tags:
-        - Dataset API
+        - Dataset API (not implemented)
   /datasets/{PID}/feedback/{ID}:
     get:
       summary: get a single feedback object for a dataset
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
         - name: ID
@@ -370,14 +684,14 @@ paths:
         '200':
           description: successful operation, return feedback object
       tags:
-        - Dataset API
+        - Dataset API (not implemented)
   /datasets/{PID}/usage:
     get:
       summary: get usages for a dataset
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
         - name: offset
@@ -395,13 +709,13 @@ paths:
         '200':
           description: successful operation, return usage objects
       tags:
-        - Dataset API
+        - Dataset API (not implemented)
     post:
       summary: create new usage for dataset
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
       consumes:
@@ -410,14 +724,14 @@ paths:
         '201':
           description: new usage created, return Location with the new URL containing usage ID
       tags:
-        - Dataset API
+        - Dataset API (not implemented)
   /datasets/{PID}/usage/{ID}:
     get:
       summary: get a single usage object for a dataset
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of dataset
+          description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
         - name: ID
@@ -429,7 +743,7 @@ paths:
         '200':
           description: successful operation, return usage object
       tags:
-        - Dataset API
+        - Dataset API (not implemented)
 
 
 # Contract API
@@ -439,7 +753,7 @@ paths:
       parameters:
         - name: organization
           in: query
-          description: organization ID
+          description: organization ID (field contract_json-> organization-> organization_identifier)
           required: false
           type: string
         - name: offset
@@ -454,16 +768,18 @@ paths:
           type: integer
       responses:
         "200":
-          description: successful operation, return list of contracts optionally filtered by organization
+          description: successful operation, return list of contracts
       tags:
         - Contract API
     post:
-      summary: create new contract metadata (request body JSON object with contract metadata, without PID)
+      summary: create new contract metadata
       consumes:
         - application/json
       responses:
         '201':
-          description: new contract metadata created, return Location with the new URL containing PID
+          description: new contract metadata created, returns the created object, or if a list was given, a list of objects
+        '400':
+          description: parameters contained errors, response includes details
       tags:
         - Contract API
   /contracts/{PID}:
@@ -472,12 +788,14 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of contract
+          description: Persistent ID of contract OR the internal pk
           required: true
           type: string
       responses:
         '200':
-          description: return contract metadata (name, organization, quota)
+          description: return contract metadata
+        '404':
+          description: not found
       tags:
         - Contract API
     put:
@@ -485,12 +803,14 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of contract
+          description: Persistent ID of contract OR the internal pk
           required: true
           type: string
       responses:
         '204':
           description: successful operation, no content returned
+        '400':
+          description: parameters contained errors, response includes details
       tags:
         - Contract API
     patch:
@@ -498,11 +818,18 @@ paths:
       parameters:
         - name: PID
           in: path
-          description: Persistent ID of contract
+          description: Persistent ID of contract OR the internal pk
           required: true
           type: string
       responses:
         '200':
           description: successful operation, full content returned
+        '400':
+          description: parameters contained errors, response includes details
       tags:
         - Contract API
+definitions:
+  CatalogRecord:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
+  DataCatalog:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'

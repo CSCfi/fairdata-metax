@@ -12,6 +12,14 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+import yaml
+from metax_api.utils import executing_test_case, executing_travis
+
+executing_in_travis = executing_travis()
+
+if not executing_in_travis:
+    with open('/home/metax-user/app_config') as app_config:
+        app_config_dict = yaml.load(app_config)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,25 +29,40 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b')
+if executing_in_travis:
+    SECRET_KEY = '^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b'
+else:
+    SECRET_KEY = app_config_dict['DJANGO_SECRET_KEY']
+
+if executing_test_case() or executing_in_travis:
+    # used by test cases and travis during test case execution to authenticate with certain api's
+    API_TEST_USER = {
+        'username': 'testuser',
+        'password': 'testuserpassword'
+    }
+
+# Consider enabling these
+#CSRF_COOKIE_SECURE = True
+#SECURE_SSL_REDIRECT = True
+#SESSION_COOKIE_SECURE = True
+
+# Allow only specific hosts to access the app
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
+if not os.getenv('TRAVIS', None):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_X_FORWARDED_HOST = True
+    for allowed_host in app_config_dict['ALLOWED_HOSTS']:
+        ALLOWED_HOSTS.append(allowed_host)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if "METAX_ENVIRONMENT" in os.environ:
-    #CSRF_COOKIE_SECURE = True
-    #SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    #SECURE_SSL_REDIRECT = True
-    #SESSION_COOKIE_SECURE = True
-
-    if os.environ['METAX_ENVIRONMENT'] == 'staging':
-        DEBUG = True
-    elif os.environ['METAX_ENVIRONMENT'] == 'stable':
-        DEBUG = True
-    elif os.environ['METAX_ENVIRONMENT'] == 'production':
-        DEBUG = False
-else: # local development environment or cloud playground
+if executing_in_travis:
     DEBUG = True
+else:
+    DEBUG = app_config_dict['DEBUG']
 
 # Application definition
+
+AUTH_USER_MODEL = 'metax_api.MetaxUser'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -61,6 +84,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'metax_api.middleware.IdentifyApiCaller',
 ]
 
 REST_FRAMEWORK = {
@@ -68,8 +92,12 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
 }
+
+if not DEBUG:
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ['rest_framework.renderers.JSONRenderer']
 
 ROOT_URLCONF = 'metax_api.urls'
 
@@ -100,7 +128,7 @@ WSGI_APPLICATION = 'metax_api.wsgi.application'
 The following uses the 'TRAVIS' (== True) environment variable on Travis
 to detect the session, and changes the default database accordingly.
 """
-if os.getenv('TRAVIS', None):
+if executing_in_travis:
     DATABASES = {
         'default': {
             'ENGINE':   'django.db.backends.postgresql_psycopg2',
@@ -114,15 +142,14 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.getenv('METAX_DATABASE', 'metax_db'),
-            'USER': os.getenv('METAX_DATABASE_USER', 'metax_db_user'),
-            'PASSWORD': os.getenv('METAX_DATABASE_PASSWORD', 'YMDLekQMqrVKcs37'),
-            'HOST': os.getenv('METAX_DATABASE_HOST', 'localhost'),
-            'PORT': ''
+            'NAME': app_config_dict['METAX_DATABASE'],
+            'USER': app_config_dict['METAX_DATABASE_USER'],
+            'PASSWORD': app_config_dict['METAX_DATABASE_PASSWORD'],
+            'HOST': app_config_dict['METAX_DATABASE_HOST'],
+            'PORT': '',
+            'ATOMIC_REQUESTS': True
         }
     }
-
-DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 """
 Colorize automated test console output
@@ -209,7 +236,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'fi-FI'
+LANGUAGE_CODE = 'en-US'
 
 TIME_ZONE = 'Europe/Helsinki'
 
@@ -240,20 +267,51 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), 'static')
 STATIC_URL = '/static/'
 
+if not executing_in_travis:
+    # settings for custom redis-py cache helper in utils/redis.py
+    REDIS_SENTINEL = {
+        # at least three are required
+        'HOSTS':    app_config_dict['REDIS']['HOSTS'],
+        'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
+        'SERVICE':  app_config_dict['REDIS']['SERVICE'],
 
-# Redis Cache
-# https://www.peterbe.com/plog/fastest-redis-optimization-for-django
-# Currently using this (pip: django-redis-cache): https://github.com/sebleier/django-redis-cache
-# Consider alternatively pip:django-redis: https://github.com/niwinz/django-redis
-CACHES = {
-    'default': {
-        'BACKEND': "redis_cache.RedisCache",
-        'LOCATION': "/run/redis/redis.sock",
-        'OPTIONS': {
-            'DB': 1,
-            'PARSER_CLASS': 'redis.connection.HiredisParser',
-            'SERIALIZER_CLASS': 'redis_cache.serializers.MSGPackSerializer',
-            'COMPRESSOR_CLASS': 'redis_cache.compressors.ZLibCompressor'
-        }
+        # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
+        'SOCKET_TIMEOUT': 0.1,
+
+        # db index reserved for test suites
+        'TEST_DB': app_config_dict['REDIS']['TEST_DB'],
+
+        # enables extra logging to console during cache usage
+        'DEBUG': False,
     }
-}
+
+if executing_in_travis:
+    ELASTICSEARCH = {
+        'HOSTS': ['metax-test.csc.fi/es'],
+        'USE_SSL': True,
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
+    }
+else:
+    ELASTICSEARCH = {
+        'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
+        # normally cache is reloaded from elasticsearch only if reference data is missing.
+        # for one-off reload / debugging / development, use below flag
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
+    }
+
+if not executing_in_travis:
+    RABBITMQ = {
+        'HOSTS':    app_config_dict['RABBITMQ']['HOSTS'],
+        'PORT':     app_config_dict['RABBITMQ']['PORT'],
+        'USER':     app_config_dict['RABBITMQ']['USER'],
+        'VHOST':    app_config_dict['RABBITMQ']['VHOST'],
+        'PASSWORD': app_config_dict['RABBITMQ']['PASSWORD'],
+        'EXCHANGES': [
+            {
+                'NAME': 'datasets',
+                'TYPE': 'direct',
+                # make rabbitmq remember queues after restarts
+                'DURABLE': True
+            }
+        ]
+    }
