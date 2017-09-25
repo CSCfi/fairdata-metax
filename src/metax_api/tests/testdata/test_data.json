@@ -725,7 +725,7 @@
                     ],
                     "type": [
                         {
-                            "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -826,7 +826,7 @@
                     ],
                     "type": [
                         {
-                            "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -1690,7 +1690,7 @@
                                     "en": "homepage title"
                                 }
                             },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -1720,7 +1720,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.accessrights.concept/scheme",
@@ -1742,7 +1742,7 @@
                         "identifier": "contributorid",
                         "is_part_of": {
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -1758,7 +1758,7 @@
                         "identifier": "contributorid2",
                         "is_part_of": {
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -1827,7 +1827,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "filetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_audiovisual",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
@@ -1860,7 +1860,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "filetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_text",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
@@ -1895,7 +1895,7 @@
                         "source_organization": [
                             {
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -1912,8 +1912,7 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1924,7 +1923,7 @@
                             "identifier": "teppoidentifier",
                             "is_part_of": {
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -1936,14 +1935,14 @@
                             ]
                         },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
-                        "notation": "literalvalueoftheidentifier",
+                        "notation": "doi:10.12345",
                         "type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "typeidentifier",
+                            "identifier": "doi",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.some.concept/scheme",
@@ -1964,7 +1963,7 @@
                             "is_part_of": {
                                 "email": "info@csc.fi",
                                 "identifier": [
-                                    "http://purl.org/att/es/organization_data/organization/organization_01904-240331"
+                                    "http://purl.org/att/es/organization_data/organization/organization_1901"
                                 ],
                                 "name": "Mysterious Organization",
                                 "telephone": [
@@ -1977,14 +1976,14 @@
                             ]
                         },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
-                        "notation": "otheridentifiervalue",
+                        "notation": "urn:nbn:fi-12345",
                         "type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "typeidentifier_y",
+                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.other.concept/scheme",
@@ -2007,12 +2006,14 @@
                         },
                         "spatial": [
                             {
-                                "address_country": "FI",
                                 "alt": "11.111",
                                 "fullAddress": "The complete address written as a string, with or without formatting",
                                 "geographic_name": "Geographic name",
-                                "lat": 22.222,
-                                "long": 33.333
+                                "place_uri": [
+                                    {
+                                        "identifier": "http://www.yso.fi/onto/yso/p107966"
+                                    }
+                                ]
                             }
                         ],
                         "temporal": [
@@ -2134,7 +2135,7 @@
                         "was_associated_with": [
                             {
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -2148,7 +2149,7 @@
                     "identifier": "teppoidentifier",
                     "is_part_of": {
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                         "name": "Mysterious Organization",
                         "telephone": [
                             "+358501231235"
@@ -2166,7 +2167,7 @@
                                 "en": "An account of the resource"
                             }
                         ],
-                        "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
+                        "identifier": "urn:nbn:fi:research-infras-2016111647",
                         "title": {
                             "en": "A name given to the resource"
                         },
@@ -2176,7 +2177,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "sometypeidentifier",
+                            "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.this.concept/scheme",
@@ -2204,7 +2205,7 @@
                         },
                         "bytesize": "2048",
                         "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_sha-512",
+                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the distribution.",
@@ -2266,7 +2267,7 @@
                 ],
                 "rightsHolder": {
                     "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                     "name": "Mysterious Organization",
                     "telephone": [
                         "+358501231235"
@@ -2279,7 +2280,12 @@
                             "POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"
                         ],
                         "full_address": "The complete address written as a string, with or without formatting",
-                        "geographic_name": "Geographic name"
+                        "geographic_name": "Geographic name",
+                        "place_uri": [
+                            {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        ]
                     }
                 ],
                 "temporal": [
@@ -2356,7 +2362,7 @@
                                     "en": "homepage title"
                                 }
                             },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -2386,7 +2392,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.accessrights.concept/scheme",
@@ -2408,7 +2414,7 @@
                         "identifier": "contributorid",
                         "is_part_of": {
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -2424,7 +2430,7 @@
                         "identifier": "contributorid2",
                         "is_part_of": {
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
                             "telephone": [
                                 "+358501231235"
@@ -2493,7 +2499,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "filetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_audiovisual",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
@@ -2526,7 +2532,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "filetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_text",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
@@ -2561,7 +2567,7 @@
                         "source_organization": [
                             {
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -2578,8 +2584,7 @@
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/aar",
-                        "title": "en"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -2590,7 +2595,7 @@
                             "identifier": "teppoidentifier",
                             "is_part_of": {
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -2602,14 +2607,14 @@
                             ]
                         },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
-                        "notation": "literalvalueoftheidentifier",
+                        "notation": "doi:10.12345",
                         "type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "typeidentifier",
+                            "identifier": "doi",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.some.concept/scheme",
@@ -2630,7 +2635,7 @@
                             "is_part_of": {
                                 "email": "info@csc.fi",
                                 "identifier": [
-                                    "http://purl.org/att/es/organization_data/organization/organization_01904-240331"
+                                    "http://purl.org/att/es/organization_data/organization/organization_1901"
                                 ],
                                 "name": "Mysterious Organization",
                                 "telephone": [
@@ -2643,14 +2648,14 @@
                             ]
                         },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
-                        "notation": "otheridentifiervalue",
+                        "notation": "urn:nbn:fi-12345",
                         "type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "typeidentifier_y",
+                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.other.concept/scheme",
@@ -2673,12 +2678,14 @@
                         },
                         "spatial": [
                             {
-                                "address_country": "FI",
                                 "alt": "11.111",
                                 "fullAddress": "The complete address written as a string, with or without formatting",
                                 "geographic_name": "Geographic name",
-                                "lat": 22.222,
-                                "long": 33.333
+                                "place_uri": [
+                                    {
+                                        "identifier": "http://www.yso.fi/onto/yso/p107966"
+                                    }
+                                ]
                             }
                         ],
                         "temporal": [
@@ -2800,7 +2807,7 @@
                         "was_associated_with": [
                             {
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
                                 "telephone": [
                                     "+358501231235"
@@ -2814,7 +2821,7 @@
                     "identifier": "teppoidentifier",
                     "is_part_of": {
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                         "name": "Mysterious Organization",
                         "telephone": [
                             "+358501231235"
@@ -2832,7 +2839,7 @@
                                 "en": "An account of the resource"
                             }
                         ],
-                        "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
+                        "identifier": "urn:nbn:fi:research-infras-2016111647",
                         "title": {
                             "en": "A name given to the resource"
                         },
@@ -2842,7 +2849,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "sometypeidentifier",
+                            "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.this.concept/scheme",
@@ -2870,7 +2877,7 @@
                         },
                         "bytesize": "2048",
                         "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_sha-512",
+                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the distribution.",
@@ -2932,7 +2939,7 @@
                 ],
                 "rightsHolder": {
                     "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01904-240331",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                     "name": "Mysterious Organization",
                     "telephone": [
                         "+358501231235"
@@ -2945,7 +2952,12 @@
                             "POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"
                         ],
                         "full_address": "The complete address written as a string, with or without formatting",
-                        "geographic_name": "Geographic name"
+                        "geographic_name": "Geographic name",
+                        "place_uri": [
+                            {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        ]
                     }
                 ],
                 "temporal": [

@@ -7,6 +7,7 @@ from metax_api.models import File
 
 d = print
 
+
 class FileModelBasicTest(TestCase, TestClassUtils):
 
     """

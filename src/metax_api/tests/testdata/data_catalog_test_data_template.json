@@ -55,7 +55,7 @@
           ],
           "type": [
             {
-              "identifier": "http://purl.org/att/reference_data/access_type/access_type_open_access",
+              "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
               "pref_label": {
                 "fi": "Avoin",
                 "en": "Open"
