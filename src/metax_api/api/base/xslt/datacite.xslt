@@ -1,37 +1,20 @@
 <resource>
-    <identifier>{ ResearchDataset/preferred_identifier/text() }</identifier>
+    <identifier>{ researchdataset/preferred_identifier/text() }</identifier>
     <alternateIdentifier alternateIdentifierType="URN">
-        { ResearchDataset/urn_identifier/text() }
+        { researchdataset/urn_identifier/text() }
     </alternateIdentifier>
     <alternateIdentifier alternateIdentifierType="preferred_identifier">
-        { ResearchDataset/preferred_identifier/text() }
+        { researchdataset/preferred_identifier/text() }
     </alternateIdentifier>
     <dates>
-        <date dateType="Updated">{ ResearchDataset/modified/text() }</date>
-        <publicationYear>{ substring(ResearchDataset/modified/text(), 0 , 5) }</publicationYear>
-        <date dateType="Issued">{ ResearchDataset/issued/text() }</date>
+        <date dateType="Updated">{ researchdataset/modified/text() }</date>
+        <publicationYear>{ substring(researchdataset/modified/text(), 0 , 5) }</publicationYear>
+        <date dateType="Issued">{ researchdataset/issued/text() }</date>
     </dates>
-    <version>{ ResearchDataset/version_info/text() }</version>
-    <!--<titles>
-    {
-        for $keyword in ResearchDataset/title/ return 
-        <title xml:lang="{ResearchDataset/title/()}">
-            { ResearchDataset/title/element()/text() }
-        </title>
-    }
-    </titles>
-    <subjects>
-    {
-        for $keyword in ResearchDataset/keyword/item return 
-        <subject xml:lang="XX" schemeURI="XX">string</subject>
-         
-        <subject xml:lang="XX">{ ResearchDataset/description/name() }</subject>
-         
-    {
-    </subjects>-->
+    <version>{ researchdataset/version_info/text() }</version>
     <creators>
     {
-        for $creator in ResearchDataset/creator/item return 
+        for $creator in researchdataset/creator/item return 
         <creator>
             <creatorName>{ $creator/name/text() }</creatorName>
         </creator>
