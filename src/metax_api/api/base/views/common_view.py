@@ -10,6 +10,7 @@ from metax_api.exceptions import Http400, Http412
 from metax_api.services import CommonService
 from metax_api.utils import RabbitMQ, RedisSentinelCache, parse_http_timestamp
 
+from os import path
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -210,4 +211,4 @@ class CommonViewSet(ModelViewSet):
         always looks for the schema from a directory relative to the view's location,
         taking into account its version.
         """
-        self.json_schema = CommonService.get_json_schema(view_file, self.__class__.__name__.lower()[:-(len('viewset'))])
+        self.json_schema = CommonService.get_json_schema(path.dirname(view_file) + '/../schemas', self.__class__.__name__.lower()[:-(len('viewset'))])

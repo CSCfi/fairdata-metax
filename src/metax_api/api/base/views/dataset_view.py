@@ -2,14 +2,17 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
+
 from metax_api.models import CatalogRecord
 from metax_api.services import CatalogRecordService as CRS
+from metax_api.renderers import XMLRenderer
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
+
 
 class DatasetViewSet(CommonViewSet):
 
@@ -24,7 +27,8 @@ class DatasetViewSet(CommonViewSet):
     lookup_field = 'pk'
 
     def __init__(self, *args, **kwargs):
-        self.set_json_schema(__file__)
+        # As opposed to other views, do not set json schema here
+        # It is done in the serializer
         super(DatasetViewSet, self).__init__(*args, **kwargs)
 
     def get_object(self):
@@ -58,7 +62,7 @@ class DatasetViewSet(CommonViewSet):
         res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
         if 'dataset_format' in request.query_params:
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
-            # returning xml as string until finding a way to return proper xml from a single endpoint...
+            request.accepted_renderer = XMLRenderer()
         return res
 
     def list(self, request, *args, **kwargs):

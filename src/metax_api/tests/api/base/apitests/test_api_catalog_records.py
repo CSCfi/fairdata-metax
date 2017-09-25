@@ -165,6 +165,30 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.data[0]['created_by_user_id'], '123')
 
     #
+    # dataset xml transformations
+    #
+
+    def test_read_dataset_xml_format_metax(self):
+        response = self.client.get('/rest/datasets/1?dataset_format=metax')
+        self._check_dataset_xml_format_response(response, '<researchdataset>')
+
+    def test_read_dataset_xml_format_datacite(self):
+        response = self.client.get('/rest/datasets/1?dataset_format=datacite')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self._check_dataset_xml_format_response(response, '<resource>')
+
+    def test_read_dataset_xml_format_error_unknown_format(self):
+        response = self.client.get('/rest/datasets/1?dataset_format=doesnotexist')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def _check_dataset_xml_format_response(self, response, element_name):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('content-type' in response._headers, True, response._headers)
+        self.assertEqual('application/xml' in response._headers['content-type'][1], True, response._headers)
+        self.assertEqual('<?xml version' in response.data[:20], True, response.data)
+        self.assertEqual(element_name in response.data[:60], True, response.data)
+
+    #
     # misc
     #
 
@@ -203,8 +227,32 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         """
         self.test_new_data = self._get_new_test_data()
         self.second_test_new_data = self._get_second_new_test_data()
+        self.third_test_new_data = self._get_third_new_test_data()
 
         self._use_http_authorization()
+
+    #
+    #
+    #
+    # dataset schemas
+    #
+    #
+    #
+
+    def test_catalog_record_with_not_found_json_schema_defaults_to_att_schema(self):
+        # catalog has dataset schema, but it is not found on the server
+        dc = DataCatalog.objects.get(pk=1)
+        dc.catalog_json['research_dataset_schema'] = 'nonexisting'
+        dc.save()
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # catalog has no dataset schema at all
+        dc = DataCatalog.objects.get(pk=1)
+        dc.catalog_json.pop('research_dataset_schema')
+        dc.save()
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     #
     #
@@ -270,15 +318,37 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_create_catalog_record_dont_allow_data_catalog_fields_update(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
-        original_title = self.test_new_data['data_catalog']['catalog_json']['title'][0]['en']
-        self.test_new_data['data_catalog']['catalog_json']['title'][0]['en'] = 'new title'
+        original_title = self.test_new_data['data_catalog']['catalog_json']['title']['en']
+        self.test_new_data['data_catalog']['catalog_json']['title']['en'] = 'new title'
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['data_catalog']['catalog_json']['title'][0]['en'], original_title)
+        self.assertEqual(response.data['data_catalog']['catalog_json']['title']['en'], original_title)
         data_catalog = DataCatalog.objects.get(pk=response.data['data_catalog']['id'])
-        self.assertEqual(data_catalog.catalog_json['title'][0]['en'], original_title)
+        self.assertEqual(data_catalog.catalog_json['title']['en'], original_title)
+
+    #
+    # generic write operations
+    #
+
+    def test_create_catalog_record_with_invalid_reference_data(self):
+        self.third_test_new_data['research_dataset']['theme'][0]['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['field_of_science'][0]['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['remote_resources'][0]['license'][0]['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['remote_resources'][0]['type']['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['language'][0]['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['access_rights']['type'][0]['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['access_rights']['license'][0]['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['is_output_of'][0]['source_organization'][0]['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['other_identifier'][0]['type']['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['spatial'][0]['place_uri'][0]['identifier'] = 'nonexisting'
+        self.third_test_new_data['research_dataset']['files'][0]['type']['identifier'] = 'nonexisting'
+        response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True)
+        self.assertEqual(len(response.data['research_dataset']), 12)
 
     #
     # create list operations
@@ -380,14 +450,14 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.data['data_catalog']['id'], new_data_catalog, 'Field data_catalog was not updated')
 
     def test_update_catalog_record_dont_allow_data_catalog_fields_update(self):
-        original_title = self.test_new_data['data_catalog']['catalog_json']['title'][0]['en']
-        self.test_new_data['data_catalog']['catalog_json']['title'][0]['en'] = 'new title'
+        original_title = self.test_new_data['data_catalog']['catalog_json']['title']['en']
+        self.test_new_data['data_catalog']['catalog_json']['title']['en'] = 'new title'
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
 
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         data_catalog = DataCatalog.objects.get(pk=self.test_new_data['data_catalog']['id'])
-        self.assertEqual(data_catalog.catalog_json['title'][0]['en'], original_title)
+        self.assertEqual(data_catalog.catalog_json['title']['en'], original_title)
 
     def test_update_catalog_record_not_found(self):
         response = self.client.put('/rest/datasets/doesnotexist', self.test_new_data, format="json")
@@ -691,7 +761,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_catalog_record_propose_to_pas_success(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
@@ -742,7 +812,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_catalog_record_propose_to_pas_contract_not_found(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
@@ -758,7 +828,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_catalog_record_propose_to_pas_wrong_ready_status(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_UNFINISHED
+        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_UNFINISHED
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
@@ -770,12 +840,11 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
             format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual('research_dataset' in response.data, True, 'Response data should contain an error about the field')
-        self.assertEqual('ready_status' in response.data['research_dataset'], True, 'Response data should contain an error about the field')
+        self.assertEqual('ready_status' in response.data, True, 'Response data should contain an error about the field')
 
     def test_catalog_record_propose_to_pas_wrong_preservation_state(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.research_dataset['ready_status'] = CatalogRecord.READY_STATUS_FINISHED
+        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.preservation_state = CatalogRecord.PRESERVATION_STATE_IN_LONGTERM_PAS
         catalog_record_before.save()
 
@@ -800,66 +869,40 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     def _get_new_test_data(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        return {
+        catalog_record_from_test_data.update({
             "contract": self._get_object_from_test_data('contract', requested_index=0),
             "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
-            "research_dataset": {
-                "urn_identifier": "pid:urn:new1",
-                "modified": "2014-01-17T08:19:58Z",
-                "version_notes": [
-                    "This version contains changes to x and y."
-                ],
-                "title": [{
-                    "en": "Wonderful Title"
-                }],
-                "description": [{
-                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                }],
-                "creator": [{
-                    "name": "Teppo Testaaja"
-                }],
-                "curator": [{
-                    "name": "Default Owner"
-                }],
-                "language": [{
-                    "title": "en",
-                    "identifier": "http://lexvo.org/id/iso639-3/aar"
-                }],
-                "total_byte_size": 1024,
-                "ready_status": "Unfinished",
-                "files": catalog_record_from_test_data['research_dataset']['files']
-            }
-        }
+        })
+        catalog_record_from_test_data['research_dataset'].update({
+            "urn_identifier": "pid:urn:new1",
+            "preferred_identifier": None,
+            "creator": [{
+                "name": "Teppo Testaaja"
+            }],
+            "curator": [{
+                "name": "Default Owner"
+            }],
+            "total_byte_size": 1024,
+            "files": catalog_record_from_test_data['research_dataset']['files']
+        })
+        return catalog_record_from_test_data
 
     def _get_second_new_test_data(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        return {
+        catalog_record_from_test_data = self._get_new_test_data()
+        catalog_record_from_test_data['research_dataset'].update({
+            "urn_identifier": "pid:urn:new2",
+        })
+        return catalog_record_from_test_data
+
+    def _get_third_new_test_data(self):
+        """
+        Returns one of the fuller generated test datasets
+        """
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=11)
+        catalog_record_from_test_data.update({
             "contract": self._get_object_from_test_data('contract', requested_index=0),
-            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
-            "research_dataset": {
-                "urn_identifier": "pid:urn:new2",
-                "modified": "2014-01-17T08:19:58Z",
-                "version_notes": [
-                    "This version contains changes to x and y."
-                ],
-                "title": [{
-                    "en": "Wonderful Title"
-                }],
-                "description": [{
-                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                }],
-                "creator": [{
-                    "name": "Teppo Testaaja"
-                }],
-                "curator": [{
-                    "name": "Default Owner"
-                }],
-                "language": [{
-                    "title": "en",
-                    "identifier": "http://lexvo.org/id/iso639-3/aar"
-                }],
-                "total_byte_size": 1024,
-                "ready_status": "Unfinished",
-                "files": catalog_record_from_test_data['research_dataset']['files']
-            }
-        }
+            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0)
+        })
+        catalog_record_from_test_data['research_dataset'].pop('urn_identifier')
+        catalog_record_from_test_data['research_dataset'].pop('preferred_identifier')
+        return catalog_record_from_test_data

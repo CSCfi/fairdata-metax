@@ -68,6 +68,7 @@ class CatalogRecord(Common):
     preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
     preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
+    ready_status = models.CharField(max_length=200, blank=True, null=True, help_text='Dataset ready status.')
     research_dataset = JSONField()
 
     next_version_id = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True, db_column='next_version_id', related_name='next_version')
@@ -138,7 +139,7 @@ class CatalogRecord(Common):
             return None
 
     def dataset_is_finished(self):
-        return self.research_dataset.get('ready_status', False) == self.READY_STATUS_FINISHED
+        return self.ready_status and self.ready_status == self.READY_STATUS_FINISHED
 
     def _calculate_total_byte_size(self):
         """

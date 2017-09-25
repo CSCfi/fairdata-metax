@@ -5,6 +5,7 @@ from os.path import dirname, join
 import simplexquery as sxq
 from dicttoxml import dicttoxml
 from rest_framework import status
+from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Contract
@@ -25,8 +26,8 @@ class CatalogRecordService(CommonService):
         if catalog_record_current.next_version_identifier:
             raise Http403({ 'next_version_identifier': ['A newer version already exists. You can not create new versions from archived versions.'] })
 
-        if catalog_record_current.research_dataset['ready_status'] != CatalogRecord.READY_STATUS_FINISHED:
-            raise Http403({ 'research_dataset': { 'ready_status': ['Value has to be \'Ready\' in order to create a new version.'] }})
+        if not catalog_record_current.ready_status or catalog_record_current.ready_status != CatalogRecord.READY_STATUS_FINISHED:
+            raise Http403({ 'ready_status': ['Value has to be \'Ready\' in order to create a new version.'] })
 
         # import here instead of beginning of the file to avoid circular import in CR serializer
         from metax_api.api.base.serializers import CatalogRecordSerializer
@@ -41,7 +42,7 @@ class CatalogRecordService(CommonService):
         catalog_record_new['identifier'] = 'urn:nice:generated:identifier' # TODO
         catalog_record_new['research_dataset']['identifier'] = 'urn:nice:generated:identifier' # TODO
         catalog_record_new['research_dataset']['preferred_identifier'] = request.query_params.get('preferred_identifier', None)
-        catalog_record_new['research_dataset']['ready_status'] = 'Unfinished'
+        catalog_record_new['ready_status'] = 'Unfinished'
         catalog_record_new['previous_version_identifier'] = catalog_record_current.identifier
         catalog_record_new['previous_version_id'] = catalog_record_current.id
         catalog_record_new['version_created'] = current_time
@@ -108,7 +109,7 @@ class CatalogRecordService(CommonService):
             raise Http400({ 'contract': ['Query parameter \'contract\' is a required parameter.'] })
 
         if not catalog_record.dataset_is_finished():
-            raise Http403({ 'research_dataset': { 'ready_status': ['Value has to be \'Ready\' in order to propose to PAS.'] }})
+            raise Http403({ 'ready_status': ['Value has to be \'Ready\' in order to propose to PAS.'] })
 
         if not catalog_record.can_be_proposed_to_pas():
             raise Http403({ 'preservation_state': ['Value must be 0 (not proposed to PAS),'
@@ -131,6 +132,17 @@ class CatalogRecordService(CommonService):
         params:
         catalog_records: a list of catalog record dicts, or a single dict
         """
+
+        def item_func(parent_name):
+            """
+            Enable using other element names than 'item', depending on parent element name
+            However, since many one2many relation element names are already in singular form,
+            coming up with nice singular element names for childre is difficult.
+            """
+            return {
+                'researchdatasets': 'researchdataset'
+            }.get(parent_name, 'item')
+
         if isinstance(catalog_records, dict):
             is_list = False
             content_to_transform = catalog_records['research_dataset']
@@ -140,11 +152,13 @@ class CatalogRecordService(CommonService):
 
         xml_str = dicttoxml(
             content_to_transform,
-            custom_root='ResearchDatasets' if is_list else 'ResearchDataset',
-            attr_type=False
+            custom_root='researchdatasets' if is_list else 'researchdataset',
+            attr_type=False,
+            item_func=item_func
         ).decode('utf-8')
 
         if target_format == 'metax':
+            # mostly for debugging purposes, the 'metax xml' can be returned as well
             return xml_str
 
         target_xslt_file_path = join(dirname(dirname(__file__)), 'api/base/xslt/%s.xslt' % target_format)
@@ -160,7 +174,8 @@ class CatalogRecordService(CommonService):
         except:
             _logger.exception('Something is wrong with the xslt file at %s:' % target_xslt_file_path)
             raise Http503('Requested format \'%s\' is currently unavailable' % target_format)
-        return transformed_xml
+
+        return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
 
     @staticmethod
     def validate_reference_data(research_dataset, cache):
@@ -179,7 +194,9 @@ class CatalogRecordService(CommonService):
             relation_name:  the full relation path to the field to hand out in case of errors
             """
             rdtypes = refdata if index == 'ref' else orgdata
-            if obj[field_to_check] not in rdtypes[datatype]:
+            if not any(entry['uri'] == obj[field_to_check] or
+                       (entry.get('code', False) and entry['code'] == obj[field_to_check])
+                       for entry in rdtypes[datatype]):
                 if not isinstance(errors.get(relation_name, None), list):
                     errors[relation_name] = []
                 errors[relation_name].append('Identifier \'%s\' not found in reference data (type: %s)' % (obj[field_to_check], datatype))
@@ -192,14 +209,18 @@ class CatalogRecordService(CommonService):
         for theme in research_dataset.get('theme', []):
             check_ref_data('ref', 'keyword', theme, 'identifier', 'research_dataset.theme.identifier')
 
-        for discipline in research_dataset.get('discipline', []):
-            check_ref_data('ref', 'field_of_science', discipline, 'identifier', 'research_dataset.discipline.identifier')
+        for fos in research_dataset.get('field_of_science', []):
+            check_ref_data('ref', 'field_of_science', fos, 'identifier', 'research_dataset.field_of_science.identifier')
 
         for remote_resource in research_dataset.get('remote_resources', []):
             check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
 
             for license in remote_resource.get('license', []):
                 check_ref_data('ref', 'license', license, 'identifier', 'research_dataset.remote_resources.license.identifier')
+
+            if remote_resource.get('type', False):
+                check_ref_data('ref', 'resource_type', remote_resource['type'], 'identifier',
+                               'research_dataset.remote_resources.type.identifier')
 
         for language in research_dataset.get('language', []):
             check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
@@ -216,5 +237,17 @@ class CatalogRecordService(CommonService):
             for organization in project.get('source_organization', []):
                 check_ref_data('org', 'organization', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
 
+        for other_identifier in research_dataset.get('other_identifier', []):
+            if 'type' in other_identifier:
+                check_ref_data('ref', 'identifier_type', other_identifier['type'], 'identifier', 'research_dataset.other_identifier.type.identifier')
+
+        for spatial in research_dataset.get('spatial', []):
+            for place_uri in spatial.get('place_uri', []):
+                check_ref_data('ref', 'location', place_uri, 'identifier', 'research_dataset.spatial.place_uri.identifier')
+
+        for file in research_dataset.get('files', []):
+            if file.get('type', False):
+                check_ref_data('ref', 'resource_type', file['type'], 'identifier', 'research_dataset.files.type.identifier')
+
         if errors:
-            raise Http400(errors)
+            raise ValidationError(errors)

@@ -9,7 +9,7 @@ datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 test_data_file_path = 'metax_api/tests/testdata/test_data.json'
 
 def get_json_schema(model_name):
-    with open(path.dirname(path.realpath(__file__)) + '/../api/base/schemas/json_schema_%s.json' % model_name) as f:
+    with open(path.dirname(path.realpath(__file__)) + '/../api/base/schemas/%s_schema.json' % model_name) as f:
         return json_load(f)
 
 class TestClassUtils():
