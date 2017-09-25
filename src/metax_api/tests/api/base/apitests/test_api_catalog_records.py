@@ -851,6 +851,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         })
         catalog_record_from_test_data['research_dataset'].update({
             "urn_identifier": "pid:urn:new1",
+            "preferred_identifier": None,
             "creator": [{
                 "name": "Teppo Testaaja"
             }],
