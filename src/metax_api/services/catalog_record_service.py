@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
 from os.path import dirname, join
@@ -180,74 +181,74 @@ class CatalogRecordService(CommonService):
     @staticmethod
     def validate_reference_data(research_dataset, cache):
 
-        def check_ref_data(index, datatype, obj, field_to_check, relation_name):
+        def check_ref_data(ref_data_type, field_to_check, relation_name):
             """
             Check if the given field exists in the reference data.
 
-            In case the value is not found, an error is appended to the 'errors' dict.
+            If the value is found, the ref data entry is returned, so it may later be
+            used to populate the received dataset.
+
+            If the value is not found, an error is appended to the 'errors' dict.
 
             params:
-            index:          the ES index to search from
-            datatype:       the ES datatype to search from
-            obj:            the dict to read the value from
-            field_to_check: the name of the field to read
+            ref_data_type:  the ES datatype to search from
+            field_to_check: the field value being checked
             relation_name:  the full relation path to the field to hand out in case of errors
             """
-            rdtypes = refdata if index == 'ref' else orgdata
-            if not any(entry['uri'] == obj[field_to_check] or
-                       (entry.get('code', False) and entry['code'] == obj[field_to_check])
-                       for entry in rdtypes[datatype]):
-                if not isinstance(errors.get(relation_name, None), list):
-                    errors[relation_name] = []
-                errors[relation_name].append('Identifier \'%s\' not found in reference data (type: %s)' % (obj[field_to_check], datatype))
+            try:
+                return next(entry for entry in ref_data_type
+                            if entry['uri'] == field_to_check or
+                            entry.get('code', None) == field_to_check)
+            except StopIteration:
+                errors[relation_name].append('Identifier \'%s\' not found in reference data' % field_to_check)
 
         reference_data = cache.get('reference_data')
         refdata = reference_data['reference_data']
         orgdata = reference_data['organization_data']
-        errors = {}
+        errors = defaultdict(list)
 
         for theme in research_dataset.get('theme', []):
-            check_ref_data('ref', 'keyword', theme, 'identifier', 'research_dataset.theme.identifier')
+            check_ref_data(refdata['keyword'], theme['identifier'], 'research_dataset.theme.identifier')
 
         for fos in research_dataset.get('field_of_science', []):
-            check_ref_data('ref', 'field_of_science', fos, 'identifier', 'research_dataset.field_of_science.identifier')
+            check_ref_data(refdata['field_of_science'], fos['identifier'], 'research_dataset.field_of_science.identifier')
 
         for remote_resource in research_dataset.get('remote_resources', []):
-            check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
+            check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'], 'research_dataset.remote_resources.checksum.algorithm')
 
             for license in remote_resource.get('license', []):
-                check_ref_data('ref', 'license', license, 'identifier', 'research_dataset.remote_resources.license.identifier')
+                check_ref_data(refdata['license'], license['identifier'], 'research_dataset.remote_resources.license.identifier')
 
             if remote_resource.get('type', False):
-                check_ref_data('ref', 'resource_type', remote_resource['type'], 'identifier',
+                check_ref_data(refdata['resource_type'], remote_resource['type']['identifier'],
                                'research_dataset.remote_resources.type.identifier')
 
         for language in research_dataset.get('language', []):
-            check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
+            check_ref_data(refdata['language'], language['identifier'], 'research_dataset.language.identifier')
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
             for rights_statement_type in access_rights.get('type', []):
-                check_ref_data('ref', 'access_type', rights_statement_type, 'identifier', 'research_dataset.access_rights.type.identifier')
+                check_ref_data(refdata['access_type'], rights_statement_type['identifier'], 'research_dataset.access_rights.type.identifier')
 
             for rights_statement_license in access_rights.get('license', []):
-                check_ref_data('ref', 'license', rights_statement_license, 'identifier', 'research_dataset.access_rights.license.identifier')
+                check_ref_data(refdata['license'], rights_statement_license['identifier'], 'research_dataset.access_rights.license.identifier')
 
         for project in research_dataset.get('is_output_of', []):
             for organization in project.get('source_organization', []):
-                check_ref_data('org', 'organization', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
+                check_ref_data(orgdata['organization'], organization['identifier'], 'research_dataset.is_output_of.source_organization.identifier')
 
         for other_identifier in research_dataset.get('other_identifier', []):
             if 'type' in other_identifier:
-                check_ref_data('ref', 'identifier_type', other_identifier['type'], 'identifier', 'research_dataset.other_identifier.type.identifier')
+                check_ref_data(refdata['identifier_type'], other_identifier['type']['identifier'], 'research_dataset.other_identifier.type.identifier')
 
         for spatial in research_dataset.get('spatial', []):
             for place_uri in spatial.get('place_uri', []):
-                check_ref_data('ref', 'location', place_uri, 'identifier', 'research_dataset.spatial.place_uri.identifier')
+                check_ref_data(refdata['location'], place_uri['identifier'], 'research_dataset.spatial.place_uri.identifier')
 
         for file in research_dataset.get('files', []):
             if file.get('type', False):
-                check_ref_data('ref', 'resource_type', file['type'], 'identifier', 'research_dataset.files.type.identifier')
+                check_ref_data(refdata['resource_type'], file['type']['identifier'], 'research_dataset.files.type.identifier')
 
         if errors:
             raise ValidationError(errors)
