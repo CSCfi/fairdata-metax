@@ -39,15 +39,18 @@ class ReferenceDataService():
 
         cache.set('reference_data', reference_data)
 
+        errors = None
         reference_data_check = cache.get('reference_data')
 
         if 'reference_data' not in reference_data_check.keys():
             _logger.warning('Key reference_data missing from reference data - something went wrong during cache population?')
+            errors = True
 
         if 'organization_data' not in reference_data_check.keys():
             _logger.warning('Key organization_data missing from reference data - something went wrong during cache population?')
+            errors = True
 
-        _logger.info('Metax API startup - cache populated')
+        _logger.info('Metax API startup - %s' % ('failed to populate cache' if errors else 'cache populated'))
 
     @classmethod
     def _fetch_reference_data(cls, settings):
@@ -64,13 +67,30 @@ class ReferenceDataService():
                 reference_data[index_name][type_name] = []
                 all_rows = scan(esclient, query={'query': {'match_all': {}}}, index=index_name, doc_type=type_name)
                 for row in all_rows:
-                    entry = {}
-                    if not row['_source'].get('uri', False):
+
+                    #
+                    # form entry that will be placed into cache
+                    #
+
+                    try:
+                        # should always be present
+                        entry = { 'uri': row['_source']['uri'] }
+                    except KeyError:
                         _logger.warning('Elasticsearch document missing uri in index {0} type {1}: {2}'.format(index_name, type_name, row))
                         continue
-                    entry['uri'] = row['_source']['uri']
-                    if row['_source'].get('code', False):
+
+                    try:
+                        # should always be present
                         entry['code'] = row['_source']['code']
+                    except KeyError:
+                        # error, but not blocking
+                        _logger.warning('Elasticsearch document missing code in index {0} type {1}: {2}'.format(index_name, type_name, row))
+
+                    label = row['_source'].get('label', None)
+                    if label:
+                        # empty label is actually empty dict {}
+                        entry['label'] = label
+
                     reference_data[index_name][type_name].append(entry)
 
         return reference_data
