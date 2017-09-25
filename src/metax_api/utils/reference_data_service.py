@@ -9,7 +9,6 @@ import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
-ONE_DAY = 86400
 
 class ReferenceDataService():
 
@@ -38,7 +37,7 @@ class ReferenceDataService():
             _logger.exception('Reference data fetch failed')
             reference_data = {}
 
-        cache.set('reference_data', reference_data, ex=ONE_DAY * 2)
+        cache.set('reference_data', reference_data)
 
         reference_data_check = cache.get('reference_data')
 
