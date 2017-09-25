@@ -132,6 +132,17 @@ class CatalogRecordService(CommonService):
         params:
         catalog_records: a list of catalog record dicts, or a single dict
         """
+
+        def item_func(parent_name):
+            """
+            Enable using other element names than 'item', depending on parent element name
+            However, since many one2many relation element names are already in singular form,
+            coming up with nice singular element names for childre is difficult.
+            """
+            return {
+                'researchdatasets': 'researchdataset'
+            }.get(parent_name, 'item')
+
         if isinstance(catalog_records, dict):
             is_list = False
             content_to_transform = catalog_records['research_dataset']
@@ -141,11 +152,13 @@ class CatalogRecordService(CommonService):
 
         xml_str = dicttoxml(
             content_to_transform,
-            custom_root='ResearchDatasets' if is_list else 'ResearchDataset',
-            attr_type=False
+            custom_root='researchdatasets' if is_list else 'researchdataset',
+            attr_type=False,
+            item_func=item_func
         ).decode('utf-8')
 
         if target_format == 'metax':
+            # mostly for debugging purposes, the 'metax xml' can be returned as well
             return xml_str
 
         target_xslt_file_path = join(dirname(dirname(__file__)), 'api/base/xslt/%s.xslt' % target_format)
@@ -161,7 +174,8 @@ class CatalogRecordService(CommonService):
         except:
             _logger.exception('Something is wrong with the xslt file at %s:' % target_xslt_file_path)
             raise Http503('Requested format \'%s\' is currently unavailable' % target_format)
-        return transformed_xml
+
+        return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
 
     @staticmethod
     def validate_reference_data(research_dataset, cache):

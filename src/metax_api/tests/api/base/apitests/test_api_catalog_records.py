@@ -165,6 +165,30 @@ class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.data[0]['created_by_user_id'], '123')
 
     #
+    # dataset xml transformations
+    #
+
+    def test_read_dataset_xml_format_metax(self):
+        response = self.client.get('/rest/datasets/1?dataset_format=metax')
+        self._check_dataset_xml_format_response(response, '<researchdataset>')
+
+    def test_read_dataset_xml_format_datacite(self):
+        response = self.client.get('/rest/datasets/1?dataset_format=datacite')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self._check_dataset_xml_format_response(response, '<resource>')
+
+    def test_read_dataset_xml_format_error_unknown_format(self):
+        response = self.client.get('/rest/datasets/1?dataset_format=doesnotexist')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def _check_dataset_xml_format_response(self, response, element_name):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('content-type' in response._headers, True, response._headers)
+        self.assertEqual('application/xml' in response._headers['content-type'][1], True, response._headers)
+        self.assertEqual('<?xml version' in response.data[:20], True, response.data)
+        self.assertEqual(element_name in response.data[:60], True, response.data)
+
+    #
     # misc
     #
 
