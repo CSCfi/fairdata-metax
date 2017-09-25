@@ -824,6 +824,6 @@ paths:
         - Contract API
 definitions:
   CatalogRecord:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
