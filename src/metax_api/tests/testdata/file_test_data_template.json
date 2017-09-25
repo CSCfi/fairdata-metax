@@ -1,8 +1,8 @@
 {
-    "access_group": "my group",
-    "byte_size": 0,
+    "project_identifier": "my group",
+    "byte_size": 5512,
     "checksum_algorithm": "sha2",
-    "checksum_checked": null,
+    "checksum_checked": "2017-05-23T14:41:59.507392Z",
     "checksum_value": "habeebit",
     "download_url": "http://some.url.csc.fi/%s",
     "file_format": "html/text",
@@ -20,5 +20,5 @@
     },
     "open_access": false,
     "removed": false,
-    "replication_path": "empty"
+    "replication_path": "/path/to/copy/of/file"
 }

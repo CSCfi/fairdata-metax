@@ -60,8 +60,11 @@
             "properties":{
                 "identifier":{
                     "title":"Identifier",
-                    "description":"Unique URI identifier for the File",
+                    "description":"A persistent identifier (PID) in urn: scheme",
                     "@id":"http://purl.org/dc/terms/identifier",
+                    "enum":[
+                        "urn:nbn:fi:csc:1235xyz"
+                    ],
                     "@type":"@id",
                     "minItems":1,
                     "maxItems":1
@@ -91,12 +94,41 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "maxItems":1
                 },
-                "date_modified":{
-                    "title":"Date Modified",
+                "file_uploaded":{
+                    "title":"Date uploaded",
+                    "description":"date when data was uploaded",
+                    "@id":"http://iow.csc.fi/ns/mfs#dateUploaded",
+                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minItems":1,
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "file_modified":{
+                    "title":"Date modified",
                     "description":"Date on which the resource was changed.",
                     "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "minItems":1,
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "file_frozen":{
+                    "title":"Date frozen",
+                    "description":"date when the file is frozen",
+                    "@id":"http://iow.csc.fi/ns/mfs#datefrozen",
+                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minItems":1,
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "file_deleted":{
+                    "title":"Date deleted",
+                    "description":"date when the frozen file was deleted",
+                    "@id":"http://iow.csc.fi/ns/mfs#datedeleted",
+                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "maxItems":1,
                     "type":"string",
                     "format":"date-time"
@@ -142,8 +174,8 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "maxItems":1
                 },
-                "access_group":{
-                    "title":"Access group",
+                "project_identifier":{
+                    "title":"Project identifier",
                     "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
                     "@id":"http://iow.csc.fi/ns/mfs#group",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
@@ -166,17 +198,27 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#boolean",
                     "maxItems":1,
                     "type":"boolean"
+                },
+                "file_characteristics_extension":{
+                    "title":"Metadata Extension",
+                    "description":"Format-specific metadata that is defined externally. Can be represented as ObjectCharacteristicsExtension in PREMIS format.",
+                    "@id":"http://www.loc.gov/premis/rdf/v1#objectCharacteristicsExtension",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/FileCharacteristicsExtension"
                 }
             },
             "required":[
                 "identifier",
                 "file_name",
                 "file_path",
-                "date_modified",
+                "file_uploaded",
+                "file_modified",
+                "file_frozen",
                 "file_format",
                 "byte_size",
                 "is_stored_to",
-                "access_group",
+                "project_identifier",
                 "checksum"
             ]
         },
@@ -234,6 +276,14 @@
                     "maxItems":1,
                     "type":"string",
                     "format":"date-time"
+                },
+                "open_access":{
+                    "title":"Open access",
+                    "description":"This should be true if data is open and accessible. If attribute is not present it should be interpreted as implicit false.",
+                    "@id":"http://iow.csc.fi/ns/mfs#openaccess",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "maxItems":1,
+                    "type":"boolean"
                 }
             }
         },
