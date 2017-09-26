@@ -4,6 +4,9 @@ omit =
     */__init__.py
     metax_api/settings.py
     metax_api/wsgi.py
+    metax_api/tests/testdata/generate_test_data.py
+    metax_api/tests/testdata/request_test.py
+    metax_api/cron/update_reference_data.py
 
 [report]
 exclude_lines =
