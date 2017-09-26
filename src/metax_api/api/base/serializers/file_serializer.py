@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 
 from metax_api.models import File, FileStorage
@@ -13,11 +14,15 @@ class FileSerializer(CommonSerializer):
 
     _checksum_fields = ['algorithm', 'checked', 'value']
 
+    # has to be present to not break rest_framework browsabale api
+    checksum = serializers.CharField(source='checksum_value', read_only=True)
+
     class Meta:
         model = File
         fields = (
             'id',
             'byte_size',
+            'checksum',
             'checksum_algorithm',
             'checksum_checked',
             'checksum_value',
@@ -51,23 +56,8 @@ class FileSerializer(CommonSerializer):
         }
 
     def is_valid(self, raise_exception=False):
-        """
-        Different kind of validations are done at different times, and the type of
-        file_storage can be one of the following. Deal with accordingly.
-
-        Probably there would be some nice of way of leveraging serializer fields...
-        """
-        if self.initial_data.get('file_storage', False):
-            if type(self.initial_data['file_storage']) in (int, str):
-                id = self.initial_data['file_storage']
-            elif isinstance(self.initial_data['file_storage'], dict):
-                id = int(self.initial_data['file_storage']['id'])
-            else:
-                _logger.error('is_valid() field validation for file_storage: unexpected type: %s'
-                              % type(self.initial_data['file_storage']))
-                raise ValidationError('Validation error for field file_storage. Data in unexpected format')
-            self.initial_data['file_storage'] = id
-
+        if 'file_storage' in self.initial_data:
+            self.initial_data['file_storage'] = self._get_id_from_related_object('file_storage', self._get_file_storage_relation)
         if 'checksum' in self.initial_data:
             self._flatten_checksum(self.initial_data['checksum'])
 
@@ -75,8 +65,6 @@ class FileSerializer(CommonSerializer):
 
     def to_representation(self, data):
         res = super(FileSerializer, self).to_representation(data)
-        # todo this is an extra query... (albeit qty of storages in db is tiny)
-        # get FileStorage dict from context somehow ?
         fsrs = FileStorageSerializer(FileStorage.objects.get(id=res['file_storage']))
         res['file_storage'] = fsrs.data
 
@@ -90,6 +78,19 @@ class FileSerializer(CommonSerializer):
     def validate_file_characteristics(self, value):
         validate_json(value, self.context['view'].json_schema)
         return value
+
+    def _get_file_storage_relation(self, identifier_value):
+        """
+        Passed to _get_id_from_related_object() to be used when relation was a string identifier
+        """
+        if isinstance(identifier_value, dict):
+            identifier_value = identifier_value['file_storage_json']['identifier']
+        try:
+            return FileStorage.objects.get(
+                file_storage_json__contains={ 'identifier': identifier_value }
+            ).id
+        except FileStorage.DoesNotExist:
+            raise ValidationError({ 'file_storage': ['identifier %s not found' % str(identifier_value)]})
 
     def _flatten_checksum(self, checksum):
         """

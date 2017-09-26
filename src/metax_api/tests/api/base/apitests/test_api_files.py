@@ -85,7 +85,7 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
         response = self.client.post('/rest/files', self.test_new_data, format="json")
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('file_name' in response.data.keys(), True)
         self.assertEqual(response.data['file_name'], newly_created_file_name)
 
@@ -266,13 +266,13 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
         self.second_test_new_data['id'] = 2
         # cant be null - should fail
-        self.second_test_new_data['file_characteristics'] = None
+        self.second_test_new_data['file_frozen'] = None
 
         response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
-        self.assertEqual('file_characteristics' in response.data['failed'][0]['errors'], True, 'error should be about file_characteristics missing')
+        self.assertEqual('file_frozen' in response.data['failed'][0]['errors'], True, 'error should be about file_characteristics missing')
 
         updated_file = File.objects.get(pk=1)
         self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update for first item')
@@ -347,61 +347,21 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(deleted_file.file_name, self.file_name)
 
     def _get_new_test_data(self):
-        return {
-            "open_access": False,
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+        from_test_data = self._get_object_from_test_data('file', requested_index=0)
+        from_test_data.update({
             "checksum": {
                 "value": "habeebit",
                 "algorithm": "sha2",
-                "checked": None,
+                "checked": "2017-05-23T10:07:22.559656Z",
             },
-            "project_identifier": "my group",
             "identifier": "urn:nbn:fi:csc-ida201401200000000001",
-            "download_url": "http://some.url.csc.fi/0000000001",
-            "file_name": "new_file_name",
-            "file_format": "html/text",
-            "file_path": "/some/path/",
-            "byte_size": 0,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "replication_path": "empty",
-            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0),
-            "file_characteristics": {
-                "application_name": "Application Name",
-                "description": "A nice description 0000000010",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "file_created": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8",
-                "title": "A title 0000000010"
-            }
-        }
+            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
+        })
+        return from_test_data
 
     def _get_second_new_test_data(self):
-        return {
-            "open_access": False,
-            "file_modified": "2017-05-23T14:41:59.507392Z",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "checksum": {
-                "value": "habeebit",
-                "algorithm": "sha2",
-                "checked": None,
-            },
-            "project_identifier": "my group",
+        from_test_data = self._get_new_test_data()
+        from_test_data.update({
             "identifier": "urn:nbn:fi:csc-ida201401200000000002",
-            "download_url": "http://some.url.csc.fi/0000000002",
-            "file_name": "second_new_file_name",
-            "file_format": "html/text",
-            "file_path": "/some/path/",
-            "byte_size": 0,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "replication_path": "empty",
-            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0),
-            "file_characteristics": {
-                "application_name": "Application Name",
-                "description": "A nice description 0000000010",
-                "metadata_modified": "2014-01-17T08:19:31Z",
-                "file_created": "2014-01-17T08:19:31Z",
-                "encoding": "utf-8",
-                "title": "A title 0000000010"
-            }
-        }
+        })
+        return from_test_data
