@@ -1,7 +1,7 @@
 {
     "@id":"http://iow.csc.fi/ns/mfs#",
-    "title":"Metax File Storage Metadata",
-    "modified":"Tue, 18 Apr 2017 16:58:24 EEST",
+    "title":"Metax Data Storage Metadata",
+    "modified":"Mon, 28 Aug 2017 13:23:07 EEST",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "allOf": [
@@ -62,9 +62,6 @@
                     "title":"Identifier",
                     "description":"A persistent identifier (PID) in urn: scheme",
                     "@id":"http://purl.org/dc/terms/identifier",
-                    "enum":[
-                        "urn:nbn:fi:csc:1235xyz"
-                    ],
                     "@type":"@id",
                     "minItems":1,
                     "maxItems":1
@@ -154,12 +151,12 @@
                     "title":"Byte size",
                     "description":"The size of a resource in bytes.",
                     "@id":"http://www.w3.org/ns/dcat#byteSize",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "@type":"http://www.w3.org/2001/XMLSchema#integer",
                     "minItems":1,
                     "maxItems":1,
-                    "type":"string"
+                    "type":"integer"
                 },
-                "is_stored_to":{
+                "file_storage":{
                     "title":"Is Stored To",
                     "description":"A related storage system",
                     "@id":"http://purl.org/dc/terms/isPartOf",
@@ -217,7 +214,7 @@
                 "file_frozen",
                 "file_format",
                 "byte_size",
-                "is_stored_to",
+                "file_storage",
                 "project_identifier",
                 "checksum"
             ]

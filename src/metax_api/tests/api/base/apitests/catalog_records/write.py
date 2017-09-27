@@ -8,208 +8,11 @@ from metax_api.models import CatalogRecord, DataCatalog
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
-class CatalogRecordApiReadTestV1(APITestCase, TestClassUtils):
+class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
 
-    @classmethod
-    def setUpClass(cls):
-        """
-        Loaded only once for test cases inside this class.
-        """
-        call_command('loaddata', test_data_file_path, verbosity=0)
-        super(CatalogRecordApiReadTestV1, cls).setUpClass()
-
-    def setUp(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        self.pk = catalog_record_from_test_data['id']
-        self.urn_identifier = catalog_record_from_test_data['research_dataset']['urn_identifier']
-        self.preferred_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
-
-    def test_read_catalog_record_list(self):
-        response = self.client.get('/rest/datasets')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_read_catalog_record_details_by_pk(self):
-        response = self.client.get('/rest/datasets/%s' % self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
-
-    def test_read_catalog_record_details_by_identifier(self):
-        response = self.client.get('/rest/datasets/%s' % self.preferred_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
-
-    def test_read_catalog_record_details_not_found(self):
-        response = self.client.get('/rest/datasets/shouldnotexist')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    #
-    # pagination
-    #
-
-    def test_read_catalog_record_list_pagination_1(self):
-        response = self.client.get('/rest/datasets?limit=2&offset=0')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
-        self.assertEqual(response.data['results'][0]['id'], 1, 'Id of first result should have been 1')
-
-    def test_read_catalog_record_list_pagination_2(self):
-        response = self.client.get('/rest/datasets?limit=2&offset=2')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
-        self.assertEqual(response.data['results'][0]['id'], 3, 'Id of first result should have been 3')
-
-    #
-    # preservation_state filtering
-    #
-
-    def test_read_catalog_record_search_by_preservation_state_0(self):
-        response = self.client.get('/rest/datasets?state=0')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data) > 2, True, 'There should have been multiple results for state=0 request')
-        self.assertEqual(response.data[0]['id'], 1)
-
-    def test_read_catalog_record_search_by_preservation_state_1(self):
-        response = self.client.get('/rest/datasets?state=1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], 2)
-
-    def test_read_catalog_record_search_by_preservation_state_2(self):
-        response = self.client.get('/rest/datasets?state=2')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], 3)
-
-    def test_read_catalog_record_search_by_preservation_state_666(self):
-        response = self.client.get('/rest/datasets?state=666')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-
-    def test_read_catalog_record_search_by_preservation_state_many(self):
-        response = self.client.get('/rest/datasets?state=1,2')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-        self.assertEqual(response.data[0]['preservation_state'], 1)
-        self.assertEqual(response.data[1]['preservation_state'], 2)
-
-    def test_read_catalog_record_search_by_preservation_state_invalid_value(self):
-        response = self.client.get('/rest/datasets?state=1,a')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('is not an integer' in response.data['state'][0], True, 'Error should say letter a is not an integer')
-
-    #
-    # query_params
-    #
-
-    def test_read_catalog_record_search_by_curator_1(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 5)
-        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
-        self.assertEqual(response.data[4]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
-
-    def test_read_catalog_record_search_by_curator_2(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:jarski')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 4)
-        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Jarski', 'Curator name is not matching')
-        self.assertEqual(response.data[3]['research_dataset']['curator'][0]['name'], 'Jarski', 'Curator name is not matching')
-
-    def test_read_catalog_record_search_by_curator_not_found_1(self):
-        response = self.client.get('/rest/datasets?curator=Not Found')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-
-    def test_read_catalog_record_search_by_curator_not_found_case_sensitivity(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:Rahikainen')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-
-    def test_read_catalog_record_search_by_curator_and_state_1(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], 2)
-        self.assertEqual(response.data[0]['preservation_state'], 1)
-        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
-
-    def test_read_catalog_record_search_by_curator_and_state_2(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=2')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['id'], 3)
-        self.assertEqual(response.data[0]['preservation_state'], 2)
-        self.assertEqual(response.data[0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
-
-    def test_read_catalog_record_search_by_curator_and_state_not_found(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=55')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-
-    def test_read_catalog_record_search_by_owner_id(self):
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.owner_id = '123'
-        cr.save()
-        response = self.client.get('/rest/datasets?owner_id=123')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['owner_id'], '123')
-
-    def test_read_catalog_record_search_by_creator_id(self):
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.created_by_user_id = '123'
-        cr.save()
-        response = self.client.get('/rest/datasets?created_by_user_id=123')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['created_by_user_id'], '123')
-
-    #
-    # dataset xml transformations
-    #
-
-    def test_read_dataset_xml_format_metax(self):
-        response = self.client.get('/rest/datasets/1?dataset_format=metax')
-        self._check_dataset_xml_format_response(response, '<researchdataset>')
-
-    def test_read_dataset_xml_format_datacite(self):
-        response = self.client.get('/rest/datasets/1?dataset_format=datacite')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self._check_dataset_xml_format_response(response, '<resource>')
-
-    def test_read_dataset_xml_format_error_unknown_format(self):
-        response = self.client.get('/rest/datasets/1?dataset_format=doesnotexist')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def _check_dataset_xml_format_response(self, response, element_name):
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('content-type' in response._headers, True, response._headers)
-        self.assertEqual('application/xml' in response._headers['content-type'][1], True, response._headers)
-        self.assertEqual('<?xml version' in response.data[:20], True, response.data)
-        self.assertEqual(element_name in response.data[:60], True, response.data)
-
-    #
-    # misc
-    #
-
-    def test_read_catalog_record_exists(self):
-        response = self.client.get('/rest/datasets/%s/exists' % self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.urn_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.preferred_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-
-    def test_read_catalog_record_does_not_exist(self):
-        response = self.client.get('/rest/datasets/%s/exists' % 'urn:nbn:fi:non_existing_dataset_identifier')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertFalse(response.data)
-
-
-class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
+    """
+    Common class for write tests, inherited by other write test classes
+    """
 
     def setUp(self):
         """
@@ -234,25 +37,53 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
     #
     #
     #
-    # dataset schemas
+    # internal helper methods
     #
     #
     #
 
-    def test_catalog_record_with_not_found_json_schema_defaults_to_att_schema(self):
-        # catalog has dataset schema, but it is not found on the server
-        dc = DataCatalog.objects.get(pk=1)
-        dc.catalog_json['research_dataset_schema'] = 'nonexisting'
-        dc.save()
-        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+    def _get_new_test_data(self):
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+        catalog_record_from_test_data.update({
+            "contract": self._get_object_from_test_data('contract', requested_index=0),
+            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
+        })
+        catalog_record_from_test_data['research_dataset'].update({
+            "urn_identifier": "pid:urn:new1",
+            "preferred_identifier": None,
+            "creator": [{
+                "name": "Teppo Testaaja"
+            }],
+            "curator": [{
+                "name": "Default Owner"
+            }],
+            "total_byte_size": 1024,
+            "files": catalog_record_from_test_data['research_dataset']['files']
+        })
+        return catalog_record_from_test_data
 
-        # catalog has no dataset schema at all
-        dc = DataCatalog.objects.get(pk=1)
-        dc.catalog_json.pop('research_dataset_schema')
-        dc.save()
-        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+    def _get_second_new_test_data(self):
+        catalog_record_from_test_data = self._get_new_test_data()
+        catalog_record_from_test_data['research_dataset'].update({
+            "urn_identifier": "pid:urn:new2",
+        })
+        return catalog_record_from_test_data
+
+    def _get_third_new_test_data(self):
+        """
+        Returns one of the fuller generated test datasets
+        """
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=11)
+        catalog_record_from_test_data.update({
+            "contract": self._get_object_from_test_data('contract', requested_index=0),
+            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0)
+        })
+        catalog_record_from_test_data['research_dataset'].pop('urn_identifier')
+        catalog_record_from_test_data['research_dataset'].pop('preferred_identifier')
+        return catalog_record_from_test_data
+
+
+class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
 
     #
     #
@@ -329,7 +160,7 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(data_catalog.catalog_json['title']['en'], original_title)
 
     #
-    # generic write operations
+    # reference_data mega validation
     #
 
     def test_create_catalog_record_with_invalid_reference_data(self):
@@ -410,7 +241,33 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
     #
     #
-    # update apis
+    #
+    # dataset schema related
+    #
+    #
+    #
+
+    def test_catalog_record_with_not_found_json_schema_defaults_to_att_schema(self):
+        # catalog has dataset schema, but it is not found on the server
+        dc = DataCatalog.objects.get(pk=1)
+        dc.catalog_json['research_dataset_schema'] = 'nonexisting'
+        dc.save()
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # catalog has no dataset schema at all
+        dc = DataCatalog.objects.get(pk=1)
+        dc.catalog_json.pop('research_dataset_schema')
+        dc.save()
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+
+class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
+
+    #
+    #
+    # update apis PUT
     #
     #
 
@@ -437,17 +294,6 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True, 'Error for field \'research_dataset\' is missing from response.data')
-
-    def test_update_catalog_record_partial(self):
-        new_data_catalog = self._get_object_from_test_data('datacatalog', requested_index=1)['id']
-        new_data = {
-            "data_catalog": new_data_catalog,
-        }
-        response = self.client.patch('/rest/datasets/%s' % self.urn_identifier, new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'PATCH operation should return full content')
-        self.assertEqual(response.data['data_catalog']['id'], new_data_catalog, 'Field data_catalog was not updated')
 
     def test_update_catalog_record_dont_allow_data_catalog_fields_update(self):
         original_title = self.test_new_data['data_catalog']['catalog_json']['title']['en']
@@ -550,6 +396,26 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
 
+
+class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
+
+    #
+    #
+    # update apis PATCH
+    #
+    #
+
+    def test_update_catalog_record_partial(self):
+        new_data_catalog = self._get_object_from_test_data('datacatalog', requested_index=1)['id']
+        new_data = {
+            "data_catalog": new_data_catalog,
+        }
+        response = self.client.patch('/rest/datasets/%s' % self.urn_identifier, new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'PATCH operation should return full content')
+        self.assertEqual(response.data['data_catalog']['id'], new_data_catalog, 'Field data_catalog was not updated')
+
     #
     # update list operations PATCH
     #
@@ -606,6 +472,9 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
         self.assertEqual('detail' in response.data['failed'][0]['errors'], True, response.data['failed'][0]['errors'])
         self.assertEqual('identifying key' in response.data['failed'][0]['errors']['detail'][0], True, response.data['failed'][0]['errors'])
+
+
+class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
 
     #
     # header if-modified-since tests, single
@@ -697,6 +566,9 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
         self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True, 'error should indicate resource has been modified')
 
+
+class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
+
     #
     #
     #
@@ -750,6 +622,9 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data[0]['id'], 3)
+
+
+class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
 
     #
     #
@@ -858,51 +733,3 @@ class CatalogRecordApiWriteTestV1(APITestCase, TestClassUtils):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual('preservation_state' in response.data, True, 'Response data should contain an error about the field')
-
-    #
-    #
-    #
-    # internal helper methods
-    #
-    #
-    #
-
-    def _get_new_test_data(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        catalog_record_from_test_data.update({
-            "contract": self._get_object_from_test_data('contract', requested_index=0),
-            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
-        })
-        catalog_record_from_test_data['research_dataset'].update({
-            "urn_identifier": "pid:urn:new1",
-            "preferred_identifier": None,
-            "creator": [{
-                "name": "Teppo Testaaja"
-            }],
-            "curator": [{
-                "name": "Default Owner"
-            }],
-            "total_byte_size": 1024,
-            "files": catalog_record_from_test_data['research_dataset']['files']
-        })
-        return catalog_record_from_test_data
-
-    def _get_second_new_test_data(self):
-        catalog_record_from_test_data = self._get_new_test_data()
-        catalog_record_from_test_data['research_dataset'].update({
-            "urn_identifier": "pid:urn:new2",
-        })
-        return catalog_record_from_test_data
-
-    def _get_third_new_test_data(self):
-        """
-        Returns one of the fuller generated test datasets
-        """
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=11)
-        catalog_record_from_test_data.update({
-            "contract": self._get_object_from_test_data('contract', requested_index=0),
-            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0)
-        })
-        catalog_record_from_test_data['research_dataset'].pop('urn_identifier')
-        catalog_record_from_test_data['research_dataset'].pop('preferred_identifier')
-        return catalog_record_from_test_data

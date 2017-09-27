@@ -70,24 +70,8 @@ paths:
 # File API
   /files:
     get:
-      summary: get list of files, optionally filtered by request parameters
+      summary: get list of files
       parameters:
-        - name: dataset
-          in: query
-          description: filter results by PID of dataset containing file
-          required: false
-          type: string
-        - name: owner_email
-          in: query
-          description: filter results by owner e-mail address
-          required: false
-          type: string
-        - name: fields
-          in: query
-          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
-          required: false
-          type: string
-          default: PID
         - name: offset
           in: query
           description: offset for paging
@@ -101,18 +85,63 @@ paths:
           default: 100
       responses:
         "200":
-          description: successful operation, return list of files containing PID and other file metadata
+          description: successful operation, return list of files
+          schema:
+            $ref: '#/definitions/File'
       tags:
         - File API
     post:
-      summary: create multiple file metadata from array of objects
+      summary: create new file metadata
       consumes:
         - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object or a list of objects to create."
+        required: true
+        schema:
+          $ref: '#/definitions/File'
       responses:
         '201':
-          description: Returns the HTTP status for each item and the PIDs of resources that were created
+          description: Returns the created object, or if a list was given, a list of objects and errors.
         '400':
-          description: Invalid list of objects
+          description: parameters contained errors, response includes details.
+      tags:
+        - File API
+    put:
+      summary: bulk update
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of objects to update."
+          required: true
+      responses:
+        '200':
+          description: Some objects were updated, but some contained errors. Return values include a list of errors. For PUT, response does not include created objects.
+        '204':
+          description: All updates were successful. No content returned.
+        '400':
+          description: All updates failed. A list of errors is returned.
+      tags:
+        - File API
+    patch:
+      summary: bulk update partial
+      description: |
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, identifier</b>
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of (partial) objects to update."
+          required: true
+      responses:
+        '200':
+          description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
+        '400':
+          description: All updates failed. A list of errors is returned.
       tags:
         - File API
   /files/{PID}:
@@ -127,21 +156,10 @@ paths:
       responses:
         '200':
           description: return file metadata
+          schema:
+            $ref: '#/definitions/File'
         '404':
           description: not found
-      tags:
-        - File API
-    post:
-      summary: create new file metadata
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of file OR the internal pk
-          required: true
-          type: string
-      responses:
-        '204':
-          description: successful operation, no content returned
       tags:
         - File API
     put:
@@ -152,11 +170,19 @@ paths:
           description: Persistent ID of file OR the internal pk
           required: true
           type: string
+        - name: "body"
+          in: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/File'
       responses:
         '204':
           description: successful operation, no content returned
         '400':
           description: parameters contained errors, response includes details
+        '404':
+          description: object not found
       tags:
         - File API
     patch:
@@ -167,9 +193,21 @@ paths:
           description: Persistent ID of file OR the internal pk
           required: true
           type: string
+        - name: "body"
+          in: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/File'
       responses:
         '200':
           description: successful operation, full content returned
+          schema:
+            $ref: '#/definitions/File'
+        '400':
+          description: parameters contained errors, response includes details
+        '404':
+          description: object not found
       tags:
         - File API
     delete:
@@ -183,6 +221,8 @@ paths:
       responses:
         '204':
           description: successful operation, no content returned
+        '404':
+          description: object not found
       tags:
         - File API
   /files/{PID}/XML:
@@ -517,8 +557,7 @@ paths:
           type: string
         - name: dataset_format
           in: query
-          description: Name of the format the dataset should be returned in. <b>Note:</b> Using this parameter causes
-          the api to return only the field research_dataset, transformed to the requested format.
+          description: Name of the format the dataset should be returned in. <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
           required: false
           type: string
       responses:
@@ -830,6 +869,8 @@ paths:
         - Contract API
 definitions:
   CatalogRecord:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
+  File:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/file.json#/definitions/File'
