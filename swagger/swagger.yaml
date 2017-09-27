@@ -268,7 +268,7 @@ paths:
           description: file does not exist
       tags:
         - File API
-  /directories/{path}:
+  /directories:
     get:
       summary: get list of PIDs in directory
       parameters:
@@ -307,14 +307,19 @@ paths:
       parameters:
         - name: path
           in: path
-          description: directory path
+          description: |
+            directory path. example value\: /path/of/directory
           required: true
           type: string
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation, returns in body the number of affected files in field affected_files
+        '400':
+          description: bad parameters, details in body
+        '404':
+          description: not a single file with given path was found
       tags:
-        - File API (not implemented)
+        - File API
 
 
 # Data Catalog API
