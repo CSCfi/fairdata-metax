@@ -342,3 +342,102 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
 
         self.assertEqual(deleted_file.removed, True)
         self.assertEqual(deleted_file.file_name, self.file_name)
+
+
+class FileApiWriteDirectoryDeleteTests(FileApiWriteCommon):
+
+    """
+    DELETE /directories?path={path}
+    """
+
+    OTHER_PATH = '/animals/pets/cats'
+    OTHER_PATH_DEEPER = '/animals/pets/cats/furry'
+    OTHER_PATH_SIMILAR = '/animals/pets/cats_poisonous'
+
+    def setUp(self):
+        super(FileApiWriteDirectoryDeleteTests, self).setUp()
+        self._insert_files_with_file_paths([
+            self.OTHER_PATH,
+            self.OTHER_PATH_DEEPER,
+            self.OTHER_PATH_SIMILAR,
+        ])
+
+    def test_delete_directory(self):
+        file = File.objects.get(pk=1)
+        file_count = File.objects.filter(file_path=file.file_path).count()
+
+        response = self.client.delete('/rest/directories?path=%s' % file.file_path)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['affected_files'], file_count, response.data)
+
+        response = self.client.get('/rest/files/%d' % file.id)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        try:
+            deleted_file = File.objects_unfiltered.get(pk=file.id)
+        except File.DoesNotExist:
+            raise Exception('Deleted file should not be deleted from the db, but marked as removed')
+
+        self.assertEqual(deleted_file.removed, True)
+        self.assertEqual(deleted_file.file_path.startswith(file.file_path), True, deleted_file.file_path)
+
+    def test_delete_directory_path_not_found(self):
+        file_count_before = File.objects.all().count()
+        response = self.client.delete('/rest/directories?path=/should/not/exist')
+        file_count_after = File.objects.all().count()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(file_count_before, file_count_after)
+
+    def test_delete_directory_path_is_required_parameter(self):
+        response = self.client.delete('/rest/directories')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('required' in response.data['detail'], True, response.data)
+
+    def test_delete_directory_paths_are_not_greedy(self):
+        """
+        File path must match in full, partial match must not delete files:
+        1) animals/pets/cats
+        2) animals/pets/cats/furry
+        3) animals/pets/cats_poisonous
+
+        when 1) is deleted, 2) is deleted as well, 3) must not be affected
+        """
+
+        # note that django orm filter 'file_path__startswith' is greedy, so this filter returns
+        # everything that starts with OTHER_PATH -> 3 results.
+        #
+        # the delete_directory() operation in the api however is not greedy, it will only
+        # match full exact file path, OR all file paths that continue after
+        # OTHER_PATH + /.
+        file_count_before = File.objects.filter(file_path__startswith=self.OTHER_PATH).count()
+
+        response = self.client.delete('/rest/directories?path=%s' % self.OTHER_PATH)
+
+        file_count_after = File.objects.filter(file_path__startswith=self.OTHER_PATH).count()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['affected_files'], 2, response.data)
+        self.assertEqual(file_count_after, file_count_before - 2, 'only one file should have been deleted')
+
+    def test_delete_directory_generic_apis_give_errors(self):
+        self.assertEqual(self.client.get('/rest/directories').status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.client.post('/rest/directories').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.get('/rest/directories/1').status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.client.put('/rest/directories').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(self.client.put('/rest/directories/1').status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.client.patch('/rest/directories').status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.client.patch('/rest/directories/1').status_code, status.HTTP_404_NOT_FOUND)
+
+    def _insert_files_with_file_paths(self, file_paths):
+        fs = FileStorage.objects.get(pk=1)
+        for idx, path in enumerate(file_paths):
+            from_test_data = self._get_object_from_test_data('file')
+            from_test_data.update({
+                'identifier': '%s-%d' % (from_test_data['identifier'], idx),
+                'file_path': path,
+                'file_storage': fs,
+                'id': None,
+            })
+            file = File(**from_test_data)
+            file.save()

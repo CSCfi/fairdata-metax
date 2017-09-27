@@ -14,7 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from rest_framework.routers import DefaultRouter, Route
-from .views import FileViewSet, DatasetViewSet, DataCatalogViewSet, ContractViewSet
+from .views import (
+    ContractViewSet,
+    DataCatalogViewSet,
+    DatasetViewSet,
+    DirectoryViewSet,
+    FileViewSet
+)
 
 class CustomRouter(DefaultRouter):
 
@@ -38,10 +44,34 @@ class CustomRouter(DefaultRouter):
         ))
         super(CustomRouter, self).__init__(*args, **kwargs)
 
+class DirectoryRouter(DefaultRouter):
+
+    """
+    Override default router to only use certain HTTP methods, and map
+    them to function names that make sense
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.routes = [Route(
+            url=r'^{prefix}{trailing_slash}$',
+            mapping={
+                'get': 'get',
+                'patch': 'rename_directory',
+                'delete': 'delete_directory'
+            },
+            name='{basename}-directories',
+            initkwargs={'suffix': 'Directory'}
+        )]
+        super(DirectoryRouter, self).__init__(*args, **kwargs)
+
 router = CustomRouter(trailing_slash=False)
 router.register(r'contracts/?', ContractViewSet)
 router.register(r'datasets/?', DatasetViewSet)
 router.register(r'datacatalogs/?', DataCatalogViewSet)
 router.register(r'files/?', FileViewSet)
 
+directory_router = DirectoryRouter(trailing_slash=False)
+directory_router.register(r'directories?', DirectoryViewSet)
+
 api_urlpatterns = router.urls
+api_urlpatterns += directory_router.urls
