@@ -1,1 +1,2 @@
-from .files import FileApiReadTestV1, FileApiWriteTestV1
+from .read import *
+from .write import *

@@ -7,7 +7,8 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 d = print
 
-class FileApiReadTestV1(APITestCase, TestClassUtils):
+
+class FileApiWriteCommon(APITestCase, TestClassUtils):
 
     @classmethod
     def setUpClass(cls):
@@ -15,43 +16,7 @@ class FileApiReadTestV1(APITestCase, TestClassUtils):
         Loaded only once for test cases inside this class.
         """
         call_command('loaddata', test_data_file_path, verbosity=0)
-        super(FileApiReadTestV1, cls).setUpClass()
-
-    def setUp(self):
-        file_from_test_data = self._get_object_from_test_data('file')
-        self.identifier = file_from_test_data['identifier']
-        self.pk = file_from_test_data['id']
-
-    def test_read_file_list(self):
-        response = self.client.get('/rest/files')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_read_file_details_by_pk(self):
-        response = self.client.get('/rest/files/%s' % self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(hasattr(response, 'data'), True, 'Request response object is missing attribute \'data\'')
-        self.assertEqual('file_name' in response.data.keys(), True)
-        self.assertEqual(response.data['identifier'], self.identifier)
-
-    def test_read_file_details_by_identifier(self):
-        response = self.client.get('/rest/files/%s' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(hasattr(response, 'data'), True, 'Request response object is missing attribute \'data\'')
-        self.assertEqual('file_name' in response.data.keys(), True)
-        self.assertEqual(response.data['identifier'], self.identifier)
-
-    def test_read_file_details_not_found(self):
-        response = self.client.get('/rest/files/shouldnotexist')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_read_file_details_checksum_relation(self):
-        response = self.client.get('/rest/files/%s' % self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('checksum' in response.data, True)
-        self.assertEqual('value' in response.data['checksum'], True)
-
-
-class FileApiWriteTestV1(APITestCase, TestClassUtils):
+        super(FileApiWriteCommon, cls).setUpClass()
 
     def setUp(self):
         """
@@ -69,6 +34,29 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.test_new_data = self._get_new_test_data()
         self.second_test_new_data = self._get_second_new_test_data()
         self._use_http_authorization()
+
+    def _get_new_test_data(self):
+        from_test_data = self._get_object_from_test_data('file', requested_index=0)
+        from_test_data.update({
+            "checksum": {
+                "value": "habeebit",
+                "algorithm": "sha2",
+                "checked": "2017-05-23T10:07:22.559656Z",
+            },
+            "identifier": "urn:nbn:fi:csc-ida201401200000000001",
+            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
+        })
+        return from_test_data
+
+    def _get_second_new_test_data(self):
+        from_test_data = self._get_new_test_data()
+        from_test_data.update({
+            "identifier": "urn:nbn:fi:csc-ida201401200000000002",
+        })
+        return from_test_data
+
+
+class FileApiWriteCreateTests(FileApiWriteCommon):
 
     #
     #
@@ -191,13 +179,12 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
 
-    #
-    #
-    #
-    # update apis
-    #
-    #
-    #
+
+class FileApiWriteUpdateTests(FileApiWriteCommon):
+
+    """
+    update operations PUT
+    """
 
     def test_update_file(self):
         response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
@@ -214,17 +201,6 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('project_identifier' in response.data.keys(), True, 'Error for field \'project_identifier\' is missing from response.data')
-
-    def test_update_file_partial(self):
-        new_data = {
-            "file_name": "new_file_name",
-        }
-        response = self.client.patch('/rest/files/%s' % self.identifier, new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual('file_name' in response.data.keys(), True)
-        self.assertEqual('file_path' in response.data.keys(), True, 'PATCH operation should return full content')
-        self.assertEqual(response.data['file_name'], 'new_file_name', 'Field file_name was not updated')
 
     def test_update_file_dont_allow_file_storage_fields_update(self):
         original_title = self.test_new_data['file_storage']['file_storage_json']['title']
@@ -298,6 +274,24 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         updated_file = File.objects.get(pk=1)
         self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update for first item')
 
+
+class FileApiWritePartialUpdateTests(FileApiWriteCommon):
+
+    """
+    update operations PATCH
+    """
+
+    def test_update_file_partial(self):
+        new_data = {
+            "file_name": "new_file_name",
+        }
+        response = self.client.patch('/rest/files/%s' % self.identifier, new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('file_name' in response.data.keys(), True)
+        self.assertEqual('file_path' in response.data.keys(), True, 'PATCH operation should return full content')
+        self.assertEqual(response.data['file_name'], 'new_file_name', 'Field file_name was not updated')
+
     #
     # update list operations PATCH
     #
@@ -323,6 +317,9 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
         updated_file = File.objects.get(pk=1)
         self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update')
 
+
+class FileApiWriteDeleteTests(FileApiWriteCommon):
+
     #
     #
     #
@@ -345,23 +342,3 @@ class FileApiWriteTestV1(APITestCase, TestClassUtils):
 
         self.assertEqual(deleted_file.removed, True)
         self.assertEqual(deleted_file.file_name, self.file_name)
-
-    def _get_new_test_data(self):
-        from_test_data = self._get_object_from_test_data('file', requested_index=0)
-        from_test_data.update({
-            "checksum": {
-                "value": "habeebit",
-                "algorithm": "sha2",
-                "checked": "2017-05-23T10:07:22.559656Z",
-            },
-            "identifier": "urn:nbn:fi:csc-ida201401200000000001",
-            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
-        })
-        return from_test_data
-
-    def _get_second_new_test_data(self):
-        from_test_data = self._get_new_test_data()
-        from_test_data.update({
-            "identifier": "urn:nbn:fi:csc-ida201401200000000002",
-        })
-        return from_test_data
