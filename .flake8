@@ -2,6 +2,8 @@
 ignore = 
     # line too long (97 > 79 characters)
     E501,
+    # multiple spaces before operator
+    E221,
     # block comment should start with '# '
     E265,
     # at least two spaces before inline comment
