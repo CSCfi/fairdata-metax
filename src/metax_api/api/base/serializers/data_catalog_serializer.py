@@ -1,6 +1,7 @@
 from os import path
 from rest_framework.serializers import ValidationError
 from metax_api.models import DataCatalog
+from metax_api.services import DataCatalogService as DCS
 from .common_serializer import CommonSerializer
 from .serializer_utils import validate_json
 
@@ -34,6 +35,7 @@ class DataCatalogSerializer(CommonSerializer):
 
     def validate_catalog_json(self, value):
         self._validate_json_schema(value)
+        DCS.validate_reference_data(value, self.context['view'].cache)
         return value
 
     def _validate_json_schema(self, value):
