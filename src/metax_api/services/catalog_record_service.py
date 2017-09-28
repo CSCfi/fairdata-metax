@@ -195,7 +195,8 @@ class CatalogRecordService(CommonService):
 
         def check_ref_data(ref_data_type, field_to_check, relation_name):
             """
-            Check if the given field exists in the reference data.
+            Check if the given field exists in the reference data. The value of the
+            field can be either the actual uri, or a shorthand code.
 
             If the value is found, the ref data entry is returned, so it may later be
             used to populate the received dataset.
@@ -208,9 +209,7 @@ class CatalogRecordService(CommonService):
             relation_name:  the full relation path to the field to hand out in case of errors
             """
             try:
-                return next(entry for entry in ref_data_type
-                            if entry['uri'] == field_to_check or
-                            entry.get('code', None) == field_to_check)
+                return next(entry for entry in ref_data_type if field_to_check in (entry['uri'], entry['code']))
             except StopIteration:
                 errors[relation_name].append('Identifier \'%s\' not found in reference data' % field_to_check)
             return None
@@ -240,9 +239,9 @@ class CatalogRecordService(CommonService):
                 populate_from_ref_data(ref_entry, fos, label_field='pref_label')
 
         for remote_resource in research_dataset.get('remote_resources', []):
-            check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'], 'research_dataset.remote_resources.checksum.algorithm')
+            ref_entry = check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'], 'research_dataset.remote_resources.checksum.algorithm')
             if ref_entry:
-                populate_from_ref_data(ref_entry, remote_resource['checksum'], identifier='algorithm')
+                populate_from_ref_data(ref_entry, remote_resource['checksum'], uri_field='algorithm')
 
             for license in remote_resource.get('license', []):
                 ref_entry = check_ref_data(refdata['license'], license['identifier'], 'research_dataset.remote_resources.license.identifier')
