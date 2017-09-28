@@ -160,28 +160,6 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(data_catalog.catalog_json['title']['en'], original_title)
 
     #
-    # reference_data mega validation
-    #
-
-    def test_create_catalog_record_with_invalid_reference_data(self):
-        self.third_test_new_data['research_dataset']['theme'][0]['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['field_of_science'][0]['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['remote_resources'][0]['license'][0]['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['remote_resources'][0]['type']['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['language'][0]['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['access_rights']['type'][0]['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['access_rights']['license'][0]['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['is_output_of'][0]['source_organization'][0]['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['other_identifier'][0]['type']['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['spatial'][0]['place_uri'][0]['identifier'] = 'nonexisting'
-        self.third_test_new_data['research_dataset']['files'][0]['type']['identifier'] = 'nonexisting'
-        response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 12)
-
-    #
     # create list operations
     #
 
@@ -733,3 +711,143 @@ class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual('preservation_state' in response.data, True, 'Response data should contain an error about the field')
+
+
+class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
+
+    """
+    Tests related to reference_data validation and dataset fields population
+    from reference_data, according to given uri or code as the value.
+    """
+
+    def test_create_catalog_record_with_invalid_reference_data(self):
+        rd = self.third_test_new_data['research_dataset']
+        rd['theme'][0]['identifier'] = 'nonexisting'
+        rd['field_of_science'][0]['identifier'] = 'nonexisting'
+        rd['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
+        rd['remote_resources'][0]['license'][0]['identifier'] = 'nonexisting'
+        rd['remote_resources'][0]['type']['identifier'] = 'nonexisting'
+        rd['language'][0]['identifier'] = 'nonexisting'
+        rd['access_rights']['type'][0]['identifier'] = 'nonexisting'
+        rd['access_rights']['license'][0]['identifier'] = 'nonexisting'
+        rd['is_output_of'][0]['source_organization'][0]['identifier'] = 'nonexisting'
+        rd['other_identifier'][0]['type']['identifier'] = 'nonexisting'
+        rd['spatial'][0]['place_uri'][0]['identifier'] = 'nonexisting'
+        rd['files'][0]['type']['identifier'] = 'nonexisting'
+        response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True)
+        self.assertEqual(len(response.data['research_dataset']), 12)
+
+    def test_create_catalog_record_populate_fields_from_reference_data(self):
+        """
+        1) Insert codes from cached reference data to dataset identifier fields
+           that will be validated, and then populated
+        2) Check that that the values in dataset identifier fields are changed from
+           codes to uris after a successful create
+        3) Check that labels have also been copied to datasets to their approriate fields
+        """
+        from metax_api.utils import RedisSentinelCache
+
+        # noticed that these data types in reference data are currently not being used to
+        # validate anything:
+        # access_restriction_grounds_type
+        # contributor_role
+        # funder_type = 'tekes'
+        # mime_type
+        # research_infra
+
+        cache = RedisSentinelCache()
+        refdata = cache.get('reference_data')['reference_data']
+        orgdata = cache.get('reference_data')['organization_data']
+        refs = {}
+
+        data_types = [
+            'access_type',
+            'checksum_algorithm',
+            'field_of_science',
+            'identifier_type',
+            'keyword',
+            'language',
+            'license',
+            'location',
+            # 'organization', # handled separately since in difference place
+            'resource_type',
+        ]
+
+        # the values in these selected entries will be used throghout the rest of the test case
+        for dtype in data_types:
+            entry = refdata[dtype][0]
+            refs[dtype] = {
+                'code': entry['code'],
+                'uri': entry['uri'],
+                'label': entry.get('label', None),
+            }
+
+        refs['organization'] = {
+            'uri': orgdata['organization'][0]['uri'],
+            'code': orgdata['organization'][0]['code'],
+            'label': orgdata['organization'][0]['label'],
+        }
+
+        # replace the relations with objects that have only the identifier set with code as value,
+        # to easily check that label was populated (= that it appeared in the dataset after create)
+        # without knowing its original value from the generated test data
+        rd = self.third_test_new_data['research_dataset']
+        rd['theme'][0]                    = { 'identifier': refs['keyword']['code'] }
+        rd['field_of_science'][0]         = { 'identifier': refs['field_of_science']['code'] }
+        rd['language'][0]                 = { 'identifier': refs['language']['code'] }
+        rd['access_rights']['type'][0]    = { 'identifier': refs['access_type']['code'] }
+        rd['access_rights']['license'][0] = { 'identifier': refs['license']['code'] }
+        rd['other_identifier'][0]['type'] = { 'identifier': refs['identifier_type']['code'] }
+        rd['spatial'][0]['place_uri'][0]  = { 'identifier': refs['location']['code'] }
+        rd['files'][0]['type']            = { 'identifier': refs['resource_type']['code'] }
+        rd['remote_resources'][0]['type'] = { 'identifier': refs['resource_type']['code'] }
+        rd['remote_resources'][0]['license'][0] = { 'identifier': refs['license']['code'] }
+
+        # these have other required fields, so only update the identifier with code
+        rd['remote_resources'][0]['checksum']['algorithm']            = refs['checksum_algorithm']['code']
+        rd['is_output_of'][0]['source_organization'][0]['identifier'] = refs['organization']['code']
+
+        response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('research_dataset' in response.data.keys(), True)
+
+        new_rd = response.data['research_dataset']
+        self._assert_uri_copied_to_identifier(refs, new_rd)
+        self._assert_label_copied_to_pref_label(refs, new_rd)
+        self._assert_label_copied_to_title(refs, new_rd)
+        self._assert_label_copied_to_others(refs, new_rd)
+
+    def _assert_uri_copied_to_identifier(self, refs, new_rd):
+        self.assertEqual(refs['keyword']['uri'],          new_rd['theme'][0]['identifier'])
+        self.assertEqual(refs['field_of_science']['uri'], new_rd['field_of_science'][0]['identifier'])
+        self.assertEqual(refs['language']['uri'],         new_rd['language'][0]['identifier'])
+        self.assertEqual(refs['access_type']['uri'],      new_rd['access_rights']['type'][0]['identifier'])
+        self.assertEqual(refs['license']['uri'],          new_rd['access_rights']['license'][0]['identifier'])
+        self.assertEqual(refs['identifier_type']['uri'],  new_rd['other_identifier'][0]['type']['identifier'])
+        self.assertEqual(refs['location']['uri'],         new_rd['spatial'][0]['place_uri'][0]['identifier'])
+        self.assertEqual(refs['resource_type']['uri'],    new_rd['files'][0]['type']['identifier'])
+        self.assertEqual(refs['resource_type']['uri'],    new_rd['remote_resources'][0]['type']['identifier'])
+        self.assertEqual(refs['license']['uri'],          new_rd['remote_resources'][0]['license'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['is_output_of'][0]['source_organization'][0]['identifier'])
+        self.assertEqual(refs['checksum_algorithm']['uri'], new_rd['remote_resources'][0]['checksum']['algorithm'])
+
+    def _assert_label_copied_to_pref_label(self, refs, new_rd):
+        self.assertEqual(refs['keyword']['label'],          new_rd['theme'][0].get('pref_label', None))
+        self.assertEqual(refs['field_of_science']['label'], new_rd['field_of_science'][0].get('pref_label', None))
+        self.assertEqual(refs['access_type']['label'],      new_rd['access_rights']['type'][0].get('pref_label', None))
+        self.assertEqual(refs['identifier_type']['label'],  new_rd['other_identifier'][0]['type'].get('pref_label', None))
+        self.assertEqual(refs['location']['label'],         new_rd['spatial'][0]['place_uri'][0].get('pref_label', None))
+        self.assertEqual(refs['resource_type']['label'],    new_rd['files'][0]['type'].get('pref_label', None))
+        self.assertEqual(refs['resource_type']['label'],    new_rd['remote_resources'][0]['type'].get('pref_label', None))
+
+    def _assert_label_copied_to_title(self, refs, new_rd):
+        self.assertEqual(refs['language']['label'], new_rd['language'][0].get('title', None))
+        self.assertEqual(refs['license']['label'],  new_rd['access_rights']['license'][0].get('title', None))
+        self.assertEqual(refs['license']['label'],  new_rd['remote_resources'][0]['license'][0].get('title', None))
+
+    def _assert_label_copied_to_others(self, refs, new_rd):
+        # the black sheep
+        self.assertEqual(refs['organization']['label']['default'],     new_rd['is_output_of'][0]['source_organization'][0].get('name', None))
+        self.assertEqual(refs['checksum_algorithm']['label'], new_rd['remote_resources'][0]['checksum'].get('checksum_algorithm', None))

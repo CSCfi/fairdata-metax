@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
 from os.path import dirname, join
@@ -179,75 +180,124 @@ class CatalogRecordService(CommonService):
 
     @staticmethod
     def validate_reference_data(research_dataset, cache):
+        """
+        Validate certain fields from the received dataset against reference data, which contains
+        the allowed values for these fields.
 
-        def check_ref_data(index, datatype, obj, field_to_check, relation_name):
+        If a field value is valid, some of the object's fields will also be populated from the cached
+        reference data, overwriting possible values already entered. The fields that will be populated
+        from the reference data are:
+
+        - uri (usually to object's field 'identifier')
+        - label (usually to object's field 'pref_label')
+
+        """
+
+        def check_ref_data(ref_data_type, field_to_check, relation_name):
             """
-            Check if the given field exists in the reference data.
+            Check if the given field exists in the reference data. The value of the
+            field can be either the actual uri, or a shorthand code.
 
-            In case the value is not found, an error is appended to the 'errors' dict.
+            If the value is found, the ref data entry is returned, so it may later be
+            used to populate the received dataset.
+
+            If the value is not found, an error is appended to the 'errors' dict.
 
             params:
-            index:          the ES index to search from
-            datatype:       the ES datatype to search from
-            obj:            the dict to read the value from
-            field_to_check: the name of the field to read
+            ref_data_type:  the ES datatype to search from
+            field_to_check: the field value being checked
             relation_name:  the full relation path to the field to hand out in case of errors
             """
-            rdtypes = refdata if index == 'ref' else orgdata
-            if not any(entry['uri'] == obj[field_to_check] or
-                       (entry.get('code', False) and entry['code'] == obj[field_to_check])
-                       for entry in rdtypes[datatype]):
-                if not isinstance(errors.get(relation_name, None), list):
-                    errors[relation_name] = []
-                errors[relation_name].append('Identifier \'%s\' not found in reference data (type: %s)' % (obj[field_to_check], datatype))
+            try:
+                return next(entry for entry in ref_data_type if field_to_check in (entry['uri'], entry['code']))
+            except StopIteration:
+                errors[relation_name].append('Identifier \'%s\' not found in reference data' % field_to_check)
+            return None
+
+        def populate_from_ref_data(ref_entry, obj, uri_field='identifier', label_field=None):
+            """
+            Always populate at least uri field (even if it was alread there, no big deal).
+            Label field population is necessary for some ref data types only.
+            """
+            obj[uri_field] = ref_entry['uri']
+            if label_field:
+                obj[label_field] = ref_entry['label']
 
         reference_data = cache.get('reference_data')
         refdata = reference_data['reference_data']
         orgdata = reference_data['organization_data']
-        errors = {}
+        errors = defaultdict(list)
 
         for theme in research_dataset.get('theme', []):
-            check_ref_data('ref', 'keyword', theme, 'identifier', 'research_dataset.theme.identifier')
+            ref_entry = check_ref_data(refdata['keyword'], theme['identifier'], 'research_dataset.theme.identifier')
+            if ref_entry:
+                populate_from_ref_data(ref_entry, theme, label_field='pref_label')
 
         for fos in research_dataset.get('field_of_science', []):
-            check_ref_data('ref', 'field_of_science', fos, 'identifier', 'research_dataset.field_of_science.identifier')
+            ref_entry = check_ref_data(refdata['field_of_science'], fos['identifier'], 'research_dataset.field_of_science.identifier')
+            if ref_entry:
+                populate_from_ref_data(ref_entry, fos, label_field='pref_label')
 
         for remote_resource in research_dataset.get('remote_resources', []):
-            check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
+            ref_entry = check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'], 'research_dataset.remote_resources.checksum.algorithm')
+            if ref_entry:
+                populate_from_ref_data(ref_entry, remote_resource['checksum'], uri_field='algorithm')
 
             for license in remote_resource.get('license', []):
-                check_ref_data('ref', 'license', license, 'identifier', 'research_dataset.remote_resources.license.identifier')
+                ref_entry = check_ref_data(refdata['license'], license['identifier'], 'research_dataset.remote_resources.license.identifier')
+                if ref_entry:
+                    populate_from_ref_data(ref_entry, license, label_field='title')
 
             if remote_resource.get('type', False):
-                check_ref_data('ref', 'resource_type', remote_resource['type'], 'identifier',
+                ref_entry = check_ref_data(refdata['resource_type'], remote_resource['type']['identifier'],
                                'research_dataset.remote_resources.type.identifier')
+                if ref_entry:
+                    populate_from_ref_data(ref_entry, remote_resource['type'], label_field='pref_label')
 
         for language in research_dataset.get('language', []):
-            check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
+            ref_entry = check_ref_data(refdata['language'], language['identifier'], 'research_dataset.language.identifier')
+            if ref_entry:
+                populate_from_ref_data(ref_entry, language, label_field='title')
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
             for rights_statement_type in access_rights.get('type', []):
-                check_ref_data('ref', 'access_type', rights_statement_type, 'identifier', 'research_dataset.access_rights.type.identifier')
+                ref_entry = check_ref_data(refdata['access_type'], rights_statement_type['identifier'], 'research_dataset.access_rights.type.identifier')
+                if ref_entry:
+                    populate_from_ref_data(ref_entry, rights_statement_type, label_field='pref_label')
 
             for rights_statement_license in access_rights.get('license', []):
-                check_ref_data('ref', 'license', rights_statement_license, 'identifier', 'research_dataset.access_rights.license.identifier')
+                ref_entry = check_ref_data(refdata['license'], rights_statement_license['identifier'], 'research_dataset.access_rights.license.identifier')
+                if ref_entry:
+                    populate_from_ref_data(ref_entry, rights_statement_license, label_field='title')
 
         for project in research_dataset.get('is_output_of', []):
             for organization in project.get('source_organization', []):
-                check_ref_data('org', 'organization', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
+                ref_entry = check_ref_data(orgdata['organization'], organization['identifier'], 'research_dataset.is_output_of.source_organization.identifier')
+                if ref_entry:
+                    populate_from_ref_data(ref_entry, organization)
+                    if 'label' in ref_entry:
+                        # ResearchAgent field 'name' is not a langString, so must
+                        # select the default translation
+                        organization['name'] = ref_entry['label']['default']
 
         for other_identifier in research_dataset.get('other_identifier', []):
             if 'type' in other_identifier:
-                check_ref_data('ref', 'identifier_type', other_identifier['type'], 'identifier', 'research_dataset.other_identifier.type.identifier')
+                ref_entry = check_ref_data(refdata['identifier_type'], other_identifier['type']['identifier'], 'research_dataset.other_identifier.type.identifier')
+                if ref_entry:
+                    populate_from_ref_data(ref_entry, other_identifier['type'], label_field='pref_label')
 
         for spatial in research_dataset.get('spatial', []):
             for place_uri in spatial.get('place_uri', []):
-                check_ref_data('ref', 'location', place_uri, 'identifier', 'research_dataset.spatial.place_uri.identifier')
+                ref_entry = check_ref_data(refdata['location'], place_uri['identifier'], 'research_dataset.spatial.place_uri.identifier')
+                if ref_entry:
+                    populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
 
         for file in research_dataset.get('files', []):
             if file.get('type', False):
-                check_ref_data('ref', 'resource_type', file['type'], 'identifier', 'research_dataset.files.type.identifier')
+                ref_entry = check_ref_data(refdata['resource_type'], file['type']['identifier'], 'research_dataset.files.type.identifier')
+                if ref_entry:
+                    populate_from_ref_data(ref_entry, file['type'], label_field='pref_label')
 
         if errors:
             raise ValidationError(errors)
