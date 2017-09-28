@@ -60,11 +60,11 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
 
     def test_create_data_catalog_populate_fields_from_reference_data(self):
         """
-        1) Insert codes from cached reference data to dataset identifier fields
+        1) Insert codes from cached reference data to data catalog identifier fields
            that will be validated, and then populated
-        2) Check that that the values in dataset identifier fields are changed from
+        2) Check that that the values in data catalog identifier fields are changed from
            codes to uris after a successful create
-        3) Check that labels have also been copied to datasets to their approriate fields
+        3) Check that labels have also been copied to data catalog to their approriate fields
         """
         from metax_api.utils import RedisSentinelCache
 
