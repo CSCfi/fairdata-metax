@@ -84,7 +84,7 @@
                         "$ref":"#/definitions/Document"
                     }
                 },
-                "rights":{
+                "access_rights":{
                     "title":"Rights",
                     "description":"This describes the rights under which the catalog can be used/reused and not the datasets. Even if theses rights apply to all the catalog datasets and distributions, it should be replicated on each distribution",
                     "@id":"http://purl.org/dc/terms/rights",
@@ -132,7 +132,7 @@
                 "identifier",
                 "title",
                 "language",
-                "rights",
+                "access_rights",
                 "publisher"
             ]
         },
@@ -206,6 +206,14 @@
             "@id":"http://purl.org/dc/terms/LinguisticSystem",
             "description":"Examples include written, spoken, sign, and computer languages.\n\nA system of signs, symbols, sounds, gestures, or rules used in communication.",
             "properties":{
+                "title":{
+                    "title":"Title",
+                    "description":"Language title, code or ISO 639-3 string representing the language",
+                    "@id":"http://purl.org/dc/terms/title",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "maxItems":1,
+                    "type":"string"
+                },
                 "identifier":{
                     "title":"Identifier",
                     "description":"Language identifier. URI from http://publications.europa.eu/mdr/authority/language/",
@@ -213,14 +221,6 @@
                     "@type":"@id",
                     "minItems":1,
                     "maxItems":1
-                },
-                "notation":{
-                    "title":"Language code",
-                    "description":"ISO 639-3 string representing the language",
-                    "@id":"http://www.w3.org/2004/02/skos/core#notation",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "maxItems":1,
-                    "type":"string"
                 }
             },
             "required":[
