@@ -32,5 +32,5 @@ class ReferenceDataMixin():
         Label field population is necessary for some ref data types only.
         """
         obj[uri_field] = ref_entry['uri']
-        if label_field:
+        if label_field and 'label' in ref_entry:
             obj[label_field] = ref_entry['label']
