@@ -688,6 +688,33 @@
     {
         "fields": {
             "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": [
+                                {
+                                    "en": "CC BY 4.0",
+                                    "fi": "CC BY 4.0"
+                                }
+                            ]
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -719,11 +746,11 @@
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin",
-                        "notation": "fin"
+                        "title": "fin"
                     },
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "notation": "eng"
+                        "title": "eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -746,7 +773,23 @@
                     }
                 ],
                 "research_dataset_schema": "att",
-                "rights": {
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
+            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "catalog_json": {
+                "access_rights": {
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -773,22 +816,6 @@
                         }
                     ]
                 },
-                "title": {
-                    "en": "Test data catalog name",
-                    "fi": "Testidatakatalogin nimi"
-                }
-            },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
-        },
-        "model": "metax_api.datacatalog",
-        "pk": 1
-    },
-    {
-        "fields": {
-            "catalog_json": {
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -820,11 +847,11 @@
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin",
-                        "notation": "fin"
+                        "title": "fin"
                     },
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "notation": "eng"
+                        "title": "eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -847,33 +874,6 @@
                     }
                 ],
                 "research_dataset_schema": "att",
-                "rights": {
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
-                    "license": [
-                        {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                            "title": [
-                                {
-                                    "en": "CC BY 4.0",
-                                    "fi": "CC BY 4.0"
-                                }
-                            ]
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
-                            }
-                        }
-                    ]
-                },
                 "title": {
                     "en": "Test data catalog name",
                     "fi": "Testidatakatalogin nimi"
