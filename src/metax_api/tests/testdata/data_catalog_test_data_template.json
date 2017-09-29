@@ -12,11 +12,11 @@
         "language": [
           {
             "identifier": "http://lexvo.org/id/iso639-3/fin",
-            "notation": "fin"
+            "title": "fin"
           },
           {
             "identifier": "http://lexvo.org/id/iso639-3/eng",
-            "notation": "eng"
+            "title": "eng"
           }
         ],
         "homepage": [
@@ -49,7 +49,7 @@
             }
           }]
         }],
-        "rights": {
+        "access_rights": {
           "description": [
             {"fi": "Käyttöehtojen kuvaus"}
           ],
