@@ -1286,7 +1286,6 @@
                     "description":"Date on which the resource was changed.",
                     "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
                     "maxItems":1,
                     "type":"string",
                     "format":"date-time"
@@ -1320,6 +1319,7 @@
                     "description":"Checksum of the manifestation",
                     "@id":"http://spdx.org/rdf/terms#checksum",
                     "@type":"@id",
+                    "maxItems":1,
                     "type":"object",
                     "$ref":"#/definitions/Checksum"
                 },
@@ -1360,9 +1360,7 @@
                 }
             },
             "required":[
-                "title",
-                "modified",
-                "checksum"
+                "title"
             ]
         },
         "langString":{
