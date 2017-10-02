@@ -1,5 +1,3 @@
-from json import loads as json_loads
-
 from django.conf import settings as django_settings
 from elasticsearch import Elasticsearch
 from elasticsearch.client import IndicesClient
@@ -90,23 +88,11 @@ class ReferenceDataService():
                         entry['code'] = None
                         _logger.warning('Elasticsearch document missing code in index {0} type {1}: {2}'.format(index_name, type_name, row))
 
-                    """
-                    label json objects are currently saved into ES with single quotes,
-                    which does not bode well for very strict json parsers such as json.loads.
-                    instead of bothering to find out how to save it differently in ES,
-                    replace single quotes with doublequotes to enable loading label as dict
-                    to cache
-                    """
-                    label = row['_source'].get('label', '').replace('\'', '"')
+                    label = row['_source'].get('label', None)
 
-                    try:
-                        label = json_loads(label)
-                    except:
-                        pass
-                    else:
-                        # dont want empty dicts loitering in the cache
-                        if label:
-                            entry['label'] = label
+                    # dont want empty dicts loitering in the cache
+                    if label:
+                        entry['label'] = label
 
                     reference_data[index_name][type_name].append(entry)
 

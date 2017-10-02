@@ -37,7 +37,7 @@ class DataCatalogService(ReferenceDataMixin):
             if ref_entry:
                 cls.populate_from_ref_data(ref_entry, fos, label_field='pref_label')
 
-        access_rights = data_catalog.get('rights', None)
+        access_rights = data_catalog.get('access_rights', None)
         if access_rights:
             for rights_statement_type in access_rights.get('type', []):
                 ref_entry = cls.check_ref_data(refdata['access_type'], rights_statement_type['identifier'], 'data_catalog_json.rights.type.identifier', errors)
