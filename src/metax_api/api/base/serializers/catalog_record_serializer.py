@@ -202,7 +202,7 @@ class CatalogRecordSerializer(CommonSerializer):
         data_catalog = None
         if self._operation_is_create():
             try:
-                data_catalog_id = self._get_id_from_related_object('data_catalog')
+                data_catalog_id = self._get_id_from_related_object('data_catalog', self._get_data_catalog_relation)
                 data_catalog = DataCatalog.objects.get(pk=data_catalog_id)
             except:
                 # whatever error happened with data catalog handling - invalid data_catalog
