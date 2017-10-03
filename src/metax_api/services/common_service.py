@@ -1,10 +1,10 @@
 from datetime import datetime
 from json import load as json_load
-import logging
 
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
+import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -197,7 +197,7 @@ class CommonService():
         is still a crash, and should be fixed.
         """
         try:
-            results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+            results['failed'].append({ 'object': serializer.initial_data, 'errors': serializer.errors })
         except AssertionError:
             _logger.exception(
                 'Looks like serializer.is_valid() tripped - could not access serializer.errors. '
