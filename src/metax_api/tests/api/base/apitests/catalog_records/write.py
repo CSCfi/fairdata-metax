@@ -138,14 +138,35 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('contract' in response.data, True, 'Error should have been about contract not found')
 
-    def test_create_catalog_record_error_json_validation(self):
-        self.test_new_data['research_dataset']['preferred_identifier'] = "neeeeeeeeew:id"
+    def test_create_catalog_record_json_validation_error_1(self):
+        """
+        Ensure the json path of the error is returned along with other details
+        """
         self.test_new_data['research_dataset']["title"] = 1234456
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data), 1, 'there should be only one error')
         self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
-        self.assertEqual('field: title' in response.data['research_dataset'][0], True, 'The error should contain the name of the erroneous field')
+        self.assertEqual('1234456 is not of type' in response.data['research_dataset'][0], True, response.data)
+        self.assertEqual('Json path: [\'title\']' in response.data['research_dataset'][0], True, response.data)
+
+    def test_create_catalog_record_json_validation_error_2(self):
+        """
+        Ensure the json path of the error is returned along with other details also in
+        objects that are deeply nested
+        """
+        self.test_new_data['research_dataset']['provenance'] = [{
+            'title': { 'en': 'provenance title' },
+            'was_associated_with': [
+                { 'xname': 'seppo'}
+            ]
+        }]
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data), 1, 'there should be only one error')
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
+        self.assertEqual('name\' is a required property' in response.data['research_dataset'][0], True, response.data)
+        self.assertEqual('was_associated_with' in response.data['research_dataset'][0], True, response.data)
 
     def test_create_catalog_record_dont_allow_data_catalog_fields_update(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
