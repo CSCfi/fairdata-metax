@@ -689,6 +689,7 @@
                 }
             },
             "required":[
+            	"@type",
                 "name",
                 "member_of"
             ]
@@ -818,6 +819,10 @@
             "description":"An agent (eg. person, group, software or physical artifact).",
             "oneOf":[{"$ref": "#/definitions/Person"},{"$ref": "#/definitions/Organization"}],
             "properties":{
+            	"@type":{
+            		"type":"string",
+            		"enum":["Person","Organization"]
+            	},
                 "identifier":{
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
@@ -854,6 +859,7 @@
                 }
             },
             "required":[
+            	"@type"
                 "name"
             ]
         },
