@@ -209,9 +209,10 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 cls.populate_from_ref_data(ref_entry, fos, label_field='pref_label')
 
         for remote_resource in research_dataset.get('remote_resources', []):
-            ref_entry = cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'], 'research_dataset.remote_resources.checksum.algorithm', errors)
-            if ref_entry:
-                cls.populate_from_ref_data(ref_entry, remote_resource['checksum'], uri_field='algorithm')
+            if 'checksum' in remote_resource:
+                ref_entry = cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'], 'research_dataset.remote_resources.checksum.algorithm', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, remote_resource['checksum'], uri_field='algorithm')
 
             for license in remote_resource.get('license', []):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'], 'research_dataset.remote_resources.license.identifier', errors)
