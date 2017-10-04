@@ -3,7 +3,7 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 
 from datetime import datetime
 import yaml
-from utils import RedisSentinelCache, ReferenceDataService
+from utils import RedisSentinelCache, ReferenceDataLoader
 
 """
 Script called by cronjob to update reference data from elasticsearch to local cache
@@ -17,7 +17,7 @@ def update_reference_data():
     es_settings = app_config_dict.get('ELASTICSEARCH', None)
 
     cache = RedisSentinelCache(master_only=True, settings=redis_settings)
-    ReferenceDataService.populate_cache_reference_data(cache, settings=es_settings)
+    ReferenceDataLoader.populate_cache_reference_data(cache, settings=es_settings)
 
 def get_time():
     return str(datetime.now().replace(microsecond=0))

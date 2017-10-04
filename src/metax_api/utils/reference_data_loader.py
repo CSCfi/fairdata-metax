@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
 
-class ReferenceDataService():
+class ReferenceDataLoader():
 
     """
     Should optimally be defined in /services/, but services __init__.py cant be loaded during app startup due to having imports from
@@ -26,7 +26,11 @@ class ReferenceDataService():
         settings: override elasticsearch settings in settings.py
         """
 
-        _logger.info('Metax API startup - populating cache with reference data...')
+        if not cache.get_or_set('reference_data_load_executing', True, ex=120):
+            # d('another process is already executing reference_data load from ES')
+            return 'reload_started_by_other'
+
+        _logger.info('ReferenceDataLoader - populating cache...')
 
         if executing_test_case():
             _logger.info('(Note: populating test suite cache)')
@@ -35,12 +39,12 @@ class ReferenceDataService():
             reference_data = cls._fetch_reference_data(settings)
         except:
             _logger.exception('Reference data fetch failed')
-            reference_data = {}
+            raise
 
         cache.set('reference_data', reference_data)
 
         errors = None
-        reference_data_check = cache.get('reference_data')
+        reference_data_check = cache.get('reference_data', master=True)
 
         if 'reference_data' not in reference_data_check.keys():
             _logger.warning('Key reference_data missing from reference data - something went wrong during cache population?')
@@ -50,7 +54,8 @@ class ReferenceDataService():
             _logger.warning('Key organization_data missing from reference data - something went wrong during cache population?')
             errors = True
 
-        _logger.info('Metax API startup - %s' % ('failed to populate cache' if errors else 'cache populated'))
+        _logger.info('ReferenceDataLoader - %s' % ('failed to populate cache' if errors else 'cache populated'))
+        cache.delete('reference_data_load_executing')
 
     @classmethod
     def _fetch_reference_data(cls, settings):
