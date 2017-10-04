@@ -13,6 +13,7 @@
     ],
     "definitions":{
         "Catalog":{
+			"type":"object",
             "title":"Research Data Catalog",
             "@id":"http://www.w3.org/ns/dcat#Catalog",
             "description":"A curated collection of metadata about datasets",
@@ -137,6 +138,7 @@
             ]
         },
         "Concept":{
+			"type":"object",
             "title":"Concept",
             "@id":"http://www.w3.org/2004/02/skos/core#Concept",
             "description":"An idea or notion; a unit of thought.",
@@ -164,6 +166,7 @@
             ]
         },
         "Document":{
+			"type":"object",
             "title":"Documented link",
             "@id":"http://xmlns.com/foaf/0.1/Document",
             "description":"Documented link",
@@ -202,6 +205,7 @@
             ]
         },
         "LinguisticSystem":{
+			"type":"object",
             "title":"Linguistic System",
             "@id":"http://purl.org/dc/terms/LinguisticSystem",
             "description":"Examples include written, spoken, sign, and computer languages.\n\nA system of signs, symbols, sounds, gestures, or rules used in communication.",
@@ -228,6 +232,7 @@
             ]
         },
         "ResearchAgent":{
+			"type":"object",
             "title":"Agent",
             "@id":"http://xmlns.com/foaf/0.1/Agent",
             "description":"Examples of Agent include person, organization, and software agent.\n\nA resource that acts or has the power to act.",
@@ -291,6 +296,7 @@
             ]
         },
         "ResearchDataLicenseDocument":{
+			"type":"object",
             "title":"License Document",
             "@id":"http://purl.org/dc/terms/LicenseDocument",
             "description":"A legal document giving official permission to do something with a Resource.",
@@ -338,6 +344,7 @@
             ]
         },
         "RightsStatement":{
+			"type":"object",
             "title":"Rights Statement",
             "@id":"http://purl.org/dc/terms/RightsStatement",
             "description":"A statement about the intellectual property rights (IPR) held in or over a Resource, a legal document giving official permission to do something with a resource, or a statement about access rights.",

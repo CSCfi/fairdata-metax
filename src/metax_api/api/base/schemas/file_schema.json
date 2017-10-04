@@ -11,6 +11,7 @@
     ],
     "definitions":{
         "Checksum":{
+			"type":"object",
             "title":"Checksum",
             "@id":"http://spdx.org/rdf/terms#Checksum",
             "description":"Checksum of the file",
@@ -54,6 +55,7 @@
             ]
         },
         "File":{
+			"type":"object",
             "title":"File",
             "@id":"http://www.w3.org/2000/01/rdf-schema#Resource",
             "description":"The class of File",
@@ -220,6 +222,7 @@
             ]
         },
         "FileCharacteristics":{
+			"type":"object",
             "title":"File Characteristics",
             "@id":"http://www.loc.gov/premis/rdf/v1#ObjectCharacteristics",
             "description":"This class is used as extension point to additional file charasteristics",
@@ -285,6 +288,7 @@
             }
         },
         "FileStorage":{
+			"type":"object",
             "title":"File storage",
             "@id":"http://iow.csc.fi/ns/mfs#FileStorage",
             "description":"File storage system",
