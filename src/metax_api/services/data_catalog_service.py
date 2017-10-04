@@ -21,7 +21,7 @@ class DataCatalogService(ReferenceDataMixin):
         - label (usually to object's field 'pref_label')
 
         """
-        reference_data = cache.get('reference_data')
+        reference_data = cls.get_reference_data(cache)
         refdata = reference_data['reference_data']
         errors = defaultdict(list)
 

@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord, DataCatalog
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.utils import RedisSentinelCache
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -740,6 +741,18 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
     Tests related to reference_data validation and dataset fields population
     from reference_data, according to given uri or code as the value.
     """
+
+    def test_catalog_record_reference_data_missing_ok(self):
+        """
+        The API should attempt to reload the reference data if it is missing from
+        cache for whatever reason, and successfully finish the request
+        """
+        cache = RedisSentinelCache()
+        cache.delete('reference_data')
+        self.assertEqual(cache.get('reference_data', master=True), None, 'cache ref data should be missing after cache.delete()')
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_catalog_record_with_invalid_reference_data(self):
         rd = self.third_test_new_data['research_dataset']
