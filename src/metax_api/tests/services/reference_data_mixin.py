@@ -4,10 +4,22 @@ from django.test import TestCase
 
 from metax_api.tests.utils import TestClassUtils
 from metax_api.services import ReferenceDataMixin as RDM
-from metax_api.utils import _RedisSentinelCache, RedisSentinelCache, ReferenceDataLoader
+from metax_api.utils import (
+    _RedisSentinelCache,
+    _RedisSentinelCacheDummy,
+    executing_travis,
+    RedisSentinelCache,
+    ReferenceDataLoader,
+)
 
 
-class MockRedisSentinelCache(_RedisSentinelCache):
+if executing_travis():
+    _RedisCacheClass = _RedisSentinelCacheDummy
+else:
+    _RedisCacheClass = _RedisSentinelCache
+
+
+class MockRedisSentinelCache(_RedisCacheClass):
 
     def __init__(self, return_data_after_retries=0, *args, **kwargs):
         self.call_count = 0
