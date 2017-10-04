@@ -100,7 +100,8 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_characteristics' in response.data.keys(), True, 'The error should concern the field file_characteristics')
-        self.assertEqual('field: metadata_modified' in response.data['file_characteristics'][0], True, 'The error should contain the name of the erroneous field')
+        self.assertEqual('metadata_modified' in response.data['file_characteristics'][0], True, 'The error should contain the name of the erroneous field')
+        self.assertEqual('Json path:' in response.data['file_characteristics'][0], True, 'The error should contain the json path')
 
     def test_create_file_dont_allow_file_storage_fields_update(self):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'

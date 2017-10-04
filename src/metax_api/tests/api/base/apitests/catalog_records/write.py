@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord, DataCatalog
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.utils import RedisSentinelCache
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -138,14 +139,35 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('contract' in response.data, True, 'Error should have been about contract not found')
 
-    def test_create_catalog_record_error_json_validation(self):
-        self.test_new_data['research_dataset']['preferred_identifier'] = "neeeeeeeeew:id"
+    def test_create_catalog_record_json_validation_error_1(self):
+        """
+        Ensure the json path of the error is returned along with other details
+        """
         self.test_new_data['research_dataset']["title"] = 1234456
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data), 1, 'there should be only one error')
         self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
-        self.assertEqual('field: title' in response.data['research_dataset'][0], True, 'The error should contain the name of the erroneous field')
+        self.assertEqual('1234456 is not of type' in response.data['research_dataset'][0], True, response.data)
+        self.assertEqual('Json path: [\'title\']' in response.data['research_dataset'][0], True, response.data)
+
+    def test_create_catalog_record_json_validation_error_2(self):
+        """
+        Ensure the json path of the error is returned along with other details also in
+        objects that are deeply nested
+        """
+        self.test_new_data['research_dataset']['provenance'] = [{
+            'title': { 'en': 'provenance title' },
+            'was_associated_with': [
+                { 'xname': 'seppo'}
+            ]
+        }]
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data), 1, 'there should be only one error')
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
+        self.assertEqual('name\' is a required property' in response.data['research_dataset'][0], True, response.data)
+        self.assertEqual('was_associated_with' in response.data['research_dataset'][0], True, response.data)
 
     def test_create_catalog_record_dont_allow_data_catalog_fields_update(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
@@ -719,6 +741,18 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
     Tests related to reference_data validation and dataset fields population
     from reference_data, according to given uri or code as the value.
     """
+
+    def test_catalog_record_reference_data_missing_ok(self):
+        """
+        The API should attempt to reload the reference data if it is missing from
+        cache for whatever reason, and successfully finish the request
+        """
+        cache = RedisSentinelCache()
+        cache.delete('reference_data')
+        self.assertEqual(cache.get('reference_data', master=True), None, 'cache ref data should be missing after cache.delete()')
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_catalog_record_with_invalid_reference_data(self):
         rd = self.third_test_new_data['research_dataset']
