@@ -93,11 +93,12 @@ class _RedisSentinelCache():
         """
         return self.set(key, value, nx=True, **kwargs)
 
-    def get(self, key, **kwargs):
+    def get(self, key, master=False, **kwargs):
         """
         Randomly select slave or master for reading. Fallback to master anyway in case of errors.
 
-        Use of master can be forced by using the master_only flag in the constructor.
+        Use of master can be forced by using the master_only flag in the constructor, or passing
+        master=True to this method for single get operations only.
         """
 
         # todo allow reading from cache when master is down? could possibly serve stale data.
@@ -105,7 +106,7 @@ class _RedisSentinelCache():
         if self._DEBUG:
             d('cache: get()...')
 
-        if self._read_from_master_only:
+        if self._read_from_master_only or master:
             return self._get_from_master(key, **kwargs)
         else:
             if self._slave_chosen():
