@@ -114,19 +114,6 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         cr = CatalogRecord.objects.get(pk=response.data['id'])
         self.assertEqual(cr.created_by_api >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object creation')
 
-    def test_create_catalog_record_error_identifier_exists(self):
-        # first ok
-        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-
-        # second should give error
-        existing_identifier = response.data['research_dataset']['urn_identifier']
-        self.test_new_data['research_dataset']['preferred_identifier'] = existing_identifier
-        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
-        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier already existing')
-
     def test_create_catalog_contract_string_identifier(self):
         self.test_new_data['contract'] = 'optional:contract:identifier1'
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
@@ -238,6 +225,139 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual('object' in response.data['failed'][0].keys(), True)
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
+
+
+class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
+
+    """
+    Tests related to checking preferred_identifier uniqueness within a data catalog,
+    in create and update operations.
+    """
+
+    #
+    # create operations
+    #
+
+    def test_create_catalog_record_error_preferred_identifier_cant_be_urn_identifier(self):
+        """
+        preferred_identifier can never be the same as a urn_identifier in another cr, in any catalog
+        """
+        existing_urn_identifier = CatalogRecord.objects.get(pk=1).research_dataset['urn_identifier']
+        self.test_new_data['research_dataset']['preferred_identifier'] = existing_urn_identifier
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+
+        # the error message should clearly state that the value of preferred_identifier appears in the
+        # field urn_identifier in another record, therefore two asserts
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier existing with this identifier')
+        self.assertEqual('urn_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier existing with this identifier')
+
+    def test_create_catalog_record_error_preferred_identifier_exists_in_same_catalog(self):
+        """
+        preferred_identifier already existing in the same data catalog is an error
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+        self.test_new_data['research_dataset']['preferred_identifier'] = unique_identifier
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+
+    def test_create_catalog_record_preferred_identifier_exists_in_another_catalog(self):
+        """
+        preferred_identifier existing in another data catalog is not an error.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+        self.test_new_data['research_dataset']['preferred_identifier'] = unique_identifier
+
+        # different catalog, should be OK
+        self.test_new_data['data_catalog'] = 2
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    #
+    # update operations
+    #
+
+    def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_1(self):
+        """
+        preferred_identifier existing in another data catalog is not an error.
+
+        Test PATCH, when data_catalog of the record being updated is already
+        different than another record's which has the same identifier.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+
+        cr = CatalogRecord.objects.get(pk=2)
+        cr.data_catalog_id = 2
+        cr.save()
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+
+        response = self.client.patch('/rest/datasets/2', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_2(self):
+        """
+        preferred_identifier existing in another data catalog is not an error.
+
+        Test PATCH, when data_catalog is being updated to a different catalog
+        in the same request. In this case, the uniqueness check has to be executed
+        on the new data_catalog being passed.
+
+        In this test, catalog is updated to 2, which should not contain a conflicting
+        identifier.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+        data['data_catalog'] = 2
+
+        response = self.client.patch('/rest/datasets/2', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_3(self):
+        """
+        preferred_identifier already existing in the same data catalog is an error
+
+        Test PATCH, when data_catalog is being updated to a different catalog
+        in the same request. In this case, the uniqueness check has to be executed
+        on the new data_catalog being passed.
+
+        In this test, catalog is updated to 1, which should contain a conflicting
+        identifier, resulting in an error.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+        data['data_catalog'] = 1
+
+        response = self.client.patch('/rest/datasets/2', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+
+    #
+    # helpers
+    #
+
+    def _set_preferred_identifier_to_record(self, pk=None):
+        """
+        Set preferred_identifier to an existing record to a value, and return that value,
+        which will then be used by the test to create or update another record.
+        """
+        unique_identifier = 'im unique yo'
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.research_dataset['preferred_identifier'] = unique_identifier
+        cr.data_catalog_id = 1
+        cr.save()
+        return unique_identifier
 
 
 class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):

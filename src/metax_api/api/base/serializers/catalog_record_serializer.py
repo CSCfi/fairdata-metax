@@ -103,7 +103,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
     def validate_research_dataset(self, value):
         self._validate_json_schema(value)
-        self._validate_uniqueness(value)
+        self._validate_research_dataset_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
         return value
 
@@ -138,33 +138,90 @@ class CatalogRecordSerializer(CommonSerializer):
 
             validate_json(value, self.json_schema)
 
-    def _validate_uniqueness(self, value):
+    def _validate_research_dataset_uniqueness(self, research_dataset):
         """
+        Validate research_dataset preferred_identifier uniqueness, that it is unique
+        within the data catalog it is being saved into. urn_identifier is always generated
+        by the server, so no need to check its uniqueness.
+
         Unfortunately for unique fields inside a jsonfield, Django does not offer a neat
         http400 error with an error message, so have to do it ourselves.
         """
-        field_name = 'preferred_identifier'
+        preferred_identifier_value = research_dataset.get('preferred_identifier', None)
 
-        if not value.get(field_name, None):
+        if not preferred_identifier_value:
             # during create preferred_identifier is not necessarily set
             return
 
-        found_obj = self._get_object(field_name, value[field_name])
+        found_obj = None
+        found_using_pref_id = False
+        found_using_urn_id = False
+
+        found_obj = self._find_object_using_identifier('preferred_identifier', preferred_identifier_value)
+
+        if found_obj:
+            found_using_pref_id = True
+        else:
+            # cr not found using preferred_identifier. preferred_identifier value can never
+            # be urn_identifier value in any catalog, so look for existing records
+            # using urn_identifier also
+            found_obj = self._find_object_using_identifier('urn_identifier', preferred_identifier_value)
+            if found_obj:
+                found_using_urn_id = True
 
         if not found_obj:
-            found_obj = self._get_object('urn_identifier', value[field_name])
+            return
 
-        if found_obj and (self._operation_is_create() or self.instance.id != found_obj.id):
-            raise ValidationError(['catalog record with this research_dataset ->> %s already exists.' % field_name])
+        if self._operation_is_create() or self.instance.id != found_obj.id:
+            if found_using_pref_id:
+                raise ValidationError([
+                    'a catalog record with this research_dataset ->> preferred_identifier'
+                    ' already exists in this data catalog.'
+                ])
+            elif found_using_urn_id:
+                raise ValidationError([
+                    'a catalog record already exists which has the given preferred_identifier'
+                    ' value %s as its urn_identifier value.' % preferred_identifier_value
+                ])
+            else: # pragma no over
+                raise Exception('should never happen')
 
-    def _get_object(self, field_name, identifier):
-        # check cache
-        from_cache = self.context['view'].cache.get(identifier)
-        if from_cache:
-            return CatalogRecordSerializer(from_cache).instance
-        # check db
+    def _find_object_using_identifier(self, field_name, identifier):
+        """
+        A helper for checking research_dataset uniqueness. A standard get_object() basically,
+        except that it:
+        - takes into account data_catalog when searching by preferred_identifier
+        - does not use select_related() to also fetch relations, since they are not needed.
+        """
+        params = { 'research_dataset__contains': { field_name: identifier }}
+
+        if field_name == 'preferred_identifier':
+
+            # only look for hits within the same data catalog.
+
+            if self._operation_is_create():
+                # value of data_catalog in initial_data is set in is_valid()
+                params['data_catalog'] = self.initial_data['data_catalog']
+            else:
+                # updates
+                if 'data_catalog' in self.initial_data:
+                    # the update operation is updating data_catalog as well,
+                    # so make sure the new catalog is checked for not having
+                    # the identifier currently being checked.
+                    # value of data_catalog in initial_data is set in is_valid()
+                    params['data_catalog'] = self.initial_data['data_catalog']
+                else:
+                    # a PATCH which does not contain data_catalog - get
+                    # data_catalog id from the instance being updated == what
+                    # is currently in db
+                    params['data_catalog'] = self.instance.data_catalog.id
+
+        else:
+            # checking urn_identifier - data catalog does not need to be checked
+            pass
+
         try:
-            return CatalogRecord.objects.get(**{ 'research_dataset__contains': { field_name: identifier }})
+            return CatalogRecord.objects.get(**params)
         except CatalogRecord.DoesNotExist:
             return None
 
