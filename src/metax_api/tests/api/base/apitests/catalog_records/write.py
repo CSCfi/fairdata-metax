@@ -319,7 +319,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
 
     def _set_data_catalog_schema_to_harvester(self):
         dc = DataCatalog.objects.get(pk=1)
-        dc.catalog_json['research_dataset_schema'] = 'harvester'
+        dc.catalog_json['research_dataset_schema'] = 'syke_harvester'
         dc.save()
 
 
