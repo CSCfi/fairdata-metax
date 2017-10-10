@@ -66,7 +66,9 @@ class DataCatalogViewSet(CommonViewSet):
     def data_catalog_exists(self, request, pk=None):
         try:
             self.get_object()
+        except Http404:
+            return Response(data=False, status=status.HTTP_200_OK)
         except Exception:
-            return Response(data=False, status=status.HTTP_404_NOT_FOUND)
+            return Response(data='', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(data=True, status=status.HTTP_200_OK)
