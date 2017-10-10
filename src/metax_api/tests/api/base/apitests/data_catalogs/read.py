@@ -30,5 +30,5 @@ class DataCatalogApiReadBasicTests(APITestCase, TestClassUtils):
 
     def test_read_catalog_record_does_not_exist(self):
         response = self.client.get('/rest/datacatalogs/%s/exists' % 'urn:nbn:fi:non_existing_data_catalog_identifier')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data)
