@@ -681,7 +681,7 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
-        self.assertEqual(response.data[0]['id'], 3)
+        self.assertEqual(response.data['results'][0]['id'], 3)
 
 
 class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
