@@ -71,7 +71,6 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertTrue(response.data[0].startswith('pid:'))
 
 
-
 class CatalogRecordApiReadPaginationTests(CatalogRecordApiReadCommon):
 
     """
