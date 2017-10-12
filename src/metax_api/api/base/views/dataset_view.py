@@ -1,6 +1,6 @@
 from django.http import Http404
 from rest_framework import status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from metax_api.models import CatalogRecord
@@ -155,6 +155,12 @@ class DatasetViewSet(CommonViewSet):
             return Response(data='', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(data=True, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], url_path="urn_identifiers")
+    def get_all_urn_identifiers(self, request):
+        q = self.get_queryset().values('research_dataset')
+        urn_ids = [item['research_dataset']['urn_identifier'] for item in q]
+        return Response(urn_ids)
 
     def _search_using_other_dataset_identifiers(self):
         """
