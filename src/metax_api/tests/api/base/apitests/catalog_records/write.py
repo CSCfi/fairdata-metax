@@ -239,19 +239,27 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
 
+
+class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
+
     #
     #
     #
-    # dataset schema related
+    # dataset schema selection related
     #
     #
     #
+
+    def setUp(self):
+        super(CatalogRecordApiWriteDatasetSchemaSelection, self).setUp()
+        self._set_data_catalog_schema_to_harvester()
 
     def test_catalog_record_with_not_found_json_schema_defaults_to_att_schema(self):
         # catalog has dataset schema, but it is not found on the server
         dc = DataCatalog.objects.get(pk=1)
         dc.catalog_json['research_dataset_schema'] = 'nonexisting'
         dc.save()
+
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
@@ -259,8 +267,60 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         dc = DataCatalog.objects.get(pk=1)
         dc.catalog_json.pop('research_dataset_schema')
         dc.save()
+
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_catalog_record_create_with_other_schema(self):
+        """
+        Ensure that dataset json schema validation works with other
+        json schemas than the default ATT
+        """
+        self.test_new_data['research_dataset']['remote_resources'] = [
+            { 'title': 'title' },
+            { 'title': 'title' }
+        ]
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.test_new_data['research_dataset']['remote_resources'] = [
+            { 'title': 'title' },
+            { 'title': 'title' },
+            { 'woah': 'this should give a failure, since title is a required field, and it is missing' }
+        ]
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_catalog_record_ref_data_validation_with_other_schema(self):
+        """
+        Ensure that dataset reference data validation and population works with other
+        json schemas than the default ATT. Ref data validation should be schema agnostic
+        """
+        self.test_new_data['research_dataset']['remote_resources'] = [
+            { 'title': 'title' },
+            {
+                'title': 'title',
+                'checksum': {
+                    'algorithm': 'SHA-512',
+                    'checksum_value': 'xxxyyyzz'
+                }
+            },
+        ]
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(
+            'purl' in response.data['research_dataset']['remote_resources'][1]['checksum']['algorithm'],
+            True,
+            'algorithm should have been populated with data from ref data'
+        )
+
+    def _set_data_catalog_schema_to_harvester(self):
+        dc = DataCatalog.objects.get(pk=1)
+        dc.catalog_json['research_dataset_schema'] = 'syke_harvester'
+        dc.save()
 
 
 class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
@@ -621,7 +681,7 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
-        self.assertEqual(response.data[0]['id'], 3)
+        self.assertEqual(response.data['results'][0]['id'], 3)
 
 
 class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
