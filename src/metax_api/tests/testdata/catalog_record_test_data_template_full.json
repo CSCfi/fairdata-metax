@@ -341,7 +341,16 @@
                 "email": "info@csc.fi",
                 "telephone": [
                     "+358501231235"
-                ]
+                ],
+                 "homepage": [
+                                {
+                                    "identifier": "http://www.publisher.fi/",
+                                    "title": {
+                                        "en": "Publisher website",
+                                        "fi": "Julkaisijan kotisivu"
+                                    }
+                                }
+                            ]
         },
         "contributor": [
             {
