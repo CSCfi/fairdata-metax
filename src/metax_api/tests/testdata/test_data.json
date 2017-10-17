@@ -1151,6 +1151,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
                         "name": "Rahikainen"
                     }
@@ -1215,6 +1216,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
                         "name": "Rahikainen"
                     }
@@ -1283,6 +1285,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
                         "name": "Rahikainen"
                     }
@@ -1351,6 +1354,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
                         "name": "Rahikainen"
                     }
@@ -1415,6 +1419,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
                         "name": "Rahikainen"
                     }
@@ -1478,6 +1483,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:jarski",
                         "name": "Jarski"
                     }
@@ -1541,6 +1547,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:jarski",
                         "name": "Jarski"
                     }
@@ -1604,6 +1611,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:jarski",
                         "name": "Jarski"
                     }
@@ -1667,6 +1675,7 @@
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:jarski",
                         "name": "Jarski"
                     }
