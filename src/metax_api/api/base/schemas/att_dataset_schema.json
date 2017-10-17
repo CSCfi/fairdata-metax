@@ -850,7 +850,7 @@
 			"type":"object",
             "title":"Agent",
             "@id":"http://xmlns.com/foaf/0.1/Agent",
-			"oneOf":[{"$ref": "#/definitions/Person"},{"$ref": "#/definitions/Organization"}],
+			"anyOf":[{"$ref": "#/definitions/Person"},{"$ref": "#/definitions/Organization"}],
             "description":"An agent (eg. person, group, software or physical artifact).",
             "properties":{
 				"@type":{

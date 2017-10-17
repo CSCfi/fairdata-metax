@@ -754,24 +754,22 @@
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "publisher": [
-                    {
-                        "homepage": [
-                            {
-                                "identifier": "http://www.publisher.fi/",
-                                "title": {
-                                    "en": "Publisher website",
-                                    "fi": "Julkaisijan kotisivu"
-                                }
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher website",
+                                "fi": "Julkaisijan kotisivu"
                             }
-                        ],
-                        "identifier": "http://isni.org/isni/0000000405129137",
-                        "name": {
-                            "en": "Publisher",
-                            "fi": "Julkaisija"
                         }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Publisher",
+                        "fi": "Julkaisija"
                     }
-                ],
+                },
                 "research_dataset_schema": "att",
                 "title": {
                     "en": "Test data catalog name",
@@ -855,24 +853,22 @@
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "publisher": [
-                    {
-                        "homepage": [
-                            {
-                                "identifier": "http://www.publisher.fi/",
-                                "title": {
-                                    "en": "Publisher website",
-                                    "fi": "Julkaisijan kotisivu"
-                                }
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher website",
+                                "fi": "Julkaisijan kotisivu"
                             }
-                        ],
-                        "identifier": "http://isni.org/isni/0000000405129137",
-                        "name": {
-                            "en": "Publisher",
-                            "fi": "Julkaisija"
                         }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Publisher",
+                        "fi": "Julkaisija"
                     }
-                ],
+                },
                 "research_dataset_schema": "att",
                 "title": {
                     "en": "Test data catalog name",
@@ -1084,11 +1080,13 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Organization",
                         "identifier": "id:of:curator:default",
                         "name": "Default Owner"
                     }
@@ -1147,6 +1145,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1210,6 +1209,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1277,6 +1277,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1344,6 +1345,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1407,6 +1409,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1469,6 +1472,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1531,6 +1535,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1593,6 +1598,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1655,6 +1661,7 @@
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -1720,6 +1727,7 @@
                     ],
                     "has_right_related_agent": [
                         {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "homepage": {
                                 "description": {
@@ -1778,9 +1786,11 @@
                 "bibliographical_sitation": "whot",
                 "contributor": [
                     {
+                        "@type": "Person",
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
-                        "is_part_of": {
+                        "member_of": {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
@@ -1794,9 +1804,11 @@
                         ]
                     },
                     {
+                        "@type": "Person",
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
-                        "is_part_of": {
+                        "member_of": {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
@@ -1812,11 +1824,13 @@
                 ],
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Organization",
                         "identifier": "id:of:curator:default",
                         "name": "Default Owner"
                     }
@@ -1920,6 +1934,7 @@
                         "has_funder_identifier": "funderprojectidentifier",
                         "has_funding_agency": [
                             {
+                                "@type": "Organization",
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
                                 "name": "Rahoittava Organisaatio",
@@ -1934,6 +1949,7 @@
                         },
                         "source_organization": [
                             {
+                                "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
@@ -1958,24 +1974,17 @@
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
-                        "creator": {
-                            "email": "teppo.testaaja@csc.fi",
-                            "identifier": "teppoidentifier",
-                            "is_part_of": {
-                                "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
-                                "telephone": [
-                                    "+358501231235"
-                                ]
-                            },
-                            "name": "Teppo Testaaja",
-                            "telephone": [
-                                "+358501231234"
-                            ]
-                        },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
                         "notation": "doi:10.12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": "Mysterious Organization",
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -1997,26 +2006,19 @@
                         }
                     },
                     {
-                        "creator": {
-                            "email": "teppo.testaaja@csc.fi",
-                            "identifier": "teppoidentifier",
-                            "is_part_of": {
-                                "email": "info@csc.fi",
-                                "identifier": [
-                                    "http://purl.org/att/es/organization_data/organization/organization_1901"
-                                ],
-                                "name": "Mysterious Organization",
-                                "telephone": [
-                                    "+358501231235"
-                                ]
-                            },
-                            "name": "Teppo Testaaja",
-                            "telephone": [
-                                "+358501231234"
-                            ]
-                        },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
                         "notation": "urn:nbn:fi-12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": [
+                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                            ],
+                            "name": "Mysterious Organization",
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -2042,28 +2044,24 @@
                 "provenance": [
                     {
                         "description": {
-                            "en": "Description of provenance"
+                            "en": "Description of provenance activity"
                         },
-                        "spatial": [
-                            {
-                                "alt": "11.111",
-                                "fullAddress": "The complete address written as a string, with or without formatting",
-                                "geographic_name": "Geographic name",
-                                "place_uri": [
-                                    {
-                                        "identifier": "http://www.yso.fi/onto/yso/p107966"
-                                    }
-                                ]
-                            }
-                        ],
-                        "temporal": [
-                            {
-                                "end_date": "2014-12-31T08:19:58Z",
-                                "start_date": "2014-01-01T08:19:58Z"
-                            }
-                        ],
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": [
+                                {
+                                    "identifier": "http://www.yso.fi/onto/yso/p107966"
+                                }
+                            ]
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
                         "title": {
-                            "en": "Title"
+                            "en": "Some activity"
                         },
                         "type": {
                             "definition": [
@@ -2174,6 +2172,7 @@
                         ],
                         "was_associated_with": [
                             {
+                                "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
@@ -2185,19 +2184,19 @@
                     }
                 ],
                 "publisher": {
-                    "email": "teppo.testaaja@csc.fi",
-                    "identifier": "teppoidentifier",
-                    "is_part_of": {
-                        "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                        "name": "Mysterious Organization",
-                        "telephone": [
-                            "+358501231235"
-                        ]
+                    "@type": "Organization",
+                    "email": "info@csc.fi",
+                    "homepage": {
+                        "identifier": "http://www.publisher.fi/",
+                        "title": {
+                            "en": "Publisher website",
+                            "fi": "Julkaisijan kotisivu"
+                        }
                     },
-                    "name": "Teppo Testaaja",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "name": "Mysterious Organization",
                     "telephone": [
-                        "+358501231234"
+                        "+358501231235"
                     ]
                 },
                 "related_entity": [
@@ -2306,6 +2305,7 @@
                     }
                 ],
                 "rightsHolder": {
+                    "@type": "Organization",
                     "email": "info@csc.fi",
                     "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                     "name": "Mysterious Organization",
@@ -2392,6 +2392,7 @@
                     ],
                     "has_right_related_agent": [
                         {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "homepage": {
                                 "description": {
@@ -2450,9 +2451,11 @@
                 "bibliographical_sitation": "whot",
                 "contributor": [
                     {
+                        "@type": "Person",
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
-                        "is_part_of": {
+                        "member_of": {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
@@ -2466,9 +2469,11 @@
                         ]
                     },
                     {
+                        "@type": "Person",
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
-                        "is_part_of": {
+                        "member_of": {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                             "name": "Mysterious Organization",
@@ -2484,11 +2489,13 @@
                 ],
                 "creator": [
                     {
+                        "@type": "Person",
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Organization",
                         "identifier": "id:of:curator:default",
                         "name": "Default Owner"
                     }
@@ -2592,6 +2599,7 @@
                         "has_funder_identifier": "funderprojectidentifier",
                         "has_funding_agency": [
                             {
+                                "@type": "Organization",
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
                                 "name": "Rahoittava Organisaatio",
@@ -2606,6 +2614,7 @@
                         },
                         "source_organization": [
                             {
+                                "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
@@ -2630,24 +2639,17 @@
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
-                        "creator": {
-                            "email": "teppo.testaaja@csc.fi",
-                            "identifier": "teppoidentifier",
-                            "is_part_of": {
-                                "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
-                                "telephone": [
-                                    "+358501231235"
-                                ]
-                            },
-                            "name": "Teppo Testaaja",
-                            "telephone": [
-                                "+358501231234"
-                            ]
-                        },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
                         "notation": "doi:10.12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": "Mysterious Organization",
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -2669,26 +2671,19 @@
                         }
                     },
                     {
-                        "creator": {
-                            "email": "teppo.testaaja@csc.fi",
-                            "identifier": "teppoidentifier",
-                            "is_part_of": {
-                                "email": "info@csc.fi",
-                                "identifier": [
-                                    "http://purl.org/att/es/organization_data/organization/organization_1901"
-                                ],
-                                "name": "Mysterious Organization",
-                                "telephone": [
-                                    "+358501231235"
-                                ]
-                            },
-                            "name": "Teppo Testaaja",
-                            "telephone": [
-                                "+358501231234"
-                            ]
-                        },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
                         "notation": "urn:nbn:fi-12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": [
+                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                            ],
+                            "name": "Mysterious Organization",
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -2714,28 +2709,24 @@
                 "provenance": [
                     {
                         "description": {
-                            "en": "Description of provenance"
+                            "en": "Description of provenance activity"
                         },
-                        "spatial": [
-                            {
-                                "alt": "11.111",
-                                "fullAddress": "The complete address written as a string, with or without formatting",
-                                "geographic_name": "Geographic name",
-                                "place_uri": [
-                                    {
-                                        "identifier": "http://www.yso.fi/onto/yso/p107966"
-                                    }
-                                ]
-                            }
-                        ],
-                        "temporal": [
-                            {
-                                "end_date": "2014-12-31T08:19:58Z",
-                                "start_date": "2014-01-01T08:19:58Z"
-                            }
-                        ],
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": [
+                                {
+                                    "identifier": "http://www.yso.fi/onto/yso/p107966"
+                                }
+                            ]
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
                         "title": {
-                            "en": "Title"
+                            "en": "Some activity"
                         },
                         "type": {
                             "definition": [
@@ -2846,6 +2837,7 @@
                         ],
                         "was_associated_with": [
                             {
+                                "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                                 "name": "Mysterious Organization",
@@ -2857,19 +2849,19 @@
                     }
                 ],
                 "publisher": {
-                    "email": "teppo.testaaja@csc.fi",
-                    "identifier": "teppoidentifier",
-                    "is_part_of": {
-                        "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                        "name": "Mysterious Organization",
-                        "telephone": [
-                            "+358501231235"
-                        ]
+                    "@type": "Organization",
+                    "email": "info@csc.fi",
+                    "homepage": {
+                        "identifier": "http://www.publisher.fi/",
+                        "title": {
+                            "en": "Publisher website",
+                            "fi": "Julkaisijan kotisivu"
+                        }
                     },
-                    "name": "Teppo Testaaja",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "name": "Mysterious Organization",
                     "telephone": [
-                        "+358501231234"
+                        "+358501231235"
                     ]
                 },
                 "related_entity": [
@@ -2978,6 +2970,7 @@
                     }
                 ],
                 "rightsHolder": {
+                    "@type": "Organization",
                     "email": "info@csc.fi",
                     "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                     "name": "Mysterious Organization",

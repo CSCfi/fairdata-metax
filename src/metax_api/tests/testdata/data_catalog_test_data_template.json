@@ -35,7 +35,7 @@
             }
           }
         ],
-        "publisher": [{
+        "publisher": {
           "identifier": "http://isni.org/isni/0000000405129137",
           "name": {
             "fi": "Julkaisija",
@@ -48,7 +48,7 @@
               "en": "Publisher website"
             }
           }]
-        }],
+        },
         "access_rights": {
           "description": [
             {"fi": "Käyttöehtojen kuvaus"}

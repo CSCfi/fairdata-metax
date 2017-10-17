@@ -206,23 +206,21 @@
         }],
         "provenance": [{
             "title": {
-                "en": "Title"
+                "en": "Some activity"
             },
             "description": {
-                "en": "Description of provenance"
+                "en": "Description of provenance activity"
             },
-            "temporal": [{
+            "temporal": {
                 "start_date": "2014-01-01T08:19:58Z",
                 "end_date": "2014-12-31T08:19:58Z"
-            }],
-            "spatial": [{
+            },
+            "spatial": {
                 "geographic_name": "Geographic name",
                 "alt": "11.111",
                 "fullAddress": "The complete address written as a string, with or without formatting",
-                "place_uri": [
-                    {"identifier": "http://www.yso.fi/onto/yso/p107966"}
-                ]
-            }],
+                "place_uri": [{"identifier": "http://www.yso.fi/onto/yso/p107966"}]
+            },
             "type": {
                 "identifier": "provenancetypeidentifier",
                 "pref_label": {
@@ -342,15 +340,14 @@
                 "telephone": [
                     "+358501231235"
                 ],
-                 "homepage": [
-                                {
+                 "homepage":  {
                                     "identifier": "http://www.publisher.fi/",
                                     "title": {
                                         "en": "Publisher website",
                                         "fi": "Julkaisijan kotisivu"
                                     }
                                 }
-                            ]
+
         },
         "contributor": [
             {
