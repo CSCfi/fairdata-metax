@@ -19,6 +19,7 @@ class CatalogRecordSerializer(CommonSerializer):
         model = CatalogRecord
         fields = (
             'id',
+            'alternate_record_set',
             'contract',
             'data_catalog',
             'research_dataset',
@@ -69,6 +70,7 @@ class CatalogRecordSerializer(CommonSerializer):
             self.initial_data['data_catalog'] = self._get_id_from_related_object('data_catalog', self._get_data_catalog_relation)
         if self.initial_data.get('contract', False):
             self.initial_data['contract'] = self._get_id_from_related_object('contract', self._get_contract_relation)
+        self.initial_data.pop('alternate_record_set', None)
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
@@ -99,6 +101,10 @@ class CatalogRecordSerializer(CommonSerializer):
         if res.get('contract', None):
             res['contract'] = ContractSerializer(instance.contract).data
 
+        if instance.has_alternate_records():
+            res['alternate_record_set'] = []
+            for ar in instance.alternate_record_set.records.exclude(pk=instance.id):
+                res['alternate_record_set'].append(ar.urn_identifier)
         return res
 
     def validate_research_dataset(self, value):
@@ -150,7 +156,7 @@ class CatalogRecordSerializer(CommonSerializer):
         preferred_identifier_value = research_dataset.get('preferred_identifier', None)
 
         if not preferred_identifier_value:
-            # during create preferred_identifier is not necessarily set
+            # during create, preferred_identifier is not necessarily set
             return
 
         found_obj = None
