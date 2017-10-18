@@ -53,11 +53,11 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
             "urn_identifier": "pid:urn:new1",
             "preferred_identifier": None,
             "creator": [{
-                "@type":"Person",
+                "@type": "Person",
                 "name": "Teppo Testaaja"
             }],
             "curator": [{
-                "@type":"Person",
+                "@type": "Person",
                 "name": "Default Owner"
             }],
             "total_byte_size": 1024,
@@ -161,7 +161,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.test_new_data['research_dataset']['provenance'] = [{
             'title': { 'en': 'provenance title' },
             'was_associated_with': [
-                {'@type':'Person', 'xname': 'seppo'}
+                {'@type': 'Person', 'xname': 'seppo'}
             ]
         }]
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
