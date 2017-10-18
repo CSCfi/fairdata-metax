@@ -45,7 +45,7 @@ file_max_rows = 20
 # how many filestorage rows to generate
 file_storage_max_rows = 2
 
-data_catalog_max_rows = 2
+data_catalog_max_rows = 4
 
 contract_max_rows = 5
 
@@ -273,7 +273,7 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
         with open('data_catalog_test_data_template.json') as json_file:
             row_template = json_load(json_file)
 
-        for i in range(1, file_storage_max_rows + 1):
+        for i in range(1, data_catalog_max_rows + 1):
 
             new = {
                 'fields': deepcopy(row_template),
