@@ -10,6 +10,19 @@ from .data_catalog import DataCatalog
 from .contract import Contract
 
 
+class AlternateRecordSet(models.Model):
+
+    """
+    A table which contains records that share a common preferred_identifier,
+    but belong to different data catalogs.
+
+    Note! Does not inherit from model Common, so does not have timestmap fields,
+    and a delete is an actual delete.
+    """
+
+    id = models.BigAutoField(primary_key=True, editable=False)
+
+
 class CatalogRecordManager(CommonManager):
 
     def get(self, *args, **kwargs):
@@ -58,6 +71,7 @@ class CatalogRecord(Common):
     READY_STATUS_UNFINISHED = 'Unfinished'
     READY_STATUS_REMOVED = 'Removed'
 
+    alternate_record_set = models.ForeignKey(AlternateRecordSet, on_delete=models.SET_NULL, null=True, help_text='Records which are duplicates of this record, but in another catalog.', related_name='records')
     contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
     data_catalog = models.ForeignKey(DataCatalog)
     dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
@@ -77,7 +91,7 @@ class CatalogRecord(Common):
     previous_version_identifier = models.CharField(max_length=200, null=True)
     version_created = models.DateTimeField(help_text='Date when this version was first created.', null=True)
 
-    _need_to_generate_urn_identifier = False
+    _need_to_execute_post_create_operations = False
 
     objects = CatalogRecordManager()
 
@@ -91,32 +105,24 @@ class CatalogRecord(Common):
             'research_dataset.files',
             'research_dataset.total_byte_size',
             'research_dataset.urn_identifier',
+            'research_dataset.preferred_identifier',
         )
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():
-            self._need_to_generate_urn_identifier = True
-            self._calculate_total_byte_size()
+            self._pre_create_operations()
         else:
-            if self.field_changed('preservation_state'):
-                self.preservation_state_modified = datetime.now()
-
-            if self.field_changed('research_dataset.urn_identifier'):
-                # read-only after creating
-                self.research_dataset['urn_identifier'] = self._initial_data['research_dataset']['urn_identifier']
-
-            if self._files_changed():
-                self._calculate_total_byte_size()
-            elif self.field_changed('research_dataset.total_byte_size'):
-                # somebody is trying to update total_byte_size manually. im afraid i cant let you do that
-                self.research_dataset['total_byte_size'] = self._initial_data['research_dataset']['total_byte_size']
-            else:
-                pass
+            self._pre_update_operations()
 
         super(CatalogRecord, self).save(*args, **kwargs)
 
-        if self._need_to_generate_urn_identifier:
-            self._generate_urn_identifier()
+        if self._need_to_execute_post_create_operations:
+            self._post_create_operations()
+
+    def delete(self, *args, **kwargs):
+        if self.has_alternate_records():
+            self._remove_from_alternate_record_set()
+        super(CatalogRecord, self).delete(*args, **kwargs)
 
     def can_be_proposed_to_pas(self):
         return self.preservation_state in (
@@ -141,6 +147,9 @@ class CatalogRecord(Common):
     def dataset_is_finished(self):
         return self.ready_status and self.ready_status == self.READY_STATUS_FINISHED
 
+    def has_alternate_records(self):
+        return bool(self.alternate_record_set)
+
     def _calculate_total_byte_size(self):
         """
         Take identifiers from research_dataset.files, and check file sizes of the files from the db.
@@ -152,6 +161,41 @@ class CatalogRecord(Common):
             rd['total_byte_size'] = sum(file_sizes)
         else:
             rd['total_byte_size'] = 0
+
+    def _pre_create_operations(self):
+        self._need_to_execute_post_create_operations = True
+        self._calculate_total_byte_size()
+
+    def _post_create_operations(self):
+        self._generate_urn_identifier()
+
+        other_record = self._check_alternate_records()
+        if other_record:
+            self._create_or_update_alternate_record_set(other_record)
+
+        super(CatalogRecord, self).save()
+        # save can be called several times during an object's lifetime in a request. make sure
+        # to not execute these again
+        self._need_to_execute_post_create_operations = False
+
+    def _pre_update_operations(self):
+        if self.field_changed('preservation_state'):
+            self.preservation_state_modified = datetime.now()
+
+        if self.field_changed('research_dataset.urn_identifier'):
+            # read-only after creating
+            self.research_dataset['urn_identifier'] = self._initial_data['research_dataset']['urn_identifier']
+
+        if self.field_changed('research_dataset.preferred_identifier'):
+            self._handle_preferred_identifier_changed()
+
+        if self._files_changed():
+            self._calculate_total_byte_size()
+        elif self.field_changed('research_dataset.total_byte_size'):
+            # somebody is trying to update total_byte_size manually. im afraid i cant let you do that
+            self.research_dataset['total_byte_size'] = self._initial_data['research_dataset']['total_byte_size']
+        else:
+            pass
 
     def _files_changed(self):
         """
@@ -175,8 +219,54 @@ class CatalogRecord(Common):
         self.research_dataset['urn_identifier'] = urn_identifier
         if not self.research_dataset.get('preferred_identifier', None):
             self.research_dataset['preferred_identifier'] = urn_identifier
-        super(CatalogRecord, self).save()
 
-        # save can be called several times during an object's lifetime in a request. make sure
-        # not to generate urn again.
-        self._need_to_generate_urn_identifier = False
+    def _handle_preferred_identifier_changed(self):
+        if self.has_alternate_records():
+            self._remove_from_alternate_record_set()
+
+        other_record = self._check_alternate_records()
+
+        if other_record:
+            self._create_or_update_alternate_record_set(other_record)
+
+    def _check_alternate_records(self):
+        """
+        Check if there exists records in other catalogs with identical preferred_identifier
+        value, and return it.
+
+        It is enough that the first match is returned, because the related alternate_record_set
+        (if it exists) can be accessed through it, or, if alternate_record_set does not exist,
+        then it is the only duplicate record, and will later be used for creating the record set.
+        """
+        return CatalogRecord.objects.filter(
+            research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }
+        ).exclude(data_catalog__id=self.data_catalog_id, id=self.id).first()
+
+    def _create_or_update_alternate_record_set(self, other_record):
+        """
+        Create a new one, or update an existing alternate_records set using the
+        passed other_record.
+        """
+        if other_record.alternate_record_set:
+            # append to existing alternate record set
+            other_record.alternate_record_set.records.add(self)
+        else:
+            # create a new set, and add the current, and the other record to it.
+            # note that there should ever only be ONE other alternate record
+            # at this stage, if the alternate_record_set didnt exist already.
+            ars = AlternateRecordSet()
+            ars.save()
+            ars.records.add(self, other_record)
+            ars.save()
+
+    def _remove_from_alternate_record_set(self):
+        """
+        Remove record from previous alternate_records set, and delete the record set if
+        necessary.
+        """
+        if self.alternate_record_set.records.count() <= 2:
+            # only two records in the set, so the set can be deleted.
+            # delete() takes care of the references in the other record,
+            # since models.SET_NULL is used.
+            self.alternate_record_set.delete()
+        self.alternate_record_set = None
