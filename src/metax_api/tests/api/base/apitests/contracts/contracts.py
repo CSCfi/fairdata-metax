@@ -210,11 +210,11 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 }],
                 "creator": [{
-                    "@type":"Person",
+                    "@type": "Person",
                     "name": "Teppo Testaaja"
                 }],
                 "curator": [{
-                    "@type":"Organization",
+                    "@type": "Organization",
                     "name": "Curator"
                 }],
                 "language": [{
