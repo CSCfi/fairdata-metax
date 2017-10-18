@@ -230,8 +230,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
 
     """
-    Tests related to checking preferred_identifier uniqueness within a data catalog,
-    in create and update operations.
+    Tests related to checking preferred_identifier uniqueness.
     """
 
     #
@@ -278,6 +277,29 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_catalog_record_to_att_preferred_identifier_exists_in_another_catalog(self):
+        """
+        preferred_identifier existing in another data catalog IS an error, when saving to ATT
+        catalog.
+        """
+        pref_id = 'abcdefghijklmop'
+
+        # save a record to catalog #2 using pref_id
+        self.test_new_data['research_dataset']['preferred_identifier'] = pref_id
+        self.test_new_data['data_catalog'] = 2
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # save a record to catalog #1 (ATT catalog) using the same pref_id. this should be an error
+        self.test_new_data['research_dataset']['preferred_identifier'] = pref_id
+        self.test_new_data['data_catalog'] = 1
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+        self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True, 'The error should mention saving to ATT catalog as the reason')
 
     #
     # update operations
@@ -343,17 +365,36 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
 
+    def test_update_catalog_record_in_att_preferred_identifier_exists_in_another_catalog(self):
+        """
+        preferred_identifier existing in another data catalog IS an error, when saving to ATT
+        catalog.
+
+        Update an existing record in catalog #1 to have pref_id x, when a record in catalog #2
+        already has the same pref_id x. This should be an error.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=2)
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+
+        response = self.client.patch('/rest/datasets/1', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+        self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True, 'The error should mention saving to ATT catalog as the reason')
+
     #
     # helpers
     #
 
-    def _set_preferred_identifier_to_record(self, pk=None):
+    def _set_preferred_identifier_to_record(self, pk=1):
         """
         Set preferred_identifier to an existing record to a value, and return that value,
         which will then be used by the test to create or update another record.
         """
         unique_identifier = 'im unique yo'
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecord.objects.get(pk=pk)
         cr.research_dataset['preferred_identifier'] = unique_identifier
         cr.data_catalog_id = 1
         cr.save()
