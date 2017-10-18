@@ -53,9 +53,11 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
             "urn_identifier": "pid:urn:new1",
             "preferred_identifier": None,
             "creator": [{
+                "@type":"Person",
                 "name": "Teppo Testaaja"
             }],
             "curator": [{
+                "@type":"Person",
                 "name": "Default Owner"
             }],
             "total_byte_size": 1024,
@@ -159,14 +161,14 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.test_new_data['research_dataset']['provenance'] = [{
             'title': { 'en': 'provenance title' },
             'was_associated_with': [
-                { 'xname': 'seppo'}
+                {'@type':'Person', 'xname': 'seppo'}
             ]
         }]
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(response.data), 1, 'there should be only one error')
         self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
-        self.assertEqual('name\' is a required property' in response.data['research_dataset'][0], True, response.data)
+        self.assertEqual('is not valid under any of the given schemas' in response.data['research_dataset'][0], True, response.data)
         self.assertEqual('was_associated_with' in response.data['research_dataset'][0], True, response.data)
 
     def test_create_catalog_record_dont_allow_data_catalog_fields_update(self):
