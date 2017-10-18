@@ -30,6 +30,15 @@
                     "description":"Dataset described by this metadata record. Detailed in http://iow.csc.fi/model/mrd/ResearchDataset/",
                     "type":"object"
                 },
+                "alternate_record_set":{
+                    "title":"Alternate Records",
+                    "description":"List of records who share the same preferred_identifier value, but are saved in different data catalogs. The list of contains the urn_identifier values of those records.",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    },
+                    "readonly": true
+                },
                 "preservation_state":{
                     "title":"Preservation state",
                     "description":"state of dataset in PAS cycle: 0 = Not in PAS, 1 = Proposed for midtterm, 2 = Proposed for long term, 3, =in packaging service, 4 = in dissemination, 5 = in midterm preservation, 6 = in longterm preservation, 7 = Rejected long-term preservation, 8 = Rejected mid-term preservation",
