@@ -4,6 +4,12 @@
     "modified":"Fri, 06 Oct 2017 13:09:35 EEST",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
+    "anyOf":[
+        {"$ref":"#/definitions/Directory"},
+        {"$ref":"#/definitions/File"},
+        {"$ref":"#/definitions/FileStorage"},
+        {"$ref":"#/definitions/FileCharacteristics"}
+    ],
     "definitions":{
         "Checksum":{
             "type":"object",
@@ -47,7 +53,8 @@
                 "checksum_value",
                 "checksum_algorithm",
                 "checksum_checked"
-            ]
+            ],
+            "additionalProperties":false
         },
         "Directory":{
             "type":"object",
@@ -185,7 +192,8 @@
                 "byte_size",
                 "project_identifier",
                 "file_storage"
-            ]
+            ],
+            "additionalProperties":false
         },
         "File":{
             "type":"object",
@@ -198,6 +206,7 @@
                     "description":"A persistent identifier (PID) in urn: scheme",
                     "@id":"http://purl.org/dc/terms/identifier",
                     "@type":"@id",
+                    "type":"string",
                     "minItems":1,
                     "maxItems":1
                 },
@@ -352,7 +361,8 @@
                 "file_storage",
                 "project_identifier",
                 "checksum"
-            ]
+            ],
+            "additionalProperties":false
         },
         "FileCharacteristics":{
             "type":"object",
@@ -406,7 +416,6 @@
                     "description":"Date on which the File Charasteristics have been last updated",
                     "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -418,7 +427,8 @@
                     "maxItems":1,
                     "type":"boolean"
                 }
-            }
+            },
+            "additionalProperties":false
         },
         "FileStorage":{
             "type":"object",
@@ -431,6 +441,7 @@
                     "description":"Persistent identifier for the storage system",
                     "@id":"http://purl.org/dc/terms/identifier",
                     "@type":"@id",
+                    "type":"string",
                     "minItems":1,
                     "maxItems":1
                 },
@@ -454,7 +465,8 @@
             "required":[
                 "identifier",
                 "title"
-            ]
+            ],
+            "additionalProperties":false
         },
         "langString":{
             "type":"object",
