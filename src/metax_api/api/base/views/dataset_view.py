@@ -36,12 +36,9 @@ class DatasetViewSet(CommonViewSet):
             return super(DatasetViewSet, self).get_object()
         except Http404:
             if CRS.is_primary_key(self.kwargs.get(self.lookup_field, False)):
-                # fail on pk search is clear, but other identifiers can have matches
-                # in a dataset's other identifier fields
+                # fail on pk search is clear...
                 raise
-        except Exception:
-            raise
-
+        # ...but other identifiers can have matches in a dataset's other identifier fields
         return self._search_using_other_dataset_identifiers()
 
     def get_queryset(self):
@@ -168,18 +165,15 @@ class DatasetViewSet(CommonViewSet):
         preferred_identifier first, and array other_identifier after, if there are matches
         """
         lookup_value = self.kwargs.get(self.lookup_field)
-        try:
-            obj = self._search_from_research_dataset({'urn_identifier': lookup_value}, False)
+        obj = self._search_from_research_dataset({'urn_identifier': lookup_value}, False)
 
-            # allow preferred and other identifier searches only for GET, since their persistence
-            # is not guaranteed over time.
-            if not obj and self.request.method == 'GET':
-                obj = self._search_from_research_dataset({'preferred_identifier': lookup_value}, False)
-                if not obj:
-                    obj = self._search_from_research_dataset(
-                        {'other_identifier': [{'local_identifier': lookup_value}]}, True)
-        except Exception:
-            raise
+        # allow preferred and other identifier searches only for GET, since their persistence
+        # is not guaranteed over time.
+        if not obj and self.request.method == 'GET':
+            obj = self._search_from_research_dataset({'preferred_identifier': lookup_value}, False)
+            if not obj:
+                obj = self._search_from_research_dataset(
+                    {'other_identifier': [{'local_identifier': lookup_value}]}, True)
 
         if not obj:
             raise Http404
@@ -193,10 +187,7 @@ class DatasetViewSet(CommonViewSet):
         except Http404:
             if raise_on_404:
                 raise
-            else:
-                return None
-        except Exception:
-            raise
+            return None
 
     def _get_removed_dataset(self):
         """

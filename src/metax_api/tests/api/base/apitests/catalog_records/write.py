@@ -4,7 +4,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import CatalogRecord, DataCatalog
+from metax_api.models import AlternateRecordSet, CatalogRecord, DataCatalog
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import RedisSentinelCache
 
@@ -115,19 +115,6 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             'urn_identifier and preferred_identifier should equal')
         cr = CatalogRecord.objects.get(pk=response.data['id'])
         self.assertEqual(cr.created_by_api >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object creation')
-
-    def test_create_catalog_record_error_identifier_exists(self):
-        # first ok
-        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-
-        # second should give error
-        existing_identifier = response.data['research_dataset']['urn_identifier']
-        self.test_new_data['research_dataset']['preferred_identifier'] = existing_identifier
-        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
-        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier already existing')
 
     def test_create_catalog_contract_string_identifier(self):
         self.test_new_data['contract'] = 'optional:contract:identifier1'
@@ -240,6 +227,180 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual('object' in response.data['failed'][0].keys(), True)
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
+
+
+class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
+
+    """
+    Tests related to checking preferred_identifier uniqueness.
+    """
+
+    #
+    # create operations
+    #
+
+    def test_create_catalog_record_error_preferred_identifier_cant_be_urn_identifier(self):
+        """
+        preferred_identifier can never be the same as a urn_identifier in another cr, in any catalog
+        """
+        existing_urn_identifier = CatalogRecord.objects.get(pk=1).research_dataset['urn_identifier']
+        self.test_new_data['research_dataset']['preferred_identifier'] = existing_urn_identifier
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+
+        # the error message should clearly state that the value of preferred_identifier appears in the
+        # field urn_identifier in another record, therefore two asserts
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier existing with this identifier')
+        self.assertEqual('urn_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier existing with this identifier')
+
+    def test_create_catalog_record_error_preferred_identifier_exists_in_same_catalog(self):
+        """
+        preferred_identifier already existing in the same data catalog is an error
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+        self.test_new_data['research_dataset']['preferred_identifier'] = unique_identifier
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+
+    def test_create_catalog_record_preferred_identifier_exists_in_another_catalog(self):
+        """
+        preferred_identifier existing in another data catalog is not an error.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+        self.test_new_data['research_dataset']['preferred_identifier'] = unique_identifier
+
+        # different catalog, should be OK
+        self.test_new_data['data_catalog'] = 2
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_catalog_record_to_att_preferred_identifier_exists_in_another_catalog(self):
+        """
+        preferred_identifier existing in another data catalog IS an error, when saving to ATT
+        catalog.
+        """
+        pref_id = 'abcdefghijklmop'
+
+        # save a record to catalog #2 using pref_id
+        self.test_new_data['research_dataset']['preferred_identifier'] = pref_id
+        self.test_new_data['data_catalog'] = 2
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # save a record to catalog #1 (ATT catalog) using the same pref_id. this should be an error
+        self.test_new_data['research_dataset']['preferred_identifier'] = pref_id
+        self.test_new_data['data_catalog'] = 1
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+        self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True, 'The error should mention saving to ATT catalog as the reason')
+
+    #
+    # update operations
+    #
+
+    def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_1(self):
+        """
+        preferred_identifier existing in another data catalog is not an error.
+
+        Test PATCH, when data_catalog of the record being updated is already
+        different than another record's which has the same identifier.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+
+        cr = CatalogRecord.objects.get(pk=2)
+        cr.data_catalog_id = 2
+        cr.save()
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+
+        response = self.client.patch('/rest/datasets/2', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_2(self):
+        """
+        preferred_identifier existing in another data catalog is not an error.
+
+        Test PATCH, when data_catalog is being updated to a different catalog
+        in the same request. In this case, the uniqueness check has to be executed
+        on the new data_catalog being passed.
+
+        In this test, catalog is updated to 2, which should not contain a conflicting
+        identifier.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+        data['data_catalog'] = 2
+
+        response = self.client.patch('/rest/datasets/2', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_3(self):
+        """
+        preferred_identifier already existing in the same data catalog is an error
+
+        Test PATCH, when data_catalog is being updated to a different catalog
+        in the same request. In this case, the uniqueness check has to be executed
+        on the new data_catalog being passed.
+
+        In this test, catalog is updated to 1, which should contain a conflicting
+        identifier, resulting in an error.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+        data['data_catalog'] = 1
+
+        response = self.client.patch('/rest/datasets/2', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+
+    def test_update_catalog_record_in_att_preferred_identifier_exists_in_another_catalog(self):
+        """
+        preferred_identifier existing in another data catalog IS an error, when saving to ATT
+        catalog.
+
+        Update an existing record in catalog #1 to have pref_id x, when a record in catalog #2
+        already has the same pref_id x. This should be an error.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=2)
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+
+        response = self.client.patch('/rest/datasets/1', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+        self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True, 'The error should mention saving to ATT catalog as the reason')
+
+    #
+    # helpers
+    #
+
+    def _set_preferred_identifier_to_record(self, pk=1):
+        """
+        Set preferred_identifier to an existing record to a value, and return that value,
+        which will then be used by the test to create or update another record.
+        """
+        unique_identifier = 'im unique yo'
+        cr = CatalogRecord.objects.get(pk=pk)
+        cr.research_dataset['preferred_identifier'] = unique_identifier
+        cr.data_catalog_id = 1
+        cr.save()
+        return unique_identifier
 
 
 class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
@@ -947,3 +1108,192 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         # the black sheep
         self.assertEqual(refs['organization']['label']['default'],     new_rd['is_output_of'][0]['source_organization'][0].get('name', None))
         self.assertEqual(refs['checksum_algorithm']['label'], new_rd['remote_resources'][0]['checksum'].get('checksum_algorithm', None))
+
+
+class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
+
+    """
+    Tests related to handling alternate records: Records which have the same
+    preferred_identifier, but are in different data catalogs.
+    """
+
+    def setUp(self):
+        super(CatalogRecordApiWriteAlternateRecords, self).setUp()
+        self.preferred_identifier = self._set_preferred_identifier_to_record(pk=1, data_catalog=1)
+        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
+        self.test_new_data['data_catalog'] = 2
+
+    def test_alternate_record_set_is_created_if_it_doesnt_exist(self):
+        """
+        Add a record, where a record already existed with the same pref_id, but did not have an
+        alternate_record_set yet. Ensure a new set is created, and both records are added to it.
+        """
+        existing_records_count = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }).count()
+        self.assertEqual(existing_records_count, 1, 'in the beginning, there should be only one record with pref id %s' % self.preferred_identifier)
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        self.assertEqual(len(records), 2, 'after, there should be two records with pref id %s' % self.preferred_identifier)
+
+        # both records are moved to same set
+        ars_id = records[0].alternate_record_set.id
+        self.assertEqual(records[0].alternate_record_set.id, ars_id)
+        self.assertEqual(records[1].alternate_record_set.id, ars_id)
+
+        # records in the set are the ones expected
+        self.assertEqual(records[0].id, 1)
+        self.assertEqual(records[1].id, response.data['id'])
+
+        # records in the set are indeed in different catalogs
+        self.assertEqual(records[0].data_catalog.id, 1)
+        self.assertEqual(records[1].data_catalog.id, 2)
+
+    def test_append_to_existing_alternate_record_set_if_it_exists(self):
+        self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
+
+        existing_records_count = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }).count()
+        self.assertEqual(existing_records_count, 2, 'in the beginning, there should be two records with pref id %s' % self.preferred_identifier)
+
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        self.assertEqual(len(records), 3, 'after, there should be three records with pref id %s' % self.preferred_identifier)
+
+        # all records belong to same set
+        ars_id = records[0].alternate_record_set.id
+        self.assertEqual(records[0].alternate_record_set.id, ars_id)
+        self.assertEqual(records[1].alternate_record_set.id, ars_id)
+        self.assertEqual(records[2].alternate_record_set.id, ars_id)
+
+        # records in the set are the ones expected
+        self.assertEqual(records[0].id, 1)
+        self.assertEqual(records[1].id, 2)
+        self.assertEqual(records[2].id, response.data['id'])
+
+        # records in the set are indeed in different catalogs
+        self.assertEqual(records[0].data_catalog.id, 1)
+        self.assertEqual(records[1].data_catalog.id, 3)
+        self.assertEqual(records[2].data_catalog.id, 2)
+
+    def test_record_is_removed_from_alternate_record_set_when_deleted(self):
+        self._set_and_ensure_initial_conditions()
+
+        response = self.client.delete('/rest/datasets/2', format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        self.assertEqual(records[0].alternate_record_set.records.count(), 2, 'alternate_record_set should have two records after deleting one')
+
+    def test_record_is_removed_from_alternate_record_set_when_updated(self):
+        self._set_and_ensure_initial_conditions()
+
+        response = self.client.get('/rest/datasets/2', format="json")
+        data = { 'research_dataset': response.data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = 'a:new:identifier:here'
+
+        response = self.client.patch('/rest/datasets/2', data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        self.assertEqual(records[0].alternate_record_set.records.count(), 2, 'alternate_record_set should have two records after updating one record')
+
+        # the patched record should not belong to any alt set any longer
+        cr = CatalogRecord.objects.get(pk=2)
+        self.assertEqual(cr.alternate_record_set, None)
+
+    def test_alternate_record_set_is_deleted_if_updating_record_and_only_one_record_left(self):
+        self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
+        old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
+
+        response = self.client.get('/rest/datasets/2', format="json")
+        data = { 'research_dataset': response.data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = 'a:new:identifier:here'
+
+        response = self.client.patch('/rest/datasets/2', data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        self.assertEqual(records.count(), 1, 'should be only one record with this identifier left now')
+
+        with self.assertRaises(AlternateRecordSet.DoesNotExist, msg='alternate record set should have been deleted'):
+            AlternateRecordSet.objects.get(pk=old_ars_id)
+
+        try:
+            CatalogRecord.objects.get(pk=1)
+        except CatalogRecord.DoesNotExist:
+            self.fail('the other record in the alternate record set should not be deleted alongside the record set')
+
+    def test_alternate_record_set_is_deleted_if_deleting_record_and_only_one_record_left(self):
+        self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
+        old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
+
+        response = self.client.delete('/rest/datasets/2', format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        self.assertEqual(records.count(), 1, 'should be only record with this identifier left now')
+
+        with self.assertRaises(AlternateRecordSet.DoesNotExist, msg='alternate record set should have been deleted'):
+            AlternateRecordSet.objects.get(pk=old_ars_id)
+
+    def test_alternate_record_set_is_included_in_responses(self):
+        """
+        Details of a dataset should contain field alternate_record_set in it.
+        For a particular record, the set should not contain its own urn_identifier in the set.
+        """
+        msg_self_should_not_be_listed = 'urn_identifier of the record itself should not be listed'
+
+        response_1 = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        response_2 = self.client.get('/rest/datasets/1', format="json")
+        self.assertEqual(response_1.status_code, status.HTTP_201_CREATED)
+        self.assertEqual('alternate_record_set' in response_1.data, True)
+        self.assertEqual(response_1.data['research_dataset']['urn_identifier'] not in response_1.data['alternate_record_set'], True, msg_self_should_not_be_listed)
+        self.assertEqual(response_2.data['research_dataset']['urn_identifier'] in response_1.data['alternate_record_set'], True)
+
+        self.test_new_data.update({ 'data_catalog': 4 })
+        response_3 = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response_3.status_code, status.HTTP_201_CREATED)
+        self.assertEqual('alternate_record_set' in response_3.data, True)
+        self.assertEqual(response_1.data['research_dataset']['urn_identifier'] in response_3.data['alternate_record_set'], True)
+        self.assertEqual(response_2.data['research_dataset']['urn_identifier'] in response_3.data['alternate_record_set'], True)
+        self.assertEqual(response_3.data['research_dataset']['urn_identifier'] not in response_3.data['alternate_record_set'], True, msg_self_should_not_be_listed)
+
+        response_2 = self.client.get('/rest/datasets/1', format="json")
+        self.assertEqual('alternate_record_set' in response_2.data, True)
+        self.assertEqual(response_1.data['research_dataset']['urn_identifier'] in response_2.data['alternate_record_set'], True)
+        self.assertEqual(response_3.data['research_dataset']['urn_identifier'] in response_2.data['alternate_record_set'], True)
+        self.assertEqual(response_2.data['research_dataset']['urn_identifier'] not in response_2.data['alternate_record_set'], True, msg_self_should_not_be_listed)
+
+    def _set_preferred_identifier_to_record(self, pk=1, data_catalog=1):
+        """
+        Set preferred_identifier to an existing record to a value, and return that value,
+        which will then be used by the test to create or update a record.
+
+        Not that this will also create an alternate_record_set, if the unique_identifier
+        is being used more than once.
+        """
+        unique_identifier = 'im unique yo'
+        cr = CatalogRecord.objects.get(pk=pk)
+        cr.research_dataset['preferred_identifier'] = unique_identifier
+        cr.data_catalog_id = data_catalog
+        cr.save()
+        return unique_identifier
+
+    def _set_and_ensure_initial_conditions(self):
+        """
+        Update two existing records to have same pref_id and be in different catalogs,
+        to create an alternate_record_set.
+        """
+        self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
+        self._set_preferred_identifier_to_record(pk=3, data_catalog=4)
+
+        # ensuring initial conditions...
+        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        self.assertEqual(len(records), 3, 'in the beginning, there should be three records with pref id %s' % self.preferred_identifier)
+        ars_id = records[0].alternate_record_set.id
+        self.assertEqual(records[0].alternate_record_set.id, ars_id)
+        self.assertEqual(records[1].alternate_record_set.id, ars_id)
+        self.assertEqual(records[2].alternate_record_set.id, ars_id)

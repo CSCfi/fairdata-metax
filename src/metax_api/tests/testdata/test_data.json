@@ -885,6 +885,208 @@
     },
     {
         "fields": {
+            "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": [
+                                {
+                                    "en": "CC BY 4.0",
+                                    "fi": "CC BY 4.0"
+                                }
+                            ]
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "pid:urn:catalog3",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin",
+                        "title": "fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": [
+                    {
+                        "homepage": [
+                            {
+                                "identifier": "http://www.publisher.fi/",
+                                "title": {
+                                    "en": "Publisher website",
+                                    "fi": "Julkaisijan kotisivu"
+                                }
+                            }
+                        ],
+                        "identifier": "http://isni.org/isni/0000000405129137",
+                        "name": {
+                            "en": "Publisher",
+                            "fi": "Julkaisija"
+                        }
+                    }
+                ],
+                "research_dataset_schema": "att",
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
+            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": [
+                                {
+                                    "en": "CC BY 4.0",
+                                    "fi": "CC BY 4.0"
+                                }
+                            ]
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "pid:urn:catalog4",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin",
+                        "title": "fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": [
+                    {
+                        "homepage": [
+                            {
+                                "identifier": "http://www.publisher.fi/",
+                                "title": {
+                                    "en": "Publisher website",
+                                    "fi": "Julkaisijan kotisivu"
+                                }
+                            }
+                        ],
+                        "identifier": "http://isni.org/isni/0000000405129137",
+                        "name": {
+                            "en": "Publisher",
+                            "fi": "Julkaisija"
+                        }
+                    }
+                ],
+                "research_dataset_schema": "att",
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "created_by_api": "2017-05-15T10:07:22.559656Z",
+            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 4
+    },
+    {
+        "fields": {
             "contract_json": {
                 "contact": [
                     {
