@@ -19,9 +19,11 @@
             "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
         }],
         "creator":[{
+            "@type": "Person",
             "name": "Teppo Testaaja"
         }],
         "curator":[{
+            "@type": "Organization",
             "identifier": "id:of:curator:default",
             "name": "Default Owner"
         }],

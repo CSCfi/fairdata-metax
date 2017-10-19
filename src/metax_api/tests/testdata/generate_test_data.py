@@ -433,11 +433,11 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         if 3 <= i <= 4:
             test_data_list[i]['fields']['mets_object_identifier'] = ["a", "b", "c"]
 
-        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Rahikainen", "identifier": "id:of:curator:rahikainen" }]
+        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "@type": "Person", "name": "Rahikainen", "identifier": "id:of:curator:rahikainen" }]
 
     # set different owner
     for i in range(6, len(test_data_list)):
-        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "name": "Jarski", "identifier": "id:of:curator:jarski" }]
+        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "@type": "Person", "name": "Jarski", "identifier": "id:of:curator:jarski" }]
 
     # if preservation_state is other than 0, means it has been modified at some point,
     # so set timestamp

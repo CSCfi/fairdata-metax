@@ -12,6 +12,7 @@
     ],
     "definitions":{
         "Contact":{
+			"type":"object",
             "title":"Contact information",
             "@id":"http://iow.csc.fi/ns/jhs#Yhteystiedot",
             "description":"A means of contacting the actor",
@@ -49,6 +50,7 @@
             ]
         },
         "Contract":{
+			"type":"object",
             "title":"Contract",
             "@id":"http://iow.csc.fi/ns/mad#Contract",
             "description":"Agreement of use",
@@ -162,6 +164,7 @@
             ]
         },
         "ResearchOrganization":{
+			"type":"object",
             "title":"Research Organization",
             "@id":"http://iow.csc.fi/ns/tutkimus#Tutkimusorganisaatio",
             "properties":{
@@ -187,6 +190,7 @@
             ]
         },
         "Service":{
+			"type":"object",
             "title":"Service",
             "@id":"http://iow.csc.fi/ns/tipa#Service",
             "description":"Services can be resource, equipment and/or service intensive.",
@@ -216,6 +220,7 @@
             ]
         },
         "Validity":{
+			"type":"object",
             "title":"Validity",
             "@id":"http://iow.csc.fi/ns/mad#Validity",
             "description":"Period of validity",
