@@ -275,6 +275,7 @@ if not executing_in_travis:
         'HOSTS':    app_config_dict['REDIS']['HOSTS'],
         'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
         'SERVICE':  app_config_dict['REDIS']['SERVICE'],
+        'LOCALHOST_PORT': app_config_dict['REDIS']['LOCALHOST_PORT'],
 
         # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
         'SOCKET_TIMEOUT': 0.1,
