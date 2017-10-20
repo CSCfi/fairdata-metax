@@ -147,6 +147,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
             }
 
             new['fields']['file_name'] = file_name % loop
+            new['fields']['file_path'] += file_name % loop
             new['fields']['identifier'] = "pid:urn:" + loop
             new['fields']['download_url'] = download_url % loop
             new['fields']['file_characteristics']['title'] = json_title % loop

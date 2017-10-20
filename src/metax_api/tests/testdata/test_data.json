@@ -45,13 +45,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_1",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_1",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:1",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -78,13 +78,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_2",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_2",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:2",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -111,13 +111,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_3",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_3",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:3",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -144,13 +144,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_4",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_4",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:4",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -177,13 +177,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_5",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_5",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:5",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -210,13 +210,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_6",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_6",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:6",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -243,13 +243,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_7",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_7",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:7",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -276,13 +276,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_8",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_8",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:8",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -309,13 +309,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_9",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_9",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:9",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -342,13 +342,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_10",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_10",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:10",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -375,13 +375,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_11",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_11",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:11",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -408,13 +408,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_12",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_12",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:12",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -441,13 +441,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_13",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_13",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:13",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -474,13 +474,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_14",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_14",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:14",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -507,13 +507,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_15",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_15",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:15",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -540,13 +540,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_16",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_16",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:16",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -573,13 +573,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_17",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_17",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:17",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -606,13 +606,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_18",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_18",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:18",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -639,13 +639,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_19",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_19",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:19",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -672,13 +672,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_20",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/some/path/file_name_20",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:20",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
@@ -952,24 +952,22 @@
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "publisher": [
-                    {
-                        "homepage": [
-                            {
-                                "identifier": "http://www.publisher.fi/",
-                                "title": {
-                                    "en": "Publisher website",
-                                    "fi": "Julkaisijan kotisivu"
-                                }
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher website",
+                                "fi": "Julkaisijan kotisivu"
                             }
-                        ],
-                        "identifier": "http://isni.org/isni/0000000405129137",
-                        "name": {
-                            "en": "Publisher",
-                            "fi": "Julkaisija"
                         }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Publisher",
+                        "fi": "Julkaisija"
                     }
-                ],
+                },
                 "research_dataset_schema": "att",
                 "title": {
                     "en": "Test data catalog name",
@@ -1053,24 +1051,22 @@
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "publisher": [
-                    {
-                        "homepage": [
-                            {
-                                "identifier": "http://www.publisher.fi/",
-                                "title": {
-                                    "en": "Publisher website",
-                                    "fi": "Julkaisijan kotisivu"
-                                }
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher website",
+                                "fi": "Julkaisijan kotisivu"
                             }
-                        ],
-                        "identifier": "http://isni.org/isni/0000000405129137",
-                        "name": {
-                            "en": "Publisher",
-                            "fi": "Julkaisija"
                         }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Publisher",
+                        "fi": "Julkaisija"
                     }
-                ],
+                },
                 "research_dataset_schema": "att",
                 "title": {
                     "en": "Test data catalog name",
