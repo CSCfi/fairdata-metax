@@ -82,3 +82,14 @@ class CommonSerializer(ModelSerializer):
 
     def _operation_is_create(self):
         return self.context['view'].request.stream.method == 'POST'
+
+    def _operation_is_update(self, method=None):
+        """
+        Check if current operation is of a specific update type, or a generic update operation
+        """
+        methods = (method, ) if method else ('PUT', 'PATCH')
+        try:
+            # request.stream.method is not always set!
+            return self.context['view'].request.stream.method in methods
+        except AttributeError:
+            return False

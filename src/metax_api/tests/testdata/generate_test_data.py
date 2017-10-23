@@ -504,6 +504,39 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         print('collected created objects from responses into a list')
         print('total time elapsed for %d rows: %.3f seconds' % (catalog_record_max_rows, total_time_elapsed))
 
+    #
+    # create a couple of alternate records for record with id 10
+    #
+
+    alternate_record_set = {
+        'fields': {},
+        'model': 'metax_api.alternaterecordset',
+        'pk': 1,
+    }
+
+    # first record belongs to alt recorc set
+    test_data_list[9]['fields']['alternate_record_set'] = 1
+
+    # create one other record
+    alt_rec = deepcopy(test_data_list[9])
+    alt_rec['pk'] = test_data_list[-1]['pk'] + 1
+    alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset']['preferred_identifier']
+    alt_rec['fields']['research_dataset']['urn_identifier'] += '-alt-1'
+    alt_rec['fields']['data_catalog'] = 2
+    alt_rec['fields']['alternate_record_set'] = 1
+    test_data_list.append(alt_rec)
+
+    # create second other record
+    alt_rec = deepcopy(test_data_list[9])
+    alt_rec['pk'] = test_data_list[-1]['pk'] + 1
+    alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset']['preferred_identifier']
+    alt_rec['fields']['research_dataset']['urn_identifier'] += '-alt-2'
+    alt_rec['fields']['data_catalog'] = 3
+    alt_rec['fields']['alternate_record_set'] = 1
+    test_data_list.append(alt_rec)
+
+    # alternate record set must exist before importing catalog records, so prepend it
+    test_data_list.insert(0, alternate_record_set)
     return test_data_list
 
 
