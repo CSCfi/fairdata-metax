@@ -362,12 +362,37 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
 
             files = []
             total_byte_size = 0
+            third_of_files = len(file_list) / 3
 
             for j in range(files_start_idx, files_start_idx + files_per_dataset):
                 files.append({
                     'identifier': file_list[j]['fields']['identifier'],
                     'title': 'File metadata title %d' % j,
                 })
+                if j < third_of_files:
+                    # first third of files has this as type
+                    files[-1]['type'] = {
+                        "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                        "label": {
+                            "fi": "Tapahtuma",
+                            "en": "Event",
+                            "default": "Tapahtuma"
+                        }
+                    }
+                elif third_of_files <= j < (third_of_files * 2):
+                    # second third of files has this as type
+                    files[-1]['type'] = {
+                        "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                        "label": {
+                            "fi": "Mallinnus",
+                            "en": "Model",
+                            "default": "Mallinnus"
+                        }
+                    }
+                else:
+                    # the last third wont have any type
+                    pass
+
                 new['fields']['files'].append(file_list[j]['pk'])
                 total_byte_size += file_list[j]['fields']['byte_size']
 

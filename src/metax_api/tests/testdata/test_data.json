@@ -1297,11 +1297,27 @@
                 "files": [
                     {
                         "identifier": "pid:urn:1",
-                        "title": "File metadata title 0"
+                        "title": "File metadata title 0",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                            "label": {
+                                "default": "Tapahtuma",
+                                "en": "Event",
+                                "fi": "Tapahtuma"
+                            }
+                        }
                     },
                     {
                         "identifier": "pid:urn:2",
-                        "title": "File metadata title 1"
+                        "title": "File metadata title 1",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                            "label": {
+                                "default": "Tapahtuma",
+                                "en": "Event",
+                                "fi": "Tapahtuma"
+                            }
+                        }
                     }
                 ],
                 "language": [
@@ -1362,11 +1378,27 @@
                 "files": [
                     {
                         "identifier": "pid:urn:3",
-                        "title": "File metadata title 2"
+                        "title": "File metadata title 2",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                            "label": {
+                                "default": "Tapahtuma",
+                                "en": "Event",
+                                "fi": "Tapahtuma"
+                            }
+                        }
                     },
                     {
                         "identifier": "pid:urn:4",
-                        "title": "File metadata title 3"
+                        "title": "File metadata title 3",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                            "label": {
+                                "default": "Tapahtuma",
+                                "en": "Event",
+                                "fi": "Tapahtuma"
+                            }
+                        }
                     }
                 ],
                 "language": [
@@ -1427,11 +1459,27 @@
                 "files": [
                     {
                         "identifier": "pid:urn:5",
-                        "title": "File metadata title 4"
+                        "title": "File metadata title 4",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                            "label": {
+                                "default": "Tapahtuma",
+                                "en": "Event",
+                                "fi": "Tapahtuma"
+                            }
+                        }
                     },
                     {
                         "identifier": "pid:urn:6",
-                        "title": "File metadata title 5"
+                        "title": "File metadata title 5",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                            "label": {
+                                "default": "Tapahtuma",
+                                "en": "Event",
+                                "fi": "Tapahtuma"
+                            }
+                        }
                     }
                 ],
                 "language": [
@@ -1496,11 +1544,27 @@
                 "files": [
                     {
                         "identifier": "pid:urn:7",
-                        "title": "File metadata title 6"
+                        "title": "File metadata title 6",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                            "label": {
+                                "default": "Tapahtuma",
+                                "en": "Event",
+                                "fi": "Tapahtuma"
+                            }
+                        }
                     },
                     {
                         "identifier": "pid:urn:8",
-                        "title": "File metadata title 7"
+                        "title": "File metadata title 7",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "label": {
+                                "default": "Mallinnus",
+                                "en": "Model",
+                                "fi": "Mallinnus"
+                            }
+                        }
                     }
                 ],
                 "language": [
@@ -1565,11 +1629,27 @@
                 "files": [
                     {
                         "identifier": "pid:urn:9",
-                        "title": "File metadata title 8"
+                        "title": "File metadata title 8",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "label": {
+                                "default": "Mallinnus",
+                                "en": "Model",
+                                "fi": "Mallinnus"
+                            }
+                        }
                     },
                     {
                         "identifier": "pid:urn:10",
-                        "title": "File metadata title 9"
+                        "title": "File metadata title 9",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "label": {
+                                "default": "Mallinnus",
+                                "en": "Model",
+                                "fi": "Mallinnus"
+                            }
+                        }
                     }
                 ],
                 "language": [
@@ -1630,11 +1710,27 @@
                 "files": [
                     {
                         "identifier": "pid:urn:11",
-                        "title": "File metadata title 10"
+                        "title": "File metadata title 10",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "label": {
+                                "default": "Mallinnus",
+                                "en": "Model",
+                                "fi": "Mallinnus"
+                            }
+                        }
                     },
                     {
                         "identifier": "pid:urn:12",
-                        "title": "File metadata title 11"
+                        "title": "File metadata title 11",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "label": {
+                                "default": "Mallinnus",
+                                "en": "Model",
+                                "fi": "Mallinnus"
+                            }
+                        }
                     }
                 ],
                 "language": [
@@ -1694,11 +1790,27 @@
                 "files": [
                     {
                         "identifier": "pid:urn:13",
-                        "title": "File metadata title 12"
+                        "title": "File metadata title 12",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "label": {
+                                "default": "Mallinnus",
+                                "en": "Model",
+                                "fi": "Mallinnus"
+                            }
+                        }
                     },
                     {
                         "identifier": "pid:urn:14",
-                        "title": "File metadata title 13"
+                        "title": "File metadata title 13",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "label": {
+                                "default": "Mallinnus",
+                                "en": "Model",
+                                "fi": "Mallinnus"
+                            }
+                        }
                     }
                 ],
                 "language": [
