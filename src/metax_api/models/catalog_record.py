@@ -67,10 +67,6 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_MIDTERM_PAS_REJECTED, 'Midterm PAS rejected'),
     )
 
-    READY_STATUS_FINISHED = 'Finished'
-    READY_STATUS_UNFINISHED = 'Unfinished'
-    READY_STATUS_REMOVED = 'Removed'
-
     alternate_record_set = models.ForeignKey(AlternateRecordSet, on_delete=models.SET_NULL, null=True, help_text='Records which are duplicates of this record, but in another catalog.', related_name='records')
     contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
     data_catalog = models.ForeignKey(DataCatalog)
@@ -82,7 +78,6 @@ class CatalogRecord(Common):
     preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
     preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
-    ready_status = models.CharField(max_length=200, blank=True, null=True, help_text='Dataset ready status.')
     research_dataset = JSONField()
 
     next_version_id = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True, db_column='next_version_id', related_name='next_version')
@@ -143,9 +138,6 @@ class CatalogRecord(Common):
             return self.research_dataset['urn_identifier']
         except:
             return None
-
-    def dataset_is_finished(self):
-        return self.ready_status and self.ready_status == self.READY_STATUS_FINISHED
 
     def has_alternate_records(self):
         return bool(self.alternate_record_set)

@@ -1279,7 +1279,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1360,7 +1359,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1441,7 +1439,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1526,7 +1523,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 3,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1611,7 +1607,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 4,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1692,7 +1687,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1772,7 +1766,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1852,7 +1845,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1916,7 +1908,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -1981,7 +1972,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -2041,7 +2031,6 @@
                 2
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "access_rights": {
                     "available": "2014-01-15T08:19:58Z",
@@ -2706,7 +2695,6 @@
                 2
             ],
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "access_rights": {
                     "available": "2014-01-15T08:19:58Z",
@@ -3376,7 +3364,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
@@ -3441,7 +3428,6 @@
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
