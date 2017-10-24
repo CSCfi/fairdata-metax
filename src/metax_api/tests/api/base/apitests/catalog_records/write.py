@@ -860,7 +860,6 @@ class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
 
     def test_catalog_record_propose_to_pas_success(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
@@ -911,7 +910,6 @@ class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
 
     def test_catalog_record_propose_to_pas_contract_not_found(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
@@ -925,25 +923,8 @@ class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('contract' in response.data, True, 'Response data should contain an error about the field')
 
-    def test_catalog_record_propose_to_pas_wrong_ready_status(self):
-        catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_UNFINISHED
-        catalog_record_before.save()
-
-        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-            (
-                self.urn_identifier,
-                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
-            ),
-            format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual('ready_status' in response.data, True, 'Response data should contain an error about the field')
-
     def test_catalog_record_propose_to_pas_wrong_preservation_state(self):
         catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.ready_status = CatalogRecord.READY_STATUS_FINISHED
         catalog_record_before.preservation_state = CatalogRecord.PRESERVATION_STATE_IN_LONGTERM_PAS
         catalog_record_before.save()
 
