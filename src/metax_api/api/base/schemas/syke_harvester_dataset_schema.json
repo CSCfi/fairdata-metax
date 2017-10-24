@@ -195,19 +195,6 @@
                     "type":"string",
                     "format":"date-time"
                 },
-                "ready_status":{
-                    "title":"Catalog record status",
-                    "description":"Status of the catalog record.",
-                    "@id":"http://iow.csc.fi/ns/mrd#readystatus",
-                    "enum":[
-                        "Unfinished",
-                        "Finished",
-                        "Removed"
-                    ],
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "maxItems":1,
-                    "type":"string"
-                },
                 "alternate_record":{
                     "title":"Alternate record",
                     "description":"Refers to alternate catalog record in different catalog. This reference is created if two datasets in different catalogs have the same preferred identifier",

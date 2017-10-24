@@ -27,7 +27,6 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_state_modified',
             'preservation_description',
             'preservation_reason_description',
-            'ready_status',
             'mets_object_identifier',
             'dataset_group_edit',
             'next_version_id',
@@ -54,7 +53,6 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_state':       { 'required': False },
             'preservation_description': { 'required': False },
             'preservation_state_modified':    { 'required': False },
-            'ready_status':             { 'required': False },
             'mets_object_identifier':   { 'required': False },
             'owner_id':                 { 'required': False },
 
