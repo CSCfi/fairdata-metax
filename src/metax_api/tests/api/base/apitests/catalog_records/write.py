@@ -633,9 +633,10 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         new_data = {
             "data_catalog": new_data_catalog,
         }
+        # import ipdb; ipdb.sset_trace()
         response = self.client.patch('/rest/datasets/%s' % self.urn_identifier, new_data, format="json")
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True, 'PATCH operation should return full content')
         self.assertEqual(response.data['data_catalog']['id'], new_data_catalog, 'Field data_catalog was not updated')
 

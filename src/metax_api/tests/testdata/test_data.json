@@ -1262,6 +1262,11 @@
         "pk": 5
     },
     {
+        "fields": {},
+        "model": "metax_api.alternaterecordset",
+        "pk": 1
+    },
+    {
         "fields": {
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
@@ -1964,6 +1969,7 @@
     },
     {
         "fields": {
+            "alternate_record_set": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -3355,5 +3361,135 @@
         },
         "model": "metax_api.catalogrecord",
         "pk": 12
+    },
+    {
+        "fields": {
+            "alternate_record_set": 1,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "data_catalog": 2,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                19,
+                20
+            ],
+            "mets_object_identifier": null,
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "ready_status": "Unfinished",
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:19",
+                        "title": "File metadata title 18"
+                    },
+                    {
+                        "identifier": "pid:urn:20",
+                        "title": "File metadata title 19"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_byte_size": 3900,
+                "urn_identifier": "pid:urn:cr10-alt-1",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            }
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 13
+    },
+    {
+        "fields": {
+            "alternate_record_set": 1,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "data_catalog": 3,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                19,
+                20
+            ],
+            "mets_object_identifier": null,
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "ready_status": "Unfinished",
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:19",
+                        "title": "File metadata title 18"
+                    },
+                    {
+                        "identifier": "pid:urn:20",
+                        "title": "File metadata title 19"
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": "English"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_byte_size": 3900,
+                "urn_identifier": "pid:urn:cr10-alt-2",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            }
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 14
     }
 ]

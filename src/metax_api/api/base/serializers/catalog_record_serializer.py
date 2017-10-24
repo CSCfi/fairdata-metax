@@ -70,7 +70,16 @@ class CatalogRecordSerializer(CommonSerializer):
             self.initial_data['data_catalog'] = self._get_id_from_related_object('data_catalog', self._get_data_catalog_relation)
         if self.initial_data.get('contract', False):
             self.initial_data['contract'] = self._get_id_from_related_object('contract', self._get_contract_relation)
+
         self.initial_data.pop('alternate_record_set', None)
+
+        if self._operation_is_update('PATCH') and 'data_catalog' in self.initial_data and 'research_dataset' not in self.initial_data:
+            # updating data catalog, but not research_dataset. research_dataset
+            # is not present, so uniqueness is not checked using the standard flow.
+            # here, make sure to validate uniqueness using what is currently saved
+            # in the database, and what the data catalog is being changed to.
+            self._validate_research_dataset_uniqueness(self.instance.research_dataset)
+
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
 
     def update(self, instance, validated_data):
@@ -102,9 +111,9 @@ class CatalogRecordSerializer(CommonSerializer):
             res['contract'] = ContractSerializer(instance.contract).data
 
         if instance.has_alternate_records():
-            res['alternate_record_set'] = []
-            for ar in instance.alternate_record_set.records.exclude(pk=instance.id):
-                res['alternate_record_set'].append(ar.urn_identifier)
+            alternate_records = instance.alternate_record_set.records.exclude(pk=instance.id)
+            res['alternate_record_set'] = [ ar.urn_identifier for ar in alternate_records ]
+
         return res
 
     def validate_research_dataset(self, value):
@@ -165,45 +174,45 @@ class CatalogRecordSerializer(CommonSerializer):
             # during create, preferred_identifier is not necessarily set
             return
 
-        found_obj = None
+        found_objs = None
         found_using_pref_id = False
         found_using_urn_id = False
 
-        found_obj = self._find_object_using_identifier('preferred_identifier', preferred_identifier_value)
+        found_objs = self._find_object_using_identifier('preferred_identifier', preferred_identifier_value)
 
-        if found_obj:
+        if found_objs:
             found_using_pref_id = True
         else:
             # cr not found using preferred_identifier. preferred_identifier value can never
             # be urn_identifier value in any catalog, so look for existing records
             # using urn_identifier also
-            found_obj = self._find_object_using_identifier('urn_identifier', preferred_identifier_value)
-            if found_obj:
+            found_objs = self._find_object_using_identifier('urn_identifier', preferred_identifier_value)
+            if found_objs:
                 found_using_urn_id = True
 
-        if not found_obj:
+        if not found_objs:
             return
 
-        if self._operation_is_create() or self.instance.id != found_obj.id:
-            if found_using_pref_id:
-                if self._saving_to_att_catalog():
-                    raise ValidationError([
-                        'a catalog record with this research_dataset ->> preferred_identifier'
-                        ' already exists in another data catalog. when saving to ATT catalog,'
-                        ' the preferred_identifier must not already exist in other catalogs.'
-                    ])
-                else:
-                    raise ValidationError([
-                        'a catalog record with this research_dataset ->> preferred_identifier'
-                        ' already exists in this data catalog.'
-                    ])
-            elif found_using_urn_id:
+        if found_using_pref_id:
+            if self._saving_to_att_catalog():
                 raise ValidationError([
-                    'a catalog record already exists which has the given preferred_identifier'
-                    ' value as its urn_identifier value.'
+                    'a catalog record with this research_dataset ->> preferred_identifier'
+                    ' already exists in another data catalog. when saving to ATT catalog,'
+                    ' the preferred_identifier must not already exist in other catalogs.'
                 ])
-            else: # pragma no over
-                raise Exception('should never happen')
+            else:
+                raise ValidationError([
+                    'a catalog record with this research_dataset ->> preferred_identifier'
+                    ' already exists in this data catalog.'
+                ])
+        elif found_using_urn_id:
+            raise ValidationError([
+                'a catalog record already exists which has the given preferred_identifier'
+                ' value as its urn_identifier value.'
+            ])
+        else:
+            # good case
+            pass
 
     def _find_object_using_identifier(self, field_name, identifier):
         """
@@ -240,10 +249,10 @@ class CatalogRecordSerializer(CommonSerializer):
             # globally, instead of only inside a data catalog.
             pass
 
-        try:
-            return CatalogRecord.objects.get(**params)
-        except CatalogRecord.DoesNotExist:
-            return None
+        if self._operation_is_create():
+            return CatalogRecord.objects.filter(**params)
+        else:
+            return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id)
 
     def _saving_to_att_catalog(self):
         if 'data_catalog' in self.initial_data:

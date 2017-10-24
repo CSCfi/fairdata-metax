@@ -20,7 +20,6 @@ class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         self.pk = catalog_record_from_test_data['id']
         self.urn_identifier = catalog_record_from_test_data['research_dataset']['urn_identifier']
-        self.preferred_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
 
 
 class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
@@ -36,12 +35,12 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_details_by_pk(self):
         response = self.client.get('/rest/datasets/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
+        self.assertEqual(response.data['research_dataset']['urn_identifier'], self.urn_identifier)
 
     def test_read_catalog_record_details_by_identifier(self):
-        response = self.client.get('/rest/datasets/%s' % self.preferred_identifier)
+        response = self.client.get('/rest/datasets/%s' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
+        self.assertEqual(response.data['research_dataset']['urn_identifier'], self.urn_identifier)
 
     def test_read_catalog_record_details_not_found(self):
         response = self.client.get('/rest/datasets/shouldnotexist')
@@ -54,7 +53,7 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/%s/exists' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.preferred_identifier)
+        response = self.client.get('/rest/datasets/%s/exists' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
 
