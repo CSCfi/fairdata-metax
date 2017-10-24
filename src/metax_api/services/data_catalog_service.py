@@ -23,31 +23,45 @@ class DataCatalogService(ReferenceDataMixin):
         """
         reference_data = cls.get_reference_data(cache)
         refdata = reference_data['reference_data']
+        orgdata = reference_data['organization_data']
         errors = defaultdict(list)
 
         for language in data_catalog.get('language', []):
-            ref_entry = cls.check_ref_data(refdata['language'], language['identifier'], 'data_catalog_json.language.identifier', errors)
+            ref_entry = cls.check_ref_data(refdata['language'], language['identifier'],
+                                           'data_catalog_json.language.identifier', errors)
             if ref_entry:
                 # note that catalog language does not have an applicable field for label,
                 # like dataset language has
                 cls.populate_from_ref_data(ref_entry, language)
 
         for fos in data_catalog.get('field_of_science', []):
-            ref_entry = cls.check_ref_data(refdata['field_of_science'], fos['identifier'], 'data_catalog_json.field_of_science.identifier', errors)
+            ref_entry = cls.check_ref_data(refdata['field_of_science'], fos['identifier'],
+                                           'data_catalog_json.field_of_science.identifier', errors)
             if ref_entry:
                 cls.populate_from_ref_data(ref_entry, fos, label_field='pref_label')
 
         access_rights = data_catalog.get('access_rights', None)
         if access_rights:
             for rights_statement_type in access_rights.get('type', []):
-                ref_entry = cls.check_ref_data(refdata['access_type'], rights_statement_type['identifier'], 'data_catalog_json.rights.type.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['access_type'], rights_statement_type['identifier'],
+                                               'data_catalog_json.rights.type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, rights_statement_type, label_field='pref_label')
 
             for rights_statement_license in access_rights.get('license', []):
-                ref_entry = cls.check_ref_data(refdata['license'], rights_statement_license['identifier'], 'data_catalog_json.rights.license.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['license'], rights_statement_license['identifier'],
+                                               'data_catalog_json.rights.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, rights_statement_license, label_field='title')
+
+            if 'has_right_related_agent' in access_rights:
+                for agent in access_rights.get('has_right_related_agent', []):
+                    cls.process_org_obj_against_ref_data(orgdata['organization'], agent,
+                                                         'data_catalog_json.rights.has_right_related_agent')
+
+        publisher = data_catalog.get('publisher', None)
+        if publisher:
+            cls.process_org_obj_against_ref_data(orgdata['organization'], publisher, 'data_catalog_json.publisher')
 
         if errors:
             raise ValidationError(errors)

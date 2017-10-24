@@ -53,6 +53,24 @@
           "description": [
             {"fi": "Käyttöehtojen kuvaus"}
           ],
+          "has_right_related_agent": [
+            {
+              "identifier": "whatever_id",
+              "name": {
+                "fi": "Oikeuksiin liittyvä agentti",
+                "en": "A rights related agent"
+              }
+            },
+            {
+              "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+              "name": {
+                "fi": "Org referenssidatassa",
+                "en": "Org in ref data"
+              },
+              "email": "wahatever@madeupdomain.com",
+              "telephone": ["+12353495823424"]
+            }
+          ],
           "type": [
             {
               "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
