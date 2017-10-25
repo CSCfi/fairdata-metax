@@ -53,7 +53,7 @@
           "description": [
             {"fi": "Käyttöehtojen kuvaus"}
           ],
-          "has_right_related_agent": [
+          "has_rights_related_agent": [
             {
               "identifier": "whatever_id",
               "name": {

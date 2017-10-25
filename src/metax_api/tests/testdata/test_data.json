@@ -694,7 +694,7 @@
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
                         }
                     ],
-                    "has_right_related_agent": [
+                    "has_rights_related_agent": [
                         {
                             "identifier": "whatever_id",
                             "name": {
@@ -813,7 +813,7 @@
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
                         }
                     ],
-                    "has_right_related_agent": [
+                    "has_rights_related_agent": [
                         {
                             "identifier": "whatever_id",
                             "name": {
@@ -932,7 +932,7 @@
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
                         }
                     ],
-                    "has_right_related_agent": [
+                    "has_rights_related_agent": [
                         {
                             "identifier": "whatever_id",
                             "name": {
@@ -1051,7 +1051,7 @@
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
                         }
                     ],
-                    "has_right_related_agent": [
+                    "has_rights_related_agent": [
                         {
                             "identifier": "whatever_id",
                             "name": {
@@ -1370,7 +1370,10 @@
                     {
                         "@type": "Organization",
                         "identifier": "10076-E700",
-                        "name": "Owner org in ref data"
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -1384,10 +1387,10 @@
                         "title": "File metadata title 0",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
-                            "label": {
-                                "default": "Tapahtuma",
+                            "pref_label": {
                                 "en": "Event",
-                                "fi": "Tapahtuma"
+                                "fi": "Tapahtuma",
+                                "und": "Tapahtuma"
                             }
                         }
                     },
@@ -1396,10 +1399,10 @@
                         "title": "File metadata title 1",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
-                            "label": {
-                                "default": "Tapahtuma",
+                            "pref_label": {
                                 "en": "Event",
-                                "fi": "Tapahtuma"
+                                "fi": "Tapahtuma",
+                                "und": "Tapahtuma"
                             }
                         }
                     }
@@ -1464,10 +1467,10 @@
                         "title": "File metadata title 2",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
-                            "label": {
-                                "default": "Tapahtuma",
+                            "pref_label": {
                                 "en": "Event",
-                                "fi": "Tapahtuma"
+                                "fi": "Tapahtuma",
+                                "und": "Tapahtuma"
                             }
                         }
                     },
@@ -1476,10 +1479,10 @@
                         "title": "File metadata title 3",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
-                            "label": {
-                                "default": "Tapahtuma",
+                            "pref_label": {
                                 "en": "Event",
-                                "fi": "Tapahtuma"
+                                "fi": "Tapahtuma",
+                                "und": "Tapahtuma"
                             }
                         }
                     }
@@ -1544,10 +1547,10 @@
                         "title": "File metadata title 4",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
-                            "label": {
-                                "default": "Tapahtuma",
+                            "pref_label": {
                                 "en": "Event",
-                                "fi": "Tapahtuma"
+                                "fi": "Tapahtuma",
+                                "und": "Tapahtuma"
                             }
                         }
                     },
@@ -1556,10 +1559,10 @@
                         "title": "File metadata title 5",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
-                            "label": {
-                                "default": "Tapahtuma",
+                            "pref_label": {
                                 "en": "Event",
-                                "fi": "Tapahtuma"
+                                "fi": "Tapahtuma",
+                                "und": "Tapahtuma"
                             }
                         }
                     }
@@ -1628,10 +1631,10 @@
                         "title": "File metadata title 6",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
-                            "label": {
-                                "default": "Tapahtuma",
+                            "pref_label": {
                                 "en": "Event",
-                                "fi": "Tapahtuma"
+                                "fi": "Tapahtuma",
+                                "und": "Tapahtuma"
                             }
                         }
                     },
@@ -1640,10 +1643,10 @@
                         "title": "File metadata title 7",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "label": {
-                                "default": "Mallinnus",
+                            "pref_label": {
                                 "en": "Model",
-                                "fi": "Mallinnus"
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
                             }
                         }
                     }
@@ -1712,10 +1715,10 @@
                         "title": "File metadata title 8",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "label": {
-                                "default": "Mallinnus",
+                            "pref_label": {
                                 "en": "Model",
-                                "fi": "Mallinnus"
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
                             }
                         }
                     },
@@ -1724,10 +1727,10 @@
                         "title": "File metadata title 9",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "label": {
-                                "default": "Mallinnus",
+                            "pref_label": {
                                 "en": "Model",
-                                "fi": "Mallinnus"
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
                             }
                         }
                     }
@@ -1792,10 +1795,10 @@
                         "title": "File metadata title 10",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "label": {
-                                "default": "Mallinnus",
+                            "pref_label": {
                                 "en": "Model",
-                                "fi": "Mallinnus"
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
                             }
                         }
                     },
@@ -1804,10 +1807,10 @@
                         "title": "File metadata title 11",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "label": {
-                                "default": "Mallinnus",
+                            "pref_label": {
                                 "en": "Model",
-                                "fi": "Mallinnus"
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
                             }
                         }
                     }
@@ -1871,10 +1874,10 @@
                         "title": "File metadata title 12",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "label": {
-                                "default": "Mallinnus",
+                            "pref_label": {
                                 "en": "Model",
-                                "fi": "Mallinnus"
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
                             }
                         }
                     },
@@ -1883,10 +1886,10 @@
                         "title": "File metadata title 13",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "label": {
-                                "default": "Mallinnus",
+                            "pref_label": {
                                 "en": "Model",
-                                "fi": "Mallinnus"
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
                             }
                         }
                     }
@@ -2133,7 +2136,10 @@
                                 }
                             },
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -2187,7 +2193,10 @@
                             "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Mysterious Organization 1",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -2205,7 +2214,10 @@
                             "@type": "Organization",
                             "email": "joo@csc.fi",
                             "identifier": "org_identifier",
-                            "name": "Mysterious Organization 2",
+                            "name": {
+                                "en": "Mysterious Organization 2",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+23423423"
                             ]
@@ -2222,7 +2234,10 @@
                         "member_of": {
                             "@type": "Organization",
                             "identifier": "10076",
-                            "name": "Mysterious Organization"
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
                         },
                         "name": "Teppo Testaaja"
                     }
@@ -2234,9 +2249,15 @@
                         "is_part_of": {
                             "@type": "Organization",
                             "identifier": "10076",
-                            "name": "Mysterious Organization"
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
                         },
-                        "name": "Default Owner"
+                        "name": {
+                            "en": "Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -2341,7 +2362,10 @@
                                 "@type": "Organization",
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
-                                "name": "Rahoittava Organisaatio",
+                                "name": {
+                                    "en": "Funding Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501232233"
                                 ]
@@ -2356,7 +2380,10 @@
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501231235"
                                 ]
@@ -2384,7 +2411,10 @@
                             "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -2418,7 +2448,10 @@
                             "identifier": [
                                 "http://purl.org/att/es/organization_data/organization/organization_1901"
                             ],
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -2579,7 +2612,10 @@
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501231235"
                                 ]
@@ -2609,12 +2645,18 @@
                             }
                         },
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
-                        "name": "Parent of Mysterious Organization",
+                        "name": {
+                            "en": "Parent of Mysterious Organization",
+                            "fi": "Organisaatio"
+                        },
                         "telephone": [
                             "+234234"
                         ]
                     },
-                    "name": "Mysterious Organization",
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
                     "telephone": [
                         "+358501231235"
                     ]
@@ -2731,9 +2773,15 @@
                     "is_part_of": {
                         "@type": "Organization",
                         "identifier": "10076",
-                        "name": "Mysterious Organization"
+                        "name": {
+                            "en": "Parent Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
                     },
-                    "name": "Mysterious Organization",
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
                     "telephone": [
                         "+358501231235"
                     ]
@@ -2828,7 +2876,10 @@
                                 }
                             },
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -2882,7 +2933,10 @@
                             "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Mysterious Organization 1",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -2900,7 +2954,10 @@
                             "@type": "Organization",
                             "email": "joo@csc.fi",
                             "identifier": "org_identifier",
-                            "name": "Mysterious Organization 2",
+                            "name": {
+                                "en": "Mysterious Organization 2",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+23423423"
                             ]
@@ -2917,7 +2974,10 @@
                         "member_of": {
                             "@type": "Organization",
                             "identifier": "10076",
-                            "name": "Mysterious Organization"
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
                         },
                         "name": "Teppo Testaaja"
                     }
@@ -2929,9 +2989,15 @@
                         "is_part_of": {
                             "@type": "Organization",
                             "identifier": "10076",
-                            "name": "Mysterious Organization"
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
                         },
-                        "name": "Default Owner"
+                        "name": {
+                            "en": "Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -3036,7 +3102,10 @@
                                 "@type": "Organization",
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
-                                "name": "Rahoittava Organisaatio",
+                                "name": {
+                                    "en": "Funding Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501232233"
                                 ]
@@ -3051,7 +3120,10 @@
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501231235"
                                 ]
@@ -3079,7 +3151,10 @@
                             "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -3113,7 +3188,10 @@
                             "identifier": [
                                 "http://purl.org/att/es/organization_data/organization/organization_1901"
                             ],
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -3274,7 +3352,10 @@
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501231235"
                                 ]
@@ -3304,12 +3385,18 @@
                             }
                         },
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
-                        "name": "Parent of Mysterious Organization",
+                        "name": {
+                            "en": "Parent of Mysterious Organization",
+                            "fi": "Organisaatio"
+                        },
                         "telephone": [
                             "+234234"
                         ]
                     },
-                    "name": "Mysterious Organization",
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
                     "telephone": [
                         "+358501231235"
                     ]
@@ -3426,9 +3513,15 @@
                     "is_part_of": {
                         "@type": "Organization",
                         "identifier": "10076",
-                        "name": "Mysterious Organization"
+                        "name": {
+                            "en": "Parent Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
                     },
-                    "name": "Mysterious Organization",
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
                     "telephone": [
                         "+358501231235"
                     ]

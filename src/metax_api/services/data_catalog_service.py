@@ -54,10 +54,10 @@ class DataCatalogService(ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, rights_statement_license, label_field='title')
 
-            if 'has_right_related_agent' in access_rights:
-                for agent in access_rights.get('has_right_related_agent', []):
+            if 'has_rights_related_agent' in access_rights:
+                for agent in access_rights.get('has_rights_related_agent', []):
                     cls.process_org_obj_against_ref_data(orgdata['organization'], agent,
-                                                         'data_catalog_json.rights.has_right_related_agent')
+                                                         'data_catalog_json.rights.has_rights_related_agent')
 
         publisher = data_catalog.get('publisher', None)
         if publisher:

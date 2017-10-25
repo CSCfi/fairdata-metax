@@ -89,7 +89,7 @@
             "has_rights_related_agent": [{
                 "@type": "Organization",
                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                "name": "Mysterious Organization",
+                "name": {"en": "Org in ref data", "fi": "Organisaatio"},
                 "email": "info@csc.fi",
                 "telephone": [
                     "+358501231235"
@@ -122,7 +122,7 @@
                 "provider": {
                         "@type": "Organization",
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                        "name": "Mysterious Organization",
+                        "name": {"en": "Org in ref data", "fi": "Organisaatio"},
                         "email": "info@csc.fi",
                         "telephone": [
                             "+358501231235"
@@ -150,7 +150,7 @@
                 "provider": {
                         "@type": "Organization",
                         "identifier": ["http://purl.org/att/es/organization_data/organization/organization_1901"],
-                        "name": "Mysterious Organization",
+                        "name": {"en": "Mysterious Organization", "fi": "Organisaatio"},
                         "email": "info@csc.fi",
                         "telephone": [
                             "+358501231235"
@@ -262,7 +262,7 @@
             "was_associated_with": [{
                 "@type": "Organization",
                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                "name": "Mysterious Organization",
+                "name": {"en": "Mysterious Organization", "fi": "Organisaatio"},
                 "email": "info@csc.fi",
                 "telephone": [
                     "+358501231235"
@@ -316,7 +316,7 @@
         "rights_holder": {
             "@type": "Organization",
             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-            "name": "Mysterious Organization",
+            "name": {"en": "Mysterious Organization", "fi": "Organisaatio"},
             "email": "info@csc.fi",
             "telephone": [
                 "+358501231235"
@@ -324,7 +324,7 @@
             "is_part_of": {
                 "@type": "Organization",
                 "identifier": "10076",
-                "name": "Mysterious Organization"
+                "name": {"en": "Parent Mysterious Organization", "fi": "Organisaatio"}
             }
         },
         "creator":[{
@@ -333,23 +333,23 @@
             "member_of": {
                 "@type": "Organization",
                 "identifier": "10076",
-                "name": "Mysterious Organization"
+                "name": {"en": "Mysterious Organization", "fi": "Organisaatio"}
             }
         }],
         "curator":[{
             "@type": "Organization",
             "identifier": "id:of:curator:default",
-            "name": "Default Owner",
+            "name": {"en": "Mysterious Organization", "fi": "Organisaatio"},
             "is_part_of": {
                 "@type": "Organization",
                 "identifier": "10076",
-                "name": "Mysterious Organization"
+                "name": {"en": "Parent Mysterious Organization", "fi": "Organisaatio"}
             }
         }],
         "publisher": {
             "@type": "Organization",
             "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
-            "name": "Mysterious Organization",
+            "name": {"en": "Mysterious Organization", "fi": "Organisaatio"},
             "email": "info@csc.fi",
             "telephone": [
                 "+358501231235"
@@ -364,7 +364,7 @@
             "is_part_of": {
                 "@type": "Organization",
                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
-                "name": "Parent of Mysterious Organization",
+                "name": {"en": "Parent of Mysterious Organization", "fi": "Organisaatio"},
                 "email": "info@csc.fi",
                 "telephone": [
                     "+234234"
@@ -390,7 +390,7 @@
                 "member_of": {
                     "@type": "Organization",
                     "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                    "name": "Mysterious Organization",
+                    "name": {"en": "Mysterious Organization 1", "fi": "Organisaatio"},
                     "email": "info@csc.fi",
                     "telephone": [
                         "+358501231235"
@@ -408,7 +408,7 @@
                 "member_of": {
                     "@type": "Organization",
                     "identifier": "org_identifier",
-                    "name": "Mysterious Organization 2",
+                    "name": {"en": "Mysterious Organization 2", "fi": "Organisaatio"},
                     "email": "joo@csc.fi",
                     "telephone": [
                         "+23423423"
@@ -425,7 +425,7 @@
             "has_funding_agency": [{
                 "@type": "Organization",
                 "identifier": "fundingagencyidentifier",
-                "name": "Rahoittava Organisaatio",
+                "name": {"en": "Funding Organization", "fi": "Organisaatio"},
                 "email": "rahoitus@rahaorg.fi",
                 "telephone": [
                     "+358501232233"
@@ -434,7 +434,7 @@
             "source_organization" : [{
                 "@type": "Organization",
                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                "name": "Mysterious Organization",
+                "name": {"en": "Mysterious Organization", "fi": "Organisaatio"},
                 "email": "info@csc.fi",
                 "telephone": [
                     "+358501231235"

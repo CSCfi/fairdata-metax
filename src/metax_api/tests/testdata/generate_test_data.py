@@ -79,7 +79,6 @@ schema_path = os.path.dirname(__file__) + '../api/base/schemas'
 
 
 def generate_file_storages(mode, file_storage_max_rows):
-
     test_file_storage_list = []
 
     if mode == 'json':
@@ -110,7 +109,6 @@ def generate_file_storages(mode, file_storage_max_rows):
 
 
 def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, url):
-
     print('generating files%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
 
     with open('file_test_data_template.json') as json_file:
@@ -179,7 +177,8 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
 
             if mode == 'request':
                 start = time.time()
-                res = requests.post(url, data=json_dumps(new), headers={ 'Content-Type': 'application/json' }, verify=False)
+                res = requests.post(url, data=json_dumps(new), headers={'Content-Type': 'application/json'},
+                                    verify=False)
                 end = time.time()
                 total_time_elapsed += (end - start)
 
@@ -214,13 +213,14 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
     return test_data_list
 
 
-def save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contract_list, catalog_record_list, batch_size):
+def save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contract_list, catalog_record_list,
+                   batch_size):
     if mode == 'json':
 
         with open('test_data.json', 'w') as f:
             print('dumping test data as json to metax_api/tests/test_data.json...')
             json_dump(file_storage_list + file_list + data_catalogs_list + contract_list + catalog_record_list,
-                f, indent=4, sort_keys=True)
+                      f, indent=4, sort_keys=True)
 
     elif mode == 'request_list':
 
@@ -236,11 +236,12 @@ def save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contr
 
             batch_start = time.time()
             res = requests.post(url, data=json_dumps(file_list[start:end]),
-                                headers={ 'Content-Type': 'application/json' }, verify=False)
+                                headers={'Content-Type': 'application/json'}, verify=False)
             batch_end = time.time()
             batch_time_elapsed = batch_end - batch_start
             total_time_elapsed += batch_time_elapsed
-            print('completed batch #%d: %d rows in %.3f seconds' % (i, batch_size or total_rows_count, batch_time_elapsed))
+            print('completed batch #%d: %d rows in %.3f seconds'
+                  % (i, batch_size or total_rows_count, batch_time_elapsed))
 
             start += batch_size
             end += batch_size or total_rows_count
@@ -265,7 +266,6 @@ def save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contr
 
 
 def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
-
     test_data_catalog_list = []
     json_schema = get_json_schema('datacatalog')
 
@@ -293,7 +293,6 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
 
 
 def generate_contracts(mode, contract_max_rows, validate_json):
-
     test_contract_list = []
     json_schema = get_json_schema('contract')
 
@@ -323,8 +322,8 @@ def generate_contracts(mode, contract_max_rows, validate_json):
     return test_contract_list
 
 
-def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list, file_list, validate_json, url):
-
+def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list, file_list, validate_json,
+                             url):
     print('generating catalog records%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
 
     with open('catalog_record_test_data_template.json') as json_file:
@@ -373,20 +372,20 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
                     # first third of files has this as type
                     files[-1]['type'] = {
                         "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
-                        "label": {
+                        "pref_label": {
                             "fi": "Tapahtuma",
                             "en": "Event",
-                            "default": "Tapahtuma"
+                            "und": "Tapahtuma"
                         }
                     }
                 elif third_of_files <= j < (third_of_files * 2):
                     # second third of files has this as type
                     files[-1]['type'] = {
                         "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                        "label": {
+                        "pref_label": {
                             "fi": "Mallinnus",
                             "en": "Model",
-                            "default": "Mallinnus"
+                            "und": "Mallinnus"
                         }
                     }
                 else:
@@ -459,11 +458,13 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         if 3 <= i <= 4:
             test_data_list[i]['fields']['mets_object_identifier'] = ["a", "b", "c"]
 
-        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "@type": "Person", "name": "Rahikainen", "identifier": "id:of:curator:rahikainen" }]
+        test_data_list[i]['fields']['research_dataset']['curator'] = [
+            {"@type": "Person", "name": "Rahikainen", "identifier": "id:of:curator:rahikainen"}]
 
     # set different owner
     for i in range(6, len(test_data_list)):
-        test_data_list[i]['fields']['research_dataset']['curator'] = [{ "@type": "Person", "name": "Jarski", "identifier": "id:of:curator:jarski" }]
+        test_data_list[i]['fields']['research_dataset']['curator'] = [
+            {"@type": "Person", "name": "Jarski", "identifier": "id:of:curator:jarski"}]
 
     # if preservation_state is other than 0, means it has been modified at some point,
     # so set timestamp
@@ -482,7 +483,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             'model': 'metax_api.catalogrecord',
             'pk': len(test_data_list) + 1,
         }
-        new['fields']['files'] = [1, 2] # for the relation in the db
+        new['fields']['files'] = [1, 2]  # for the relation in the db
         new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
         new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
         new['fields']['research_dataset']['urn_identifier'] = 'very:unique:urn-%d' % j
@@ -520,7 +521,8 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
     # create one other record
     alt_rec = deepcopy(test_data_list[9])
     alt_rec['pk'] = test_data_list[-1]['pk'] + 1
-    alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset']['preferred_identifier']
+    alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
+        'preferred_identifier']
     alt_rec['fields']['research_dataset']['urn_identifier'] += '-alt-1'
     alt_rec['fields']['data_catalog'] = 2
     alt_rec['fields']['alternate_record_set'] = 1
@@ -529,7 +531,8 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
     # create second other record
     alt_rec = deepcopy(test_data_list[9])
     alt_rec['pk'] = test_data_list[-1]['pk'] + 1
-    alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset']['preferred_identifier']
+    alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
+        'preferred_identifier']
     alt_rec['fields']['research_dataset']['urn_identifier'] += '-alt-2'
     alt_rec['fields']['data_catalog'] = 3
     alt_rec['fields']['alternate_record_set'] = 1
@@ -552,7 +555,8 @@ file_storage_list = generate_file_storages(mode, file_storage_max_rows)
 file_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
 data_catalogs_list = generate_data_catalogs(mode, data_catalog_max_rows, validate_json)
 contract_list = generate_contracts(mode, contract_max_rows, validate_json)
-catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list, file_list, validate_json, url)
+catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list,
+                                               file_list, validate_json, url)
 
 save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contract_list, catalog_record_list, batch_size)
 

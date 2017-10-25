@@ -381,7 +381,7 @@
                         "$ref":"#/definitions/Concept"
                     }
                 },
-                "has_right_related_agent":{
+                "has_rights_related_agent":{
                     "title":"Related agent",
                     "@id":"http://www.loc.gov/premis/rdf/v1#hasRightRelatedAgent",
                     "@type":"@id",

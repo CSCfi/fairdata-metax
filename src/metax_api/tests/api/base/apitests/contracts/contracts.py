@@ -214,7 +214,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                 }],
                 "curator": [{
                     "@type": "Organization",
-                    "name": "Curator"
+                    "name": {"en": "Curator org", "fi": "Organisaatio"}
                 }],
                 "language": [{
                     "title": "en",
