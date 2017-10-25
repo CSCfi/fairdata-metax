@@ -113,21 +113,23 @@ class ReferenceDataMixin():
 
         If identifier value is not found from reference data, never mind
         """
-        if org_ref_data and org_obj:
-            if org_obj.get('is_part_of', False):
-                nested_obj = org_obj.get('is_part_of')
-                cls.process_org_obj_against_ref_data(org_ref_data, nested_obj,
-                                                     org_obj_relation_name + '.is_part_of')
+        if not org_ref_data or not org_obj:
+            return
 
-            if org_obj.get('identifier', False):
-                ref_entry = cls.check_ref_data(org_ref_data, org_obj['identifier'],
-                                               org_obj_relation_name + '.identifier', value_not_found_is_error=False)
-                if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, org_obj)
-                    if 'label' in ref_entry:
-                        # Organization field 'name' is not a langString, so must
-                        # select the default translation
-                        org_obj['name'] = ref_entry['label']['default']
+        if org_obj.get('is_part_of', False):
+            nested_obj = org_obj.get('is_part_of')
+            cls.process_org_obj_against_ref_data(org_ref_data, nested_obj,
+                                                 org_obj_relation_name + '.is_part_of')
+
+        if org_obj.get('identifier', False):
+            ref_entry = cls.check_ref_data(org_ref_data, org_obj['identifier'],
+                                           org_obj_relation_name + '.identifier', value_not_found_is_error=False)
+            if ref_entry:
+                cls.populate_from_ref_data(ref_entry, org_obj)
+                if 'label' in ref_entry:
+                    # Organization field 'name' is not a langString, so must
+                    # select the default translation
+                    org_obj['name'] = ref_entry['label']['default']
 
     @classmethod
     def process_research_agent_obj(cls, org_ref_data, agent_obj, agent_obj_relation_name):
