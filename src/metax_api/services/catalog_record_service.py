@@ -188,79 +188,116 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         """
         reference_data = cls.get_reference_data(cache)
         refdata = reference_data['reference_data']
-        orgdata = reference_data['organization_data']
+        orgdata = reference_data['organization_data']['organization']
         errors = defaultdict(list)
 
         for theme in research_dataset.get('theme', []):
-            ref_entry = cls.check_ref_data(refdata['keyword'], theme['identifier'], 'research_dataset.theme.identifier', errors)
+            ref_entry = cls.check_ref_data(refdata['keyword'], theme['identifier'],
+                                           'research_dataset.theme.identifier', errors)
             if ref_entry:
                 cls.populate_from_ref_data(ref_entry, theme, label_field='pref_label')
 
         for fos in research_dataset.get('field_of_science', []):
-            ref_entry = cls.check_ref_data(refdata['field_of_science'], fos['identifier'], 'research_dataset.field_of_science.identifier', errors)
+            ref_entry = cls.check_ref_data(refdata['field_of_science'], fos['identifier'],
+                                           'research_dataset.field_of_science.identifier', errors)
             if ref_entry:
                 cls.populate_from_ref_data(ref_entry, fos, label_field='pref_label')
 
         for remote_resource in research_dataset.get('remote_resources', []):
             if 'checksum' in remote_resource:
-                ref_entry = cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'], 'research_dataset.remote_resources.checksum.algorithm', errors)
+                ref_entry = cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'],
+                                               'research_dataset.remote_resources.checksum.algorithm', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, remote_resource['checksum'], uri_field='algorithm')
 
             for license in remote_resource.get('license', []):
-                ref_entry = cls.check_ref_data(refdata['license'], license['identifier'], 'research_dataset.remote_resources.license.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
+                                               'research_dataset.remote_resources.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title')
 
             if remote_resource.get('type', False):
-                ref_entry = cls.check_ref_data(refdata['resource_type'], remote_resource['type']['identifier'], 'research_dataset.remote_resources.type.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['resource_type'], remote_resource['type']['identifier'],
+                                               'research_dataset.remote_resources.type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, remote_resource['type'], label_field='pref_label')
 
         for language in research_dataset.get('language', []):
-            ref_entry = cls.check_ref_data(refdata['language'], language['identifier'], 'research_dataset.language.identifier', errors)
+            ref_entry = cls.check_ref_data(refdata['language'], language['identifier'],
+                                           'research_dataset.language.identifier', errors)
             if ref_entry:
                 cls.populate_from_ref_data(ref_entry, language, label_field='title')
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
             for rights_statement_type in access_rights.get('type', []):
-                ref_entry = cls.check_ref_data(refdata['access_type'], rights_statement_type['identifier'], 'research_dataset.access_rights.type.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['access_type'], rights_statement_type['identifier'],
+                                               'research_dataset.access_rights.type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, rights_statement_type, label_field='pref_label')
 
             for rights_statement_license in access_rights.get('license', []):
-                ref_entry = cls.check_ref_data(refdata['license'], rights_statement_license['identifier'], 'research_dataset.access_rights.license.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['license'], rights_statement_license['identifier'],
+                                               'research_dataset.access_rights.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, rights_statement_license, label_field='title')
 
+            for rra in access_rights.get('has_rights_related_agent', []):
+                cls.process_research_agent_obj(orgdata, rra, 'research_dataset.access_rights.has_rights_related_agent')
+
         for project in research_dataset.get('is_output_of', []):
-            for organization in project.get('source_organization', []):
-                ref_entry = cls.check_ref_data(orgdata['organization'], organization['identifier'], 'research_dataset.is_output_of.source_organization.identifier', errors)
-                if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, organization)
-                    if 'label' in ref_entry:
-                        # ResearchAgent field 'name' is not a langString, so must
-                        # select the default translation
-                        organization['name'] = ref_entry['label']['default']
+            for org_obj in project.get('source_organization', []):
+                cls.process_org_obj_against_ref_data(orgdata, org_obj,
+                                                     'research_dataset.is_output_of.source_organization')
+
+            for org_obj in project.get('has_funding_agency', []):
+                cls.process_org_obj_against_ref_data(orgdata, org_obj,
+                                                     'research_dataset.is_output_of.has_funding_agency')
 
         for other_identifier in research_dataset.get('other_identifier', []):
             if 'type' in other_identifier:
-                ref_entry = cls.check_ref_data(refdata['identifier_type'], other_identifier['type']['identifier'], 'research_dataset.other_identifier.type.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['identifier_type'], other_identifier['type']['identifier'],
+                                               'research_dataset.other_identifier.type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, other_identifier['type'], label_field='pref_label')
 
+            if 'provider' in other_identifier:
+                cls.process_org_obj_against_ref_data(orgdata, other_identifier['provider'],
+                                                     'research_dataset.other_identifier.provider')
+
         for spatial in research_dataset.get('spatial', []):
             for place_uri in spatial.get('place_uri', []):
-                ref_entry = cls.check_ref_data(refdata['location'], place_uri['identifier'], 'research_dataset.spatial.place_uri.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['location'], place_uri['identifier'],
+                                               'research_dataset.spatial.place_uri.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
 
         for file in research_dataset.get('files', []):
             if file.get('type', False):
-                ref_entry = cls.check_ref_data(refdata['resource_type'], file['type']['identifier'], 'research_dataset.files.type.identifier', errors)
+                ref_entry = cls.check_ref_data(refdata['resource_type'], file['type']['identifier'],
+                                               'research_dataset.files.type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, file['type'], label_field='pref_label')
+
+        for contributor in research_dataset.get('contributor', []):
+            cls.process_research_agent_obj(orgdata, contributor, 'research_dataset.contributor')
+
+        if 'publisher' in research_dataset:
+            cls.process_research_agent_obj(orgdata, research_dataset['publisher'], 'research_dataset.publisher')
+
+        for curator in research_dataset.get('curator', []):
+            cls.process_research_agent_obj(orgdata, curator, 'research_dataset.curator')
+
+        for creator in research_dataset.get('creator', []):
+            cls.process_research_agent_obj(orgdata, creator, 'research_dataset.creator')
+
+        if 'rights_holder' in research_dataset:
+            cls.process_research_agent_obj(orgdata, research_dataset['rights_holder'], 'research_dataset.rights_holder')
+
+        for activity in research_dataset.get('provenance', []):
+            for was_associated_with in activity.get('was_associated_with', []):
+                cls.process_research_agent_obj(orgdata, was_associated_with,
+                                               'research_dataset.provenance.was_associated_with')
 
         if errors:
             raise ValidationError(errors)

@@ -86,7 +86,7 @@
                     "identifier": "http://uri.of.accessrights.concept/scheme"
                 }]
             }],
-            "has_right_related_agent": [{
+            "has_rights_related_agent": [{
                 "@type": "Organization",
                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
                 "name": "Mysterious Organization",
@@ -313,40 +313,70 @@
                 }
             }]
         }],
-        "rightsHolder": {
+        "rights_holder": {
             "@type": "Organization",
             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
             "name": "Mysterious Organization",
             "email": "info@csc.fi",
             "telephone": [
                 "+358501231235"
-            ]
+            ],
+            "is_part_of": {
+                "@type": "Organization",
+                "identifier": "10076",
+                "name": "Mysterious Organization"
+            }
         },
         "creator":[{
             "@type": "Person",
-            "name": "Teppo Testaaja"
+            "name": "Teppo Testaaja",
+            "member_of": {
+                "@type": "Organization",
+                "identifier": "10076",
+                "name": "Mysterious Organization"
+            }
         }],
         "curator":[{
             "@type": "Organization",
             "identifier": "id:of:curator:default",
-            "name": "Default Owner"
+            "name": "Default Owner",
+            "is_part_of": {
+                "@type": "Organization",
+                "identifier": "10076",
+                "name": "Mysterious Organization"
+            }
         }],
         "publisher": {
+            "@type": "Organization",
+            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+            "name": "Mysterious Organization",
+            "email": "info@csc.fi",
+            "telephone": [
+                "+358501231235"
+            ],
+            "homepage":  {
+                "identifier": "http://www.publisher.fi/",
+                "title": {
+                    "en": "Publisher website",
+                    "fi": "Julkaisijan kotisivu"
+                }
+            },
+            "is_part_of": {
                 "@type": "Organization",
-                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                "name": "Mysterious Organization",
+                "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                "name": "Parent of Mysterious Organization",
                 "email": "info@csc.fi",
                 "telephone": [
-                    "+358501231235"
+                    "+234234"
                 ],
-                 "homepage":  {
-                                    "identifier": "http://www.publisher.fi/",
-                                    "title": {
-                                        "en": "Publisher website",
-                                        "fi": "Julkaisijan kotisivu"
-                                    }
-                                }
-
+                "homepage":  {
+                    "identifier": "http://www.publisher_parent.fi/",
+                    "title": {
+                        "en": "Publisher parent website",
+                        "fi": "Julkaisijan yläorganisaation kotisivu"
+                    }
+                }
+            }
         },
         "contributor": [
             {
@@ -377,11 +407,11 @@
                 ],
                 "member_of": {
                     "@type": "Organization",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                    "name": "Mysterious Organization",
-                    "email": "info@csc.fi",
+                    "identifier": "org_identifier",
+                    "name": "Mysterious Organization 2",
+                    "email": "joo@csc.fi",
                     "telephone": [
-                        "+358501231235"
+                        "+23423423"
                     ]
                 }
             }

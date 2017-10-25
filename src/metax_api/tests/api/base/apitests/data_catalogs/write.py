@@ -70,6 +70,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
 
         cache = RedisSentinelCache()
         refdata = cache.get('reference_data')['reference_data']
+        orgdata = cache.get('reference_data')['organization_data']
         refs = {}
 
         data_types = [
@@ -88,6 +89,12 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
                 'label': entry.get('label', None),
             }
 
+        refs['organization'] = {
+            'uri': orgdata['organization'][0]['uri'],
+            'code': orgdata['organization'][0]['code'],
+            'label': orgdata['organization'][0]['label'],
+        }
+
         # replace the relations with objects that have only the identifier set with code as value,
         # to easily check that label was populated (= that it appeared in the dataset after create)
         # without knowing its original value from the generated test data
@@ -96,6 +103,10 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         dc['language'][0]          = { 'identifier': refs['language']['code'] }
         dc['access_rights']['type'][0]    = { 'identifier': refs['access_type']['code'] }
         dc['access_rights']['license'][0] = { 'identifier': refs['license']['code'] }
+
+        # these have other required fields, so only update the identifier with code
+        dc['publisher']['identifier'] = refs['organization']['code']
+        dc['access_rights']['has_right_related_agent'][0]['identifier'] = refs['organization']['code']
 
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -111,6 +122,8 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         self.assertEqual(refs['language']['uri'],         new_dc['language'][0]['identifier'])
         self.assertEqual(refs['access_type']['uri'],      new_dc['access_rights']['type'][0]['identifier'])
         self.assertEqual(refs['license']['uri'],          new_dc['access_rights']['license'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_dc['publisher']['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_dc['access_rights']['has_right_related_agent'][0]['identifier'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_dc):
         self.assertEqual(refs['field_of_science']['label'], new_dc['field_of_science'][0].get('pref_label', None))

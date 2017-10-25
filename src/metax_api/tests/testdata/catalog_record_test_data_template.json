@@ -23,8 +23,8 @@
         }],
         "curator":[{
             "@type": "Organization",
-            "identifier": "id:of:curator:default",
-            "name": "Default Owner"
+            "identifier": "10076-E700",
+            "name": "Owner org in ref data"
         }],
         "language":[{
             "title": "English",

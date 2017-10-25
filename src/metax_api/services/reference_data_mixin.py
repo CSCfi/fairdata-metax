@@ -18,7 +18,8 @@ class ReferenceDataMixin():
 
     REF_DATA_RELOAD_MAX_RETRIES = 4
 
-    def check_ref_data(ref_data_type, field_to_check, relation_name, errors):
+    @staticmethod
+    def check_ref_data(ref_data_type, field_to_check, relation_name, errors={}, value_not_found_is_error=True):
         """
         Check if the given field exists in the reference data. The value of the
         field can be either the actual uri, or a shorthand code.
@@ -26,7 +27,7 @@ class ReferenceDataMixin():
         If the value is found, the ref data entry is returned, so it may later be
         used to populate the received dataset.
 
-        If the value is not found, an error is appended to the 'errors' dict.
+        If the value is not found and value_not_found_is_error is True, an error is appended to the 'errors' dict.
 
         params:
         ref_data_type:  the ES datatype to search from
@@ -36,7 +37,8 @@ class ReferenceDataMixin():
         try:
             return next(entry for entry in ref_data_type if field_to_check in (entry['uri'], entry['code']))
         except StopIteration:
-            errors[relation_name].append('Identifier \'%s\' not found in reference data' % field_to_check)
+            if value_not_found_is_error:
+                errors[relation_name].append('Identifier \'%s\' not found in reference data' % field_to_check)
         return None
 
     @classmethod
@@ -100,3 +102,40 @@ class ReferenceDataMixin():
         if django_settings.DEBUG:
             error_msg += ' DEBUG: %s' % str(error)
         raise Http503(error_msg)
+
+    @classmethod
+    def process_org_obj_against_ref_data(cls, org_ref_data, org_obj, org_obj_relation_name):
+        """
+        First check if org object contains is_part_of relation, in which case recursively call this method
+        until there is no is_part_of relation. After this, check whether org object has a value in identifier field.
+        If there is, check whether it can be found from the organization reference data. If it is found, populate
+        the name field of org obj with the label.
+
+        If identifier value is not found from reference data, never mind
+        """
+        if not org_ref_data or not org_obj:
+            return
+
+        if org_obj.get('is_part_of', False):
+            nested_obj = org_obj.get('is_part_of')
+            cls.process_org_obj_against_ref_data(org_ref_data, nested_obj,
+                                                 org_obj_relation_name + '.is_part_of')
+
+        if org_obj.get('identifier', False):
+            ref_entry = cls.check_ref_data(org_ref_data, org_obj['identifier'],
+                                           org_obj_relation_name + '.identifier', value_not_found_is_error=False)
+            if ref_entry:
+                cls.populate_from_ref_data(ref_entry, org_obj)
+                if 'label' in ref_entry:
+                    # Organization field 'name' is not a langString, so must
+                    # select the default translation
+                    org_obj['name'] = ref_entry['label']['default']
+
+    @classmethod
+    def process_research_agent_obj(cls, org_ref_data, agent_obj, agent_obj_relation_name):
+        if agent_obj.get('@type') == 'Person':
+            member_of = agent_obj.get('member_of', None)
+            if member_of:
+                cls.process_org_obj_against_ref_data(org_ref_data, member_of, agent_obj_relation_name + '.member_of')
+        elif agent_obj.get('@type') == 'Organization':
+            cls.process_org_obj_against_ref_data(org_ref_data, agent_obj, agent_obj_relation_name)

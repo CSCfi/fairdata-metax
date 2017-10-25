@@ -969,14 +969,13 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd['language'][0]['identifier'] = 'nonexisting'
         rd['access_rights']['type'][0]['identifier'] = 'nonexisting'
         rd['access_rights']['license'][0]['identifier'] = 'nonexisting'
-        rd['is_output_of'][0]['source_organization'][0]['identifier'] = 'nonexisting'
         rd['other_identifier'][0]['type']['identifier'] = 'nonexisting'
         rd['spatial'][0]['place_uri'][0]['identifier'] = 'nonexisting'
         rd['files'][0]['type']['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 12)
+        self.assertEqual(len(response.data['research_dataset']), 11)
 
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
@@ -1047,6 +1046,14 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         # these have other required fields, so only update the identifier with code
         rd['remote_resources'][0]['checksum']['algorithm']            = refs['checksum_algorithm']['code']
         rd['is_output_of'][0]['source_organization'][0]['identifier'] = refs['organization']['code']
+        rd['is_output_of'][0]['has_funding_agency'][0]['identifier'] = refs['organization']['code']
+        rd['other_identifier'][0]['provider']['identifier'] = refs['organization']['code']
+        rd['contributor'][0]['member_of']['identifier'] = refs['organization']['code']
+        rd['creator'][0]['member_of']['identifier'] = refs['organization']['code']
+        rd['curator'][0]['is_part_of']['identifier'] = refs['organization']['code']
+        rd['publisher']['is_part_of']['identifier'] = refs['organization']['code']
+        rd['rights_holder']['is_part_of']['identifier'] = refs['organization']['code']
+        rd['access_rights']['has_rights_related_agent'][0]['identifier'] = refs['organization']['code']
 
         response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -1071,6 +1078,14 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['license']['uri'],          new_rd['remote_resources'][0]['license'][0]['identifier'])
         self.assertEqual(refs['organization']['uri'],     new_rd['is_output_of'][0]['source_organization'][0]['identifier'])
         self.assertEqual(refs['checksum_algorithm']['uri'], new_rd['remote_resources'][0]['checksum']['algorithm'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['is_output_of'][0]['has_funding_agency'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['other_identifier'][0]['provider']['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['contributor'][0]['member_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['creator'][0]['member_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['curator'][0]['is_part_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['publisher']['is_part_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['rights_holder']['is_part_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'],     new_rd['access_rights']['has_rights_related_agent'][0]['identifier'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_rd):
         self.assertEqual(refs['keyword']['label'],          new_rd['theme'][0].get('pref_label', None))
@@ -1090,6 +1105,14 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         # the black sheep
         self.assertEqual(refs['organization']['label']['default'],     new_rd['is_output_of'][0]['source_organization'][0].get('name', None))
         self.assertEqual(refs['checksum_algorithm']['label'], new_rd['remote_resources'][0]['checksum'].get('checksum_algorithm', None))
+        self.assertEqual(refs['organization']['label']['default'], new_rd['is_output_of'][0]['has_funding_agency'][0].get('name', None))
+        self.assertEqual(refs['organization']['label']['default'], new_rd['other_identifier'][0]['provider'].get('name', None))
+        self.assertEqual(refs['organization']['label']['default'], new_rd['contributor'][0]['member_of'].get('name', None))
+        self.assertEqual(refs['organization']['label']['default'], new_rd['creator'][0]['member_of'].get('name', None))
+        self.assertEqual(refs['organization']['label']['default'], new_rd['curator'][0]['is_part_of'].get('name', None))
+        self.assertEqual(refs['organization']['label']['default'], new_rd['publisher']['is_part_of'].get('name', None))
+        self.assertEqual(refs['organization']['label']['default'], new_rd['rights_holder']['is_part_of'].get('name', None))
+        self.assertEqual(refs['organization']['label']['default'], new_rd['access_rights']['has_rights_related_agent'][0].get('name', None))
 
 
 class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):

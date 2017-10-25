@@ -694,6 +694,26 @@
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
                         }
                     ],
+                    "has_right_related_agent": [
+                        {
+                            "identifier": "whatever_id",
+                            "name": {
+                                "en": "A rights related agent",
+                                "fi": "Oikeuksiin liittyv\u00e4 agentti"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
                     "license": [
                         {
                             "identifier": "https://creativecommons.org/licenses/by/4.0/",
@@ -791,6 +811,26 @@
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_right_related_agent": [
+                        {
+                            "identifier": "whatever_id",
+                            "name": {
+                                "en": "A rights related agent",
+                                "fi": "Oikeuksiin liittyv\u00e4 agentti"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
                         }
                     ],
                     "license": [
@@ -892,6 +932,26 @@
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
                         }
                     ],
+                    "has_right_related_agent": [
+                        {
+                            "identifier": "whatever_id",
+                            "name": {
+                                "en": "A rights related agent",
+                                "fi": "Oikeuksiin liittyv\u00e4 agentti"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
                     "license": [
                         {
                             "identifier": "https://creativecommons.org/licenses/by/4.0/",
@@ -989,6 +1049,26 @@
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_right_related_agent": [
+                        {
+                            "identifier": "whatever_id",
+                            "name": {
+                                "en": "A rights related agent",
+                                "fi": "Oikeuksiin liittyv\u00e4 agentti"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
                         }
                     ],
                     "license": [
@@ -1289,8 +1369,8 @@
                 "curator": [
                     {
                         "@type": "Organization",
-                        "identifier": "id:of:curator:default",
-                        "name": "Default Owner"
+                        "identifier": "10076-E700",
+                        "name": "Owner org in ref data"
                     }
                 ],
                 "description": [
@@ -2039,7 +2119,7 @@
                             "en": "Free account of the rights"
                         }
                     ],
-                    "has_right_related_agent": [
+                    "has_rights_related_agent": [
                         {
                             "@type": "Organization",
                             "email": "info@csc.fi",
@@ -2123,11 +2203,11 @@
                         "identifier": "contributorid2",
                         "member_of": {
                             "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "email": "joo@csc.fi",
+                            "identifier": "org_identifier",
+                            "name": "Mysterious Organization 2",
                             "telephone": [
-                                "+358501231235"
+                                "+23423423"
                             ]
                         },
                         "name": "Franzibald Kontribuuttaja",
@@ -2139,6 +2219,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": "Mysterious Organization"
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -2146,6 +2231,11 @@
                     {
                         "@type": "Organization",
                         "identifier": "id:of:curator:default",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": "Mysterious Organization"
+                        },
                         "name": "Default Owner"
                     }
                 ],
@@ -2507,7 +2597,23 @@
                             "fi": "Julkaisijan kotisivu"
                         }
                     },
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "email": "info@csc.fi",
+                        "homepage": {
+                            "identifier": "http://www.publisher_parent.fi/",
+                            "title": {
+                                "en": "Publisher parent website",
+                                "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
+                            }
+                        },
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "name": "Parent of Mysterious Organization",
+                        "telephone": [
+                            "+234234"
+                        ]
+                    },
                     "name": "Mysterious Organization",
                     "telephone": [
                         "+358501231235"
@@ -2618,10 +2724,15 @@
                         }
                     }
                 ],
-                "rightsHolder": {
+                "rights_holder": {
                     "@type": "Organization",
                     "email": "info@csc.fi",
                     "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "identifier": "10076",
+                        "name": "Mysterious Organization"
+                    },
                     "name": "Mysterious Organization",
                     "telephone": [
                         "+358501231235"
@@ -2703,7 +2814,7 @@
                             "en": "Free account of the rights"
                         }
                     ],
-                    "has_right_related_agent": [
+                    "has_rights_related_agent": [
                         {
                             "@type": "Organization",
                             "email": "info@csc.fi",
@@ -2787,11 +2898,11 @@
                         "identifier": "contributorid2",
                         "member_of": {
                             "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "email": "joo@csc.fi",
+                            "identifier": "org_identifier",
+                            "name": "Mysterious Organization 2",
                             "telephone": [
-                                "+358501231235"
+                                "+23423423"
                             ]
                         },
                         "name": "Franzibald Kontribuuttaja",
@@ -2803,6 +2914,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": "Mysterious Organization"
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
@@ -2810,6 +2926,11 @@
                     {
                         "@type": "Organization",
                         "identifier": "id:of:curator:default",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": "Mysterious Organization"
+                        },
                         "name": "Default Owner"
                     }
                 ],
@@ -3171,7 +3292,23 @@
                             "fi": "Julkaisijan kotisivu"
                         }
                     },
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "email": "info@csc.fi",
+                        "homepage": {
+                            "identifier": "http://www.publisher_parent.fi/",
+                            "title": {
+                                "en": "Publisher parent website",
+                                "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
+                            }
+                        },
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "name": "Parent of Mysterious Organization",
+                        "telephone": [
+                            "+234234"
+                        ]
+                    },
                     "name": "Mysterious Organization",
                     "telephone": [
                         "+358501231235"
@@ -3282,10 +3419,15 @@
                         }
                     }
                 ],
-                "rightsHolder": {
+                "rights_holder": {
                     "@type": "Organization",
                     "email": "info@csc.fi",
                     "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "identifier": "10076",
+                        "name": "Mysterious Organization"
+                    },
                     "name": "Mysterious Organization",
                     "telephone": [
                         "+358501231235"

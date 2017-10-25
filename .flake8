@@ -24,6 +24,8 @@ ignore =
     E402,
     # continuation line under-indented for visual indent
     E128
+    # do not use bare except
+    E722
 
 # often contains "unused" imports
 exclude = __init__.py
