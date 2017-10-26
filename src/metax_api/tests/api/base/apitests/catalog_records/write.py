@@ -53,11 +53,19 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
             "preferred_identifier": None,
             "creator": [{
                 "@type": "Person",
-                "name": "Teppo Testaaja"
+                "name": "Teppo Testaaja",
+                "member_of": {
+                    "@type": "Organization",
+                    "name": {"fi": "Mysterious Organization"}
+                }
             }],
             "curator": [{
                 "@type": "Person",
-                "name": "Default Owner"
+                "name": "Default Owner",
+                "member_of": {
+                    "@type": "Organization",
+                    "name": {"fi": "Mysterious Organization"}
+                }
             }],
             "total_byte_size": 1024,
             "files": catalog_record_from_test_data['research_dataset']['files']

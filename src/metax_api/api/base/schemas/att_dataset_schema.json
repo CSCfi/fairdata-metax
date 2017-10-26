@@ -600,6 +600,10 @@
             "@id":"http://xmlns.com/foaf/0.1/Organization",
             "description":"An organization.",
             "properties":{
+                "@type":{
+            		"type":"string",
+            		"enum":["Organization"]
+            	},
                 "identifier":{
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
@@ -652,6 +656,7 @@
                 }
             },
             "required":[
+                "@type",
                 "name"
             ]
         },
@@ -685,6 +690,10 @@
             "@id":"http://xmlns.com/foaf/0.1/Person",
             "description":"A person.",
             "properties":{
+                "@type":{
+            		"type":"string",
+            		"enum":["Person"]
+            	},
                 "identifier":{
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
@@ -736,7 +745,9 @@
                 }
             },
             "required":[
-                "name"
+                "@type",
+                "name",
+                "member_of"
             ]
         },
         "Project":{
@@ -861,16 +872,61 @@
 			"type":"object",
             "title":"Agent",
             "@id":"http://xmlns.com/foaf/0.1/Agent",
-			"anyOf":[{"$ref": "#/definitions/Person"},{"$ref": "#/definitions/Organization"}],
-            "description":"An agent (eg. person, group, software or physical artifact).",
+			"oneOf":[
+                {"$ref": "#/definitions/Person"},
+                {"$ref": "#/definitions/Organization"},
+                {"$ref": "#/definitions/Agent"}
+            ],
+            "description":"An agent (eg. person, group, software or physical artifact)."
+        },
+        "Agent":{
+			"type":"object",
+            "title":"Generic Agent",
+            "@id":"http://xmlns.com/foaf/0.1/Agent",
+            "description":"Generic agent type",
             "properties":{
 				"@type":{
             		"type":"string",
-            		"enum":["Person","Organization"]
-            	}
+            		"enum":["Agent"]
+            	},
+                "identifier":{
+                    "title":"Identifier",
+                    "description":"An unambiguous reference to the resource within a given context.",
+                    "@id":"http://purl.org/dc/terms/identifier",
+                    "@type":"@id",
+                    "maxItems":1
+                },
+                "name":{
+                    "title":"Name",
+                    "description":"This property contains a name of the agent. This property can be repeated for different versions of the name (e.g. the name in different languages)",
+                    "@id":"http://xmlns.com/foaf/0.1/name",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minItems":1,
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "email":{
+                    "title":"Email",
+                    "description":"Email address.",
+                    "@id":"http://schema.org/email",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "telephone":{
+                    "title":"Phone",
+                    "description":"The telephone number.",
+                    "@id":"http://schema.org/telephone",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    }
+                }
             },
             "required":[
-			    "@type"
+			    "@type",
+                "name"
             ]
         },
         "ResearchDataLicenseDocument":{

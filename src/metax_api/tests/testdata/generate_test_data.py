@@ -398,7 +398,6 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             new['fields']['research_dataset']['files'] = files
             new['fields']['research_dataset']['total_byte_size'] = total_byte_size
             files_start_idx += files_per_dataset
-
             if validate_json or i == 1:
                 json_validate(new['fields']['research_dataset'], json_schema)
 
@@ -458,13 +457,31 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         if 3 <= i <= 4:
             test_data_list[i]['fields']['mets_object_identifier'] = ["a", "b", "c"]
 
-        test_data_list[i]['fields']['research_dataset']['curator'] = [
-            {"@type": "Person", "name": "Rahikainen", "identifier": "id:of:curator:rahikainen"}]
+        test_data_list[i]['fields']['research_dataset']['curator'] = [{
+            "@type": "Person",
+            "name": "Rahikainen",
+            "identifier": "id:of:curator:rahikainen",
+            "member_of": {
+                "@type": "Organization",
+                "name": {
+                    "fi": "MysteeriOrganisaatio"
+                }
+            }
+        }]
 
     # set different owner
     for i in range(6, len(test_data_list)):
-        test_data_list[i]['fields']['research_dataset']['curator'] = [
-            {"@type": "Person", "name": "Jarski", "identifier": "id:of:curator:jarski"}]
+        test_data_list[i]['fields']['research_dataset']['curator'] = [{
+            "@type": "Person",
+            "name": "Jarski",
+            "identifier": "id:of:curator:jarski",
+            "member_of": {
+                "@type": "Organization",
+                "name": {
+                    "fi": "MysteeriOrganisaatio"
+                }
+            }
+        }]
 
     # if preservation_state is other than 0, means it has been modified at some point,
     # so set timestamp

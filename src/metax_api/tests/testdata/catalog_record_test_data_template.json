@@ -19,7 +19,13 @@
         }],
         "creator":[{
             "@type": "Person",
-            "name": "Teppo Testaaja"
+            "name": "Teppo Testaaja",
+            "member_of": {
+                "@type": "Organization",
+                "name": {
+                    "fi": "Mysteeriorganisaatio"
+                }
+            }
         }],
         "curator":[{
             "@type": "Organization",
