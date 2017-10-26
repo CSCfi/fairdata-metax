@@ -696,10 +696,10 @@
                     ],
                     "has_rights_related_agent": [
                         {
-                            "identifier": "whatever_id",
+                            "identifier": "org_id",
                             "name": {
-                                "en": "A rights related agent",
-                                "fi": "Oikeuksiin liittyv\u00e4 agentti"
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
                             }
                         },
                         {
@@ -779,15 +779,15 @@
                         {
                             "identifier": "http://www.publisher.fi/",
                             "title": {
-                                "en": "Publisher website",
-                                "fi": "Julkaisijan kotisivu"
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
                             }
                         }
                     ],
                     "identifier": "http://isni.org/isni/0000000405129137",
                     "name": {
-                        "en": "Publisher",
-                        "fi": "Julkaisija"
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
                 },
                 "research_dataset_schema": "att",
@@ -815,10 +815,10 @@
                     ],
                     "has_rights_related_agent": [
                         {
-                            "identifier": "whatever_id",
+                            "identifier": "org_id",
                             "name": {
-                                "en": "A rights related agent",
-                                "fi": "Oikeuksiin liittyv\u00e4 agentti"
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
                             }
                         },
                         {
@@ -898,15 +898,15 @@
                         {
                             "identifier": "http://www.publisher.fi/",
                             "title": {
-                                "en": "Publisher website",
-                                "fi": "Julkaisijan kotisivu"
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
                             }
                         }
                     ],
                     "identifier": "http://isni.org/isni/0000000405129137",
                     "name": {
-                        "en": "Publisher",
-                        "fi": "Julkaisija"
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
                 },
                 "research_dataset_schema": "att",
@@ -934,10 +934,10 @@
                     ],
                     "has_rights_related_agent": [
                         {
-                            "identifier": "whatever_id",
+                            "identifier": "org_id",
                             "name": {
-                                "en": "A rights related agent",
-                                "fi": "Oikeuksiin liittyv\u00e4 agentti"
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
                             }
                         },
                         {
@@ -1017,15 +1017,15 @@
                         {
                             "identifier": "http://www.publisher.fi/",
                             "title": {
-                                "en": "Publisher website",
-                                "fi": "Julkaisijan kotisivu"
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
                             }
                         }
                     ],
                     "identifier": "http://isni.org/isni/0000000405129137",
                     "name": {
-                        "en": "Publisher",
-                        "fi": "Julkaisija"
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
                 },
                 "research_dataset_schema": "att",
@@ -1053,10 +1053,10 @@
                     ],
                     "has_rights_related_agent": [
                         {
-                            "identifier": "whatever_id",
+                            "identifier": "org_id",
                             "name": {
-                                "en": "A rights related agent",
-                                "fi": "Oikeuksiin liittyv\u00e4 agentti"
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
                             }
                         },
                         {
@@ -1136,15 +1136,15 @@
                         {
                             "identifier": "http://www.publisher.fi/",
                             "title": {
-                                "en": "Publisher website",
-                                "fi": "Julkaisijan kotisivu"
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
                             }
                         }
                     ],
                     "identifier": "http://isni.org/isni/0000000405129137",
                     "name": {
-                        "en": "Publisher",
-                        "fi": "Julkaisija"
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
                 },
                 "research_dataset_schema": "att",
