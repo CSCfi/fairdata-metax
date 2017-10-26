@@ -109,7 +109,7 @@ class ReferenceDataMixin():
         First check if org object contains is_part_of relation, in which case recursively call this method
         until there is no is_part_of relation. After this, check whether org object has a value in identifier field.
         If there is, check whether it can be found from the organization reference data. If it is found, populate
-        the name field of org obj with the label.
+        the name field of org obj with the ref data label and identifier field with the ref data uri.
 
         If identifier value is not found from reference data, never mind
         """
@@ -125,11 +125,7 @@ class ReferenceDataMixin():
             ref_entry = cls.check_ref_data(org_ref_data, org_obj['identifier'],
                                            org_obj_relation_name + '.identifier', value_not_found_is_error=False)
             if ref_entry:
-                cls.populate_from_ref_data(ref_entry, org_obj)
-                if 'label' in ref_entry:
-                    # Organization field 'name' is not a langString, so must
-                    # select the default translation
-                    org_obj['name'] = ref_entry['label']['default']
+                cls.populate_from_ref_data(ref_entry, org_obj, 'identifier', 'name')
 
     @classmethod
     def process_research_agent_obj(cls, org_ref_data, agent_obj, agent_obj_relation_name):

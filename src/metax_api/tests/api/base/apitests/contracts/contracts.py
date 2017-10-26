@@ -210,11 +210,15 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                 }],
                 "creator": [{
                     "@type": "Person",
-                    "name": "Teppo Testaaja"
+                    "name": "Teppo Testaaja",
+                    "member_of": {
+                        "@type": "Organization",
+                        "name": {"fi": "Mysterious Organization"}
+                    }
                 }],
                 "curator": [{
                     "@type": "Organization",
-                    "name": "Curator"
+                    "name": {"en": "Curator org", "fi": "Organisaatio"}
                 }],
                 "language": [{
                     "title": "en",

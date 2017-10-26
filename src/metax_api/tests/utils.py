@@ -60,6 +60,6 @@ class TestClassUtils():
                 else:
                     i += 1
 
-        raise Exception('Could not find model %s from test data with index == %d.'
-            ' Are you certain you generated rows for model %s in generate_test_data.py?'
-            % (model_name, requested_index))
+        raise Exception('Could not find model %s from test data with index == %d. '
+                        'Are you certain you generated rows for model %s in generate_test_data.py?'
+                        % (model_name, requested_index))

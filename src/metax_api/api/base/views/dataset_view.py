@@ -102,8 +102,8 @@ class DatasetViewSet(CommonViewSet):
         res = super(DatasetViewSet, self).destroy(request, *args, **kwargs)
         if res.status_code == status.HTTP_204_NO_CONTENT:
             removed_object = self._get_removed_dataset()
-            self._publish_message({ 'urn_identifier': removed_object.research_dataset['urn_identifier'] },
-                routing_key='delete', exchange='datasets')
+            self._publish_message({'urn_identifier': removed_object.research_dataset['urn_identifier']},
+                                  routing_key='delete', exchange='datasets')
         return res
 
     def create(self, request, *args, **kwargs):

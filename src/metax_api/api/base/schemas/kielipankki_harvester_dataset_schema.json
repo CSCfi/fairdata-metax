@@ -195,6 +195,14 @@
                     "type":"string",
                     "format":"date-time"
                 },
+                "deprecated":{
+                    "title":"Deprecated",
+                    "description":"Catalog record is deprecated because files are removed",
+                    "@id":"http://iow.csc.fi/ns/mrd#readystatus",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "maxItems":1,
+                    "type":"boolean"
+                },
                 "alternate_record":{
                     "title":"Alternate record",
                     "description":"Refers to alternate catalog record in different catalog. This reference is created if two datasets in different catalogs have the same preferred identifier",
@@ -328,8 +336,8 @@
             ]
         },
         "Directory":{
-			"type":"object",
-            "title":"Directory",
+            "type":"object",
+            "title":"Directory in IDA",
             "@id":"http://www.w3.org/ns/ldp#BasicContainer",
             "description":"Directory that links to its contained resources.",
             "properties":{
@@ -356,6 +364,22 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "maxItems":1,
                     "type":"string"
+                },
+                "type":{
+                    "title":"Type",
+                    "description":"Recommended best practice is to use a controlled vocabulary such as the DCMI Type Vocabulary [DCMITYPE]. To describe the file format, physical medium, or dimensions of the resource, use the Format element.\n\nThe nature or genre of the resource.",
+                    "@id":"http://purl.org/dc/terms/type",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
+                },
+                "access_url":{
+                    "title":"Access URL",
+                    "description":"Could be any kind of URL that gives access to a distribution of the dataset. E.g. landing page download, feed URL, SPARQL endpoint. Use when your catalog does not have information on which it is or when it is definitely not a download.",
+                    "@id":"http://www.w3.org/ns/dcat#accessURL",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Document"
                 }
             },
             "required":[
@@ -474,7 +498,7 @@
                     "type":"string"
                 },
                 "access_url":{
-                    "title":"access URL",
+                    "title":"Access URL",
                     "description":"Could be any kind of URL that gives access to a distribution of the dataset. E.g. landing page download, feed URL, SPARQL endpoint. Use when your catalog does not have information on which it is or when it is definitely not a download.",
                     "@id":"http://www.w3.org/ns/dcat#accessURL",
                     "@type":"@id",
@@ -576,6 +600,10 @@
             "@id":"http://xmlns.com/foaf/0.1/Organization",
             "description":"An organization.",
             "properties":{
+                "@type":{
+            		"type":"string",
+            		"enum":["Organization"]
+            	},
                 "identifier":{
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
@@ -587,10 +615,11 @@
                     "title":"Name",
                     "description":"This property contains a name of the agent. This property can be repeated for different versions of the name (e.g. the name in different languages)",
                     "@id":"http://xmlns.com/foaf/0.1/name",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "minItems":1,
                     "maxItems":1,
-                    "type":"string"
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "email":{
                     "title":"Email",
@@ -627,6 +656,7 @@
                 }
             },
             "required":[
+                "@type",
                 "name"
             ]
         },
@@ -660,6 +690,10 @@
             "@id":"http://xmlns.com/foaf/0.1/Person",
             "description":"A person.",
             "properties":{
+                "@type":{
+            		"type":"string",
+            		"enum":["Person"]
+            	},
                 "identifier":{
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
@@ -711,8 +745,8 @@
                 }
             },
             "required":[
-                "name",
-                "member_of"
+                "@type",
+                "name"
             ]
         },
         "Project":{
@@ -837,12 +871,22 @@
 			"type":"object",
             "title":"Agent",
             "@id":"http://xmlns.com/foaf/0.1/Agent",
-			"anyOf":[{"$ref": "#/definitions/Person"},{"$ref": "#/definitions/Organization"}],
-            "description":"An agent (eg. person, group, software or physical artifact).",
+			"anyOf":[
+                {"$ref": "#/definitions/Person"},
+                {"$ref": "#/definitions/Organization"},
+                {"$ref": "#/definitions/Agent"}
+            ],
+            "description":"An agent (eg. person, group, software or physical artifact)."
+        },
+        "Agent":{
+			"type":"object",
+            "title":"Generic Agent",
+            "@id":"http://xmlns.com/foaf/0.1/Agent",
+            "description":"Generic agent type",
             "properties":{
 				"@type":{
             		"type":"string",
-            		"enum":["Person","Organization"]
+            		"enum":["Agent"]
             	},
                 "identifier":{
                     "title":"Identifier",

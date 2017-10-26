@@ -107,9 +107,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             raise Http400({ 'contract': ['Query parameter \'contract\' is a required parameter.'] })
 
         if not catalog_record.can_be_proposed_to_pas():
-            raise Http403({ 'preservation_state': ['Value must be 0 (not proposed to PAS),'
-                ' 7 (longterm PAS rejected), or 8 (midterm PAS rejected), when proposing to PAS. '
-                'Current state is %d.' % catalog_record.preservation_state ] })
+            raise Http403({ 'preservation_state': ['Value must be 0 (not proposed to PAS), 7 (longterm PAS rejected), '
+                                                   'or 8 (midterm PAS rejected), when proposing to PAS. Current state '
+                                                   'is %d.' % catalog_record.preservation_state]})
 
         try:
             contract = Contract.objects.get(contract_json__identifier=request.query_params.get('contract'))
@@ -204,11 +204,13 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 cls.populate_from_ref_data(ref_entry, fos, label_field='pref_label')
 
         for remote_resource in research_dataset.get('remote_resources', []):
+
+            # Since checksum is a plain string field, it should not be changed to a reference data uri in case
+            # it is recognized as one of the checksum_algorithm reference data items.
+            # TODO: Find out whether a non-reference data value for the checksum_algorithm should even throw an error
             if 'checksum' in remote_resource:
-                ref_entry = cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'],
-                                               'research_dataset.remote_resources.checksum.algorithm', errors)
-                if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, remote_resource['checksum'], uri_field='algorithm')
+                cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'],
+                                   'research_dataset.remote_resources.checksum.algorithm', errors)
 
             for license in remote_resource.get('license', []):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],

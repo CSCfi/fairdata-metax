@@ -19,12 +19,18 @@
         }],
         "creator":[{
             "@type": "Person",
-            "name": "Teppo Testaaja"
+            "name": "Teppo Testaaja",
+            "member_of": {
+                "@type": "Organization",
+                "name": {
+                    "fi": "Mysteeriorganisaatio"
+                }
+            }
         }],
         "curator":[{
             "@type": "Organization",
             "identifier": "10076-E700",
-            "name": "Owner org in ref data"
+            "name": {"en": "Org in ref data", "fi": "Organisaatio"}
         }],
         "language":[{
             "title": "English",

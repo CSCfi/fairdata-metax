@@ -106,7 +106,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
 
         # these have other required fields, so only update the identifier with code
         dc['publisher']['identifier'] = refs['organization']['code']
-        dc['access_rights']['has_right_related_agent'][0]['identifier'] = refs['organization']['code']
+        dc['access_rights']['has_rights_related_agent'][0]['identifier'] = refs['organization']['code']
 
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -116,6 +116,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         self._assert_uri_copied_to_identifier(refs, new_dc)
         self._assert_label_copied_to_pref_label(refs, new_dc)
         self._assert_label_copied_to_title(refs, new_dc)
+        self._assert_label_copied_to_name(refs, new_dc)
 
     def _assert_uri_copied_to_identifier(self, refs, new_dc):
         self.assertEqual(refs['field_of_science']['uri'], new_dc['field_of_science'][0]['identifier'])
@@ -123,7 +124,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         self.assertEqual(refs['access_type']['uri'],      new_dc['access_rights']['type'][0]['identifier'])
         self.assertEqual(refs['license']['uri'],          new_dc['access_rights']['license'][0]['identifier'])
         self.assertEqual(refs['organization']['uri'],     new_dc['publisher']['identifier'])
-        self.assertEqual(refs['organization']['uri'], new_dc['access_rights']['has_right_related_agent'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_dc['access_rights']['has_rights_related_agent'][0]['identifier'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_dc):
         self.assertEqual(refs['field_of_science']['label'], new_dc['field_of_science'][0].get('pref_label', None))
@@ -131,3 +132,6 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
 
     def _assert_label_copied_to_title(self, refs, new_dc):
         self.assertEqual(refs['license']['label'], new_dc['access_rights']['license'][0].get('title', None))
+
+    def _assert_label_copied_to_name(self, refs, new_dc):
+        self.assertEqual(refs['organization']['label'], new_dc['publisher']['name'])

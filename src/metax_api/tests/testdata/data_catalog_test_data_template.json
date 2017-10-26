@@ -38,14 +38,14 @@
         "publisher": {
           "identifier": "http://isni.org/isni/0000000405129137",
           "name": {
-            "fi": "Julkaisija",
-            "en": "Publisher"
+            "fi": "Datakatalogin julkaisijaorganisaatio",
+            "en": "Data catalog publisher organization"
           },
           "homepage": [{
             "identifier": "http://www.publisher.fi/",
             "title": {
-              "fi": "Julkaisijan kotisivu",
-              "en": "Publisher website"
+              "fi": "Julkaisijaorganisaation kotisivu",
+              "en": "Publisher organization website"
             }
           }]
         },
@@ -53,12 +53,12 @@
           "description": [
             {"fi": "Käyttöehtojen kuvaus"}
           ],
-          "has_right_related_agent": [
+          "has_rights_related_agent": [
             {
-              "identifier": "whatever_id",
+              "identifier": "org_id",
               "name": {
-                "fi": "Oikeuksiin liittyvä agentti",
-                "en": "A rights related agent"
+                "fi": "Oikeuksiin liittyvä organisaatio",
+                "en": "A rights related organization"
               }
             },
             {

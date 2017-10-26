@@ -10,7 +10,6 @@ from metax_api.utils import RedisSentinelCache
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
-
     """
     Common class for write tests, inherited by other write test classes
     """
@@ -54,11 +53,19 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
             "preferred_identifier": None,
             "creator": [{
                 "@type": "Person",
-                "name": "Teppo Testaaja"
+                "name": "Teppo Testaaja",
+                "member_of": {
+                    "@type": "Organization",
+                    "name": {"fi": "Mysterious Organization"}
+                }
             }],
             "curator": [{
                 "@type": "Person",
-                "name": "Default Owner"
+                "name": "Default Owner",
+                "member_of": {
+                    "@type": "Organization",
+                    "name": {"fi": "Mysterious Organization"}
+                }
             }],
             "total_byte_size": 1024,
             "files": catalog_record_from_test_data['research_dataset']['files']
@@ -87,7 +94,6 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
 
 
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
-
     #
     #
     #
@@ -101,20 +107,25 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(response.data['research_dataset']['urn_identifier'] is not None, True, 'urn_identifier should have been generated')
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.test_new_data['research_dataset']['preferred_identifier'])
+        self.assertEqual(response.data['research_dataset']['urn_identifier'] is not None, True,
+                         'urn_identifier should have been generated')
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'],
+                         self.test_new_data['research_dataset']['preferred_identifier'])
         cr = CatalogRecord.objects.get(pk=response.data['id'])
-        self.assertEqual(cr.created_by_api >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object creation')
+        self.assertEqual(cr.created_by_api >= datetime.now() - timedelta(seconds=5), True,
+                         'Timestamp should have been updated during object creation')
 
     def test_create_catalog_record_without_preferred_identifier(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = None
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], response.data['research_dataset']['urn_identifier'],
-            'urn_identifier and preferred_identifier should equal')
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'],
+                         response.data['research_dataset']['urn_identifier'],
+                         'urn_identifier and preferred_identifier should equal')
         cr = CatalogRecord.objects.get(pk=response.data['id'])
-        self.assertEqual(cr.created_by_api >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object creation')
+        self.assertEqual(cr.created_by_api >= datetime.now() - timedelta(seconds=5), True,
+                         'Timestamp should have been updated during object creation')
 
     def test_create_catalog_contract_string_identifier(self):
         self.test_new_data['contract'] = 'optional:contract:identifier1'
@@ -136,7 +147,8 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(response.data), 1, 'there should be only one error')
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
+        self.assertEqual('research_dataset' in response.data.keys(), True,
+                         'The error should concern the field research_dataset')
         self.assertEqual('1234456 is not of type' in response.data['research_dataset'][0], True, response.data)
         self.assertEqual('Json path: [\'title\']' in response.data['research_dataset'][0], True, response.data)
 
@@ -146,7 +158,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         objects that are deeply nested
         """
         self.test_new_data['research_dataset']['provenance'] = [{
-            'title': { 'en': 'provenance title' },
+            'title': {'en': 'provenance title'},
             'was_associated_with': [
                 {'@type': 'Person', 'xname': 'seppo'}
             ]
@@ -154,7 +166,8 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(response.data), 1, 'there should be only one error')
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should concern the field research_dataset')
+        self.assertEqual('research_dataset' in response.data.keys(), True,
+                         'The error should concern the field research_dataset')
         self.assertEqual('is not valid' in response.data['research_dataset'][0], True, response.data)
         self.assertEqual('was_associated_with' in response.data['research_dataset'][0], True, response.data)
 
@@ -213,7 +226,8 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
         self.assertEqual('object' in response.data['failed'][0].keys(), True)
-        self.assertEqual('research_dataset' in response.data['failed'][0]['errors'], True, 'The error should have been about an already existing identifier')
+        self.assertEqual('research_dataset' in response.data['failed'][0]['errors'], True,
+                         'The error should have been about an already existing identifier')
 
     def test_create_catalog_record_list_error_all_fail(self):
         # data catalog is a required field, should fail
@@ -230,7 +244,6 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
-
     """
     Tests related to checking preferred_identifier uniqueness.
     """
@@ -248,12 +261,15 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
+        self.assertEqual('research_dataset' in response.data.keys(), True,
+                         'The error should be about an error in research_dataset')
 
         # the error message should clearly state that the value of preferred_identifier appears in the
         # field urn_identifier in another record, therefore two asserts
-        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier existing with this identifier')
-        self.assertEqual('urn_identifier' in response.data['research_dataset'][0], True, 'The error should be about urn_identifier existing with this identifier')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True,
+                         'The error should be about urn_identifier existing with this identifier')
+        self.assertEqual('urn_identifier' in response.data['research_dataset'][0], True,
+                         'The error should be about urn_identifier existing with this identifier')
 
     def test_create_catalog_record_error_preferred_identifier_exists_in_same_catalog(self):
         """
@@ -264,8 +280,10 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
-        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+        self.assertEqual('research_dataset' in response.data.keys(), True,
+                         'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True,
+                         'The error should be about preferred_identifier already existing')
 
     def test_create_catalog_record_preferred_identifier_exists_in_another_catalog(self):
         """
@@ -299,9 +317,12 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
-        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
-        self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True, 'The error should mention saving to ATT catalog as the reason')
+        self.assertEqual('research_dataset' in response.data.keys(), True,
+                         'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True,
+                         'The error should be about preferred_identifier already existing')
+        self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True,
+                         'The error should mention saving to ATT catalog as the reason')
 
     #
     # update operations
@@ -320,7 +341,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         cr.data_catalog_id = 2
         cr.save()
 
-        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data = {'research_dataset': self.test_new_data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
 
         response = self.client.patch('/rest/datasets/2', data, format="json")
@@ -339,7 +360,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         unique_identifier = self._set_preferred_identifier_to_record(pk=1)
 
-        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data = {'research_dataset': self.test_new_data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
         data['data_catalog'] = 2
 
@@ -359,13 +380,14 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         unique_identifier = self._set_preferred_identifier_to_record(pk=1)
 
-        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data = {'research_dataset': self.test_new_data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
         data['data_catalog'] = 1
 
         response = self.client.patch('/rest/datasets/2', data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True,
+                         'The error should be about preferred_identifier already existing')
 
     def test_update_catalog_record_in_att_preferred_identifier_exists_in_another_catalog(self):
         """
@@ -377,14 +399,17 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         unique_identifier = self._set_preferred_identifier_to_record(pk=2)
 
-        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data = {'research_dataset': self.test_new_data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
 
         response = self.client.patch('/rest/datasets/1', data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'The error should be about an error in research_dataset')
-        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True, 'The error should be about preferred_identifier already existing')
-        self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True, 'The error should mention saving to ATT catalog as the reason')
+        self.assertEqual('research_dataset' in response.data.keys(), True,
+                         'The error should be about an error in research_dataset')
+        self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True,
+                         'The error should be about preferred_identifier already existing')
+        self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True,
+                         'The error should mention saving to ATT catalog as the reason')
 
     #
     # helpers
@@ -404,7 +429,6 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
-
     #
     #
     #
@@ -440,17 +464,17 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         json schemas than the default ATT
         """
         self.test_new_data['research_dataset']['remote_resources'] = [
-            { 'title': 'title' },
-            { 'title': 'title' }
+            {'title': 'title'},
+            {'title': 'title'}
         ]
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         self.test_new_data['research_dataset']['remote_resources'] = [
-            { 'title': 'title' },
-            { 'title': 'title' },
-            { 'woah': 'this should give a failure, since title is a required field, and it is missing' }
+            {'title': 'title'},
+            {'title': 'title'},
+            {'woah': 'this should give a failure, since title is a required field, and it is missing'}
         ]
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
@@ -461,23 +485,21 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         Ensure that dataset reference data validation and population works with other
         json schemas than the default ATT. Ref data validation should be schema agnostic
         """
-        self.test_new_data['research_dataset']['remote_resources'] = [
-            { 'title': 'title' },
+        self.test_new_data['research_dataset']['other_identifier'] = [
             {
-                'title': 'title',
-                'checksum': {
-                    'algorithm': 'SHA-512',
-                    'checksum_value': 'xxxyyyzz'
+                'notation': 'urn:1',
+                'type': {
+                    'identifier': 'doi',
                 }
-            },
+            }
         ]
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
-            'purl' in response.data['research_dataset']['remote_resources'][1]['checksum']['algorithm'],
+            'purl' in response.data['research_dataset']['other_identifier'][0]['type']['identifier'],
             True,
-            'algorithm should have been populated with data from ref data'
+            'Identifier type should have been populated with data from ref data'
         )
 
     def _set_data_catalog_schema_to_harvester(self):
@@ -487,7 +509,6 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
-
     #
     #
     # update apis PUT
@@ -500,12 +521,14 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
         cr = CatalogRecord.objects.get(pk=self.pk)
-        self.assertEqual(cr.modified_by_api >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object update')
+        self.assertEqual(cr.modified_by_api >= datetime.now() - timedelta(seconds=5), True,
+                         'Timestamp should have been updated during object update')
 
     def test_update_catalog_record_error_using_preferred_identifier(self):
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
         response = self.client.put('/rest/datasets/%s' % self.preferred_identifier, self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Update operation should return 404 when using preferred_identifier')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND,
+                         'Update operation should return 404 when using preferred_identifier')
 
     def test_update_catalog_record_error_required_fields(self):
         """
@@ -516,7 +539,8 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True, 'Error for field \'research_dataset\' is missing from response.data')
+        self.assertEqual('research_dataset' in response.data.keys(), True,
+                         'Error for field \'research_dataset\' is missing from response.data')
 
     def test_update_catalog_record_dont_allow_data_catalog_fields_update(self):
         original_title = self.test_new_data['data_catalog']['catalog_json']['title']['en']
@@ -555,15 +579,18 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
     def test_update_catalog_record_pas_state_unallowed_value(self):
         self.test_new_data['preservation_state'] = 111
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'HTTP status should be 400 due to invalid value')
-        self.assertEqual('preservation_state' in response.data.keys(), True, 'The error should mention the field preservation_state')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                         'HTTP status should be 400 due to invalid value')
+        self.assertEqual('preservation_state' in response.data.keys(), True,
+                         'The error should mention the field preservation_state')
 
     def test_update_catalog_record_preservation_state_modified_is_updated(self):
         self.test_new_data['preservation_state'] = 4
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         cr = CatalogRecord.objects.get(pk=self.pk)
-        self.assertEqual(cr.preservation_state_modified >= datetime.now() - timedelta(seconds=5), True, 'Timestamp should have been updated during object update')
+        self.assertEqual(cr.preservation_state_modified >= datetime.now() - timedelta(seconds=5), True,
+                         'Timestamp should have been updated during object update')
 
     #
     # update list operations PUT
@@ -571,10 +598,10 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
 
     def test_catalog_record_update_list(self):
         self.test_new_data['id'] = 1
-        self.test_new_data['research_dataset']['description'] = [{ 'en': 'updated description' }]
+        self.test_new_data['research_dataset']['description'] = [{'en': 'updated description'}]
 
         self.second_test_new_data['id'] = 2
-        self.second_test_new_data['research_dataset']['description'] = [{ 'en': 'second updated description' }]
+        self.second_test_new_data['research_dataset']['description'] = [{'en': 'second updated description'}]
 
         response = self.client.put('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
@@ -586,7 +613,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
 
     def test_catalog_record_update_list_error_one_fails(self):
         self.test_new_data['id'] = 1
-        self.test_new_data['research_dataset']['description'] = [{ 'en': 'updated description' }]
+        self.test_new_data['research_dataset']['description'] = [{'en': 'updated description'}]
 
         # this value should already exist, therefore should fail
         self.second_test_new_data['research_dataset']['preferred_identifier'] = self.urn_identifier
@@ -596,7 +623,8 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
-        self.assertEqual(isinstance(response.data['success'], list), True, 'return data should contain key success, which is a list')
+        self.assertEqual(isinstance(response.data['success'], list), True,
+                         'return data should contain key success, which is a list')
         self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
 
@@ -607,10 +635,10 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
     def test_catalog_record_update_list_error_key_not_found(self):
         # does not have identifier key
         self.test_new_data['research_dataset'].pop('urn_identifier')
-        self.test_new_data['research_dataset']['description'] = [{ 'en': 'updated description' }]
+        self.test_new_data['research_dataset']['description'] = [{'en': 'updated description'}]
 
         self.second_test_new_data['id'] = 2
-        self.second_test_new_data['research_dataset']['description'] = [{ 'en': 'second updated description' }]
+        self.second_test_new_data['research_dataset']['description'] = [{'en': 'second updated description'}]
 
         response = self.client.put('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -621,7 +649,6 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
-
     #
     #
     # update apis PATCH
@@ -657,7 +684,8 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data, True, 'response.data should contain list of changed objects')
         self.assertEqual(len(response.data), 2, 'response.data should contain 2 changed objects')
-        self.assertEqual('research_dataset' in response.data['success'][0]['object'], True, 'response.data should contain full objects')
+        self.assertEqual('research_dataset' in response.data['success'][0]['object'], True,
+                         'response.data should contain full objects')
 
         updated_cr = CatalogRecord.objects.get(pk=1)
         self.assertEqual(updated_cr.preservation_state, 1, 'preservation state should have changed to 1')
@@ -668,7 +696,7 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         test_data['preservation_state'] = 1
 
         second_test_data = {}
-        second_test_data['preservation_state'] = 555 # value not allowed
+        second_test_data['preservation_state'] = 555  # value not allowed
         second_test_data['id'] = 2
 
         response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
@@ -677,7 +705,8 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual('failed' in response.data.keys(), True)
         self.assertEqual(len(response.data['success']), 1, 'success list should contain one item')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
-        self.assertEqual('preservation_state' in response.data['failed'][0]['errors'], True, response.data['failed'][0]['errors'])
+        self.assertEqual('preservation_state' in response.data['failed'][0]['errors'], True,
+                         response.data['failed'][0]['errors'])
 
     def test_catalog_record_partial_update_list_error_key_not_found(self):
         # does not have identifier key
@@ -695,11 +724,11 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 1, 'success list should contain one item')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
         self.assertEqual('detail' in response.data['failed'][0]['errors'], True, response.data['failed'][0]['errors'])
-        self.assertEqual('identifying key' in response.data['failed'][0]['errors']['detail'][0], True, response.data['failed'][0]['errors'])
+        self.assertEqual('identifying key' in response.data['failed'][0]['errors']['detail'][0], True,
+                         response.data['failed'][0]['errors'])
 
 
 class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
-
     #
     # header if-modified-since tests, single
     #
@@ -707,14 +736,16 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
     def test_update_with_if_unmodified_since_header_ok(self):
         self.test_new_data['preservation_description'] = 'damn this is good coffee'
         cr = CatalogRecord.objects.get(pk=1)
-        headers = { 'If-Unmodified-Since': cr.modified_by_api.strftime('%a, %d %b %Y %H:%M:%S %Z') }
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, headers=headers, format="json")
+        headers = {'If-Unmodified-Since': cr.modified_by_api.strftime('%a, %d %b %Y %H:%M:%S %Z')}
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, headers=headers,
+                                   format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
     def test_update_with_if_unmodified_since_header_error(self):
         self.test_new_data['preservation_description'] = 'the owls are not what they seem'
-        headers = { 'If-Unmodified-Since': 'Wed, 23 Sep 2009 22:15:29 GMT' }
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, headers=headers, format="json")
+        headers = {'If-Unmodified-Since': 'Wed, 23 Sep 2009 22:15:29 GMT'}
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, headers=headers,
+                                   format="json")
         self.assertEqual(response.status_code, 412, 'http status should be 412 = precondition failed')
 
     #
@@ -730,8 +761,8 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         data_1['preservation_description'] = 'damn this is good coffee'
         data_2['preservation_description'] = 'damn this is good coffee also'
 
-        headers = { 'If-Unmodified-Since': 'value is not checked' }
-        response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
+        headers = {'If-Unmodified-Since': 'value is not checked'}
+        response = self.client.put('/rest/datasets', [data_1, data_2], headers=headers, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
@@ -749,9 +780,10 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         # should result in error for this record
         data_2['modified_by_api'] = '2002-01-01T10:10:10.000000'
 
-        headers = { 'If-Unmodified-Since': 'value is not checked' }
-        response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
-        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True, 'error should indicate resource has been modified')
+        headers = {'If-Unmodified-Since': 'value is not checked'}
+        response = self.client.put('/rest/datasets', [data_1, data_2], headers=headers, format="json")
+        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True,
+                         'error should indicate resource has been modified')
 
     def test_update_list_with_if_unmodified_since_header_error_2(self):
         """
@@ -767,9 +799,10 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         # should result in error for this record
         data_2.pop('modified_by_api')
 
-        headers = { 'If-Unmodified-Since': 'value is not checked' }
-        response = self.client.patch('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
-        self.assertEqual('required' in response.data['failed'][0]['errors']['detail'][0], True, 'error should be about field modified_by_api is required')
+        headers = {'If-Unmodified-Since': 'value is not checked'}
+        response = self.client.patch('/rest/datasets', [data_1, data_2], headers=headers, format="json")
+        self.assertEqual('required' in response.data['failed'][0]['errors']['detail'][0], True,
+                         'error should be about field modified_by_api is required')
 
     def test_update_list_with_if_unmodified_since_header_error_3(self):
         """
@@ -786,13 +819,13 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         data_2['preservation_description'] = 'damn this is good coffee also'
         data_2['modified_by_api'] = None
 
-        headers = { 'If-Unmodified-Since': 'value is not checked' }
-        response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
-        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True, 'error should indicate resource has been modified')
+        headers = {'If-Unmodified-Since': 'value is not checked'}
+        response = self.client.put('/rest/datasets', [data_1, data_2], headers=headers, format="json")
+        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True,
+                         'error should indicate resource has been modified')
 
 
 class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
-
     #
     #
     #
@@ -811,7 +844,8 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         deleted_catalog_record = None
 
         try:
-            deleted_catalog_record = CatalogRecord.objects.get(research_dataset__contains={ 'urn_identifier': self.urn_identifier })
+            deleted_catalog_record = CatalogRecord.objects.get(
+                research_dataset__contains={'urn_identifier': self.urn_identifier})
         except CatalogRecord.DoesNotExist:
             pass
 
@@ -819,7 +853,8 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
             raise Exception('Deleted CatalogRecord should not be retrievable from the default objects table')
 
         try:
-            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(research_dataset__contains={ 'urn_identifier': self.urn_identifier })
+            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(
+                research_dataset__contains={'urn_identifier': self.urn_identifier})
         except CatalogRecord.DoesNotExist:
             raise Exception('Deleted CatalogRecord should not be deleted from the db, but marked as removed')
 
@@ -836,7 +871,8 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         url = '/rest/datasets/%s' % catalog_record_from_test_data['research_dataset']['urn_identifier']
         self.client.delete(url)
         response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
-        self.assertEqual(response2.status_code, status.HTTP_200_OK, 'The contract of the CatalogRecord should not be deleted when deleting a single CatalogRecord.')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK,
+                         'The contract of the CatalogRecord should not be deleted when deleting a single CatalogRecord.')
 
     def test_delete_catalog_record_not_found_with_search_by_owner(self):
         # owner of pk=1 is Default Owner. Delete pk=2 == first dataset owner by Rahikainen.
@@ -849,7 +885,6 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
-
     #
     #
     #
@@ -863,12 +898,13 @@ class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-            (
-                self.urn_identifier,
-                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
-            ),
-            format="json")
+                                    (
+                                        self.urn_identifier,
+                                        CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+                                        self._get_object_from_test_data('contract', requested_index=0)['contract_json'][
+                                            'identifier']
+                                    ),
+                                    format="json")
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         catalog_record_after = CatalogRecord.objects.get(pk=self.pk)
@@ -876,34 +912,36 @@ class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
 
     def test_catalog_record_propose_to_pas_missing_parameter_state(self):
         response = self.client.post('/rest/datasets/%s/proposetopas?contract=%s' %
-            (
-                self.urn_identifier,
-                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
-            ),
-            format="json")
+                                    (
+                                        self.urn_identifier,
+                                        self._get_object_from_test_data('contract', requested_index=0)['contract_json'][
+                                            'identifier']
+                                    ),
+                                    format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('state' in response.data, True, 'Response data should contain an error about the field')
 
     def test_catalog_record_propose_to_pas_wrong_parameter_state(self):
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-            (
-                self.urn_identifier,
-                15,
-                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
-            ),
-            format="json")
+                                    (
+                                        self.urn_identifier,
+                                        15,
+                                        self._get_object_from_test_data('contract', requested_index=0)['contract_json'][
+                                            'identifier']
+                                    ),
+                                    format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('state' in response.data, True, 'Response data should contain an error about the field')
 
     def test_catalog_record_propose_to_pas_missing_parameter_contract(self):
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%s' %
-            (
-                self.urn_identifier,
-                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-            ),
-            format="json")
+                                    (
+                                        self.urn_identifier,
+                                        CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+                                    ),
+                                    format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('contract' in response.data, True, 'Response data should contain an error about the field')
@@ -913,12 +951,12 @@ class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-            (
-                self.urn_identifier,
-                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-                'does-not-exist'
-            ),
-            format="json")
+                                    (
+                                        self.urn_identifier,
+                                        CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+                                        'does-not-exist'
+                                    ),
+                                    format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('contract' in response.data, True, 'Response data should contain an error about the field')
@@ -929,19 +967,16 @@ class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
         catalog_record_before.save()
 
         response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-            (
-                self.urn_identifier,
-                CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-                self._get_object_from_test_data('contract', requested_index=0)['contract_json']['identifier']
-            ),
-            format="json")
+                                    (self.urn_identifier, CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
+                                     self._get_object_from_test_data('contract', requested_index=0)['contract_json'][
+                                         'identifier']), format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual('preservation_state' in response.data, True, 'Response data should contain an error about the field')
+        self.assertEqual('preservation_state' in response.data, True,
+                         'Response data should contain an error about the field')
 
 
 class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
-
     """
     Tests related to reference_data validation and dataset fields population
     from reference_data, according to given uri or code as the value.
@@ -954,7 +989,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         """
         cache = RedisSentinelCache()
         cache.delete('reference_data')
-        self.assertEqual(cache.get('reference_data', master=True), None, 'cache ref data should be missing after cache.delete()')
+        self.assertEqual(cache.get('reference_data', master=True), None,
+                         'cache ref data should be missing after cache.delete()')
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -1032,19 +1068,18 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         # to easily check that label was populated (= that it appeared in the dataset after create)
         # without knowing its original value from the generated test data
         rd = self.third_test_new_data['research_dataset']
-        rd['theme'][0]                    = { 'identifier': refs['keyword']['code'] }
-        rd['field_of_science'][0]         = { 'identifier': refs['field_of_science']['code'] }
-        rd['language'][0]                 = { 'identifier': refs['language']['code'] }
-        rd['access_rights']['type'][0]    = { 'identifier': refs['access_type']['code'] }
-        rd['access_rights']['license'][0] = { 'identifier': refs['license']['code'] }
-        rd['other_identifier'][0]['type'] = { 'identifier': refs['identifier_type']['code'] }
-        rd['spatial'][0]['place_uri'][0]  = { 'identifier': refs['location']['code'] }
-        rd['files'][0]['type']            = { 'identifier': refs['resource_type']['code'] }
-        rd['remote_resources'][0]['type'] = { 'identifier': refs['resource_type']['code'] }
-        rd['remote_resources'][0]['license'][0] = { 'identifier': refs['license']['code'] }
+        rd['theme'][0] = {'identifier': refs['keyword']['code']}
+        rd['field_of_science'][0] = {'identifier': refs['field_of_science']['code']}
+        rd['language'][0] = {'identifier': refs['language']['code']}
+        rd['access_rights']['type'][0] = {'identifier': refs['access_type']['code']}
+        rd['access_rights']['license'][0] = {'identifier': refs['license']['code']}
+        rd['other_identifier'][0]['type'] = {'identifier': refs['identifier_type']['code']}
+        rd['spatial'][0]['place_uri'][0] = {'identifier': refs['location']['code']}
+        rd['files'][0]['type'] = {'identifier': refs['resource_type']['code']}
+        rd['remote_resources'][0]['type'] = {'identifier': refs['resource_type']['code']}
+        rd['remote_resources'][0]['license'][0] = {'identifier': refs['license']['code']}
 
         # these have other required fields, so only update the identifier with code
-        rd['remote_resources'][0]['checksum']['algorithm']            = refs['checksum_algorithm']['code']
         rd['is_output_of'][0]['source_organization'][0]['identifier'] = refs['organization']['code']
         rd['is_output_of'][0]['has_funding_agency'][0]['identifier'] = refs['organization']['code']
         rd['other_identifier'][0]['provider']['identifier'] = refs['organization']['code']
@@ -1055,6 +1090,11 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd['rights_holder']['is_part_of']['identifier'] = refs['organization']['code']
         rd['access_rights']['has_rights_related_agent'][0]['identifier'] = refs['organization']['code']
 
+        # These are fields for which reference data values can be used, but their value should not be touched
+        # when they arrive to metax api. The existence of this section may not be justified since this concerns
+        # mostly e.g. qvain
+        rd['remote_resources'][0]['checksum']['algorithm'] = refs['checksum_algorithm']['code']
+
         response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True)
@@ -1063,60 +1103,65 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self._assert_uri_copied_to_identifier(refs, new_rd)
         self._assert_label_copied_to_pref_label(refs, new_rd)
         self._assert_label_copied_to_title(refs, new_rd)
-        self._assert_label_copied_to_others(refs, new_rd)
+        self._assert_label_copied_to_name(refs, new_rd)
+        self._assert_has_remained_the_same(refs, new_rd)
 
     def _assert_uri_copied_to_identifier(self, refs, new_rd):
-        self.assertEqual(refs['keyword']['uri'],          new_rd['theme'][0]['identifier'])
+        self.assertEqual(refs['keyword']['uri'], new_rd['theme'][0]['identifier'])
         self.assertEqual(refs['field_of_science']['uri'], new_rd['field_of_science'][0]['identifier'])
-        self.assertEqual(refs['language']['uri'],         new_rd['language'][0]['identifier'])
-        self.assertEqual(refs['access_type']['uri'],      new_rd['access_rights']['type'][0]['identifier'])
-        self.assertEqual(refs['license']['uri'],          new_rd['access_rights']['license'][0]['identifier'])
-        self.assertEqual(refs['identifier_type']['uri'],  new_rd['other_identifier'][0]['type']['identifier'])
-        self.assertEqual(refs['location']['uri'],         new_rd['spatial'][0]['place_uri'][0]['identifier'])
-        self.assertEqual(refs['resource_type']['uri'],    new_rd['files'][0]['type']['identifier'])
-        self.assertEqual(refs['resource_type']['uri'],    new_rd['remote_resources'][0]['type']['identifier'])
-        self.assertEqual(refs['license']['uri'],          new_rd['remote_resources'][0]['license'][0]['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['is_output_of'][0]['source_organization'][0]['identifier'])
-        self.assertEqual(refs['checksum_algorithm']['uri'], new_rd['remote_resources'][0]['checksum']['algorithm'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['is_output_of'][0]['has_funding_agency'][0]['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['other_identifier'][0]['provider']['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['contributor'][0]['member_of']['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['creator'][0]['member_of']['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['curator'][0]['is_part_of']['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['publisher']['is_part_of']['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['rights_holder']['is_part_of']['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_rd['access_rights']['has_rights_related_agent'][0]['identifier'])
+        self.assertEqual(refs['language']['uri'], new_rd['language'][0]['identifier'])
+        self.assertEqual(refs['access_type']['uri'], new_rd['access_rights']['type'][0]['identifier'])
+        self.assertEqual(refs['license']['uri'], new_rd['access_rights']['license'][0]['identifier'])
+        self.assertEqual(refs['identifier_type']['uri'], new_rd['other_identifier'][0]['type']['identifier'])
+        self.assertEqual(refs['location']['uri'], new_rd['spatial'][0]['place_uri'][0]['identifier'])
+        self.assertEqual(refs['resource_type']['uri'], new_rd['files'][0]['type']['identifier'])
+        self.assertEqual(refs['resource_type']['uri'], new_rd['remote_resources'][0]['type']['identifier'])
+        self.assertEqual(refs['license']['uri'], new_rd['remote_resources'][0]['license'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['is_output_of'][0]['source_organization'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['is_output_of'][0]['has_funding_agency'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['other_identifier'][0]['provider']['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['contributor'][0]['member_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['creator'][0]['member_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['curator'][0]['is_part_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['publisher']['is_part_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['rights_holder']['is_part_of']['identifier'])
+        self.assertEqual(refs['organization']['uri'],
+                         new_rd['access_rights']['has_rights_related_agent'][0]['identifier'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_rd):
-        self.assertEqual(refs['keyword']['label'],          new_rd['theme'][0].get('pref_label', None))
+        self.assertEqual(refs['keyword']['label'], new_rd['theme'][0].get('pref_label', None))
         self.assertEqual(refs['field_of_science']['label'], new_rd['field_of_science'][0].get('pref_label', None))
-        self.assertEqual(refs['access_type']['label'],      new_rd['access_rights']['type'][0].get('pref_label', None))
-        self.assertEqual(refs['identifier_type']['label'],  new_rd['other_identifier'][0]['type'].get('pref_label', None))
-        self.assertEqual(refs['location']['label'],         new_rd['spatial'][0]['place_uri'][0].get('pref_label', None))
-        self.assertEqual(refs['resource_type']['label'],    new_rd['files'][0]['type'].get('pref_label', None))
-        self.assertEqual(refs['resource_type']['label'],    new_rd['remote_resources'][0]['type'].get('pref_label', None))
+        self.assertEqual(refs['access_type']['label'], new_rd['access_rights']['type'][0].get('pref_label', None))
+        self.assertEqual(refs['identifier_type']['label'],
+                         new_rd['other_identifier'][0]['type'].get('pref_label', None))
+        self.assertEqual(refs['location']['label'], new_rd['spatial'][0]['place_uri'][0].get('pref_label', None))
+        self.assertEqual(refs['resource_type']['label'], new_rd['files'][0]['type'].get('pref_label', None))
+        self.assertEqual(refs['resource_type']['label'], new_rd['remote_resources'][0]['type'].get('pref_label', None))
 
     def _assert_label_copied_to_title(self, refs, new_rd):
         self.assertEqual(refs['language']['label'], new_rd['language'][0].get('title', None))
-        self.assertEqual(refs['license']['label'],  new_rd['access_rights']['license'][0].get('title', None))
-        self.assertEqual(refs['license']['label'],  new_rd['remote_resources'][0]['license'][0].get('title', None))
+        self.assertEqual(refs['license']['label'], new_rd['access_rights']['license'][0].get('title', None))
+        self.assertEqual(refs['license']['label'], new_rd['remote_resources'][0]['license'][0].get('title', None))
 
-    def _assert_label_copied_to_others(self, refs, new_rd):
-        # the black sheep
-        self.assertEqual(refs['organization']['label']['default'],     new_rd['is_output_of'][0]['source_organization'][0].get('name', None))
-        self.assertEqual(refs['checksum_algorithm']['label'], new_rd['remote_resources'][0]['checksum'].get('checksum_algorithm', None))
-        self.assertEqual(refs['organization']['label']['default'], new_rd['is_output_of'][0]['has_funding_agency'][0].get('name', None))
-        self.assertEqual(refs['organization']['label']['default'], new_rd['other_identifier'][0]['provider'].get('name', None))
-        self.assertEqual(refs['organization']['label']['default'], new_rd['contributor'][0]['member_of'].get('name', None))
-        self.assertEqual(refs['organization']['label']['default'], new_rd['creator'][0]['member_of'].get('name', None))
-        self.assertEqual(refs['organization']['label']['default'], new_rd['curator'][0]['is_part_of'].get('name', None))
-        self.assertEqual(refs['organization']['label']['default'], new_rd['publisher']['is_part_of'].get('name', None))
-        self.assertEqual(refs['organization']['label']['default'], new_rd['rights_holder']['is_part_of'].get('name', None))
-        self.assertEqual(refs['organization']['label']['default'], new_rd['access_rights']['has_rights_related_agent'][0].get('name', None))
+    def _assert_label_copied_to_name(self, refs, new_rd):
+        self.assertEqual(refs['organization']['label'],
+                         new_rd['is_output_of'][0]['source_organization'][0].get('name', None))
+        self.assertEqual(refs['organization']['label'],
+                         new_rd['is_output_of'][0]['has_funding_agency'][0].get('name', None))
+        self.assertEqual(refs['organization']['label'], new_rd['other_identifier'][0]['provider'].get('name', None))
+        self.assertEqual(refs['organization']['label'], new_rd['contributor'][0]['member_of'].get('name', None))
+        self.assertEqual(refs['organization']['label'], new_rd['creator'][0]['member_of'].get('name', None))
+        self.assertEqual(refs['organization']['label'], new_rd['curator'][0]['is_part_of'].get('name', None))
+        self.assertEqual(refs['organization']['label'], new_rd['publisher']['is_part_of'].get('name', None))
+        self.assertEqual(refs['organization']['label'], new_rd['rights_holder']['is_part_of'].get('name', None))
+        self.assertEqual(refs['organization']['label'],
+                         new_rd['access_rights']['has_rights_related_agent'][0].get('name', None))
+
+    def _assert_has_remained_the_same(self, refs, new_rd):
+        self.assertEquals(refs['checksum_algorithm']['code'], new_rd['remote_resources'][0]['checksum']['algorithm'])
 
 
 class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
-
     """
     Tests related to handling alternate records: Records which have the same
     preferred_identifier, but are in different data catalogs.
@@ -1133,14 +1178,18 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         Add a record, where a record already existed with the same pref_id, but did not have an
         alternate_record_set yet. Ensure a new set is created, and both records are added to it.
         """
-        existing_records_count = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }).count()
-        self.assertEqual(existing_records_count, 1, 'in the beginning, there should be only one record with pref id %s' % self.preferred_identifier)
+        existing_records_count = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier}).count()
+        self.assertEqual(existing_records_count, 1,
+                         'in the beginning, there should be only one record with pref id %s' % self.preferred_identifier)
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
-        self.assertEqual(len(records), 2, 'after, there should be two records with pref id %s' % self.preferred_identifier)
+        records = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier})
+        self.assertEqual(len(records), 2,
+                         'after, there should be two records with pref id %s' % self.preferred_identifier)
 
         # both records are moved to same set
         ars_id = records[0].alternate_record_set.id
@@ -1158,14 +1207,18 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
     def test_append_to_existing_alternate_record_set_if_it_exists(self):
         self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
 
-        existing_records_count = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }).count()
-        self.assertEqual(existing_records_count, 2, 'in the beginning, there should be two records with pref id %s' % self.preferred_identifier)
+        existing_records_count = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier}).count()
+        self.assertEqual(existing_records_count, 2,
+                         'in the beginning, there should be two records with pref id %s' % self.preferred_identifier)
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
-        self.assertEqual(len(records), 3, 'after, there should be three records with pref id %s' % self.preferred_identifier)
+        records = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier})
+        self.assertEqual(len(records), 3,
+                         'after, there should be three records with pref id %s' % self.preferred_identifier)
 
         # all records belong to same set
         ars_id = records[0].alternate_record_set.id
@@ -1189,21 +1242,25 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         response = self.client.delete('/rest/datasets/2', format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
-        self.assertEqual(records[0].alternate_record_set.records.count(), 2, 'alternate_record_set should have two records after deleting one')
+        records = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier})
+        self.assertEqual(records[0].alternate_record_set.records.count(), 2,
+                         'alternate_record_set should have two records after deleting one')
 
     def test_record_is_removed_from_alternate_record_set_when_updated(self):
         self._set_and_ensure_initial_conditions()
 
         response = self.client.get('/rest/datasets/2', format="json")
-        data = { 'research_dataset': response.data['research_dataset'] }
+        data = {'research_dataset': response.data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = 'a:new:identifier:here'
 
         response = self.client.patch('/rest/datasets/2', data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
-        self.assertEqual(records[0].alternate_record_set.records.count(), 2, 'alternate_record_set should have two records after updating one record')
+        records = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier})
+        self.assertEqual(records[0].alternate_record_set.records.count(), 2,
+                         'alternate_record_set should have two records after updating one record')
 
         # the patched record should not belong to any alt set any longer
         cr = CatalogRecord.objects.get(pk=2)
@@ -1214,13 +1271,14 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
 
         response = self.client.get('/rest/datasets/2', format="json")
-        data = { 'research_dataset': response.data['research_dataset'] }
+        data = {'research_dataset': response.data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = 'a:new:identifier:here'
 
         response = self.client.patch('/rest/datasets/2', data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        records = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier})
         self.assertEqual(records.count(), 1, 'should be only one record with this identifier left now')
 
         with self.assertRaises(AlternateRecordSet.DoesNotExist, msg='alternate record set should have been deleted'):
@@ -1238,7 +1296,8 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         response = self.client.delete('/rest/datasets/2', format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
+        records = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier})
         self.assertEqual(records.count(), 1, 'should be only record with this identifier left now')
 
         with self.assertRaises(AlternateRecordSet.DoesNotExist, msg='alternate record set should have been deleted'):
@@ -1255,22 +1314,33 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         response_2 = self.client.get('/rest/datasets/1', format="json")
         self.assertEqual(response_1.status_code, status.HTTP_201_CREATED)
         self.assertEqual('alternate_record_set' in response_1.data, True)
-        self.assertEqual(response_1.data['research_dataset']['urn_identifier'] not in response_1.data['alternate_record_set'], True, msg_self_should_not_be_listed)
-        self.assertEqual(response_2.data['research_dataset']['urn_identifier'] in response_1.data['alternate_record_set'], True)
+        self.assertEqual(
+            response_1.data['research_dataset']['urn_identifier'] not in response_1.data['alternate_record_set'], True,
+            msg_self_should_not_be_listed)
+        self.assertEqual(
+            response_2.data['research_dataset']['urn_identifier'] in response_1.data['alternate_record_set'], True)
 
-        self.test_new_data.update({ 'data_catalog': 4 })
+        self.test_new_data.update({'data_catalog': 4})
         response_3 = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response_3.status_code, status.HTTP_201_CREATED)
         self.assertEqual('alternate_record_set' in response_3.data, True)
-        self.assertEqual(response_1.data['research_dataset']['urn_identifier'] in response_3.data['alternate_record_set'], True)
-        self.assertEqual(response_2.data['research_dataset']['urn_identifier'] in response_3.data['alternate_record_set'], True)
-        self.assertEqual(response_3.data['research_dataset']['urn_identifier'] not in response_3.data['alternate_record_set'], True, msg_self_should_not_be_listed)
+        self.assertEqual(
+            response_1.data['research_dataset']['urn_identifier'] in response_3.data['alternate_record_set'], True)
+        self.assertEqual(
+            response_2.data['research_dataset']['urn_identifier'] in response_3.data['alternate_record_set'], True)
+        self.assertEqual(
+            response_3.data['research_dataset']['urn_identifier'] not in response_3.data['alternate_record_set'], True,
+            msg_self_should_not_be_listed)
 
         response_2 = self.client.get('/rest/datasets/1', format="json")
         self.assertEqual('alternate_record_set' in response_2.data, True)
-        self.assertEqual(response_1.data['research_dataset']['urn_identifier'] in response_2.data['alternate_record_set'], True)
-        self.assertEqual(response_3.data['research_dataset']['urn_identifier'] in response_2.data['alternate_record_set'], True)
-        self.assertEqual(response_2.data['research_dataset']['urn_identifier'] not in response_2.data['alternate_record_set'], True, msg_self_should_not_be_listed)
+        self.assertEqual(
+            response_1.data['research_dataset']['urn_identifier'] in response_2.data['alternate_record_set'], True)
+        self.assertEqual(
+            response_3.data['research_dataset']['urn_identifier'] in response_2.data['alternate_record_set'], True)
+        self.assertEqual(
+            response_2.data['research_dataset']['urn_identifier'] not in response_2.data['alternate_record_set'], True,
+            msg_self_should_not_be_listed)
 
     def _set_preferred_identifier_to_record(self, pk=1, data_catalog=1):
         """
@@ -1296,8 +1366,10 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         self._set_preferred_identifier_to_record(pk=3, data_catalog=4)
 
         # ensuring initial conditions...
-        records = CatalogRecord.objects.filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier })
-        self.assertEqual(len(records), 3, 'in the beginning, there should be three records with pref id %s' % self.preferred_identifier)
+        records = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': self.preferred_identifier})
+        self.assertEqual(len(records), 3,
+                         'in the beginning, there should be three records with pref id %s' % self.preferred_identifier)
         ars_id = records[0].alternate_record_set.id
         self.assertEqual(records[0].alternate_record_set.id, ars_id)
         self.assertEqual(records[1].alternate_record_set.id, ars_id)
