@@ -228,6 +228,9 @@ paths:
   /files/{PID}/XML:
     get:
       summary: get XML metadata from file
+      produces:
+        - application/xml
+        - application/json
       parameters:
         - name: PID
           in: path
@@ -236,18 +239,74 @@ paths:
           type: string
         - name: namespace
           in: query
-          description: Namespace of the schema
-          required: true
+          description: Namespace of the schema. If omitted, returns a list of xml metadata namespaces associated with the file.
           type: string
       responses:
         '200':
-          description: XML returned
+          description: single xml metadata (application/xml), or a list of namespaces (application/json)
         '404':
-          description: not found
+          description: file not found
+      tags:
+        - File API
+    post:
+      summary: create new XML metadata
+      consumes:
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: PID
+          in: path
+          description: persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: namespace of the schema. If a xml metadata already existed with given namespace, an error is returned
+          required: true
+          type: string
+        - in: "body"
+          name: "body"
+          description: The XML to create.
+          required: true
+      responses:
+        '201':
+          description: return created XML
+        '400':
+          description: parameters contained errors, response includes details (application/json)
       tags:
         - File API
     put:
-      summary: replace XML metadata
+      summary: update XML metadata
+      consumes:
+        - application/xml
+      parameters:
+        - name: PID
+          in: path
+          description: persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: namespace of the schema
+          required: true
+          type: string
+        - in: "body"
+          name: "body"
+          description: "The XML to update"
+          required: true
+      responses:
+        '204':
+          description: XML saved
+        '400':
+          description: parameters contained errors, response includes details
+        '404':
+          description: file or namespace does not exist
+      tags:
+        - File API
+    delete:
+      summary: delete XML metadata
       parameters:
         - name: PID
           in: path
@@ -261,11 +320,11 @@ paths:
           type: string
       responses:
         '204':
-          description: XML saved
+          description: XML is deleted
         '400':
           description: parameters contained errors, response includes details
         '404':
-          description: file does not exist
+          description: file or namespace does not exist
       tags:
         - File API
   /directories:
