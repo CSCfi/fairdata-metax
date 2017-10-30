@@ -68,8 +68,8 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'metax_api',
     'rest_framework',
+    'metax_api',
 ]
 
 if DEBUG:
@@ -97,6 +97,18 @@ REST_FRAMEWORK = {
 
 if not DEBUG:
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ['rest_framework.renderers.JSONRenderer']
+
+REST_FRAMEWORK['DEFAULT_PARSER_CLASSES'] = [
+    'rest_framework.parsers.JSONParser',
+    'metax_api.parsers.XMLParser',
+]
+
+REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
+    'rest_framework.renderers.JSONRenderer',
+    'rest_framework.renderers.BrowsableAPIRenderer',
+    'metax_api.renderers.XMLRenderer',
+]
+
 
 ROOT_URLCONF = 'metax_api.urls'
 

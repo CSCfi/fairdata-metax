@@ -9,6 +9,7 @@ class XmlMetadataSerializer(CommonSerializer):
             'id',
             'namespace',
             'xml',
+            'file',
             'modified_by_user_id',
             'modified_by_api',
             'created_by_user_id',
@@ -23,7 +24,14 @@ class XmlMetadataSerializer(CommonSerializer):
             'created_by_api': { 'required': False },
         }
 
-    def validate_file_xml(self, value):
+    def to_representation(self, instance):
+        res = super(XmlMetadataSerializer, self).to_representation(instance)
+        res['file'] = {
+            'identifier': self.instance.file.identifier
+        }
+        return res
+
+    def validate_xml(self, value):
         # try:
         #     json_validate(value, self.context['view'].json_schema)
         # except JsonValidationError as e:

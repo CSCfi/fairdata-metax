@@ -157,11 +157,15 @@ class CommonService():
         return results, http_status
 
     @staticmethod
-    def update_common_info(request):
+    def update_common_info(request, return_only=False):
         """
         Update fields common for all tables and most actions:
         - last modified timestamp and user
         - created on timestamp and user
+
+        For cases where request data is actually xml, it is useful to return the common info,
+        so that its info can be used manually, instead of updating request.data here automatically.
+        For that purpese, use the return_only flag.
         """
         user_id = request.user.id or None
 
@@ -185,7 +189,10 @@ class CommonService():
         else:
             pass
 
-        request.data.update(common_info)
+        if return_only:
+            return common_info
+        else:
+            request.data.update(common_info)
 
     @staticmethod
     def _append_error(results, serializer, error):
