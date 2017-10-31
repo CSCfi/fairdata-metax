@@ -526,11 +526,12 @@
             "properties":{
                 "title":{
                     "title":"Title",
-                    "description":"A name given to the resource.",
+                    "description":"A name of the Linguistic System. Name is given as localized text from IETF language codes. In case text cannot be localixed \"zxx\" or \"und\" language codes must be used.",
                     "@id":"http://purl.org/dc/terms/title",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "maxItems":1,
-                    "type":"string"
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "identifier":{
                     "title":"Identifier",

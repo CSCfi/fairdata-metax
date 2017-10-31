@@ -11,12 +11,10 @@
         "harvested": false,
         "language": [
           {
-            "identifier": "http://lexvo.org/id/iso639-3/fin",
-            "title": "fin"
+            "identifier": "http://lexvo.org/id/iso639-3/fin"
           },
           {
-            "identifier": "http://lexvo.org/id/iso639-3/eng",
-            "title": "eng"
+            "identifier": "http://lexvo.org/id/iso639-3/eng"
           }
         ],
         "homepage": [
