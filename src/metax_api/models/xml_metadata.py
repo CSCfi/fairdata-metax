@@ -6,7 +6,7 @@ from .file import File
 class XmlMetadata(Common):
 
     namespace = models.CharField(max_length=200)
-    xml = models.CharField(max_length=200)
+    xml = models.TextField()
     file = models.ForeignKey(File)
 
     class Meta:

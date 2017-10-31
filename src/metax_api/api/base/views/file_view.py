@@ -1,6 +1,7 @@
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route
+from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
@@ -92,7 +93,12 @@ class FileViewSet(CommonViewSet):
 
         new_xml_metadata = self._xml_request_to_dict_data(request, file)
         serializer = XmlMetadataSerializer(data=new_xml_metadata)
-        serializer.is_valid()
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         serializer.save()
         request.accepted_renderer = XMLRenderer()
         return Response(data=serializer.instance.xml, status=status.HTTP_201_CREATED)
@@ -105,7 +111,12 @@ class FileViewSet(CommonViewSet):
 
         new_xml_metadata = self._xml_request_to_dict_data(request, file)
         serializer = XmlMetadataSerializer(xml_metadata, data=new_xml_metadata)
-        serializer.is_valid()
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except ValidationError:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         serializer.save()
         return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
