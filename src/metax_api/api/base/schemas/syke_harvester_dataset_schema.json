@@ -948,11 +948,9 @@
                     "description":"A name given to the resource.",
                     "@id":"http://purl.org/dc/terms/title",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "maxItems":1,
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "description":{
                     "title":"Description",

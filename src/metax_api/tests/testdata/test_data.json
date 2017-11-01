@@ -717,12 +717,10 @@
                     "license": [
                         {
                             "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                            "title": [
-                                {
-                                    "en": "CC BY 4.0",
-                                    "fi": "CC BY 4.0"
-                                }
-                            ]
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
                         }
                     ],
                     "type": [
@@ -834,12 +832,10 @@
                     "license": [
                         {
                             "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                            "title": [
-                                {
-                                    "en": "CC BY 4.0",
-                                    "fi": "CC BY 4.0"
-                                }
-                            ]
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
                         }
                     ],
                     "type": [
@@ -951,12 +947,10 @@
                     "license": [
                         {
                             "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                            "title": [
-                                {
-                                    "en": "CC BY 4.0",
-                                    "fi": "CC BY 4.0"
-                                }
-                            ]
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
                         }
                     ],
                     "type": [
@@ -1068,12 +1062,10 @@
                     "license": [
                         {
                             "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                            "title": [
-                                {
-                                    "en": "CC BY 4.0",
-                                    "fi": "CC BY 4.0"
-                                }
-                            ]
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
                         }
                     ],
                     "type": [
@@ -2250,11 +2242,9 @@
                             ],
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
-                            "title": [
-                                {
-                                    "en": "A name given to the resource"
-                                }
-                            ]
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
                         }
                     ],
                     "type": [
@@ -2831,11 +2821,9 @@
                                 ],
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
-                                "title": [
-                                    {
-                                        "en": "A name given to the resource"
-                                    }
-                                ]
+                                "title": {
+                                    "en": "A name given to the resource"
+                                }
                             }
                         ],
                         "mediatype": "fileformat here",
@@ -2990,11 +2978,9 @@
                             ],
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
-                            "title": [
-                                {
-                                    "en": "A name given to the resource"
-                                }
-                            ]
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
                         }
                     ],
                     "type": [
@@ -3571,11 +3557,9 @@
                                 ],
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
-                                "title": [
-                                    {
-                                        "en": "A name given to the resource"
-                                    }
-                                ]
+                                "title": {
+                                    "en": "A name given to the resource"
+                                }
                             }
                         ],
                         "mediatype": "fileformat here",
