@@ -255,6 +255,11 @@ class CatalogRecordSerializer(CommonSerializer):
 
         if self._operation_is_create():
             return CatalogRecord.objects.filter(**params)
+        elif self._saving_to_att_catalog():
+            # preferred_identifiers already existing in ATT catalog are fine, so exclude
+            # results from ATT catalog. matches in other catalogs however are considered
+            # an error.
+            return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=1)
         else:
             return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id)
 
