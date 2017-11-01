@@ -245,7 +245,14 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
     """
-    Tests related to checking preferred_identifier uniqueness.
+    Tests related to checking preferred_identifier uniqueness. Topics of interest:
+    - when saving to ATT catalog, preferred_identifier already existing in the ATT
+      catalog is fine (other versions of the same record).
+    - when saving to ATT catalog, preferred_identifier already existing in OTHER
+      catalogs is an error (ATT catalog should only have "new" records).
+    - when saving to OTHER catalogs than ATT, preferred_identifier already existing
+      in any other catalog is fine (the same record can be harvested from multiple
+      sources).
     """
 
     #
@@ -275,7 +282,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         preferred_identifier already existing in the same data catalog is an error
         """
-        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
         self.test_new_data['research_dataset']['preferred_identifier'] = unique_identifier
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
@@ -289,7 +296,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         preferred_identifier existing in another data catalog is not an error.
         """
-        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
         self.test_new_data['research_dataset']['preferred_identifier'] = unique_identifier
 
         # different catalog, should be OK
@@ -335,7 +342,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         Test PATCH, when data_catalog of the record being updated is already
         different than another record's which has the same identifier.
         """
-        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
 
         cr = CatalogRecord.objects.get(pk=2)
         cr.data_catalog_id = 2
@@ -358,7 +365,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         In this test, catalog is updated to 2, which should not contain a conflicting
         identifier.
         """
-        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
 
         data = {'research_dataset': self.test_new_data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
@@ -369,20 +376,24 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
 
     def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_3(self):
         """
-        preferred_identifier already existing in the same data catalog is an error
+        preferred_identifier already existing in the same data catalog is an error,
+        in other catalogs than ATT: Harvester or other catalogs cant contain same
+        preferred_identifier twice.
 
         Test PATCH, when data_catalog is being updated to a different catalog
         in the same request. In this case, the uniqueness check has to be executed
         on the new data_catalog being passed.
 
-        In this test, catalog is updated to 1, which should contain a conflicting
+        In this test, catalog is updated to 3, which should contain a conflicting
         identifier, resulting in an error.
         """
-        unique_identifier = self._set_preferred_identifier_to_record(pk=1)
+
+        # setup the record in db which will cause conflict
+        unique_identifier = self._set_preferred_identifier_to_record(pk=3, catalog_id=3)
 
         data = {'research_dataset': self.test_new_data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
-        data['data_catalog'] = 1
+        data['data_catalog'] = 3
 
         response = self.client.patch('/rest/datasets/2', data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -391,13 +402,15 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
 
     def test_update_catalog_record_in_att_preferred_identifier_exists_in_another_catalog(self):
         """
-        preferred_identifier existing in another data catalog IS an error, when saving to ATT
-        catalog.
+        when saving to ATT catalog, preferred_identifier existing in another data
+        catalog IS an error.
 
         Update an existing record in catalog #1 to have pref_id x, when a record in catalog #2
-        already has the same pref_id x. This should be an error.
+        already has the same pref_id x. This should be an error, since records in the ATT catalog
+        should be "new".
         """
-        unique_identifier = self._set_preferred_identifier_to_record(pk=2)
+        # setup the record that will cause conflict
+        unique_identifier = self._set_preferred_identifier_to_record(pk=2, catalog_id=2)
 
         data = {'research_dataset': self.test_new_data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
@@ -411,11 +424,30 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         self.assertEqual('saving to ATT' in response.data['research_dataset'][0], True,
                          'The error should mention saving to ATT catalog as the reason')
 
+    def test_update_catalog_record_in_att_multiple_preferred_identifiers_are_allowed(self):
+        """
+        When saving to ATT catalog, multiple preferred_identifier already existing in
+        the same data catalog is OK, as records which are versions of each other can have
+        the same preferred_identifier.
+
+        Test PATCH, when updating a record in ATT catalog, and another record already has the
+        same preferred_identifier.
+        """
+        unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
+
+        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data['research_dataset']['preferred_identifier'] = unique_identifier
+        data['data_catalog'] = 1
+
+        response = self.client.patch('/rest/datasets/2', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'] == unique_identifier, True)
+
     #
     # helpers
     #
 
-    def _set_preferred_identifier_to_record(self, pk=1):
+    def _set_preferred_identifier_to_record(self, pk=None, catalog_id=None):
         """
         Set preferred_identifier to an existing record to a value, and return that value,
         which will then be used by the test to create or update another record.
@@ -423,7 +455,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         unique_identifier = 'im unique yo'
         cr = CatalogRecord.objects.get(pk=pk)
         cr.research_dataset['preferred_identifier'] = unique_identifier
-        cr.data_catalog_id = 1
+        cr.data_catalog_id = catalog_id
         cr.save()
         return unique_identifier
 
@@ -615,8 +647,8 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.test_new_data['id'] = 1
         self.test_new_data['research_dataset']['description'] = [{'en': 'updated description'}]
 
-        # this value should already exist, therefore should fail
-        self.second_test_new_data['research_dataset']['preferred_identifier'] = self.urn_identifier
+        # data catalog is a required field, should therefore fail
+        self.second_test_new_data.pop('data_catalog', None)
         self.second_test_new_data['id'] = 2
 
         response = self.client.put('/rest/datasets', [self.test_new_data, self.second_test_new_data], format="json")
@@ -780,10 +812,10 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         # should result in error for this record
         data_2['modified_by_api'] = '2002-01-01T10:10:10.000000'
 
-        headers = {'If-Unmodified-Since': 'value is not checked'}
-        response = self.client.put('/rest/datasets', [data_1, data_2], headers=headers, format="json")
-        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True,
-                         'error should indicate resource has been modified')
+        headers = { 'If-Unmodified-Since': 'value is not checked' }
+        response = self.client.put('/rest/datasets', [ data_1, data_2 ], headers=headers, format="json")
+        self.assertEqual(len(response.data['failed']) == 1, True, 'there should be only one failed update')
+        self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True, 'error should indicate resource has been modified')
 
     def test_update_list_with_if_unmodified_since_header_error_2(self):
         """
