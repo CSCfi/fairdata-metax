@@ -29,9 +29,12 @@ class DataCatalogSerializer(CommonSerializer):
         }
 
     def is_valid(self, raise_exception=False):
+        super(DataCatalogSerializer, self).is_valid(raise_exception=raise_exception)
         if 'catalog_json' in self.initial_data:
             self._validate_dataset_schema()
-        super(DataCatalogSerializer, self).is_valid(raise_exception=raise_exception)
+            # ensure any operation made on data_catalog during serializer.is_valid(),
+            # is still compatible with the schema
+            self._validate_json_schema(self.initial_data['catalog_json'])
 
     def validate_catalog_json(self, value):
         self._validate_json_schema(value)

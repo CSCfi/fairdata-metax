@@ -106,9 +106,9 @@
             }],
             "license": [{
                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
-                "title": [{
+                "title": {
                     "en": "A name given to the resource"
-                }],
+                },
                 "description": [{
                     "en": "Free account of the rights"
                 }],
@@ -529,9 +529,9 @@
             },
             "license": [{
                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
-                "title": [{
+                "title": {
                     "en": "A name given to the resource"
-                }],
+                },
                 "description": [{
                     "en": "Free account of the rights"
                 }],

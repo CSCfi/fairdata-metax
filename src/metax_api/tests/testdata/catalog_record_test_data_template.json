@@ -33,7 +33,6 @@
             "name": {"en": "Org in ref data", "fi": "Organisaatio"}
         }],
         "language":[{
-            "title": "English",
             "identifier": "http://lexvo.org/id/iso639-3/eng"
         }]
     }

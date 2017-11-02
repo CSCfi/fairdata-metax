@@ -211,11 +211,12 @@
             "properties":{
                 "title":{
                     "title":"Title",
-                    "description":"Language title, code or ISO 639-3 string representing the language",
+                    "description":"A name of the Linguistic System. Name is given as localized text from IETF language codes. In case text cannot be localixed \"zxx\" or \"und\" language codes must be used.",
                     "@id":"http://purl.org/dc/terms/title",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "maxItems":1,
-                    "type":"string"
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "identifier":{
                     "title":"Identifier",
@@ -313,11 +314,9 @@
                     "description":"A name given to the resource.",
                     "@id":"http://purl.org/dc/terms/title",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "maxItems":1,
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "description":{
                     "title":"Description",

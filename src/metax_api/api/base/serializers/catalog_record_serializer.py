@@ -78,7 +78,13 @@ class CatalogRecordSerializer(CommonSerializer):
             # in the database, and what the data catalog is being changed to.
             self._validate_research_dataset_uniqueness(self.instance.research_dataset)
 
+        # executes other validation related code, such as validate_research_dataset()
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
+
+        # ensure any operation made on research_dataset during serializer.is_valid(),
+        # is still compatible with the schema
+        if 'research_dataset' in self.initial_data:
+            self._validate_json_schema(self.initial_data['research_dataset'])
 
     def update(self, instance, validated_data):
         instance = super(CatalogRecordSerializer, self).update(instance, validated_data)

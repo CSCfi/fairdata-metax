@@ -221,7 +221,6 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                     "name": {"en": "Curator org", "fi": "Organisaatio"}
                 }],
                 "language": [{
-                    "title": "en",
                     "identifier": "http://lexvo.org/id/iso639-3/aar"
                 }],
                 "total_byte_size": 1024,

@@ -30,9 +30,7 @@ class DataCatalogService(ReferenceDataMixin):
             ref_entry = cls.check_ref_data(refdata['language'], language['identifier'],
                                            'data_catalog_json.language.identifier', errors)
             if ref_entry:
-                # note that catalog language does not have an applicable field for label,
-                # like dataset language has
-                cls.populate_from_ref_data(ref_entry, language)
+                cls.populate_from_ref_data(ref_entry, language, label_field='title')
 
         for fos in data_catalog.get('field_of_science', []):
             ref_entry = cls.check_ref_data(refdata['field_of_science'], fos['identifier'],
