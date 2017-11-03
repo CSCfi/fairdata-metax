@@ -245,7 +245,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     cls.populate_from_ref_data(ref_entry, rights_statement_license, label_field='title')
 
             for rra in access_rights.get('has_rights_related_agent', []):
-                cls.process_research_agent_obj(orgdata, rra, 'research_dataset.access_rights.has_rights_related_agent')
+                cls.process_research_agent_obj_with_type(orgdata, rra, 'research_dataset.access_rights.has_rights_related_agent')
 
         for project in research_dataset.get('is_output_of', []):
             for org_obj in project.get('source_organization', []):
@@ -282,23 +282,23 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     cls.populate_from_ref_data(ref_entry, file['type'], label_field='pref_label')
 
         for contributor in research_dataset.get('contributor', []):
-            cls.process_research_agent_obj(orgdata, contributor, 'research_dataset.contributor')
+            cls.process_research_agent_obj_with_type(orgdata, contributor, 'research_dataset.contributor')
 
         if 'publisher' in research_dataset:
-            cls.process_research_agent_obj(orgdata, research_dataset['publisher'], 'research_dataset.publisher')
+            cls.process_research_agent_obj_with_type(orgdata, research_dataset['publisher'], 'research_dataset.publisher')
 
         for curator in research_dataset.get('curator', []):
-            cls.process_research_agent_obj(orgdata, curator, 'research_dataset.curator')
+            cls.process_research_agent_obj_with_type(orgdata, curator, 'research_dataset.curator')
 
         for creator in research_dataset.get('creator', []):
-            cls.process_research_agent_obj(orgdata, creator, 'research_dataset.creator')
+            cls.process_research_agent_obj_with_type(orgdata, creator, 'research_dataset.creator')
 
         if 'rights_holder' in research_dataset:
-            cls.process_research_agent_obj(orgdata, research_dataset['rights_holder'], 'research_dataset.rights_holder')
+            cls.process_research_agent_obj_with_type(orgdata, research_dataset['rights_holder'], 'research_dataset.rights_holder')
 
         for activity in research_dataset.get('provenance', []):
             for was_associated_with in activity.get('was_associated_with', []):
-                cls.process_research_agent_obj(orgdata, was_associated_with,
+                cls.process_research_agent_obj_with_type(orgdata, was_associated_with,
                                                'research_dataset.provenance.was_associated_with')
 
         if errors:
