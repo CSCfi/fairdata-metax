@@ -128,7 +128,7 @@ class ReferenceDataMixin():
                 cls.populate_from_ref_data(ref_entry, org_obj, 'identifier', 'name')
 
     @classmethod
-    def process_research_agent_obj(cls, org_ref_data, agent_obj, agent_obj_relation_name):
+    def process_research_agent_obj_with_type(cls, org_ref_data, agent_obj, agent_obj_relation_name):
         if agent_obj.get('@type') == 'Person':
             member_of = agent_obj.get('member_of', None)
             if member_of:
