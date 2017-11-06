@@ -1,6 +1,6 @@
 {
     "@id":"http://iow.csc.fi/ns/mrd#",
-    "title":"The Language Bank of Finland Research Datasets",
+    "title":"SYKE Research Datasets",
     "modified":"Mon, 09 Oct 2017 14:41:39 EEST",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
@@ -758,7 +758,7 @@
                     "type":"object",
                     "$ref":"#/definitions/Organization"
                 },
-                "type":{
+                "contributor_role":{
                     "title":"Contributor role",
                     "description":"Contributor role from reference data",
                     "@id":"http://purl.org/dc/terms/type",
@@ -822,7 +822,7 @@
                         "$ref":"#/definitions/Organization"
                     }
                 },
-                "type":{
+                "funder_type":{
                     "title":"Funder type",
                     "description":"Project funder type from reference data",
                     "@id":"http://purl.org/dc/terms/type",

@@ -1033,17 +1033,23 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd['field_of_science'][0]['identifier'] = 'nonexisting'
         rd['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
         rd['remote_resources'][0]['license'][0]['identifier'] = 'nonexisting'
-        rd['remote_resources'][0]['type']['identifier'] = 'nonexisting'
+        rd['remote_resources'][0]['resource_type']['identifier'] = 'nonexisting'
+        rd['remote_resources'][0]['use_category'][0]['identifier'] = 'nonexisting'
         rd['language'][0]['identifier'] = 'nonexisting'
         rd['access_rights']['type'][0]['identifier'] = 'nonexisting'
         rd['access_rights']['license'][0]['identifier'] = 'nonexisting'
         rd['other_identifier'][0]['type']['identifier'] = 'nonexisting'
         rd['spatial'][0]['place_uri'][0]['identifier'] = 'nonexisting'
-        rd['files'][0]['type']['identifier'] = 'nonexisting'
+        rd['files'][0]['file_type']['identifier'] = 'nonexisting'
+        rd['files'][0]['use_category'][0]['identifier'] = 'nonexisting'
+        rd['infrastructure'][0]['identifier'] = 'nonexisting'
+        rd['creator'][0]['contributor_role']['identifier'] = 'nonexisting'
+        rd['is_output_of'][0]['funder_type']['identifier'] = 'nonexisting'
+        rd['directories'][0]['use_category'][0]['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 11)
+        self.assertEqual(len(response.data['research_dataset']), 17)
 
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
@@ -1079,6 +1085,11 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
             'location',
             # 'organization', # handled separately since in difference place
             'resource_type',
+            'file_type',
+            'use_category',
+            'research_infra',
+            'contributor_role',
+            'funder_type'
         ]
 
         # the values in these selected entries will be used throghout the rest of the test case
@@ -1107,9 +1118,15 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd['access_rights']['license'][0] = {'identifier': refs['license']['code']}
         rd['other_identifier'][0]['type'] = {'identifier': refs['identifier_type']['code']}
         rd['spatial'][0]['place_uri'][0] = {'identifier': refs['location']['code']}
-        rd['files'][0]['type'] = {'identifier': refs['resource_type']['code']}
-        rd['remote_resources'][0]['type'] = {'identifier': refs['resource_type']['code']}
+        rd['files'][0]['file_type'] = {'identifier': refs['file_type']['code']}
+        rd['files'][0]['use_category'][0] = {'identifier': refs['use_category']['code']}
+        rd['directories'][0]['use_category'][0] = {'identifier': refs['use_category']['code']}
+        rd['remote_resources'][0]['resource_type'] = {'identifier': refs['resource_type']['code']}
+        rd['remote_resources'][0]['use_category'][0] = {'identifier': refs['use_category']['code']}
         rd['remote_resources'][0]['license'][0] = {'identifier': refs['license']['code']}
+        rd['infrastructure'][0] = {'identifier': refs['research_infra']['code']}
+        rd['creator'][0]['contributor_role'] = {'identifier': refs['contributor_role']['code']}
+        rd['is_output_of'][0]['funder_type'] = {'identifier': refs['funder_type']['code']}
 
         # these have other required fields, so only update the identifier with code
         rd['is_output_of'][0]['source_organization'][0]['identifier'] = refs['organization']['code']
@@ -1146,8 +1163,11 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['license']['uri'], new_rd['access_rights']['license'][0]['identifier'])
         self.assertEqual(refs['identifier_type']['uri'], new_rd['other_identifier'][0]['type']['identifier'])
         self.assertEqual(refs['location']['uri'], new_rd['spatial'][0]['place_uri'][0]['identifier'])
-        self.assertEqual(refs['resource_type']['uri'], new_rd['files'][0]['type']['identifier'])
-        self.assertEqual(refs['resource_type']['uri'], new_rd['remote_resources'][0]['type']['identifier'])
+        self.assertEqual(refs['file_type']['uri'], new_rd['files'][0]['file_type']['identifier'])
+        self.assertEqual(refs['use_category']['uri'], new_rd['files'][0]['use_category'][0]['identifier'])
+        self.assertEqual(refs['resource_type']['uri'], new_rd['remote_resources'][0]['resource_type']['identifier'])
+        self.assertEqual(refs['use_category']['uri'], new_rd['remote_resources'][0]['use_category'][0]['identifier'])
+        self.assertEqual(refs['use_category']['uri'], new_rd['directories'][0]['use_category'][0]['identifier'])
         self.assertEqual(refs['license']['uri'], new_rd['remote_resources'][0]['license'][0]['identifier'])
         self.assertEqual(refs['organization']['uri'], new_rd['is_output_of'][0]['source_organization'][0]['identifier'])
         self.assertEqual(refs['organization']['uri'], new_rd['is_output_of'][0]['has_funding_agency'][0]['identifier'])
@@ -1159,6 +1179,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['organization']['uri'], new_rd['rights_holder']['is_part_of']['identifier'])
         self.assertEqual(refs['organization']['uri'],
                          new_rd['access_rights']['has_rights_related_agent'][0]['identifier'])
+        self.assertEqual(refs['research_infra']['uri'], new_rd['infrastructure'][0]['identifier'])
+        self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role']['identifier'])
+        self.assertEqual(refs['funder_type']['uri'], new_rd['is_output_of'][0]['funder_type']['identifier'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_rd):
         self.assertEqual(refs['keyword']['label'], new_rd['theme'][0].get('pref_label', None))
@@ -1167,8 +1190,14 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['identifier_type']['label'],
                          new_rd['other_identifier'][0]['type'].get('pref_label', None))
         self.assertEqual(refs['location']['label'], new_rd['spatial'][0]['place_uri'][0].get('pref_label', None))
-        self.assertEqual(refs['resource_type']['label'], new_rd['files'][0]['type'].get('pref_label', None))
-        self.assertEqual(refs['resource_type']['label'], new_rd['remote_resources'][0]['type'].get('pref_label', None))
+        self.assertEqual(refs['file_type']['label'], new_rd['files'][0]['file_type'].get('pref_label', None))
+        self.assertEqual(refs['use_category']['label'], new_rd['files'][0]['use_category'][0].get('pref_label', None))
+        self.assertEqual(refs['use_category']['label'], new_rd['directories'][0]['use_category'][0].get('pref_label', None))
+        self.assertEqual(refs['resource_type']['label'], new_rd['remote_resources'][0]['resource_type'].get('pref_label', None))
+        self.assertEqual(refs['use_category']['label'], new_rd['remote_resources'][0]['use_category'][0].get('pref_label', None))
+        self.assertEqual(refs['research_infra']['label'], new_rd['infrastructure'][0].get('pref_label', None))
+        self.assertEqual(refs['contributor_role']['label'], new_rd['creator'][0]['contributor_role'].get('pref_label', None))
+        self.assertEqual(refs['funder_type']['label'], new_rd['is_output_of'][0]['funder_type'].get('pref_label', None))
 
     def _assert_label_copied_to_title(self, refs, new_rd):
         self.assertEqual(refs['language']['label'], new_rd['language'][0].get('title', None))

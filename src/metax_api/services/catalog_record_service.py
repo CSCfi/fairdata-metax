@@ -218,11 +218,23 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title')
 
-            if remote_resource.get('type', False):
-                ref_entry = cls.check_ref_data(refdata['resource_type'], remote_resource['type']['identifier'],
-                                               'research_dataset.remote_resources.type.identifier', errors)
+            if remote_resource.get('resource_type', False):
+                ref_entry = cls.check_ref_data(refdata['resource_type'], remote_resource['resource_type']['identifier'],
+                                               'research_dataset.remote_resources.resource_type.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, remote_resource['type'], label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, remote_resource['resource_type'], label_field='pref_label')
+
+            if remote_resource.get('file_type', False):
+                ref_entry = cls.check_ref_data(refdata['file_type'], remote_resource['file_type']['identifier'],
+                                               'research_dataset.remote_resources.file_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, remote_resource['file_type'], label_field='pref_label')
+
+            for use_category in remote_resource.get('use_category', []):
+                ref_entry = cls.check_ref_data(refdata['use_category'], use_category['identifier'],
+                                               'research_dataset.remote_resources.use_category.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, use_category, label_field='pref_label')
 
         for language in research_dataset.get('language', []):
             ref_entry = cls.check_ref_data(refdata['language'], language['identifier'],
@@ -245,7 +257,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     cls.populate_from_ref_data(ref_entry, rights_statement_license, label_field='title')
 
             for rra in access_rights.get('has_rights_related_agent', []):
-                cls.process_research_agent_obj_with_type(orgdata, rra, 'research_dataset.access_rights.has_rights_related_agent')
+                cls.process_research_agent_obj_with_type(orgdata, refdata, errors, rra,
+                                                         'research_dataset.access_rights.has_rights_related_agent')
 
         for project in research_dataset.get('is_output_of', []):
             for org_obj in project.get('source_organization', []):
@@ -256,14 +269,20 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 cls.process_org_obj_against_ref_data(orgdata, org_obj,
                                                      'research_dataset.is_output_of.has_funding_agency')
 
+            if project.get('funder_type', False):
+                ref_entry = cls.check_ref_data(refdata['funder_type'], project['funder_type']['identifier'],
+                                               'research_dataset.is_output_of.funder_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, project['funder_type'], label_field='pref_label')
+
         for other_identifier in research_dataset.get('other_identifier', []):
-            if 'type' in other_identifier:
+            if other_identifier.get('type', False):
                 ref_entry = cls.check_ref_data(refdata['identifier_type'], other_identifier['type']['identifier'],
                                                'research_dataset.other_identifier.type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, other_identifier['type'], label_field='pref_label')
 
-            if 'provider' in other_identifier:
+            if other_identifier.get('provider', False):
                 cls.process_org_obj_against_ref_data(orgdata, other_identifier['provider'],
                                                      'research_dataset.other_identifier.provider')
 
@@ -275,31 +294,53 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
 
         for file in research_dataset.get('files', []):
-            if file.get('type', False):
-                ref_entry = cls.check_ref_data(refdata['resource_type'], file['type']['identifier'],
-                                               'research_dataset.files.type.identifier', errors)
+            if file.get('file_type', False):
+                ref_entry = cls.check_ref_data(refdata['file_type'], file['file_type']['identifier'],
+                                               'research_dataset.files.file_type.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, file['type'], label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, file['file_type'], label_field='pref_label')
+
+            for use_category in file.get('use_category', []):
+                ref_entry = cls.check_ref_data(refdata['use_category'], use_category['identifier'],
+                                               'research_dataset.files.use_category.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, use_category, label_field='pref_label')
+
+        for directory in research_dataset.get('directories', []):
+            for use_category in directory.get('use_category', []):
+                ref_entry = cls.check_ref_data(refdata['use_category'], use_category['identifier'],
+                                               'research_dataset.directories.use_category.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, use_category, label_field='pref_label')
 
         for contributor in research_dataset.get('contributor', []):
-            cls.process_research_agent_obj_with_type(orgdata, contributor, 'research_dataset.contributor')
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, contributor,
+                                                     'research_dataset.contributor')
 
-        if 'publisher' in research_dataset:
-            cls.process_research_agent_obj_with_type(orgdata, research_dataset['publisher'], 'research_dataset.publisher')
+        if research_dataset.get('publisher', False):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, research_dataset['publisher'],
+                                                     'research_dataset.publisher')
 
         for curator in research_dataset.get('curator', []):
-            cls.process_research_agent_obj_with_type(orgdata, curator, 'research_dataset.curator')
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, curator, 'research_dataset.curator')
 
         for creator in research_dataset.get('creator', []):
-            cls.process_research_agent_obj_with_type(orgdata, creator, 'research_dataset.creator')
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, creator, 'research_dataset.creator')
 
-        if 'rights_holder' in research_dataset:
-            cls.process_research_agent_obj_with_type(orgdata, research_dataset['rights_holder'], 'research_dataset.rights_holder')
+        if research_dataset.get('rights_holder', False):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, research_dataset['rights_holder'],
+                                                     'research_dataset.rights_holder')
 
         for activity in research_dataset.get('provenance', []):
             for was_associated_with in activity.get('was_associated_with', []):
-                cls.process_research_agent_obj_with_type(orgdata, was_associated_with,
+                cls.process_research_agent_obj_with_type(orgdata, refdata, errors, was_associated_with,
                                                'research_dataset.provenance.was_associated_with')
+
+        for infra in research_dataset.get('infrastructure', []):
+            ref_entry = cls.check_ref_data(refdata['research_infra'], infra['identifier'],
+                                           'research_dataset.infrastructure.identifier', errors)
+            if ref_entry:
+                cls.populate_from_ref_data(ref_entry, infra, label_field='pref_label')
 
         if errors:
             raise ValidationError(errors)

@@ -758,7 +758,7 @@
                     "type":"object",
                     "$ref":"#/definitions/Organization"
                 },
-                "type":{
+                "contributor_role":{
                     "title":"Contributor role",
                     "description":"Contributor role from reference data",
                     "@id":"http://purl.org/dc/terms/type",
@@ -823,7 +823,7 @@
                         "$ref":"#/definitions/Organization"
                     }
                 },
-                "type":{
+                "funder_type":{
                     "title":"Funder type",
                     "description":"Project funder type from reference data",
                     "@id":"http://purl.org/dc/terms/type",
