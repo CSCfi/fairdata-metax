@@ -20,7 +20,7 @@
         "description": [{
             "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
         }],
-        "bibliographical_sitation": "whot",
+        "bibliographic_citation": "whot",
         "value": [
             0.111
         ],
@@ -65,7 +65,9 @@
                 }]
             }
         }],
-
+        "infrastructure": [{
+            "identifier": "urn-nbn-fi-research-infras-2016072530"
+        }],
         "access_rights": {
             "description": [{
                 "en": "Free account of the rights"
@@ -334,6 +336,9 @@
                 "@type": "Organization",
                 "identifier": "10076",
                 "name": {"en": "Mysterious Organization", "fi": "Organisaatio"}
+            },
+            "contributor_role": {
+                "identifier": "data_curation"
             }
         }],
         "curator":[{
@@ -395,6 +400,9 @@
                     "telephone": [
                         "+358501231235"
                     ]
+                },
+                "contributor_role": {
+                    "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
                 }
             },
             {
@@ -413,6 +421,9 @@
                     "telephone": [
                         "+23423423"
                     ]
+                },
+                "contributor_role": {
+                    "identifier": "project_administration"
                 }
             }
         ],
@@ -439,17 +450,32 @@
                 "telephone": [
                     "+358501231235"
                 ]
-            }]
+            }],
+            "funder_type": {
+                "identifier": "tekes"
+            }
         }],
+        "directories": [
+            {
+                "identifier": "directory-identifier-1",
+                "title": "dir_name",
+                "description": "What is in this directory",
+                "use_category": [
+                    {"identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"}
+                ]
+            },
+            {
+                "identifier": "directory-identifier-2",
+                "title": "dir_name_2",
+                "description": "What is in this directory"
+            }
+        ],
         "files": [{
             "identifier": "urn:nbn:fi-12345",
             "title": "file title",
             "description": "file description",
-            "type": {
-                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_audiovisual",
-                "pref_label": {
-                    "en": "pref label"
-                },
+            "file_type": {
+                "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
@@ -468,17 +494,18 @@
                 "description": {
                     "en": "file url description"
                 }
-            }
+            },
+            "use_category": [
+                {"identifier": "outcome"},
+                {"identifier": "configuration"}
+            ]
         },
         {
             "identifier": "urn:nbn:fi:csc-att201401202",
             "title": "file title",
             "description": "file description",
             "type": {
-                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_text",
-                "pref_label": {
-                    "en": "pref label"
-                },
+                "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
@@ -497,7 +524,10 @@
                 "description": {
                     "en": "file url description"
                 }
-            }
+            },
+            "use_category": [
+                {"identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"}
+            ]
         }],
         "remote_resources": [{
             "identifier": "identifierofresource",
@@ -537,11 +567,8 @@
                 }],
                 "license": "https://url.of.license.which.applies.org"
             }],
-            "type": {
-                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_software",
-                "pref_label": {
-                    "en": "pref label for this type"
-                },
+            "resource_type": {
+                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
                 "definition": [{
                     "en": "A statement or formal explanation of the meaning of a concept."
                 }],
@@ -558,7 +585,10 @@
                 "has_creating_application_name": "Creating application name",
                 "encoding": "utf-8"
             },
-            "mediatype": "fileformat here"
+            "mediatype": "image/jpeg",
+            "use_category": [
+                {"identifier": "rights"}
+            ]
         }]
     }
 }

@@ -371,11 +371,11 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
                 if j < third_of_files:
                     # first third of files has this as type
                     files[-1]['type'] = {
-                        "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_event",
+                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
                         "pref_label": {
-                            "fi": "Tapahtuma",
-                            "en": "Event",
-                            "und": "Tapahtuma"
+                            "fi": "Teksti",
+                            "en": "Text",
+                            "und": "Teksti"
                         }
                     }
                 elif third_of_files <= j < (third_of_files * 2):

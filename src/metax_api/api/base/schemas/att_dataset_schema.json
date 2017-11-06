@@ -338,7 +338,7 @@
         "Directory":{
             "type":"object",
             "title":"Directory in IDA",
-            "@id":"http://www.w3.org/ns/ldp#BasicContainer",
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
             "description":"Directory that links to its contained resources.",
             "properties":{
                 "identifier":{
@@ -365,13 +365,16 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "type":{
-                    "title":"Type",
-                    "description":"Recommended best practice is to use a controlled vocabulary such as the DCMI Type Vocabulary [DCMITYPE]. To describe the file format, physical medium, or dimensions of the resource, use the Format element.\n\nThe nature or genre of the resource.",
-                    "@id":"http://purl.org/dc/terms/type",
+                "use_category":{
+                    "title":"Use Category",
+                    "description":"Use category from reference data",
+                    "@id":"http://iow.csc.fi/ns/mrd#usetype",
                     "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Concept"
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 },
                 "access_url":{
                     "title":"Access URL",
@@ -505,13 +508,24 @@
                     "type":"object",
                     "$ref":"#/definitions/Document"
                 },
-                "type":{
-                    "title":"Type",
-                    "description":"Recommended best practice is to use a controlled vocabulary such as the DCMI Type Vocabulary [DCMITYPE]. To describe the file format, physical medium, or dimensions of the resource, use the Format element.\n\nThe nature or genre of the resource.",
+                "file_type":{
+                    "title":"File type",
+                    "description":"File type from reference data",
                     "@id":"http://purl.org/dc/terms/type",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Concept"
+                },
+                "use_category":{
+                    "title":"Use category",
+                    "description":"Use type of the resource",
+                    "@id":"http://iow.csc.fi/ns/mrd#usetype",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 }
             },
             "required":[
@@ -743,6 +757,14 @@
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Organization"
+                },
+                "contributor_role":{
+                    "title":"Contributor role",
+                    "description":"Contributor role from reference data",
+                    "@id":"http://purl.org/dc/terms/type",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
                 }
             },
             "required":[
@@ -800,6 +822,14 @@
                         "type":"object",
                         "$ref":"#/definitions/Organization"
                     }
+                },
+                "funder_type":{
+                    "title":"Funder type",
+                    "description":"Project funder type from reference data",
+                    "@id":"http://purl.org/dc/terms/type",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
                 },
                 "source_organization":{
                     "title":"Organization",
@@ -1293,6 +1323,17 @@
                         "type":"object",
                         "$ref":"#/definitions/Directory"
                     }
+                },
+                "infrastructure":{
+                    "title":"Used infrastructure",
+                    "description":"Service or tools that is used to produce the dataset",
+                    "@id":"http://iow.csc.fi/ns/mrd#infrastructure",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 }
             },
             "required":[
@@ -1547,13 +1588,32 @@
                         "$ref":"#/definitions/ResearchDataLicenseDocument"
                     }
                 },
-                "type":{
-                    "title":"Type",
-                    "description":"Recommended best practice is to use a controlled vocabulary such as the DCMI Type Vocabulary [DCMITYPE]. To describe the file format, physical medium, or dimensions of the resource, use the Format element.\n\nThe nature or genre of the resource.",
+                "file_type":{
+                    "title":"File type",
+                    "description":"File type from reference data",
                     "@id":"http://purl.org/dc/terms/type",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Concept"
+                },
+                "resource_type":{
+                    "title":"Resource type",
+                    "description":"type of the resource",
+                    "@id":"http://iow.csc.fi/ns/mrd#resourcetype",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
+                },
+                "use_category":{
+                    "title":"Use category",
+                    "description":"Use type of the resource",
+                    "@id":"http://iow.csc.fi/ns/mrd#usetype",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 },
                 "has_object_characteristics":{
                     "title":"File charasteristics",

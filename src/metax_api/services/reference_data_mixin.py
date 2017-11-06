@@ -128,10 +128,18 @@ class ReferenceDataMixin():
                 cls.populate_from_ref_data(ref_entry, org_obj, 'identifier', 'name')
 
     @classmethod
-    def process_research_agent_obj_with_type(cls, org_ref_data, agent_obj, agent_obj_relation_name):
+    def process_research_agent_obj_with_type(cls, orgdata, refdata, errors, agent_obj, agent_obj_relation_name):
         if agent_obj.get('@type') == 'Person':
             member_of = agent_obj.get('member_of', None)
             if member_of:
-                cls.process_org_obj_against_ref_data(org_ref_data, member_of, agent_obj_relation_name + '.member_of')
+                cls.process_org_obj_against_ref_data(orgdata, member_of, agent_obj_relation_name + '.member_of')
+
+            contributor_role = agent_obj.get('contributor_role', None)
+            if contributor_role:
+                ref_entry = cls.check_ref_data(refdata['contributor_role'], contributor_role['identifier'],
+                                               agent_obj_relation_name + '.contributor_role.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, contributor_role, label_field='pref_label')
+
         elif agent_obj.get('@type') == 'Organization':
-            cls.process_org_obj_against_ref_data(org_ref_data, agent_obj, agent_obj_relation_name)
+            cls.process_org_obj_against_ref_data(orgdata, agent_obj, agent_obj_relation_name)
