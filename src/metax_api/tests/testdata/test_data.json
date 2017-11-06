@@ -2926,6 +2926,16 @@
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
                             }
                         ]
+                    },
+                    {
+                        "alt": "60",
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name 2",
+                        "place_uri": [
+                            {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        ]
                     }
                 ],
                 "temporal": [
@@ -3700,6 +3710,16 @@
                         ],
                         "full_address": "The complete address written as a string, with or without formatting",
                         "geographic_name": "Geographic name",
+                        "place_uri": [
+                            {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        ]
+                    },
+                    {
+                        "alt": "60",
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name 2",
                         "place_uri": [
                             {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"

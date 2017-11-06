@@ -32,15 +32,25 @@
             "start_date": "2014-01-01T08:19:58Z",
             "end_date": "2014-12-31T08:19:58Z"
         }],
-        "spatial": [{
-            "geographic_name": "Geographic name",
-            "alt": "11.111",
-            "full_address": "The complete address written as a string, with or without formatting",
-            "as_wkt": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"],
-            "place_uri": [
-                {"identifier": "http://www.yso.fi/onto/yso/p107966"}
-            ]
-        }],
+        "spatial": [
+            {
+                "geographic_name": "Geographic name",
+                "alt": "11.111",
+                "full_address": "The complete address written as a string, with or without formatting",
+                "as_wkt": ["POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"],
+                "place_uri": [
+                    {"identifier": "http://www.yso.fi/onto/yso/p107966"}
+                ]
+            },
+            {
+                "geographic_name": "Geographic name 2",
+                "alt": "60",
+                "full_address": "The complete address written as a string, with or without formatting",
+                "place_uri": [
+                    {"identifier": "http://www.yso.fi/onto/yso/p107966"}
+                ]
+            }
+        ],
         "related_entity": [{
             "title": {
                 "en": "A name given to the resource"
