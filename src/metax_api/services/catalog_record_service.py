@@ -300,10 +300,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
 
-                    if ref_entry.get('wkt', False) and populate_as_wkt_with_ref_data:
-                        as_wkt.append(ref_entry.get('wkt'))
-                    else:
-                        as_wkt.append(None)
+                    if populate_as_wkt_with_ref_data:
+                        if ref_entry.get('wkt', False):
+                            as_wkt.append(ref_entry.get('wkt'))
+                        else:
+                            as_wkt.append('')
 
             spatial['as_wkt'] = as_wkt
 

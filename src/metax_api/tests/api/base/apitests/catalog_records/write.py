@@ -1095,7 +1095,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         # the values in these selected entries will be used throghout the rest of the test case
         for dtype in data_types:
             if dtype == 'location':
-                entry = next(obj for obj in refdata[dtype] if obj.get('wkt', False))
+                entry = next((obj for obj in refdata[dtype] if obj.get('wkt', False)), None)
+                self.assertTrue(entry is not None)
             else:
                 entry = refdata[dtype][0]
             refs[dtype] = {
