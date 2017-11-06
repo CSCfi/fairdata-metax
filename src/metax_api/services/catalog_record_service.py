@@ -303,7 +303,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     if ref_entry.get('wkt', False) and populate_as_wkt_with_ref_data:
                         as_wkt.append(ref_entry.get('wkt'))
                     else:
-                        as_wkt.append("unknown")
+                        as_wkt.append(None)
 
             spatial['as_wkt'] = as_wkt
 
