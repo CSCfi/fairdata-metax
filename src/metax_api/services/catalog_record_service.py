@@ -287,11 +287,25 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                                                      'research_dataset.other_identifier.provider')
 
         for spatial in research_dataset.get('spatial', []):
+            # Populate as_wkt field from reference data only if it is empty (user has not provided own coordinates)
+            as_wkt = spatial.get('as_wkt', [])
+            if len(as_wkt) > 0:
+                populate_as_wkt_with_ref_data = False
+            else:
+                populate_as_wkt_with_ref_data = True
+
             for place_uri in spatial.get('place_uri', []):
                 ref_entry = cls.check_ref_data(refdata['location'], place_uri['identifier'],
                                                'research_dataset.spatial.place_uri.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
+
+                    if ref_entry.get('wkt', False) and populate_as_wkt_with_ref_data:
+                        as_wkt.append(ref_entry.get('wkt'))
+                    else:
+                        as_wkt.append("unknown")
+
+            spatial['as_wkt'] = as_wkt
 
         for file in research_dataset.get('files', []):
             if file.get('file_type', False):
@@ -334,7 +348,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         for activity in research_dataset.get('provenance', []):
             for was_associated_with in activity.get('was_associated_with', []):
                 cls.process_research_agent_obj_with_type(orgdata, refdata, errors, was_associated_with,
-                                               'research_dataset.provenance.was_associated_with')
+                                                         'research_dataset.provenance.was_associated_with')
+
+            # TODO: Add spatial validation here
 
         for infra in research_dataset.get('infrastructure', []):
             ref_entry = cls.check_ref_data(refdata['research_infra'], infra['identifier'],

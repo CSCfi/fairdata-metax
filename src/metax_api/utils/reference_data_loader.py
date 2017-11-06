@@ -99,6 +99,9 @@ class ReferenceDataLoader():
                     if label:
                         entry['label'] = label
 
+                    if type_name == 'location':
+                        entry['wkt'] = row['_source'].get('wkt', None)
+
                     reference_data[index_name][type_name].append(entry)
 
         return reference_data

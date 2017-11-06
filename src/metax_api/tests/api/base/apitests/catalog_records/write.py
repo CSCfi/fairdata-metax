@@ -1094,11 +1094,15 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
 
         # the values in these selected entries will be used throghout the rest of the test case
         for dtype in data_types:
-            entry = refdata[dtype][0]
+            if dtype == 'location':
+                entry = next(obj for obj in refdata[dtype] if obj.get('wkt', False))
+            else:
+                entry = refdata[dtype][0]
             refs[dtype] = {
                 'code': entry['code'],
                 'uri': entry['uri'],
                 'label': entry.get('label', None),
+                'wkt': entry.get('wkt', None)
             }
 
         refs['organization'] = {
@@ -1144,6 +1148,12 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         # mostly e.g. qvain
         rd['remote_resources'][0]['checksum']['algorithm'] = refs['checksum_algorithm']['code']
 
+        # Other type of reference data populations
+        orig_wkt_value = rd['spatial'][0]['as_wkt'][0]
+        rd['spatial'][0]['place_uri'][0]['identifier'] = refs['location']['code']
+        rd['spatial'][1]['as_wkt'] = []
+        rd['spatial'][1]['place_uri'][0]['identifier'] = refs['location']['code']
+
         response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True)
@@ -1154,6 +1164,11 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self._assert_label_copied_to_title(refs, new_rd)
         self._assert_label_copied_to_name(refs, new_rd)
         self._assert_has_remained_the_same(refs, new_rd)
+
+        # Assert if spatial as_wkt field has been populated with a value from ref data which has wkt value having
+        # condition that the user has not given own coordinates in the as_wkt field
+        self.assertEqual(orig_wkt_value, new_rd['spatial'][0]['as_wkt'][0])
+        self.assertEqual(refs['location']['wkt'], new_rd['spatial'][1]['as_wkt'][0])
 
     def _assert_uri_copied_to_identifier(self, refs, new_rd):
         self.assertEqual(refs['keyword']['uri'], new_rd['theme'][0]['identifier'])
