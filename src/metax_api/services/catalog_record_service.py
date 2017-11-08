@@ -230,11 +230,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, remote_resource['file_type'], label_field='pref_label')
 
-            for use_category in remote_resource.get('use_category', []):
-                ref_entry = cls.check_ref_data(refdata['use_category'], use_category['identifier'],
+            if remote_resource.get('use_category', False):
+                ref_entry = cls.check_ref_data(refdata['use_category'], remote_resource['use_category']['identifier'],
                                                'research_dataset.remote_resources.use_category.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, use_category, label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, remote_resource['use_category'], label_field='pref_label')
 
         for language in research_dataset.get('language', []):
             ref_entry = cls.check_ref_data(refdata['language'], language['identifier'],
@@ -315,18 +315,18 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, file['file_type'], label_field='pref_label')
 
-            for use_category in file.get('use_category', []):
-                ref_entry = cls.check_ref_data(refdata['use_category'], use_category['identifier'],
+            if file.get('use_category', False):
+                ref_entry = cls.check_ref_data(refdata['use_category'], file['use_category']['identifier'],
                                                'research_dataset.files.use_category.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, use_category, label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, file['use_category'], label_field='pref_label')
 
         for directory in research_dataset.get('directories', []):
-            for use_category in directory.get('use_category', []):
-                ref_entry = cls.check_ref_data(refdata['use_category'], use_category['identifier'],
+            if directory.get('use_category', False):
+                ref_entry = cls.check_ref_data(refdata['use_category'], directory['use_category']['identifier'],
                                                'research_dataset.directories.use_category.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, use_category, label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, directory['use_category'], label_field='pref_label')
 
         for contributor in research_dataset.get('contributor', []):
             cls.process_research_agent_obj_with_type(orgdata, refdata, errors, contributor,

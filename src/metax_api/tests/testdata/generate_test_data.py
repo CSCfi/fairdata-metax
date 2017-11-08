@@ -367,6 +367,9 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
                 files.append({
                     'identifier': file_list[j]['fields']['identifier'],
                     'title': 'File metadata title %d' % j,
+                    'use_category': {
+                        'identifier': 'source'
+                    }
                 })
                 if j < third_of_files:
                     # first third of files has this as type

@@ -470,14 +470,17 @@
                 "identifier": "directory-identifier-1",
                 "title": "dir_name",
                 "description": "What is in this directory",
-                "use_category": [
-                    {"identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"}
-                ]
+                "use_category": {
+                    "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                }
             },
             {
                 "identifier": "directory-identifier-2",
                 "title": "dir_name_2",
-                "description": "What is in this directory"
+                "description": "What is in this directory",
+                "use_category": {
+                    "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                }
             }
         ],
         "files": [{
@@ -505,10 +508,9 @@
                     "en": "file url description"
                 }
             },
-            "use_category": [
-                {"identifier": "outcome"},
-                {"identifier": "configuration"}
-            ]
+            "use_category": {
+                "identifier": "configuration"
+            }
         },
         {
             "identifier": "urn:nbn:fi:csc-att201401202",
@@ -535,9 +537,9 @@
                     "en": "file url description"
                 }
             },
-            "use_category": [
-                {"identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"}
-            ]
+            "use_category": {
+                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
+            }
         }],
         "remote_resources": [{
             "identifier": "identifierofresource",
@@ -596,9 +598,9 @@
                 "encoding": "utf-8"
             },
             "mediatype": "image/jpeg",
-            "use_category": [
-                {"identifier": "rights"}
-            ]
+            "use_category": {
+                "identifier": "rights"
+            }
         }]
     }
 }

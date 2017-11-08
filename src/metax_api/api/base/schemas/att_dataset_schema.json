@@ -370,11 +370,8 @@
                     "description":"Use category from reference data",
                     "@id":"http://iow.csc.fi/ns/mrd#usetype",
                     "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/Concept"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
                 },
                 "access_url":{
                     "title":"Access URL",
@@ -386,7 +383,8 @@
                 }
             },
             "required":[
-                "title"
+                "title",
+                "use_category"
             ]
         },
         "DistributionCharacteristics":{
@@ -521,15 +519,13 @@
                     "description":"Use type of the resource",
                     "@id":"http://iow.csc.fi/ns/mrd#usetype",
                     "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/Concept"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
                 }
             },
             "required":[
-                "title"
+                "title",
+                "use_category"
             ]
         },
         "LinguisticSystem":{
@@ -1609,11 +1605,8 @@
                     "description":"Use type of the resource",
                     "@id":"http://iow.csc.fi/ns/mrd#usetype",
                     "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/Concept"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
                 },
                 "has_object_characteristics":{
                     "title":"File charasteristics",
@@ -1635,7 +1628,8 @@
             "required":[
                 "title",
                 "modified",
-                "checksum"
+                "checksum",
+                "use_category"
             ]
         },
         "langString":{
