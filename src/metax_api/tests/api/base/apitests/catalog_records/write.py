@@ -1046,10 +1046,11 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd['creator'][0]['contributor_role']['identifier'] = 'nonexisting'
         rd['is_output_of'][0]['funder_type']['identifier'] = 'nonexisting'
         rd['directories'][0]['use_category']['identifier'] = 'nonexisting'
+        rd['relation'][0]['relation_type']['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datasets', self.third_test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 17)
+        self.assertEqual(len(response.data['research_dataset']), 18)
 
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
@@ -1089,7 +1090,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
             'use_category',
             'research_infra',
             'contributor_role',
-            'funder_type'
+            'funder_type',
+            'relation_type'
         ]
 
         # the values in these selected entries will be used throghout the rest of the test case
@@ -1132,6 +1134,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd['infrastructure'][0] = {'identifier': refs['research_infra']['code']}
         rd['creator'][0]['contributor_role'] = {'identifier': refs['contributor_role']['code']}
         rd['is_output_of'][0]['funder_type'] = {'identifier': refs['funder_type']['code']}
+        rd['relation'][0]['relation_type'] = {'identifier': refs['relation_type']['code']}
 
         # these have other required fields, so only update the identifier with code
         rd['is_output_of'][0]['source_organization'][0]['identifier'] = refs['organization']['code']
@@ -1198,6 +1201,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['research_infra']['uri'], new_rd['infrastructure'][0]['identifier'])
         self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role']['identifier'])
         self.assertEqual(refs['funder_type']['uri'], new_rd['is_output_of'][0]['funder_type']['identifier'])
+        self.assertEqual(refs['relation_type']['uri'], new_rd['relation'][0]['relation_type']['identifier'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_rd):
         self.assertEqual(refs['keyword']['label'], new_rd['theme'][0].get('pref_label', None))
@@ -1214,6 +1218,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['research_infra']['label'], new_rd['infrastructure'][0].get('pref_label', None))
         self.assertEqual(refs['contributor_role']['label'], new_rd['creator'][0]['contributor_role'].get('pref_label', None))
         self.assertEqual(refs['funder_type']['label'], new_rd['is_output_of'][0]['funder_type'].get('pref_label', None))
+        self.assertEqual(refs['relation_type']['label'], new_rd['relation'][0]['relation_type'].get('pref_label', None))
 
     def _assert_label_copied_to_title(self, refs, new_rd):
         self.assertEqual(refs['language']['label'], new_rd['language'][0].get('title', None))

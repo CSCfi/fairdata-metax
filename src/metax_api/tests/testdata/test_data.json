@@ -2874,6 +2874,76 @@
                         }
                     }
                 ],
+                "relation": [
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset:identifier",
+                            "title": {
+                                "en": "External dataset 1",
+                                "fi": "Ulkopuolinen aineisto 1"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "wasDerivedFrom"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "cites"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset_2:identifier",
+                            "title": {
+                                "en": "External dataset 2",
+                                "fi": "Ulkopuolinen aineisto 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "isPartOf"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing_2:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "hasPreviousVersion"
+                        }
+                    }
+                ],
                 "remote_resources": [
                     {
                         "access_url": {
@@ -3652,6 +3722,76 @@
                             "pref_label": {
                                 "en": "pref label for this type"
                             }
+                        }
+                    }
+                ],
+                "relation": [
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset:identifier",
+                            "title": {
+                                "en": "External dataset 1",
+                                "fi": "Ulkopuolinen aineisto 1"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "wasDerivedFrom"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "cites"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset_2:identifier",
+                            "title": {
+                                "en": "External dataset 2",
+                                "fi": "Ulkopuolinen aineisto 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "isPartOf"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing_2:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "hasPreviousVersion"
                         }
                     }
                 ],

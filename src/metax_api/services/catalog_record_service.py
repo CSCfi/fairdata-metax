@@ -351,13 +351,41 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 cls.process_research_agent_obj_with_type(orgdata, refdata, errors, was_associated_with,
                                                          'research_dataset.provenance.was_associated_with')
 
-            # TODO: Add spatial validation here
+            if activity.get('spatial', False):
+                spatial = activity['spatial']
+                # Populate as_wkt field from reference data only if it is empty (user has not provided own coordinates)
+                as_wkt = spatial.get('as_wkt', [])
+                if len(as_wkt) > 0:
+                    populate_as_wkt_with_ref_data = False
+                else:
+                    populate_as_wkt_with_ref_data = True
+
+                for place_uri in spatial.get('place_uri', []):
+                    ref_entry = cls.check_ref_data(refdata['location'], place_uri['identifier'],
+                                                   'research_dataset.provenance.spatial.place_uri.identifier', errors)
+                    if ref_entry:
+                        cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
+
+                        if populate_as_wkt_with_ref_data:
+                            if ref_entry.get('wkt', False):
+                                as_wkt.append(ref_entry.get('wkt'))
+                            else:
+                                as_wkt.append('')
+
+                spatial['as_wkt'] = as_wkt
 
         for infra in research_dataset.get('infrastructure', []):
             ref_entry = cls.check_ref_data(refdata['research_infra'], infra['identifier'],
                                            'research_dataset.infrastructure.identifier', errors)
             if ref_entry:
                 cls.populate_from_ref_data(ref_entry, infra, label_field='pref_label')
+
+        for relation in research_dataset.get('relation', []):
+            if relation.get('relation_type', False):
+                ref_entry = cls.check_ref_data(refdata['relation_type'], relation['relation_type']['identifier'],
+                                               'research_dataset.relation.relation_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, relation['relation_type'], label_field='pref_label')
 
         if errors:
             raise ValidationError(errors)

@@ -601,6 +601,60 @@
             "use_category": {
                 "identifier": "rights"
             }
-        }]
+        }],
+        "relation": [
+            {
+                "entity": {
+                    "title": {
+                        "fi": "Ulkopuolinen aineisto 1",
+                        "en": "External dataset 1"
+                    },
+                    "description": [{"fi": "Kuvailutiedot"}],
+                    "identifier": "external:dataset:identifier"
+                },
+                "relation_type": {
+                    "identifier": "wasDerivedFrom"
+                }
+            },
+            {
+                "entity": {
+                    "title": {
+                        "fi": "Ulkopuolinen asia 2",
+                        "en": "External thing 2"
+                    },
+                    "description": [{"fi": "Kuvailutiedot"}],
+                    "identifier": "external:thing:identifier"
+                },
+                "relation_type": {
+                    "identifier": "cites"
+                }
+            },
+            {
+                "entity": {
+                    "title": {
+                        "fi": "Ulkopuolinen aineisto 2",
+                        "en": "External dataset 2"
+                    },
+                    "description": [{"fi": "Kuvailutiedot"}],
+                    "identifier": "external:dataset_2:identifier"
+                },
+                "relation_type": {
+                    "identifier": "isPartOf"
+                }
+            },
+            {
+                "entity": {
+                    "title": {
+                        "fi": "Ulkopuolinen asia 2",
+                        "en": "External thing 2"
+                    },
+                    "description": [{"fi": "Kuvailutiedot"}],
+                    "identifier": "external:thing_2:identifier"
+                },
+                "relation_type": {
+                    "identifier": "hasPreviousVersion"
+                }
+            }
+        ]
     }
 }

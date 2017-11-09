@@ -468,8 +468,33 @@
                 "identifier"
             ]
         },
+        "EntityRelation":{
+            "title":"Entity relation",
+            "@id":"http://www.w3.org/ns/prov#EntityInfluence",
+            "description":"Description of a the dataset influence upon any other kind of entity.",
+            "properties":{
+                "entity":{
+                    "title":"Related entity",
+                    "@id":"http://www.w3.org/ns/prov#entity",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/RelatedEntity"
+                },
+                "relation_type":{
+                    "title":"Relation type",
+                    "description":"Role of the influence. This property is considered same as rdf:isSingletonPropertyOf.",
+                    "@id":"http://www.w3.org/ns/prov#hadRole",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
+                }
+            },
+            "required":[
+                "entity",
+                "relation_type"
+            ]
+        },
         "File":{
-			"type":"object",
             "title":"File in IDA",
             "@id":"http://www.w3.org/ns/dcat#Distribution",
             "description":"File in IDA",
@@ -1205,26 +1230,15 @@
                         "$ref":"#/definitions/PeriodOfTime"
                     }
                 },
-                "related_entity":{
-                    "title":"Related entity",
-                    "description":"A related entity. It is recommended to use one of the subproperties.",
-                    "@id":"http://purl.org/dc/terms/relation",
-                    "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/RelatedEntity"
-                    }
-                },
                 "relation":{
-                    "title":"Related dataset",
-                    "description":"Related dataset. It is recommended to use some of the subproperties of related.",
+                    "title":"Relation",
+                    "description":"A related dataset or other entity",
                     "@id":"http://purl.org/dc/terms/relation",
                     "@type":"@id",
                     "type":"array",
                     "items":{
                         "type":"object",
-                        "$ref":"#/definitions/ResearchDataset"
+                        "$ref":"#/definitions/EntityRelation"
                     }
                 },
                 "field_of_science":{
