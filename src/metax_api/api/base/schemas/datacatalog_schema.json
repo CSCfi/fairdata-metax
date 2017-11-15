@@ -126,6 +126,13 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "maxItems":1,
                     "type":"string"
+                },
+                "logo":{
+                    "title":"Logo",
+                    "description":"Small symbol that represents the organization",
+                    "@id":"http://iow.csc.fi/ns/mdc#logo",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "maxItems":1
                 }
             },
             "required":[
