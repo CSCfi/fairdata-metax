@@ -1,8 +1,9 @@
 from django.contrib.postgres.fields import JSONField
-from django.db import connection, models
+from django.db import models
 from rest_framework.serializers import ValidationError
 
 from .common import Common, CommonManager
+from .directory import Directory
 from .file_storage import FileStorage
 
 
@@ -22,26 +23,6 @@ class FileManager(CommonManager):
             else:
                 raise ValidationError(['this operation requires one of the following identifying keys to be present: %s' % ', '.join([ 'id', 'identifier' ])])
         return super(FileManager, self).get(*args, **kwargs)
-
-    def delete_directory(self, directory_path):
-        """
-        For every File whose file_path.startswith(directory_path),
-            set removed=True,
-            and for every dataset this file belongs to,
-                set flag removed_in_ida=True in file in dataset list
-        """
-        affected_files = 0
-
-        sql = 'update metax_api_file set removed = true ' \
-              'where removed = false ' \
-              'and active = true ' \
-              'and (file_path = %s or file_path like %s)'
-
-        with connection.cursor() as cr:
-            cr.execute(sql, [directory_path, '%s/%%' % directory_path])
-            affected_files = cr.rowcount
-
-        return affected_files
 
 
 class File(Common):
@@ -63,6 +44,7 @@ class File(Common):
     file_uploaded = models.DateTimeField()
     identifier = models.CharField(max_length=200, unique=True)
     open_access = models.BooleanField(default=False)
+    parent_directory = models.ForeignKey(Directory, null=True, related_name='files')
     project_identifier = models.CharField(max_length=200)
     replication_path = models.CharField(max_length=200, blank=True, null=True)
 

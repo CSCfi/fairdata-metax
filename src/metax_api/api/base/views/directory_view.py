@@ -1,49 +1,68 @@
-from django.http import Http404
-from rest_framework import status
-from rest_framework.viewsets import GenericViewSet
+# from django.http import Http404
+# from rest_framework import status
 from rest_framework.response import Response
 
-from metax_api.exceptions import Http400
-from metax_api.models import File
-from metax_api.api.base.serializers import FileSerializer
+from rest_framework.decorators import detail_route, list_route
+
+from metax_api.api.base.serializers import DirectorySerializer
+from metax_api.exceptions import Http400, Http501
+from metax_api.models import Directory
+from metax_api.services import FileService
+from .common_view import CommonViewSet
 
 import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
 
-class DirectoryViewSet(GenericViewSet):
-
-    """
-    Inherited from GenericViewSet because this view does not use any of the rest_framework
-    Create, Update etc mixins
-    """
+class DirectoryViewSet(CommonViewSet):
 
     authentication_classes = ()
     permission_classes = ()
 
-    # needed to make the ViewSet work, but not actually used / loaded ever
-    object = File
-    queryset = File.objects.all()
-    serializer_class = FileSerializer
+    object = Directory
+    queryset = Directory.objects.select_related('parent_directory').all()
+    serializer_class = DirectorySerializer
 
-    def get(self, request, pk=None):
-        # will probably be implemented
-        raise Http404
+    lookup_field_other = 'identifier'
+    create_bulk_method = FileService.create_bulk
 
-    def rename_directory(self, request, pk=None):
-        # will probably be implemented
-        raise Http404
+    def update(self, request, *args, **kwargs):
+        raise Http501()
 
-    def delete_directory(self, request, pk=None):
-        try:
-            path = request.query_params['path']
-        except KeyError:
-            raise Http400('path is a required query parameter')
+    def update_bulk(self, request, *args, **kwargs):
+        raise Http501()
 
-        files_exist = File.objects.filter(file_path__startswith=path).first()
-        if not files_exist:
-            raise Http404
+    def partial_update(self, request, *args, **kwargs):
+        raise Http501()
 
-        affected_files = File.objects.delete_directory(path)
-        return Response(data={ 'affected_files': affected_files }, status=status.HTTP_200_OK)
+    def partial_update_bulk(self, request, *args, **kwargs):
+        raise Http501()
+
+    def create(self, request, *args, **kwargs):
+        raise Http501()
+
+    @detail_route(methods=['get'], url_path="files")
+    def get_files(self, request, pk=None):
+        """
+        Return a list of child files and directories of a directory.
+        """
+        recursive = 'recursive' in request.query_params
+        files_and_dirs = FileService.get_directory_contents(pk, recursive=recursive)
+        return Response(files_and_dirs)
+
+    @list_route(methods=['get'], url_path="root")
+    def get_project_root_directories(self, request):
+        """
+        Return root directory for a project. This is useful when starting
+        to browse files for a project, when individual root-level directory identifier
+        is not yet known.
+
+        Example: GET /directories/project?name=projext_x
+        """
+        if 'project' not in request.query_params:
+            raise Http400('project is a required query parameter')
+
+        root_dirs = FileService.get_project_root_directories(request.query_params['project'])
+
+        return Response(root_dirs)

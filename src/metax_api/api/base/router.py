@@ -44,34 +44,12 @@ class CustomRouter(DefaultRouter):
         ))
         super(CustomRouter, self).__init__(*args, **kwargs)
 
-class DirectoryRouter(DefaultRouter):
-
-    """
-    Override default router to only use certain HTTP methods, and map
-    them to function names that make sense
-    """
-
-    def __init__(self, *args, **kwargs):
-        self.routes = [Route(
-            url=r'^{prefix}{trailing_slash}$',
-            mapping={
-                'get': 'get',
-                'patch': 'rename_directory',
-                'delete': 'delete_directory'
-            },
-            name='{basename}-directories',
-            initkwargs={'suffix': 'Directory'}
-        )]
-        super(DirectoryRouter, self).__init__(*args, **kwargs)
 
 router = CustomRouter(trailing_slash=False)
 router.register(r'contracts/?', ContractViewSet)
 router.register(r'datasets/?', DatasetViewSet)
 router.register(r'datacatalogs/?', DataCatalogViewSet)
+router.register(r'directories/?', DirectoryViewSet)
 router.register(r'files/?', FileViewSet)
 
-directory_router = DirectoryRouter(trailing_slash=False)
-directory_router.register(r'directories?', DirectoryViewSet)
-
 api_urlpatterns = router.urls
-api_urlpatterns += directory_router.urls
