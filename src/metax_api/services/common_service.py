@@ -39,22 +39,15 @@ class CommonService():
 
         if isinstance(request.data, list):
 
+            if len(request.data) == 0:
+                raise ValidationError(['the received object list is empty'])
+
             # dont fail the entire request if only some inserts fail.
             # successfully created rows are added to 'successful', and
             # failed inserts are added to 'failed', with a related error message.
             results = { 'success': [], 'failed': []}
 
-            for row in request.data:
-
-                serializer = serializer_class(data=row, **kwargs)
-
-                try:
-                    serializer.is_valid(raise_exception=True)
-                except Exception as e:
-                    cls._append_error(results, serializer, e)
-                else:
-                    serializer.save(**common_info)
-                    results['success'].append({ 'object': serializer.data })
+            cls._create_bulk(common_info, request.data, results, serializer_class, **kwargs)
 
             if results['success']:
                 # if even one insert was successful, general status of the request is success
@@ -71,6 +64,23 @@ class CommonService():
             results = serializer.data
 
         return results, http_status
+
+    @classmethod
+    def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
+        """
+        The actual part where the list is iterated and objects validated, and created.
+        """
+        for row in initial_data_list:
+
+            serializer = serializer_class(data=row, **kwargs)
+
+            try:
+                serializer.is_valid(raise_exception=True)
+            except Exception as e:
+                cls._append_error(results, serializer, e)
+            else:
+                serializer.save(**common_info)
+                results['success'].append({ 'object': serializer.data })
 
     @staticmethod
     def get_json_schema(schema_folder_path, model_name, data_catalog_prefix=False):

@@ -66,7 +66,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         RDM.get_reference_data(self.cache)
         self._assert_reference_data_ok()
 
-    @patch('metax_api.services.reference_data_mixin.ReferenceDataLoader.populate_cache_reference_data')
+    @patch('metax_api.utils.ReferenceDataLoader.populate_cache_reference_data')
     def test_reference_data_reload_in_progress(self, mock_populate_cache_reference_data):
         """
         Ensure the reference data fetch survives when another request has already started
@@ -83,7 +83,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         self._assert_reference_data_ok()
         self.assertEqual(mock_cache.call_count, return_data_after_retries, 'ref data fetching should have retried a few times before succeeding')
 
-    @patch('metax_api.services.reference_data_mixin.ReferenceDataLoader.populate_cache_reference_data')
+    @patch('metax_api.utils.ReferenceDataLoader.populate_cache_reference_data')
     def test_reference_data_reload_in_progress_times_out(self, mock_populate_cache_reference_data):
         """
         Ensure the reference data fetch finally gives up when another request has already started
@@ -105,7 +105,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
 
         self._assert_reference_data_ok()
 
-    @patch('metax_api.services.reference_data_mixin.ReferenceDataLoader.populate_cache_reference_data')
+    @patch('metax_api.utils.ReferenceDataLoader.populate_cache_reference_data')
     def test_reference_data_reload_failed(self, mock_populate_cache_reference_data):
         """
         Ensure 503 is raised when reload by the request failed
