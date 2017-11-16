@@ -16,7 +16,6 @@ class DirectorySerializer(CommonSerializer):
             'id',
             'byte_size',
             'directory_deleted',
-            'directory_frozen',
             'directory_modified',
             'directory_name',
             'directory_path',
