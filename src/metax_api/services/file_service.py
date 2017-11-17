@@ -172,6 +172,13 @@ class FileService(CommonService):
         can use the previous file's parent_directory directly, instead of having to
         look it up from created_dirs.
         """
+
+        # assigning parent_directory is not allowed for user. ensure all parent_directories
+        # are purged before proceeding. in reality popping the key from sorted_data[-1] would
+        # be enough for the first loop, but lets not invite disaster.
+        for row in sorted_data:
+            row.pop('parent_directory', None)
+
         for i, row in enumerate(sorted_data):
 
             previous_file = sorted_data[i - 1]
@@ -211,11 +218,12 @@ class FileService(CommonService):
         frozen for example path /some/path/here, and then later /some/other/path, so
         /some would already exist.
 
-        This check only needs to be made for the first dir, once the list is sorted.
+        This check only needs to be made for the first dir, once the list is sorted. If there
+        existed some common parent higher up, it is checked for later.
         """
         parent_dir_path = dirname(directory_path)
 
-        if len(dirname(parent_dir_path)) == 1:
+        if len(parent_dir_path) == 1:
             # -> dir is something like /my_project_FROZEN,
             # which cant have a parent
             return None
