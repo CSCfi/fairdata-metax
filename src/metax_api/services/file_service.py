@@ -7,7 +7,7 @@ from django.http import Http404
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400
-from metax_api.models import Directory
+from metax_api.models import Directory, File
 from .common_service import CommonService
 
 import logging
@@ -15,22 +15,100 @@ _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
 
+"""
+busting circular import issues...
+note that the imports in below functions are only executed once, and
+the function signatures are replaced with the imported classes. importing
+multiple times in itself isnt bad, but using this function-replacement
+-mechanic, so that the imports are not littered in several methods in
+FileService where they would otherwise be needed.
+"""
+def DirectorySerializer(*args, **kwargs):
+    from metax_api.api.base.serializers import DirectorySerializer as DS
+    DirectorySerializer = DS
+    return DirectorySerializer(*args, **kwargs)
+
+def FileSerializer(*args, **kwargs):
+    from metax_api.api.base.serializers import FileSerializer as FS
+    FileSerializer = FS
+    return FileSerializer(*args, **kwargs)
+
+
 class FileService(CommonService):
 
-    @staticmethod
-    def get_directory_contents(pk, recursive=False):
-        return []
+    @classmethod
+    def get_directory_contents(cls, identifier, recursive=False):
+        """
+        Get files and directories contained by a directory. Parameter 'identifier'
+        may be a pk, or an uuid value. Search using approriate fields.
 
-    @staticmethod
-    def get_project_root_directories(project_identifier):
-        from metax_api.api.base.serializers import DirectorySerializer
+        Parameter 'recursive' may be used to get a flat list of all files below the
+        directory. Sorted by file_path for convenience
+        """
+        if identifier.isdigit():
+            directory_id = identifier
+        else:
+            directory = Directory.objects.filter(identifier=identifier).values('id').first()
+            if not directory:
+                raise Http404
+            directory_id = directory['id']
+
+        contents = cls._get_directory_contents(directory_id, recursive=recursive)
+
+        if recursive:
+            file_list = []
+            file_list_append = file_list.append
+            cls._form_file_list(contents, file_list_append)
+            return file_list
+        else:
+            return contents
+
+    @classmethod
+    def _form_file_list(cls, contents, file_list_append):
+        for f in contents['files']:
+            file_list_append(f)
+        for d in contents['directories']:
+            cls._form_file_list(d, file_list_append)
+
+    @classmethod
+    def _get_directory_contents(cls, directory_id, recursive=False):
+        """
+        Get files and directories contained by a directory. If recursively requested,
+        returns a flat list of all files below the directory.
+        """
+        dirs = Directory.objects.filter(parent_directory_id=directory_id)
+        files = File.objects.filter(parent_directory_id=directory_id)
+
+        contents = {
+            'directories': [ DirectorySerializer(n).data for n in dirs ],
+            'files': [ FileSerializer(n).data for n in files ]
+        }
+
+        if recursive:
+            for directory in contents['directories']:
+                sub_dir_contents = cls._get_directory_contents(directory['id'], recursive=recursive)
+                directory['directories'] = sub_dir_contents['directories']
+                directory['files'] = sub_dir_contents['files']
+
+        return contents
+
+    @classmethod
+    def get_project_root_directory(cls, project_identifier):
+        """
+        Return root directory for a project, with its child directories and files.
+        """
         try:
-            root_dir = Directory.objects.get(project_identifier=project_identifier, parent_directory=None)
+            root_dir = Directory.objects.get(
+                project_identifier=project_identifier, parent_directory=None
+            )
         except Directory.DoesNotExist:
             raise Http404
         except Directory.MultipleObjectsReturned: # pragma: no cover
             raise Exception('Directory.MultipleObjectsReturned when looking for root directory. This should never happen')
-        return DirectorySerializer(root_dir).data
+
+        root_dir_json = DirectorySerializer(root_dir).data
+        root_dir_json.update(cls._get_directory_contents(root_dir.id))
+        return root_dir_json
 
     @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
@@ -134,8 +212,6 @@ class FileService(CommonService):
         Save created paths/id's to created_dirs dict, so the results can be efficiently re-used
         by other dirs being created, and later by the files that are created.
         """
-        from metax_api.api.base.serializers import DirectorySerializer
-
         python_process_pid = str(getpid())
 
         for i, path in enumerate(unique_dir_paths):
