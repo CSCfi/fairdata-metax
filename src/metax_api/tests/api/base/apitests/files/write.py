@@ -218,7 +218,8 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         Here the interesting part is, the top-most dir in the file list should find
         an existing directory, which it can use as its parent dir.
 
-        Here, a directory /project_y_FROZEN/Experiment_2 is "frozen"
+        Here, a directory /project_y_FROZEN/Experiment_2/Phase_1/Data is "frozen",
+        when /project_y_FROZEN already exists.
         """
 
         # setup db to have pre-existing dirs
