@@ -1,4 +1,7 @@
+from os import getpid
 from os.path import dirname, basename
+from time import time
+from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
 from django.http import Http404
 from rest_framework.serializers import ValidationError
@@ -121,12 +124,15 @@ class FileService(CommonService):
         """
         from metax_api.api.base.serializers import DirectorySerializer
 
-        for path in unique_dir_paths:
+        python_process_pid = str(getpid())
+
+        for i, path in enumerate(unique_dir_paths):
 
             directory = {
                 'directory_path': path,
                 'directory_name': basename(path),
-                'identifier': '%s-%s' % (project_identifier, path),
+                # identifier: uuid3 as hex, using as salt time in ms, idx of loop, and python process id
+                'identifier': uuid3(UUID_NAMESPACE_DNS, '%d%d%s' % (int(round(time() * 1000)), i, python_process_pid)).hex,
                 'project_identifier': project_identifier
             }
 
