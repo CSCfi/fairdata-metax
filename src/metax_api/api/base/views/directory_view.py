@@ -58,7 +58,7 @@ class DirectoryViewSet(CommonViewSet):
         to browse files for a project, when individual root-level directory identifier
         is not yet known.
 
-        Example: GET /directories/project?name=projext_x
+        Example: GET /directories/root?project=projext_x
         """
         if 'project' not in request.query_params:
             raise Http400('project is a required query parameter')

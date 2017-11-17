@@ -27,7 +27,7 @@ class FileService(CommonService):
             raise Http404
         except Directory.MultipleObjectsReturned: # pragma: no cover
             raise Exception('Directory.MultipleObjectsReturned when looking for root directory. This should never happen')
-        return DirectorySerializer(data=root_dir).data
+        return DirectorySerializer(root_dir).data
 
     @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
