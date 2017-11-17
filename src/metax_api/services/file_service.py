@@ -65,7 +65,7 @@ class FileService(CommonService):
             # to make it available to other dirs and files as part of the normal process
             created_dirs[root_dir['directory_path']] = root_dir['id']
         else:
-            cls._create_leading_dirs(unique_dir_paths)
+            cls._create_leading_dirs(created_dirs, unique_dir_paths, project_identifier)
 
         cls._create_directories(common_info, created_dirs, unique_dir_paths, project_identifier, **kwargs)
 
@@ -92,8 +92,8 @@ class FileService(CommonService):
             if errors:
                 raise Http400(errors)
 
-    @staticmethod
-    def _create_leading_dirs(unique_dir_paths):
+    @classmethod
+    def _create_leading_dirs(cls, created_dirs, unique_dir_paths, project_identifier):
         """
         In case there was no previously existing root the new directories
         could be attached to...
@@ -102,17 +102,29 @@ class FileService(CommonService):
         so the top dir in unique_dir_paths gathered would be /some/path/here.
         For a proper file hierarchy, directories /some/path and /some has to
         be additionally created.
+
+        It is possible however, that the first file is something like /some/other/path/file.png,
+        where /some would already exist. Therefore make sure to check for existing directories
+        after each created directory.
         """
         emergency_break = 1000
         upper_dir = dirname(unique_dir_paths[0])
         while len(upper_dir) > 1:
             unique_dir_paths.insert(0, upper_dir)
-            upper_dir = dirname(upper_dir)
+
+            # it is possible we only had to create one or some dirs in the middle, to find an
+            # existing parent dir higher up. check it
+            root_dir = cls._check_if_parent_already_exists(upper_dir, project_identifier)
+            if root_dir:
+                created_dirs[root_dir['directory_path']] = root_dir['id']
+                return
 
             if emergency_break < 0: # pragma: no cover
                 raise Exception('emergency_break reached while creating leading dirs, should (probably) never happen...')
 
             emergency_break -= 1
+
+            upper_dir = dirname(upper_dir)
 
     @classmethod
     def _create_directories(cls, common_info, created_dirs, unique_dir_paths, project_identifier, **kwargs):
