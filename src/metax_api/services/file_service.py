@@ -231,9 +231,8 @@ class FileService(CommonService):
             serializer = DirectorySerializer(data=directory, **kwargs)
             serializer.is_valid()
 
-            if serializer.errors: # pragma: no cover
-                # should never happen. serious error
-                raise Exception(str(serializer.errors))
+            if serializer.errors:
+                raise ValidationError(serializer.errors)
 
             serializer.save()
             created_dirs[serializer.data['directory_path']] = serializer.data['id']
@@ -296,6 +295,12 @@ class FileService(CommonService):
 
         This check only needs to be made for the first dir, once the list is sorted. If there
         existed some common parent higher up, it is checked for later.
+
+        Note: This method does not check if the targeted directory ITSELF already exists,
+        in the sense that a path /some/path/mydir was frozen twice, and on the second time
+        the files would simply be appended to it. That will result in an error 'directory already
+        exists in project scope'. Currently that scenario shouldn't be possible, so it isn't
+        supported.
         """
         parent_dir_path = dirname(directory_path)
 
