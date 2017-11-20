@@ -51,6 +51,8 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
             "identifier": "urn:nbn:fi:csc-ida201401200000000001",
             "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
         })
+        from_test_data['file_path'] = from_test_data['file_path'].replace('/Experiment_X/', '/test/path/')
+        from_test_data['project_identifier'] = 'test_project_identifier'
         return from_test_data
 
     def _get_second_new_test_data(self):
@@ -132,7 +134,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.second_test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurnalso'
 
         response = self.client.post('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
         self.assertEqual('object' in response.data['success'][0].keys(), True)
