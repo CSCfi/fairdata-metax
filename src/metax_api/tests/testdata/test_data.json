@@ -49,8 +49,8 @@
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "directory_deleted": null,
             "directory_modified": "2017-05-23T12:41:59.507392Z",
-            "directory_name": "some",
-            "directory_path": "/project_x_FROZEN/some",
+            "directory_name": "Experiment_X",
+            "directory_path": "/project_x_FROZEN/Experiment_X",
             "file_count": 12345,
             "identifier": "pid:urn:dir:2",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
@@ -60,24 +60,6 @@
         },
         "model": "metax_api.directory",
         "pk": 2
-    },
-    {
-        "fields": {
-            "byte_size": 12345,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "directory_deleted": null,
-            "directory_modified": "2017-05-23T12:41:59.507392Z",
-            "directory_name": "path",
-            "directory_path": "/project_x_FROZEN/some/path",
-            "file_count": 12345,
-            "identifier": "pid:urn:dir:3",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
-            "parent_directory": 2,
-            "project_identifier": "project_x",
-            "removed": false
-        },
-        "model": "metax_api.directory",
-        "pk": 3
     },
     {
         "fields": {
@@ -99,13 +81,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_1",
-            "file_path": "/project_x_FROZEN/some/path/file_name_1",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_1",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:1",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 3,
+            "parent_directory": 2,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -133,7 +115,7 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_2",
-            "file_path": "/project_x_FROZEN/some/path/file_name_2",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_2",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:2",
@@ -167,7 +149,7 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_3",
-            "file_path": "/project_x_FROZEN/some/path/file_name_3",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_3",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:3",
@@ -201,7 +183,7 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_4",
-            "file_path": "/project_x_FROZEN/some/path/file_name_4",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_4",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:4",
@@ -235,7 +217,7 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_5",
-            "file_path": "/project_x_FROZEN/some/path/file_name_5",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_5",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:5",
@@ -248,6 +230,24 @@
         },
         "model": "metax_api.file",
         "pk": 5
+    },
+    {
+        "fields": {
+            "byte_size": 12345,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-05-23T12:41:59.507392Z",
+            "directory_name": "Phase_1",
+            "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:3",
+            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "parent_directory": 2,
+            "project_identifier": "project_x",
+            "removed": false
+        },
+        "model": "metax_api.directory",
+        "pk": 3
     },
     {
         "fields": {
@@ -269,13 +269,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_6",
-            "file_path": "/project_x_FROZEN/some/path/file_name_6",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_6",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:6",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -303,13 +303,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_7",
-            "file_path": "/project_x_FROZEN/some/path/file_name_7",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_7",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:7",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -337,13 +337,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_8",
-            "file_path": "/project_x_FROZEN/some/path/file_name_8",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_8",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:8",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -371,13 +371,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_9",
-            "file_path": "/project_x_FROZEN/some/path/file_name_9",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_9",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:9",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -405,19 +405,55 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_10",
-            "file_path": "/project_x_FROZEN/some/path/file_name_10",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_10",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:10",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
         },
         "model": "metax_api.file",
         "pk": 10
+    },
+    {
+        "fields": {
+            "byte_size": 12345,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-05-23T12:41:59.507392Z",
+            "directory_name": "2017",
+            "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:4",
+            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "parent_directory": 3,
+            "project_identifier": "project_x",
+            "removed": false
+        },
+        "model": "metax_api.directory",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "byte_size": 12345,
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-05-23T12:41:59.507392Z",
+            "directory_name": "01",
+            "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:5",
+            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "parent_directory": 4,
+            "project_identifier": "project_x",
+            "removed": false
+        },
+        "model": "metax_api.directory",
+        "pk": 5
     },
     {
         "fields": {
@@ -439,13 +475,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_11",
-            "file_path": "/project_x_FROZEN/some/path/file_name_11",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_11",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:11",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -473,13 +509,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_12",
-            "file_path": "/project_x_FROZEN/some/path/file_name_12",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_12",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:12",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -507,13 +543,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_13",
-            "file_path": "/project_x_FROZEN/some/path/file_name_13",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_13",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:13",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -541,13 +577,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_14",
-            "file_path": "/project_x_FROZEN/some/path/file_name_14",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_14",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:14",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -575,13 +611,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_15",
-            "file_path": "/project_x_FROZEN/some/path/file_name_15",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_15",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:15",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -609,13 +645,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_16",
-            "file_path": "/project_x_FROZEN/some/path/file_name_16",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_16",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:16",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -643,13 +679,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_17",
-            "file_path": "/project_x_FROZEN/some/path/file_name_17",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_17",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:17",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -677,13 +713,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_18",
-            "file_path": "/project_x_FROZEN/some/path/file_name_18",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_18",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:18",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -711,13 +747,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_19",
-            "file_path": "/project_x_FROZEN/some/path/file_name_19",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_19",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:19",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -745,13 +781,13 @@
             "file_frozen": "2017-05-21T14:41:59.507392Z",
             "file_modified": "2017-05-23T14:41:59.507392Z",
             "file_name": "file_name_20",
-            "file_path": "/project_x_FROZEN/some/path/file_name_20",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_20",
             "file_storage": 1,
             "file_uploaded": "2017-05-21T14:41:59.507392Z",
             "identifier": "pid:urn:20",
             "modified_by_api": "2017-05-27T10:07:22.559656Z",
             "open_access": false,
-            "parent_directory": 2,
+            "parent_directory": 5,
             "project_identifier": "project_x",
             "removed": false,
             "replication_path": "/path/to/copy/of/file"
@@ -1504,8 +1540,8 @@
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
-                3,
-                1
+                1,
+                2
             ],
             "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
@@ -1544,7 +1580,7 @@
                 ],
                 "files": [
                     {
-                        "identifier": "pid:urn:dir:3",
+                        "identifier": "pid:urn:1",
                         "title": "File metadata title 2",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
@@ -1559,7 +1595,7 @@
                         }
                     },
                     {
-                        "identifier": "pid:urn:1",
+                        "identifier": "pid:urn:2",
                         "title": "File metadata title 3",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
@@ -1584,7 +1620,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 12445,
+                "total_byte_size": 300,
                 "urn_identifier": "pid:urn:cr2",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -1601,8 +1637,8 @@
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
-                2,
-                3
+                3,
+                4
             ],
             "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
@@ -1641,7 +1677,7 @@
                 ],
                 "files": [
                     {
-                        "identifier": "pid:urn:2",
+                        "identifier": "pid:urn:3",
                         "title": "File metadata title 4",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
@@ -1656,7 +1692,7 @@
                         }
                     },
                     {
-                        "identifier": "pid:urn:3",
+                        "identifier": "pid:urn:4",
                         "title": "File metadata title 5",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
@@ -1681,7 +1717,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 500,
+                "total_byte_size": 700,
                 "urn_identifier": "pid:urn:cr3",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -1698,8 +1734,8 @@
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
-                4,
-                5
+                5,
+                3
             ],
             "mets_object_identifier": [
                 "a",
@@ -1742,7 +1778,7 @@
                 ],
                 "files": [
                     {
-                        "identifier": "pid:urn:4",
+                        "identifier": "pid:urn:5",
                         "title": "File metadata title 6",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
@@ -1757,7 +1793,7 @@
                         }
                     },
                     {
-                        "identifier": "pid:urn:5",
+                        "identifier": "pid:urn:dir:3",
                         "title": "File metadata title 7",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
@@ -1782,7 +1818,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 900,
+                "total_byte_size": 12845,
                 "urn_identifier": "pid:urn:cr4",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -1846,11 +1882,11 @@
                         "identifier": "pid:urn:6",
                         "title": "File metadata title 8",
                         "type": {
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
                             "pref_label": {
-                                "en": "Model",
-                                "fi": "Mallinnus",
-                                "und": "Mallinnus"
+                                "en": "Text",
+                                "fi": "Teksti",
+                                "und": "Teksti"
                             }
                         },
                         "use_category": {
@@ -1997,7 +2033,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
                 10,
-                11
+                4
             ],
             "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
@@ -2051,7 +2087,7 @@
                         }
                     },
                     {
-                        "identifier": "pid:urn:11",
+                        "identifier": "pid:urn:dir:4",
                         "title": "File metadata title 13",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
@@ -2076,7 +2112,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 2100,
+                "total_byte_size": 13345,
                 "urn_identifier": "pid:urn:cr7",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -2085,6 +2121,102 @@
         },
         "model": "metax_api.catalogrecord",
         "pk": 7
+    },
+    {
+        "fields": {
+            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "data_catalog": 1,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "files": [
+                5,
+                11
+            ],
+            "mets_object_identifier": null,
+            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:dir:5",
+                        "title": "File metadata title 14",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    },
+                    {
+                        "identifier": "pid:urn:11",
+                        "title": "File metadata title 15",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset8",
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_byte_size": 13445,
+                "urn_identifier": "pid:urn:cr8",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            }
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 8
     },
     {
         "fields": {
@@ -2133,7 +2265,7 @@
                 "files": [
                     {
                         "identifier": "pid:urn:12",
-                        "title": "File metadata title 14",
+                        "title": "File metadata title 16",
                         "type": {
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
                             "pref_label": {
@@ -2148,15 +2280,7 @@
                     },
                     {
                         "identifier": "pid:urn:13",
-                        "title": "File metadata title 15",
-                        "type": {
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "pref_label": {
-                                "en": "Model",
-                                "fi": "Mallinnus",
-                                "und": "Mallinnus"
-                            }
-                        },
+                        "title": "File metadata title 17",
                         "use_category": {
                             "identifier": "source"
                         }
@@ -2168,22 +2292,23 @@
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset8",
+                "preferred_identifier": "pid:urn:preferred:dataset9",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 2500,
-                "urn_identifier": "pid:urn:cr8",
+                "urn_identifier": "pid:urn:cr9",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
             }
         },
         "model": "metax_api.catalogrecord",
-        "pk": 8
+        "pk": 9
     },
     {
         "fields": {
+            "alternate_record_set": 1,
             "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -2229,94 +2354,13 @@
                 "files": [
                     {
                         "identifier": "pid:urn:14",
-                        "title": "File metadata title 16",
-                        "use_category": {
-                            "identifier": "source"
-                        }
-                    },
-                    {
-                        "identifier": "pid:urn:15",
-                        "title": "File metadata title 17",
-                        "use_category": {
-                            "identifier": "source"
-                        }
-                    }
-                ],
-                "language": [
-                    {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng"
-                    }
-                ],
-                "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset9",
-                "title": {
-                    "en": "Wonderful Title"
-                },
-                "total_byte_size": 2900,
-                "urn_identifier": "pid:urn:cr9",
-                "version_notes": [
-                    "This version contains changes to x and y."
-                ]
-            }
-        },
-        "model": "metax_api.catalogrecord",
-        "pk": 9
-    },
-    {
-        "fields": {
-            "alternate_record_set": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
-            "data_catalog": 1,
-            "dataset_group_edit": "default-dataset-edit-group",
-            "files": [
-                16,
-                17
-            ],
-            "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "preservation_state": 0,
-            "preservation_state_modified": null,
-            "research_dataset": {
-                "creator": [
-                    {
-                        "@type": "Person",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "Mysteeriorganisaatio"
-                            }
-                        },
-                        "name": "Teppo Testaaja"
-                    }
-                ],
-                "curator": [
-                    {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Jarski"
-                    }
-                ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
-                "files": [
-                    {
-                        "identifier": "pid:urn:16",
                         "title": "File metadata title 18",
                         "use_category": {
                             "identifier": "source"
                         }
                     },
                     {
-                        "identifier": "pid:urn:17",
+                        "identifier": "pid:urn:15",
                         "title": "File metadata title 19",
                         "use_category": {
                             "identifier": "source"
@@ -2333,7 +2377,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 3300,
+                "total_byte_size": 2900,
                 "urn_identifier": "pid:urn:cr10",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -4052,8 +4096,8 @@
             "data_catalog": 2,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
-                16,
-                17
+                14,
+                15
             ],
             "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
@@ -4092,14 +4136,14 @@
                 ],
                 "files": [
                     {
-                        "identifier": "pid:urn:16",
+                        "identifier": "pid:urn:14",
                         "title": "File metadata title 18",
                         "use_category": {
                             "identifier": "source"
                         }
                     },
                     {
-                        "identifier": "pid:urn:17",
+                        "identifier": "pid:urn:15",
                         "title": "File metadata title 19",
                         "use_category": {
                             "identifier": "source"
@@ -4116,7 +4160,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 3300,
+                "total_byte_size": 2900,
                 "urn_identifier": "pid:urn:cr10-alt-1",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -4133,8 +4177,8 @@
             "data_catalog": 3,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
-                16,
-                17
+                14,
+                15
             ],
             "mets_object_identifier": null,
             "modified_by_api": "2017-05-23T10:07:22.559656Z",
@@ -4173,14 +4217,14 @@
                 ],
                 "files": [
                     {
-                        "identifier": "pid:urn:16",
+                        "identifier": "pid:urn:14",
                         "title": "File metadata title 18",
                         "use_category": {
                             "identifier": "source"
                         }
                     },
                     {
-                        "identifier": "pid:urn:17",
+                        "identifier": "pid:urn:15",
                         "title": "File metadata title 19",
                         "use_category": {
                             "identifier": "source"
@@ -4197,7 +4241,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 3300,
+                "total_byte_size": 2900,
                 "urn_identifier": "pid:urn:cr10-alt-2",
                 "version_notes": [
                     "This version contains changes to x and y."
