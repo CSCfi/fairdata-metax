@@ -24,7 +24,7 @@ class DirectoryApiReadBasicTests(DirectoryApiReadCommon):
 
     def test_read_directory_list(self):
         response = self.client.get('/rest/directories')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, 501)
 
     def test_read_directory_details_by_pk(self):
         response = self.client.get('/rest/directories/%s' % self.pk)
