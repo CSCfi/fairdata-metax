@@ -34,6 +34,99 @@
                 "checked"
             ]
         },
+        "Directory":{
+            "properties":{
+                "byte_size":{
+                    "description":"Size of files recursively contained by the directory.",
+                    "type":"integer",
+                    "readonly": true
+                },
+                "directory_deleted":{
+                    "description":"date when the directory was deleted",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "directory_modified":{
+                    "description":"Date on which the resource was changed.",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "directory_name":{
+                    "description":"Directory name",
+                    "type":"string",
+                    "readonly": true
+                },
+                "directory_path":{
+                    "description":"Path to the item as file: URI",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "type":"string",
+                    "readonly": true
+                },
+                "file_count":{
+                    "description":"Number of files recursively contained by the directory.",
+                    "type":"integer",
+                    "readonly": true
+                },
+                "id":{
+                    "description": "internal primary key",
+                    "type": "integer",
+                    "readonly": true
+                },
+                "identifier":{
+                    "description":"A persistent identifier (PID) in urn: scheme",
+                    "type":"string",
+                    "readonly": true
+                },
+                "parent_directory":{
+                    "description":"Parent directory of the directory. Can be empty for root directories.",
+                    "type":"object",
+                    "readonly": true,
+                    "$ref":"#/definitions/ParentDirectory"
+                },
+                "project_identifier":{
+                    "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
+                    "type":"string",
+                    "readonly": true
+                },
+                 "modified_by_api":{
+                    "description":"Date on which the resource was changed.",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "modified_by_user_id":{
+                    "description":"User id of the person who last edited this record",
+                    "type":"string",
+                    "readonly": true
+                },
+                "created_by_api":{
+                    "description":"Date of creation of the resource. Can't be updated once set.",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "created_by_user_id":{
+                    "description":"User id of the person who created this record. Can't be updated once set.",
+                    "type":"string",
+                    "readonly": true
+                }
+            },
+            "required":[
+                "byte_size",
+                "directory_name",
+                "directory_path",
+                "file_count",
+                "id",
+                "identifier",
+                "project_identifier",
+                "modified_by_api",
+                "modified_by_user_id",
+                "created_by_api",
+                "created_by_user_id"
+            ]
+        },
         "File":{
             "properties":{
                 "id":{
@@ -111,6 +204,12 @@
                     "type":"object",
                     "$ref":"#/definitions/Checksum"
                 },
+                "parent_directory":{
+                    "description":"Parent directory of the file",
+                    "type":"object",
+                    "readonly": true,
+                    "$ref":"#/definitions/ParentDirectory"
+                },
                 "open_access":{
                     "description":"This should be true if data is open and accessible. If attribute is not present it should be interpreted as implicit false.",
                     "type":"boolean"
@@ -152,6 +251,7 @@
                 "byte_size",
                 "file_storage",
                 "project_identifier",
+                "parent_directory",
                 "checksum"
             ]
         },
@@ -234,6 +334,23 @@
                 "identifier",
                 "title"
             ]
-        }
+        },
+        "ParentDirectory":{
+            "description":"Parent directory",
+            "properties":{
+                "id":{
+                    "description":"pk of parent directory in the db",
+                    "type":"integer"
+                },
+                "identifier":{
+                    "description":"persistend identifier of the directory",
+                    "type":"string"
+                },
+            },
+            "required":[
+                "id",
+                "identifier",
+            ]
+        },
     }
 }

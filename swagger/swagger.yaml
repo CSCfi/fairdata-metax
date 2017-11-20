@@ -266,8 +266,8 @@ paths:
           description: namespace of the schema. If a xml metadata already existed with given namespace, an error is returned
           required: true
           type: string
-        - in: "body"
-          name: "body"
+        - name: body
+          in: body
           description: The XML to create.
           required: true
       responses:
@@ -292,8 +292,8 @@ paths:
           description: namespace of the schema
           required: true
           type: string
-        - in: "body"
-          name: "body"
+        - name: body
+          in: body
           description: "The XML to update"
           required: true
       responses:
@@ -327,47 +327,32 @@ paths:
           description: file or namespace does not exist
       tags:
         - File API
-  /directories:
+  /directories/{PID}:
     get:
-      summary: get list of PIDs in directory
+      summary: get details of a directory
+      description: Does not contain the directory's files and sub-directories. For that, use /directories/{PID}/files
       parameters:
-        - name: path
+        - name: PID
           in: path
-          description: directory path
+          description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
       responses:
         '200':
-          description: list of PIDs
+          description: return directory details
+          schema:
+            $ref: '#/definitions/Directory'
+        '404':
+          description: not found
       tags:
-        - File API (not implemented)
-    patch:
-      summary: change directory path
-      parameters:
-        - name: path
-          in: path
-          description: current directory path
-          required: true
-          type: string
-        - name: newpath
-          in: query
-          description: new directory path (TODO is it good to have this in the query? Body instead?)
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, full content returned
-        '400':
-          description: parameters contained errors, response includes details
-      tags:
-        - File API (not implemented)
+        - File API
     delete:
       summary: delete all files' metadata in directory, recursively
       parameters:
-        - name: path
+        - name: PID
           in: path
           description: |
-            directory path. example value\: /path/of/directory
+              directory path. example value\: /path/of/directory
           required: true
           type: string
       responses:
@@ -378,7 +363,52 @@ paths:
         '404':
           description: not a single file with given path was found
       tags:
+        - File API (not implemented)
+  /directories/{PID}/files:
+    get:
+      summary: get list of files and directories contained by a directory
+      parameters:
+        - name: PID
+          in: path
+          description: persistent ID of the directory OR the internal pk
+          required: true
+          type: string
+        - name: recursive
+          in: query
+          description: return a flat list of file objects contained by the target directory and its sub-directories
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: |
+            returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
+            note&#58; if parameter 'recursive' is used, return value is a flat list of file objects instead.
+        '404':
+          description: directory not found
+      tags:
         - File API
+  /directories/root:
+    get:
+      summary: return root directory for a project, and its files and directories
+      description: Useful when starting to browse files for a project, when individual root-level directory identifier is not yet known.
+      parameters:
+        - name: project
+          in: query
+          description: project_identifier of the project for which to find root directory
+          required: true
+          type: string
+      responses:
+        '200':
+          description: |
+            returns the root directory for the requested project.
+            returned object additionally contains fields 'directories' and 'files', which contain the child directory and file objects of the root directory, similar to what API /directories/{PID}/files does.
+        '400':
+          description: bad parameters, details in body
+        '404':
+          description: directory not found
+      tags:
+        - File API
+
 
 
 # Data Catalog API
@@ -938,3 +968,5 @@ definitions:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
   File:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/file.json#/definitions/File'
+  Directory:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/file.json#/definitions/Directory'

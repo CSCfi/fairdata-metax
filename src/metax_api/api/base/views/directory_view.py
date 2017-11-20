@@ -27,6 +27,9 @@ class DirectoryViewSet(CommonViewSet):
     lookup_field_other = 'identifier'
     create_bulk_method = FileService.create_bulk
 
+    def list(self, request, *args, **kwargs):
+        raise Http501()
+
     def update(self, request, *args, **kwargs):
         raise Http501()
 
@@ -52,7 +55,7 @@ class DirectoryViewSet(CommonViewSet):
         return Response(files_and_dirs)
 
     @list_route(methods=['get'], url_path="root")
-    def get_project_root_directories(self, request):
+    def get_project_root_directory(self, request):
         """
         Return root directory for a project. This is useful when starting
         to browse files for a project, when individual root-level directory identifier
@@ -63,6 +66,6 @@ class DirectoryViewSet(CommonViewSet):
         if 'project' not in request.query_params:
             raise Http400('project is a required query parameter')
 
-        root_dirs = FileService.get_project_root_directories(request.query_params['project'])
+        root_dirs = FileService.get_project_root_directory(request.query_params['project'])
 
         return Response(root_dirs)
