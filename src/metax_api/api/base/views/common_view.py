@@ -26,6 +26,10 @@ class CommonViewSet(ModelViewSet):
     lookup_field_internal = None
     cache = RedisSentinelCache()
 
+    # assigning the create_bulk method here allows for other views to assing their other,
+    # customized method to be called instead instead of the generic one.
+    create_bulk_method = CommonService.create_bulk
+
     def get_object(self, search_params=None):
         """
         Overrided from rest_framework generics.py method to also allow searching by the field
@@ -147,7 +151,7 @@ class CommonViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
-        results, http_status = CommonService.create_bulk(request, serializer_class, **kwargs)
+        results, http_status = self.create_bulk_method(request, serializer_class, **kwargs)
         return Response(results, status=http_status)
 
     def destroy(self, request, *args, **kwargs):

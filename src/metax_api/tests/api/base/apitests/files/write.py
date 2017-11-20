@@ -1,8 +1,11 @@
+from copy import deepcopy
+from os.path import dirname
+
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import File, FileStorage
+from metax_api.models import Directory, File, FileStorage
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 d = print
@@ -43,6 +46,8 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
                 "algorithm": "sha2",
                 "checked": "2017-05-23T10:07:22.559656Z",
             },
+            "file_name": "new_file_1",
+            "file_path": from_test_data['file_path'].replace('/some/path', '/some/other_path'),
             "identifier": "urn:nbn:fi:csc-ida201401200000000001",
             "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
         })
@@ -51,6 +56,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
     def _get_second_new_test_data(self):
         from_test_data = self._get_new_test_data()
         from_test_data.update({
+            "file_name": "new_file_2",
             "identifier": "urn:nbn:fi:csc-ida201401200000000002",
         })
         return from_test_data
@@ -180,6 +186,167 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
 
+
+class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
+
+    """
+    Only checking directories related stuff in these tests
+    """
+
+    def test_create_file_hierarchy_from_file_list_with_no_existing_files(self):
+        """
+        Create a file hierarchy for a project which has 0 files or directories created previously.
+
+        Here, a directory /project_y_FROZEN/Experiment_1 is "frozen"
+        """
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual(len(response.data['success']), 12)
+        self.assertEqual(len(response.data['failed']), 0)
+
+        dirs_dict = self._assert_directory_parent_dirs('project_y')
+        self._assert_file_parent_dirs(dirs_dict, response)
+
+    def test_create_file_hierarchy_from_file_list_with_existing_files(self):
+        """
+        Create a file hierarchy for a project which already has files or directories
+        created previously.
+
+        Here the interesting part is, the top-most dir in the file list should find
+        an existing directory, which it can use as its parent dir.
+
+        Here, a directory /project_y_FROZEN/Experiment_2/Phase_1/Data is "frozen",
+        when /project_y_FROZEN already exists.
+        """
+
+        # setup db to have pre-existing dirs
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+
+        # form new test data
+        experiment_2_file_list = self._form_complex_list_from_test_file()
+
+        for i, f in enumerate(experiment_2_file_list):
+            f['file_path'] = f['file_path'].replace('/project_y_FROZEN/Experiment_1', '/project_y_FROZEN/Experiment_2/Phase_1/Data')
+            f['identifier'] = '%s-%d' % (f['file_path'], i)
+
+        response = self.client.post('/rest/files', experiment_2_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual(len(response.data['success']), 12)
+        self.assertEqual(len(response.data['failed']), 0)
+
+        dirs_dict = self._assert_directory_parent_dirs('project_y')
+        self._assert_file_parent_dirs(dirs_dict, response)
+
+    def test_create_file_hierarchy_error_file_list_has_invalid_data(self):
+        """
+        If even one file is missing file_path or project_identifier, the
+        request is immediately terminated.
+        """
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+        experiment_1_file_list[0].pop('file_path')
+        experiment_1_file_list[0].pop('project_identifier')
+
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('file_path' in response.data, True)
+        self.assertEqual('project_identifier' in response.data, True)
+        self.assertEqual('required parameter' in response.data['file_path'][0], True)
+        self.assertEqual('required parameter' in response.data['project_identifier'][0], True)
+
+    def _assert_directory_parent_dirs(self, project_identifier):
+        """
+        Check dirs created during the request have parent dirs as expected.
+        """
+        dirs_dict = {}
+
+        for d in Directory.objects.filter(project_identifier=project_identifier):
+            dirs_dict[d.directory_path] = { 'dir_id': d.id, 'parent_dir_id': d.parent_directory and d.parent_directory.id or None }
+
+        for dir_path, ids in dirs_dict.items():
+            if dir_path.endswith('FROZEN'):
+                self.assertEqual(ids['parent_dir_id'], None, 'FROZEN root dir should not have a parent directory')
+                continue
+            expected_parent_dir_path = dirname(dir_path)
+            self.assertEqual(ids['parent_dir_id'], dirs_dict[expected_parent_dir_path]['dir_id'], 'parent dir not as expected.')
+
+        return dirs_dict
+
+    def _assert_file_parent_dirs(self, dirs_dict, response):
+        """
+        Check files have parent dirs as expected.
+        """
+        for entry in response.data['success']:
+            f = entry['object']
+            excpected_parent_dir_path = dirname(f['file_path'])
+            self.assertEqual(f['parent_directory']['id'], dirs_dict[excpected_parent_dir_path]['dir_id'], 'parent dir not as expected.')
+
+    def _form_complex_list_from_test_file(self):
+        """
+        "complex" list
+        """
+        dir_data = [
+            {
+                "file_name": "uudehdko.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/uudehdko.png",
+            },
+            {
+                "file_name": "uusi.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/uusi.png",
+            },
+            {
+                "file_name": "path.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/path.png",
+            },
+            {
+                "file_name": "b_path.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/image.png",
+            },
+            {
+                "file_name": "path.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_2/path.png",
+            },
+            {
+                "file_name": "pathx.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/other_image.png",
+            },
+            {
+                "file_name": "kansio.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/Important/important.png",
+            },
+            {
+                "file_name": "some.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/an_image.png",
+            },
+            {
+                "file_name": "aa_toka.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/an_image_also.png",
+            },
+            {
+                "file_name": "aa_eka.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/image_as_well.png",
+            },
+            {
+                "file_name": "kissa.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_3/kissa.png",
+            },
+            {
+                "file_name": "ekaa.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/an_image_layeth_here.png",
+            }
+        ]
+
+        files = []
+
+        for i, d in enumerate(dir_data):
+            files.append(deepcopy(self.test_new_data))
+            files[-1].update(d, identifier='pid:urn:test:file:%d' % i, project_identifier='project_y')
+
+        return files
 
 class FileApiWriteUpdateTests(FileApiWriteCommon):
 
@@ -343,105 +510,6 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
 
         self.assertEqual(deleted_file.removed, True)
         self.assertEqual(deleted_file.file_name, self.file_name)
-
-
-class FileApiWriteDirectoryDeleteTests(FileApiWriteCommon):
-
-    """
-    DELETE /directories?path={path}
-    """
-
-    OTHER_PATH = '/animals/pets/cats'
-    OTHER_PATH_DEEPER = '/animals/pets/cats/furry'
-    OTHER_PATH_SIMILAR = '/animals/pets/cats_poisonous'
-
-    def setUp(self):
-        super(FileApiWriteDirectoryDeleteTests, self).setUp()
-        self._insert_files_with_file_paths([
-            self.OTHER_PATH,
-            self.OTHER_PATH_DEEPER,
-            self.OTHER_PATH_SIMILAR,
-        ])
-
-    def test_delete_directory(self):
-        file = File.objects.get(pk=1)
-        file_count = File.objects.filter(file_path=file.file_path).count()
-
-        response = self.client.delete('/rest/directories?path=%s' % file.file_path)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['affected_files'], file_count, response.data)
-
-        response = self.client.get('/rest/files/%d' % file.id)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-        try:
-            deleted_file = File.objects_unfiltered.get(pk=file.id)
-        except File.DoesNotExist:
-            raise Exception('Deleted file should not be deleted from the db, but marked as removed')
-
-        self.assertEqual(deleted_file.removed, True)
-        self.assertEqual(deleted_file.file_path.startswith(file.file_path), True, deleted_file.file_path)
-
-    def test_delete_directory_path_not_found(self):
-        file_count_before = File.objects.all().count()
-        response = self.client.delete('/rest/directories?path=/should/not/exist')
-        file_count_after = File.objects.all().count()
-
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(file_count_before, file_count_after)
-
-    def test_delete_directory_path_is_required_parameter(self):
-        response = self.client.delete('/rest/directories')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('required' in response.data['detail'], True, response.data)
-
-    def test_delete_directory_paths_are_not_greedy(self):
-        """
-        File path must match in full, partial match must not delete files:
-        1) animals/pets/cats
-        2) animals/pets/cats/furry
-        3) animals/pets/cats_poisonous
-
-        when 1) is deleted, 2) is deleted as well, 3) must not be affected
-        """
-
-        # note that django orm filter 'file_path__startswith' is greedy, so this filter returns
-        # everything that starts with OTHER_PATH -> 3 results.
-        #
-        # the delete_directory() operation in the api however is not greedy, it will only
-        # match full exact file path, OR all file paths that continue after
-        # OTHER_PATH + /.
-        file_count_before = File.objects.filter(file_path__startswith=self.OTHER_PATH).count()
-
-        response = self.client.delete('/rest/directories?path=%s' % self.OTHER_PATH)
-
-        file_count_after = File.objects.filter(file_path__startswith=self.OTHER_PATH).count()
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['affected_files'], 2, response.data)
-        self.assertEqual(file_count_after, file_count_before - 2, 'only one file should have been deleted')
-
-    def test_delete_directory_generic_apis_give_errors(self):
-        self.assertEqual(self.client.get('/rest/directories').status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(self.client.post('/rest/directories').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        self.assertEqual(self.client.get('/rest/directories/1').status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(self.client.put('/rest/directories').status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        self.assertEqual(self.client.put('/rest/directories/1').status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(self.client.patch('/rest/directories').status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(self.client.patch('/rest/directories/1').status_code, status.HTTP_404_NOT_FOUND)
-
-    def _insert_files_with_file_paths(self, file_paths):
-        fs = FileStorage.objects.get(pk=1)
-        for idx, path in enumerate(file_paths):
-            from_test_data = self._get_object_from_test_data('file')
-            from_test_data.update({
-                'identifier': '%s-%d' % (from_test_data['identifier'], idx),
-                'file_path': path,
-                'file_storage': fs,
-                'id': None,
-            })
-            file = File(**from_test_data)
-            file.save()
 
 
 class FileApiWriteXmlTests(FileApiWriteCommon):

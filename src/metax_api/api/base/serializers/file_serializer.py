@@ -26,6 +26,7 @@ class FileSerializer(CommonSerializer):
             'checksum_algorithm',
             'checksum_checked',
             'checksum_value',
+            'parent_directory',
             'download_url',
             'file_deleted',
             'file_frozen',
@@ -63,15 +64,17 @@ class FileSerializer(CommonSerializer):
 
         super(FileSerializer, self).is_valid(raise_exception=raise_exception)
 
-    def to_representation(self, data):
-        res = super(FileSerializer, self).to_representation(data)
-        fsrs = FileStorageSerializer(FileStorage.objects.get(id=res['file_storage']))
-        res['file_storage'] = fsrs.data
+    def to_representation(self, instance):
+        res = super(FileSerializer, self).to_representation(instance)
+
+        res['file_storage'] = FileStorageSerializer(instance.file_storage).data
+
+        res['parent_directory'] = {
+            'id': instance.parent_directory.id,
+            'identifier': instance.parent_directory.identifier,
+        }
 
         res['checksum'] = self._form_checksum(res)
-        if not res['checksum']:
-            # dont return fields with null values
-            res.pop('checksum')
 
         return res
 

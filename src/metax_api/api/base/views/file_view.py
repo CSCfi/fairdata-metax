@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from metax_api.exceptions import Http400
 from metax_api.models import File, XmlMetadata
 from metax_api.renderers import XMLRenderer
-from metax_api.services import CommonService
+from metax_api.services import CommonService, FileService
 from .common_view import CommonViewSet
 from ..serializers import FileSerializer, XmlMetadataSerializer
 
@@ -23,7 +23,7 @@ class FileViewSet(CommonViewSet):
     permission_classes = ()
 
     # note: override get_queryset() to get more control
-    queryset = File.objects.all()
+    queryset = File.objects.select_related('file_storage', 'parent_directory').all()
     serializer_class = FileSerializer
     object = File
 
@@ -31,6 +31,10 @@ class FileViewSet(CommonViewSet):
 
     # allow search by external identifier (urn, or whatever string in practice) as well
     lookup_field_other = 'identifier'
+
+    # customized create_bulk which handles both directories and files in the same
+    # bulk_create request.
+    create_bulk_method = FileService.create_bulk
 
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)

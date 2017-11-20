@@ -114,6 +114,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
     with open('file_test_data_template.json') as json_file:
         row_template = json_load(json_file)
 
+    directories = []
     test_data_list = []
     json_template = row_template['file_characteristics'].copy()
     file_name = row_template['file_name']
@@ -144,6 +145,12 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
                 'model': 'metax_api.file',
             }
 
+            directory_id = get_directory_for_path(directories, new['fields']['file_path'], test_data_list)
+
+            if not directory_id:
+                directory_id = create_directory_for_path(directories, new['fields']['file_path'], test_data_list)
+
+            new['fields']['parent_directory'] = directory_id
             new['fields']['file_name'] = file_name % loop
             new['fields']['file_path'] += file_name % loop
             new['fields']['identifier'] = "pid:urn:" + loop
@@ -212,6 +219,54 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
 
     return test_data_list
 
+def get_directory_for_path(directories, file_path, test_data_list):
+    if file_path.endswith('/'):
+        file_path = file_path[:-1]
+
+    for d in directories:
+        if d['fields']['directory_path'] == os.path.dirname(file_path):
+            return d['pk']
+    return None
+
+def create_directory_for_path(directories, file_path, test_data_list):
+    """
+    Recursively creates the requested directories for file_path
+    """
+    if file_path.endswith('/'):
+        file_path = file_path[:-1]
+
+    if len(file_path) <= 1:
+        # root frozen dir which does not require a directory
+        return None
+
+    with open('directory_test_data_template.json') as json_file:
+        row_template = json_load(json_file)
+
+    # the directory where a file or dir belongs to, must be created before the file or dir
+    directory_id = get_directory_for_path(directories, file_path, test_data_list)
+    if not directory_id:
+        directory_id = create_directory_for_path(directories, os.path.dirname(file_path), test_data_list)
+
+    # all parent dirs have been created - now create the dir that was originally asked for
+
+    new_id = len(directories) + 1
+
+    new = {
+        'fields': row_template.copy(),
+        'model': 'metax_api.directory',
+        'pk': new_id,
+    }
+
+    # note: it is possible that parent_directory is null (top-level directories)
+    new['fields']['parent_directory'] = directory_id
+    new['fields']['directory_name'] = os.path.basename(file_path)
+    new['fields']['directory_path'] = file_path
+    new['fields']['identifier'] = new['fields']['identifier'] % new_id
+
+    test_data_list.append(new)
+    directories.append(new)
+
+    return new_id
 
 def save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contract_list, catalog_record_list,
                    batch_size):
