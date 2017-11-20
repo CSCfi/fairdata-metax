@@ -27,6 +27,9 @@ class DirectoryViewSet(CommonViewSet):
     lookup_field_other = 'identifier'
     create_bulk_method = FileService.create_bulk
 
+    def list(self, request, *args, **kwargs):
+        raise Http501()
+
     def update(self, request, *args, **kwargs):
         raise Http501()
 
