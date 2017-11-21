@@ -287,24 +287,19 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                                                      'research_dataset.other_identifier.provider')
 
         for spatial in research_dataset.get('spatial', []):
-            # Populate as_wkt field from reference data only if it is empty (user has not provided own coordinates)
             as_wkt = spatial.get('as_wkt', [])
-            if len(as_wkt) > 0:
-                populate_as_wkt_with_ref_data = False
-            else:
-                populate_as_wkt_with_ref_data = True
 
-            for place_uri in spatial.get('place_uri', []):
+            if spatial.get('place_uri', False):
+                place_uri = spatial.get('place_uri')
                 ref_entry = cls.check_ref_data(refdata['location'], place_uri['identifier'],
                                                'research_dataset.spatial.place_uri.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
 
-                    if populate_as_wkt_with_ref_data:
-                        if ref_entry.get('wkt', False):
-                            as_wkt.append(ref_entry.get('wkt'))
-                        else:
-                            as_wkt.append('')
+                    # Populate as_wkt field from reference data only if it is empty, i.e. not provided by the user
+                    # and when the coordinates are available in the reference data
+                    if len(as_wkt) == 0 and ref_entry.get('wkt', False):
+                        as_wkt.append(ref_entry.get('wkt'))
 
             spatial['as_wkt'] = as_wkt
 
@@ -353,24 +348,19 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
             if activity.get('spatial', False):
                 spatial = activity['spatial']
-                # Populate as_wkt field from reference data only if it is empty (user has not provided own coordinates)
                 as_wkt = spatial.get('as_wkt', [])
-                if len(as_wkt) > 0:
-                    populate_as_wkt_with_ref_data = False
-                else:
-                    populate_as_wkt_with_ref_data = True
 
-                for place_uri in spatial.get('place_uri', []):
+                if spatial.get('place_uri', False):
+                    place_uri = spatial.get('place_uri')
                     ref_entry = cls.check_ref_data(refdata['location'], place_uri['identifier'],
                                                    'research_dataset.provenance.spatial.place_uri.identifier', errors)
                     if ref_entry:
                         cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
 
-                        if populate_as_wkt_with_ref_data:
-                            if ref_entry.get('wkt', False):
-                                as_wkt.append(ref_entry.get('wkt'))
-                            else:
-                                as_wkt.append('')
+                        # Populate as_wkt field from reference data only if it is empty, i.e. not provided by the user
+                        # and when the coordinates are available in the reference data
+                        if len(as_wkt) == 0 and ref_entry.get('wkt', False):
+                            as_wkt.append(ref_entry.get('wkt'))
 
                 spatial['as_wkt'] = as_wkt
 
