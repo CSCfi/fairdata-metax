@@ -296,12 +296,10 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
 
-                    # Populate as_wkt field from reference data only if it is already empty
-                    if len(as_wkt) == 0:
-                        if ref_entry.get('wkt', False):
-                            as_wkt.append(ref_entry.get('wkt'))
-                        else:
-                            as_wkt.append('')
+                    # Populate as_wkt field from reference data only if it is empty, i.e. not provided by the user
+                    # and when the coordinates are available in the reference data
+                    if len(as_wkt) == 0 and ref_entry.get('wkt', False):
+                        as_wkt.append(ref_entry.get('wkt'))
 
             spatial['as_wkt'] = as_wkt
 
@@ -359,12 +357,10 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     if ref_entry:
                         cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
 
-                        # Populate as_wkt field from reference data only if it is already empty
-                        if len(as_wkt) == 0:
-                            if ref_entry.get('wkt', False):
-                                as_wkt.append(ref_entry.get('wkt'))
-                            else:
-                                as_wkt.append('')
+                        # Populate as_wkt field from reference data only if it is empty, i.e. not provided by the user
+                        # and when the coordinates are available in the reference data
+                        if len(as_wkt) == 0 and ref_entry.get('wkt', False):
+                            as_wkt.append(ref_entry.get('wkt'))
 
                 spatial['as_wkt'] = as_wkt
 
