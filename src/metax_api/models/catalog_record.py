@@ -71,6 +71,7 @@ class CatalogRecord(Common):
     contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
     data_catalog = models.ForeignKey(DataCatalog)
     dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
+    deprecated = models.BooleanField(default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
     files = models.ManyToManyField(File)
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
     owner_id = models.CharField(max_length=200, null=True)
