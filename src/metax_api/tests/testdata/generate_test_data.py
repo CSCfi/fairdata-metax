@@ -1,15 +1,16 @@
-from copy import deepcopy
 import json
-from json import load as json_load
-from json import dump as json_dump
-from json import dumps as json_dumps
-from jsonschema import validate as json_validate
 import os
-import requests
 import sys
 import time
+from copy import deepcopy
+from json import dump as json_dump
+from json import dumps as json_dumps
+from json import load as json_load
 from uuid import uuid4
+
+import requests
 import urllib3
+from jsonschema import validate as json_validate
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import get_json_schema
@@ -92,8 +93,8 @@ def generate_file_storages(mode, file_storage_max_rows):
         for i in range(1, file_storage_max_rows + 1):
             new = {
                 'fields': {
-                    'modified_by_api': '2017-05-23T10:07:22.559656Z',
-                    'created_by_api': '2017-05-23T10:07:22.559656Z',
+                    'modified_by_api': '2017-06-23T10:07:22Z',
+                    'created_by_api': '2017-05-23T10:07:22Z',
                     'file_storage_json': {
                         'title': title % str(i),
                         'identifier': identifier % str(i),
@@ -336,8 +337,8 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
                 'model': "metax_api.datacatalog",
                 'pk': i,
             }
-            new['fields']['modified_by_api'] = '2017-05-15T10:07:22.559656Z'
-            new['fields']['created_by_api'] = '2017-05-15T10:07:22.559656Z'
+            new['fields']['modified_by_api'] = '2017-06-15T10:07:22Z'
+            new['fields']['created_by_api'] = '2017-05-15T10:07:22Z'
             new['fields']['catalog_json']['identifier'] = "pid:urn:catalog%d" % i
             test_data_catalog_list.append(new)
 
@@ -367,8 +368,8 @@ def generate_contracts(mode, contract_max_rows, validate_json):
             new['fields']['contract_json']['identifier'] = "optional:contract:identifier%d" % i
             new['fields']['contract_json']['title'] = "Title of Contract %d" % i
             new['fields']['contract_json']['organization']['organization_identifier'] = "1234567-%d" % i
-            new['fields']['modified_by_api'] = '2017-05-15T10:07:22.559656Z'
-            new['fields']['created_by_api'] = '2017-05-15T10:07:22.559656Z'
+            new['fields']['modified_by_api'] = '2017-06-15T10:07:22Z'
+            new['fields']['created_by_api'] = '2017-05-15T10:07:22Z'
             test_contract_list.append(new)
 
             if validate_json or i == 1:
@@ -408,8 +409,8 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             new['fields']['data_catalog'] = data_catalog_id
             new['fields']['research_dataset']['urn_identifier'] = "pid:urn:cr%d" % i
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
-            new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
-            new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
+            new['fields']['modified_by_api'] = '2017-06-23T10:07:22Z'
+            new['fields']['created_by_api'] = '2017-05-23T10:07:22Z'
             new['fields']['files'] = []
 
             # add files
@@ -559,8 +560,8 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             'pk': len(test_data_list) + 1,
         }
         new['fields']['files'] = [1, 2]  # for the relation in the db
-        new['fields']['modified_by_api'] = '2017-05-23T10:07:22.559656Z'
-        new['fields']['created_by_api'] = '2017-05-23T10:07:22.559656Z'
+        new['fields']['modified_by_api'] = '2017-06-23T10:07:22Z'
+        new['fields']['created_by_api'] = '2017-05-23T10:07:22Z'
         new['fields']['research_dataset']['urn_identifier'] = 'very:unique:urn-%d' % j
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
 

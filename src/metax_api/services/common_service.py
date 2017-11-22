@@ -1,12 +1,15 @@
-from datetime import datetime
+import logging
 from json import load as json_load
 
+from django.utils import timezone
+from metax_api.exceptions import Http400, Http412
+from metax_api.utils import parse_http_timestamp_using_tz_and_get_tz_naive_datetime, get_tz_aware_now_without_micros
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
+
 
 class CommonService():
 
@@ -33,7 +36,7 @@ class CommonService():
         request: the http request object
         serializer_class: does the actual saving, knows what kind of object is in question
         """
-        common_info = { 'created_by_api': datetime.now() }
+        common_info = { 'created_by_api': get_tz_aware_now_without_micros() }
 
         results = None
 
@@ -140,13 +143,13 @@ class CommonService():
         if not isinstance(request.data, list):
             raise ValidationError('request.data is not a list')
 
-        check_modified_since = kwargs['context']['view']._request_has_header('If-Unmodified-Since')
-        common_info = { 'modified_by_api': datetime.now() }
+        common_info = { 'modified_by_api': get_tz_aware_now_without_micros() }
         results = { 'success': [], 'failed': []}
 
         for row in request.data:
 
-            instance = cls._get_object_for_update(model_obj, row, results, check_modified_since)
+            instance = cls._get_object_for_update(model_obj, row, results,
+                                                  cls.request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'))
 
             if not instance:
                 continue
@@ -183,7 +186,7 @@ class CommonService():
             _logger.warning("User id not set; unknown user")
 
         method = request.stream and request.stream.method or False
-        current_time = datetime.now()
+        current_time = get_tz_aware_now_without_micros()
         common_info = {}
 
         if method in ('PUT', 'PATCH', 'DELETE'):
@@ -246,7 +249,7 @@ class CommonService():
             return status.HTTP_400_BAD_REQUEST
 
     @staticmethod
-    def _get_object_for_update(model_obj, row, results, check_modified_since):
+    def _get_object_for_update(model_obj, row, results, check_unmodified_since):
         """
         Find the target object being updated using a row from the request payload.
 
@@ -254,7 +257,7 @@ class CommonService():
         model_obj: the model object used to search the db
         row: the payload from the request
         results: the result-list that will be returned from the api
-        check_modified_since: retrieved object should compare its modified_by_api timestamp
+        check_unmodified_since: retrieved object should compare its modified_by_api timestamp
             to the corresponding field in the received row. this simulates the use of the
             if-unmodified-since header that is used for single updates.
         """
@@ -266,7 +269,7 @@ class CommonService():
         except ValidationError as e:
             results['failed'].append({ 'object': row, 'errors': { 'detail': e.detail } })
 
-        if instance and check_modified_since:
+        if instance and check_unmodified_since:
             if 'modified_by_api' not in row:
                 results['failed'].append({
                     'object': row,
@@ -281,3 +284,71 @@ class CommonService():
                 pass
 
         return instance
+
+    @staticmethod
+    def validate_and_get_if_unmodified_since_header_as_tz_naive_datetime(request):
+        try:
+            return CommonService._validate_http_date_header(request, 'HTTP_IF_UNMODIFIED_SINCE')
+        except:
+            raise Http400('Bad If-Unmodified-Since header')
+
+    @staticmethod
+    def validate_and_get_if_modified_since_header_as_tz_naive_datetime(request):
+        try:
+            return CommonService._validate_http_date_header(request, 'HTTP_IF_MODIFIED_SINCE')
+        except:
+            raise Http400('Bad If-Modified-Since header')
+
+    @staticmethod
+    def _validate_http_date_header(request, header_name):
+        timestamp = request.META.get(header_name, '')
+        # According to RFC 7232, Http date should always be expressed in 'GMT'. Forcing its use makes this explicit
+        if not timestamp.endswith('GMT'):
+            raise Exception
+        return parse_http_timestamp_using_tz_and_get_tz_naive_datetime(timestamp)
+
+    @staticmethod
+    def get_request_header(request, header_name):
+        return request.META.get(header_name, None)
+
+    @staticmethod
+    def request_has_header(request, header_name):
+        return header_name in request.META
+
+    @staticmethod
+    def request_is_write_operation(request):
+        return request.method in ('POST', 'PUT', 'PATCH', 'DELETE')
+
+    @staticmethod
+    def check_if_unmodified_since(request, obj):
+        if CommonService.request_is_write_operation(request) and \
+                CommonService.request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'):
+
+            header_timestamp = CommonService.validate_and_get_if_unmodified_since_header_as_tz_naive_datetime(request)
+            CommonService._check_if_obj_unmodified_since(obj, header_timestamp)
+
+    @staticmethod
+    def _check_if_obj_unmodified_since(obj, header_timestamp):
+        if obj.modified_since(header_timestamp):
+            raise Http412('Resource has been modified since {0} in timezone {1}'.format(
+                str(header_timestamp), timezone.get_default_timezone_name()))
+
+    @staticmethod
+    def set_if_modified_since_filter(request, filter_obj):
+        """
+        Evaluate If-Modified-Since http header only on read operations.
+        Filter items whose modified_by_api field timestamp value is greater than the header value.
+        This method updates given filter object.
+
+        :param request:
+        :param filter_obj
+        :return:
+        """
+
+        if not CommonService.request_is_write_operation(request) and \
+                CommonService.request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
+
+            filter_obj.update({
+                'modified_by_api__gt': CommonService.validate_and_get_if_modified_since_header_as_tz_naive_datetime(
+                    request)})
+

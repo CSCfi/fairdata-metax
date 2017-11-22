@@ -2,11 +2,10 @@ from copy import deepcopy
 from os.path import dirname
 
 from django.core.management import call_command
-from rest_framework import status
-from rest_framework.test import APITestCase
-
 from metax_api.models import Directory, File, FileStorage
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 d = print
 
@@ -521,45 +520,45 @@ class FileApiWriteXmlTests(FileApiWriteCommon):
     """
 
     def test_xml_api(self):
-        headers = { 'Content-type': 'application/xml' }
+        content_type = 'application/xml'
         data = '<?xml version="1.0" encoding="utf-8"?><root><stuffia>tauhketta yeah</stuffia></root>'
 
         # create
-        response = self.client.post('/rest/files/1/xml?namespace=breh', data, headers=headers, format='json')
+        response = self.client.post('/rest/files/1/xml?namespace=breh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
         self.assertEqual('<?xml' in response.data, True)
 
-        response = self.client.post('/rest/files/1/xml?namespace=bruh', data, headers=headers, format='json')
+        response = self.client.post('/rest/files/1/xml?namespace=bruh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
         self.assertEqual('<?xml' in response.data, True)
 
         # get list
-        response = self.client.get('/rest/files/1/xml', headers=headers, format='json')
+        response = self.client.get('/rest/files/1/xml', content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
         self.assertEqual(isinstance(response.data, list), True, response.data)
         self.assertEqual('breh' in response.data, True)
 
         # get single
-        response = self.client.get('/rest/files/1/xml?namespace=breh', headers=headers, format='json')
+        response = self.client.get('/rest/files/1/xml?namespace=breh', content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
         self.assertEqual('<?xml' in response.data, True)
 
         # update
         data = '<?xml version="1.0" encoding="utf-8"?><root><stuffia>updated stuff</stuffia></root>'
-        response = self.client.put('/rest/files/1/xml?namespace=breh', data, headers=headers, format='json')
+        response = self.client.put('/rest/files/1/xml?namespace=breh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
 
         # get updated again
-        response = self.client.get('/rest/files/1/xml?namespace=breh', headers=headers, format='json')
+        response = self.client.get('/rest/files/1/xml?namespace=breh', content_type=content_type, )
         self.assertEqual('updated stuff' in response.data, True)
 
         # delete
-        response = self.client.delete('/rest/files/1/xml?namespace=breh', data, headers=headers, format='json')
+        response = self.client.delete('/rest/files/1/xml?namespace=breh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
 
-        response = self.client.delete('/rest/files/1/xml?namespace=bruh', data, headers=headers, format='json')
+        response = self.client.delete('/rest/files/1/xml?namespace=bruh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
 
         # get list
-        response = self.client.get('/rest/files/1/xml', headers=headers, format='json')
+        response = self.client.get('/rest/files/1/xml', content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
