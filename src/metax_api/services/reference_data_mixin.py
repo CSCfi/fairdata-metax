@@ -1,11 +1,10 @@
+import logging
 from time import sleep
 
 from django.conf import settings as django_settings
-
 from metax_api.exceptions import Http503
 from metax_api.utils import ReferenceDataLoader
 
-import logging
 _logger = logging.getLogger(__name__)
 d = _logger.debug
 

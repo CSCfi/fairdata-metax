@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+
 import yaml
 from metax_api.utils import executing_test_case, executing_travis
 

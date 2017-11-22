@@ -1,18 +1,19 @@
+import logging
+
 from django.http import Http404
+from metax_api.exceptions import Http400
+from metax_api.models import File, XmlMetadata
+from metax_api.renderers import XMLRenderer
+from metax_api.services import CommonService, FileService
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from metax_api.exceptions import Http400
-from metax_api.models import File, XmlMetadata
-from metax_api.renderers import XMLRenderer
-from metax_api.services import CommonService, FileService
 from .common_view import CommonViewSet
 from ..serializers import FileSerializer, XmlMetadataSerializer
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

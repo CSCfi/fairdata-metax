@@ -1,16 +1,16 @@
+import logging
 from os import getpid
 from os.path import dirname, basename
 from time import time
 from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
 from django.http import Http404
-from rest_framework.serializers import ValidationError
-
 from metax_api.exceptions import Http400
 from metax_api.models import Directory, File
+from rest_framework.serializers import ValidationError
+
 from .common_service import CommonService
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

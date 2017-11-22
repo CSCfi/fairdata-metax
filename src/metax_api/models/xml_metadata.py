@@ -3,6 +3,7 @@ from django.db import models
 from .common import Common
 from .file import File
 
+
 class XmlMetadata(Common):
 
     namespace = models.CharField(max_length=200)

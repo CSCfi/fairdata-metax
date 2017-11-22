@@ -1,12 +1,12 @@
+import logging
 from base64 import b64decode
-import yaml
 
+import yaml
 from django.conf import settings as django_settings
 from django.http import HttpResponseForbidden
 from metax_api.exceptions import Http403
 from metax_api.utils import executing_test_case, executing_travis
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

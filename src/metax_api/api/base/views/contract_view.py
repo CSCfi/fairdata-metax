@@ -1,13 +1,14 @@
+import logging
+
+from metax_api.models import Contract
+from metax_api.services import CommonService
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
-from metax_api.models import Contract
-from metax_api.services import CommonService
 from .common_view import CommonViewSet
 from ..serializers import ContractSerializer, CatalogRecordSerializer
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

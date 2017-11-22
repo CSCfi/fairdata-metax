@@ -1,9 +1,8 @@
 from django.core.management import call_command
-# from rest_framework import status
-from rest_framework.test import APITestCase
-
 # from metax_api.models import Directory
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
+# from rest_framework import status
+from rest_framework.test import APITestCase
 
 d = print
 

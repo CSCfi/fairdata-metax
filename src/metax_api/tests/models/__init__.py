@@ -1,3 +1,3 @@
+from .catalog_record import CatalogRecordModelBasicTest, CatalogRecordModelTests, CatalogRecordManagerTests
 from .data_catalog import DataCatalogModelTests
 from .file import FileModelBasicTest, FileManagerTests
-from .catalog_record import CatalogRecordModelBasicTest, CatalogRecordModelTests, CatalogRecordManagerTests

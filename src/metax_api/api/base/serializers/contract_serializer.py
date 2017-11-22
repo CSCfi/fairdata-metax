@@ -1,6 +1,8 @@
 from metax_api.models import Contract
+
 from .common_serializer import CommonSerializer
 from .serializer_utils import validate_json
+
 
 class ContractSerializer(CommonSerializer):
 

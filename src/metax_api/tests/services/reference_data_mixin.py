@@ -1,9 +1,8 @@
 from unittest.mock import patch
 
 from django.test import TestCase
-
-from metax_api.tests.utils import TestClassUtils
 from metax_api.services import ReferenceDataMixin as RDM
+from metax_api.tests.utils import TestClassUtils
 from metax_api.utils import (
     _RedisSentinelCache,
     _RedisSentinelCacheDummy,
@@ -11,7 +10,6 @@ from metax_api.utils import (
     RedisSentinelCache,
     ReferenceDataLoader,
 )
-
 
 if executing_travis():
     _RedisCacheClass = _RedisSentinelCacheDummy

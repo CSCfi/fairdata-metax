@@ -3,6 +3,7 @@ from django.db import connection
 
 from .common import Common
 
+
 class Contract(Common):
 
     contract_json = JSONField(blank=True, null=True)

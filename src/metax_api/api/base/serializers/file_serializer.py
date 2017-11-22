@@ -1,11 +1,13 @@
+import logging
+
+from metax_api.models import File, FileStorage
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 
-from metax_api.models import File, FileStorage
 from .common_serializer import CommonSerializer
 from .file_storage_serializer import FileStorageSerializer
 from .serializer_utils import validate_json
-import logging
+
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

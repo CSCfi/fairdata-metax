@@ -1,11 +1,11 @@
+import logging
 from collections import OrderedDict
 
-from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import SkipField
 from rest_framework.relations import PKOnlyObject
+from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
-import logging
 _logger = logging.getLogger(__name__)
 d = _logger.debug
 

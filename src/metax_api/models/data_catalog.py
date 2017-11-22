@@ -3,6 +3,7 @@ from django.db import models
 
 from .common import Common
 
+
 class DataCatalog(Common):
 
     catalog_json = JSONField()

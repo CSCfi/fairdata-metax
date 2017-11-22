@@ -1,15 +1,15 @@
+import logging
 from os import path
-
-from rest_framework.serializers import ValidationError
 
 from metax_api.models import CatalogRecord, DataCatalog, File, Contract
 from metax_api.services import CatalogRecordService as CRS, CommonService
-from .data_catalog_serializer import DataCatalogSerializer
+from rest_framework.serializers import ValidationError
+
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
+from .data_catalog_serializer import DataCatalogSerializer
 from .serializer_utils import validate_json
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
