@@ -3,11 +3,15 @@ from os.path import dirname, basename
 from time import time
 from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
+from django.db import connection
 from django.http import Http404
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400
-from metax_api.models import Directory, File
+from metax_api.models import CatalogRecord, Directory, File
+from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 
 import logging
@@ -23,6 +27,11 @@ multiple times in itself isnt bad, but using this function-replacement
 -mechanic, so that the imports are not littered in several methods in
 FileService where they would otherwise be needed.
 """
+def CatalogRecordSerializer(*args, **kwargs):
+    from metax_api.api.base.serializers import CatalogRecordSerializer as CRS
+    CatalogRecordSerializer = CRS
+    return CatalogRecordSerializer(*args, **kwargs)
+
 def DirectorySerializer(*args, **kwargs):
     from metax_api.api.base.serializers import DirectorySerializer as DS
     DirectorySerializer = DS
@@ -35,6 +44,231 @@ def FileSerializer(*args, **kwargs):
 
 
 class FileService(CommonService):
+
+    @classmethod
+    def destroy_bulk(cls, file_identifiers):
+        """
+        Mark files as deleted en masse. Parameter file_identifiers can be a list of pk's
+        (integers), or file identifiers (strings).
+
+        Currently the assumption is that a bulk delete request will always contain ALL the files
+        in a directory, and its sub-directories, so the end result after all the operations should
+        be that the top-dir found in a list of files should effectively be completely cut out.
+
+        By far the easiest solution would have been to just find the top file_path, and delete all
+        files and dirs within the project scope that begin with said path, but it was recommended
+        to operate explicitly on the given file identifiers to minimize the opportunity for any
+        unforeseen accidents.
+
+        Since metax has to make due with working only with lists of the files themselves and
+        their file paths instead of being given the related directories with their unique
+        identifiers as well, this method goes a decent length to protect the file hierarchy from
+        ending up in any kind of inconsistent state, mostly culminating in making sure that
+        - there will not be any directories or files without parent directories
+          (a project can only have one directory without a parent, which is the root
+          /project_x_FROZEN directory. This method will delete the root as well, though,
+          when approriate).
+        - any directory being deleted does not have files in it (directories are deleted
+          after deleting the specified files, so any files still found in the directories
+          implies there is a de-sync between IDA and metax)
+        - there will not be any "orphaned" directory chains (with no files in them) between
+          the top and the bottom of the file hierarchy
+
+        Any evidence of the previous scenarios will raise an error.
+
+        The method returns a http response with the number of deleted files in the body.
+        """
+        _logger.info('Begin bulk delete files')
+
+        file_ids = cls._file_identifiers_to_ids(file_identifiers)
+
+        deleted_files_count, project_identifier = cls._mark_files_as_deleted(file_ids)
+
+        parent_of_top_dir = cls._delete_dirs_of_deleted_files(file_ids)
+
+        cls._find_and_delete_empy_dir_chains(project_identifier, parent_of_top_dir)
+
+        cls._mark_datasets_as_deprecated(file_ids)
+
+        _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
+        return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def _file_identifiers_to_ids(file_identifiers):
+        """
+        In case file_identifiers is identifiers (strings), which they probably are in real use,
+        do a query to get a list of pk's instead, since they will be used quite a few times.
+        """
+        if not file_identifiers:
+            _logger.info('Received empty list of identifiers. Aborting')
+            raise Http400('Received empty list of identifiers')
+        elif isinstance(file_identifiers[0], int):
+            file_ids = file_identifiers
+        else:
+            file_ids = File.objects.filter(identifier__in=file_identifiers).values_list('id', flat=True)
+        return file_ids
+
+    @staticmethod
+    def _mark_files_as_deleted(file_ids):
+        """
+        Mark files designated by file_ids as deleted.
+        """
+        _logger.info('Marking files as removed...')
+
+        sql_delete_files = '''
+            update metax_api_file
+            set removed = true, file_deleted = CURRENT_TIMESTAMP
+            where active = true and removed = false
+            and id in %s'''
+
+        sql_select_related_projects = 'select distinct(project_identifier) from metax_api_file where id in %s'
+
+        with connection.cursor() as cr:
+            cr.execute(sql_select_related_projects, [tuple(file_ids)])
+            if cr.rowcount == 0:
+                raise Http400({ 'detail': ['no files found for given identifiers'] })
+            elif cr.rowcount > 1:
+                raise Http400({ 'project_identifier': ['deleting files from more than one project in a single request is not allowed'] })
+            project_identifier = cr.fetchone()[0]
+
+            cr.execute(sql_delete_files, [tuple(file_ids)])
+            deleted_files_count = cr.rowcount
+
+        return deleted_files_count, project_identifier
+
+    @classmethod
+    def _delete_dirs_of_deleted_files(cls, file_ids):
+        """
+        Gather ids of all directories that were parents of the files marked as removed,
+        and permanently delete them.
+        """
+        _logger.info('Deleting directories of deleted files...')
+
+        sql_select_dirs_of_deleted_files = '''
+            select d.id, directory_path
+            from metax_api_directory d
+            left join metax_api_file f on f.parent_directory_id = d.id
+            where f.removed = true and f.id in %s
+            group by d.id, directory_path
+            order by directory_path asc
+            '''
+
+        # get all parent directories of deleted files, and check that they are all really empty
+        dirs_of_deleted_files = Directory.objects.raw(sql_select_dirs_of_deleted_files, [tuple(file_ids)])
+
+        try:
+            # find the top-most directory, so that any possible empty directory chains
+            # above it can be found and deleted later
+            parent_of_top_dir = dirs_of_deleted_files[0].parent_directory
+        except: # pragma: no cover
+            raise ValidationError({
+                'detail': ['Could not find any directories associated with the deleted files... This should not happen']
+            })
+
+        for dr in dirs_of_deleted_files:
+            if dr.files.exists():
+                cls._raise_incomplete_bulk_delete_file_list_error(dr)
+            else:
+                dr.delete()
+
+        return parent_of_top_dir
+
+    @classmethod
+    def _find_and_delete_empy_dir_chains(cls, project_identifier, parent_of_top_dir):
+        """
+        Make sure there will not be any "orphaned" directory chains
+        (directories which only contained other directories for organizing data), and other
+        empty directories "higher up" than what the first received file points to, to not
+        leave any trash laying around that could cause trouble later.
+        """
+        _logger.info('Finding and deleting empty directory chains...')
+
+        for dr in Directory.objects.filter(project_identifier=project_identifier, parent_directory_id=None):
+            if len(dirname(dr.directory_path)) <= 1:
+                # dont delete a root directory such as /project_x_FROZEN, since that
+                # is also included by the query.
+                continue
+            cls._delete_empy_dir_chain_below(dr)
+
+        # finally, take the root directory of the original file list, and delete
+        # any empty directory chains above
+        cls._delete_empy_dir_chain_above(parent_of_top_dir)
+
+    @classmethod
+    def _delete_empy_dir_chain_above(cls, directory):
+        """
+        If the highest path from the files being deleted was e.g. /some/path/here/file.png,
+        then /some/path/here would be the closest dir that has now been deleted, since it was
+        the parent of file.png. It is possible that other directories above it are empty, for
+        example in the case that the dir that was chosen for unfreezing/deletion, was some dir
+        higher up, but only contained directories leading up to the first file.
+
+        Delete all empty directories above the first parent directory to not leave behind
+        any clutter. It is possible that all directories including the root will get deleted.
+        """
+        if not directory:
+            return
+        elif directory.files.exists():
+            return
+        elif directory.child_directories.exists():
+            return
+        parent_directory = directory.parent_directory
+        directory.delete()
+        if parent_directory:
+            cls._delete_empy_dir_chain_above(parent_directory)
+
+    @classmethod
+    def _delete_empy_dir_chain_below(cls, dr):
+        """
+        Delete possibly empty directory chains that might have been left over after
+        deleting directories directly associated with files (i.e., delete directory
+        hierarchies that existed solely for organizing other dirs, but did not contain
+        files themselves).
+        """
+        if dr.files.exists():
+            cls._raise_incomplete_bulk_delete_file_list_error(dr)
+        else:
+            # start deleting directories from the bottom to up
+            for sub_dr in dr.child_directories.all():
+                cls._delete_empy_dir_chain_below(sub_dr)
+            dr.delete()
+
+    @staticmethod
+    def _mark_datasets_as_deprecated(file_ids):
+        """
+        Get all CatalogRecords which have files set to them from file_ids,
+        and set their deprecated flag to True. Then, publish update-messages to rabbitmq.
+        """
+        _logger.info('Marking related datasets as deprecated...')
+        deprecated_records = []
+
+        for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False):
+            cr.deprecated = True
+            cr.save()
+            deprecated_records.append(CatalogRecordSerializer(cr).data)
+
+        _logger.info('Publishing deprecated datasets to rabbitmq update queues...')
+        rabbitmq = RabbitMQ()
+        rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
+
+    @staticmethod
+    def _raise_incomplete_bulk_delete_file_list_error(directory):
+        """
+        Log and raise an error with details about what files what were left over in the directories,
+        after attempting to delete files according to received list of file ids.
+        """
+        error_msg = 'The received file list is incomplete. Not all files were deleted from ' \
+            'a directory. When bulk deleting files, make sure to include all files in sub-directories ' \
+            'as well. See file_list for list of files left over.'
+
+        file_list = [ f.file_path for f in directory.files.all() ]
+
+        _logger.error('%s file_list:\n%s' % (error_msg, '\n'.join(file_list)))
+
+        raise Http400({
+            'detail': [error_msg],
+            'file_list': file_list
+        })
 
     @classmethod
     def get_directory_contents(cls, identifier, recursive=False):

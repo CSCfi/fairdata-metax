@@ -498,20 +498,127 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
     #
     #
 
-    def test_delete_file(self):
+    def test_delete_single_file_not_allowed(self):
         url = '/rest/files/%s' % self.identifier
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-        try:
-            deleted_file = File.objects_unfiltered.get(identifier=self.identifier)
-        except File.DoesNotExist:
-            raise Exception('Deleted file should not be deleted from the db, but marked as removed')
+    def test_bulk_delete_incomplete_file_list_leaves_sub_dirs_with_files(self):
+        """
+        A bulk delete request to /files, where the list of files does not contain a full
+        directory and all its sub-directories, is basically an error. The expectation is
+        that IDA always deletes/unfreezes only entire directories, with its sub-directories.
+        This test is a fringe edgecase that isn't really supposed to ever happen, but in case
+        it does happen, make sure it is recognized and prevented. Any 'partial' delete of a
+        directory should basically be an error.
 
-        self.assertEqual(deleted_file.removed, True)
-        self.assertEqual(deleted_file.file_name, self.file_name)
+        This test should throw an error when attempting to delete all files from only one
+        directory, which should result in that directory being deleted. As a result, there
+        should also be a directory that is now without a parent, but has files, which is not
+        allowed.
+        """
+        all_files_count_before = File.objects.all().count()
+        file_ids = [ f.id for f in Directory.objects.get(pk=2).files.all() ]
+
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        all_files_count_after = File.objects.all().count()
+        self.assertEqual(all_files_count_before, all_files_count_after, 'no files should have been removed')
+
+    def test_bulk_delete_incomplete_file_list_one_file_id_missing(self):
+        """
+        Otherwise complete set of files, but from one dir one file is missing.
+        Should raise error.
+        """
+        all_files_count_before = File.objects.all().count()
+        file_ids = [ f.id for f in File.objects.filter(project_identifier='project_x') ]
+
+        # a file will be found in one dir
+        file_ids.pop(len(file_ids) - 1)
+
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        all_files_count_after = File.objects.all().count()
+        self.assertEqual(all_files_count_before, all_files_count_after, 'no files should have been removed')
+
+    def test_bulk_delete_files_from_root(self):
+        """
+        Delete all files in project_x. The top-most dir should be /project_x_FROZEN/Experiment_X,
+        so the whole tree should end up being deleted.
+        """
+        files_to_remove_count = 20
+        file_ids = File.objects.filter(project_identifier='project_x').values_list('id', flat=True)
+        self.assertEqual(len(file_ids), files_to_remove_count)
+
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('deleted_files_count', None), files_to_remove_count, response.data)
+
+        self._assert_files_available_and_removed('project_x', 0, files_to_remove_count)
+
+        self.assertEqual(Directory.objects_unfiltered.filter(project_identifier='project_x').count(), 0,
+            'all dirs should have been permanently removed')
+
+    def test_bulk_delete_sub_directory_1(self):
+        """
+        Delete from /project_x_FROZEN/Experiment_X/Phase_1, which should remove
+        only 15 files.
+        """
+        files_to_remove_count = 15
+        file_ids = [ f.id for f in Directory.objects.get(pk=3).files.all() ]
+        file_ids += [ f.id for f in Directory.objects.get(pk=5).files.all() ]
+        self.assertEqual(len(file_ids), files_to_remove_count)
+
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('deleted_files_count', None), files_to_remove_count, response.data)
+
+        self._assert_files_available_and_removed('project_x', 5, files_to_remove_count)
+
+        # these dirs should still be left:
+        # /project_x_FROZEN
+        # /project_x_FROZEN/Experiment_X (has 5 files)
+        self.assertEqual(Directory.objects.filter(project_identifier='project_x').count(), 2)
+
+    def test_bulk_delete_sub_directory_2(self):
+        """
+        Delete from /project_x_FROZEN/Experiment_X/Phase_1/2017/01, which should
+        remove only 10 files.
+        """
+        files_to_remove_count = 10
+        file_ids = [ f.id for f in Directory.objects.get(pk=5).files.all() ]
+        self.assertEqual(len(file_ids), files_to_remove_count)
+
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('deleted_files_count', None), files_to_remove_count, response.data)
+
+        self._assert_files_available_and_removed('project_x', 10, files_to_remove_count)
+
+        # these dirs should still be left:
+        # /project_x_FROZEN
+        # /project_x_FROZEN/Experiment_X (5 files)
+        # /project_x_FROZEN/Experiment_X/Phase_1 (5 files)
+        self.assertEqual(Directory.objects.filter(project_identifier='project_x').count(), 3)
+
+        # /project_x_FROZEN/Experiment_X/Phase_1/2017 <- this dir should be deleted, since
+        # it only contained the 01-dir, which we specifically targeted for deletion
+        self.assertEqual(Directory.objects.filter(
+            project_identifier='project_x',
+            directory_path='/project_x_FROZEN/Experiment_X/Phase_1/2017'
+        ).count(), 0, 'dir should have been deleted')
+
+    def _assert_files_available_and_removed(self, project_identifier, available, removed):
+        """
+        After deleting files, check qty of files retrievable by usual means is as expected,
+        and qty of files retrievable from objects_unfiltered with removed=True is as expected.
+        """
+        self.assertEqual(File.objects.filter(project_identifier=project_identifier).count(), available,
+            'files should not be retrievable from removed=False scope')
+        self.assertEqual(File.objects_unfiltered.filter(project_identifier=project_identifier, removed=True).count(), removed,
+            'files should be retrievable from removed=True scope')
 
 
 class FileApiWriteXmlTests(FileApiWriteCommon):
