@@ -44,7 +44,7 @@ class File(Common):
     file_uploaded = models.DateTimeField()
     identifier = models.CharField(max_length=200, unique=True)
     open_access = models.BooleanField(default=False)
-    parent_directory = models.ForeignKey(Directory, null=True, related_name='files')
+    parent_directory = models.ForeignKey(Directory, on_delete=models.SET_NULL, null=True, related_name='files')
     project_identifier = models.CharField(max_length=200)
     replication_path = models.CharField(max_length=200, blank=True, null=True)
 

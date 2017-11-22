@@ -38,7 +38,7 @@ class Directory(Common):
     directory_path = models.TextField()
     identifier = models.CharField(max_length=200, unique=True)
     file_count = models.PositiveIntegerField(default=0, null=True)
-    parent_directory = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, related_name='child_directories')
+    parent_directory = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='child_directories')
     project_identifier = models.CharField(max_length=200)
 
     indexes = [
@@ -46,3 +46,7 @@ class Directory(Common):
     ]
 
     objects = DirectoryManager()
+
+    def delete(self):
+        # actual delete
+        super(Common, self).delete()
