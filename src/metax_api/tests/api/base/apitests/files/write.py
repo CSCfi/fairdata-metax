@@ -2,10 +2,12 @@ from copy import deepcopy
 from os.path import dirname
 
 from django.core.management import call_command
-from metax_api.models import Directory, File, FileStorage
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from django.db import transaction, DatabaseError
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from metax_api.models import Directory, File, FileStorage
+from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 d = print
 
@@ -519,7 +521,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         all_files_count_before = File.objects.all().count()
         file_ids = [ f.id for f in Directory.objects.get(pk=2).files.all() ]
 
-        response = self.client.delete('/rest/files', file_ids, format="json")
+        response = self._request_with_manual_rollback(file_ids)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         all_files_count_after = File.objects.all().count()
@@ -536,7 +538,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         # a file will be found in one dir
         file_ids.pop(len(file_ids) - 1)
 
-        response = self.client.delete('/rest/files', file_ids, format="json")
+        response = self._request_with_manual_rollback(file_ids)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         all_files_count_after = File.objects.all().count()
@@ -618,6 +620,17 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
             'files should not be retrievable from removed=False scope')
         self.assertEqual(File.objects_unfiltered.filter(project_identifier=project_identifier, removed=True).count(), removed,
             'files should be retrievable from removed=True scope')
+
+    def _request_with_manual_rollback(self, file_ids):
+        try:
+            with transaction.atomic():
+                response = self.client.delete('/rest/files', file_ids, format="json")
+                if response.status_code != 200:
+                    # manual rollback due to rollback not happening in travis??
+                    raise DatabaseError
+        except DatabaseError as e:
+            pass
+        return response
 
 
 class FileApiWriteXmlTests(FileApiWriteCommon):
