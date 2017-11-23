@@ -622,11 +622,8 @@
                     "description":"URI for the place. Use reference data from: https://metax-test.csc.fi/es/reference_data/location/_search?pretty=true",
                     "@id":"http://purl.org/dc/terms/subject",
                     "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/Concept"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
                 }
             }
         },

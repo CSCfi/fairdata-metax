@@ -52,6 +52,23 @@ class FileViewSet(CommonViewSet):
         """
         return super(FileViewSet, self).get_object()
 
+    def destroy(self, request, *args, **kwargs):
+        """
+        since IDA only deletes entire directories, supporting single file delete is useless.
+        if this ever becomes relevant:
+        file.delete()
+        if not file.parent_directory.files.all().count()
+            and not file.parent_directory.child_directories.all().count():
+            file.parent_directory.delete()
+            file.parent_directory = None
+            file.save()
+        and delete a possible long tree of empty directories... or something like that
+        """
+        return Response({}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def destroy_bulk(self, request, *args, **kwargs):
+        return FileService.destroy_bulk(request.data)
+
     @detail_route(methods=['get', 'post', 'put', 'delete'], url_path='xml')
     def xml_handler(self, request, pk=None):
         file = self.get_object()

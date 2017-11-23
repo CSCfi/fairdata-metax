@@ -22,6 +22,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'alternate_record_set',
             'contract',
             'data_catalog',
+            'deprecated',
             'research_dataset',
             'preservation_state',
             'preservation_state_modified',
