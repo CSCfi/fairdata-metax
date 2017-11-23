@@ -347,4 +347,3 @@ class CommonService():
             filter_obj.update({
                 'modified_by_api__gt': CommonService.validate_and_get_if_modified_since_header_as_tz_naive_datetime(
                     request)})
-
