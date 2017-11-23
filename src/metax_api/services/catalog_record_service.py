@@ -7,7 +7,7 @@ import simplexquery as sxq
 from dicttoxml import dicttoxml
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Contract
-from metax_api.utils import get_tz_aware_now_without_micros, parse_http_timestamp_using_tz_and_get_tz_naive_datetime
+from metax_api.utils import get_tz_aware_now_without_micros
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 

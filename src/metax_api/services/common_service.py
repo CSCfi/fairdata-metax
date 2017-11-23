@@ -325,13 +325,9 @@ class CommonService():
                 CommonService.request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'):
 
             header_timestamp = CommonService.validate_and_get_if_unmodified_since_header_as_tz_naive_datetime(request)
-            CommonService._check_if_obj_unmodified_since(obj, header_timestamp)
-
-    @staticmethod
-    def _check_if_obj_unmodified_since(obj, header_timestamp):
-        if obj.modified_since(header_timestamp):
-            raise Http412('Resource has been modified since {0} in timezone {1}'.format(
-                str(header_timestamp), timezone.get_default_timezone_name()))
+            if obj.modified_since(header_timestamp):
+                raise Http412('Resource has been modified since {0} (timezone: {1})'.format(
+                    str(header_timestamp), timezone.get_default_timezone_name()))
 
     @staticmethod
     def set_if_modified_since_filter(request, filter_obj):

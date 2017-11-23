@@ -560,7 +560,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             'pk': len(test_data_list) + 1,
         }
         new['fields']['files'] = [1, 2]  # for the relation in the db
-        new['fields']['modified_by_api'] = '2017-06-23T10:07:22Z'
+        new['fields']['modified_by_api'] = '2017-09-23T10:07:22Z'
         new['fields']['created_by_api'] = '2017-05-23T10:07:22Z'
         new['fields']['research_dataset']['urn_identifier'] = 'very:unique:urn-%d' % j
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j

@@ -13,6 +13,7 @@ jsonschema==2.6.0
 pika==0.11.0
 psycopg2==2.7.3.2  # LGPL with exceptions or ZPL
 python-simplexquery==1.0.5.3
+pytz==2017.3
 pyyaml==3.12
 redis==2.10.6
 requests==2.18.4  # Apache 2.0-license
