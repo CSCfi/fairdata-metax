@@ -144,17 +144,8 @@ class FileService(CommonService):
         """
         _logger.info('Deleting directories of deleted files...')
 
-        sql_select_dirs_of_deleted_files = '''
-            select d.id, directory_path
-            from metax_api_directory d
-            left join metax_api_file f on f.parent_directory_id = d.id
-            where f.removed = true and f.id in %s
-            group by d.id, directory_path
-            order by directory_path asc
-            '''
-
         # get all parent directories of deleted files, and check that they are all really empty
-        dirs_of_deleted_files = Directory.objects.raw(sql_select_dirs_of_deleted_files, [tuple(file_ids)])
+        dirs_of_deleted_files = Directory.objects.filter(files__in=file_ids)
 
         try:
             # find the top-most directory, so that any possible empty directory chains
