@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings as django_settings
 from elasticsearch import Elasticsearch
 from elasticsearch.client import IndicesClient
@@ -5,7 +7,6 @@ from elasticsearch.helpers import scan
 
 from .utils import executing_test_case
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

@@ -1,6 +1,6 @@
+import logging
 from collections import defaultdict
 from copy import deepcopy
-from datetime import datetime
 from os.path import dirname, join
 
 import simplexquery as sxq
@@ -10,12 +10,13 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Contract
+from metax_api.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
 from .reference_data_mixin import ReferenceDataMixin
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
+
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
 
@@ -32,7 +33,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         from metax_api.api.base.serializers import CatalogRecordSerializer
 
         serializer_current = CatalogRecordSerializer(catalog_record_current, **kwargs)
-        current_time = datetime.now()
+        current_time = get_tz_aware_now_without_micros()
 
         catalog_record_new = deepcopy(serializer_current.data)
         catalog_record_new.pop('id', None)
@@ -81,7 +82,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['preservation_state__in'] = state_vals
 
         if request.query_params.get('curator', False):
-            queryset_search_params['research_dataset__contains'] = { 'curator': [{ 'identifier': request.query_params['curator'] }]}
+            queryset_search_params['research_dataset__contains'] = \
+                {'curator': [{ 'identifier': request.query_params['curator']}]}
 
         if request.query_params.get('owner_id', False):
             queryset_search_params['owner_id'] = request.query_params['owner_id']

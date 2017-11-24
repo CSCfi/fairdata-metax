@@ -1,15 +1,16 @@
+import logging
+
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from metax_api.models import CatalogRecord
-from metax_api.services import CatalogRecordService as CRS
 from metax_api.renderers import XMLRenderer
+from metax_api.services import CatalogRecordService as CRS, CommonService as CS
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -53,9 +54,13 @@ class DatasetViewSet(CommonViewSet):
         if hasattr(self, 'queryset_search_params'):
             additional_filters.update(**self.queryset_search_params)
 
+        CS.set_if_modified_since_filter(self.request, additional_filters)
+
         return super(DatasetViewSet, self).get_queryset().filter(**additional_filters)
 
     def retrieve(self, request, *args, **kwargs):
+        self.queryset_search_params = {}
+        CS.set_if_modified_since_filter(self.request, self.queryset_search_params)
         res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
         if 'dataset_format' in request.query_params:
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
@@ -155,6 +160,7 @@ class DatasetViewSet(CommonViewSet):
 
     @list_route(methods=['get'], url_path="urn_identifiers")
     def get_all_urn_identifiers(self, request):
+        self.queryset_search_params = CRS.get_queryset_search_params(request)
         q = self.get_queryset().values('research_dataset')
         urn_ids = [item['research_dataset']['urn_identifier'] for item in q]
         return Response(urn_ids)

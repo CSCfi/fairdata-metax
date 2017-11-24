@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from metax_api.tests.utils import TestClassUtils
 
 FORBIDDEN = status.HTTP_403_FORBIDDEN

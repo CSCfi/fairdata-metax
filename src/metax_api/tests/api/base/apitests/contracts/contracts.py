@@ -5,6 +5,7 @@ from rest_framework.test import APITestCase
 from metax_api.models import Contract, CatalogRecord
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
+
 class ContractApiReadTestV1(APITestCase, TestClassUtils):
 
     @classmethod

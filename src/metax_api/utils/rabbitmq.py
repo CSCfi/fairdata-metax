@@ -1,10 +1,11 @@
+import logging
 from json import dumps as json_dumps
-import pika
 
+import pika
 from django.conf import settings as django_settings
+
 from .utils import executing_test_case, executing_travis
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

@@ -1,17 +1,16 @@
-from django.http import Http404
+import logging
+from os import path
 
+from django.http import Http404
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from metax_api.exceptions import Http400, Http412
-from metax_api.services import CommonService
-from metax_api.utils import RabbitMQ, RedisSentinelCache, parse_http_timestamp
+from metax_api.services import CommonService as CS
+from metax_api.utils import RabbitMQ, RedisSentinelCache
 
-from os import path
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -28,7 +27,7 @@ class CommonViewSet(ModelViewSet):
 
     # assigning the create_bulk method here allows for other views to assing their other,
     # customized method to be called instead instead of the generic one.
-    create_bulk_method = CommonService.create_bulk
+    create_bulk_method = CS.create_bulk
 
     def get_object(self, search_params=None):
         """
@@ -40,7 +39,7 @@ class CommonViewSet(ModelViewSet):
         if search_params:
             filter_kwargs = search_params
         else:
-            if CommonService.is_primary_key(self.kwargs.get(self.lookup_field, False)) or not hasattr(self, 'lookup_field_other'):
+            if CS.is_primary_key(self.kwargs.get(self.lookup_field, False)) or not hasattr(self, 'lookup_field_other'):
                 # lookup by originak lookup_field. standard django procedure
                 lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
             else:
@@ -66,8 +65,7 @@ class CommonViewSet(ModelViewSet):
         except Exception:
             raise Http404
 
-        if self._request_is_write_operation() and self._request_has_header('If-Unmodified-Since'):
-            self._check_if_unmodified_since_header(obj)
+        CS.check_if_unmodified_since(self.request, obj)
 
         # May raise a permission denied
         self.check_object_permissions(self.request, obj)
@@ -85,7 +83,7 @@ class CommonViewSet(ModelViewSet):
         """
         if not search_params:
             lookup_value = self.kwargs.get(self.lookup_field)
-            if CommonService.is_primary_key(lookup_value):
+            if CS.is_primary_key(lookup_value):
                 search_params = { 'pk': lookup_value }
             elif hasattr(self, 'lookup_field_other'):
                 search_params = { self.lookup_field_other: lookup_value }
@@ -98,7 +96,7 @@ class CommonViewSet(ModelViewSet):
             raise Http404
 
     def update(self, request, *args, **kwargs):
-        CommonService.update_common_info(request)
+        CS.update_common_info(request)
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
 
         # the normal case is that update (PUT) does not return the updated content.
@@ -113,7 +111,7 @@ class CommonViewSet(ModelViewSet):
     def update_bulk(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
-        results, http_status = CommonService.update_bulk(request, self.object, serializer_class, **kwargs)
+        results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
 
         # PUT generally doesnt return any of the updated resources, so not returning
         # them in the list update either. http_status is set accordingly inside update_bulk,
@@ -128,7 +126,7 @@ class CommonViewSet(ModelViewSet):
         return Response(data=results, status=http_status)
 
     def partial_update(self, request, *args, **kwargs):
-        CommonService.update_common_info(request)
+        CS.update_common_info(request)
         kwargs['partial'] = True
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
 
@@ -141,7 +139,7 @@ class CommonViewSet(ModelViewSet):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         kwargs['partial'] = True
-        results, http_status = CommonService.update_bulk(request, self.object, serializer_class, **kwargs)
+        results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
 
         if results['success']:
             self._updated_request_data = [ r['object'] for r in results['success'] ]
@@ -155,7 +153,7 @@ class CommonViewSet(ModelViewSet):
         return Response(results, status=http_status)
 
     def destroy(self, request, *args, **kwargs):
-        CommonService.update_common_info(request)
+        CS.update_common_info(request)
         return super(CommonViewSet, self).destroy(request, *args, **kwargs)
 
     def destroy_bulk(self, request, *args, **kwargs):
@@ -184,25 +182,9 @@ class CommonViewSet(ModelViewSet):
         req.user.username = username
         return req
 
-    def _check_if_unmodified_since_header(self, instance):
-        try:
-            header_timestamp = parse_http_timestamp(self.request.META['headers'].get('If-Unmodified-Since'))
-        except:
-            raise Http400('Bad If-Unmodified-Since header')
-        if instance.modified_since(header_timestamp, http=True):
-            raise Http412('Resource has been modified')
-
     def _publish_message(self, body, routing_key='', exchange=''):
         rabbitmq = RabbitMQ()
         rabbitmq.publish(body, routing_key=routing_key, exchange=exchange)
-
-    def _request_has_header(self, header_name):
-        if 'headers' in self.request.META:
-            return header_name in self.request.META['headers']
-        return False
-
-    def _request_is_write_operation(self):
-        return self.request.method in ('POST', 'PUT', 'PATCH', 'DELETE')
 
     def set_json_schema(self, view_file):
         """
@@ -215,4 +197,5 @@ class CommonViewSet(ModelViewSet):
         always looks for the schema from a directory relative to the view's location,
         taking into account its version.
         """
-        self.json_schema = CommonService.get_json_schema(path.dirname(view_file) + '/../schemas', self.__class__.__name__.lower()[:-(len('viewset'))])
+        self.json_schema = CS.get_json_schema(path.dirname(view_file) + '/../schemas',
+                                              self.__class__.__name__.lower()[:-(len('viewset'))])

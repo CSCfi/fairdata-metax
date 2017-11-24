@@ -1,3 +1,5 @@
+import logging
+
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route
@@ -12,7 +14,6 @@ from metax_api.services import CommonService, FileService
 from .common_view import CommonViewSet
 from ..serializers import FileSerializer, XmlMetadataSerializer
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

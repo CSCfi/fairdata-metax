@@ -1,9 +1,12 @@
 from os import path
+
 from rest_framework.serializers import ValidationError
+
 from metax_api.models import DataCatalog
 from metax_api.services import DataCatalogService as DCS
 from .common_serializer import CommonSerializer
 from .serializer_utils import validate_json
+
 
 class DataCatalogSerializer(CommonSerializer):
 

@@ -1,13 +1,12 @@
-from datetime import datetime
-
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 from rest_framework.serializers import ValidationError
 
+from metax_api.utils import get_tz_aware_now_without_micros
 from .common import Common, CommonManager
-from .file import File
-from .data_catalog import DataCatalog
 from .contract import Contract
+from .data_catalog import DataCatalog
+from .file import File
 
 
 class AlternateRecordSet(models.Model):
@@ -173,7 +172,7 @@ class CatalogRecord(Common):
 
     def _pre_update_operations(self):
         if self.field_changed('preservation_state'):
-            self.preservation_state_modified = datetime.now()
+            self.preservation_state_modified = get_tz_aware_now_without_micros()
 
         if self.field_changed('research_dataset.urn_identifier'):
             # read-only after creating

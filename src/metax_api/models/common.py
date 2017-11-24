@@ -1,8 +1,9 @@
-from datetime import datetime
 from time import time
 
-from django.db import models
+from dateutil import parser
 from django.core.exceptions import FieldError
+from django.db import models
+
 
 class CommonManager(models.Manager):
 
@@ -44,31 +45,28 @@ class Common(models.Model):
         self.removed = True
         self.save()
 
-    def modified_since(self, timestamp, http=False):
+    def modified_since(self, timestamp):
         """
-        Return True if object has been modified since the given timestamp.
+        Return True if object has been modified since the given timestamp. Currently this method is used for validating
+        modified_by_api string representation or http header timestamp originated datetime object. In the former case,
+        the format should be well-known since it is created by Metax API.
 
         parameters:
-        timestamp: a date object, or a string that has the format of a default Date object,
+        timestamp: a timezone-aware datetime object, or a timestamp string with timezone information,
             or None, which implies 'the resource has never been modified before'
-        http: if True, the timestamp is received from a http header, and microseconds should
-            not be included in the comparison.
         """
         if not self.modified_by_api:
             # server version has never been modified
             return False
         elif not timestamp:
             # server version has been modified at some point, but the version being compared with
-            # has was never modified.
+            # was never modified.
             return True
 
         if isinstance(timestamp, str):
-            timestamp = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f')
+            timestamp = parser.parse(timestamp)
 
-        if http:
-            return timestamp < self.modified_by_api.replace(microsecond=0)
-        else:
-            return timestamp < self.modified_by_api
+        return timestamp < self.modified_by_api
 
     def track_fields(self, *args):
         """

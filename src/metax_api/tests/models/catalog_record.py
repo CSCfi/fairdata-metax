@@ -2,8 +2,9 @@ from django.core.management import call_command
 from django.test import TestCase
 from rest_framework.serializers import ValidationError
 
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.models import CatalogRecord
+from metax_api.tests.utils import test_data_file_path, TestClassUtils
+
 
 class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
 

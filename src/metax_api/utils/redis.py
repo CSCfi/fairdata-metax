@@ -1,16 +1,16 @@
+import logging
 from json import dump as dump_json, load as load_json
 from pickle import dumps as pickle_dumps, loads as pickle_loads
 from random import choice as random_choice
 
 from django.conf import settings as django_settings
 from redis.client import StrictRedis
-from redis.sentinel import Sentinel
 from redis.exceptions import TimeoutError, ConnectionError
 from redis.sentinel import MasterNotFoundError
+from redis.sentinel import Sentinel
 
 from .utils import executing_test_case, executing_travis
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

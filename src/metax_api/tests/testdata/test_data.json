@@ -1,26 +1,26 @@
 [
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier1",
                 "title": "Title 1",
                 "url": "https://metax.csc.local/rest/files/"
             },
-            "modified_by_api": "2017-05-23T10:07:22.559656Z"
+            "modified_by_api": "2017-06-23T10:07:22Z"
         },
         "model": "metax_api.filestorage",
         "pk": 1
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier2",
                 "title": "Title 2",
                 "url": "https://metax.csc.local/rest/files/"
             },
-            "modified_by_api": "2017-05-23T10:07:22.559656Z"
+            "modified_by_api": "2017-06-23T10:07:22Z"
         },
         "model": "metax_api.filestorage",
         "pk": 2
@@ -28,14 +28,14 @@
     {
         "fields": {
             "byte_size": 12345,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "directory_deleted": null,
-            "directory_modified": "2017-05-23T12:41:59.507392Z",
+            "directory_modified": "2017-06-23T12:41:59Z",
             "directory_name": "project_x_FROZEN",
             "directory_path": "/project_x_FROZEN",
             "file_count": 12345,
             "identifier": "pid:urn:dir:1",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "parent_directory": null,
             "project_identifier": "project_x",
             "removed": false
@@ -46,14 +46,14 @@
     {
         "fields": {
             "byte_size": 12345,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "directory_deleted": null,
-            "directory_modified": "2017-05-23T12:41:59.507392Z",
+            "directory_modified": "2017-06-23T12:41:59Z",
             "directory_name": "Experiment_X",
             "directory_path": "/project_x_FROZEN/Experiment_X",
             "file_count": 12345,
             "identifier": "pid:urn:dir:2",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "parent_directory": 1,
             "project_identifier": "project_x",
             "removed": false
@@ -65,9 +65,9 @@
         "fields": {
             "byte_size": 100,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/1",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -78,14 +78,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_1",
             "file_path": "/project_x_FROZEN/Experiment_X/file_name_1",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:1",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 2,
             "project_identifier": "project_x",
@@ -99,9 +99,9 @@
         "fields": {
             "byte_size": 200,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/2",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -112,14 +112,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_2",
             "file_path": "/project_x_FROZEN/Experiment_X/file_name_2",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:2",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 2,
             "project_identifier": "project_x",
@@ -133,9 +133,9 @@
         "fields": {
             "byte_size": 300,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/3",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -146,14 +146,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_3",
             "file_path": "/project_x_FROZEN/Experiment_X/file_name_3",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:3",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 2,
             "project_identifier": "project_x",
@@ -167,9 +167,9 @@
         "fields": {
             "byte_size": 400,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/4",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -180,14 +180,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_4",
             "file_path": "/project_x_FROZEN/Experiment_X/file_name_4",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:4",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 2,
             "project_identifier": "project_x",
@@ -201,9 +201,9 @@
         "fields": {
             "byte_size": 500,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/5",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -214,14 +214,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_5",
             "file_path": "/project_x_FROZEN/Experiment_X/file_name_5",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:5",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 2,
             "project_identifier": "project_x",
@@ -234,14 +234,14 @@
     {
         "fields": {
             "byte_size": 12345,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "directory_deleted": null,
-            "directory_modified": "2017-05-23T12:41:59.507392Z",
+            "directory_modified": "2017-06-23T12:41:59Z",
             "directory_name": "Phase_1",
             "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1",
             "file_count": 12345,
             "identifier": "pid:urn:dir:3",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "parent_directory": 2,
             "project_identifier": "project_x",
             "removed": false
@@ -253,9 +253,9 @@
         "fields": {
             "byte_size": 600,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/6",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -266,14 +266,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_6",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_6",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:6",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 3,
             "project_identifier": "project_x",
@@ -287,9 +287,9 @@
         "fields": {
             "byte_size": 700,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/7",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -300,14 +300,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_7",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_7",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:7",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 3,
             "project_identifier": "project_x",
@@ -321,9 +321,9 @@
         "fields": {
             "byte_size": 800,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/8",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -334,14 +334,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_8",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_8",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:8",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 3,
             "project_identifier": "project_x",
@@ -355,9 +355,9 @@
         "fields": {
             "byte_size": 900,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/9",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -368,14 +368,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_9",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_9",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:9",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 3,
             "project_identifier": "project_x",
@@ -389,9 +389,9 @@
         "fields": {
             "byte_size": 1000,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/10",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -402,14 +402,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_10",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_10",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:10",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 3,
             "project_identifier": "project_x",
@@ -422,14 +422,14 @@
     {
         "fields": {
             "byte_size": 12345,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "directory_deleted": null,
-            "directory_modified": "2017-05-23T12:41:59.507392Z",
+            "directory_modified": "2017-06-23T12:41:59Z",
             "directory_name": "2017",
             "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017",
             "file_count": 12345,
             "identifier": "pid:urn:dir:4",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false
@@ -440,14 +440,14 @@
     {
         "fields": {
             "byte_size": 12345,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "directory_deleted": null,
-            "directory_modified": "2017-05-23T12:41:59.507392Z",
+            "directory_modified": "2017-06-23T12:41:59Z",
             "directory_name": "01",
             "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01",
             "file_count": 12345,
             "identifier": "pid:urn:dir:5",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "parent_directory": 4,
             "project_identifier": "project_x",
             "removed": false
@@ -459,9 +459,9 @@
         "fields": {
             "byte_size": 1100,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/11",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -472,14 +472,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_11",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_11",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:11",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -493,9 +493,9 @@
         "fields": {
             "byte_size": 1200,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/12",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -506,14 +506,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_12",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_12",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:12",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -527,9 +527,9 @@
         "fields": {
             "byte_size": 1300,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/13",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -540,14 +540,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_13",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_13",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:13",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -561,9 +561,9 @@
         "fields": {
             "byte_size": 1400,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/14",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -574,14 +574,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_14",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_14",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:14",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -595,9 +595,9 @@
         "fields": {
             "byte_size": 1500,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/15",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -608,14 +608,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_15",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_15",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:15",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -629,9 +629,9 @@
         "fields": {
             "byte_size": 1600,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/16",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -642,14 +642,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_16",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_16",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:16",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -663,9 +663,9 @@
         "fields": {
             "byte_size": 1700,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/17",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -676,14 +676,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_17",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_17",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:17",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -697,9 +697,9 @@
         "fields": {
             "byte_size": 1800,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/18",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -710,14 +710,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_18",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_18",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:18",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -731,9 +731,9 @@
         "fields": {
             "byte_size": 1900,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/19",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -744,14 +744,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_19",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_19",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:19",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -765,9 +765,9 @@
         "fields": {
             "byte_size": 2000,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "download_url": "http://some.url.csc.fi/20",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -778,14 +778,14 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_frozen": "2017-05-21T14:41:59.507392Z",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_20",
             "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_20",
             "file_storage": 1,
-            "file_uploaded": "2017-05-21T14:41:59.507392Z",
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:20",
-            "modified_by_api": "2017-05-27T10:07:22.559656Z",
+            "modified_by_api": "2017-06-27T10:07:22Z",
             "open_access": false,
             "parent_directory": 5,
             "project_identifier": "project_x",
@@ -904,8 +904,8 @@
             },
             "catalog_record_group_create": "default-record-create-group",
             "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.datacatalog",
         "pk": 1
@@ -1019,8 +1019,8 @@
             },
             "catalog_record_group_create": "default-record-create-group",
             "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.datacatalog",
         "pk": 2
@@ -1134,8 +1134,8 @@
             },
             "catalog_record_group_create": "default-record-create-group",
             "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.datacatalog",
         "pk": 3
@@ -1249,8 +1249,8 @@
             },
             "catalog_record_group_create": "default-record-create-group",
             "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.datacatalog",
         "pk": 4
@@ -1285,8 +1285,8 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.contract",
         "pk": 1
@@ -1321,8 +1321,8 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.contract",
         "pk": 2
@@ -1357,8 +1357,8 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.contract",
         "pk": 3
@@ -1393,8 +1393,8 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.contract",
         "pk": 4
@@ -1429,8 +1429,8 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "created_by_api": "2017-05-15T10:07:22Z",
+            "modified_by_api": "2017-06-15T10:07:22Z"
         },
         "model": "metax_api.contract",
         "pk": 5
@@ -1442,7 +1442,7 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -1450,7 +1450,7 @@
                 2
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
@@ -1536,7 +1536,7 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -1544,7 +1544,7 @@
                 2
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
@@ -1633,7 +1633,7 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -1641,7 +1641,7 @@
                 4
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
@@ -1730,7 +1730,7 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -1742,7 +1742,7 @@
                 "b",
                 "c"
             ],
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 3,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
@@ -1831,7 +1831,7 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -1843,7 +1843,7 @@
                 "b",
                 "c"
             ],
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 4,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
@@ -1932,7 +1932,7 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -1940,7 +1940,7 @@
                 9
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
@@ -2028,7 +2028,7 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -2036,7 +2036,7 @@
                 4
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
@@ -2124,7 +2124,7 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -2132,7 +2132,7 @@
                 11
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
@@ -2220,7 +2220,7 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -2228,7 +2228,7 @@
                 13
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
@@ -2309,7 +2309,7 @@
     {
         "fields": {
             "alternate_record_set": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -2317,7 +2317,7 @@
                 15
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
@@ -2389,13 +2389,13 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "files": [
                 1,
                 2
             ],
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-09-23T10:07:22Z",
             "research_dataset": {
                 "access_rights": {
                     "available": "2014-01-15T08:19:58Z",
@@ -3234,13 +3234,13 @@
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 1,
             "files": [
                 1,
                 2
             ],
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-09-23T10:07:22Z",
             "research_dataset": {
                 "access_rights": {
                     "available": "2014-01-15T08:19:58Z",
@@ -4080,7 +4080,7 @@
     {
         "fields": {
             "alternate_record_set": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 2,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -4088,7 +4088,7 @@
                 15
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
@@ -4161,7 +4161,7 @@
     {
         "fields": {
             "alternate_record_set": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "created_by_api": "2017-05-23T10:07:22Z",
             "data_catalog": 3,
             "dataset_group_edit": "default-dataset-edit-group",
             "files": [
@@ -4169,7 +4169,7 @@
                 15
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
+            "modified_by_api": "2017-06-23T10:07:22Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {

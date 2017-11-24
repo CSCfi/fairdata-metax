@@ -1,12 +1,12 @@
-from time import sleep
+import logging
 import sys
+from time import sleep
 
 from django.apps import AppConfig
 from django.conf import settings
 
 from metax_api.utils import RedisSentinelCache, executing_test_case, ReferenceDataLoader
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 

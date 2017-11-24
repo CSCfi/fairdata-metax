@@ -1,5 +1,7 @@
 from metax_api.models import XmlMetadata
+
 from .common_serializer import CommonSerializer
+
 
 class XmlMetadataSerializer(CommonSerializer):
 
