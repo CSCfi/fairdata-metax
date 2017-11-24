@@ -242,8 +242,8 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
     def test_get_with_if_modified_since_header_ok(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
-        modified_by_api_tz_aware = timezone.make_aware(cr.modified_by_api)
-        modified_by_api_in_gmt = timezone.localtime(modified_by_api_tz_aware, timezone=tz('GMT'))
+        modified_by_api = cr.modified_by_api
+        modified_by_api_in_gmt = timezone.localtime(modified_by_api, timezone=tz('GMT'))
 
         if_modified_since_header_value = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
@@ -262,8 +262,8 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
     def test_get_with_if_modified_since_header_syntax_error(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
-        modified_by_api_tz_aware = timezone.make_aware(cr.modified_by_api)
-        modified_by_api_in_gmt = timezone.localtime(modified_by_api_tz_aware, timezone=tz('GMT'))
+        modified_by_api = cr.modified_by_api
+        modified_by_api_in_gmt = timezone.localtime(modified_by_api, timezone=tz('GMT'))
 
         if_modified_since_header_value = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S UTC')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
@@ -277,9 +277,9 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
     # List operation returns always 200 even if no datasets match the if-modified-since criterium
 
     def test_list_get_with_if_modified_since_header_ok(self):
-        cr1 = CatalogRecord.objects.get(pk=self.pk)
-        modified_by_api_tz_aware = timezone.make_aware(cr1.modified_by_api)
-        modified_by_api_in_gmt = timezone.localtime(modified_by_api_tz_aware, timezone=tz('GMT'))
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        modified_by_api = cr.modified_by_api
+        modified_by_api_in_gmt = timezone.localtime(modified_by_api, timezone=tz('GMT'))
 
         if_modified_since_header_value = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
@@ -308,9 +308,9 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
     #
 
     def test_urn_identifiers_get_with_if_modified_since_header_ok(self):
-        cr1 = CatalogRecord.objects.get(pk=self.pk)
-        modified_by_api_tz_aware = timezone.make_aware(cr1.modified_by_api)
-        modified_by_api_in_gmt = timezone.localtime(modified_by_api_tz_aware, timezone=tz('GMT'))
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        modified_by_api = cr.modified_by_api
+        modified_by_api_in_gmt = timezone.localtime(modified_by_api, timezone=tz('GMT'))
 
         if_modified_since_header_value = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}

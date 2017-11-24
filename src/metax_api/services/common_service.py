@@ -3,7 +3,7 @@ from json import load as json_load
 
 from django.utils import timezone
 from metax_api.exceptions import Http400, Http412
-from metax_api.utils import parse_http_timestamp_using_tz_and_get_tz_naive_datetime, get_tz_aware_now_without_micros
+from metax_api.utils import parse_http_timestamp_to_tz_aware_datetime, get_tz_aware_now_without_micros
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
@@ -286,14 +286,14 @@ class CommonService():
         return instance
 
     @staticmethod
-    def validate_and_get_if_unmodified_since_header_as_tz_naive_datetime(request):
+    def validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(request):
         try:
             return CommonService._validate_http_date_header(request, 'HTTP_IF_UNMODIFIED_SINCE')
         except:
             raise Http400('Bad If-Unmodified-Since header')
 
     @staticmethod
-    def validate_and_get_if_modified_since_header_as_tz_naive_datetime(request):
+    def validate_and_get_if_modified_since_header_as_tz_aware_datetime(request):
         try:
             return CommonService._validate_http_date_header(request, 'HTTP_IF_MODIFIED_SINCE')
         except:
@@ -305,7 +305,7 @@ class CommonService():
         # According to RFC 7232, Http date should always be expressed in 'GMT'. Forcing its use makes this explicit
         if not timestamp.endswith('GMT'):
             raise Exception
-        return parse_http_timestamp_using_tz_and_get_tz_naive_datetime(timestamp)
+        return parse_http_timestamp_to_tz_aware_datetime(timestamp)
 
     @staticmethod
     def get_request_header(request, header_name):
@@ -324,7 +324,7 @@ class CommonService():
         if CommonService.request_is_write_operation(request) and \
                 CommonService.request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'):
 
-            header_timestamp = CommonService.validate_and_get_if_unmodified_since_header_as_tz_naive_datetime(request)
+            header_timestamp = CommonService.validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(request)
             if obj.modified_since(header_timestamp):
                 raise Http412('Resource has been modified since {0} (timezone: {1})'.format(
                     str(header_timestamp), timezone.get_default_timezone_name()))
@@ -345,5 +345,5 @@ class CommonService():
                 CommonService.request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
 
             filter_obj.update({
-                'modified_by_api__gt': CommonService.validate_and_get_if_modified_since_header_as_tz_naive_datetime(
+                'modified_by_api__gt': CommonService.validate_and_get_if_modified_since_header_as_tz_aware_datetime(
                     request)})

@@ -1,4 +1,4 @@
-from datetime import datetime
+from dateutil import parser
 from time import time
 
 from django.core.exceptions import FieldError
@@ -50,7 +50,7 @@ class Common(models.Model):
         Return True if object has been modified since the given timestamp.
 
         parameters:
-        timestamp: a timezone-naive datetime object, or a string that has the format of a default Date object,
+        timestamp: a timezone-aware datetime object, or a timestamp string with timezone information,
             or None, which implies 'the resource has never been modified before'
         """
         if not self.modified_by_api:
@@ -62,7 +62,7 @@ class Common(models.Model):
             return True
 
         if isinstance(timestamp, str):
-            timestamp = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S')
+            timestamp = parser.parse(timestamp)
 
         return timestamp < self.modified_by_api
 

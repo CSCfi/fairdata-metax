@@ -250,7 +250,7 @@ USE_L10N = False
 # A boolean that specifies if datetimes will be timezone-aware by default
 # or not. If this is set to True, Django will use timezone-aware datetimes
 # internally. Otherwise, Django will use naive datetimes in local time.
-USE_TZ = False
+USE_TZ = True
 
 DATETIME_INPUT_FORMATS = ['%Y-%m-%dT%H:%M:%S.%fZ']
 

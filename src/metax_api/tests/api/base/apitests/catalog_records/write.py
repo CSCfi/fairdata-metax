@@ -817,7 +817,7 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         data_1['preservation_description'] = 'damn this is good coffee'
 
         # should result in error for this record
-        data_2['modified_by_api'] = '2002-01-01T10:10:10'
+        data_2['modified_by_api'] = '2002-01-01T10:10:10Z'
 
         headers = {'HTTP_IF_UNMODIFIED_SINCE': 'value is not checked'}
         response = self.client.put('/rest/datasets', [ data_1, data_2 ], format="json", **headers)
