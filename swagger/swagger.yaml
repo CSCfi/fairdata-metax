@@ -327,6 +327,28 @@ paths:
           description: file or namespace does not exist
       tags:
         - File API
+  /files/datasets:
+    post:
+      summary: get datasets where files belong to
+      description: |
+        Note&#58; The method is invoked using POST, because there are limits to length of query
+        parameters in GET. Also, some clients forcibly shove parameters in body in GET
+        requests to query parameters, so using POST instead is more guaranteed to work.
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: a list of file id's (integers) or identifiers (strings).
+          required: true
+          type: string
+      responses:
+        '200':
+          description: a list of urn_identifiers. if the files were not found to belong to any datasets, an empty list is returned
+        '404':
+          description: files given in the list not found
+      tags:
+        - File API
   /directories/{PID}:
     get:
       summary: get details of a directory
