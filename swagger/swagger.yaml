@@ -82,7 +82,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         "200":
           description: successful operation, return list of files
@@ -594,7 +594,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         "200":
           description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
@@ -660,6 +660,35 @@ paths:
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
         '400':
           description: All updates failed. A list of errors is returned.
+      tags:
+        - Dataset API
+  /datasets/urn_identifiers:
+    get:
+      summary: "list all dataset urn identifiers"
+      parameters:
+        - name: owner_id
+          in: query
+          description: id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: created_by_user_id
+          in: query
+          description: id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
+          in: query
+          description: curator identifier (field research_dataset-> curator-> identifier)
+          required: false
+          type: string
+        - name: state
+          in: query
+          description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+          required: false
+          type: string
+      responses:
+        "200":
+          description: successful operation, returns a list of all dataset urn identifiers.
       tags:
         - Dataset API
   /datasets/{PID}:
@@ -800,7 +829,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         '200':
           description: successful operation, return feedback objects
@@ -859,7 +888,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         '200':
           description: successful operation, return usage objects
