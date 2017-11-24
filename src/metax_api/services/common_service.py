@@ -150,7 +150,7 @@ class CommonService():
         for row in request.data:
 
             instance = cls._get_object_for_update(model_obj, row, results,
-                                                  cls.request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'))
+                                                  cls._request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'))
 
             if not instance:
                 continue
@@ -286,17 +286,17 @@ class CommonService():
 
         return instance
 
-    @staticmethod
-    def validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(request):
+    @classmethod
+    def _validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(cls, request):
         try:
-            return CommonService._validate_http_date_header(request, 'HTTP_IF_UNMODIFIED_SINCE')
+            return cls._validate_http_date_header(request, 'HTTP_IF_UNMODIFIED_SINCE')
         except:
             raise Http400('Bad If-Unmodified-Since header')
 
-    @staticmethod
-    def validate_and_get_if_modified_since_header_as_tz_aware_datetime(request):
+    @classmethod
+    def validate_and_get_if_modified_since_header_as_tz_aware_datetime(cls, request):
         try:
-            return CommonService._validate_http_date_header(request, 'HTTP_IF_MODIFIED_SINCE')
+            return cls._validate_http_date_header(request, 'HTTP_IF_MODIFIED_SINCE')
         except:
             raise Http400('Bad If-Modified-Since header')
 
@@ -309,29 +309,25 @@ class CommonService():
         return parse_http_timestamp_to_tz_aware_datetime(timestamp)
 
     @staticmethod
-    def get_request_header(request, header_name):
-        return request.META.get(header_name, None)
-
-    @staticmethod
-    def request_has_header(request, header_name):
+    def _request_has_header(request, header_name):
         return header_name in request.META
 
     @staticmethod
-    def request_is_write_operation(request):
+    def _request_is_write_operation(request):
         return request.method in ('POST', 'PUT', 'PATCH', 'DELETE')
 
-    @staticmethod
-    def check_if_unmodified_since(request, obj):
-        if CommonService.request_is_write_operation(request) and \
-                CommonService.request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'):
+    @classmethod
+    def check_if_unmodified_since(cls, request, obj):
+        if cls._request_is_write_operation(request) and \
+                cls._request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'):
 
-            header_timestamp = CommonService.validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(request)
+            header_timestamp = cls._validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(request)
             if obj.modified_since(header_timestamp):
                 raise Http412('Resource has been modified since {0} (timezone: {1})'.format(
                     str(header_timestamp), timezone.get_default_timezone_name()))
 
-    @staticmethod
-    def set_if_modified_since_filter(request, filter_obj):
+    @classmethod
+    def set_if_modified_since_filter(cls, request, filter_obj):
         """
         Evaluate If-Modified-Since http header only on read operations.
         Filter items whose modified_by_api field timestamp value is greater than the header value.
@@ -342,8 +338,8 @@ class CommonService():
         :return:
         """
 
-        if not CommonService.request_is_write_operation(request) and \
-                CommonService.request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
+        if not cls._request_is_write_operation(request) and \
+                cls._request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
 
             filter_obj.update({
                 'modified_by_api__gt': CommonService.validate_and_get_if_modified_since_header_as_tz_aware_datetime(

@@ -34,7 +34,7 @@ class _RedisSentinelCache():
         db: database index to read/write to. available indexes 0-15.
         master_only: always use master for read operations, for those times when you know you are going to
                      read the same key again from cache very soon.
-        settings: override redis setttings in settings.py. easier to use class from outside context of django (i.e. cron)
+        settings: override redis settings in settings.py. easier to use class from outside context of django (i.e. cron)
         """
         if not isinstance(settings, dict):
             if hasattr(settings, 'REDIS_SENTINEL'):
@@ -87,7 +87,8 @@ class _RedisSentinelCache():
             return master.set(key, pickled_data, **kwargs)
         except (TimeoutError, ConnectionError, MasterNotFoundError) as e:
             if self._DEBUG:
-                d('cache: master timed out or not found, or connection refused. no write instances available. error: %s' % str(e))
+                d('cache: master timed out or not found, or connection refused. no write instances available. error: %s'
+                  % str(e))
             # no master available
             return
 
@@ -148,7 +149,8 @@ class _RedisSentinelCache():
             master.delete(*keys)
         except (TimeoutError, ConnectionError, MasterNotFoundError) as e:
             if self._DEBUG:
-                d('cache: master timed out or not found, or connection refused. no write instances available. error: %s' % str(e))
+                d('cache: master timed out or not found, or connection refused. no write instances available. error: %s'
+                  % str(e))
             # no master available
             return
 
@@ -165,7 +167,8 @@ class _RedisSentinelCache():
             res = self._redis_local.get(key, **kwargs)
         except (TimeoutError, ConnectionError):
             if self._DEBUG:
-                d('cache: _redis_local.get() timed out or connection refused, trying from other slaves instead. fail-over in process?')
+                d('cache: _redis_local.get() timed out or connection refused, '
+                  'trying from other slaves instead. fail-over in process?')
             raise
         else:
             return pickle_loads(res) if res is not None else None
@@ -176,7 +179,8 @@ class _RedisSentinelCache():
             res = node.get(key, **kwargs)
         except (TimeoutError, ConnectionError):
             if self._DEBUG:
-                d('cache: slave.get() timed out or connection refused, trying from master instead. fail-over in process?')
+                d('cache: slave.get() timed out or connection refused, '
+                  'trying from master instead. fail-over in process?')
             # fail-over propbably happened, and the old slave is now a master
             # (in case there was only one slave). try master instead
             raise

@@ -41,7 +41,8 @@ class ContractViewSet(CommonViewSet):
             query_params = self.request.query_params
             additional_filters = {}
             if query_params.get('organization', False):
-                additional_filters['contract_json__contains'] = { 'organization': { 'organization_identifier': query_params['organization'] }}
+                additional_filters['contract_json__contains'] = {
+                    'organization': { 'organization_identifier': query_params['organization'] }}
             return self.queryset.filter(**additional_filters)
 
     @detail_route(methods=['get'], url_path="datasets")

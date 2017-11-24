@@ -60,7 +60,8 @@ class FileSerializer(CommonSerializer):
 
     def is_valid(self, raise_exception=False):
         if 'file_storage' in self.initial_data:
-            self.initial_data['file_storage'] = self._get_id_from_related_object('file_storage', self._get_file_storage_relation)
+            self.initial_data['file_storage'] = self._get_id_from_related_object(
+                'file_storage', self._get_file_storage_relation)
         if 'checksum' in self.initial_data:
             self._flatten_checksum(self.initial_data['checksum'])
 

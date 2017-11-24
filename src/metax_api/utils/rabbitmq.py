@@ -85,7 +85,8 @@ class _RabbitMQ():
         In that case the exchange has to be manually removed first, which can result in lost messages.
         """
         for exchange in self._settings['EXCHANGES']:
-            self._channel.exchange_declare(exchange['NAME'], exchange_type=exchange['TYPE'], durable=exchange.get('DURABLE', True))
+            self._channel.exchange_declare(
+                exchange['NAME'], exchange_type=exchange['TYPE'], durable=exchange.get('DURABLE', True))
 
     def _validate_publish_params(self, routing_key, exchange_name):
         """

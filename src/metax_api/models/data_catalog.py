@@ -6,9 +6,19 @@ from .common import Common
 
 class DataCatalog(Common):
 
+    # MODEL FIELD DEFINITIONS #
+
     catalog_json = JSONField()
-    catalog_record_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit catalog records in the catalog.')
-    catalog_record_group_create = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to add new catalog records to the catalog.')
+
+    catalog_record_group_edit = models.CharField(
+        max_length=200, blank=True, null=True,
+        help_text='Group which is allowed to edit catalog records in the catalog.')
+
+    catalog_record_group_create = models.CharField(
+        max_length=200, blank=True, null=True,
+        help_text='Group which is allowed to add new catalog records to the catalog.')
+
+    # END OF MODEL FIELD DEFINITIONS #
 
     _need_to_generate_identifier = False
 

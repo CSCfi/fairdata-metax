@@ -6,9 +6,13 @@ from .file import File
 
 class XmlMetadata(Common):
 
+    # MODEL FIELD DEFINITIONS #
+
     namespace = models.CharField(max_length=200)
     xml = models.TextField()
     file = models.ForeignKey(File)
+
+    # END OF MODEL FIELD DEFINITIONS #
 
     class Meta:
         unique_together = ('namespace', 'file')

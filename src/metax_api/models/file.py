@@ -21,11 +21,15 @@ class FileManager(CommonManager):
             elif row.get('identifier', None):
                 kwargs['identifier'] = row['identifier']
             else:
-                raise ValidationError(['this operation requires one of the following identifying keys to be present: %s' % ', '.join([ 'id', 'identifier' ])])
+                raise ValidationError([
+                    'this operation requires one of the following identifying keys to be present: %s'
+                    % ', '.join([ 'id', 'identifier' ])])
         return super(FileManager, self).get(*args, **kwargs)
 
 
 class File(Common):
+
+    # MODEL FIELD DEFINITIONS #
 
     byte_size = models.PositiveIntegerField(default=0)
     checksum_algorithm = models.CharField(max_length=200)
@@ -47,6 +51,8 @@ class File(Common):
     parent_directory = models.ForeignKey(Directory, on_delete=models.SET_NULL, null=True, related_name='files')
     project_identifier = models.CharField(max_length=200)
     replication_path = models.CharField(max_length=200, blank=True, null=True)
+
+    # END OF MODEL FIELD DEFINITIONS #
 
     indexes = [
         models.Index(fields=['identifier']),
