@@ -9,7 +9,6 @@ d = print
 
 
 class DirectoryApiWriteCommon(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """

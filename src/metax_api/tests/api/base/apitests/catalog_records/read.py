@@ -11,7 +11,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
 class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -27,7 +26,6 @@ class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
 
 
 class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
-
     """
     Basic read operations
     """
@@ -75,7 +73,6 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
 
 
 class CatalogRecordApiReadPaginationTests(CatalogRecordApiReadCommon):
-
     """
     pagination
     """
@@ -94,7 +91,6 @@ class CatalogRecordApiReadPaginationTests(CatalogRecordApiReadCommon):
 
 
 class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
-
     """
     preservation_state filtering
     """
@@ -132,11 +128,11 @@ class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_search_by_preservation_state_invalid_value(self):
         response = self.client.get('/rest/datasets?state=1,a')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('is not an integer' in response.data['state'][0], True, 'Error should say letter a is not an integer')
+        self.assertEqual('is not an integer' in response.data['state'][0], True,
+                         'Error should say letter a is not an integer')
 
 
 class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
-
     """
     query_params filtering
     """
@@ -145,15 +141,19 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 5)
-        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
-        self.assertEqual(response.data['results'][4]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
+        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
+                         'Curator name is not matching')
+        self.assertEqual(response.data['results'][4]['research_dataset']['curator'][0]['name'], 'Rahikainen',
+                         'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_2(self):
         response = self.client.get('/rest/datasets?curator=id:of:curator:jarski')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
-        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Jarski', 'Curator name is not matching')
-        self.assertEqual(response.data['results'][3]['research_dataset']['curator'][0]['name'], 'Jarski', 'Curator name is not matching')
+        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Jarski',
+                         'Curator name is not matching')
+        self.assertEqual(response.data['results'][3]['research_dataset']['curator'][0]['name'], 'Jarski',
+                         'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_not_found_1(self):
         response = self.client.get('/rest/datasets?curator=Not Found')
@@ -171,7 +171,8 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['id'], 2)
         self.assertEqual(response.data['results'][0]['preservation_state'], 1)
-        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
+        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
+                         'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_and_state_2(self):
         response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=2')
@@ -179,7 +180,8 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['id'], 3)
         self.assertEqual(response.data['results'][0]['preservation_state'], 2)
-        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen', 'Curator name is not matching')
+        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
+                         'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_and_state_not_found(self):
         response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=55')
@@ -251,12 +253,14 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        if_modified_since_header_value = (modified_by_api_in_gmt + timedelta(seconds=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if_modified_since_header_value = (modified_by_api_in_gmt + timedelta(seconds=1)).strftime(
+            '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        if_modified_since_header_value = (modified_by_api_in_gmt - timedelta(seconds=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if_modified_since_header_value = (modified_by_api_in_gmt - timedelta(seconds=1)).strftime(
+            '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -288,7 +292,8 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get('results')) == 2)
 
-        if_modified_since_header_value = (modified_by_api_in_gmt + timedelta(seconds=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if_modified_since_header_value = (modified_by_api_in_gmt + timedelta(seconds=1)).strftime(
+            '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -297,7 +302,8 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         # The asserts below may brake if the modified_by_api timestamps or the amount of test data objects are altered
         # in the test data
 
-        if_modified_since_header_value = (modified_by_api_in_gmt - timedelta(seconds=1)).strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if_modified_since_header_value = (modified_by_api_in_gmt - timedelta(seconds=1)).strftime(
+            '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

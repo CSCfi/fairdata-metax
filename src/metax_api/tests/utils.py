@@ -9,12 +9,13 @@ datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 # path to data used by automatic tests
 test_data_file_path = 'metax_api/tests/testdata/test_data.json'
 
+
 def get_json_schema(model_name):
     with open(path.dirname(path.realpath(__file__)) + '/../api/base/schemas/%s_schema.json' % model_name) as f:
         return json_load(f)
 
-class TestClassUtils():
 
+class TestClassUtils():
     """
     Test classes may (multi-)inherit this class in addition to APITestCase to use these helpers
     """

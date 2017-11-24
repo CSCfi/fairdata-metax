@@ -7,7 +7,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
 class ContractApiReadTestV1(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -39,7 +38,6 @@ class ContractApiReadTestV1(APITestCase, TestClassUtils):
 
 
 class ContractApiWriteTestV1(APITestCase, TestClassUtils):
-
     def setUp(self):
         """
         Reloaded for every test case
@@ -87,7 +85,8 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
             raise Exception('The added CatalogRecord should appear in the relation contract.catalogrecord_set')
 
         response = self.client.get('/rest/contracts/%d/datasets' % self.pk)
-        self.assertIn(created_catalog_record['id'], [ cr['id'] for cr in response.data ], 'The added CatalogRecord should appear in the results of /contracts/id/datasets')
+        self.assertIn(created_catalog_record['id'], [cr['id'] for cr in response.data],
+                      'The added CatalogRecord should appear in the results of /contracts/id/datasets')
 
     def test_delete_contract(self):
         url = '/rest/contracts/%s' % self.pk
@@ -124,9 +123,11 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         contract = Contract.objects_unfiltered.get(pk=self.pk)
         related_crs = contract.catalogrecord_set(manager='objects_unfiltered').all()
         response_get_1 = self.client.get('/rest/datasets/%d' % related_crs[0].id)
-        self.assertEqual(response_get_1.status_code, status.HTTP_404_NOT_FOUND, 'CatalogRecords of deleted contracts should not be retrievable through the api')
+        self.assertEqual(response_get_1.status_code, status.HTTP_404_NOT_FOUND,
+                         'CatalogRecords of deleted contracts should not be retrievable through the api')
         response_get_2 = self.client.get('/rest/datasets/%d' % related_crs[1].id)
-        self.assertEqual(response_get_2.status_code, status.HTTP_404_NOT_FOUND, 'CatalogRecords of deleted contracts should not be retrievable through the api')
+        self.assertEqual(response_get_2.status_code, status.HTTP_404_NOT_FOUND,
+                         'CatalogRecords of deleted contracts should not be retrievable through the api')
 
         for cr in related_crs:
             self.assertEqual(cr.removed, True, 'Related CatalogRecord objects should be marked as removed')
@@ -135,7 +136,8 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         deleted_id = 1
         self.client.delete('/rest/datasets/%d' % deleted_id)
         response = self.client.get('/rest/contracts/%d/datasets' % self.pk)
-        self.assertNotIn(deleted_id, [ cr['id'] for cr in response.data ], 'The deleted CatalogRecord should not appear in the results of /contracts/id/datasets')
+        self.assertNotIn(deleted_id, [cr['id'] for cr in response.data],
+                         'The deleted CatalogRecord should not appear in the results of /contracts/id/datasets')
 
     def _get_new_test_data(self):
         return {

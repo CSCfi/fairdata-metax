@@ -7,7 +7,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
 class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
-
     """
     Verify that the model at least works on the basic level.
     """
@@ -25,12 +24,11 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
         self.urn_identifier = dataset_from_test_data['research_dataset']['urn_identifier']
 
     def test_get_by_identifier(self):
-        catalog_record = CatalogRecord.objects.get(research_dataset__contains={ 'urn_identifier': self.urn_identifier })
+        catalog_record = CatalogRecord.objects.get(research_dataset__contains={'urn_identifier': self.urn_identifier})
         self.assertEqual(catalog_record.urn_identifier, self.urn_identifier)
 
 
 class CatalogRecordModelTests(TestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -62,25 +60,26 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
         old = cr.research_dataset['total_byte_size']
         cr.research_dataset['files'] = [file_from_testdata]
         cr.save()
-        self.assertNotEqual(old, cr.research_dataset['total_byte_size'], 'total_byte_size should be automatically updated if files are changed')
+        self.assertNotEqual(old, cr.research_dataset['total_byte_size'],
+                            'total_byte_size should be automatically updated if files are changed')
 
     def test_preservation_state_modified_auto_update(self):
         cr = self.cr
         old = cr.preservation_state_modified
         cr.preservation_state = 1
         cr.save()
-        self.assertNotEqual(old, cr.preservation_state_modified, 'preservation_state_modified should be automatically updated if changed')
+        self.assertNotEqual(old, cr.preservation_state_modified,
+                            'preservation_state_modified should be automatically updated if changed')
 
 
 class CatalogRecordManagerTests(TestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         call_command('loaddata', test_data_file_path, verbosity=0)
         super(CatalogRecordManagerTests, cls).setUpClass()
 
     def test_get_using_dict_with_id(self):
-        row = { 'id': 1, 'other_stuff': 'doesnt matter' }
+        row = {'id': 1, 'other_stuff': 'doesnt matter'}
         try:
             obj = CatalogRecord.objects.get(using_dict=row)
         except CatalogRecord.DoesNotExist:
@@ -92,7 +91,7 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         self.assertEqual(obj.id, 1)
 
     def test_get_using_dict_with_urn_identifier(self):
-        row = { 'research_dataset': { 'urn_identifier': 'pid:urn:cr1' }, 'other_stuff': 'doesnt matter' }
+        row = {'research_dataset': {'urn_identifier': 'pid:urn:cr1'}, 'other_stuff': 'doesnt matter'}
         try:
             obj = CatalogRecord.objects.get(using_dict=row)
         except CatalogRecord.DoesNotExist:
@@ -104,7 +103,7 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         self.assertEqual(obj.id, 1)
 
     def test_get_using_dict_error_not_found_1(self):
-        row = { 'id': 101010, 'other_stuff': 'doesnt matter'}
+        row = {'id': 101010, 'other_stuff': 'doesnt matter'}
         try:
             CatalogRecord.objects.get(using_dict=row)
         except CatalogRecord.DoesNotExist:
@@ -115,7 +114,7 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         self.assertEqual(found, False, 'get with using_dict should have not returned a result')
 
     def test_get_using_dict_error_preferred_identifier_not_allowed(self):
-        row = { 'research_dataset': { 'preferred_identifier': 'pid:urn:cr1' }, 'other_stuff': 'doesnt matter' }
+        row = {'research_dataset': {'preferred_identifier': 'pid:urn:cr1'}, 'other_stuff': 'doesnt matter'}
         try:
             CatalogRecord.objects.get(using_dict=row)
         except ValidationError:
@@ -123,10 +122,11 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         else:
             found = True
 
-        self.assertEqual(found, False, 'get with using_dict should have not returned a result, because preferred_identifier was used')
+        self.assertEqual(found, False,
+                         'get with using_dict should have not returned a result, because preferred_identifier was used')
 
     def test_get_using_dict_error_identifier_field_missing(self):
-        row = { 'somefield': 111, 'other_stuff': 'doesnt matter'}
+        row = {'somefield': 111, 'other_stuff': 'doesnt matter'}
         try:
             CatalogRecord.objects.get(using_dict=row)
         except ValidationError:
@@ -134,4 +134,5 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         else:
             found = True
 
-        self.assertEqual(found, False, 'get with using_dict should have not returned a result because an identifier field is missing')
+        self.assertEqual(found, False,
+                         'get with using_dict should have not returned a result because an identifier field is missing')

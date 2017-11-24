@@ -1,14 +1,14 @@
 {
-    "byte_size": 12345,
-    "directory_deleted": null,
-    "directory_modified": "2017-06-23T12:41:59Z",
-    "directory_name": "dir",
-    "directory_path": "/project_x_FROZEN/dir",
-    "file_count": 12345,
-    "identifier": "pid:urn:dir:%s",
-    "parent_directory": 1,
-    "project_identifier": "project_x",
-    "created_by_api": "2017-05-23T10:07:22Z",
-    "modified_by_api": "2017-06-27T10:07:22Z",
-    "removed": false
+  "byte_size": 12345,
+  "directory_deleted": null,
+  "directory_modified": "2017-06-23T12:41:59Z",
+  "directory_name": "dir",
+  "directory_path": "/project_x_FROZEN/dir",
+  "file_count": 12345,
+  "identifier": "pid:urn:dir:%s",
+  "parent_directory": 1,
+  "project_identifier": "project_x",
+  "created_by_api": "2017-05-23T10:07:22Z",
+  "modified_by_api": "2017-06-27T10:07:22Z",
+  "removed": false
 }

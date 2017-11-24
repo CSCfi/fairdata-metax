@@ -6,7 +6,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
 class DataCatalogApiWriteCommon(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -23,7 +22,6 @@ class DataCatalogApiWriteCommon(APITestCase, TestClassUtils):
 
 
 class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
-
     def test_identifier_is_auto_generated(self):
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -41,7 +39,6 @@ class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
 
 
 class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
-
     """
     Tests related to reference_data validation and data catalog fields population
     from reference_data, according to given uri or code as the value.
@@ -99,10 +96,10 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         # to easily check that label was populated (= that it appeared in the dataset after create)
         # without knowing its original value from the generated test data
         dc = self.new_test_data['catalog_json']
-        dc['field_of_science'][0]  = { 'identifier': refs['field_of_science']['code'] }
-        dc['language'][0]          = { 'identifier': refs['language']['code'] }
-        dc['access_rights']['type'][0]    = { 'identifier': refs['access_type']['code'] }
-        dc['access_rights']['license'][0] = { 'identifier': refs['license']['code'] }
+        dc['field_of_science'][0] = {'identifier': refs['field_of_science']['code']}
+        dc['language'][0] = {'identifier': refs['language']['code']}
+        dc['access_rights']['type'][0] = {'identifier': refs['access_type']['code']}
+        dc['access_rights']['license'][0] = {'identifier': refs['license']['code']}
 
         # these have other required fields, so only update the identifier with code
         dc['publisher']['identifier'] = refs['organization']['code']
@@ -120,15 +117,16 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
 
     def _assert_uri_copied_to_identifier(self, refs, new_dc):
         self.assertEqual(refs['field_of_science']['uri'], new_dc['field_of_science'][0]['identifier'])
-        self.assertEqual(refs['language']['uri'],         new_dc['language'][0]['identifier'])
-        self.assertEqual(refs['access_type']['uri'],      new_dc['access_rights']['type'][0]['identifier'])
-        self.assertEqual(refs['license']['uri'],          new_dc['access_rights']['license'][0]['identifier'])
-        self.assertEqual(refs['organization']['uri'],     new_dc['publisher']['identifier'])
-        self.assertEqual(refs['organization']['uri'], new_dc['access_rights']['has_rights_related_agent'][0]['identifier'])
+        self.assertEqual(refs['language']['uri'], new_dc['language'][0]['identifier'])
+        self.assertEqual(refs['access_type']['uri'], new_dc['access_rights']['type'][0]['identifier'])
+        self.assertEqual(refs['license']['uri'], new_dc['access_rights']['license'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_dc['publisher']['identifier'])
+        self.assertEqual(refs['organization']['uri'],
+                         new_dc['access_rights']['has_rights_related_agent'][0]['identifier'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_dc):
         self.assertEqual(refs['field_of_science']['label'], new_dc['field_of_science'][0].get('pref_label', None))
-        self.assertEqual(refs['access_type']['label'],      new_dc['access_rights']['type'][0].get('pref_label', None))
+        self.assertEqual(refs['access_type']['label'], new_dc['access_rights']['type'][0].get('pref_label', None))
 
     def _assert_label_copied_to_title(self, refs, new_dc):
         self.assertEqual(refs['license']['label'], new_dc['access_rights']['license'][0].get('title', None))

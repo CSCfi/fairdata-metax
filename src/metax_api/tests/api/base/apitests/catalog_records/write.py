@@ -435,7 +435,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
 
-        data = { 'research_dataset': self.test_new_data['research_dataset'] }
+        data = {'research_dataset': self.test_new_data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
         data['data_catalog'] = 1
 
@@ -821,7 +821,7 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         data_2['modified_by_api'] = '2002-01-01T10:10:10Z'
 
         headers = {'HTTP_IF_UNMODIFIED_SINCE': 'value is not checked'}
-        response = self.client.put('/rest/datasets', [ data_1, data_2 ], format="json", **headers)
+        response = self.client.put('/rest/datasets', [data_1, data_2], format="json", **headers)
         self.assertEqual(len(response.data['failed']) == 1, True, 'there should be only one failed update')
         self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True,
                          'error should indicate resource has been modified')
@@ -913,7 +913,7 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         self.client.delete(url)
         response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
         self.assertEqual(response2.status_code, status.HTTP_200_OK,
-                         'The contract of the CatalogRecord should not be deleted when deleting a single CatalogRecord.')
+                         'The contract of CatalogRecord should not be deleted when deleting a single CatalogRecord.')
 
     def test_delete_catalog_record_not_found_with_search_by_owner(self):
         # owner of pk=1 is Default Owner. Delete pk=2 == first dataset owner by Rahikainen.
@@ -1221,11 +1221,15 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['location']['label'], new_rd['spatial'][0]['place_uri'].get('pref_label', None))
         self.assertEqual(refs['file_type']['label'], new_rd['files'][0]['file_type'].get('pref_label', None))
         self.assertEqual(refs['use_category']['label'], new_rd['files'][0]['use_category'].get('pref_label', None))
-        self.assertEqual(refs['use_category']['label'], new_rd['directories'][0]['use_category'].get('pref_label', None))
-        self.assertEqual(refs['resource_type']['label'], new_rd['remote_resources'][0]['resource_type'].get('pref_label', None))
-        self.assertEqual(refs['use_category']['label'], new_rd['remote_resources'][0]['use_category'].get('pref_label', None))
+        self.assertEqual(refs['use_category']['label'],
+                         new_rd['directories'][0]['use_category'].get('pref_label', None))
+        self.assertEqual(refs['resource_type']['label'],
+                         new_rd['remote_resources'][0]['resource_type'].get('pref_label', None))
+        self.assertEqual(refs['use_category']['label'],
+                         new_rd['remote_resources'][0]['use_category'].get('pref_label', None))
         self.assertEqual(refs['research_infra']['label'], new_rd['infrastructure'][0].get('pref_label', None))
-        self.assertEqual(refs['contributor_role']['label'], new_rd['creator'][0]['contributor_role'].get('pref_label', None))
+        self.assertEqual(refs['contributor_role']['label'],
+                         new_rd['creator'][0]['contributor_role'].get('pref_label', None))
         self.assertEqual(refs['funder_type']['label'], new_rd['is_output_of'][0]['funder_type'].get('pref_label', None))
         self.assertEqual(refs['relation_type']['label'], new_rd['relation'][0]['relation_type'].get('pref_label', None))
 
@@ -1272,7 +1276,8 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         existing_records_count = CatalogRecord.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier}).count()
         self.assertEqual(existing_records_count, 1,
-                         'in the beginning, there should be only one record with pref id %s' % self.preferred_identifier)
+                         'in the beginning, there should be only one record with pref id %s'
+                         % self.preferred_identifier)
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

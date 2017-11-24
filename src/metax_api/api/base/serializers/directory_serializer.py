@@ -58,7 +58,7 @@ class DirectorySerializer(CommonSerializer):
 
         if dir_exists_in_project_scope:
             raise ValidationError([
-                'directory path %s already exists in project %s scope. are you trying to freeze the same directory again?'
+                'directory path %s already exists in project %s scope. Are you trying to freeze same directory again?'
                 % (self.initial_data['directory_path'], self.initial_data['project_identifier'])
             ])
 

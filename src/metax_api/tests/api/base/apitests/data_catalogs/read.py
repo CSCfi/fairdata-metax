@@ -6,7 +6,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
 class DataCatalogApiReadBasicTests(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """

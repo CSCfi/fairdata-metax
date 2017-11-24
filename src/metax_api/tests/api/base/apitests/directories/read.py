@@ -6,7 +6,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
 class DirectoryApiReadCommon(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -22,7 +21,6 @@ class DirectoryApiReadCommon(APITestCase, TestClassUtils):
 
 
 class DirectoryApiReadBasicTests(DirectoryApiReadCommon):
-
     def test_read_directory_list(self):
         response = self.client.get('/rest/directories')
         self.assertEqual(response.status_code, 501)
@@ -47,7 +45,6 @@ class DirectoryApiReadBasicTests(DirectoryApiReadCommon):
 
 
 class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
-
     def test_read_directory_get_files(self):
         """
         Test browsing files

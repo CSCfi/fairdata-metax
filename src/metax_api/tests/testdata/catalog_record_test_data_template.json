@@ -1,39 +1,50 @@
 {
-    "data_catalog": null,
-    "preservation_state": 0,
-    "preservation_state_modified": null,
-    "mets_object_identifier": null,
-    "dataset_group_edit": "default-dataset-edit-group",
-    "research_dataset": {
-        "urn_identifier": "http://urn.fi/urn:nbn:fi%s",
-        "preferred_identifier": "http://urn.fi/urn:nbn:fi%s",
-        "modified": "2014-01-17T08:19:58Z",
-        "version_notes": [
-            "This version contains changes to x and y."
-        ],
-        "title": {
-            "en": "Wonderful Title"
-        },
-        "description": [{
-            "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-        }],
-        "creator":[{
-            "@type": "Person",
-            "name": "Teppo Testaaja",
-            "member_of": {
-                "@type": "Organization",
-                "name": {
-                    "fi": "Mysteeriorganisaatio"
-                }
-            }
-        }],
-        "curator":[{
-            "@type": "Organization",
-            "identifier": "10076-E700",
-            "name": {"en": "Org in ref data", "fi": "Organisaatio"}
-        }],
-        "language":[{
-            "identifier": "http://lexvo.org/id/iso639-3/eng"
-        }]
-    }
+  "data_catalog": null,
+  "preservation_state": 0,
+  "preservation_state_modified": null,
+  "mets_object_identifier": null,
+  "dataset_group_edit": "default-dataset-edit-group",
+  "research_dataset": {
+    "urn_identifier": "http://urn.fi/urn:nbn:fi%s",
+    "preferred_identifier": "http://urn.fi/urn:nbn:fi%s",
+    "modified": "2014-01-17T08:19:58Z",
+    "version_notes": [
+      "This version contains changes to x and y."
+    ],
+    "title": {
+      "en": "Wonderful Title"
+    },
+    "description": [
+      {
+        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+      }
+    ],
+    "creator": [
+      {
+        "@type": "Person",
+        "name": "Teppo Testaaja",
+        "member_of": {
+          "@type": "Organization",
+          "name": {
+            "fi": "Mysteeriorganisaatio"
+          }
+        }
+      }
+    ],
+    "curator": [
+      {
+        "@type": "Organization",
+        "identifier": "10076-E700",
+        "name": {
+          "en": "Org in ref data",
+          "fi": "Organisaatio"
+        }
+      }
+    ],
+    "language": [
+      {
+        "identifier": "http://lexvo.org/id/iso639-3/eng"
+      }
+    ]
+  }
 }
