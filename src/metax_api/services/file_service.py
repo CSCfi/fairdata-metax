@@ -46,6 +46,45 @@ def FileSerializer(*args, **kwargs):
 class FileService(CommonService):
 
     @classmethod
+    def get_datasets_where_file_belongs_to(cls, file_identifiers):
+        """
+        Find out which (non-deprecated) datasets a list of files belongs to, and return
+        their urn_identifiers as a list. Includes only latest versions of datasets.
+
+        Parameter file_identifiers can be a list of pk's (integers), or file identifiers (strings).
+        """
+        _logger.info('Retrieving list of datasets where files belong to')
+
+        if not isinstance(file_identifiers, list):
+            raise Http400('identifiers must be passed as a list')
+
+        _logger.info('Looking datasets for the following files (printing first 10):\n%s' % '\n'.join(str(id) for id in file_identifiers[:10]))
+
+        file_ids = cls._file_identifiers_to_ids(file_identifiers)
+
+        if not file_ids:
+            raise Http404
+
+        sql_select_related_records = """
+            select research_dataset->>'urn_identifier' as urn_identifier
+            from metax_api_catalogrecord cr
+            inner join metax_api_catalogrecord_files cr_f on catalogrecord_id = cr.id
+            where cr_f.file_id in %s and cr.removed = false and cr.active = true
+            group by urn_identifier
+            """
+
+        with connection.cursor() as cr:
+            cr.execute(sql_select_related_records, [tuple(file_ids)])
+            if cr.rowcount == 0:
+                urn_identifiers = []
+                _logger.info('No datasets found for files')
+            else:
+                urn_identifiers = [ row[0] for row in cr.fetchall() ]
+                _logger.info('Found following datasets:\n%s' % '\n'.join(urn_identifiers))
+
+        return Response(urn_identifiers, status=status.HTTP_200_OK)
+
+    @classmethod
     def destroy_bulk(cls, file_identifiers):
         """
         Mark files as deleted en masse. Parameter file_identifiers can be a list of pk's

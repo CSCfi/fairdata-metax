@@ -117,6 +117,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
 
     directories = []
     test_data_list = []
+    directory_test_data_list = []
     json_template = row_template['file_characteristics'].copy()
     file_name = row_template['file_name']
     download_url = row_template['download_url']
@@ -156,7 +157,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
             elif 11 <= i:
                 file_path = file_path.replace('/some/path/', '/Experiment_X/Phase_1/2017/01/')
 
-            directory_id = get_parent_directory_for_path(directories, file_path, test_data_list)
+            directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list)
 
             new['fields']['parent_directory'] = directory_id
             new['fields']['file_name'] = file_name % loop
@@ -225,18 +226,18 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
         print('collected created objects from responses into a list')
         print('total time elapsed for %d rows: %.3f seconds' % (file_max_rows, total_time_elapsed))
 
-    return test_data_list
+    return test_data_list, directory_test_data_list
 
 
-def get_parent_directory_for_path(directories, file_path, test_data_list):
+def get_parent_directory_for_path(directories, file_path, directory_test_data_list):
     dir_name = os.path.dirname(file_path)
     for d in directories:
         if d['fields']['directory_path'] == dir_name:
             return d['pk']
-    return create_parent_directory_for_path(directories, dir_name, test_data_list)
+    return create_parent_directory_for_path(directories, dir_name, directory_test_data_list)
 
 
-def create_parent_directory_for_path(directories, file_path, test_data_list):
+def create_parent_directory_for_path(directories, file_path, directory_test_data_list):
     """
     Recursively creates the requested directories for file_path
     """
@@ -248,7 +249,7 @@ def create_parent_directory_for_path(directories, file_path, test_data_list):
         row_template = json_load(json_file)
 
     # the directory where a file or dir belongs to, must be retrieved or created first
-    directory_id = get_parent_directory_for_path(directories, file_path, test_data_list)
+    directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list)
 
     # all parent dirs have been created - now create the dir that was originally asked for
 
@@ -266,19 +267,19 @@ def create_parent_directory_for_path(directories, file_path, test_data_list):
     new['fields']['directory_path'] = file_path
     new['fields']['identifier'] = new['fields']['identifier'] % new_id
 
-    test_data_list.append(new)
+    directory_test_data_list.append(new)
     directories.append(new)
 
     return new_id
 
 
-def save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contract_list, catalog_record_list,
+def save_test_data(mode, file_storage_list, file_list, directory_list, data_catalogs_list, contract_list, catalog_record_list,
                    batch_size):
     if mode == 'json':
 
         with open('test_data.json', 'w') as f:
             print('dumping test data as json to metax_api/tests/test_data.json...')
-            json_dump(file_storage_list + file_list + data_catalogs_list + contract_list + catalog_record_list,
+            json_dump(file_storage_list + directory_list + file_list + data_catalogs_list + contract_list + catalog_record_list,
                       f, indent=4, sort_keys=True)
 
     elif mode == 'request_list':
@@ -632,12 +633,12 @@ print('generating %d test file storage rows' % file_storage_max_rows)
 print('DEBUG: %s' % str(DEBUG))
 
 file_storage_list = generate_file_storages(mode, file_storage_max_rows)
-file_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
+file_list, directory_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
 data_catalogs_list = generate_data_catalogs(mode, data_catalog_max_rows, validate_json)
 contract_list = generate_contracts(mode, contract_max_rows, validate_json)
 catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list,
                                                file_list, validate_json, url)
 
-save_test_data(mode, file_storage_list, file_list, data_catalogs_list, contract_list, catalog_record_list, batch_size)
+save_test_data(mode, file_storage_list, directory_list, file_list, data_catalogs_list, contract_list, catalog_record_list, batch_size)
 
 print('done')

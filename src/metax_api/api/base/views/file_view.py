@@ -2,7 +2,7 @@ import logging
 
 from django.http import Http404
 from rest_framework import status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -51,6 +51,18 @@ class FileViewSet(CommonViewSet):
             - limit (integer) (limit for paging)
         """
         return super(FileViewSet, self).get_object()
+
+    @list_route(methods=['post'], url_path="datasets")
+    def datasets(self, request):
+        """
+        Find out which datasets a list of files belongs to, and return their
+        urn_identifiers as a list.
+
+        The method is invoked using POST, because there are limits to length of query
+        parameters in GET. Also, some clients forcibly shove parameters in body in GET
+        requests to query parameters, so using POST instead is more guaranteed to work.
+        """
+        return FileService.get_datasets_where_file_belongs_to(request.data)
 
     def destroy(self, request, *args, **kwargs):
         """

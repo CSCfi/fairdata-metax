@@ -82,7 +82,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         "200":
           description: successful operation, return list of files
@@ -325,6 +325,28 @@ paths:
           description: parameters contained errors, response includes details
         '404':
           description: file or namespace does not exist
+      tags:
+        - File API
+  /files/datasets:
+    post:
+      summary: get datasets where files belong to
+      description: |
+        Note&#58; The method is invoked using POST, because there are limits to length of query
+        parameters in GET. Also, some clients forcibly shove parameters in body in GET
+        requests to query parameters, so using POST instead is more guaranteed to work.
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: a list of file id's (integers) or identifiers (strings).
+          required: true
+          type: string
+      responses:
+        '200':
+          description: a list of urn_identifiers. if the files were not found to belong to any datasets, an empty list is returned
+        '404':
+          description: files given in the list not found
       tags:
         - File API
   /directories/{PID}:
@@ -572,7 +594,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         "200":
           description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
@@ -638,6 +660,35 @@ paths:
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
         '400':
           description: All updates failed. A list of errors is returned.
+      tags:
+        - Dataset API
+  /datasets/urn_identifiers:
+    get:
+      summary: "list all dataset urn identifiers"
+      parameters:
+        - name: owner_id
+          in: query
+          description: id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: created_by_user_id
+          in: query
+          description: id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
+          in: query
+          description: curator identifier (field research_dataset-> curator-> identifier)
+          required: false
+          type: string
+        - name: state
+          in: query
+          description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+          required: false
+          type: string
+      responses:
+        "200":
+          description: successful operation, returns a list of all dataset urn identifiers.
       tags:
         - Dataset API
   /datasets/{PID}:
@@ -778,7 +829,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         '200':
           description: successful operation, return feedback objects
@@ -837,7 +888,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         '200':
           description: successful operation, return usage objects
