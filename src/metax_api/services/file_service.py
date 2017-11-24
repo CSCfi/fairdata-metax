@@ -58,7 +58,8 @@ class FileService(CommonService):
         if not isinstance(file_identifiers, list):
             raise Http400('identifiers must be passed as a list')
 
-        _logger.info('Looking datasets for the following files (printing first 10):\n%s' % '\n'.join(str(id) for id in file_identifiers[:10]))
+        _logger.info('Looking datasets for the following files (printing first 10):\n%s'
+                     % '\n'.join(str(id) for id in file_identifiers[:10]))
 
         file_ids = cls._file_identifiers_to_ids(file_identifiers)
 
