@@ -47,7 +47,9 @@ class Common(models.Model):
 
     def modified_since(self, timestamp):
         """
-        Return True if object has been modified since the given timestamp.
+        Return True if object has been modified since the given timestamp. Currently this method is used for validating
+        modified_by_api string representation or http header timestamp originated datetime object. In the former case,
+        the format should be well-known since it is created by Metax API.
 
         parameters:
         timestamp: a timezone-aware datetime object, or a timestamp string with timezone information,

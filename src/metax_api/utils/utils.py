@@ -1,7 +1,7 @@
-import email.utils as email_utils
 import os
 import sys
 
+from dateutil import parser
 from django.utils import timezone
 
 
@@ -25,10 +25,7 @@ def parse_http_timestamp_to_tz_aware_datetime(timestamp):
 
     'Wed, 23 Sep 2009 22:15:29 GMT'
 
-    email.utils is used for parsing, since it can deal with locale-dependent
-    verbose week and month names.
-
-    https://docs.python.org/3/library/email.util.html#email.utils.parsedate_to_datetime
+    https://dateutil.readthedocs.io/en/stable/parser.html#dateutil.parser.parse
     returns a timezone-aware datetime if the timestamp contains timezone information.
 
     https://github.com/django/django/blob/54e5c4a00e116ff4be257accdc9aa9e068c7f4ee/django/utils/timezone.py#L263
@@ -36,7 +33,7 @@ def parse_http_timestamp_to_tz_aware_datetime(timestamp):
 
     Returns time-zone aware timestamp. Caller is responsible for catching errors in parsing.
     """
-    timestamp = email_utils.parsedate_to_datetime(timestamp)
+    timestamp = parser.parse(timestamp)
     if timezone.is_naive(timestamp):
         timestamp = timezone.make_aware(timestamp)
 
