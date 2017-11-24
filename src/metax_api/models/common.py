@@ -13,6 +13,8 @@ class CommonManager(models.Manager):
 
 class Common(models.Model):
 
+    # MODEL FIELD DEFINITIONS #
+
     id = models.BigAutoField(primary_key=True, editable=False)
     active = models.BooleanField(default=True)
     removed = models.BooleanField(default=False)
@@ -20,6 +22,8 @@ class Common(models.Model):
     modified_by_user_id = models.CharField(max_length=200, null=True)
     created_by_api = models.DateTimeField()
     created_by_user_id = models.CharField(max_length=200, null=True)
+
+    # END OF MODEL FIELD DEFINITIONS #
 
     # all queries made using the default 'objects' table are filtered with active=True and removed=False
     objects = CommonManager()

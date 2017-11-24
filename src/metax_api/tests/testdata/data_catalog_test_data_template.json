@@ -1,100 +1,108 @@
 {
-    "catalog_record_group_edit": "default-record-edit-group",
-    "catalog_record_group_create": "default-record-create-group",
-    "catalog_json": {
-        "modified": "2014-01-17T08:19:58Z",
-        "issued": "2014-02-27T08:19:58Z",
+  "catalog_record_group_edit": "default-record-edit-group",
+  "catalog_record_group_create": "default-record-create-group",
+  "catalog_json": {
+    "modified": "2014-01-17T08:19:58Z",
+    "issued": "2014-02-27T08:19:58Z",
+    "title": {
+      "fi": "Testidatakatalogin nimi",
+      "en": "Test data catalog name"
+    },
+    "harvested": false,
+    "language": [
+      {
+        "identifier": "http://lexvo.org/id/iso639-3/fin"
+      },
+      {
+        "identifier": "http://lexvo.org/id/iso639-3/eng"
+      }
+    ],
+    "homepage": [
+      {
+        "identifier": "http://testing.com",
         "title": {
-          "fi": "Testidatakatalogin nimi",
-          "en": "Test data catalog name"
-        },
-        "harvested": false,
-        "language": [
-          {
-            "identifier": "http://lexvo.org/id/iso639-3/fin"
-          },
-          {
-            "identifier": "http://lexvo.org/id/iso639-3/eng"
+          "en": "Test website",
+          "fi": "Testi-verkkopalvelu"
+        }
+      },
+      {
+        "identifier": "http://www.testing.fi",
+        "title": {
+          "en": "Another website",
+          "fi": "Toinen verkkopalvelu"
+        }
+      }
+    ],
+    "publisher": {
+      "identifier": "http://isni.org/isni/0000000405129137",
+      "name": {
+        "fi": "Datakatalogin julkaisijaorganisaatio",
+        "en": "Data catalog publisher organization"
+      },
+      "homepage": [
+        {
+          "identifier": "http://www.publisher.fi/",
+          "title": {
+            "fi": "Julkaisijaorganisaation kotisivu",
+            "en": "Publisher organization website"
           }
-        ],
-        "homepage": [
-          {
-            "identifier": "http://testing.com",
-            "title": {
-              "en": "Test website",
-              "fi": "Testi-verkkopalvelu"
-            }
-          },
-          {
-            "identifier": "http://www.testing.fi",
-            "title": {
-              "en": "Another website",
-              "fi": "Toinen verkkopalvelu"
-            }
-          }
-        ],
-        "publisher": {
-          "identifier": "http://isni.org/isni/0000000405129137",
+        }
+      ]
+    },
+    "access_rights": {
+      "description": [
+        {
+          "fi": "Käyttöehtojen kuvaus"
+        }
+      ],
+      "has_rights_related_agent": [
+        {
+          "identifier": "org_id",
           "name": {
-            "fi": "Datakatalogin julkaisijaorganisaatio",
-            "en": "Data catalog publisher organization"
-          },
-          "homepage": [{
-            "identifier": "http://www.publisher.fi/",
-            "title": {
-              "fi": "Julkaisijaorganisaation kotisivu",
-              "en": "Publisher organization website"
-            }
-          }]
-        },
-        "access_rights": {
-          "description": [
-            {"fi": "Käyttöehtojen kuvaus"}
-          ],
-          "has_rights_related_agent": [
-            {
-              "identifier": "org_id",
-              "name": {
-                "fi": "Oikeuksiin liittyvä organisaatio",
-                "en": "A rights related organization"
-              }
-            },
-            {
-              "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
-              "name": {
-                "fi": "Org referenssidatassa",
-                "en": "Org in ref data"
-              },
-              "email": "wahatever@madeupdomain.com",
-              "telephone": ["+12353495823424"]
-            }
-          ],
-          "type": [
-            {
-              "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-              "pref_label": {
-                "fi": "Avoin",
-                "en": "Open"
-              }
-            }
-          ],
-          "license": [{
-            "identifier": "https://creativecommons.org/licenses/by/4.0/",
-            "title": {
-              "fi": "CC BY 4.0",
-              "en": "CC BY 4.0"
-            }
-          }]
-        },
-        "field_of_science": [
-          {
-            "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
-            "pref_label": {
-              "fi": "Ympäristötiede",
-              "en": "Environmental sciences"
-            }
+            "fi": "Oikeuksiin liittyvä organisaatio",
+            "en": "A rights related organization"
           }
-        ],
-      "research_dataset_schema": "att"
-    }
+        },
+        {
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+          "name": {
+            "fi": "Org referenssidatassa",
+            "en": "Org in ref data"
+          },
+          "email": "wahatever@madeupdomain.com",
+          "telephone": [
+            "+12353495823424"
+          ]
+        }
+      ],
+      "type": [
+        {
+          "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+          "pref_label": {
+            "fi": "Avoin",
+            "en": "Open"
+          }
+        }
+      ],
+      "license": [
+        {
+          "identifier": "https://creativecommons.org/licenses/by/4.0/",
+          "title": {
+            "fi": "CC BY 4.0",
+            "en": "CC BY 4.0"
+          }
+        }
+      ]
+    },
+    "field_of_science": [
+      {
+        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+        "pref_label": {
+          "fi": "Ympäristötiede",
+          "en": "Environmental sciences"
+        }
+      }
+    ],
+    "research_dataset_schema": "att"
+  }
 }

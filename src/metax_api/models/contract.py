@@ -6,7 +6,11 @@ from .common import Common
 
 class Contract(Common):
 
+    # MODEL FIELD DEFINITIONS #
+
     contract_json = JSONField(blank=True, null=True)
+
+    # END OF MODEL FIELD DEFINITIONS #
 
     def delete(self):
         """

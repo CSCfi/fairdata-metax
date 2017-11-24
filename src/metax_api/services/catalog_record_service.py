@@ -27,7 +27,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         """
 
         if catalog_record_current.next_version_identifier:
-            raise Http403({ 'next_version_identifier': ['A newer version already exists. You can not create new versions from archived versions.'] })
+            raise Http403({ 'next_version_identifier': [
+                'A newer version already exists. You can not create new versions from archived versions.'] })
 
         # import here instead of beginning of the file to avoid circular import in CR serializer
         from metax_api.api.base.serializers import CatalogRecordSerializer
@@ -41,7 +42,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         catalog_record_new.pop('modified_by_user_id', None)
         catalog_record_new['identifier'] = 'urn:nice:generated:identifier' # TODO
         catalog_record_new['research_dataset']['identifier'] = 'urn:nice:generated:identifier' # TODO
-        catalog_record_new['research_dataset']['preferred_identifier'] = request.query_params.get('preferred_identifier', None)
+        catalog_record_new['research_dataset']['preferred_identifier'] = request.query_params.get(
+            'preferred_identifier', None)
         catalog_record_new['previous_version_identifier'] = catalog_record_current.identifier
         catalog_record_new['previous_version_id'] = catalog_record_current.id
         catalog_record_new['version_created'] = current_time

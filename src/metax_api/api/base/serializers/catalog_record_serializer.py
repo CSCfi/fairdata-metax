@@ -66,13 +66,15 @@ class CatalogRecordSerializer(CommonSerializer):
 
     def is_valid(self, raise_exception=False):
         if self.initial_data.get('data_catalog', False):
-            self.initial_data['data_catalog'] = self._get_id_from_related_object('data_catalog', self._get_data_catalog_relation)
+            self.initial_data['data_catalog'] = self._get_id_from_related_object(
+                'data_catalog', self._get_data_catalog_relation)
         if self.initial_data.get('contract', False):
             self.initial_data['contract'] = self._get_id_from_related_object('contract', self._get_contract_relation)
 
         self.initial_data.pop('alternate_record_set', None)
 
-        if self._operation_is_update('PATCH') and 'data_catalog' in self.initial_data and 'research_dataset' not in self.initial_data:
+        if self._operation_is_update('PATCH') and 'data_catalog' in self.initial_data \
+                and 'research_dataset' not in self.initial_data:
             # updating data catalog, but not research_dataset. research_dataset
             # is not present, so uniqueness is not checked using the standard flow.
             # here, make sure to validate uniqueness using what is currently saved
@@ -91,7 +93,8 @@ class CatalogRecordSerializer(CommonSerializer):
         instance = super(CatalogRecordSerializer, self).update(instance, validated_data)
 
         # for partial updates research_dataset is not necessarily set
-        files_dict = validated_data.get('research_dataset', None) and validated_data['research_dataset'].get('files', None) or None
+        files_dict = validated_data.get('research_dataset', None) and \
+            validated_data['research_dataset'].get('files', None) or None
 
         if files_dict:
             instance.files.clear()
@@ -319,4 +322,5 @@ class CatalogRecordSerializer(CommonSerializer):
         else:
             schema_prefix = None
 
-        self.json_schema = CommonService.get_json_schema(path.dirname(__file__) + '/../schemas', 'dataset', schema_prefix)
+        self.json_schema = CommonService.get_json_schema(
+            path.dirname(__file__) + '/../schemas', 'dataset', schema_prefix)

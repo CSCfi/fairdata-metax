@@ -74,7 +74,8 @@ class CommonSerializer(ModelSerializer):
             else:
                 # try to look for identifier field in the dict
                 return string_relation_func(identifier_value['identifier'])
-            raise ValidationError({ relation_field: ['Relation dict does not have any fields to identify relation with (id or identifier)'] })
+            raise ValidationError({ relation_field: [
+                'Relation dict does not have any fields to identify relation with (id or identifier)'] })
         else:
             _logger.error('is_valid() field validation for relation %s: unexpected type: %s'
                           % (relation_field, type(identifier_value)))

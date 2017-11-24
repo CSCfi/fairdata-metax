@@ -19,7 +19,6 @@ else:
 
 
 class MockRedisSentinelCache(_RedisCacheClass):
-
     def __init__(self, return_data_after_retries=0, *args, **kwargs):
         self.call_count = 0
         self.return_data_after_retries = return_data_after_retries
@@ -37,7 +36,6 @@ class MockRedisSentinelCache(_RedisCacheClass):
 
 
 class ReferenceDataMixinTests(TestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -80,7 +78,8 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         RDM.get_reference_data(mock_cache)
 
         self._assert_reference_data_ok()
-        self.assertEqual(mock_cache.call_count, return_data_after_retries, 'ref data fetching should have retried a few times before succeeding')
+        self.assertEqual(mock_cache.call_count, return_data_after_retries,
+                         'ref data fetching should have retried a few times before succeeding')
 
     @patch('metax_api.utils.ReferenceDataLoader.populate_cache_reference_data')
     def test_reference_data_reload_in_progress_times_out(self, mock_populate_cache_reference_data):
@@ -139,6 +138,6 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         get_reference_data() will then try to return
         """
         self.cache.set('reference_data', {
-            'reference_data': { 'language': ['stuff'] },
-            'organization_data': { 'organization': ['stuff'] },
+            'reference_data': {'language': ['stuff']},
+            'organization_data': {'organization': ['stuff']},
         })

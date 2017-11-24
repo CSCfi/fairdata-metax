@@ -204,7 +204,8 @@ class DatasetViewSet(CommonViewSet):
             {},
             { 'search_params': { 'research_dataset__contains': {'urn_identifier': lookup_value }} },
             { 'search_params': { 'research_dataset__contains': {'preferred_identifier': lookup_value }} },
-            { 'search_params': { 'research_dataset__contains': {'other_identifier': [{'local_identifier': lookup_value }]}}},
+            { 'search_params': { 'research_dataset__contains':
+                                {'other_identifier': [{'local_identifier': lookup_value }]}}},
         ]
         for params in different_fields:
             try:

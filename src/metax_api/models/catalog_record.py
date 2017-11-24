@@ -38,7 +38,9 @@ class CatalogRecordManager(CommonManager):
             elif row.get('research_dataset', None) and row['research_dataset'].get('urn_identifier', None):
                 kwargs['research_dataset__contains'] = { 'urn_identifier': row['research_dataset']['urn_identifier'] }
             else:
-                raise ValidationError('this operation requires an identifying key to be present: id, or research_dataset ->> urn_identifier')
+                raise ValidationError(
+                    'this operation requires an identifying key to be present: '
+                    'id, or research_dataset ->> urn_identifier')
         return super(CatalogRecordManager, self).get(*args, **kwargs)
 
 
@@ -66,25 +68,56 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_MIDTERM_PAS_REJECTED, 'Midterm PAS rejected'),
     )
 
-    alternate_record_set = models.ForeignKey(AlternateRecordSet, on_delete=models.SET_NULL, null=True, help_text='Records which are duplicates of this record, but in another catalog.', related_name='records')
+    # MODEL FIELD DEFINITIONS #
+
+    alternate_record_set = models.ForeignKey(
+        AlternateRecordSet, on_delete=models.SET_NULL, null=True,
+        help_text='Records which are duplicates of this record, but in another catalog.', related_name='records')
+
     contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
+
     data_catalog = models.ForeignKey(DataCatalog)
-    dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
-    deprecated = models.BooleanField(default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
+
+    dataset_group_edit = models.CharField(
+        max_length=200, blank=True, null=True,
+        help_text='Group which is allowed to edit the dataset in this catalog record.')
+
+    deprecated = models.BooleanField(
+        default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
+
     files = models.ManyToManyField(File)
+
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
+
     owner_id = models.CharField(max_length=200, null=True)
-    preservation_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
-    preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
-    preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
+
+    preservation_description = models.CharField(
+        max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
+
+    preservation_reason_description = models.CharField(
+        max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
+
+    preservation_state = models.IntegerField(
+        choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
+
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
+
     research_dataset = JSONField()
 
-    next_version_id = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True, db_column='next_version_id', related_name='next_version')
+    next_version_id = models.OneToOneField(
+        'self', on_delete=models.DO_NOTHING, null=True, db_column='next_version_id', related_name='next_version')
+
     next_version_identifier = models.CharField(max_length=200, null=True)
-    previous_version_id = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True, db_column='previous_version_id', related_name='previous_version')
+
+    previous_version_id = models.OneToOneField(
+        'self', on_delete=models.DO_NOTHING, null=True, db_column='previous_version_id',
+        related_name='previous_version')
+
     previous_version_identifier = models.CharField(max_length=200, null=True)
+
     version_created = models.DateTimeField(help_text='Date when this version was first created.', null=True)
+
+    # END OF MODEL FIELD DEFINITIONS #
 
     _need_to_execute_post_create_operations = False
 

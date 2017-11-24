@@ -58,7 +58,8 @@ class FileService(CommonService):
         if not isinstance(file_identifiers, list):
             raise Http400('identifiers must be passed as a list')
 
-        _logger.info('Looking datasets for the following files (printing first 10):\n%s' % '\n'.join(str(id) for id in file_identifiers[:10]))
+        _logger.info('Looking datasets for the following files (printing first 10):\n%s'
+                     % '\n'.join(str(id) for id in file_identifiers[:10]))
 
         file_ids = cls._file_identifiers_to_ids(file_identifiers)
 
@@ -167,7 +168,8 @@ class FileService(CommonService):
             if cr.rowcount == 0:
                 raise Http400({ 'detail': ['no files found for given identifiers'] })
             elif cr.rowcount > 1:
-                raise Http400({ 'project_identifier': ['deleting files from more than one project in a single request is not allowed'] })
+                raise Http400({ 'project_identifier': [
+                    'deleting files from more than one project in a single request is not allowed'] })
             project_identifier = cr.fetchone()[0]
 
             cr.execute(sql_delete_files, [tuple(file_ids)])
@@ -368,7 +370,8 @@ class FileService(CommonService):
         except Directory.DoesNotExist:
             raise Http404
         except Directory.MultipleObjectsReturned: # pragma: no cover
-            raise Exception('Directory.MultipleObjectsReturned when looking for root directory. This should never happen')
+            raise Exception(
+                'Directory.MultipleObjectsReturned when looking for root directory. This should never happen')
 
         root_dir_json = DirectorySerializer(root_dir).data
         root_dir_json.update(cls._get_directory_contents(root_dir.id))
@@ -381,7 +384,8 @@ class FileService(CommonService):
         and setting them as parent_directory to approriate files, before creating the files.
         """
         file_list_with_dirs = cls._create_directories_from_file_list(common_info, initial_data_list, **kwargs)
-        return super(FileService, cls)._create_bulk(common_info, file_list_with_dirs, results, serializer_class, **kwargs)
+        return super(FileService, cls)._create_bulk(
+            common_info, file_list_with_dirs, results, serializer_class, **kwargs)
 
     @classmethod
     def _create_directories_from_file_list(cls, common_info, initial_data_list, **kwargs):
@@ -429,7 +433,8 @@ class FileService(CommonService):
             if 'file_path' not in row:
                 errors['file_path'] = ['file_path is a required parameter (file id: %s)' % row['identifier']]
             if 'project_identifier' not in row:
-                errors['project_identifier'] = ['project_identifier is a required parameter (file id: %s)' % row['identifier']]
+                errors['project_identifier'] = ['project_identifier is a required parameter (file id: %s)'
+                                                % row['identifier']]
 
             if errors:
                 raise Http400(errors)
@@ -462,7 +467,7 @@ class FileService(CommonService):
                 return
 
             if emergency_break < 0: # pragma: no cover
-                raise Exception('emergency_break reached while creating leading dirs, should (probably) never happen...')
+                raise Exception('emergency_break reached while creating leading dirs, should (probably) never happen..')
 
             emergency_break -= 1
 
@@ -484,7 +489,8 @@ class FileService(CommonService):
                 'directory_path': path,
                 'directory_name': basename(path),
                 # identifier: uuid3 as hex, using as salt time in ms, idx of loop, and python process id
-                'identifier': uuid3(UUID_NAMESPACE_DNS, '%d%d%s' % (int(round(time() * 1000)), i, python_process_pid)).hex,
+                'identifier': uuid3(UUID_NAMESPACE_DNS, '%d%d%s'
+                                    % (int(round(time() * 1000)), i, python_process_pid)).hex,
                 'project_identifier': project_identifier
             }
 
@@ -578,6 +584,7 @@ class FileService(CommonService):
         except Directory.DoesNotExist:
             return None
         except Directory.MultipleObjectsReturned:
-            raise ValidationError({ 'parent_directory': ['multiple directories found when looking for parent (looked for path: %s)' % parent_dir_path]} )
+            raise ValidationError({ 'parent_directory': [
+                'multiple directories found when looking for parent (looked for path: %s)' % parent_dir_path]} )
 
         return { 'directory_path': parent_dir.directory_path, 'id': parent_dir.id }

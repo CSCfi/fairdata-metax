@@ -13,7 +13,6 @@ d = print
 
 
 class FileApiWriteCommon(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -66,7 +65,6 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
 
 
 class FileApiWriteCreateTests(FileApiWriteCommon):
-
     #
     #
     #
@@ -92,7 +90,8 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         # second should give error
         response = self.client.post('/rest/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('identifier' in response.data.keys(), True, 'The error should be about an already existing identifier')
+        self.assertEqual('identifier' in response.data.keys(), True,
+                         'The error should be about an already existing identifier')
 
     def test_create_file_error_json_validation(self):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
@@ -108,9 +107,12 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         response = self.client.post('/rest/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('file_characteristics' in response.data.keys(), True, 'The error should concern the field file_characteristics')
-        self.assertEqual('metadata_modified' in response.data['file_characteristics'][0], True, 'The error should contain the name of the erroneous field')
-        self.assertEqual('Json path:' in response.data['file_characteristics'][0], True, 'The error should contain the json path')
+        self.assertEqual('file_characteristics' in response.data.keys(), True,
+                         'The error should concern the field file_characteristics')
+        self.assertEqual('metadata_modified' in response.data['file_characteristics'][0], True,
+                         'The error should contain the name of the erroneous field')
+        self.assertEqual('Json path:' in response.data['file_characteristics'][0], True,
+                         'The error should contain the json path')
 
     def test_create_file_dont_allow_file_storage_fields_update(self):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
@@ -172,7 +174,8 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.assertEqual('failed' in response.data.keys(), True)
         self.assertEqual('object' in response.data['failed'][0].keys(), True)
         self.assertEqual('file_name' in response.data['failed'][0]['object'].keys(), True)
-        self.assertEqual('identifier' in response.data['failed'][0]['errors'], True, 'The error should have been about an already existing identifier')
+        self.assertEqual('identifier' in response.data['failed'][0]['errors'], True,
+                         'The error should have been about an already existing identifier')
 
     def test_create_file_list_error_all_fail(self):
         newly_created_file_name = 'newly_created_file_name'
@@ -191,7 +194,6 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
 
 
 class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
-
     """
     Only checking directories related stuff in these tests
     """
@@ -233,7 +235,8 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         experiment_2_file_list = self._form_complex_list_from_test_file()
 
         for i, f in enumerate(experiment_2_file_list):
-            f['file_path'] = f['file_path'].replace('/project_y_FROZEN/Experiment_1', '/project_y_FROZEN/Experiment_2/Phase_1/Data')
+            f['file_path'] = f['file_path'].replace('/project_y_FROZEN/Experiment_1',
+                                                    '/project_y_FROZEN/Experiment_2/Phase_1/Data')
             f['identifier'] = '%s-%d' % (f['file_path'], i)
 
         response = self.client.post('/rest/files', experiment_2_file_list, format="json")
@@ -268,14 +271,16 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         dirs_dict = {}
 
         for d in Directory.objects.filter(project_identifier=project_identifier):
-            dirs_dict[d.directory_path] = { 'dir_id': d.id, 'parent_dir_id': d.parent_directory and d.parent_directory.id or None }
+            dirs_dict[d.directory_path] = {'dir_id': d.id,
+                                           'parent_dir_id': d.parent_directory and d.parent_directory.id or None}
 
         for dir_path, ids in dirs_dict.items():
             if dir_path.endswith('FROZEN'):
                 self.assertEqual(ids['parent_dir_id'], None, 'FROZEN root dir should not have a parent directory')
                 continue
             expected_parent_dir_path = dirname(dir_path)
-            self.assertEqual(ids['parent_dir_id'], dirs_dict[expected_parent_dir_path]['dir_id'], 'parent dir not as expected.')
+            self.assertEqual(ids['parent_dir_id'], dirs_dict[expected_parent_dir_path]['dir_id'],
+                             'parent dir not as expected.')
 
         return dirs_dict
 
@@ -286,7 +291,8 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         for entry in response.data['success']:
             f = entry['object']
             excpected_parent_dir_path = dirname(f['file_path'])
-            self.assertEqual(f['parent_directory']['id'], dirs_dict[excpected_parent_dir_path]['dir_id'], 'parent dir not as expected.')
+            self.assertEqual(f['parent_directory']['id'], dirs_dict[excpected_parent_dir_path]['dir_id'],
+                             'parent dir not as expected.')
 
     def _form_complex_list_from_test_file(self):
         """
@@ -351,8 +357,8 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
 
         return files
 
-class FileApiWriteUpdateTests(FileApiWriteCommon):
 
+class FileApiWriteUpdateTests(FileApiWriteCommon):
     """
     update operations PUT
     """
@@ -371,7 +377,8 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('project_identifier' in response.data.keys(), True, 'Error for field \'project_identifier\' is missing from response.data')
+        self.assertEqual('project_identifier' in response.data.keys(), True,
+                         'Error for field \'project_identifier\' is missing from response.data')
 
     def test_update_file_dont_allow_file_storage_fields_update(self):
         original_title = self.test_new_data['file_storage']['file_storage_json']['title']
@@ -419,10 +426,12 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
-        self.assertEqual('file_frozen' in response.data['failed'][0]['errors'], True, 'error should be about file_characteristics missing')
+        self.assertEqual('file_frozen' in response.data['failed'][0]['errors'], True,
+                         'error should be about file_characteristics missing')
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update for first item')
+        self.assertEqual(updated_file.project_identifier, new_project_identifier,
+                         'project_identifier did not update for first item')
 
     def test_file_update_list_error_key_not_found(self):
         new_project_identifier = 'changed-project-identifier'
@@ -440,14 +449,15 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
         error_msg_of_failed_row = response.data['failed'][0]['errors']['detail'][0]
-        self.assertEqual('identifying keys' in error_msg_of_failed_row, True, 'error should be about identifying keys missing')
+        self.assertEqual('identifying keys' in error_msg_of_failed_row, True,
+                         'error should be about identifying keys missing')
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update for first item')
+        self.assertEqual(updated_file.project_identifier, new_project_identifier,
+                         'project_identifier did not update for first item')
 
 
 class FileApiWritePartialUpdateTests(FileApiWriteCommon):
-
     """
     update operations PATCH
     """
@@ -483,14 +493,14 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data, True, 'response.data should contain list of changed objects')
         self.assertEqual(len(response.data['success']), 2, 'response.data should contain 2 changed objects')
-        self.assertEqual('file_characteristics' in response.data['success'][0]['object'], True, 'response.data should contain full objects')
+        self.assertEqual('file_characteristics' in response.data['success'][0]['object'], True,
+                         'response.data should contain full objects')
 
         updated_file = File.objects.get(pk=1)
         self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update')
 
 
 class FileApiWriteDeleteTests(FileApiWriteCommon):
-
     #
     #
     #
@@ -519,7 +529,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         allowed.
         """
         all_files_count_before = File.objects.all().count()
-        file_ids = [ f.id for f in Directory.objects.get(pk=2).files.all() ]
+        file_ids = [f.id for f in Directory.objects.get(pk=2).files.all()]
 
         response = self._request_with_manual_rollback(file_ids)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -533,7 +543,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         Should raise error.
         """
         all_files_count_before = File.objects.all().count()
-        file_ids = [ f.id for f in File.objects.filter(project_identifier='project_x') ]
+        file_ids = [f.id for f in File.objects.filter(project_identifier='project_x')]
 
         # a file will be found in one dir
         file_ids.pop(len(file_ids) - 1)
@@ -560,7 +570,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self._assert_files_available_and_removed('project_x', 0, files_to_remove_count)
 
         self.assertEqual(Directory.objects_unfiltered.filter(project_identifier='project_x').count(), 0,
-            'all dirs should have been permanently removed')
+                         'all dirs should have been permanently removed')
 
     def test_bulk_delete_sub_directory_1(self):
         """
@@ -568,8 +578,8 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         only 15 files.
         """
         files_to_remove_count = 15
-        file_ids = [ f.id for f in Directory.objects.get(pk=3).files.all() ]
-        file_ids += [ f.id for f in Directory.objects.get(pk=5).files.all() ]
+        file_ids = [f.id for f in Directory.objects.get(pk=3).files.all()]
+        file_ids += [f.id for f in Directory.objects.get(pk=5).files.all()]
         self.assertEqual(len(file_ids), files_to_remove_count)
 
         response = self.client.delete('/rest/files', file_ids, format="json")
@@ -589,7 +599,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         remove only 10 files.
         """
         files_to_remove_count = 10
-        file_ids = [ f.id for f in Directory.objects.get(pk=5).files.all() ]
+        file_ids = [f.id for f in Directory.objects.get(pk=5).files.all()]
         self.assertEqual(len(file_ids), files_to_remove_count)
 
         response = self.client.delete('/rest/files', file_ids, format="json")
@@ -617,9 +627,10 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         and qty of files retrievable from objects_unfiltered with removed=True is as expected.
         """
         self.assertEqual(File.objects.filter(project_identifier=project_identifier).count(), available,
-            'files should not be retrievable from removed=False scope')
-        self.assertEqual(File.objects_unfiltered.filter(project_identifier=project_identifier, removed=True).count(), removed,
-            'files should be retrievable from removed=True scope')
+                         'files should not be retrievable from removed=False scope')
+        self.assertEqual(File.objects_unfiltered.filter(project_identifier=project_identifier, removed=True).count(),
+                         removed,
+                         'files should be retrievable from removed=True scope')
 
     def _request_with_manual_rollback(self, file_ids):
         try:
@@ -634,7 +645,6 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
 
 
 class FileApiWriteXmlTests(FileApiWriteCommon):
-
     """
     /files/pid/xml related tests
     """

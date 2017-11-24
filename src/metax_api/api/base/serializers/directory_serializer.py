@@ -39,7 +39,8 @@ class DirectorySerializer(CommonSerializer):
 
     def is_valid(self, raise_exception=False):
         if 'parent_directory' in self.initial_data:
-            self.initial_data['parent_directory'] = self._get_id_from_related_object('parent_directory', self._get_parent_directory_relation)
+            self.initial_data['parent_directory'] = self._get_id_from_related_object(
+                'parent_directory', self._get_parent_directory_relation)
         super(DirectorySerializer, self).is_valid(raise_exception=raise_exception)
 
     def validate_directory_path(self, value):
@@ -57,7 +58,7 @@ class DirectorySerializer(CommonSerializer):
 
         if dir_exists_in_project_scope:
             raise ValidationError([
-                'directory path %s already exists in project %s scope. are you trying to freeze the same directory again?'
+                'directory path %s already exists in project %s scope. Are you trying to freeze same directory again?'
                 % (self.initial_data['directory_path'], self.initial_data['project_identifier'])
             ])
 

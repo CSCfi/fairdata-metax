@@ -8,7 +8,6 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
 class FileApiReadCommon(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -25,7 +24,6 @@ class FileApiReadCommon(APITestCase, TestClassUtils):
 
 
 class FileApiReadBasicTests(FileApiReadCommon):
-
     def test_read_file_list(self):
         response = self.client.get('/rest/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

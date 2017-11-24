@@ -5,8 +5,8 @@ from metax_api.tests.utils import TestClassUtils
 
 FORBIDDEN = status.HTTP_403_FORBIDDEN
 
-class ApiAuthnzTestV1(APITestCase, TestClassUtils):
 
+class ApiAuthnzTestV1(APITestCase, TestClassUtils):
     """
     Test use of HTTP Authorization header for authnz for POST, PUT, PATCH and
     DELETE requests. API caller identification is performed as the first step
