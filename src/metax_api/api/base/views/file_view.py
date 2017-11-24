@@ -59,8 +59,8 @@ class FileViewSet(CommonViewSet):
         urn_identifiers as a list.
 
         The method is invoked using POST, because there are limits to length of query
-        parameters in GET. Also, some clients forcibly shove parameters in body to query
-        parameters, so using POST instead is more guaranteed to work.
+        parameters in GET. Also, some clients forcibly shove parameters in body in GET
+        requests to query parameters, so using POST instead is more guaranteed to work.
         """
         return FileService.get_datasets_where_file_belongs_to(request.data)
 
