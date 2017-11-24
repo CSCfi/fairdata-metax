@@ -1,8 +1,8 @@
 import logging
 
-from metax_api.models import Directory
 from rest_framework.serializers import ValidationError
 
+from metax_api.models import Directory
 from .common_serializer import CommonSerializer
 
 _logger = logging.getLogger(__name__)

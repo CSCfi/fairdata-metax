@@ -14,6 +14,7 @@ import logging.config
 import os
 
 import yaml
+
 from metax_api.utils import executing_test_case, executing_travis
 
 executing_in_travis = executing_travis()

@@ -6,13 +6,13 @@ from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
 from django.db import connection
 from django.http import Http404
-from metax_api.exceptions import Http400
-from metax_api.models import CatalogRecord, Directory, File
-from metax_api.utils import RabbitMQ
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
+from metax_api.exceptions import Http400
+from metax_api.models import CatalogRecord, Directory, File
+from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 
 _logger = logging.getLogger(__name__)

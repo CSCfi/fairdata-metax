@@ -2,13 +2,14 @@ import logging
 from os import path
 
 from django.http import Http404
-from metax_api.services import CommonService as CS
-from metax_api.utils import RabbitMQ, RedisSentinelCache
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+
+from metax_api.services import CommonService as CS
+from metax_api.utils import RabbitMQ, RedisSentinelCache
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug

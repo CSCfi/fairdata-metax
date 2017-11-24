@@ -2,11 +2,12 @@ from datetime import timedelta
 
 from django.core.management import call_command
 from django.utils import timezone
-from metax_api.models import CatalogRecord
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from pytz import timezone as tz
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from metax_api.models import CatalogRecord
+from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
 class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):

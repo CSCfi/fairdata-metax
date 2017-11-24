@@ -1,11 +1,12 @@
 from datetime import timedelta
 
 from django.core.management import call_command
+from rest_framework import status
+from rest_framework.test import APITestCase
+
 from metax_api.models import AlternateRecordSet, CatalogRecord, DataCatalog
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import RedisSentinelCache, get_tz_aware_now_without_micros
-from rest_framework import status
-from rest_framework.test import APITestCase
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):

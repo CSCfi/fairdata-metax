@@ -2,10 +2,11 @@ import logging
 from json import load as json_load
 
 from django.utils import timezone
-from metax_api.exceptions import Http400, Http412
-from metax_api.utils import parse_http_timestamp_to_tz_aware_datetime, get_tz_aware_now_without_micros
 from rest_framework import status
 from rest_framework.serializers import ValidationError
+
+from metax_api.exceptions import Http400, Http412
+from metax_api.utils import parse_http_timestamp_to_tz_aware_datetime, get_tz_aware_now_without_micros
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug

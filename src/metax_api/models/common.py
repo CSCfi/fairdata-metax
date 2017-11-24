@@ -1,6 +1,6 @@
-from dateutil import parser
 from time import time
 
+from dateutil import parser
 from django.core.exceptions import FieldError
 from django.db import models
 

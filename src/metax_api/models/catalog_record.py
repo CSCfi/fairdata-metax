@@ -1,8 +1,8 @@
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
-from metax_api.utils import get_tz_aware_now_without_micros
 from rest_framework.serializers import ValidationError
 
+from metax_api.utils import get_tz_aware_now_without_micros
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog

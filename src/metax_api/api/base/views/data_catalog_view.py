@@ -1,11 +1,11 @@
 import logging
 
 from django.http import Http404
-from metax_api.models import DataCatalog
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from metax_api.models import DataCatalog
 from .common_view import CommonViewSet
 from ..serializers import DataCatalogSerializer
 
