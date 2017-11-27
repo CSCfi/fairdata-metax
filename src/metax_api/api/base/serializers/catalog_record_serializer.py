@@ -274,7 +274,7 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._operation_is_update() and 'data_catalog' in self.initial_data:
             dc = self.initial_data['data_catalog']
             if isinstance(dc, int):
-                return dc != self.instance.id
+                return dc != self.instance.data_catalog.id
             elif isinstance(dc, str):
                 return dc != self.instance.catalog_json['identifier']
             elif isinstance(dc, dict):
