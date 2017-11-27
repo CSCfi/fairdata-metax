@@ -73,10 +73,8 @@ class CatalogRecordSerializer(CommonSerializer):
 
         self.initial_data.pop('alternate_record_set', None)
 
-        if self._operation_is_update('PATCH') and 'data_catalog' in self.initial_data \
-                and 'research_dataset' not in self.initial_data:
-            # updating data catalog, but not research_dataset. research_dataset
-            # is not present, so uniqueness is not checked using the standard flow.
+        if self._data_catalog_is_changed():
+            # updating data catalog, but not necessarily research_dataset.
             # here, make sure to validate uniqueness using what is currently saved
             # in the database, and what the data catalog is being changed to.
             self._validate_research_dataset_uniqueness(self.instance.research_dataset)
@@ -267,6 +265,22 @@ class CatalogRecordSerializer(CommonSerializer):
             return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=1)
         else:
             return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id)
+
+    def _data_catalog_is_changed(self):
+        """
+        Check if data_catalog of the record is being changed. Used to decide if
+        preferred_identifier uniqueness should be checked in certain situations.
+        """
+        if self._operation_is_update() and 'data_catalog' in self.initial_data:
+            dc = self.initial_data['data_catalog']
+            if isinstance(dc, int):
+                return dc != self.instance.id
+            elif isinstance(dc, str):
+                return dc != self.instance.catalog_json['identifier']
+            elif isinstance(dc, dict):
+                return dc['identifier'] != self.instance.catalog_json['identifier']
+            else: # pragma: no cover
+                raise ValidationError({ 'detail': ['cant figure out the type of data_catalog'] })
 
     def _preferred_identifier_is_changed(self):
         """
