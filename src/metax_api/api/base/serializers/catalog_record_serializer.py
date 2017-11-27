@@ -73,10 +73,8 @@ class CatalogRecordSerializer(CommonSerializer):
 
         self.initial_data.pop('alternate_record_set', None)
 
-        if self._operation_is_update('PATCH') and 'data_catalog' in self.initial_data \
-                and 'research_dataset' not in self.initial_data:
-            # updating data catalog, but not research_dataset. research_dataset
-            # is not present, so uniqueness is not checked using the standard flow.
+        if self._data_catalog_is_changed():
+            # updating data catalog, but not necessarily research_dataset.
             # here, make sure to validate uniqueness using what is currently saved
             # in the database, and what the data catalog is being changed to.
             self._validate_research_dataset_uniqueness(self.instance.research_dataset)
@@ -126,7 +124,8 @@ class CatalogRecordSerializer(CommonSerializer):
 
     def validate_research_dataset(self, value):
         self._validate_json_schema(value)
-        self._validate_research_dataset_uniqueness(value)
+        if self._operation_is_create() or self._preferred_identifier_is_changed():
+            self._validate_research_dataset_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
         return value
 
@@ -266,6 +265,39 @@ class CatalogRecordSerializer(CommonSerializer):
             return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=1)
         else:
             return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id)
+
+    def _data_catalog_is_changed(self):
+        """
+        Check if data_catalog of the record is being changed. Used to decide if
+        preferred_identifier uniqueness should be checked in certain situations.
+        """
+        if self._operation_is_update() and 'data_catalog' in self.initial_data:
+            dc = self.initial_data['data_catalog']
+            if isinstance(dc, int):
+                return dc != self.instance.data_catalog.id
+            elif isinstance(dc, str):
+                return dc != self.instance.catalog_json['identifier']
+            elif isinstance(dc, dict):
+                return dc['identifier'] != self.instance.catalog_json['identifier']
+            else: # pragma: no cover
+                raise ValidationError({ 'detail': ['cant figure out the type of data_catalog'] })
+
+    def _preferred_identifier_is_changed(self):
+        """
+        Check if preferred_identifier is being updated in the current request or not.
+
+        For PUT, all fields are always present, so checking is easy. for PATCH, first check
+        if the field is even present, and only then check if it being changed.
+        """
+        if self._operation_is_update('PUT'):
+            return self.initial_data['research_dataset']['preferred_identifier'] \
+                != self.instance.research_dataset['preferred_identifier']
+        elif self._operation_is_update('PATCH'):
+            if 'preferred_identifier' in self.initial_data['research_dataset']:
+                return self.initial_data['research_dataset']['preferred_identifier'] \
+                    != self.instance.research_dataset['preferred_identifier']
+        else:
+            return False
 
     def _saving_to_att_catalog(self):
         if 'data_catalog' in self.initial_data:
