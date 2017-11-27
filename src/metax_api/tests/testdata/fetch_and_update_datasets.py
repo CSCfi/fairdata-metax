@@ -48,8 +48,7 @@ def retrieve_and_update_all_datasets_in_db():
     print('retrieving details of datasets...')
 
     for urn in response.json():
-        response = requests.get('https://localhost/rest/datasets/%s' % urn,
-            headers=headers, verify=False)
+        response = requests.get('https://localhost/rest/datasets/%s' % urn, headers=headers, verify=False)
 
         if response.status_code == 200:
             records.append(response.json())
@@ -59,14 +58,14 @@ def retrieve_and_update_all_datasets_in_db():
             raise Exception(response.content)
 
     print('updating %d datasets using bulk update...' % count)
+    response = requests.put('https://localhost/rest/datasets', headers=headers, data=dumps(records), verify=False)
 
-    http = urllib3.PoolManager()
-    response = http.urlopen('PUT', 'https://localhost/rest/datasets', headers=headers,
-        body=dumps(records))
-
-    if response.status not in (200, 201, 204):
-        print(response.status)
-        raise Exception(response.data)
+    if response.status_code not in (200, 201, 204):
+        print(response.status_code)
+        raise Exception(response.text)
+    elif response.text and len(response.json().get('failed', [])) > 0:
+        for fail in response.json().get('failed'):
+            raise Exception(fail)
     else:
         print('-- done --')
 
