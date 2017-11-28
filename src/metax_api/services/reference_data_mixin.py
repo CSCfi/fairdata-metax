@@ -143,3 +143,11 @@ class ReferenceDataMixin():
 
         elif agent_obj.get('@type') == 'Organization':
             cls.process_org_obj_against_ref_data(orgdata, agent_obj, agent_obj_relation_name)
+
+    @classmethod
+    def remove_language_obj_irrelevant_titles(cls, lang_obj, title_label_field):
+        title_obj = lang_obj.get(title_label_field, None)
+        if title_obj:
+            to_delete = set(title_obj.keys()).difference(['fi', 'sv', 'en', 'und'])
+            for d in to_delete:
+                del title_obj[d]
