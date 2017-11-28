@@ -30,7 +30,9 @@ class DataCatalogService(ReferenceDataMixin):
             ref_entry = cls.check_ref_data(refdata['language'], language['identifier'],
                                            'data_catalog_json.language.identifier', errors)
             if ref_entry:
-                cls.populate_from_ref_data(ref_entry, language, label_field='title')
+                label_field = 'title'
+                cls.populate_from_ref_data(ref_entry, language, label_field=label_field)
+                cls.remove_language_obj_irrelevant_titles(language, label_field)
 
         for fos in data_catalog.get('field_of_science', []):
             ref_entry = cls.check_ref_data(refdata['field_of_science'], fos['identifier'],

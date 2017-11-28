@@ -244,7 +244,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             ref_entry = cls.check_ref_data(refdata['language'], language['identifier'],
                                            'research_dataset.language.identifier', errors)
             if ref_entry:
-                cls.populate_from_ref_data(ref_entry, language, label_field='title')
+                label_field = 'title'
+                cls.populate_from_ref_data(ref_entry, language, label_field=label_field)
+                cls.remove_language_obj_irrelevant_titles(language, label_field)
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
