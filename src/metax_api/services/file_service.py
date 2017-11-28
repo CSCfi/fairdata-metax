@@ -186,7 +186,16 @@ class FileService(CommonService):
         _logger.info('Deleting directories of deleted files...')
 
         # get all parent directories of deleted files, and check that they are all really empty
-        dirs_of_deleted_files = Directory.objects.filter(files__in=file_ids)
+        sql_select_dirs_of_deleted_files = '''
+            select d.id, directory_path
+            from metax_api_directory d
+            left join metax_api_file f on f.parent_directory_id = d.id
+            where f.removed = true and f.id in %s
+            group by d.id, directory_path
+            order by directory_path asc
+            '''
+
+        dirs_of_deleted_files = Directory.objects.raw(sql_select_dirs_of_deleted_files, [tuple(file_ids)])
 
         try:
             # find the top-most directory, so that any possible empty directory chains
@@ -383,6 +392,7 @@ class FileService(CommonService):
         Override the original _create_bulk from CommonService to also create directories,
         and setting them as parent_directory to approriate files, before creating the files.
         """
+        cls._check_errors_before_creating_dirs(initial_data_list)
         file_list_with_dirs = cls._create_directories_from_file_list(common_info, initial_data_list, **kwargs)
         return super(FileService, cls)._create_bulk(
             common_info, file_list_with_dirs, results, serializer_class, **kwargs)
@@ -394,7 +404,6 @@ class FileService(CommonService):
         as separate entities in the request, so they have to be created based on the
         paths in the list of files.
         """
-        cls._check_errors_before_creating_dirs(initial_data_list)
 
         # all required dirs that are related to anything (files and other directories) during
         # this create-request, will be placed in the below dict for quick access.
