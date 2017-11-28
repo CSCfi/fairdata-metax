@@ -88,7 +88,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 {'curator': [{ 'identifier': request.query_params['curator']}]}
 
         if request.query_params.get('owner_id', False):
-            queryset_search_params['owner_id'] = request.query_params['owner_id']
+            queryset_search_params['editor__contains'] = { 'owner_id': request.query_params['owner_id'] }
 
         if request.query_params.get('created_by_user_id', False):
             queryset_search_params['created_by_user_id'] = request.query_params['created_by_user_id']

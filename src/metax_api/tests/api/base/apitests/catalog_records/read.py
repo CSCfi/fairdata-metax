@@ -190,12 +190,12 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
 
     def test_read_catalog_record_search_by_owner_id(self):
         cr = CatalogRecord.objects.get(pk=1)
-        cr.owner_id = '123'
+        cr.editor = { 'owner_id': '123' }
         cr.save()
         response = self.client.get('/rest/datasets?owner_id=123')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['owner_id'], '123')
+        self.assertEqual(response.data['results'][0]['editor']['owner_id'], '123')
 
     def test_read_catalog_record_search_by_creator_id(self):
         cr = CatalogRecord.objects.get(pk=1)

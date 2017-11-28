@@ -90,11 +90,10 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "owner_id":{
-                    "title":"Owner id",
-                    "description":"User id of the person who owns this record",
-                    "maxItems":1,
-                    "type":"string"
+                "editor":{
+                    "title":"Editor",
+                    "description":"The editor that is used to modify the record.",
+                    "type":"object"
                 },
                 "modified_by_api":{
                     "title":"Date Modified",
@@ -128,6 +127,26 @@
             "required":[
                 "data_catalog",
                 "research_dataset"
+            ]
+        },
+        "Editor":{
+            "title":"Editor",
+            "description":"An editor object, holds information related to an editor that is used to modify the record. Can contain other fields that are useful to the editor.",
+            "properties":{
+                "owner_id":{
+                    "title":"Owner id",
+                    "description":"Id of the owner in the editor",
+                    "type":"string"
+                },
+                "identifier":{
+                    "title":"identifier",
+                    "description":"Id of the editor, for example: qvain",
+                    "type":"string"
+                }
+            },
+            "required":[
+                "owner_id",
+                "identifier",
             ]
         }
     }

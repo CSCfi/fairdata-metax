@@ -35,7 +35,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'previous_version_id',
             'previous_version_identifier',
             'version_created',
-            'owner_id',
+            'editor',
             'modified_by_user_id',
             'modified_by_api',
             'created_by_user_id',
