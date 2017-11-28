@@ -465,7 +465,7 @@ class FileService(CommonService):
         """
         emergency_break = 1000
         upper_dir = dirname(unique_dir_paths[0])
-        while len(upper_dir) > 1:
+        while True:
             unique_dir_paths.insert(0, upper_dir)
 
             # it is possible we only had to create one or some dirs in the middle, to find an
@@ -473,6 +473,9 @@ class FileService(CommonService):
             root_dir = cls._check_if_parent_already_exists(upper_dir, project_identifier)
             if root_dir:
                 created_dirs[root_dir['directory_path']] = root_dir['id']
+                return
+
+            if upper_dir == '/':
                 return
 
             if emergency_break < 0: # pragma: no cover
@@ -496,7 +499,7 @@ class FileService(CommonService):
 
             directory = {
                 'directory_path': path,
-                'directory_name': basename(path),
+                'directory_name': basename(path) if path != '/' else '/',
                 # identifier: uuid3 as hex, using as salt time in ms, idx of loop, and python process id
                 'identifier': uuid3(UUID_NAMESPACE_DNS, '%d%d%s'
                                     % (int(round(time() * 1000)), i, python_process_pid)).hex,
@@ -581,12 +584,11 @@ class FileService(CommonService):
         exists in project scope'. Currently that scenario shouldn't be possible, so it isn't
         supported.
         """
-        parent_dir_path = dirname(directory_path)
-
-        if len(parent_dir_path) == 1:
-            # -> dir is something like /my_project_FROZEN,
-            # which cant have a parent
+        if directory_path == '/':
+            # cant have a parent
             return None
+
+        parent_dir_path = dirname(directory_path)
 
         try:
             parent_dir = Directory.objects.get(project_identifier=project_identifier, directory_path=parent_dir_path)
