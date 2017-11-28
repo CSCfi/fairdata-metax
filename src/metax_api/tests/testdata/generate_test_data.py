@@ -241,15 +241,14 @@ def create_parent_directory_for_path(directories, file_path, directory_test_data
     """
     Recursively creates the requested directories for file_path
     """
-    if len(file_path) <= 1:
-        # root frozen dir which does not require a directory
-        return None
-
     with open('directory_test_data_template.json') as json_file:
         row_template = json_load(json_file)
 
-    # the directory where a file or dir belongs to, must be retrieved or created first
-    directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list)
+    if file_path == '/':
+        directory_id = None
+    else:
+        # the directory where a file or dir belongs to, must be retrieved or created first
+        directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list)
 
     # all parent dirs have been created - now create the dir that was originally asked for
 

@@ -49,23 +49,16 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
         """
         Test browsing files
         """
-        response = self.client.get('/rest/directories/1/files')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['directories']), 1)
-        self.assertEqual(response.data['directories'][0]['id'], 2)
-        self.assertEqual(response.data['directories'][0]['parent_directory']['id'], 1)
-        self.assertEqual(len(response.data['files']), 0)
-
         response = self.client.get('/rest/directories/2/files')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['directories']), 1)
         self.assertEqual(response.data['directories'][0]['id'], 3)
         self.assertEqual(response.data['directories'][0]['parent_directory']['id'], 2)
-        self.assertEqual(len(response.data['files']), 5)
-        self.assertEqual(response.data['files'][0]['parent_directory']['id'], 2)
-        self.assertEqual(response.data['files'][4]['parent_directory']['id'], 2)
+        self.assertEqual(len(response.data['files']), 0)
 
         response = self.client.get('/rest/directories/3/files')
         self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(response.data['directories'][0]['id'], 4)
         self.assertEqual(response.data['directories'][0]['parent_directory']['id'], 3)
         self.assertEqual(len(response.data['files']), 5)
         self.assertEqual(response.data['files'][0]['parent_directory']['id'], 3)
@@ -73,41 +66,48 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
 
         response = self.client.get('/rest/directories/4/files')
         self.assertEqual(len(response.data['directories']), 1)
-        self.assertEqual(len(response.data['files']), 0)
+        self.assertEqual(response.data['directories'][0]['parent_directory']['id'], 4)
+        self.assertEqual(len(response.data['files']), 5)
+        self.assertEqual(response.data['files'][0]['parent_directory']['id'], 4)
+        self.assertEqual(response.data['files'][4]['parent_directory']['id'], 4)
 
         response = self.client.get('/rest/directories/5/files')
+        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(len(response.data['files']), 0)
+
+        response = self.client.get('/rest/directories/6/files')
         self.assertEqual(len(response.data['directories']), 0)
         self.assertEqual(len(response.data['files']), 10)
-        self.assertEqual(response.data['files'][0]['parent_directory']['id'], 5)
-        self.assertEqual(response.data['files'][9]['parent_directory']['id'], 5)
+        self.assertEqual(response.data['files'][0]['parent_directory']['id'], 6)
+        self.assertEqual(response.data['files'][9]['parent_directory']['id'], 6)
 
     def test_read_directory_get_files_recursively(self):
         """
         Test query parameter 'recursive'.
         """
 
-        # dir id 1 contains 0 files, but recursively 20
+        # dir id 1 (the root) contains 0 files, but recursively 20
         response = self.client.get('/rest/directories/1/files?recursive')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 20)
 
-        # dir id 2 contains 5 files, but recursively 20
-        response = self.client.get('/rest/directories/2/files?recursive')
+        # dir id 3 contains 5 files, but recursively 20
+        response = self.client.get('/rest/directories/3/files?recursive')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 20)
 
-        # dir id 3 contains 5 files, but recursively 15
-        response = self.client.get('/rest/directories/3/files?recursive')
+        # dir id 4 contains 5 files, but recursively 15
+        response = self.client.get('/rest/directories/4/files?recursive')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 15)
 
-        # dir id 4 contains 0 files
-        response = self.client.get('/rest/directories/4/files?recursive')
+        # dir id 5 contains 0 files
+        response = self.client.get('/rest/directories/5/files?recursive')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 10)
 
-        # dir id 5 contains 10 files
-        response = self.client.get('/rest/directories/5/files?recursive')
+        # dir id 6 contains 10 files
+        response = self.client.get('/rest/directories/6/files?recursive')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 10)
 

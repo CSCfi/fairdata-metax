@@ -275,8 +275,8 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
                                            'parent_dir_id': d.parent_directory and d.parent_directory.id or None}
 
         for dir_path, ids in dirs_dict.items():
-            if dir_path.endswith('FROZEN'):
-                self.assertEqual(ids['parent_dir_id'], None, 'FROZEN root dir should not have a parent directory')
+            if dir_path == '/':
+                self.assertEqual(ids['parent_dir_id'], None, 'root dir \'/\' should not have a parent directory')
                 continue
             expected_parent_dir_path = dirname(dir_path)
             self.assertEqual(ids['parent_dir_id'], dirs_dict[expected_parent_dir_path]['dir_id'],
@@ -529,7 +529,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         allowed.
         """
         all_files_count_before = File.objects.all().count()
-        file_ids = [f.id for f in Directory.objects.get(pk=2).files.all()]
+        file_ids = [f.id for f in Directory.objects.get(pk=3).files.all()]
 
         response = self._request_with_manual_rollback(file_ids)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -578,8 +578,8 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         only 15 files.
         """
         files_to_remove_count = 15
-        file_ids = [f.id for f in Directory.objects.get(pk=3).files.all()]
-        file_ids += [f.id for f in Directory.objects.get(pk=5).files.all()]
+        file_ids = [f.id for f in Directory.objects.get(pk=4).files.all()]
+        file_ids += [f.id for f in Directory.objects.get(pk=6).files.all()]
         self.assertEqual(len(file_ids), files_to_remove_count)
 
         response = self.client.delete('/rest/files', file_ids, format="json")
@@ -589,9 +589,10 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self._assert_files_available_and_removed('project_x', 5, files_to_remove_count)
 
         # these dirs should still be left:
+        # /
         # /project_x_FROZEN
         # /project_x_FROZEN/Experiment_X (has 5 files)
-        self.assertEqual(Directory.objects.filter(project_identifier='project_x').count(), 2)
+        self.assertEqual(Directory.objects.filter(project_identifier='project_x').count(), 3)
 
     def test_bulk_delete_sub_directory_2(self):
         """
@@ -599,7 +600,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         remove only 10 files.
         """
         files_to_remove_count = 10
-        file_ids = [f.id for f in Directory.objects.get(pk=5).files.all()]
+        file_ids = [f.id for f in Directory.objects.get(pk=6).files.all()]
         self.assertEqual(len(file_ids), files_to_remove_count)
 
         response = self.client.delete('/rest/files', file_ids, format="json")
@@ -609,10 +610,11 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self._assert_files_available_and_removed('project_x', 10, files_to_remove_count)
 
         # these dirs should still be left:
+        # /
         # /project_x_FROZEN
         # /project_x_FROZEN/Experiment_X (5 files)
         # /project_x_FROZEN/Experiment_X/Phase_1 (5 files)
-        self.assertEqual(Directory.objects.filter(project_identifier='project_x').count(), 3)
+        self.assertEqual(Directory.objects.filter(project_identifier='project_x').count(), 4)
 
         # /project_x_FROZEN/Experiment_X/Phase_1/2017 <- this dir should be deleted, since
         # it only contained the 01-dir, which we specifically targeted for deletion
