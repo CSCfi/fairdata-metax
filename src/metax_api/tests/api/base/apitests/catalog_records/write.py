@@ -1234,7 +1234,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['relation_type']['label'], new_rd['relation'][0]['relation_type'].get('pref_label', None))
 
     def _assert_label_copied_to_title(self, refs, new_rd):
-        self.assertEqual(refs['language']['label'], new_rd['language'][0].get('title', None))
+        required_langs = dict((lang, val) for lang, val in refs['language']['label'].items()
+            if lang in ['fi', 'sv', 'en', 'und'])
+        self.assertEqual(required_langs, new_rd['language'][0].get('title', None))
         self.assertEqual(refs['license']['label'], new_rd['access_rights']['license'][0].get('title', None))
         self.assertEqual(refs['license']['label'], new_rd['remote_resources'][0]['license'][0].get('title', None))
 
