@@ -70,5 +70,38 @@ def retrieve_and_update_all_datasets_in_db():
         print('-- done --')
 
 
+def retrieve_and_update_all_data_catalogs_in_db():
+    print('-- begin retrieving and updating all data catalogs in the db --')
+    headers = { 'Content-type': 'application/json' }
+    headers.update(get_auth_header())
+
+    print('retrieving all data catalog IDs...')
+    response = requests.get('https://localhost/rest/datacatalogs?limit=100', headers=headers, verify=False)
+    if response.status_code != 200:
+        raise Exception(response.content)
+
+    data_catalog_ids = []
+    for dc in response.json().get('results', []):
+        data_catalog_ids.append(dc.get('id'))
+
+    print('retrieving details of data catalogs and updating %d data catalogs...' % len(data_catalog_ids))
+
+    for dc_id in data_catalog_ids:
+        response = requests.get('https://localhost/rest/datacatalogs/%s' % dc_id, headers=headers, verify=False)
+
+        if response.status_code == 200:
+            update_response = requests.put('https://localhost/rest/datacatalogs/%s' % dc_id,
+                                           headers=headers, json=response.json(), verify=False)
+            if update_response.status_code not in (200, 201, 204):
+                print(response.status_code)
+                raise Exception(response.text)
+        else:
+            print(response.status_code)
+            raise Exception(response.content)
+
+    print('-- done --')
+
+
 if __name__ == '__main__':
     retrieve_and_update_all_datasets_in_db()
+    retrieve_and_update_all_data_catalogs_in_db()
