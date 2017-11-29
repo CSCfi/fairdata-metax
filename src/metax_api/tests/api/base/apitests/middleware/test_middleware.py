@@ -157,10 +157,16 @@ class ApiModifyResponseTestV1(CatalogRecordApiWriteCommon):
         response = self.client.delete('/rest/datasets/1')
         self.assertFalse(response.has_header('Last-Modified'))
 
-    def _validate_response(self, response):
-        expected_modified_str = response.data['modified_by_api'] if 'modified_by_api' in response.data \
-            else response.data.get('created_by_api', None)
+    def test_catalog_record_bulk_create_get_last_modified_header(self):
+        response = self.client.post('/rest/datasets', [self.test_new_data, self.test_new_data], format="json")
+        self._validate_response(response)
 
+    def _validate_response(self, response):
+        data = response.data.get('success', response.data)
+        obj = data[0].get('object', None) if isinstance(data, list) else data
+        self.assertIsNotNone(obj)
+
+        expected_modified_str = obj['modified_by_api'] if 'modified_by_api' in obj else obj.get('created_by_api', None)
         expected_modified = timezone.localtime(parse_timestamp_string_to_tz_aware_datetime(expected_modified_str),
                                                timezone=tz('GMT'))
 

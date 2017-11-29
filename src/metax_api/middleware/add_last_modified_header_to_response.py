@@ -39,12 +39,19 @@ class AddLastModifiedHeaderToResponse(object):
 
     @staticmethod
     def _add_last_modified_header_to_response(response):
-        if response.data and isinstance(response.data, dict):
+        if response.data:
+            obj = None
+            if isinstance(response.data, dict):
+                obj = response.data.get('success', response.data)
+            if isinstance(obj, list):
+                obj = obj[0].get('object', None)
+
             modified = None
-            if 'modified_by_api' in response.data:
-                modified = response.data.get('modified_by_api')
-            elif 'created_by_api' in response.data:
-                modified = response.data.get('created_by_api')
+            if obj:
+                if 'modified_by_api' in obj:
+                    modified = obj.get('modified_by_api')
+                elif 'created_by_api' in obj:
+                    modified = obj.get('created_by_api')
 
             if modified:
                 modified_dt = parse_timestamp_string_to_tz_aware_datetime(modified)
