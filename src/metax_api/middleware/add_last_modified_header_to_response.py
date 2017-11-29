@@ -43,7 +43,7 @@ class AddLastModifiedHeaderToResponse(object):
             obj = None
             if isinstance(response.data, dict):
                 obj = response.data.get('success', response.data)
-            if isinstance(obj, list):
+            if isinstance(obj, list) and len(obj) > 0:
                 obj = obj[0].get('object', None)
 
             modified = None
