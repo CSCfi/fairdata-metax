@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime
+from metax_api.tests.api.base.apitests.catalog_records.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 FORBIDDEN = status.HTTP_403_FORBIDDEN
@@ -131,52 +132,14 @@ class ApiAuthnzTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, FORBIDDEN)
 
 
-class ApiModifyResponseTestV1(APITestCase, TestClassUtils):
-
-    def setUp(self):
-        call_command('loaddata', test_data_file_path, verbosity=0)
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord')
-        self.urn_identifier = catalog_record_from_test_data['research_dataset']['urn_identifier']
-        self.preferred_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
-        self.new_test_data = self._get_new_test_data()
-        self._use_http_authorization()
-
-    def _get_new_test_data(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        catalog_record_from_test_data.update({
-            "contract": self._get_object_from_test_data('contract', requested_index=0),
-            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
-        })
-        catalog_record_from_test_data['research_dataset'].update({
-            "urn_identifier": "pid:urn:new1",
-            "preferred_identifier": None,
-            "creator": [{
-                "@type": "Person",
-                "name": "Teppo Testaaja",
-                "member_of": {
-                    "@type": "Organization",
-                    "name": {"fi": "Mysterious Organization"}
-                }
-            }],
-            "curator": [{
-                "@type": "Person",
-                "name": "Default Owner",
-                "member_of": {
-                    "@type": "Organization",
-                    "name": {"fi": "Mysterious Organization"}
-                }
-            }],
-            "total_byte_size": 1024,
-            "files": catalog_record_from_test_data['research_dataset']['files']
-        })
-        return catalog_record_from_test_data
+class ApiModifyResponseTestV1(CatalogRecordApiWriteCommon):
 
     def test_catalog_record_get_last_modified_header(self):
         response = self.client.get('/rest/datasets/1')
         self._validate_response(response)
 
     def test_catalog_record_post_last_modified_header(self):
-        response = self.client.post('/rest/datasets', self.new_test_data, format="json")
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self._validate_response(response)
 
     # TODO: Uncomment this once PUT returns the updated object
@@ -186,8 +149,8 @@ class ApiModifyResponseTestV1(APITestCase, TestClassUtils):
     #     self._validate_response(response)
 
     def test_catalog_record_patch_last_modified_header(self):
-        self.new_test_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
-        response = self.client.patch('/rest/datasets/1', self.new_test_data, format="json")
+        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
+        response = self.client.patch('/rest/datasets/1', self.test_new_data, format="json")
         self._validate_response(response)
 
     def test_catalog_record_delete_does_not_contain_last_modified_header(self):
