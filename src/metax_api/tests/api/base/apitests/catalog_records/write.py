@@ -828,7 +828,7 @@ class CatalogRecordApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
 
     def test_update_list_with_if_unmodified_since_header_error_2(self):
         """
-        Field modified_by_api is missing, while if-modified-since header is set, resulting in an error.
+        Field modified_by_api is missing, while if-unmodified-since header is set, resulting in an error.
         """
         response = self.client.get('/rest/datasets/1', format="json")
         data_1 = response.data
