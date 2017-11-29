@@ -16,22 +16,22 @@ class CommonSerializer(ModelSerializer):
     class Meta:
         model = Common
         fields = (
-            'modified_by_user_id',
-            'modified_by_api',
-            'created_by_user_id',
-            'created_by_api',
+            'user_modified',
+            'date_modified',
+            'user_created',
+            'date_created',
             'service_modified',
             'service_created',
         )
         extra_kwargs = {
             # not required during creation, or updating
             # they would be overwritten by the api anyway.
-            # except for modified_by_user_id can and should
+            # except for user_modified can and should
             # be given by the requestor if possible.
-            'modified_by_user_id': { 'required': False },
-            'modified_by_api':     { 'required': False },
-            'created_by_user_id':  { 'required': False },
-            'created_by_api':      { 'required': False },
+            'user_modified':       { 'required': False },
+            'date_modified':       { 'required': False },
+            'user_created':        { 'required': False },
+            'date_created':        { 'required': False },
             'service_modified':    { 'required': False },
             'service_created':     { 'required': False },
         }

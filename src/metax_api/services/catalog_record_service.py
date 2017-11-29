@@ -38,8 +38,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         catalog_record_new = deepcopy(serializer_current.data)
         catalog_record_new.pop('id', None)
-        catalog_record_new.pop('modified_by_api', None)
-        catalog_record_new.pop('modified_by_user_id', None)
+        catalog_record_new.pop('date_modified', None)
+        catalog_record_new.pop('user_modified', None)
         catalog_record_new['identifier'] = 'urn:nice:generated:identifier' # TODO
         catalog_record_new['research_dataset']['identifier'] = 'urn:nice:generated:identifier' # TODO
         catalog_record_new['research_dataset']['preferred_identifier'] = request.query_params.get(
@@ -47,8 +47,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         catalog_record_new['previous_version_identifier'] = catalog_record_current.identifier
         catalog_record_new['previous_version_id'] = catalog_record_current.id
         catalog_record_new['version_created'] = current_time
-        catalog_record_new['created_by_api'] = current_time
-        catalog_record_new['created_by_user_id'] = request.user.id or None
+        catalog_record_new['date_created'] = current_time
+        catalog_record_new['user_created'] = request.user.id or None
 
         serializer_new = CatalogRecordSerializer(data=catalog_record_new, **kwargs)
         serializer_new.is_valid()
@@ -56,7 +56,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         catalog_record_current.next_version_id = CatalogRecord.objects.get(pk=serializer_new.data['id'])
         catalog_record_current.next_version_identifier = serializer_new.data['identifier']
-        catalog_record_current.modified_by_api = current_time
+        catalog_record_current.date_modified = current_time
         catalog_record_current.modified_by_user = request.user.id or None
         catalog_record_current.save()
 
@@ -90,8 +90,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('owner_id', False):
             queryset_search_params['editor__contains'] = { 'owner_id': request.query_params['owner_id'] }
 
-        if request.query_params.get('created_by_user_id', False):
-            queryset_search_params['created_by_user_id'] = request.query_params['created_by_user_id']
+        if request.query_params.get('user_created', False):
+            queryset_search_params['user_created'] = request.query_params['user_created']
 
         return queryset_search_params
 

@@ -95,7 +95,7 @@
                     "description":"The editor that is used to modify the record.",
                     "type":"object"
                 },
-                "modified_by_api":{
+                "date_modified":{
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",
                     "maxItems":1,
@@ -103,13 +103,13 @@
                     "format":"date-time",
                     "readonly": true
                 },
-                "modified_by_user_id":{
+                "user_modified":{
                     "title":"Modified by user id",
                     "description":"User id of the person who last edited this record",
                     "maxItems":1,
                     "type":"string"
                 },
-                "created_by_api":{
+                "date_created":{
                     "title":"Date Created",
                     "description":"Date of creation of the resource. Can't be updated once set.",
                     "maxItems":1,
@@ -117,7 +117,7 @@
                     "format":"date-time",
                     "readonly": true
                 },
-                "created_by_user_id":{
+                "user_created":{
                     "title":"Created by user id",
                     "description":"User id of the person who created this record. Can't be updated once set.",
                     "maxItems":1,

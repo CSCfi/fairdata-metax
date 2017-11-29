@@ -128,11 +128,11 @@ class CommonService():
         that is being updated, since a PUT or PATCH to i.e. /datasets or /files will not have
         an identifier in the url.
 
-        If the header If-Unmodified-Since is set, the field modified_by_api from the received
+        If the header If-Unmodified-Since is set, the field date_modified from the received
         data row will be compared to same field in the instance being updated, to see if the
         resource has been modified in the meantime. Only the presence of the header is checked
         in bulk update, its value does not matter. For PATCH, the presence of the field
-        modified_by_api is an extra requirement in the received data, and an error will be
+        date_modified is an extra requirement in the received data, and an error will be
         returned if it is missing, when the header is set.
 
         params:
@@ -198,12 +198,12 @@ class CommonService():
         if method in ('PUT', 'PATCH', 'DELETE'):
             common_info.update({
                 'service_modified': service_name,
-                'modified_by_api': current_time
+                'date_modified': current_time
             })
         elif method == 'POST':
             common_info.update({
                 'service_created': service_name,
-                'created_by_api': current_time,
+                'date_created': current_time,
             })
         else:
             pass
@@ -263,7 +263,7 @@ class CommonService():
         model_obj: the model object used to search the db
         row: the payload from the request
         results: the result-list that will be returned from the api
-        check_unmodified_since: retrieved object should compare its modified_by_api timestamp
+        check_unmodified_since: retrieved object should compare its date_modified timestamp
             to the corresponding field in the received row. this simulates the use of the
             if-unmodified-since header that is used for single updates.
         """
@@ -276,14 +276,14 @@ class CommonService():
             results['failed'].append({ 'object': row, 'errors': { 'detail': e.detail } })
 
         if instance and check_unmodified_since:
-            if 'modified_by_api' not in row:
+            if 'date_modified' not in row:
                 results['failed'].append({
                     'object': row,
                     'errors': {
-                        'detail': ['Field modified_by_api is required when the header If-Unmodified-Since is set']
+                        'detail': ['Field date_modified is required when the header If-Unmodified-Since is set']
                     }
                 })
-            elif instance.modified_since(row['modified_by_api']):
+            elif instance.modified_since(row['date_modified']):
                 results['failed'].append({ 'object': row, 'errors': { 'detail': ['Resource has been modified'] } })
             else:
                 # good case - all is good
@@ -335,7 +335,7 @@ class CommonService():
     def set_if_modified_since_filter(cls, request, filter_obj):
         """
         Evaluate If-Modified-Since http header only on read operations.
-        Filter items whose modified_by_api field timestamp value is greater than the header value.
+        Filter items whose date_modified field timestamp value is greater than the header value.
         This method updates given filter object.
 
         :param request:
@@ -347,5 +347,5 @@ class CommonService():
                 cls._request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
 
             filter_obj.update({
-                'modified_by_api__gt': CommonService.validate_and_get_if_modified_since_header_as_tz_aware_datetime(
+                'date_modified__gt': CommonService.validate_and_get_if_modified_since_header_as_tz_aware_datetime(
                     request)})

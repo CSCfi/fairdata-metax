@@ -181,12 +181,12 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
 
     def test_read_catalog_record_search_by_creator_id(self):
         cr = CatalogRecord.objects.get(pk=1)
-        cr.created_by_user_id = '123'
+        cr.user_created = '123'
         cr.save()
-        response = self.client.get('/rest/datasets?created_by_user_id=123')
+        response = self.client.get('/rest/datasets?user_created=123')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['created_by_user_id'], '123')
+        self.assertEqual(response.data['results'][0]['user_created'], '123')
 
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
@@ -217,9 +217,9 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
 class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
-    # If the value of the timestamp given in the header is equal or greater than the value of modified_by_api field,
+    # If the value of the timestamp given in the header is equal or greater than the value of date_modified field,
     # 404 should be returned since nothing has been modified. If the value of the timestamp given in the header is
-    # less than value of modified_by_api field, the object should be returned since it means the object has been
+    # less than value of date_modified field, the object should be returned since it means the object has been
     # modified after the header timestamp
 
     #
@@ -228,26 +228,26 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
     def test_urn_identifiers_get_with_if_modified_since_header_ok(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
-        modified_by_api = cr.modified_by_api
-        modified_by_api_in_gmt = timezone.localtime(modified_by_api, timezone=tz('GMT'))
+        date_modified = cr.date_modified
+        date_modified_in_gmt = timezone.localtime(date_modified, timezone=tz('GMT'))
 
-        if_modified_since_header_value = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) == 2)
 
-        if_modified_since_header_value = (modified_by_api_in_gmt + timedelta(seconds=1)).strftime(
+        if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) == 2)
 
-        # The assert below may brake if the modified_by_api timestamps or the amount of test data objects are altered
+        # The assert below may brake if the date_modified timestamps or the amount of test data objects are altered
         # in the test data
 
-        if_modified_since_header_value = (modified_by_api_in_gmt - timedelta(seconds=1)).strftime(
+        if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)

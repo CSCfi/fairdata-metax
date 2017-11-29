@@ -31,28 +31,28 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
     # header if-modified-since tests, single
     #
 
-    # If the value of the timestamp given in the header is equal or greater than the value of modified_by_api field,
+    # If the value of the timestamp given in the header is equal or greater than the value of date_modified field,
     # 404 should be returned since nothing has been modified. If the value of the timestamp given in the header is
-    # less than value of modified_by_api field, the object should be returned since it means the object has been
+    # less than value of date_modified field, the object should be returned since it means the object has been
     # modified after the header timestamp
 
     def test_get_with_if_modified_since_header_ok(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
-        modified_by_api = cr.modified_by_api
-        modified_by_api_in_gmt = timezone.localtime(modified_by_api, timezone=tz('GMT'))
+        date_modified = cr.date_modified
+        date_modified_in_gmt = timezone.localtime(date_modified, timezone=tz('GMT'))
 
-        if_modified_since_header_value = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        if_modified_since_header_value = (modified_by_api_in_gmt + timedelta(seconds=1)).strftime(
+        if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        if_modified_since_header_value = (modified_by_api_in_gmt - timedelta(seconds=1)).strftime(
+        if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
@@ -60,10 +60,10 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
     def test_get_with_if_modified_since_header_syntax_error(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
-        modified_by_api = cr.modified_by_api
-        modified_by_api_in_gmt = timezone.localtime(modified_by_api, timezone=tz('GMT'))
+        date_modified = cr.date_modified
+        date_modified_in_gmt = timezone.localtime(date_modified, timezone=tz('GMT'))
 
-        if_modified_since_header_value = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S UTC')
+        if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S UTC')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -76,26 +76,26 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
     def test_list_get_with_if_modified_since_header_ok(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
-        modified_by_api = cr.modified_by_api
-        modified_by_api_in_gmt = timezone.localtime(modified_by_api, timezone=tz('GMT'))
+        date_modified = cr.date_modified
+        date_modified_in_gmt = timezone.localtime(date_modified, timezone=tz('GMT'))
 
-        if_modified_since_header_value = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get('results')) == 2)
 
-        if_modified_since_header_value = (modified_by_api_in_gmt + timedelta(seconds=1)).strftime(
+        if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get('results')) == 2)
 
-        # The asserts below may brake if the modified_by_api timestamps or the amount of test data objects are altered
+        # The asserts below may brake if the date_modified timestamps or the amount of test data objects are altered
         # in the test data
 
-        if_modified_since_header_value = (modified_by_api_in_gmt - timedelta(seconds=1)).strftime(
+        if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)

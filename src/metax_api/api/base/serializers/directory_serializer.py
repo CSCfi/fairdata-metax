@@ -23,10 +23,10 @@ class DirectorySerializer(CommonSerializer):
             'identifier',
             'parent_directory',
             'project_identifier',
-            'modified_by_user_id',
-            'modified_by_api',
-            'created_by_user_id',
-            'created_by_api',
+            'user_modified',
+            'date_modified',
+            'user_created',
+            'date_created',
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = CommonSerializer.Meta.extra_kwargs

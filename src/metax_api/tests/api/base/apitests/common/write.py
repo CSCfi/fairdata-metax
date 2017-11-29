@@ -62,7 +62,7 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
     def test_update_with_if_unmodified_since_header_ok(self):
         self.test_new_data['preservation_description'] = 'damn this is good coffee'
         cr = CatalogRecord.objects.get(pk=1)
-        headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.modified_by_api.strftime('%a, %d %b %Y %H:%M:%S GMT')}
+        headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.date_modified.strftime('%a, %d %b %Y %H:%M:%S GMT')}
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json",
                                    **headers)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
@@ -77,7 +77,7 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
     def test_update_with_if_unmodified_since_header_syntax_error(self):
         self.test_new_data['preservation_description'] = 'the owls are not what they seem'
         cr = CatalogRecord.objects.get(pk=1)
-        headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.modified_by_api.strftime('%a, %d %b %Y %H:%M:%S UTC')}
+        headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.date_modified.strftime('%a, %d %b %Y %H:%M:%S UTC')}
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json",
                                    **headers)
         self.assertEqual(response.status_code, 400, 'http status should be 400')
@@ -112,7 +112,7 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         data_1['preservation_description'] = 'damn this is good coffee'
 
         # should result in error for this record
-        data_2['modified_by_api'] = '2002-01-01T10:10:10Z'
+        data_2['date_modified'] = '2002-01-01T10:10:10Z'
 
         headers = {'HTTP_IF_UNMODIFIED_SINCE': 'value is not checked'}
         response = self.client.put('/rest/datasets', [data_1, data_2], format="json", **headers)
@@ -122,7 +122,7 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
 
     def test_update_list_with_if_unmodified_since_header_error_2(self):
         """
-        Field modified_by_api is missing, while if-modified-since header is set, resulting in an error.
+        Field date_modified is missing, while if-modified-since header is set, resulting in an error.
         """
         response = self.client.get('/rest/datasets/1', format="json")
         data_1 = response.data
@@ -132,18 +132,18 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         data_1['preservation_description'] = 'damn this is good coffee'
 
         # should result in error for this record
-        data_2.pop('modified_by_api')
+        data_2.pop('date_modified')
 
         headers = {'HTTP_IF_UNMODIFIED_SINCE': 'value is not checked'}
         response = self.client.patch('/rest/datasets', [data_1, data_2], format="json", **headers)
         self.assertEqual('required' in response.data['failed'][0]['errors']['detail'][0], True,
-                         'error should be about field modified_by_api is required')
+                         'error should be about field date_modified is required')
 
     def test_update_list_with_if_unmodified_since_header_error_3(self):
         """
-        One resource being updated has never been modified before. Make sure that modified_by_api = None
+        One resource being updated has never been modified before. Make sure that date_modified = None
         is an accepted value. The end result should be that the resource has been modified, since the
-        server version has a timestamp set in modified_by_api.
+        server version has a timestamp set in date_modified.
         """
         response = self.client.get('/rest/datasets/1', format="json")
         data_1 = response.data
@@ -152,7 +152,7 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
 
         data_1['preservation_description'] = 'damn this is good coffee'
         data_2['preservation_description'] = 'damn this is good coffee also'
-        data_2['modified_by_api'] = None
+        data_2['date_modified'] = None
 
         headers = {'HTTP_IF_UNMODIFIED_SINCE': 'value is not checked'}
         response = self.client.put('/rest/datasets', [data_1, data_2], format="json", **headers)

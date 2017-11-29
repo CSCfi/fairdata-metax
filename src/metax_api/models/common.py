@@ -18,10 +18,10 @@ class Common(models.Model):
     id = models.BigAutoField(primary_key=True, editable=False)
     active = models.BooleanField(default=True)
     removed = models.BooleanField(default=False)
-    modified_by_api = models.DateTimeField(null=True)
-    modified_by_user_id = models.CharField(max_length=200, null=True)
-    created_by_api = models.DateTimeField()
-    created_by_user_id = models.CharField(max_length=200, null=True)
+    date_modified = models.DateTimeField(null=True)
+    user_modified = models.CharField(max_length=200, null=True)
+    date_created = models.DateTimeField()
+    user_created = models.CharField(max_length=200, null=True)
     service_modified = models.CharField(max_length=200, null=True,
         help_text='Name of the service who last modified the record')
     service_created = models.CharField(max_length=200,
@@ -62,14 +62,14 @@ class Common(models.Model):
     def modified_since(self, timestamp):
         """
         Return True if object has been modified since the given timestamp. Currently this method is used for validating
-        modified_by_api string representation or http header timestamp originated datetime object. In the former case,
+        date_modified string representation or http header timestamp originated datetime object. In the former case,
         the format should be well-known since it is created by Metax API.
 
         parameters:
         timestamp: a timezone-aware datetime object, or a timestamp string with timezone information,
             or None, which implies 'the resource has never been modified before'
         """
-        if not self.modified_by_api:
+        if not self.date_modified:
             # server version has never been modified
             return False
         elif not timestamp:
@@ -80,7 +80,7 @@ class Common(models.Model):
         if isinstance(timestamp, str):
             timestamp = parser.parse(timestamp)
 
-        return timestamp < self.modified_by_api
+        return timestamp < self.date_modified
 
     def track_fields(self, *args):
         """

@@ -112,7 +112,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data['research_dataset']['preferred_identifier'],
                          self.test_new_data['research_dataset']['preferred_identifier'])
         cr = CatalogRecord.objects.get(pk=response.data['id'])
-        self.assertEqual(cr.created_by_api >= get_tz_aware_now_without_micros() - timedelta(seconds=5), True,
+        self.assertEqual(cr.date_created >= get_tz_aware_now_without_micros() - timedelta(seconds=5), True,
                          'Timestamp should have been updated during object creation')
 
     def test_create_catalog_record_without_preferred_identifier(self):
@@ -124,7 +124,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
                          response.data['research_dataset']['urn_identifier'],
                          'urn_identifier and preferred_identifier should equal')
         cr = CatalogRecord.objects.get(pk=response.data['id'])
-        self.assertEqual(cr.created_by_api >= get_tz_aware_now_without_micros() - timedelta(seconds=5), True,
+        self.assertEqual(cr.date_created >= get_tz_aware_now_without_micros() - timedelta(seconds=5), True,
                          'Timestamp should have been updated during object creation')
 
     def test_create_catalog_contract_string_identifier(self):
@@ -553,7 +553,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
         cr = CatalogRecord.objects.get(pk=self.pk)
-        self.assertEqual(cr.modified_by_api >= get_tz_aware_now_without_micros() - timedelta(seconds=5), True,
+        self.assertEqual(cr.date_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5), True,
                          'Timestamp should have been updated during object update')
 
     def test_update_catalog_record_error_using_preferred_identifier(self):
