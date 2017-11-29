@@ -6,10 +6,35 @@ from rest_framework.relations import PKOnlyObject
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
+from metax_api.models import Common
+
 _logger = logging.getLogger(__name__)
 d = _logger.debug
 
 class CommonSerializer(ModelSerializer):
+
+    class Meta:
+        model = Common
+        fields = (
+            'modified_by_user_id',
+            'modified_by_api',
+            'created_by_user_id',
+            'created_by_api',
+            'service_modified',
+            'service_created',
+        )
+        extra_kwargs = {
+            # not required during creation, or updating
+            # they would be overwritten by the api anyway.
+            # except for modified_by_user_id can and should
+            # be given by the requestor if possible.
+            'modified_by_user_id': { 'required': False },
+            'modified_by_api':     { 'required': False },
+            'created_by_user_id':  { 'required': False },
+            'created_by_api':      { 'required': False },
+            'service_modified':    { 'required': False },
+            'service_created':     { 'required': False },
+        }
 
     def to_representation(self, instance):
         """

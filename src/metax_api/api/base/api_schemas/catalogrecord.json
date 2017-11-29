@@ -122,6 +122,16 @@
                     "description":"User id of the person who created this record. Can't be updated once set.",
                     "maxItems":1,
                     "type":"string"
+                },
+                "service_created":{
+                    "description":"Service name who created this resource.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "service_modified":{
+                    "description":"Service name who last modified this resource.",
+                    "type":"string",
+                    "readonly": true
                 }
             },
             "required":[

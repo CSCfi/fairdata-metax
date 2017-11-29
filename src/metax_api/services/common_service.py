@@ -37,7 +37,7 @@ class CommonService():
         request: the http request object
         serializer_class: does the actual saving, knows what kind of object is in question
         """
-        common_info = { 'created_by_api': get_tz_aware_now_without_micros() }
+        common_info = cls.update_common_info(request, return_only=True)
 
         results = None
 
@@ -144,7 +144,7 @@ class CommonService():
         if not isinstance(request.data, list):
             raise ValidationError('request.data is not a list')
 
-        common_info = { 'modified_by_api': get_tz_aware_now_without_micros() }
+        common_info = cls.update_common_info(request, return_only=True)
         results = { 'success': [], 'failed': []}
 
         for row in request.data:
@@ -174,17 +174,22 @@ class CommonService():
     def update_common_info(request, return_only=False):
         """
         Update fields common for all tables and most actions:
-        - last modified timestamp and user
-        - created on timestamp and user
+        - last modified timestamp and service name
+        - created on timestamp and service name
 
-        For cases where request data is actually xml, it is useful to return the common info,
-        so that its info can be used manually, instead of updating request.data here automatically.
-        For that purpese, use the return_only flag.
+        For cases where request data is actually xml, or bulk update/create, it is useful to
+        return the common info, so that its info can be used manually, instead of updating
+        request.data here automatically. For that purpose, use the return_only flag.
         """
-        user_id = request.user.id or None
+        service_name = request.user.username or None
 
-        if not user_id:
-            _logger.warning("User id not set; unknown user")
+        if not service_name: # pragma: no cover
+            # should never happen: update_common_info is executed only on update operations,
+            # which requires authorization, which should put the username into the request obj.
+            ValidationError({
+                'detail': 'request.user.username not set; unknown service. '
+                'how did you get here without passing authorization...?'
+            })
 
         method = request.stream and request.stream.method or False
         current_time = get_tz_aware_now_without_micros()
@@ -192,12 +197,12 @@ class CommonService():
 
         if method in ('PUT', 'PATCH', 'DELETE'):
             common_info.update({
-                'modified_by_user_id': user_id,
+                'service_modified': service_name,
                 'modified_by_api': current_time
             })
         elif method == 'POST':
             common_info.update({
-                'created_by_user_id': user_id,
+                'service_created': service_name,
                 'created_by_api': current_time,
             })
         else:

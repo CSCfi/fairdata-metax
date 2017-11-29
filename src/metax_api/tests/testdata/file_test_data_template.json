@@ -24,5 +24,6 @@
   },
   "open_access": false,
   "removed": false,
-  "replication_path": "/path/to/copy/of/file"
+  "replication_path": "/path/to/copy/of/file",
+  "service_created": "metax"
 }

@@ -10,5 +10,6 @@
   "project_identifier": "project_x",
   "created_by_api": "2017-05-23T10:07:22Z",
   "modified_by_api": "2017-06-27T10:07:22Z",
-  "removed": false
+  "removed": false,
+  "service_created": "metax"
 }

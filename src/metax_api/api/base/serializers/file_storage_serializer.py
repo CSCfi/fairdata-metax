@@ -12,4 +12,4 @@ class FileStorageSerializer(CommonSerializer):
         fields = (
             'id',
             'file_storage_json',
-        )
+        ) + CommonSerializer.Meta.fields

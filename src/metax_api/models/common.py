@@ -22,6 +22,10 @@ class Common(models.Model):
     modified_by_user_id = models.CharField(max_length=200, null=True)
     created_by_api = models.DateTimeField()
     created_by_user_id = models.CharField(max_length=200, null=True)
+    service_modified = models.CharField(max_length=200, null=True,
+        help_text='Name of the service who last modified the record')
+    service_created = models.CharField(max_length=200,
+        help_text='Name of the service who created the record')
 
     # END OF MODEL FIELD DEFINITIONS #
 
@@ -37,8 +41,14 @@ class Common(models.Model):
     def __init__(self, *args, **kwargs):
         super(Common, self).__init__(*args, **kwargs)
         self._initial_data = {}
+        self.track_fields(
+            'service_created',
+        )
 
     def save(self, *args, **kwargs):
+        if self.field_changed('service_created'):
+            # read-only after creating
+            self.service_created = self._initial_data['service_created']
         super(Common, self).save(*args, **kwargs)
         self._update_tracked_field_values()
 
