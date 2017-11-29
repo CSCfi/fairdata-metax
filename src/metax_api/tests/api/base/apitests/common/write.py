@@ -1,7 +1,11 @@
+from django.core.management import call_command
 from rest_framework import status
+from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord
 from metax_api.tests.api.base.apitests.catalog_records.write import CatalogRecordApiWriteCommon
+from metax_api.tests.utils import test_data_file_path, TestClassUtils
+
 
 """
 Common phenomenas that concern all API's.
@@ -11,6 +15,42 @@ choosing to do tests using api /datasets is not a bad choice, since that
 API is currently the most complex, where things are most likely to experience
 a RUD.
 """
+
+
+class ApiWriteCommon(APITestCase, TestClassUtils):
+
+    def setUp(self):
+        call_command('loaddata', test_data_file_path, verbosity=0)
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord')
+        self.urn_identifier = catalog_record_from_test_data['research_dataset']['urn_identifier']
+        self.pk = catalog_record_from_test_data['id']
+        self.test_new_data = self._get_new_test_data()
+        self._use_http_authorization()
+
+    def _get_new_test_data(self):
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+        catalog_record_from_test_data.update({
+            "data_catalog": 1,
+        })
+        catalog_record_from_test_data['research_dataset'].update({
+            "preferred_identifier": None,
+        })
+        catalog_record_from_test_data.pop('id', None)
+        catalog_record_from_test_data.pop('contract', None)
+        return catalog_record_from_test_data
+
+
+class ApiWriteCommonFieldsTests(ApiWriteCommon):
+
+    def test_service_created_is_read_only_after_create(self):
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('service_created' in response.data, True)
+        service_created = response.data['service_created']
+        altered = response.data
+        altered['service_created'] = 'changed'
+        response = self.client.patch('/rest/datasets/%d' % response.data['id'], altered, format="json")
+        self.assertEqual(service_created, response.data['service_created'])
 
 
 class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
