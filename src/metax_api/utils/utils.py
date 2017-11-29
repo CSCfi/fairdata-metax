@@ -19,9 +19,9 @@ def executing_travis():
     return True if os.getenv('TRAVIS', False) else False
 
 
-def parse_http_timestamp_to_tz_aware_datetime(timestamp):
+def parse_timestamp_string_to_tz_aware_datetime(timestamp):
     """
-    Parse a timestamp string used in http headers to a datetime object. Timestamp such as:
+    Parse a timestamp string to a datetime object. Timestamp such as:
 
     'Wed, 23 Sep 2009 22:15:29 GMT'
 
@@ -33,6 +33,9 @@ def parse_http_timestamp_to_tz_aware_datetime(timestamp):
 
     Returns time-zone aware timestamp. Caller is responsible for catching errors in parsing.
     """
+    if not isinstance(timestamp, str):
+        raise ValueError("Timestamp must be a string")
+
     timestamp = parser.parse(timestamp)
     if timezone.is_naive(timestamp):
         timestamp = timezone.make_aware(timestamp)

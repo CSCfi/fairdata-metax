@@ -1,6 +1,10 @@
+from django.utils import timezone
+from pytz import timezone as tz
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime
+from metax_api.tests.api.base.apitests.catalog_records.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import TestClassUtils
 
 FORBIDDEN = status.HTTP_403_FORBIDDEN
@@ -125,3 +129,48 @@ class ApiAuthnzTestV1(APITestCase, TestClassUtils):
         self._use_http_authorization(header_value=b'NotSupported hubbabubba')
         response = self.client.post('/rest/datasets')
         self.assertEqual(response.status_code, FORBIDDEN)
+
+
+class ApiModifyResponseTestV1(CatalogRecordApiWriteCommon):
+
+    def test_catalog_record_get_last_modified_header(self):
+        response = self.client.get('/rest/datasets/1')
+        self._validate_response(response)
+
+    def test_catalog_record_post_last_modified_header(self):
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self._validate_response(response)
+
+    # TODO: Uncomment this once PUT returns the updated object
+    # def test_catalog_record_put_last_modified_header(self):
+    #     self.new_test_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
+    #     response = self.client.put('/rest/datasets/1', self.new_test_data, format="json")
+    #     self._validate_response(response)
+
+    def test_catalog_record_patch_last_modified_header(self):
+        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
+        response = self.client.patch('/rest/datasets/1', self.test_new_data, format="json")
+        self._validate_response(response)
+
+    def test_catalog_record_delete_does_not_contain_last_modified_header(self):
+        response = self.client.delete('/rest/datasets/1')
+        self.assertFalse(response.has_header('Last-Modified'))
+
+    def test_catalog_record_bulk_create_get_last_modified_header(self):
+        response = self.client.post('/rest/datasets', [self.test_new_data, self.test_new_data], format="json")
+        self._validate_response(response)
+
+    def _validate_response(self, response):
+        data = response.data.get('success', response.data)
+        obj = data[0].get('object', None) if isinstance(data, list) else data
+        self.assertIsNotNone(obj)
+
+        expected_modified_str = obj['modified_by_api'] if 'modified_by_api' in obj else obj.get('created_by_api', None)
+        expected_modified = timezone.localtime(parse_timestamp_string_to_tz_aware_datetime(expected_modified_str),
+                                               timezone=tz('GMT'))
+
+        self.assertTrue(response.has_header('Last-Modified'))
+        actual_modified = timezone.localtime(parse_timestamp_string_to_tz_aware_datetime(response.get('Last-Modified')),
+                                             timezone=tz('GMT'))
+
+        self.assertEqual(expected_modified, actual_modified)

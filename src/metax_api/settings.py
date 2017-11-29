@@ -85,6 +85,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'metax_api.middleware.IdentifyApiCaller',
+    'metax_api.middleware.AddLastModifiedHeaderToResponse'
 ]
 
 REST_FRAMEWORK = {

@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http412
-from metax_api.utils import parse_http_timestamp_to_tz_aware_datetime, get_tz_aware_now_without_micros
+from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime, get_tz_aware_now_without_micros
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -306,7 +306,7 @@ class CommonService():
         # According to RFC 7232, Http date should always be expressed in 'GMT'. Forcing its use makes this explicit
         if not timestamp.endswith('GMT'):
             raise Exception
-        return parse_http_timestamp_to_tz_aware_datetime(timestamp)
+        return parse_timestamp_string_to_tz_aware_datetime(timestamp)
 
     @staticmethod
     def _request_has_header(request, header_name):
