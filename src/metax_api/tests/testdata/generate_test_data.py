@@ -424,7 +424,10 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
             new['fields']['date_created'] = '2017-05-23T10:07:22Z'
-            new['fields']['editor'] = { 'owner_id': catalog_records_owner_ids[owner_idx] }
+            new['fields']['editor'] = {
+                'owner_id': catalog_records_owner_ids[owner_idx],
+                'creator_id': catalog_records_owner_ids[owner_idx],
+            }
             new['fields']['files'] = []
 
             owner_idx += 1
@@ -581,7 +584,10 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         new['fields']['files'] = [1, 2]  # for the relation in the db
         new['fields']['date_modified'] = '2017-09-23T10:07:22Z'
         new['fields']['date_created'] = '2017-05-23T10:07:22Z'
-        new['fields']['editor'] = { 'owner_id': catalog_records_owner_ids[j] }
+        new['fields']['editor'] = {
+            'owner_id': catalog_records_owner_ids[j],
+            'creator_id': catalog_records_owner_ids[owner_idx],
+        }
         new['fields']['research_dataset']['urn_identifier'] = 'very:unique:urn-%d' % j
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
 
