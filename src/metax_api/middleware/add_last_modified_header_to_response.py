@@ -48,13 +48,13 @@ class AddLastModifiedHeaderToResponse(object):
 
             modified = None
             if obj:
-                if 'modified_by_api' in obj:
-                    modified = obj.get('modified_by_api')
-                elif 'created_by_api' in obj:
-                    modified = obj.get('created_by_api')
+                if 'date_modified' in obj:
+                    modified = obj.get('date_modified')
+                elif 'date_created' in obj:
+                    modified = obj.get('date_created')
 
             if modified:
                 modified_dt = parse_timestamp_string_to_tz_aware_datetime(modified)
                 if modified_dt:
-                    modified_by_api_in_gmt = timezone.localtime(modified_dt, timezone=tz('GMT'))
-                    response['Last-Modified'] = modified_by_api_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
+                    date_modified_in_gmt = timezone.localtime(modified_dt, timezone=tz('GMT'))
+                    response['Last-Modified'] = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')

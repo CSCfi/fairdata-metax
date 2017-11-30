@@ -165,7 +165,7 @@ class ApiModifyResponseTestV1(CatalogRecordApiWriteCommon):
         obj = data[0].get('object', None) if isinstance(data, list) else data
         self.assertIsNotNone(obj)
 
-        expected_modified_str = obj['modified_by_api'] if 'modified_by_api' in obj else obj.get('created_by_api', None)
+        expected_modified_str = obj['date_modified'] if 'date_modified' in obj else obj.get('date_created', None)
         expected_modified = timezone.localtime(parse_timestamp_string_to_tz_aware_datetime(expected_modified_str),
                                                timezone=tz('GMT'))
 
