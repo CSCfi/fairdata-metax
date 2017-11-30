@@ -89,7 +89,7 @@ class CatalogRecord(Common):
 
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
 
-    owner_id = models.CharField(max_length=200, null=True)
+    editor = JSONField(null=True, help_text='Editor specific fields, such as owner_id, modified, record_identifier')
 
     preservation_description = models.CharField(
         max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')

@@ -569,7 +569,7 @@ paths:
           description: id of the person who owns the record in metax
           required: false
           type: string
-        - name: created_by_user_id
+        - name: user_created
           in: query
           description: id of the person who created the record in metax
           required: false
@@ -671,7 +671,7 @@ paths:
           description: id of the person who owns the record in metax
           required: false
           type: string
-        - name: created_by_user_id
+        - name: user_created
           in: query
           description: id of the person who created the record in metax
           required: false

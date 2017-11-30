@@ -107,7 +107,7 @@
                     "minItems":1,
                     "maxItems":1
                 },
-                "created_by_api":{
+                "date_created":{
                     "title":"Date Created",
                     "description":"Date of creation of the resource.",
                     "@id":"http://purl.org/dc/terms/created",
@@ -116,7 +116,7 @@
                     "type":"string",
                     "format":"date-time"
                 },
-                "modified_by_api":{
+                "date_modified":{
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",
                     "@id":"http://purl.org/dc/terms/modified",

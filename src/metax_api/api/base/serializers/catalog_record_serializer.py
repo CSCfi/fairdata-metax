@@ -35,27 +35,16 @@ class CatalogRecordSerializer(CommonSerializer):
             'previous_version_id',
             'previous_version_identifier',
             'version_created',
-            'owner_id',
-            'modified_by_user_id',
-            'modified_by_api',
-            'created_by_user_id',
-            'created_by_api',
-        )
-        extra_kwargs = {
-            # not required during creation, or updating
-            # they are overwritten by the api on save or create
-            'modified_by_user_id':      { 'required': False },
-            'modified_by_api':          { 'required': False },
-            'created_by_user_id':       { 'required': False },
-            'created_by_api':           { 'required': False },
+            'editor',
+        ) + CommonSerializer.Meta.fields
 
+        extra_kwargs = {
             # these values are generated automatically or provide default values on creation.
             # some fields can be later updated by the user, some are generated
             'preservation_state':       { 'required': False },
             'preservation_description': { 'required': False },
             'preservation_state_modified':    { 'required': False },
             'mets_object_identifier':   { 'required': False },
-            'owner_id':                 { 'required': False },
 
             'next_version_id':              { 'required': False },
             'next_version_identifier':      { 'required': False },
@@ -63,6 +52,8 @@ class CatalogRecordSerializer(CommonSerializer):
             'previous_version_identifier':  { 'required': False },
             'version_created':              { 'required': False },
         }
+
+        extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
 
     def is_valid(self, raise_exception=False):
         if self.initial_data.get('data_catalog', False):

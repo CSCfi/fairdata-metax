@@ -1,4 +1,5 @@
 from .catalog_record import AlternateRecordSet, CatalogRecord
+from .common import Common
 from .contract import Contract
 from .data_catalog import DataCatalog
 from .directory import Directory

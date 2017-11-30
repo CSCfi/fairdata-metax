@@ -104,5 +104,6 @@
       }
     ],
     "research_dataset_schema": "att"
-  }
+  },
+  "service_created": "metax"
 }

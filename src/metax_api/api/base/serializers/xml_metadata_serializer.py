@@ -12,19 +12,9 @@ class XmlMetadataSerializer(CommonSerializer):
             'namespace',
             'xml',
             'file',
-            'modified_by_user_id',
-            'modified_by_api',
-            'created_by_user_id',
-            'created_by_api',
-        )
-        extra_kwargs = {
-            # not required during creation, or updating
-            # they would be overwritten by the api anyway
-            'modified_by_user_id': { 'required': False },
-            'modified_by_api': { 'required': False },
-            'created_by_user_id': { 'required': False },
-            'created_by_api': { 'required': False },
-        }
+        ) + CommonSerializer.Meta.fields
+
+        extra_kwargs = CommonSerializer.Meta.extra_kwargs
 
     def to_representation(self, instance):
         res = super(XmlMetadataSerializer, self).to_representation(instance)

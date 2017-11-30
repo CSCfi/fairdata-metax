@@ -8,7 +8,8 @@
   "identifier": "pid:urn:dir:%s",
   "parent_directory": 1,
   "project_identifier": "project_x",
-  "created_by_api": "2017-05-23T10:07:22Z",
-  "modified_by_api": "2017-06-27T10:07:22Z",
-  "removed": false
+  "date_created": "2017-05-23T10:07:22Z",
+  "date_modified": "2017-06-27T10:07:22Z",
+  "removed": false,
+  "service_created": "metax"
 }

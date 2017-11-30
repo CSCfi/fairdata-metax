@@ -13,6 +13,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.utils import RabbitMQ
+from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
 
 _logger = logging.getLogger(__name__)
@@ -186,24 +187,19 @@ class FileService(CommonService):
         _logger.info('Deleting directories of deleted files...')
 
         # get all parent directories of deleted files, and check that they are all really empty
-        sql_select_dirs_of_deleted_files = '''
-            select d.id, directory_path
-            from metax_api_directory d
-            left join metax_api_file f on f.parent_directory_id = d.id
-            where f.removed = true and f.id in %s
-            group by d.id, directory_path
-            order by directory_path asc
-            '''
-
-        dirs_of_deleted_files = Directory.objects.raw(sql_select_dirs_of_deleted_files, [tuple(file_ids)])
+        dirs_of_deleted_files = Directory.objects \
+            .filter(files__in=file_ids, files__removed=True) \
+            .distinct('id', 'directory_path') \
+            .order_by('directory_path')
 
         try:
             # find the top-most directory, so that any possible empty directory chains
             # above it can be found and deleted later
             parent_of_top_dir = dirs_of_deleted_files[0].parent_directory
-        except: # pragma: no cover
+        except Exception as e: # pragma: no cover
+            _logger.error(e)
             raise ValidationError({
-                'detail': ['Could not find any directories associated with the deleted files... This should not happen']
+                'detail': ['Could not find any directories associated with the files... This should not happen']
             })
 
         for dr in dirs_of_deleted_files:
@@ -283,8 +279,9 @@ class FileService(CommonService):
         _logger.info('Marking related datasets as deprecated...')
         deprecated_records = []
 
-        for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False):
+        for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False).distinct('id'):
             cr.deprecated = True
+            cr.date_modified = get_tz_aware_now_without_micros()
             cr.save()
             deprecated_records.append(CatalogRecordSerializer(cr).data)
 

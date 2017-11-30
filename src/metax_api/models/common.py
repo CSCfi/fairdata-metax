@@ -4,6 +4,8 @@ from dateutil import parser
 from django.core.exceptions import FieldError
 from django.db import models
 
+from metax_api.utils.utils import executing_test_case
+
 
 class CommonManager(models.Manager):
 
@@ -18,10 +20,14 @@ class Common(models.Model):
     id = models.BigAutoField(primary_key=True, editable=False)
     active = models.BooleanField(default=True)
     removed = models.BooleanField(default=False)
-    modified_by_api = models.DateTimeField(null=True)
-    modified_by_user_id = models.CharField(max_length=200, null=True)
-    created_by_api = models.DateTimeField()
-    created_by_user_id = models.CharField(max_length=200, null=True)
+    date_modified = models.DateTimeField(null=True)
+    user_modified = models.CharField(max_length=200, null=True)
+    date_created = models.DateTimeField()
+    user_created = models.CharField(max_length=200, null=True)
+    service_modified = models.CharField(max_length=200, null=True,
+        help_text='Name of the service who last modified the record')
+    service_created = models.CharField(max_length=200,
+        help_text='Name of the service who created the record')
 
     # END OF MODEL FIELD DEFINITIONS #
 
@@ -37,8 +43,25 @@ class Common(models.Model):
     def __init__(self, *args, **kwargs):
         super(Common, self).__init__(*args, **kwargs)
         self._initial_data = {}
+        self.track_fields(
+            'date_created',
+            'user_created',
+            'service_created',
+        )
 
     def save(self, *args, **kwargs):
+        if self._operation_is_update():
+            self._check_read_only_after_create_fields()
+        super(Common, self).save(*args, **kwargs)
+        self._update_tracked_field_values()
+
+    def force_save(self, *args, **kwargs):
+        """
+        Can be used to directly save to db while bypassing all tracked_fields
+        checks. Should be used only in testing to set up data for a test case.
+        """
+        if not executing_test_case():
+            raise Exception('this method should only be used inside a test case')
         super(Common, self).save(*args, **kwargs)
         self._update_tracked_field_values()
 
@@ -52,14 +75,14 @@ class Common(models.Model):
     def modified_since(self, timestamp):
         """
         Return True if object has been modified since the given timestamp. Currently this method is used for validating
-        modified_by_api string representation or http header timestamp originated datetime object. In the former case,
+        date_modified string representation or http header timestamp originated datetime object. In the former case,
         the format should be well-known since it is created by Metax API.
 
         parameters:
         timestamp: a timezone-aware datetime object, or a timestamp string with timezone information,
             or None, which implies 'the resource has never been modified before'
         """
-        if not self.modified_by_api:
+        if not self.date_modified:
             # server version has never been modified
             return False
         elif not timestamp:
@@ -70,7 +93,7 @@ class Common(models.Model):
         if isinstance(timestamp, str):
             timestamp = parser.parse(timestamp)
 
-        return timestamp < self.modified_by_api
+        return timestamp < self.date_modified
 
     def track_fields(self, *args):
         """
@@ -99,6 +122,14 @@ class Common(models.Model):
             raise FieldError('Field %s is not being tracked for changes' % field_name)
         return getattr(self, field_name) != initial_value
 
+    def _check_read_only_after_create_fields(self):
+        if self.field_changed('date_created'):
+            self.date_created = self._initial_data['date_created']
+        if self.field_changed('user_created'):
+            self.user_created = self._initial_data['user_created']
+        if self.field_changed('service_created'):
+            self.service_created = self._initial_data['service_created']
+
     def _generate_identifier(self, salt):
         return 'pid:urn:%s:%d-%d' % (str(salt), self.id, int(round(time() * 1000)))
 
@@ -112,6 +143,9 @@ class Common(models.Model):
 
     def _operation_is_create(self):
         return self.id is None
+
+    def _operation_is_update(self):
+        return self.id is not None
 
     def _track_json_field(self, field_name):
         field_name, json_field_name = field_name.split('.')

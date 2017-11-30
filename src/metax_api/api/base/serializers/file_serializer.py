@@ -3,7 +3,7 @@ import logging
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 
-from metax_api.models import File, FileStorage
+from metax_api.models import Directory, File, FileStorage
 from .common_serializer import CommonSerializer
 from .file_storage_serializer import FileStorageSerializer
 from .serializer_utils import validate_json
@@ -44,19 +44,9 @@ class FileSerializer(CommonSerializer):
             'open_access',
             'project_identifier',
             'replication_path',
-            'modified_by_user_id',
-            'modified_by_api',
-            'created_by_user_id',
-            'created_by_api',
-        )
-        extra_kwargs = {
-            # not required during creation, or updating
-            # they would be overwritten by the api anyway
-            'modified_by_user_id': { 'required': False },
-            'modified_by_api': { 'required': False },
-            'created_by_user_id': { 'required': False },
-            'created_by_api': { 'required': False },
-        }
+        ) + CommonSerializer.Meta.fields
+
+        extra_kwargs = CommonSerializer.Meta.extra_kwargs
 
     def is_valid(self, raise_exception=False):
         if 'file_storage' in self.initial_data:
@@ -64,7 +54,9 @@ class FileSerializer(CommonSerializer):
                 'file_storage', self._get_file_storage_relation)
         if 'checksum' in self.initial_data:
             self._flatten_checksum(self.initial_data['checksum'])
-
+        if 'parent_directory' in self.initial_data:
+            self.initial_data['parent_directory'] = self._get_id_from_related_object(
+                'parent_directory', self._get_parent_directory_relation)
         super(FileSerializer, self).is_valid(raise_exception=raise_exception)
 
     def to_representation(self, instance):
@@ -129,3 +121,14 @@ class FileSerializer(CommonSerializer):
                 checksum[key] = file_data[checksum_field]
                 file_data.pop(checksum_field)
         return checksum
+
+    def _get_parent_directory_relation(self, identifier_value):
+        """
+        Passed to _get_id_from_related_object() to be used when relation was a string identifier
+        """
+        if isinstance(identifier_value, dict):
+            identifier_value = identifier_value['identifier']
+        try:
+            return Directory.objects.get(identifier=identifier_value).id
+        except Directory.DoesNotExist:
+            raise ValidationError({ 'parent_directory': ['identifier %s not found' % str(identifier_value)]})
