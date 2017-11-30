@@ -1,6 +1,7 @@
 from base64 import b64encode
 from json import dumps
 import requests
+from time import sleep
 import yaml
 import urllib3
 
@@ -32,10 +33,8 @@ def get_auth_header():
             }
 
 
-def retrieve_and_update_all_datasets_in_db():
+def retrieve_and_update_all_datasets_in_db(headers):
     print('-- begin retrieving and updating all datasets in the db --')
-    headers = { 'Content-type': 'application/json' }
-    headers.update(get_auth_header())
 
     print('retrieving all urn_identifiers...')
     response = requests.get('https://localhost/rest/datasets/urn_identifiers', headers=headers, verify=False)
@@ -45,6 +44,7 @@ def retrieve_and_update_all_datasets_in_db():
     records = []
     count = 0
 
+    print(response.json())
     print('retrieving details of datasets...')
 
     for urn in response.json():
@@ -70,10 +70,8 @@ def retrieve_and_update_all_datasets_in_db():
         print('-- done --')
 
 
-def retrieve_and_update_all_data_catalogs_in_db():
+def retrieve_and_update_all_data_catalogs_in_db(headers):
     print('-- begin retrieving and updating all data catalogs in the db --')
-    headers = { 'Content-type': 'application/json' }
-    headers.update(get_auth_header())
 
     print('retrieving all data catalog IDs...')
     response = requests.get('https://localhost/rest/datacatalogs?limit=100', headers=headers, verify=False)
@@ -103,5 +101,23 @@ def retrieve_and_update_all_data_catalogs_in_db():
 
 
 if __name__ == '__main__':
-    retrieve_and_update_all_datasets_in_db()
-    retrieve_and_update_all_data_catalogs_in_db()
+    headers = {'Content-type': 'application/json'}
+    headers.update(get_auth_header())
+
+    is_ok = False
+    no = 1
+    while not is_ok and no <= 10:
+        response = requests.get('https://localhost/rest/datasets/1', headers=headers, verify=False)
+        if response.status_code == 200:
+            is_ok = True
+        else:
+            no += 1
+            sleep(1)
+
+    if not is_ok:
+        print("Unable to GET dataset with pk 1, aborting..")
+        import sys
+        sys.exit(1)
+
+    retrieve_and_update_all_datasets_in_db(headers)
+    retrieve_and_update_all_data_catalogs_in_db(headers)
