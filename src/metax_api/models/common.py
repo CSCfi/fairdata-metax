@@ -44,13 +44,14 @@ class Common(models.Model):
         super(Common, self).__init__(*args, **kwargs)
         self._initial_data = {}
         self.track_fields(
+            'date_created',
+            'user_created',
             'service_created',
         )
 
     def save(self, *args, **kwargs):
-        if self.field_changed('service_created'):
-            # read-only after creating
-            self.service_created = self._initial_data['service_created']
+        if self._operation_is_update():
+            self._check_read_only_after_create_fields()
         super(Common, self).save(*args, **kwargs)
         self._update_tracked_field_values()
 
@@ -121,6 +122,14 @@ class Common(models.Model):
             raise FieldError('Field %s is not being tracked for changes' % field_name)
         return getattr(self, field_name) != initial_value
 
+    def _check_read_only_after_create_fields(self):
+        if self.field_changed('date_created'):
+            self.date_created = self._initial_data['date_created']
+        if self.field_changed('user_created'):
+            self.user_created = self._initial_data['user_created']
+        if self.field_changed('service_created'):
+            self.service_created = self._initial_data['service_created']
+
     def _generate_identifier(self, salt):
         return 'pid:urn:%s:%d-%d' % (str(salt), self.id, int(round(time() * 1000)))
 
@@ -134,6 +143,9 @@ class Common(models.Model):
 
     def _operation_is_create(self):
         return self.id is None
+
+    def _operation_is_update(self):
+        return self.id is not None
 
     def _track_json_field(self, field_name):
         field_name, json_field_name = field_name.split('.')

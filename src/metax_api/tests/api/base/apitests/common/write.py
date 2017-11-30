@@ -42,15 +42,35 @@ class ApiWriteCommon(APITestCase, TestClassUtils):
 
 class ApiWriteCommonFieldsTests(ApiWriteCommon):
 
-    def test_service_created_is_read_only_after_create(self):
+    def test_certain_create_fields_are_read_only_after_create(self):
+        """
+        The following fields should be read-only after initial creation of a resource:
+        - date_created
+        - user_created
+        - service_created
+        """
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual('service_created' in response.data, True)
-        service_created = response.data['service_created']
+
+        # some of the fields could be empty in test data. that is fine tho, the point is that
+        # they should not change later.
+        orig_date_created = response.data.get('date_created', None)
+        orig_user_created = response.data.get('user_created', None)
+        orig_service_created = response.data.get('service_created', None)
+
         altered = response.data
+        altered['date_created'] = altered['date_created'].replace('2017', '2010')
+        altered['user_created'] = 'changed'
         altered['service_created'] = 'changed'
-        response = self.client.patch('/rest/datasets/%d' % response.data['id'], altered, format="json")
-        self.assertEqual(service_created, response.data['service_created'])
+
+        response = self.client.put('/rest/datasets/%d' % altered['id'], altered, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        response = self.client.get('/rest/datasets/%d' % altered['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(orig_date_created, response.data.get('date_created', None))
+        self.assertEqual(orig_user_created, response.data.get('user_created', None))
+        self.assertEqual(orig_service_created, response.data.get('service_created', None))
 
 
 class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
