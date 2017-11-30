@@ -153,6 +153,11 @@
                     "description":"Id of the owner in the editor",
                     "type":"string"
                 },
+                "record_id":{
+                    "title":"Record id",
+                    "description":"Internal id of the record in the editor's system",
+                    "type":"string"
+                },
                 "identifier":{
                     "title":"identifier",
                     "description":"Id of the editor, for example: qvain",
