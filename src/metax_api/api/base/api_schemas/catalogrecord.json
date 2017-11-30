@@ -143,9 +143,19 @@
             "title":"Editor",
             "description":"An editor object, holds information related to an editor that is used to modify the record. Can contain other fields that are useful to the editor.",
             "properties":{
+                "creator_id":{
+                    "title":"Creator id",
+                    "description":"Id of the creator in the editor. May (currently) be the same value as user_created in CatalogRecord, if the requestor has set that value.",
+                    "type":"string"
+                },
                 "owner_id":{
                     "title":"Owner id",
                     "description":"Id of the owner in the editor",
+                    "type":"string"
+                },
+                "record_id":{
+                    "title":"Record id",
+                    "description":"Internal id of the record in the editor's system",
                     "type":"string"
                 },
                 "identifier":{

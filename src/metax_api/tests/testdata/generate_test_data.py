@@ -56,6 +56,15 @@ files_per_dataset = 2
 
 catalog_records_per_contract = 2
 
+# spread these evenly among the cr's
+catalog_records_owner_ids = [
+    '053bffbcc41edad4853bea91fc42ea18',
+    '053d18ecb29e752cb7a35cd77b34f5fd',
+    '05593961536b76fa825281ccaedd4d4f',
+    '055ea4dade5ab2145954f56d4b51cef0',
+    '055ea531a6cac569425bed94459266ee',
+]
+
 # mode: json for json-file, request for request per row, request_list for bulk post
 mode = 'json'
 
@@ -392,6 +401,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
     total_time_elapsed = 0
     files_start_idx = 0
     data_catalog_id = data_catalogs_list[0]['pk']
+    owner_idx = 0
 
     for i in range(1, catalog_record_max_rows + 1):
 
@@ -414,7 +424,15 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
             new['fields']['date_created'] = '2017-05-23T10:07:22Z'
+            new['fields']['editor'] = {
+                'owner_id': catalog_records_owner_ids[owner_idx],
+                'creator_id': catalog_records_owner_ids[owner_idx],
+            }
             new['fields']['files'] = []
+
+            owner_idx += 1
+            if owner_idx >= len(catalog_records_owner_ids):
+                owner_idx = 0
 
             # add files
 
@@ -566,6 +584,10 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         new['fields']['files'] = [1, 2]  # for the relation in the db
         new['fields']['date_modified'] = '2017-09-23T10:07:22Z'
         new['fields']['date_created'] = '2017-05-23T10:07:22Z'
+        new['fields']['editor'] = {
+            'owner_id': catalog_records_owner_ids[j],
+            'creator_id': catalog_records_owner_ids[owner_idx],
+        }
         new['fields']['research_dataset']['urn_identifier'] = 'very:unique:urn-%d' % j
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
 
@@ -587,6 +609,9 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
 
     #
     # create a couple of alternate records for record with id 10
+    #
+    # note, these alt records wont have an editor-field set, since they presumably
+    # originated to metax from somewhere else than qvain (were harvested).
     #
 
     alternate_record_set = {
