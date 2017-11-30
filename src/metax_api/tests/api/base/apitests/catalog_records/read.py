@@ -182,7 +182,7 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_search_by_creator_id(self):
         cr = CatalogRecord.objects.get(pk=1)
         cr.user_created = '123'
-        cr.save()
+        cr.force_save()
         response = self.client.get('/rest/datasets?user_created=123')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)

@@ -4,6 +4,8 @@ from dateutil import parser
 from django.core.exceptions import FieldError
 from django.db import models
 
+from metax_api.utils.utils import executing_test_case
+
 
 class CommonManager(models.Manager):
 
@@ -49,6 +51,16 @@ class Common(models.Model):
         if self.field_changed('service_created'):
             # read-only after creating
             self.service_created = self._initial_data['service_created']
+        super(Common, self).save(*args, **kwargs)
+        self._update_tracked_field_values()
+
+    def force_save(self, *args, **kwargs):
+        """
+        Can be used to directly save to db while bypassing all tracked_fields
+        checks. Should be used only in testing to set up data for a test case.
+        """
+        if not executing_test_case():
+            raise Exception('this method should only be used inside a test case')
         super(Common, self).save(*args, **kwargs)
         self._update_tracked_field_values()
 
