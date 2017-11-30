@@ -13,6 +13,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.utils import RabbitMQ
+from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
 
 _logger = logging.getLogger(__name__)
@@ -280,6 +281,7 @@ class FileService(CommonService):
 
         for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False).distinct('id'):
             cr.deprecated = True
+            cr.date_modified = get_tz_aware_now_without_micros()
             cr.save()
             deprecated_records.append(CatalogRecordSerializer(cr).data)
 
