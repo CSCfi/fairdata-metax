@@ -39,7 +39,7 @@ class AddLastModifiedHeaderToResponse(object):
 
     @staticmethod
     def _add_last_modified_header_to_response(response):
-        if response.data:
+        if hasattr(response, 'data'):
             obj = None
             if isinstance(response.data, dict):
                 obj = response.data.get('success', response.data)
