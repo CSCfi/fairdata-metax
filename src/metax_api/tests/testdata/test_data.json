@@ -1499,6 +1499,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
             "files": [
                 1,
                 2
@@ -1594,6 +1597,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
             "files": [
                 3,
                 4
@@ -1692,6 +1698,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+            },
             "files": [
                 5,
                 6
@@ -1790,6 +1799,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
+            },
             "files": [
                 7,
                 8
@@ -1892,6 +1904,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
             "files": [
                 9,
                 10
@@ -1994,6 +2009,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
             "files": [
                 11,
                 12
@@ -2091,6 +2109,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
             "files": [
                 13,
                 14
@@ -2188,6 +2209,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+            },
             "files": [
                 15,
                 16
@@ -2269,6 +2293,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
+            },
             "files": [
                 17,
                 18
@@ -2351,6 +2378,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
             "files": [
                 19,
                 20
@@ -2431,6 +2461,9 @@
             "data_catalog": 1,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
+            "editor": {
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
             "files": [
                 1,
                 2
@@ -3277,6 +3310,9 @@
             "data_catalog": 1,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
+            "editor": {
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
             "files": [
                 1,
                 2
@@ -4125,6 +4161,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
             "files": [
                 19,
                 20
@@ -4207,6 +4246,9 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
             "files": [
                 19,
                 20
