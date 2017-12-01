@@ -299,10 +299,7 @@
           }
         },
         "type": {
-          "identifier": "provenancetypeidentifier",
-          "pref_label": {
-            "en": "pref label for this type"
-          },
+          "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
           "definition": [
             {
               "en": "A statement or formal explanation of the meaning of a concept."
@@ -419,6 +416,29 @@
             }
           }
         ]
+      },
+      {
+        "title": {
+          "en": "Some other activity"
+        },
+        "description": {
+          "en": "Description of other provenance activity"
+        },
+        "temporal": {
+          "start_date": "2014-01-01T08:19:58Z",
+          "end_date": "2014-12-31T08:19:58Z"
+        },
+        "spatial": {
+          "geographic_name": "Geographic name",
+          "alt": "11.111",
+          "fullAddress": "The complete address written as a string, with or without formatting",
+          "place_uri": {
+            "identifier": "http://www.yso.fi/onto/yso/p105917"
+          }
+        },
+        "type": {
+          "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+        }
       }
     ],
     "rights_holder": {

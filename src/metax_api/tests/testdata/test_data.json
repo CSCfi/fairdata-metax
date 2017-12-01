@@ -2902,7 +2902,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "provenancetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.provenance.concept/scheme",
@@ -2910,10 +2910,7 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
+                            ]
                         },
                         "used_entity": [
                             {
@@ -3017,6 +3014,29 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "description": {
+                            "en": "Description of other provenance activity"
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p105917"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some other activity"
+                        },
+                        "type": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        }
                     }
                 ],
                 "publisher": {
@@ -3752,7 +3772,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "provenancetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.provenance.concept/scheme",
@@ -3760,10 +3780,7 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
+                            ]
                         },
                         "used_entity": [
                             {
@@ -3867,6 +3884,29 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "description": {
+                            "en": "Description of other provenance activity"
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p105917"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some other activity"
+                        },
+                        "type": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        }
                     }
                 ],
                 "publisher": {
