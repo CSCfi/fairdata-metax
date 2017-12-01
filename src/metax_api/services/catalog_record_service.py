@@ -370,6 +370,20 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
                 spatial['as_wkt'] = as_wkt
 
+            if activity.get('type', False):
+                ref_entry = cls.check_ref_data(refdata['lifecycle_event'],
+                                               activity['type']['identifier'],
+                                               'research_dataset.activity.type.identifier',
+                                               value_not_found_is_error=False)
+
+                if not ref_entry:
+                    ref_entry = cls.check_ref_data(refdata['preservation_event'],
+                                                   activity['type']['identifier'],
+                                                   'research_dataset.activity.type.identifier', errors)
+
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, activity['type'], label_field='pref_label')
+
         for infra in research_dataset.get('infrastructure', []):
             ref_entry = cls.check_ref_data(refdata['research_infra'], infra['identifier'],
                                            'research_dataset.infrastructure.identifier', errors)
