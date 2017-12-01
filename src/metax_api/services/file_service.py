@@ -144,10 +144,9 @@ class FileService(CommonService):
             _logger.info('Received empty list of identifiers. Aborting')
             raise Http400('Received empty list of identifiers')
         elif isinstance(file_identifiers[0], int):
-            file_ids = file_identifiers
+            return file_identifiers
         else:
-            file_ids = File.objects.filter(identifier__in=file_identifiers).values_list('id', flat=True)
-        return file_ids
+            return [ id for id in File.objects.filter(identifier__in=file_identifiers).values_list('id', flat=True) ]
 
     @staticmethod
     def _mark_files_as_deleted(file_ids):
