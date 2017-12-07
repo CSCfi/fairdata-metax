@@ -63,6 +63,14 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
         })
         return from_test_data
 
+    def _count_dirs_from_path(self, file_path):
+        expected_dirs_count = 1
+        dir_name = dirname(file_path)
+        while dir_name != '/':
+            dir_name = dirname(dir_name)
+            expected_dirs_count += 1
+        return expected_dirs_count
+
 
 class FileApiWriteCreateTests(FileApiWriteCommon):
     #
@@ -194,9 +202,57 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
 
 
 class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
+
     """
     Only checking directories related stuff in these tests
     """
+
+    def test_create_file_hierarchy_from_single_file(self):
+        """
+        Create, from a single file, a file hierarchy for a project which has 0 files
+        or directories created previously.
+        """
+
+        f = self._form_complex_list_from_test_file()[0]
+        f['file_path'] = '/project_y_FROZEN/Experiment_1/path/of/lonely/file/%s' % f['file_name']
+        f['identifier'] = '%s-111' % f['file_path']
+
+        response = self.client.post('/rest/files', f, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('date_created' in response.data, True)
+        self.assertEqual('parent_directory' in response.data, True)
+
+        dirs_count = Directory.objects.filter(project_identifier='project_y').count()
+        dirs_created_count = self._count_dirs_from_path(f['file_path'])
+        self.assertEqual(dirs_count, dirs_created_count)
+
+    def test_create_file_append_to_existing_directory(self):
+        """
+        Appending a file to an existing file hierarchy should not cause any other
+        changes in any other directories.
+
+        Note: Targeting project_x, which exists in pre-generated test data.
+        """
+        project_identifier = 'project_x'
+        dir_count_before = Directory.objects.filter(project_identifier=project_identifier).count()
+        file_count_before = Directory.objects.filter(project_identifier=project_identifier,
+            directory_path='/project_x_FROZEN/Experiment_X/Phase_1').first().files.all().count()
+
+        f = self._form_complex_list_from_test_file()[0]
+        f['file_path'] = '/project_x_FROZEN/Experiment_X/Phase_1/%s' % f['file_name']
+        f['identifier'] = '%s-111' % f['file_path']
+        f['project_identifier'] = project_identifier
+
+        response = self.client.post('/rest/files', f, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('date_created' in response.data, True)
+        self.assertEqual('parent_directory' in response.data, True)
+
+        dir_count_after = Directory.objects.filter(project_identifier=project_identifier).count()
+        file_count_after = Directory.objects.filter(project_identifier=project_identifier,
+            directory_path='/project_x_FROZEN/Experiment_X/Phase_1').first().files.all().count()
+        self.assertEqual(dir_count_before, dir_count_after)
+        self.assertEqual(file_count_after - file_count_before, 1)
 
     def test_create_file_hierarchy_from_file_list_with_no_existing_files(self):
         """
@@ -207,7 +263,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         experiment_1_file_list = self._form_complex_list_from_test_file()
 
         response = self.client.post('/rest/files', experiment_1_file_list, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual(len(response.data['success']), 12)
         self.assertEqual(len(response.data['failed']), 0)
@@ -240,9 +296,65 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             f['identifier'] = '%s-%d' % (f['file_path'], i)
 
         response = self.client.post('/rest/files', experiment_2_file_list, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual(len(response.data['success']), 12)
+        self.assertEqual(len(response.data['failed']), 0)
+
+        dirs_dict = self._assert_directory_parent_dirs('project_y')
+        self._assert_file_parent_dirs(dirs_dict, response)
+
+    def test_append_files_to_existing_directory(self):
+        """
+        Append some files to an existing directory.
+
+        Here, 5 files are added to directory /project_y_FROZEN/Experiment_2/
+        """
+
+        # setup db to have pre-existing dirs
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+
+        # form new test data, and trim it down a bit
+        experiment_2_file_list = self._form_complex_list_from_test_file()
+        while len(experiment_2_file_list) > 5:
+            experiment_2_file_list.pop()
+
+        for i, f in enumerate(experiment_2_file_list):
+            f['file_path'] = '/project_y_FROZEN/Experiment_1/%s' % f['file_name']
+            f['identifier'] = '%s-%d' % (f['file_path'], i)
+
+        response = self.client.post('/rest/files', experiment_2_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual(len(response.data['success']), 5)
+        self.assertEqual(len(response.data['failed']), 0)
+
+        dirs_dict = self._assert_directory_parent_dirs('project_y')
+        self._assert_file_parent_dirs(dirs_dict, response)
+
+    def test_append_one_file_to_existing_directory(self):
+        """
+        Append one file to an existing directory.
+
+        Here, 1 file is added to directory /project_y_FROZEN/Experiment_2/
+        """
+
+        # setup db to have pre-existing dirs
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+
+        # form new test data, but use just the first item
+        experiment_2_file_list = self._form_complex_list_from_test_file()[0:1]
+
+        for i, f in enumerate(experiment_2_file_list):
+            f['file_path'] = '/project_y_FROZEN/Experiment_1/%s' % f['file_name']
+            f['identifier'] = '%s-%d' % (f['file_path'], i)
+
+        response = self.client.post('/rest/files', experiment_2_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual(len(response.data['success']), 1)
         self.assertEqual(len(response.data['failed']), 0)
 
         dirs_dict = self._assert_directory_parent_dirs('project_y')
@@ -341,12 +453,12 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
             {
                 "file_name": "kissa.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_3/kissa.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_3/2017/01/kissa.png",
             },
             {
                 "file_name": "ekaa.png",
                 "file_path": "/project_y_FROZEN/Experiment_1/an_image_layeth_here.png",
-            }
+            },
         ]
 
         files = []
@@ -509,50 +621,86 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
     #
     #
 
-    def test_delete_single_file_not_allowed(self):
-        url = '/rest/files/%s' % self.identifier
+    def test_delete_single_file_ok(self):
+        url = '/rest/files/1'
+        dir_count_before = Directory.objects.all().count()
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('deleted_files_count' in response.data, True, response.data)
+        self.assertEqual(response.data['deleted_files_count'], 1, response.data)
+        dir_count_after = Directory.objects.all().count()
+        self.assertEqual(dir_count_before, dir_count_after, 'no dirs should have been deleted')
 
-    def test_bulk_delete_incomplete_file_list_leaves_sub_dirs_with_files(self):
+    def test_delete_single_file_ok_destroy_leading_dirs(self):
+        test_data = deepcopy(self.test_new_data)
+        test_data['file_path'] = '/project_z/some/path/here/%s' % test_data['file_name']
+        test_data['project_identifier'] = 'project_z'
+        test_data['identifier'] = 'abc123'
+        response = self.client.post('/rest/files', test_data, format='json')
+        self.assertEqual(Directory.objects.filter(project_identifier='project_z').exists(), True)
+
+        response = self.client.delete('/rest/files/%s' % response.data['id'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('deleted_files_count' in response.data, True, response.data)
+        self.assertEqual(response.data['deleted_files_count'], 1, response.data)
+
+        self.assertEqual(Directory.objects.filter(project_identifier='project_z').exists(), False)
+
+    def test_delete_single_file_404(self):
+        url = '/rest/files/doesnotexist'
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_bulk_delete_files_in_single_directory_1(self):
         """
         A bulk delete request to /files, where the list of files does not contain a full
-        directory and all its sub-directories, is basically an error. The expectation is
-        that IDA always deletes/unfreezes only entire directories, with its sub-directories.
-        This test is a fringe edgecase that isn't really supposed to ever happen, but in case
-        it does happen, make sure it is recognized and prevented. Any 'partial' delete of a
-        directory should basically be an error.
+        directory and all its sub-directories.
 
-        This test should throw an error when attempting to delete all files from only one
-        directory, which should result in that directory being deleted. As a result, there
-        should also be a directory that is now without a parent, but has files, which is not
-        allowed.
+        Only the files requested should be deleted, while leaving the rest of the directory
+        tree intact.
         """
         all_files_count_before = File.objects.all().count()
         file_ids = [f.id for f in Directory.objects.get(pk=3).files.all()]
 
-        response = self._request_with_manual_rollback(file_ids)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         all_files_count_after = File.objects.all().count()
-        self.assertEqual(all_files_count_before, all_files_count_after, 'no files should have been removed')
+        self.assertEqual(all_files_count_after, all_files_count_before - len(file_ids))
 
-    def test_bulk_delete_incomplete_file_list_one_file_id_missing(self):
+    def test_bulk_delete_files_in_single_directory_2(self):
+        """
+        Same as above, but target another directory.
+        """
+        all_files_count_before = File.objects.all().count()
+        file_ids = [f.id for f in Directory.objects.get(pk=4).files.all()]
+
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        all_files_count_after = File.objects.all().count()
+        self.assertEqual(all_files_count_after, all_files_count_before - len(file_ids))
+
+    def test_bulk_delete_file_list_one_file_id_missing(self):
         """
         Otherwise complete set of files, but from one dir one file is missing.
-        Should raise error.
+        Should leave the one file intact, while preserving the directory tree.
         """
         all_files_count_before = File.objects.all().count()
         file_ids = [f.id for f in File.objects.filter(project_identifier='project_x')]
 
-        # a file will be found in one dir
+        # everything except the last file should be removed
         file_ids.pop(len(file_ids) - 1)
 
-        response = self._request_with_manual_rollback(file_ids)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        all_files_count_after = File.objects.all().count()
-        self.assertEqual(all_files_count_before, all_files_count_after, 'no files should have been removed')
+        all_files_after = File.objects.filter(project_identifier='project_x')
+        self.assertEqual(all_files_after.count(), all_files_count_before - len(file_ids))
+
+        expected_dirs_count = self._count_dirs_from_path(all_files_after[0].file_path)
+        actual_dirs_count = Directory.objects.filter(project_identifier='project_x').count()
+        self.assertEqual(actual_dirs_count, expected_dirs_count)
 
     def test_bulk_delete_files_from_root(self):
         """
@@ -568,7 +716,6 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self.assertEqual(response.data.get('deleted_files_count', None), files_to_remove_count, response.data)
 
         self._assert_files_available_and_removed('project_x', 0, files_to_remove_count)
-
         self.assertEqual(Directory.objects_unfiltered.filter(project_identifier='project_x').count(), 0,
                          'all dirs should have been permanently removed')
 
