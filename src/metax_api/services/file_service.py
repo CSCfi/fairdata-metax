@@ -87,35 +87,33 @@ class FileService(CommonService):
         return Response(urn_identifiers, status=status.HTTP_200_OK)
 
     @classmethod
+    def destroy_single(cls, file):
+        """
+        Mark a single file as removed. Marks related datasets deprecated, and deletes any empty
+        directories above the file.
+        """
+        _logger.info('Begin delete file')
+
+        deleted_files_count, project_identifier = cls._mark_files_as_deleted([file.id])
+        cls._delete_empy_dir_chain_above(file.parent_directory)
+        cls._mark_datasets_as_deprecated([file.id])
+
+        _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
+        return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
+
+    @classmethod
     def destroy_bulk(cls, file_identifiers):
         """
         Mark files as deleted en masse. Parameter file_identifiers can be a list of pk's
         (integers), or file identifiers (strings).
 
-        Currently the assumption is that a bulk delete request will always contain ALL the files
-        in a directory, and its sub-directories, so the end result after all the operations should
-        be that the top-dir found in a list of files should effectively be completely cut out.
+        A bulk delete request can concern either an entire directory and its subdirectories,
+        or just some files in a directory, or all files in a single directory. Effectively,
+        whatever files the request contains, should be deleted, while ensuring that
+        the directory hierarchy remains valid for any files that are left after deleting.
 
-        By far the easiest solution would have been to just find the top file_path, and delete all
-        files and dirs within the project scope that begin with said path, but it was recommended
-        to operate explicitly on the given file identifiers to minimize the opportunity for any
-        unforeseen accidents.
-
-        Since metax has to make due with working only with lists of the files themselves and
-        their file paths instead of being given the related directories with their unique
-        identifiers as well, this method goes a decent length to protect the file hierarchy from
-        ending up in any kind of inconsistent state, mostly culminating in making sure that
-        - there will not be any directories or files without parent directories
-          (a project can only have one directory without a parent, which is the root
-          /project_x_FROZEN directory. This method will delete the root as well, though,
-          when approriate).
-        - any directory being deleted does not have files in it (directories are deleted
-          after deleting the specified files, so any files still found in the directories
-          implies there is a de-sync between IDA and metax)
-        - there will not be any "orphaned" directory chains (with no files in them) between
-          the top and the bottom of the file hierarchy
-
-        Any evidence of the previous scenarios will raise an error.
+        If the result of a bulk delete request is that none of the directories left
+        contain any files, the all directories, including the root, will end up deleted.
 
         The method returns a http response with the number of deleted files in the body.
         """
@@ -125,9 +123,7 @@ class FileService(CommonService):
 
         deleted_files_count, project_identifier = cls._mark_files_as_deleted(file_ids)
 
-        parent_of_top_dir = cls._delete_dirs_of_deleted_files(file_ids)
-
-        cls._find_and_delete_empy_dir_chains(project_identifier, parent_of_top_dir)
+        cls._find_and_delete_empty_directories(project_identifier)
 
         cls._mark_datasets_as_deprecated(file_ids)
 
@@ -178,69 +174,29 @@ class FileService(CommonService):
         return deleted_files_count, project_identifier
 
     @classmethod
-    def _delete_dirs_of_deleted_files(cls, file_ids):
+    def _find_and_delete_empty_directories(cls, project_identifier):
         """
-        Gather ids of all directories that were parents of the files marked as removed,
-        and permanently delete them.
-        """
-        _logger.info('Deleting directories of deleted files...')
-
-        # get all parent directories of deleted files, and check that they are all really empty
-        dirs_of_deleted_files = Directory.objects \
-            .filter(files__in=file_ids, files__removed=True) \
-            .distinct('id', 'directory_path') \
-            .order_by('directory_path')
-
-        try:
-            # find the top-most directory, so that any possible empty directory chains
-            # above it can be found and deleted later
-            parent_of_top_dir = dirs_of_deleted_files[0].parent_directory
-        except Exception as e: # pragma: no cover
-            _logger.error(e)
-            raise ValidationError({
-                'detail': ['Could not find any directories associated with the files... This should not happen']
-            })
-
-        for dr in dirs_of_deleted_files:
-            if dr.files.exists():
-                cls._raise_incomplete_bulk_delete_file_list_error(dr)
-            else:
-                dr.delete()
-
-        return parent_of_top_dir
-
-    @classmethod
-    def _find_and_delete_empy_dir_chains(cls, project_identifier, parent_of_top_dir):
-        """
-        Make sure there will not be any "orphaned" directory chains
-        (directories which only contained other directories for organizing data), and other
-        empty directories "higher up" than what the first received file points to, to not
-        leave any trash laying around that could cause trouble later.
+        Find and delete, if feasible, all empty directories in a project. The only dir
+        found in the project without a parent dir, is considered to be the root.
         """
         _logger.info('Finding and deleting empty directory chains...')
 
-        for dr in Directory.objects.filter(project_identifier=project_identifier, parent_directory_id=None):
-            if len(dirname(dr.directory_path)) <= 1:
-                # dont delete a root directory such as /project_x_FROZEN, since that
-                # is also included by the query.
-                continue
-            cls._delete_empy_dir_chain_below(dr)
+        root_dir = Directory.objects.filter(project_identifier=project_identifier, parent_directory_id=None)
 
-        # finally, take the root directory of the original file list, and delete
-        # any empty directory chains above
-        cls._delete_empy_dir_chain_above(parent_of_top_dir)
+        if root_dir.count() > 1: # pragma: no cover
+            raise ValidationError({
+                'detail': [
+                    'found more than one root dir (directories without parents: %s. unable to proceed' %
+                    ', '.join(dr.directory_path for dr in root_dir)
+                ]
+            })
+
+        cls._delete_empy_directories(root_dir[0])
 
     @classmethod
     def _delete_empy_dir_chain_above(cls, directory):
         """
-        If the highest path from the files being deleted was e.g. /some/path/here/file.png,
-        then /some/path/here would be the closest dir that has now been deleted, since it was
-        the parent of file.png. It is possible that other directories above it are empty, for
-        example in the case that the dir that was chosen for unfreezing/deletion, was some dir
-        higher up, but only contained directories leading up to the first file.
-
-        Delete all empty directories above the first parent directory to not leave behind
-        any clutter. It is possible that all directories including the root will get deleted.
+        When deleting a single file, find out if directories above are empty, and delete them.
         """
         if not directory:
             return
@@ -254,20 +210,41 @@ class FileService(CommonService):
             cls._delete_empy_dir_chain_above(parent_directory)
 
     @classmethod
-    def _delete_empy_dir_chain_below(cls, dr):
+    def _delete_empy_directories(cls, dr):
         """
-        Delete possibly empty directory chains that might have been left over after
-        deleting directories directly associated with files (i.e., delete directory
-        hierarchies that existed solely for organizing other dirs, but did not contain
-        files themselves).
+        Find and delete any empty sub directories, and the directory itself. If any of the
+        sub directories contained any files, directory is not deleted. This method is
+        intended to be called recursively.
+
+        Returns True if the given directory, and its subdirs were deleted, and False,
+        if the directory or any of its sub directories contained files, preventing
+        deleting the directory.
         """
-        if dr.files.exists():
-            cls._raise_incomplete_bulk_delete_file_list_error(dr)
-        else:
+        sub_dirs_can_be_deleted = False
+        sub_dirs_are_empty = False
+
+        sub_dirs = dr.child_directories.all()
+
+        if sub_dirs.exists():
             # start deleting directories from the bottom to up
-            for sub_dr in dr.child_directories.all():
-                cls._delete_empy_dir_chain_below(sub_dr)
+            for sub_dr in sub_dirs:
+                sub_dirs_are_empty = cls._delete_empy_directories(sub_dr)
+                if sub_dirs_are_empty:
+                    # sub_dirs_can_be_deleted will only be updated if sub_dirs_are_empty == True,
+                    # i.e. never update its value to False, if a later directory was empty.
+                    # even one dir that needs to be preserved, requires that current directory
+                    # is preserved.
+                    sub_dirs_can_be_deleted = True
+        else:
+            sub_dirs_can_be_deleted = True
+
+        if dr.files.exists():
+            return False
+        elif sub_dirs_can_be_deleted:
             dr.delete()
+            return True
+        else:
+            return False
 
     @staticmethod
     def _mark_datasets_as_deprecated(file_ids):
@@ -287,25 +264,6 @@ class FileService(CommonService):
         _logger.info('Publishing deprecated datasets to rabbitmq update queues...')
         rabbitmq = RabbitMQ()
         rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
-
-    @staticmethod
-    def _raise_incomplete_bulk_delete_file_list_error(directory):
-        """
-        Log and raise an error with details about what files what were left over in the directories,
-        after attempting to delete files according to received list of file ids.
-        """
-        error_msg = 'The received file list is incomplete. Not all files were deleted from ' \
-            'a directory. When bulk deleting files, make sure to include all files in sub-directories ' \
-            'as well. See file_list for list of files left over.'
-
-        file_list = [ f.file_path for f in directory.files.all() ]
-
-        _logger.error('%s file_list:\n%s' % (error_msg, '\n'.join(file_list)))
-
-        raise Http400({
-            'detail': [error_msg],
-            'file_list': file_list
-        })
 
     @classmethod
     def get_directory_contents(cls, identifier, recursive=False):
@@ -383,46 +341,40 @@ class FileService(CommonService):
         return root_dir_json
 
     @classmethod
+    def _create_single(cls, common_info, initial_data, serializer_class, **kwargs):
+        """
+        Override the original _create_single from CommonService to also create directories,
+        and setting them as parent_directory to approriate dirs and the file, before creating.
+        """
+        _logger.info('Begin create single file')
+
+        cls._check_errors_before_creating_dirs([initial_data])
+
+        # the same initial data as received, except it has parent_directory set also
+        initial_data_with_dirs = cls._create_directories_from_file_list(common_info, [initial_data], **kwargs)
+
+        res = super(FileService, cls)._create_single(
+            common_info, initial_data_with_dirs[0], serializer_class, **kwargs)
+
+        _logger.info('Created 1 new files')
+        return res
+
+    @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
         """
         Override the original _create_bulk from CommonService to also create directories,
         and setting them as parent_directory to approriate files, before creating the files.
         """
+        _logger.info('Begin bulk create files')
+
         cls._check_errors_before_creating_dirs(initial_data_list)
         file_list_with_dirs = cls._create_directories_from_file_list(common_info, initial_data_list, **kwargs)
-        return super(FileService, cls)._create_bulk(
+
+        _logger.info('Creating files...')
+        super(FileService, cls)._create_bulk(
             common_info, file_list_with_dirs, results, serializer_class, **kwargs)
 
-    @classmethod
-    def _create_directories_from_file_list(cls, common_info, initial_data_list, **kwargs):
-        """
-        IDA does not give metax information about directories associated with the files
-        as separate entities in the request, so they have to be created based on the
-        paths in the list of files.
-        """
-
-        # all required dirs that are related to anything (files and other directories) during
-        # this create-request, will be placed in the below dict for quick access.
-        created_dirs = {}
-
-        project_identifier = initial_data_list[0]['project_identifier']
-        sorted_data = sorted(initial_data_list, key=lambda row: row['file_path'])
-        unique_dir_paths = sorted(set(dirname(f['file_path']) for f in sorted_data))
-
-        root_dir = cls._check_if_parent_already_exists(unique_dir_paths[0], project_identifier)
-
-        if root_dir:
-            # place the previously created (in some previous request) root_dir in created_dirs,
-            # to make it available to other dirs and files as part of the normal process
-            created_dirs[root_dir['directory_path']] = root_dir['id']
-        else:
-            cls._create_leading_dirs(created_dirs, unique_dir_paths, project_identifier)
-
-        cls._create_directories(common_info, created_dirs, unique_dir_paths, project_identifier, **kwargs)
-
-        cls._assign_parents_to_files(created_dirs, sorted_data)
-
-        return sorted_data
+        _logger.info('Created %d new files' % len(results.get('success', [])))
 
     @staticmethod
     def _check_errors_before_creating_dirs(initial_data_list):
@@ -436,62 +388,94 @@ class FileService(CommonService):
         errors = {}
         for row in initial_data_list:
             if 'file_path' not in row:
-                errors['file_path'] = ['file_path is a required parameter (file id: %s)' % row['identifier']]
+                errors['file_path'] = [
+                    'file_path is a required parameter (file id: %s)' % row['identifier']
+                ]
             if 'project_identifier' not in row:
-                errors['project_identifier'] = ['project_identifier is a required parameter (file id: %s)'
-                                                % row['identifier']]
+                errors['project_identifier'] = [
+                    'project_identifier is a required parameter (file id: %s)' % row['identifier']
+                ]
 
             if errors:
                 raise Http400(errors)
 
     @classmethod
-    def _create_leading_dirs(cls, created_dirs, unique_dir_paths, project_identifier):
+    def _create_directories_from_file_list(cls, common_info, initial_data_list, **kwargs):
         """
-        In case there was no previously existing root the new directories
-        could be attached to...
-
-        The first frozen file could have been something like /some/path/here/file.png,
-        so the top dir in unique_dir_paths gathered would be /some/path/here.
-        For a proper file hierarchy, directories /some/path and /some has to
-        be additionally created.
-
-        It is possible however, that the first file is something like /some/other/path/file.png,
-        where /some would already exist. Therefore make sure to check for existing directories
-        after each created directory.
+        IDA does not give metax information about directories associated with the files
+        as separate entities in the request, so they have to be created based on the
+        paths in the list of files.
         """
-        emergency_break = 1000
-        upper_dir = dirname(unique_dir_paths[0])
-        while True:
-            unique_dir_paths.insert(0, upper_dir)
+        _logger.info('Creating and checking file hierarchy...')
 
-            # it is possible we only had to create one or some dirs in the middle, to find an
-            # existing parent dir higher up. check it
-            root_dir = cls._check_if_parent_already_exists(upper_dir, project_identifier)
-            if root_dir:
-                created_dirs[root_dir['directory_path']] = root_dir['id']
-                return
+        project_identifier = initial_data_list[0]['project_identifier']
+        sorted_data = sorted(initial_data_list, key=lambda row: row['file_path'])
+        received_dir_paths = sorted(set(dirname(f['file_path']) for f in sorted_data))
 
-            if upper_dir == '/':
-                return
+        new_dir_paths, existing_dirs = cls._get_new_and_existing_dirs(received_dir_paths, project_identifier)
 
-            if emergency_break < 0: # pragma: no cover
-                raise Exception('emergency_break reached while creating leading dirs, should (probably) never happen..')
+        if new_dir_paths:
+            cls._create_directories(common_info, existing_dirs, new_dir_paths, project_identifier, **kwargs)
 
-            emergency_break -= 1
+        cls._assign_parents_to_files(existing_dirs, sorted_data)
 
-            upper_dir = dirname(upper_dir)
+        _logger.info('Directory hierarchy in place')
+        return sorted_data
 
     @classmethod
-    def _create_directories(cls, common_info, created_dirs, unique_dir_paths, project_identifier, **kwargs):
+    def _get_new_and_existing_dirs(cls, received_dir_paths, project_identifier):
+        """
+        From the received file paths list, find out which directories already exist in the db,
+        and which need to be created.
+        """
+        received_dir_paths = cls._get_unique_dir_paths(received_dir_paths)
+
+        # get existing dirs as a dict of { 'directory_path': 'id' }
+        existing_dirs = dict(
+            (dr.directory_path, dr.id) for dr in
+            Directory.objects.filter(
+                directory_path__in=received_dir_paths,
+                project_identifier=project_identifier
+            ).order_by('directory_path')
+        )
+
+        new_dir_paths = [ path for path in received_dir_paths if path not in existing_dirs ]
+        _logger.info('Found %d existing, %d new directory paths' % (len(existing_dirs), len(new_dir_paths)))
+        return new_dir_paths, existing_dirs
+
+    def _get_unique_dir_paths(received_dir_paths):
+        """
+        Those dirs that are only used to organize other dirs, i.e. does not contain files actually,
+        need to be weeded out from the list of received dir paths, to get all required directories
+        that need to be created.
+        """
+        all_paths = { '/': True }
+
+        for path in received_dir_paths:
+            parent_path = dirname(path)
+            while parent_path != '/':
+                if parent_path not in all_paths:
+                    all_paths[parent_path] = True
+                parent_path = dirname(parent_path)
+            all_paths[path] = True
+
+        return sorted(all_paths.keys())
+
+    @classmethod
+    def _create_directories(cls, common_info, existing_dirs, new_dir_paths, project_identifier, **kwargs):
         """
         Create to db directory hierarchy from directories extracted from the received file list.
 
-        Save created paths/id's to created_dirs dict, so the results can be efficiently re-used
+        Save created paths/id's to existing_dirs dict, so the results can be efficiently re-used
         by other dirs being created, and later by the files that are created.
+
+        It is possible, that no new directories are created at all, when appending files to an
+        existing dir.
         """
+        _logger.info('Creating directories...')
         python_process_pid = str(getpid())
 
-        for i, path in enumerate(unique_dir_paths):
+        for i, path in enumerate(new_dir_paths):
 
             directory = {
                 'directory_path': path,
@@ -504,94 +488,52 @@ class FileService(CommonService):
 
             directory.update(common_info)
 
-            cls._find_parent_dir_from_previously_created_dirs(directory, created_dirs)
+            if path != '/':
+                cls._find_parent_dir_from_previously_created_dirs(directory, existing_dirs)
 
             serializer = DirectorySerializer(data=directory, **kwargs)
-            serializer.is_valid()
-
-            if serializer.errors:
-                raise ValidationError(serializer.errors)
-
+            serializer.is_valid(raise_exception=True)
             serializer.save()
-            created_dirs[serializer.data['directory_path']] = serializer.data['id']
+            existing_dirs[serializer.data['directory_path']] = serializer.data['id']
 
     @classmethod
-    def _assign_parents_to_files(cls, created_dirs, sorted_data):
+    def _assign_parents_to_files(cls, existing_dirs, sorted_data):
         """
-        Using the previously created dirs and files, assign parent_directory to
+        Using the previously created dirs, assign parent_directory to
         each file in the received file list.
 
-        Since the files are sorted by file_path, there is a very good chance that files
-        can use the previous file's parent_directory directly, instead of having to
-        look it up from created_dirs.
+        Assigning parent_directory is not allowed for requestors, so all existing
+        parent_directories in the received files are purged.
         """
+        _logger.info('Assigning parent directories to files...')
 
-        # assigning parent_directory is not allowed for user. ensure all parent_directories
-        # are purged before proceeding. in reality popping the key from sorted_data[-1] would
-        # be enough for the first loop, but lets not invite disaster.
         for row in sorted_data:
             row.pop('parent_directory', None)
 
-        for i, row in enumerate(sorted_data):
-
-            previous_file = sorted_data[i - 1]
-
-            if 'parent_directory' in previous_file and dirname(row['file_path']) == dirname(previous_file['file_path']):
-                row['parent_directory'] = previous_file['parent_directory']
-            else:
-                cls._find_parent_dir_from_previously_created_dirs(row, created_dirs)
+        for row in sorted_data:
+            cls._find_parent_dir_from_previously_created_dirs(row, existing_dirs)
 
         return sorted_data
 
     @staticmethod
-    def _find_parent_dir_from_previously_created_dirs(node, created_dirs):
+    def _find_parent_dir_from_previously_created_dirs(node, existing_dirs):
         """
-        Parameter created_dirs contains key-values as (directory_path, id).
+        Parameter existing_dirs contains key-values as (directory_path, id).
 
         Find the approriate directory id to use as parent_directory, using the node's
         dirname(file_path) or dirname(directory_path) as key.
         """
-        if not created_dirs:
+        node_path = node.get('file_path', node.get('directory_path', None))
+
+        if node_path == '/':
             return
 
-        expected_parent_dir_path = dirname(node.get('file_path', node.get('directory_path', None)))
-        node['parent_directory'] = created_dirs.get(expected_parent_dir_path, None)
-
-        if not node['parent_directory']: # pragma: no cover
-            raise Exception(
-                'No parent found for path %s, even though created_dirs had stuff '
-                'in it. This should never happen' % node.get('file_path', node.get('directory_path', None))
-            )
-
-    @staticmethod
-    def _check_if_parent_already_exists(directory_path, project_identifier):
-        """
-        Check if there already exists an applicable root directory for the first dir in
-        the sorted list of directories. The case is conceivable when someone had previously
-        frozen for example path /some/path/here, and then later /some/other/path, so
-        /some would already exist.
-
-        This check only needs to be made for the first dir, once the list is sorted. If there
-        existed some common parent higher up, it is checked for later.
-
-        Note: This method does not check if the targeted directory ITSELF already exists,
-        in the sense that a path /some/path/mydir was frozen twice, and on the second time
-        the files would simply be appended to it. That will result in an error 'directory already
-        exists in project scope'. Currently that scenario shouldn't be possible, so it isn't
-        supported.
-        """
-        if directory_path == '/':
-            # cant have a parent
-            return None
-
-        parent_dir_path = dirname(directory_path)
+        expected_parent_dir_path = dirname(node_path)
 
         try:
-            parent_dir = Directory.objects.get(project_identifier=project_identifier, directory_path=parent_dir_path)
-        except Directory.DoesNotExist:
-            return None
-        except Directory.MultipleObjectsReturned:
-            raise ValidationError({ 'parent_directory': [
-                'multiple directories found when looking for parent (looked for path: %s)' % parent_dir_path]} )
-
-        return { 'directory_path': parent_dir.directory_path, 'id': parent_dir.id }
+            node['parent_directory'] = existing_dirs[expected_parent_dir_path]
+        except KeyError: # pragma: no cover
+            raise Exception(
+                'No parent found for path %s, even though existing_dirs had stuff '
+                'in it. This should never happen' % node.get('file_path', node.get('directory_path', None))
+            )
