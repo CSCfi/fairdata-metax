@@ -76,7 +76,7 @@ class CatalogRecord(Common):
 
     contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
 
-    data_catalog = models.ForeignKey(DataCatalog)
+    data_catalog = models.ForeignKey(DataCatalog, on_delete=models.DO_NOTHING)
 
     dataset_group_edit = models.CharField(
         max_length=200, blank=True, null=True,

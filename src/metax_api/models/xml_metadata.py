@@ -10,7 +10,7 @@ class XmlMetadata(Common):
 
     namespace = models.CharField(max_length=200)
     xml = models.TextField()
-    file = models.ForeignKey(File)
+    file = models.ForeignKey(File, on_delete=models.DO_NOTHING)
 
     # END OF MODEL FIELD DEFINITIONS #
 
