@@ -26,3 +26,13 @@ class Directory(Common):
     def delete(self):
         # actual delete
         super(Common, self).delete()
+
+    def __repr__(self):
+        return '<%s: %d, removed: %s, project_identifier: %s, identifier: %s, directory_path: %s >' % (
+            'Directory',
+            self.id,
+            str(self.removed),
+            self.project_identifier,
+            self.identifier,
+            self.directory_path
+        )

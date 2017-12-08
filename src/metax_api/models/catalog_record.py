@@ -303,3 +303,13 @@ class CatalogRecord(Common):
             # since models.SET_NULL is used.
             self.alternate_record_set.delete()
         self.alternate_record_set = None
+
+    def __repr__(self):
+        return '<%s: %d, removed: %s, data_catalog: %s, urn_identifier: %s, preferred_identifier: %s >' % (
+            'CatalogRecord',
+            self.id,
+            str(self.removed),
+            self.data_catalog.catalog_json['identifier'],
+            self.urn_identifier,
+            self.preferred_identifier
+        )
