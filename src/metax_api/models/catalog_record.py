@@ -234,10 +234,9 @@ class CatalogRecord(Common):
             return False
 
         if self._field_initial_value_loaded('research_dataset'):
-            if self._initial_data['research_dataset'].get('files', None):
-                initial_files = set( f['identifier'] for f in self._initial_data['research_dataset']['files'] )
-                received_files = set( f['identifier'] for f in self.research_dataset['files'] )
-                return initial_files != received_files
+            initial_files = set( f['identifier'] for f in self._initial_data['research_dataset'].get('files', []) )
+            received_files = set( f['identifier'] for f in self.research_dataset.get('files', []) )
+            return initial_files != received_files
         else:
             self._raise_field_not_tracked_error('research_dataset.files')
 
