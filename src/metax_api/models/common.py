@@ -1,3 +1,4 @@
+from copy import deepcopy
 from time import time
 
 from dateutil import parser
@@ -43,6 +44,7 @@ class Common(models.Model):
     def __init__(self, *args, **kwargs):
         super(Common, self).__init__(*args, **kwargs)
         self._initial_data = {}
+        self._tracked_fields = []
         self.track_fields(
             'date_created',
             'user_created',
@@ -95,7 +97,7 @@ class Common(models.Model):
 
         return timestamp < self.date_modified
 
-    def track_fields(self, *args):
+    def track_fields(self, *fields):
         """
         Save initial values from object fields when object is created (= retrieved from db),
         so that they can be checked at a later time if the value is being changed or not.
@@ -104,11 +106,50 @@ class Common(models.Model):
         field_name is a dict (a JSON field). For now only one level of nesting is supported.
         If a need arises, can be made mega generic.
         """
-        for field_name in args:
+        for field_name in fields:
+
+            self._tracked_fields.append(field_name)
+
             if '.' in field_name:
                 self._track_json_field(field_name)
             else:
-                self._initial_data[field_name] = getattr(self, field_name)
+                if self._field_is_loaded(field_name):
+                    requested_field = getattr(self, field_name)
+                    if isinstance(requested_field, dict):
+                        self._initial_data[field_name] = deepcopy(requested_field)
+                    else:
+                        self._initial_data[field_name] = requested_field
+
+    def _track_json_field(self, field_name):
+        field_name, json_field_name = field_name.split('.')
+        if self._field_is_loaded(field_name):
+            json_field_value = getattr(self, field_name).get(json_field_name, None)
+
+            if not self._initial_data.get(field_name, None):
+                self._initial_data[field_name] = {}
+
+            if isinstance(json_field_value, dict):
+                self._initial_data[field_name][json_field_name] = deepcopy(json_field_value)
+            else:
+                self._initial_data[field_name][json_field_name] = json_field_value
+
+    def _field_is_loaded(self, field_name):
+        """
+        Field has been loaded from the db
+        """
+        return field_name in self.__dict__
+
+    def _field_is_tracked(self, field_name):
+        """
+        Field is requested to be tracked. Not necessarily loaded yet.
+        """
+        return field_name in self._tracked_fields
+
+    def _field_initial_value_loaded(self, field_name):
+        """
+        Field was loaded to _initial_data during __init__ for tracking
+        """
+        return field_name in self._initial_data
 
     def field_changed(self, field_name):
         """
@@ -116,11 +157,52 @@ class Common(models.Model):
         """
         if '.' in field_name:
             return self._json_field_changed(field_name)
-        try:
-            initial_value = self._initial_data[field_name]
-        except Exception:
-            raise FieldError('Field %s is not being tracked for changes' % field_name)
-        return getattr(self, field_name) != initial_value
+
+        if not self._field_is_loaded(field_name):
+            return False
+
+        if self._field_is_tracked(field_name):  # pragma: no cover
+            if not self._field_initial_value_loaded(field_name):
+                self._raise_field_not_tracked_error(field_name)
+        else: # pragma: no cover
+            raise FieldError('Field %s is not being tracked for changes' % (field_name))
+
+        return getattr(self, field_name) != self._initial_data[field_name]
+
+    def _json_field_changed(self, field_name_full):
+        field_name, json_field_name = field_name_full.split('.')
+
+        if not self._field_is_loaded(field_name):
+            return False
+
+        if self._field_is_tracked(field_name_full):  # pragma: no cover
+            if not self._field_initial_value_loaded(field_name):
+                self._raise_field_not_tracked_error(field_name_full)
+        else: # pragma: no cover
+            raise FieldError('Field %s is not being tracked for changes' % (field_name_full))
+
+        json_field_value = self._initial_data[field_name][json_field_name]
+        return getattr(self, field_name).get(json_field_name) != json_field_value
+
+    def _raise_field_not_tracked_error(self, field_name):
+        """
+        If a field is not retrieved from the db durin record initialization (__init__()),
+        then the field will not have its initial value loaded for tracking. That is OK,
+        for the cases when that field is not otherwise being modified, to not do needless work.
+
+        However, if the field does end up being modified, then the caller should make sure the
+        field is included when the object is being created.
+
+        We COULD simply retrieve the value from the db when it was not included in the original
+        query, but that is always an extra query to the db per field that was not loaded. So
+        instead, we raise an error, so that the caller gets notified that they should optimise
+        their initial query to include all the data they were going to need anyway.
+        """
+        raise FieldError(
+            'Tried to check changes in field %(field_name)s, but the field was not loaded for '
+            'tracking changes during __init__. Call .only(%(field_name)s) in you ORM query to '
+            'load the field during __init__, so that it will be tracked.' % locals()
+        )
 
     def _check_read_only_after_create_fields(self):
         if self.field_changed('date_created'):
@@ -133,26 +215,11 @@ class Common(models.Model):
     def _generate_identifier(self, salt):
         return 'pid:urn:%s:%d-%d' % (str(salt), self.id, int(round(time() * 1000)))
 
-    def _json_field_changed(self, field_name):
-        field_name, json_field_name = field_name.split('.')
-        try:
-            json_field_value = self._initial_data[field_name][json_field_name]
-        except:
-            raise FieldError('Field %s.%s is not being tracked for changes' % (field_name, json_field_name))
-        return getattr(self, field_name).get(json_field_name) != json_field_value
-
     def _operation_is_create(self):
         return self.id is None
 
     def _operation_is_update(self):
         return self.id is not None
-
-    def _track_json_field(self, field_name):
-        field_name, json_field_name = field_name.split('.')
-        json_field_value = getattr(self, field_name).get(json_field_name, None)
-        if not self._initial_data.get(field_name, None):
-            self._initial_data[field_name] = {}
-        self._initial_data[field_name][json_field_name] = json_field_value
 
     def _update_tracked_field_values(self):
         """

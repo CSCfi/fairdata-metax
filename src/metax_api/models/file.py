@@ -59,3 +59,13 @@ class File(Common):
     ]
 
     objects = FileManager()
+
+    def __repr__(self):
+        return '<%s: %d, removed: %s, project_identifier: %s, identifier: %s, file_path: %s >' % (
+            'File',
+            self.id,
+            str(self.removed),
+            self.project_identifier,
+            self.identifier,
+            self.file_path
+        )
