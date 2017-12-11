@@ -41,17 +41,6 @@ class FileViewSet(CommonViewSet):
         self.set_json_schema(__file__)
         super(FileViewSet, self).__init__(*args, **kwargs)
 
-    def get_object(self):
-        """
-        future todo:
-        - query params:
-            - owner_email (string)
-            - fields (list of strings)
-            - offset (integer) (paging)
-            - limit (integer) (limit for paging)
-        """
-        return super(FileViewSet, self).get_object()
-
     @list_route(methods=['post'], url_path="datasets")
     def datasets(self, request):
         """
@@ -64,19 +53,8 @@ class FileViewSet(CommonViewSet):
         """
         return FileService.get_datasets_where_file_belongs_to(request.data)
 
-    def destroy(self, request, *args, **kwargs):
-        """
-        since IDA only deletes entire directories, supporting single file delete is useless.
-        if this ever becomes relevant:
-        file.delete()
-        if not file.parent_directory.files.all().count()
-            and not file.parent_directory.child_directories.all().count():
-            file.parent_directory.delete()
-            file.parent_directory = None
-            file.save()
-        and delete a possible long tree of empty directories... or something like that
-        """
-        return Response({}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def destroy(self, request, pk, **kwargs):
+        return FileService.destroy_single(self.get_object())
 
     def destroy_bulk(self, request, *args, **kwargs):
         return FileService.destroy_bulk(request.data)

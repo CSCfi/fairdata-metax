@@ -44,7 +44,7 @@ class File(Common):
     file_modified = models.DateTimeField(auto_now=True)
     file_name = models.CharField(max_length=200)
     file_path = models.TextField()
-    file_storage = models.ForeignKey(FileStorage)
+    file_storage = models.ForeignKey(FileStorage, on_delete=models.DO_NOTHING)
     file_uploaded = models.DateTimeField()
     identifier = models.CharField(max_length=200, unique=True)
     open_access = models.BooleanField(default=False)

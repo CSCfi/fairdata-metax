@@ -61,13 +61,19 @@ class CommonService():
                 http_status = status.HTTP_400_BAD_REQUEST
 
         else:
-            serializer = serializer_class(data=request.data, **kwargs)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(**common_info)
-            http_status = status.HTTP_201_CREATED
-            results = serializer.data
+            results, http_status = cls._create_single(common_info, request.data, serializer_class, **kwargs)
 
         return results, http_status
+
+    @classmethod
+    def _create_single(cls, common_info, initial_data, serializer_class, **kwargs):
+        """
+        Extracted into its own method so it may be inherited.
+        """
+        serializer = serializer_class(data=initial_data, **kwargs)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(**common_info)
+        return serializer.data, status.HTTP_201_CREATED
 
     @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
