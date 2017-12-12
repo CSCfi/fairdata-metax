@@ -44,7 +44,7 @@ def retrieve_and_update_all_datasets_in_db(headers):
     records = []
     count = 0
 
-    print(response.json())
+    print('received %d urn_identifiers' % len(response.json()))
     print('retrieving details of datasets...')
 
     for urn in response.json():

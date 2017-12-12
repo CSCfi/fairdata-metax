@@ -57,8 +57,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
     def test_update_contract(self):
         self.test_new_data['pk'] = self.pk
         response = self.client.put('/rest/contracts/%s' % self.pk, self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-        self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_contract_not_found(self):
         response = self.client.put('/rest/contracts/doesnotexist', self.test_new_data, format="json")
