@@ -172,7 +172,11 @@ class CommonService():
                 serializer.save(**common_info)
                 results['success'].append({ 'object': serializer.data })
 
-        http_status = cls._get_http_status_for_result(results, kwargs.get('partial', False))
+        # if even one operation was successful, general status of the request is success
+        if len(results.get('success', [])) > 0:
+            http_status = status.HTTP_200_OK
+        else:
+            http_status = status.HTTP_400_BAD_REQUEST
 
         return results, http_status
 
@@ -239,26 +243,6 @@ class CommonService():
             # str(e) might show dicts or lists as strings, which would look silly to receiving
             # humans
             results['failed'].append({ 'object': serializer.initial_data, 'errors': str(error) })
-
-    @staticmethod
-    def _get_http_status_for_result(results, partial_update):
-        if results['success']:
-            # if even one operation was successful, general status of the request is success
-            if partial_update:
-                # PATCH will contain full updated object
-                return status.HTTP_200_OK
-            else:
-                # PUT
-                if results['failed']:
-                    # some were ok, but since some failed, cant return 204 no_content
-                    return status.HTTP_200_OK
-                else:
-                    # to stay consistent with a single PUT operation, fully successful update
-                    # will return no data to the client
-                    return status.HTTP_204_NO_CONTENT
-        else:
-            # only if all rows have failed, return a general failure for the whole request
-            return status.HTTP_400_BAD_REQUEST
 
     @staticmethod
     def _get_object_for_update(model_obj, row, results, check_unmodified_since):
@@ -348,10 +332,7 @@ class CommonService():
         :param filter_obj
         :return:
         """
-
-        if not cls._request_is_write_operation(request) and \
-                cls._request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
-
+        if not cls._request_is_write_operation(request) and cls._request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
             filter_obj.update({
-                'date_modified__gt': CommonService.validate_and_get_if_modified_since_header_as_tz_aware_datetime(
-                    request)})
+                'date_modified__gt': cls.validate_and_get_if_modified_since_header_as_tz_aware_datetime(request)
+            })

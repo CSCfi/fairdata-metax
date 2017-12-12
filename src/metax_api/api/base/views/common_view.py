@@ -98,41 +98,18 @@ class CommonViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
         CS.update_common_info(request)
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
-
-        # the normal case is that update (PUT) does not return the updated content.
-        # save the updated data in case someone (i.e. datasets) wants to do something with
-        # the updated data before returning, so that they are spared from the additional query.
-        self._updated_request_data = res.data
-
-        res.data = {}
-        res.status_code = status.HTTP_204_NO_CONTENT
         return res
 
     def update_bulk(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
-
-        # PUT generally doesnt return any of the updated resources, so not returning
-        # them in the list update either. http_status is set accordingly inside update_bulk,
-        # the method only returns data because we need to place it in self._updated_request_data
-
-        if results['success']:
-            self._updated_request_data = [ r['object'] for r in results['success'] ]
-            results['success'] = []
-        if not results['failed']:
-            results = {}
-
         return Response(data=results, status=http_status)
 
     def partial_update(self, request, *args, **kwargs):
         CS.update_common_info(request)
         kwargs['partial'] = True
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
-
-        # for rabbitmq, in case somebody wants to publish it
-        self._updated_request_data = res.data
-
         return res
 
     def partial_update_bulk(self, request, *args, **kwargs):
@@ -140,10 +117,6 @@ class CommonViewSet(ModelViewSet):
         kwargs['context'] = self.get_serializer_context()
         kwargs['partial'] = True
         results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
-
-        if results['success']:
-            self._updated_request_data = [ r['object'] for r in results['success'] ]
-
         return Response(data=results, status=http_status)
 
     def create(self, request, *args, **kwargs):

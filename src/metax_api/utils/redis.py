@@ -162,7 +162,6 @@ class _RedisSentinelCache():
                 d('cache: delete() unsuccessful, could not delete data?')
 
     def _get_from_local(self, key, **kwargs):
-        d('getting from local!')
         try:
             res = self._redis_local.get(key, **kwargs)
         except (TimeoutError, ConnectionError):
