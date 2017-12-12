@@ -1,3 +1,6 @@
+from copy import deepcopy
+import logging
+
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 from rest_framework.serializers import ValidationError
@@ -8,12 +11,26 @@ from .contract import Contract
 from .data_catalog import DataCatalog
 from .file import File
 
+_logger = logging.getLogger(__name__)
+
 
 class AlternateRecordSet(models.Model):
 
     """
     A table which contains records that share a common preferred_identifier,
     but belong to different data catalogs.
+
+    Note! Does not inherit from model Common, so does not have timestmap fields,
+    and a delete is an actual delete.
+    """
+
+    id = models.BigAutoField(primary_key=True, editable=False)
+
+
+class VersionSet(models.Model):
+
+    """
+    A table which contains records that are versions of each other.
 
     Note! Does not inherit from model Common, so does not have timestmap fields,
     and a delete is an actual delete.
@@ -71,8 +88,8 @@ class CatalogRecord(Common):
     # MODEL FIELD DEFINITIONS #
 
     alternate_record_set = models.ForeignKey(
-        AlternateRecordSet, on_delete=models.SET_NULL, null=True,
-        help_text='Records which are duplicates of this record, but in another catalog.', related_name='records')
+        AlternateRecordSet, on_delete=models.SET_NULL, null=True, related_name='records',
+        help_text='Records which are duplicates of this record, but in another catalog.')
 
     contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
 
@@ -104,22 +121,17 @@ class CatalogRecord(Common):
 
     research_dataset = JSONField()
 
-    next_version_id = models.OneToOneField(
-        'self', on_delete=models.DO_NOTHING, null=True, db_column='next_version_id', related_name='next_version')
+    next_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+        related_name='+')
 
-    next_version_identifier = models.CharField(max_length=200, null=True)
+    previous_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+        related_name='+')
 
-    previous_version_id = models.OneToOneField(
-        'self', on_delete=models.DO_NOTHING, null=True, db_column='previous_version_id',
-        related_name='previous_version')
-
-    previous_version_identifier = models.CharField(max_length=200, null=True)
-
-    version_created = models.DateTimeField(help_text='Date when this version was first created.', null=True)
+    version_set = models.ForeignKey(
+        VersionSet, on_delete=models.SET_NULL, null=True, related_name='records',
+        help_text='Records which are versions of each other.')
 
     # END OF MODEL FIELD DEFINITIONS #
-
-    _need_to_execute_post_create_operations = False
 
     objects = CatalogRecordManager()
 
@@ -130,6 +142,7 @@ class CatalogRecord(Common):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
             'preservation_state',
+            'research_dataset',
             'research_dataset.files',
             'research_dataset.total_byte_size',
             'research_dataset.urn_identifier',
@@ -139,13 +152,18 @@ class CatalogRecord(Common):
     def save(self, *args, **kwargs):
         if self._operation_is_create():
             self._pre_create_operations()
+            super(CatalogRecord, self).save(*args, **kwargs)
+            self._post_create_operations()
         else:
             self._pre_update_operations()
+            super(CatalogRecord, self).save(*args, **kwargs)
 
-        super(CatalogRecord, self).save(*args, **kwargs)
+    def save_as_new_version(self):
+        super(CatalogRecord, self).save()
+        self._post_create_operations()
 
-        if self._need_to_execute_post_create_operations:
-            self._post_create_operations()
+        if self.field_changed('research_dataset.preferred_identifier'):
+            self._handle_preferred_identifier_changed()
 
     def delete(self, *args, **kwargs):
         if self.has_alternate_records():
@@ -172,8 +190,14 @@ class CatalogRecord(Common):
         except:
             return None
 
+    def catalog_versions_datasets(self):
+        return self.data_catalog.catalog_json.get('dataset_versioning', False) is True
+
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
+
+    def has_versions(self):
+        return bool(self.version_set)
 
     def _calculate_total_byte_size(self):
         """
@@ -188,7 +212,7 @@ class CatalogRecord(Common):
             rd['total_byte_size'] = 0
 
     def _pre_create_operations(self):
-        self._need_to_execute_post_create_operations = True
+        # There used to be more stuff here... Let it be like this
         self._calculate_total_byte_size()
 
     def _post_create_operations(self):
@@ -199,28 +223,81 @@ class CatalogRecord(Common):
             self._create_or_update_alternate_record_set(other_record)
 
         super(CatalogRecord, self).save()
-        # save can be called several times during an object's lifetime in a request. make sure
-        # to not execute these again
-        self._need_to_execute_post_create_operations = False
 
     def _pre_update_operations(self):
-        if self.field_changed('preservation_state'):
-            self.preservation_state_modified = get_tz_aware_now_without_micros()
-
         if self.field_changed('research_dataset.urn_identifier'):
             # read-only after creating
             self.research_dataset['urn_identifier'] = self._initial_data['research_dataset']['urn_identifier']
 
-        if self.field_changed('research_dataset.preferred_identifier'):
-            self._handle_preferred_identifier_changed()
+        if self.field_changed('research_dataset.total_byte_size'):
+            # read-only
+            self.research_dataset['total_byte_size'] = self._initial_data['research_dataset']['total_byte_size']
+
+        if self.field_changed('preservation_state'):
+            self.preservation_state_modified = get_tz_aware_now_without_micros()
+
+        if self.field_changed('research_dataset') and self.catalog_versions_datasets():
+            self._create_new_version()
+
+    def _create_new_version(self):
+        """
+        stuff
+        """
+        _logger.info('Creating new version from CatalogRecord %s...' % self.urn_identifier)
+
+        new_version = CatalogRecord.objects.get(pk=self.id)
+        new_version.id = None
+        new_version.contract = None
+        new_version.date_created = self.date_modified
+        new_version.next_version = None
+        new_version.user_created = self.user_modified
+        new_version.user_modified = None
+        new_version.preservation_description = None
+        new_version.preservation_state = 0
+        new_version.preservation_state_modified = None
+        new_version.previous_version = self
+        new_version.research_dataset = deepcopy(self.research_dataset)
+        new_version.research_dataset.pop('urn_identifier')
+        new_version.service_created = self.service_modified or self.service_created
+        new_version.service_modified = None
+
+        # some of the old editor fields cant be true in the new version, so keep
+        # only the ones that make sense. it is up to the editor, to update other fields
+        # they see as relevant. we also dont want null values in there
+        old_editor = deepcopy(new_version.editor)
+        new_version.editor = {}
+        if 'owner_id' in old_editor:
+            new_version.editor['owner_id'] = old_editor['owner_id']
+        if 'owner_id' in old_editor:
+            new_version.editor['creator_id'] = old_editor['owner_id']
+        if 'identifier' in old_editor:
+            new_version.editor['identifier'] = old_editor['identifier']
 
         if self._files_changed():
-            self._calculate_total_byte_size()
-        elif self.field_changed('research_dataset.total_byte_size'):
-            # somebody is trying to update total_byte_size manually. im afraid i cant let you do that
-            self.research_dataset['total_byte_size'] = self._initial_data['research_dataset']['total_byte_size']
+            # files changed requires that preferred_identifier is changed also. if a new value
+            # is not provided by the user, preferred_identifier is removed, so that
+            # urn_identifier will be copied to it once it is generated.
+            if not new_version.field_changed('research_dataset.preferred_identifier'):
+                new_version.research_dataset.pop('preferred_identifier', None)
+            new_version._calculate_total_byte_size()
+
+        new_version.save_as_new_version()
+
+        if self.has_versions():
+            self.version_set.records.add(new_version)
         else:
-            pass
+            vs = VersionSet()
+            vs.save()
+            vs.records.add(self, new_version)
+            vs.save()
+
+        self.next_version = new_version
+
+        # nothing must change in the now old version of research_dataset, so copy
+        # from _initial_data so that super().save() does not change it later.
+        self.research_dataset = deepcopy(self._initial_data['research_dataset'])
+
+        _logger.info('New CatalogRecord version %s created' % new_version.urn_identifier)
 
     def _files_changed(self):
         """
@@ -269,10 +346,17 @@ class CatalogRecord(Common):
         It is enough that the first match is returned, because the related alternate_record_set
         (if it exists) can be accessed through it, or, if alternate_record_set does not exist,
         then it is the only duplicate record, and will later be used for creating the record set.
+
+        Note: Due to some limitations in the ORM, using select_related to get CatalogRecord and
+        DataCatalog is preferable to using .only() to select specific fields, since that seems
+        to cause multiple queries to the db for some reason (even as many as 4!!). The query
+        below makes only one query. We are only interested in alternate_record_set though, since
+        fetching it now saves another query later when checking if it already exists.
         """
-        return CatalogRecord.objects.filter(
-            research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }
-        ).exclude(data_catalog__id=self.data_catalog_id, id=self.id).first()
+        return CatalogRecord.objects.select_related('data_catalog', 'alternate_record_set') \
+            .filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }) \
+            .exclude(data_catalog__id=self.data_catalog_id, id=self.id) \
+            .first()
 
     def _create_or_update_alternate_record_set(self, other_record):
         """
@@ -289,7 +373,6 @@ class CatalogRecord(Common):
             ars = AlternateRecordSet()
             ars.save()
             ars.records.add(self, other_record)
-            ars.save()
 
     def _remove_from_alternate_record_set(self):
         """
@@ -301,6 +384,8 @@ class CatalogRecord(Common):
             # delete() takes care of the references in the other record,
             # since models.SET_NULL is used.
             self.alternate_record_set.delete()
+
+        # note: save to db occurs in delete()
         self.alternate_record_set = None
 
     def __repr__(self):

@@ -30,11 +30,9 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_reason_description',
             'mets_object_identifier',
             'dataset_group_edit',
-            'next_version_id',
-            'next_version_identifier',
-            'previous_version_id',
-            'previous_version_identifier',
-            'version_created',
+            'next_version',
+            'previous_version',
+            'version_set',
             'editor',
         ) + CommonSerializer.Meta.fields
 
@@ -45,12 +43,8 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_description': { 'required': False },
             'preservation_state_modified':    { 'required': False },
             'mets_object_identifier':   { 'required': False },
-
-            'next_version_id':              { 'required': False },
-            'next_version_identifier':      { 'required': False },
-            'previous_version_id':          { 'required': False },
-            'previous_version_identifier':  { 'required': False },
-            'version_created':              { 'required': False },
+            'next_version':             { 'required': False },
+            'previous_version':         { 'required': False },
         }
 
         extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
@@ -104,12 +98,32 @@ class CatalogRecordSerializer(CommonSerializer):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
         res['data_catalog'] = DataCatalogSerializer(instance.data_catalog).data
 
-        if res.get('contract', None):
+        if 'contract' in res:
             res['contract'] = ContractSerializer(instance.contract).data
 
-        if instance.has_alternate_records():
+        if 'alternate_record_set' in res:
             alternate_records = instance.alternate_record_set.records.exclude(pk=instance.id)
-            res['alternate_record_set'] = [ ar.urn_identifier for ar in alternate_records ]
+            if len(alternate_records):
+                res['alternate_record_set'] = [ ar.urn_identifier for ar in alternate_records ]
+
+        if 'version_set' in res:
+            version_set = instance.version_set.records.exclude(pk=instance.id).order_by('date_created')
+            if len(version_set):
+                res['version_set'] = [ v.urn_identifier for v in version_set ]
+
+        if 'next_version' in res:
+            res['next_version'] = {
+                'id': instance.next_version.id,
+                'urn_identifier': instance.next_version.urn_identifier,
+                'preferred_identifier': instance.next_version.preferred_identifier,
+            }
+
+        if 'previous_version' in res:
+            res['previous_version'] = {
+                'id': instance.previous_version.id,
+                'urn_identifier': instance.previous_version.urn_identifier,
+                'preferred_identifier': instance.previous_version.preferred_identifier,
+            }
 
         return res
 
