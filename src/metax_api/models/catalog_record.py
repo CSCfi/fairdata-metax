@@ -133,6 +133,13 @@ class CatalogRecord(Common):
 
     # END OF MODEL FIELD DEFINITIONS #
 
+    """
+    Can be set on an instance when updates are requested without creating new versions,
+    when a new version would otherwise normally be created. Has no effect on create operations.
+    Note: Has to be explicitly set before calling instance.save() on the record!
+    """
+    preserve_version = False
+
     objects = CatalogRecordManager()
 
     class Meta:
@@ -236,8 +243,12 @@ class CatalogRecord(Common):
         if self.field_changed('preservation_state'):
             self.preservation_state_modified = get_tz_aware_now_without_micros()
 
-        if self.field_changed('research_dataset') and self.catalog_versions_datasets():
-            self._create_new_version()
+        if self.catalog_versions_datasets() and not self.preserve_version:
+            if self.field_changed('research_dataset'):
+                self._create_new_version()
+        else:
+            if self.field_changed('research_dataset.preferred_identifier'):
+                self._handle_preferred_identifier_changed()
 
     def _create_new_version(self):
         """

@@ -1,16 +1,13 @@
 import logging
 from collections import defaultdict
-from copy import deepcopy
 from os.path import dirname, join
 
 import simplexquery as sxq
 from dicttoxml import dicttoxml
-from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.models import CatalogRecord, Contract
-from metax_api.utils import get_tz_aware_now_without_micros
+from metax_api.models import Contract
 from .common_service import CommonService
 from .reference_data_mixin import ReferenceDataMixin
 
@@ -19,48 +16,6 @@ d = logging.getLogger(__name__).debug
 
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
-
-    @staticmethod
-    def create_new_dataset_version(request, catalog_record_current, **kwargs):
-        """
-        Note: no tests yet before further spekking
-        """
-
-        if catalog_record_current.next_version_identifier:
-            raise Http403({ 'next_version_identifier': [
-                'A newer version already exists. You can not create new versions from archived versions.'] })
-
-        # import here instead of beginning of the file to avoid circular import in CR serializer
-        from metax_api.api.base.serializers import CatalogRecordSerializer
-
-        serializer_current = CatalogRecordSerializer(catalog_record_current, **kwargs)
-        current_time = get_tz_aware_now_without_micros()
-
-        catalog_record_new = deepcopy(serializer_current.data)
-        catalog_record_new.pop('id', None)
-        catalog_record_new.pop('date_modified', None)
-        catalog_record_new.pop('user_modified', None)
-        catalog_record_new['identifier'] = 'urn:nice:generated:identifier' # TODO
-        catalog_record_new['research_dataset']['identifier'] = 'urn:nice:generated:identifier' # TODO
-        catalog_record_new['research_dataset']['preferred_identifier'] = request.query_params.get(
-            'preferred_identifier', None)
-        catalog_record_new['previous_version_identifier'] = catalog_record_current.identifier
-        catalog_record_new['previous_version_id'] = catalog_record_current.id
-        catalog_record_new['version_created'] = current_time
-        catalog_record_new['date_created'] = current_time
-        catalog_record_new['user_created'] = request.user.id or None
-
-        serializer_new = CatalogRecordSerializer(data=catalog_record_new, **kwargs)
-        serializer_new.is_valid()
-        serializer_new.save()
-
-        catalog_record_current.next_version_id = CatalogRecord.objects.get(pk=serializer_new.data['id'])
-        catalog_record_current.next_version_identifier = serializer_new.data['identifier']
-        catalog_record_current.date_modified = current_time
-        catalog_record_current.modified_by_user = request.user.id or None
-        catalog_record_current.save()
-
-        return serializer_new.data, status.HTTP_201_CREATED
 
     @staticmethod
     def get_queryset_search_params(request):

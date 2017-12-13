@@ -73,6 +73,9 @@ class CatalogRecordSerializer(CommonSerializer):
             self._validate_json_schema(self.initial_data['research_dataset'])
 
     def update(self, instance, validated_data):
+        if 'preserve_version' in self.context['view'].request.query_params:
+            # execute updates without creating new versions
+            instance.preserve_version = True
         instance = super(CatalogRecordSerializer, self).update(instance, validated_data)
 
         # for partial updates research_dataset is not necessarily set
