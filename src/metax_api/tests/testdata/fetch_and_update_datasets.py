@@ -58,7 +58,11 @@ def retrieve_and_update_all_datasets_in_db(headers):
             raise Exception(response.content)
 
     print('updating %d datasets using bulk update...' % count)
-    response = requests.put('https://localhost/rest/datasets', headers=headers, data=dumps(records), verify=False)
+
+    # dont want to create new versions from datasets for this operation,
+    # so use parameter preserve_version
+    response = requests.put('https://localhost/rest/datasets?preserve_version',
+        headers=headers, data=dumps(records), verify=False)
 
     if response.status_code not in (200, 201, 204):
         print(response.status_code)

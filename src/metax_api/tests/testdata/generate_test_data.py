@@ -353,7 +353,11 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
             new['fields']['date_created'] = '2017-05-15T10:07:22Z'
             new['fields']['catalog_json']['identifier'] = "pid:urn:catalog%d" % i
 
-            dataset_versioning = new['fields']['catalog_json']['research_dataset_schema'] == 'att'
+            if new['fields']['catalog_json']['research_dataset_schema'] == 'att' and i in (1, 2):
+                # lets pretend that the first two are ATT catalogs, which will support versioning.
+                dataset_versioning = True
+            else:
+                dataset_versioning = False
             new['fields']['catalog_json']['dataset_versioning'] = dataset_versioning
 
             test_data_catalog_list.append(new)

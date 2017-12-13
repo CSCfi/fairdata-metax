@@ -1121,7 +1121,7 @@
                         }
                     ]
                 },
-                "dataset_versioning": true,
+                "dataset_versioning": false,
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -1238,7 +1238,7 @@
                         }
                     ]
                 },
-                "dataset_versioning": true,
+                "dataset_versioning": false,
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",

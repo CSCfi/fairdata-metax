@@ -299,11 +299,12 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
         self.test_new_data['research_dataset']['preferred_identifier'] = unique_identifier
 
-        # different catalog, should be OK
-        self.test_new_data['data_catalog'] = 2
+        # different catalog, should be OK (not ATT catalog, so preferred_identifier being saved
+        # can exist in other catalogs)
+        self.test_new_data['data_catalog'] = 3
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_catalog_record_to_att_preferred_identifier_exists_in_another_catalog(self):
         """
@@ -1179,13 +1180,16 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         super(CatalogRecordApiWriteAlternateRecords, self).setUp()
         self.preferred_identifier = self._set_preferred_identifier_to_record(pk=1, data_catalog=1)
         self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
-        self.test_new_data['data_catalog'] = 2
+        self.test_new_data['data_catalog'] = None
 
     def test_alternate_record_set_is_created_if_it_doesnt_exist(self):
         """
         Add a record, where a record already existed with the same pref_id, but did not have an
         alternate_record_set yet. Ensure a new set is created, and both records are added to it.
         """
+        # new record is saved to catalog 3, which does not support versioning
+        self.test_new_data['data_catalog'] = 3
+
         existing_records_count = CatalogRecord.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier}).count()
         self.assertEqual(existing_records_count, 1,
@@ -1193,7 +1197,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
                          % self.preferred_identifier)
 
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         records = CatalogRecord.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier})
@@ -1211,7 +1215,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
 
         # records in the set are indeed in different catalogs
         self.assertEqual(records[0].data_catalog.id, 1)
-        self.assertEqual(records[1].data_catalog.id, 2)
+        self.assertEqual(records[1].data_catalog.id, 3)
 
     def test_append_to_existing_alternate_record_set_if_it_exists(self):
         """
@@ -1219,7 +1223,8 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         record with the same preferred_identifier. The created record should be added
         to the existing alternate_record_set.
         """
-        self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
+        self._set_preferred_identifier_to_record(pk=2, data_catalog=2)
+        self.test_new_data['data_catalog'] = 3
 
         existing_records_count = CatalogRecord.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier}).count()
@@ -1247,8 +1252,8 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
 
         # records in the set are indeed in different catalogs
         self.assertEqual(records[0].data_catalog.id, 1)
-        self.assertEqual(records[1].data_catalog.id, 3)
-        self.assertEqual(records[2].data_catalog.id, 2)
+        self.assertEqual(records[1].data_catalog.id, 2)
+        self.assertEqual(records[2].data_catalog.id, 3)
 
     def test_record_is_removed_from_alternate_record_set_when_deleted(self):
         """
@@ -1270,19 +1275,22 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
 
     def test_alternate_record_set_is_unchanged_if_updating_record(self):
         """
-        Since updating preferred_identifier causes a new dataset version to be created, the
-        previous version, which belongs to some alternate_record_set, should stay as it is.
+        Since updating preferred_identifier causes a new dataset version to be created in so
+        configured catalogs, the previous version, which belongs to some alternate_record_set,
+        should stay as it is.
+
         The new version, which has a new preferred_identifier, may or may not then be attached
         to another alternate_record_set, if applicable.
 
         In other words, a record is never deleted from an alternate_record_set by only updating
-        the record. Explicitly deleting the record is required to remove it from its
-        alternate_record_set.
+        the record, IF the catalog supports versioning. Explicitly deleting the record is
+        required to remove it from its alternate_record_set.
         """
         original_preferred_identifier = self.preferred_identifier
 
-        # after this, pk=1 and pk=2 have the same preferred_identifier, in catalogs 1 and 3.
-        self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
+        # after this, pk=1 and pk=2 have the same preferred_identifier, in catalogs 1 and 2.
+        # note! catalog=2, so later an update to the record creates a new version.
+        self._set_preferred_identifier_to_record(pk=2, data_catalog=2)
 
         # save for later checking
         old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
@@ -1302,8 +1310,38 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
 
         AlternateRecordSet.objects.get(pk=old_ars_id) # should not throw DoesNotExist
 
-    def test_alternate_record_set_is_deleted_if_deleting_record_and_only_one_record_left(self):
+    def test_alternate_record_set_is_deleted_if_updating_record_with_no_versioning_and_one_record_left(self):
+        """
+        Same as above, but updating a record in a catalog, which does NOT support versioning.
+        In this case, the the records itself gets updated, and removed from the alternate_record_set.
+        """
+        original_preferred_identifier = self.preferred_identifier
+
+        # after this, pk=1 and pk=2 have the same preferred_identifier, in catalogs 1 and 3.
+        # note! catalog=3, so an update will not create a new version!
         self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
+
+        # save for later checking
+        old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
+
+        # retrieve record id=2, and change its preferred identifier
+        response = self.client.get('/rest/datasets/2', format="json")
+        data = {'research_dataset': response.data['research_dataset']}
+        data['research_dataset']['preferred_identifier'] = 'a:new:identifier:here'
+
+        # updating preferred_identifier - a new version is NOT created
+        response = self.client.patch('/rest/datasets/2', data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        records = CatalogRecord.objects.filter(
+            research_dataset__contains={'preferred_identifier': original_preferred_identifier })
+        self.assertEqual(records.count(), 1)
+
+        with self.assertRaises(AlternateRecordSet.DoesNotExist, msg='alternate record set should have been deleted'):
+            AlternateRecordSet.objects.get(pk=old_ars_id)
+
+    def test_alternate_record_set_is_deleted_if_deleting_record_and_only_one_record_left(self):
+        self._set_preferred_identifier_to_record(pk=2, data_catalog=2)
         old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
 
         response = self.client.delete('/rest/datasets/2', format="json")
@@ -1321,6 +1359,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         Details of a dataset should contain field alternate_record_set in it.
         For a particular record, the set should not contain its own urn_identifier in the set.
         """
+        self.test_new_data['data_catalog'] = 3
         msg_self_should_not_be_listed = 'urn_identifier of the record itself should not be listed'
 
         response_1 = self.client.post('/rest/datasets', self.test_new_data, format="json")
