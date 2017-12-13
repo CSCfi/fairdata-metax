@@ -3,6 +3,7 @@ import logging
 
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
+from django.db.models import Q
 from rest_framework.serializers import ValidationError
 
 from metax_api.utils import get_tz_aware_now_without_micros
@@ -166,11 +167,25 @@ class CatalogRecord(Common):
             super(CatalogRecord, self).save(*args, **kwargs)
 
     def save_as_new_version(self):
+        """
+        Note: This method is executed by the new version - never by the old one.
+        """
         super(CatalogRecord, self).save()
-        self._post_create_operations()
+        self._generate_urn_identifier()
 
+        # note: this new version was implicitly placed in the same
+        # alternate_record_set as the previous version
         if self.field_changed('research_dataset.preferred_identifier'):
+            # in case the previous version had an alternate_record_set,
+            # the prev version will keep staying there, since preferred_identifier
+            # was changed for the new version.
             self._handle_preferred_identifier_changed()
+        else:
+            if self.has_alternate_records():
+                # remove previous previous version from alternate_record_set.
+                # alternate_record_set should always have the newest versions
+                # of records holding a specific preferred_identifier.
+                self.previous_version.alternate_record_set = None
 
     def delete(self, *args, **kwargs):
         if self.has_alternate_records():
@@ -224,12 +239,9 @@ class CatalogRecord(Common):
 
     def _post_create_operations(self):
         self._generate_urn_identifier()
-
         other_record = self._check_alternate_records()
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
-
-        super(CatalogRecord, self).save()
 
     def _pre_update_operations(self):
         if self.field_changed('research_dataset.urn_identifier'):
@@ -339,6 +351,7 @@ class CatalogRecord(Common):
         self.research_dataset['urn_identifier'] = urn_identifier
         if not self.research_dataset.get('preferred_identifier', None):
             self.research_dataset['preferred_identifier'] = urn_identifier
+        super(CatalogRecord, self).save(update_fields=['research_dataset'])
 
     def _handle_preferred_identifier_changed(self):
         if self.has_alternate_records():
@@ -366,7 +379,7 @@ class CatalogRecord(Common):
         """
         return CatalogRecord.objects.select_related('data_catalog', 'alternate_record_set') \
             .filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }) \
-            .exclude(data_catalog__id=self.data_catalog_id, id=self.id) \
+            .exclude(Q(data_catalog__id=self.data_catalog_id) | Q(id=self.id)) \
             .first()
 
     def _create_or_update_alternate_record_set(self, other_record):

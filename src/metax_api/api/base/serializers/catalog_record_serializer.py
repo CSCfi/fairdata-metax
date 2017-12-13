@@ -57,6 +57,9 @@ class CatalogRecordSerializer(CommonSerializer):
             self.initial_data['contract'] = self._get_id_from_related_object('contract', self._get_contract_relation)
 
         self.initial_data.pop('alternate_record_set', None)
+        self.initial_data.pop('version_set', None)
+        self.initial_data.pop('next_version', None)
+        self.initial_data.pop('previous_version', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
@@ -209,7 +212,7 @@ class CatalogRecordSerializer(CommonSerializer):
             return
 
         if found_using_pref_id:
-            if self._saving_to_att_catalog():
+            if self._data_catalog_supports_versioning():
                 raise ValidationError([
                     'a catalog record with this research_dataset ->> preferred_identifier'
                     ' already exists in another data catalog. when saving to ATT catalog,'
@@ -238,7 +241,7 @@ class CatalogRecordSerializer(CommonSerializer):
         """
         params = { 'research_dataset__contains': { field_name: identifier }}
 
-        if field_name == 'preferred_identifier' and not self._saving_to_att_catalog():
+        if field_name == 'preferred_identifier' and not self._data_catalog_supports_versioning():
 
             # only look for hits within the same data catalog.
 
@@ -266,7 +269,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
         if self._operation_is_create():
             return CatalogRecord.objects.filter(**params)
-        elif self._saving_to_att_catalog():
+        elif self._data_catalog_supports_versioning():
             # preferred_identifiers already existing in ATT catalog are fine, so exclude
             # results from ATT catalog. matches in other catalogs however are considered
             # an error.
@@ -299,18 +302,23 @@ class CatalogRecordSerializer(CommonSerializer):
         """
         if self._operation_is_update('PUT'):
             return self.initial_data['research_dataset']['preferred_identifier'] \
-                != self.instance.research_dataset['preferred_identifier']
+                != self.instance.preferred_identifier
         elif self._operation_is_update('PATCH'):
             if 'preferred_identifier' in self.initial_data['research_dataset']:
                 return self.initial_data['research_dataset']['preferred_identifier'] \
-                    != self.instance.research_dataset['preferred_identifier']
+                    != self.instance.preferred_identifier
         else:
             return False
 
-    def _saving_to_att_catalog(self):
+    def _data_catalog_supports_versioning(self):
         if 'data_catalog' in self.initial_data:
-            return self.initial_data['data_catalog'] == 1
-        return self.instance.data_catalog_id == 1
+            # must always fetch from db, to know if it supports versioning or not
+            catalog_json = DataCatalog.objects.filter(pk=self.initial_data['data_catalog']) \
+                .only('catalog_json').first().catalog_json
+        else:
+            catalog_json = self.instance.data_catalog.catalog_json
+
+        return catalog_json.get('dataset_versioning', False) is True
 
     def _get_file_objects(self, files_dict):
         file_pids = [ f['identifier'] for f in files_dict ]
