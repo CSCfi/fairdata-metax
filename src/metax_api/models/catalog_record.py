@@ -27,6 +27,10 @@ class AlternateRecordSet(models.Model):
 
     id = models.BigAutoField(primary_key=True, editable=False)
 
+    def print_records(self): # pragma: no cover
+        for r in self.records.all():
+            print(r.__repr__())
+
 
 class VersionSet(models.Model):
 
@@ -38,6 +42,10 @@ class VersionSet(models.Model):
     """
 
     id = models.BigAutoField(primary_key=True, editable=False)
+
+    def print_records(self): # pragma: no cover
+        for r in self.records.all():
+            print(r.__repr__())
 
 
 class CatalogRecordManager(CommonManager):
