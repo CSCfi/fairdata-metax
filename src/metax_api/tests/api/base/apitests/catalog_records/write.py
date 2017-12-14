@@ -4,7 +4,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import AlternateRecordSet, CatalogRecord, DataCatalog
+from metax_api.models import AlternateRecordSet, CatalogRecord, DataCatalog, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import RedisSentinelCache, get_tz_aware_now_without_micros
 
@@ -1174,6 +1174,11 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
     """
     Tests related to handling alternate records: Records which have the same
     preferred_identifier, but are in different data catalogs.
+
+    The tricky part here is that, in catalogs which support versioning, changing preferred_identifier
+    will leave the old record in its existing alternate_record_set, and the new version will have
+    the changed preferred_identifier, which may or may not be placed into a different
+    alternate_record_set.
     """
 
     def setUp(self):
@@ -1187,6 +1192,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         Add a record, where a record already existed with the same pref_id, but did not have an
         alternate_record_set yet. Ensure a new set is created, and both records are added to it.
         """
+
         # new record is saved to catalog 3, which does not support versioning
         self.test_new_data['data_catalog'] = 3
 
@@ -1280,11 +1286,14 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         should stay as it is.
 
         The new version, which has a new preferred_identifier, may or may not then be attached
-        to another alternate_record_set, if applicable.
+        to another alternate_record_set.
 
         In other words, a record is never deleted from an alternate_record_set by only updating
         the record, IF the catalog supports versioning. Explicitly deleting the record is
         required to remove it from its alternate_record_set.
+
+        In this test, a record belonging to a catalog which supports versioning, has its
+        preferred_identifier changed.
         """
         original_preferred_identifier = self.preferred_identifier
 
@@ -1300,7 +1309,8 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         data = {'research_dataset': response.data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = 'a:new:identifier:here'
 
-        # updating preferred_identifier - a new version is created
+        # updating preferred_identifier - a new version is created, preserving the old version
+        # and its preferred_identifier, and its alternate_record_set.
         response = self.client.patch('/rest/datasets/2', data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -1313,7 +1323,9 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
     def test_alternate_record_set_is_deleted_if_updating_record_with_no_versioning_and_one_record_left(self):
         """
         Same as above, but updating a record in a catalog, which does NOT support versioning.
-        In this case, the the records itself gets updated, and removed from the alternate_record_set.
+        In this case, the the records itself gets updated, and removed from the old alternate_record_set.
+        Since the old alternate_record_set is left with only one other record, the alternate set
+        should be deleted.
         """
         original_preferred_identifier = self.preferred_identifier
 
@@ -1341,6 +1353,11 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
             AlternateRecordSet.objects.get(pk=old_ars_id)
 
     def test_alternate_record_set_is_deleted_if_deleting_record_and_only_one_record_left(self):
+        """
+        Same princible as above, but through deleting a record, instead of updating a record.
+
+        End result for the alternate_record_set should be the same (it gets deleted).
+        """
         self._set_preferred_identifier_to_record(pk=2, data_catalog=2)
         old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
 
@@ -1399,8 +1416,8 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         Set preferred_identifier to an existing record to a value, and return that value,
         which will then be used by the test to create or update a record.
 
-        Not that this will also create an alternate_record_set, if the unique_identifier
-        is being used more than once.
+        Note that if calling this method several times, this will also create an
+        alternate_record_set (by calling _handle_preferred_identifier_changed()).
         """
         unique_identifier = 'im unique yo'
         cr = CatalogRecord.objects.get(pk=pk)
@@ -1429,3 +1446,193 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         self.assertEqual(records[0].alternate_record_set.id, ars_id)
         self.assertEqual(records[1].alternate_record_set.id, ars_id)
         self.assertEqual(records[2].alternate_record_set.id, ars_id)
+
+class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
+
+    """
+    Test dataset versioning when updating datasets which belong to a data catalog that
+    has dataset_versioning=True.
+
+    Catalogs 1-2 should have dataset_versioning=True, while the rest should not.
+    """
+
+    def test_update_to_non_versioning_catalog_does_not_create_version(self):
+        self._set_cr_to_catalog(pk=self.pk, dc=3)
+        response = self._get_and_update_title(self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_version' not in response.data, True, response.data)
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        self.assertEqual(cr.next_version, None)
+
+    def test_update_to_versioning_catalog_with_preserve_version_parameter_does_not_create_version(self):
+        self._set_cr_to_catalog(pk=self.pk, dc=1)
+        response = self._get_and_update_title(self.pk, params='?preserve_version')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_version' not in response.data, True, response.data)
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        self.assertEqual(cr.next_version, None)
+
+    def test_update_rd_title_creates_new_version(self):
+        """
+        Updating the title should create a new version, but should not change the
+        preferred_identifier of the new version.
+        """
+        self._set_cr_to_catalog(pk=self.pk, dc=1)
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        preferred_identifier_before = cr.preferred_identifier
+
+        response = self._get_and_update_title(self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_version' in response.data, True, response.data)
+
+        old_version, next_version = self._get_old_and_new_version(self.pk)
+
+        # new version id in the response is correctly set
+        self.assertEqual(next_version.id, response.data['next_version']['id'])
+
+        # pref_id did not change for the previous version
+        self.assertEqual(preferred_identifier_before, old_version.preferred_identifier)
+
+        # pref_id did not change for the new version
+        self.assertEqual(preferred_identifier_before, next_version.preferred_identifier)
+
+    def test_update_rd_preferred_identifier_creates_new_version(self):
+        """
+        Updating preferred_identifier should create a new version, and should change
+        the preferred_identifier in the new version only, NOT the previous version.
+        """
+        self._set_cr_to_catalog(pk=self.pk, dc=1)
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        preferred_identifier_before = cr.preferred_identifier
+
+        response, new_preferred_identifier = self._get_and_update_preferred_identifier(self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_version' in response.data, True, response.data)
+
+        old_version, next_version = self._get_old_and_new_version(self.pk)
+
+        # new version id in the response is correctly set
+        self.assertEqual(next_version.id, response.data['next_version']['id'])
+
+        # pref_id did not change for the previous version
+        self.assertEqual(preferred_identifier_before, old_version.preferred_identifier)
+
+        # pref_id changed for the new version
+        self.assertEqual(new_preferred_identifier, next_version.preferred_identifier)
+
+    def test_update_rd_files_creates_new_version(self):
+        """
+        Updating files should create a new version, and should force a new preferred_identifier,
+        even if the user did not provide one. In that case, the new urn_identifier should be copied
+        as the new value.
+
+        Here, preferred_identifier is not provided, so urn_identifier should be used automatically
+        for the new version.
+        """
+        self._set_cr_to_catalog(pk=self.pk, dc=1)
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        preferred_identifier_before = cr.preferred_identifier
+
+        response = self._get_and_update_files(self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_version' in response.data, True, response.data)
+
+        old_version, next_version = self._get_old_and_new_version(self.pk)
+        new_preferred_identifier = next_version.preferred_identifier
+
+        # new version id in the response is correctly set
+        self.assertEqual(next_version.id, response.data['next_version']['id'])
+
+        # pref_id did not change for the previous version
+        self.assertEqual(preferred_identifier_before, old_version.preferred_identifier)
+
+        # urn_identifier was used as the preferred_identifier in the new version
+        self.assertEqual(next_version.urn_identifier, next_version.preferred_identifier)
+
+        # pref_id changed for the new version
+        self.assertEqual(new_preferred_identifier, next_version.preferred_identifier)
+
+    def test_update_rd_files_and_preferred_identifier_creates_new_version(self):
+        """
+        Same as above, but if providing a new preferred_identifier as well, then that value
+        should be used instead of the urn_identifier.
+        """
+        self._set_cr_to_catalog(pk=self.pk, dc=1)
+        cr = CatalogRecord.objects.get(pk=self.pk)
+        preferred_identifier_before = cr.preferred_identifier
+
+        response, new_preferred_identifier = self._get_and_update_preferred_identifier(self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_version' in response.data, True, response.data)
+
+        old_version, next_version = self._get_old_and_new_version(self.pk)
+        # new version id in the response is correctly set
+        self.assertEqual(next_version.id, response.data['next_version']['id'])
+
+        # pref_id did not change for the previous version
+        self.assertEqual(preferred_identifier_before, old_version.preferred_identifier)
+
+        # pref_id changed for the new version
+        self.assertEqual(new_preferred_identifier, next_version.preferred_identifier)
+
+    def _set_cr_to_catalog(self, pk=None, dc=None):
+        cr = CatalogRecord.objects.get(pk=pk)
+        cr.data_catalog_id = dc
+        cr.force_save()
+
+    def _get_and_update_title(self, pk, params=None):
+        """
+        Get, modify, and update data for given pk. The modification should cause a new
+        version to be created if the catalog permits.
+
+        Should not force preferred_identifier to change.
+        """
+        data = self.client.get('/rest/datasets/%d' % pk, format="json").data
+        data['research_dataset']['title']['en'] = 'modified title'
+        return self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json")
+
+    def _get_and_update_preferred_identifier(self, pk, params=None):
+        """
+        Get, modify, and update data for given pk. The modification should cause a new
+        version to be created if the catalog permits.
+
+        Should force preferred_identifier to change.
+        """
+        new_pref_id = 'modified-preferred-identifier'
+        data = self.client.get('/rest/datasets/%d' % pk, format="json").data
+        data['research_dataset']['preferred_identifier'] = new_pref_id
+        return (
+            self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json"),
+            new_pref_id
+        )
+
+    def _get_and_update_files(self, pk, update_preferred_identifier=False, params=None):
+        """
+        Get, modify, and update data for given pk. The modification should cause a new
+        version to be created if the catalog permits.
+
+        Should force preferred_identifier to change.
+        """
+        file_identifiers = [
+            {
+                'identifier': f.identifier,
+                'title': 'title',
+                'use_category': { 'identifier': 'outcome' }
+            }
+            for f in File.objects.all()
+        ]
+        data = self.client.get('/rest/datasets/%d' % pk, format="json").data
+        data['research_dataset']['files'] = file_identifiers[-5:]
+
+        if update_preferred_identifier:
+            new_pref_id = 'modified-preferred-identifier'
+            data['research_dataset']['preferred_identifier'] = new_pref_id
+            return (
+                self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json"),
+                new_pref_id
+            )
+        return self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json")
+
+    def _get_old_and_new_version(self, pk):
+        old_version = CatalogRecord.objects.get(pk=pk)
+        return old_version, old_version.next_version

@@ -182,7 +182,8 @@ class CatalogRecord(Common):
         self._generate_urn_identifier()
 
         # note: this new version was implicitly placed in the same
-        # alternate_record_set as the previous version
+        # alternate_record_set as the previous version.
+
         if self.field_changed('research_dataset.preferred_identifier'):
             # in case the previous version had an alternate_record_set,
             # the prev version will keep staying there, since preferred_identifier
