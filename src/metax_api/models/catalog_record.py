@@ -100,9 +100,9 @@ class CatalogRecord(Common):
         AlternateRecordSet, on_delete=models.SET_NULL, null=True, related_name='records',
         help_text='Records which are duplicates of this record, but in another catalog.')
 
-    contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
+    contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING, related_name='records')
 
-    data_catalog = models.ForeignKey(DataCatalog, on_delete=models.DO_NOTHING)
+    data_catalog = models.ForeignKey(DataCatalog, on_delete=models.DO_NOTHING, related_name='records')
 
     dataset_group_edit = models.CharField(
         max_length=200, blank=True, null=True,
