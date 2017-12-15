@@ -2,6 +2,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from metax_api.models import CatalogRecord
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -45,6 +46,11 @@ class DirectoryApiReadBasicTests(DirectoryApiReadCommon):
 
 
 class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
+
+    """
+    Test generic file browsing, should always return all existing files in a dir.
+    """
+
     def test_read_directory_get_files(self):
         """
         Test browsing files
@@ -132,3 +138,62 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
         response = self.client.get('/rest/directories/root')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('required' in response.data['detail'], True, response.data)
+
+
+class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
+
+    """
+    Test browsing files in the context of a specific CatalogRecord. Should always
+    only dispaly those fiels that were selected for that CR, and only those dirs,
+    that contained suchs files, or would contain such files further down the tree.
+    """
+
+    def test_read_directory_for_catalog_record(self):
+        """
+        Test query parameter 'urn_identifier'.
+        """
+        urn_identifier = CatalogRecord.objects.get(pk=1).urn_identifier
+
+        response = self.client.get('/rest/directories/3/files?urn_identifier=%s' % urn_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('directories' in response.data, True)
+        self.assertEqual('files' in response.data, True)
+        self.assertEqual(len(response.data['directories']), 0)
+        self.assertEqual(len(response.data['files']), 2)
+
+    def test_read_directory_for_catalog_record_not_found(self):
+        """
+        Not found urn_identifier should raise 400 instead of 404, which is raised when the
+        directory itself is not found. the error contains details about the 400.
+        """
+        response = self.client.get('/rest/directories/3/files?urn_identifier=notexisting')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_read_directory_for_catalog_record_directory_does_not_exist(self):
+        """
+        A directory may have files in a project, but those files did not necessarily exist
+        or were not selected for a specific CR.
+        """
+
+        # should be OK...
+        response = self.client.get('/rest/directories/4/files')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        urn_identifier = CatalogRecord.objects.get(pk=1).urn_identifier
+        # ... but should not contain any files FOR THIS CR
+        response = self.client.get('/rest/directories/4/files?urn_identifier=%s' % urn_identifier)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_read_directory_for_catalog_record_recursively(self):
+        """
+        Test query parameter 'urn_identifier' with 'recursive'.
+        """
+        urn_identifier = CatalogRecord.objects.get(pk=1).urn_identifier
+        response = self.client.get('/rest/directories/1/files?recursive&urn_identifier=%s' % urn_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+        # not found urn_identifier should raise 400 instead of 404, which is raised when the
+        # directory itself is not found. the error contains details about the 400
+        response = self.client.get('/rest/directories/1/files?recursive&urn_identifier=notexisting')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

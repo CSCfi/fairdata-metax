@@ -415,6 +415,11 @@ paths:
           description: return a flat list of file objects contained by the target directory and its sub-directories
           required: false
           type: boolean
+        - name: urn_identifier
+          in: query
+          description: urn_identifier of a dataset. browse only files that have been selected for that record.
+          required: false
+          type: string
       responses:
         '200':
           description: |
