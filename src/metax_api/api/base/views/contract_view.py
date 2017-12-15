@@ -48,5 +48,5 @@ class ContractViewSet(CommonViewSet):
     @detail_route(methods=['get'], url_path="datasets")
     def datasets_get(self, request, pk=None):
         contract = self.get_object()
-        catalog_records = [ CatalogRecordSerializer(f).data for f in contract.catalogrecord_set.all() ]
+        catalog_records = [ CatalogRecordSerializer(f).data for f in contract.records.all() ]
         return Response(data=catalog_records, status=status.HTTP_200_OK)

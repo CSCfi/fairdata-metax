@@ -79,9 +79,9 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
 
         contract = Contract.objects.get(pk=self.pk)
         try:
-            contract.catalogrecord_set.get(pk=response.data['id'])
+            contract.records.get(pk=response.data['id'])
         except CatalogRecord.DoesNotExist:
-            raise Exception('The added CatalogRecord should appear in the relation contract.catalogrecord_set')
+            raise Exception('The added CatalogRecord should appear in the relation contract.records')
 
         response = self.client.get('/rest/contracts/%d/datasets' % self.pk)
         self.assertIn(created_catalog_record['id'], [cr['id'] for cr in response.data],
@@ -120,7 +120,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
 
         self.client.delete('/rest/contracts/%s' % self.pk)
         contract = Contract.objects_unfiltered.get(pk=self.pk)
-        related_crs = contract.catalogrecord_set(manager='objects_unfiltered').all()
+        related_crs = contract.records(manager='objects_unfiltered').all()
         response_get_1 = self.client.get('/rest/datasets/%d' % related_crs[0].id)
         self.assertEqual(response_get_1.status_code, status.HTTP_404_NOT_FOUND,
                          'CatalogRecords of deleted contracts should not be retrievable through the api')

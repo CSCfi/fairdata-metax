@@ -77,7 +77,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         catalog_record.preservation_state = request.query_params.get('state')
         catalog_record.save()
-        contract.catalogrecord_set.add(catalog_record)
+        contract.records.add(catalog_record)
         contract.save()
 
     @staticmethod
