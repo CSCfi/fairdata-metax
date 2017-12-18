@@ -95,6 +95,15 @@
                     "description":"The editor that is used to modify the record.",
                     "type":"object"
                 },
+                "version_set":{
+                    "title":"Versions",
+                    "description":"List of records (urn_identifiers) which are different versions of the same record.",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    },
+                    "readonly": true
+                },
                 "date_modified":{
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",
@@ -168,6 +177,30 @@
                 "owner_id",
                 "identifier",
             ]
+        },
+        "CatalogRecordVersion":{
+            "title":"CatalogRecord Version",
+            "description":"Information about a previous or next version of a CatalogRecord",
+            "properties":{
+                "id":{
+                    "title":"id",
+                    "description":"Internal primary key of the record",
+                    "type":"integer",
+                    "readonly": true
+                },
+                "urn_identifier":{
+                    "title":"urn_identifier",
+                    "description":"urn_identifier of the record",
+                    "type":"string",
+                    "readonly": true
+                },
+                "preferred_identifier":{
+                    "title":"preferred_identifier",
+                    "description":"preferred_identifier of the record",
+                    "type":"string",
+                    "readonly": true
+                }
+            }
         }
     }
 }
