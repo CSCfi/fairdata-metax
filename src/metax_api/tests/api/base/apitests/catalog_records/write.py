@@ -1575,6 +1575,40 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         # pref_id changed for the new version
         self.assertEqual(new_preferred_identifier, next_version.preferred_identifier)
 
+    def test_prevent_update_of_dataset_metadata_in_old_versions(self):
+        """
+        Updating any metadata in a CR which has newer versions available should not be allowed.
+        """
+        self._set_cr_to_catalog(pk=self.pk, dc=1)
+
+        # updates the record, creates a new version
+        response = self._get_and_update_title(self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        data = self.client.get('/rest/datasets/%d' % self.pk, format="json").data
+        data['research_dataset']['title']['en'] = 'modified title again'
+
+        # attempt updating the record again, which should result in an error, since it
+        # has newer versions available
+        response = self.client.put('/rest/datasets/%d' % self.pk, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('permitted' in response.data['detail'][0], True, response.data)
+
+    def test_update_cr_fields_in_old_versions_is_ok(self):
+        """
+        Updating any OTHER field than metadata in a CR which has newer versions available,
+        is ok.
+        """
+        self._set_cr_to_catalog(pk=self.pk, dc=1)
+
+        # updates the record, creates a new version
+        response = self._get_and_update_title(self.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        data = { 'preservation_state_description': 'this edit should be ok' }
+        response = self.client.patch('/rest/datasets/%d' % self.pk, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
     def _set_cr_to_catalog(self, pk=None, dc=None):
         cr = CatalogRecord.objects.get(pk=pk)
         cr.data_catalog_id = dc

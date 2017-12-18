@@ -149,6 +149,17 @@ class CatalogRecord(Common):
     """
     preserve_version = False
 
+    """
+    Used to signal to the serializer (or other interested parties), that the object
+    being serialized had a new version created in the current request save operation.
+    The serializer then places a 'publish in rabbitmq' key in the dict-representation,
+    so that the view knows to publish it just before returning. The publishing needs to be done
+    as late as possible (= not here in the model right after the new version object
+    was created), because if the request is interrupted for whatever reason after publishing,
+    the new version will not get created after all, but the publish message already left.
+    """
+    next_version_created_in_current_request = False
+
     objects = CatalogRecordManager()
 
     class Meta:
@@ -266,14 +277,29 @@ class CatalogRecord(Common):
 
         if self.catalog_versions_datasets() and not self.preserve_version:
             if self.field_changed('research_dataset'):
-                self._create_new_version()
+                if not self.next_version_id:
+                    self._create_new_version()
+                else:
+                    raise ValidationError({ 'detail': [
+                        'modifying dataset metadata of old versions not permitted'
+                    ]})
+            else:
+                # edits to any other field than research_dataset are OK even in
+                # old versions of a CR.
+                pass
         else:
+            # non-versioning catalogs, such as harvesters, or if an update
+            # was forced to occur without version update.
             if self.field_changed('research_dataset.preferred_identifier'):
                 self._handle_preferred_identifier_changed()
 
     def _create_new_version(self):
         """
-        stuff
+        Create a new version of the record who calls this method.
+
+        - Creates a new version_set if required
+        - Sets links next_version and previous_version to related objects
+        - Forces preferred_identifier change if necessary
         """
         _logger.info('Creating new version from CatalogRecord %s...' % self.urn_identifier)
 
@@ -281,9 +307,10 @@ class CatalogRecord(Common):
         new_version.id = None
         new_version.contract = None
         new_version.date_created = self.date_modified
+        new_version.date_modified = self.date_modified
         new_version.next_version = None
         new_version.user_created = self.user_modified
-        new_version.user_modified = None
+        new_version.user_modified = self.user_modified
         new_version.preservation_description = None
         new_version.preservation_state = 0
         new_version.preservation_state_modified = None
@@ -316,7 +343,8 @@ class CatalogRecord(Common):
         new_version.save_as_new_version()
 
         if self.has_versions():
-            self.version_set.records.add(new_version)
+            # if a version_set existed, the new version inherited it from the previous version.
+            pass
         else:
             vs = VersionSet()
             vs.save()
@@ -324,6 +352,7 @@ class CatalogRecord(Common):
             vs.save()
 
         self.next_version = new_version
+        self.next_version_created_in_current_request = True
 
         # nothing must change in the now old version of research_dataset, so copy
         # from _initial_data so that super().save() does not change it later.

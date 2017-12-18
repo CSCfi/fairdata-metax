@@ -131,6 +131,13 @@ class CatalogRecordSerializer(CommonSerializer):
                 'preferred_identifier': instance.previous_version.preferred_identifier,
             }
 
+        if instance.next_version_created_in_current_request:
+            # inform the view that next_version should be published as a new dataset.
+            # the view should also remove the key __actions once it is done.
+            res['__actions'] = {
+                'publish_next_version': { 'next_version': self.to_representation(instance.next_version) }
+            }
+
         return res
 
     def validate_research_dataset(self, value):
