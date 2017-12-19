@@ -50,3 +50,17 @@ class DataCatalog(Common):
         # save can be called several times during an object's lifetime in a request. make sure
         # not to generate identifier again.
         self._need_to_generate_identifier = False
+
+    def print_records(self): # pragma: no cover
+        for r in self.records.all():
+            print(r)
+
+    def __repr__(self):
+        return '<%s: %d, removed: %s, identifier: %s, research_dataset_schema=%s, dataset_versioning: %s >' % (
+            'DataCatalog',
+            self.id,
+            str(self.removed),
+            self.catalog_json['identifier'],
+            self.catalog_json['research_dataset_schema'],
+            self.catalog_json['dataset_versioning'],
+        )

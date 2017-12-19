@@ -1,6 +1,5 @@
 import logging
 from collections import defaultdict
-from copy import deepcopy
 from os.path import dirname, join
 
 import simplexquery as sxq
@@ -9,8 +8,8 @@ from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.models import CatalogRecord, Contract
-from metax_api.utils import get_tz_aware_now_without_micros
+from metax_api.models import Contract
+from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 from .reference_data_mixin import ReferenceDataMixin
 
@@ -19,48 +18,6 @@ d = logging.getLogger(__name__).debug
 
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
-
-    @staticmethod
-    def create_new_dataset_version(request, catalog_record_current, **kwargs):
-        """
-        Note: no tests yet before further spekking
-        """
-
-        if catalog_record_current.next_version_identifier:
-            raise Http403({ 'next_version_identifier': [
-                'A newer version already exists. You can not create new versions from archived versions.'] })
-
-        # import here instead of beginning of the file to avoid circular import in CR serializer
-        from metax_api.api.base.serializers import CatalogRecordSerializer
-
-        serializer_current = CatalogRecordSerializer(catalog_record_current, **kwargs)
-        current_time = get_tz_aware_now_without_micros()
-
-        catalog_record_new = deepcopy(serializer_current.data)
-        catalog_record_new.pop('id', None)
-        catalog_record_new.pop('date_modified', None)
-        catalog_record_new.pop('user_modified', None)
-        catalog_record_new['identifier'] = 'urn:nice:generated:identifier' # TODO
-        catalog_record_new['research_dataset']['identifier'] = 'urn:nice:generated:identifier' # TODO
-        catalog_record_new['research_dataset']['preferred_identifier'] = request.query_params.get(
-            'preferred_identifier', None)
-        catalog_record_new['previous_version_identifier'] = catalog_record_current.identifier
-        catalog_record_new['previous_version_id'] = catalog_record_current.id
-        catalog_record_new['version_created'] = current_time
-        catalog_record_new['date_created'] = current_time
-        catalog_record_new['user_created'] = request.user.id or None
-
-        serializer_new = CatalogRecordSerializer(data=catalog_record_new, **kwargs)
-        serializer_new.is_valid()
-        serializer_new.save()
-
-        catalog_record_current.next_version_id = CatalogRecord.objects.get(pk=serializer_new.data['id'])
-        catalog_record_current.next_version_identifier = serializer_new.data['identifier']
-        catalog_record_current.date_modified = current_time
-        catalog_record_current.modified_by_user = request.user.id or None
-        catalog_record_current.save()
-
-        return serializer_new.data, status.HTTP_201_CREATED
 
     @staticmethod
     def get_queryset_search_params(request):
@@ -122,8 +79,58 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         catalog_record.preservation_state = request.query_params.get('state')
         catalog_record.save()
-        contract.catalogrecord_set.add(catalog_record)
+        contract.records.add(catalog_record)
         contract.save()
+
+    @classmethod
+    def publish_updated_datasets(cls, response):
+        """
+        Publish updated datasets to RabbitMQ.
+
+        If the update operation resulted in a new dataset version being created,
+        publish those new versions as well.
+        """
+        if response.status_code != status.HTTP_200_OK:
+            return
+
+        next_versions = []
+
+        if 'success' in response.data:
+            updated_request_data = [ r['object'] for r in response.data['success'] ]
+            for cr in updated_request_data:
+                if cls._new_version_created(cr):
+                    next_versions.append(cls._extract_next_version_data(cr))
+        else:
+            updated_request_data = response.data
+            if cls._new_version_created(updated_request_data):
+                next_versions.append(cls._extract_next_version_data(updated_request_data))
+
+        count = len(updated_request_data) if isinstance(updated_request_data, list) else 1
+        _logger.info('Publishing updated datasets (%d items)' % count)
+
+        try:
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish(updated_request_data, routing_key='update', exchange='datasets')
+
+            if next_versions:
+                _logger.info('Publishing new dataset versions (%d items)' % len(next_versions))
+                rabbitmq.publish(next_versions, routing_key='create', exchange='datasets')
+        except Exception as e:
+            _logger.exception('Publishing rabbitmq messages failed')
+            raise Http503({ 'detail': [
+                'failed to publish updates to rabbitmq, all updates are aborted. details: %s' % str(e)
+            ]})
+        _logger.info('RabbitMQ dataset messages published')
+
+    @staticmethod
+    def _new_version_created(cr):
+        return '__actions' in cr and 'publish_next_version' in cr['__actions']
+
+    @staticmethod
+    def _extract_next_version_data(cr):
+        data = cr['__actions']['publish_next_version']['next_version']
+        cr.pop('__actions')
+        return data
 
     @staticmethod
     def transform_datasets_to_format(catalog_records, target_format):

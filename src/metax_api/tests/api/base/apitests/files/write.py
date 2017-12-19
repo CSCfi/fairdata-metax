@@ -477,8 +477,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
 
     def test_update_file(self):
         response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_file_error_required_fields(self):
         """
@@ -497,7 +496,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         self.test_new_data['file_storage']['file_storage_json']['title'] = 'new title'
 
         response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         file_storage = FileStorage.objects.get(pk=self.test_new_data['file_storage']['id'])
         self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
@@ -519,8 +518,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         self.second_test_new_data['project_identifier'] = new_project_identifier_2
 
         response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-        self.assertEqual(response.data, {}, 'response.data should be empty object, since all operations succeeded')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         updated_file = File.objects.get(pk=1)
         self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update')
@@ -536,7 +534,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
 
         response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
+        self.assertEqual(len(response.data['success']), 1, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
         self.assertEqual('file_frozen' in response.data['failed'][0]['errors'], True,
                          'error should be about file_characteristics missing')
@@ -558,7 +556,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
 
         response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data['success']), 0, 'success list should be empty')
+        self.assertEqual(len(response.data['success']), 1, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
         error_msg_of_failed_row = response.data['failed'][0]['errors']['detail'][0]
         self.assertEqual('identifying keys' in error_msg_of_failed_row, True,

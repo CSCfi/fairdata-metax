@@ -54,14 +54,20 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
         cr.save()
         self.assertEqual(old, cr.research_dataset['urn_identifier'])
 
-    def test_total_byte_size_auto_update(self):
+    def test_total_byte_size_auto_update_on_files_changed(self):
+        """
+        Changing files of a dataset creates a new version, so make sure that the file size
+        of the old version does NOT changes, and the file size of the new version DOES change.
+        """
         file_from_testdata = self._get_object_from_test_data('file', requested_index=3)
         cr = self.cr
         old = cr.research_dataset['total_byte_size']
         cr.research_dataset['files'] = [file_from_testdata]
         cr.save()
-        self.assertNotEqual(old, cr.research_dataset['total_byte_size'],
-                            'total_byte_size should be automatically updated if files are changed')
+        new_version = cr.next_version
+
+        self.assertEqual(old, cr.research_dataset['total_byte_size'])
+        self.assertNotEqual(old, new_version.research_dataset['total_byte_size'])
 
     def test_preservation_state_modified_auto_update(self):
         cr = self.cr
@@ -69,7 +75,7 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
         cr.preservation_state = 1
         cr.save()
         self.assertNotEqual(old, cr.preservation_state_modified,
-                            'preservation_state_modified should be automatically updated if changed')
+            'preservation_state_modified should be automatically updated if changed')
 
 
 class CatalogRecordManagerTests(TestCase, TestClassUtils):

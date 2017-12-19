@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from metax_api.models import CatalogRecord
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService as CRS, CommonService as CS
+from metax_api.utils import RabbitMQ
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
@@ -43,10 +44,13 @@ class DatasetViewSet(CommonViewSet):
         return self._search_using_other_dataset_identifiers()
 
     def get_queryset(self):
+
+        additional_filters = {}
+
         if self.kwargs.get('pk', None):
             # operations on individual resources can find old versions. those operations
             # then decide if they allow modifying the resource or not
-            additional_filters = {}
+            pass
         else:
             # list operations only list current versions
             additional_filters = { 'next_version_id': None }
@@ -76,39 +80,31 @@ class DatasetViewSet(CommonViewSet):
 
     def update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update(request, *args, **kwargs)
-        if res.status_code == status.HTTP_204_NO_CONTENT:
-            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        CRS.publish_updated_datasets(res)
         return res
 
     def update_bulk(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update_bulk(request, *args, **kwargs)
-
-        # successful operation returns no content at all.
-        # however, partially successful operation has to return
-        # the errors, so status code cant be 204
-        if res.status_code in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK):
-            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
-
+        CRS.publish_updated_datasets(res)
         return res
 
     def partial_update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).partial_update(request, *args, **kwargs)
-        if res.status_code == status.HTTP_200_OK:
-            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        CRS.publish_updated_datasets(res)
         return res
 
     def partial_update_bulk(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).partial_update_bulk(request, *args, **kwargs)
-        if res.status_code == status.HTTP_200_OK:
-            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        CRS.publish_updated_datasets(res)
         return res
 
     def destroy(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).destroy(request, *args, **kwargs)
         if res.status_code == status.HTTP_204_NO_CONTENT:
             removed_object = self._get_removed_dataset()
-            self._publish_message({'urn_identifier': removed_object.research_dataset['urn_identifier']},
-                                  routing_key='delete', exchange='datasets')
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish({'urn_identifier': removed_object.research_dataset['urn_identifier']},
+                routing_key='delete', exchange='datasets')
         return res
 
     def create(self, request, *args, **kwargs):
@@ -120,7 +116,8 @@ class DatasetViewSet(CommonViewSet):
                 message = [ r['object'] for r in res.data['success'] ]
             else:
                 message = res.data
-            self._publish_message(message, routing_key='create', exchange='datasets')
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish(message, routing_key='create', exchange='datasets')
 
         return res
 
@@ -132,15 +129,6 @@ class DatasetViewSet(CommonViewSet):
         catalog_record = self.get_object()
         files = [ FileSerializer(f).data for f in catalog_record.files.all() ]
         return Response(data=files, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['post'], url_path="createversion")
-    def create_version(self, request, pk=None):
-        """
-        Create a new version from a dataset that has been marked as finished
-        """
-        kwargs = { 'context': self.get_serializer_context() }
-        new_version_data, http_status = CRS.create_new_dataset_version(request, self.get_object(), **kwargs)
-        return Response(data=new_version_data, status=http_status)
 
     @detail_route(methods=['post'], url_path="proposetopas")
     def propose_to_pas(self, request, pk=None):
@@ -239,6 +227,7 @@ class DatasetViewSet(CommonViewSet):
 
     @detail_route(methods=['get'], url_path="rabbitmq")
     def rabbitmq_test(self, request, pk=None): # pragma: no cover
-        self._publish_message({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
-        self._publish_message({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
+        rabbitmq = RabbitMQ()
+        rabbitmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
+        rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
         return Response(data={}, status=status.HTTP_200_OK)

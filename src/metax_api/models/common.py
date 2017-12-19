@@ -235,4 +235,4 @@ class Common(models.Model):
                 self._initial_data[field_name] = getattr(self, field_name)
 
     def __str__(self):
-        return str(self.id)
+        return self.__repr__()

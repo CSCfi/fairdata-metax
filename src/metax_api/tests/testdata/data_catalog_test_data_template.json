@@ -103,7 +103,8 @@
         }
       }
     ],
-    "research_dataset_schema": "att"
+    "research_dataset_schema": "att",
+    "dataset_versioning": true
   },
   "service_created": "metax"
 }

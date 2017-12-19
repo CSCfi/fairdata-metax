@@ -64,7 +64,7 @@ class ApiWriteCommonFieldsTests(ApiWriteCommon):
         altered['service_created'] = 'changed'
 
         response = self.client.put('/rest/datasets/%d' % altered['id'], altered, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         response = self.client.get('/rest/datasets/%d' % altered['id'], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -85,7 +85,7 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.date_modified.strftime('%a, %d %b %Y %H:%M:%S GMT')}
         response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json",
                                    **headers)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_with_if_unmodified_since_header_precondition_failed_error(self):
         self.test_new_data['preservation_description'] = 'the owls are not what they seem'
@@ -118,7 +118,7 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         headers = {'HTTP_IF_UNMODIFIED_SINCE': 'value is not checked'}
         response = self.client.put('/rest/datasets', [data_1, data_2], format="json", **headers)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_list_with_if_unmodified_since_header_error_1(self):
         """

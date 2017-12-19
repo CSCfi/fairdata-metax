@@ -58,8 +58,8 @@ paths:
           required: true
           type: string
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
         '401':
@@ -119,9 +119,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Some objects were updated, but some contained errors. Return values include a list of errors. For PUT, response does not include created objects.
-        '204':
-          description: All updates were successful. No content returned.
+          description: Successful operation. Return values include a list of errors, if any.
         '400':
           description: All updates failed. A list of errors is returned.
       tags:
@@ -140,6 +138,23 @@ paths:
       responses:
         '200':
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
+        '400':
+          description: All updates failed. A list of errors is returned.
+      tags:
+        - File API
+    delete:
+      summary: bulk delete
+      description: Mark files as deleted en masse.
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: A list of ids, or a list of identifiers.
+          required: true
+      responses:
+        '204':
+          description: Successful operation. All files were marked deleted.
         '400':
           description: All updates failed. A list of errors is returned.
       tags:
@@ -177,8 +192,8 @@ paths:
           schema:
             $ref: '#/definitions/File'
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
         '404':
@@ -501,8 +516,8 @@ paths:
           schema:
             $ref: '#/definitions/DataCatalog'
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
         '401':
@@ -637,9 +652,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Some objects were updated, but some contained errors. Return values include a list of errors. For PUT, response does not include created objects.
-        '204':
-          description: All updates were successful. No content returned.
+          description: Sucessful operation. Return values include a list of errors, if any.
         '400':
           description: All updates failed. A list of errors is returned.
       tags:
@@ -733,8 +746,8 @@ paths:
           required: true
           type: string
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
       tags:
@@ -991,8 +1004,8 @@ paths:
           required: true
           type: string
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
       tags:

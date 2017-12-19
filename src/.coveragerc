@@ -12,9 +12,8 @@ omit =
 exclude_lines =
     # type a python comment to exclude line or branch: # pragma: no cover
     pragma: no cover
-    # todo include these or not?
-    # def __repr__
-    # def __str__
+    def __repr__
+    def __str__
     if self.debug
     if self._debug
     if self._DEBUG

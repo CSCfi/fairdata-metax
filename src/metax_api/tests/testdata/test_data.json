@@ -887,6 +887,7 @@
                         }
                     ]
                 },
+                "dataset_versioning": true,
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -1003,6 +1004,7 @@
                         }
                     ]
                 },
+                "dataset_versioning": true,
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -1119,6 +1121,7 @@
                         }
                     ]
                 },
+                "dataset_versioning": false,
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -1235,6 +1238,7 @@
                         }
                     ]
                 },
+                "dataset_versioning": false,
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -1501,6 +1505,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "identifier": "qvain",
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
             "files": [
@@ -1600,6 +1605,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "identifier": "qvain",
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
             "files": [
@@ -1702,6 +1708,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "05593961536b76fa825281ccaedd4d4f",
+                "identifier": "qvain",
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
             "files": [
@@ -1804,6 +1811,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "identifier": "qvain",
                 "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
             },
             "files": [
@@ -1910,6 +1918,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
                 "owner_id": "055ea531a6cac569425bed94459266ee"
             },
             "files": [
@@ -2016,6 +2025,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "identifier": "qvain",
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
             "files": [
@@ -2117,6 +2127,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "identifier": "qvain",
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
             "files": [
@@ -2218,6 +2229,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "05593961536b76fa825281ccaedd4d4f",
+                "identifier": "qvain",
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
             "files": [
@@ -2303,6 +2315,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "identifier": "qvain",
                 "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
             },
             "files": [
@@ -2389,6 +2402,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
                 "owner_id": "055ea531a6cac569425bed94459266ee"
             },
             "files": [
@@ -4215,6 +4229,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
                 "owner_id": "055ea531a6cac569425bed94459266ee"
             },
             "files": [
@@ -4301,6 +4316,7 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
                 "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
                 "owner_id": "055ea531a6cac569425bed94459266ee"
             },
             "files": [
