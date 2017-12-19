@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from metax_api.models import CatalogRecord
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService as CRS, CommonService as CS
+from metax_api.utils import RabbitMQ
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
@@ -79,30 +80,31 @@ class DatasetViewSet(CommonViewSet):
 
     def update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update(request, *args, **kwargs)
-        self._publish_update_message(res)
+        CRS.publish_updated_datasets(res)
         return res
 
     def update_bulk(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update_bulk(request, *args, **kwargs)
-        self._publish_update_message(res)
+        CRS.publish_updated_datasets(res)
         return res
 
     def partial_update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).partial_update(request, *args, **kwargs)
-        self._publish_update_message(res)
+        CRS.publish_updated_datasets(res)
         return res
 
     def partial_update_bulk(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).partial_update_bulk(request, *args, **kwargs)
-        self._publish_update_message(res)
+        CRS.publish_updated_datasets(res)
         return res
 
     def destroy(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).destroy(request, *args, **kwargs)
         if res.status_code == status.HTTP_204_NO_CONTENT:
             removed_object = self._get_removed_dataset()
-            self._publish_message({'urn_identifier': removed_object.research_dataset['urn_identifier']},
-                                  routing_key='delete', exchange='datasets')
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish({'urn_identifier': removed_object.research_dataset['urn_identifier']},
+                routing_key='delete', exchange='datasets')
         return res
 
     def create(self, request, *args, **kwargs):
@@ -114,7 +116,8 @@ class DatasetViewSet(CommonViewSet):
                 message = [ r['object'] for r in res.data['success'] ]
             else:
                 message = res.data
-            self._publish_message(message, routing_key='create', exchange='datasets')
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish(message, routing_key='create', exchange='datasets')
 
         return res
 
@@ -199,15 +202,6 @@ class DatasetViewSet(CommonViewSet):
                 pass
         raise Http404
 
-    def _publish_update_message(self, response):
-        if response.status_code != status.HTTP_200_OK:
-            return
-        if 'success' in response.data:
-            updated_request_data = [ r['object'] for r in response.data['success'] ]
-        else:
-            updated_request_data = response.data
-        self._publish_message(updated_request_data, routing_key='update', exchange='datasets')
-
     @detail_route(methods=['get'], url_path="redis")
     def redis_test(self, request, pk=None): # pragma: no cover
         try:
@@ -233,6 +227,7 @@ class DatasetViewSet(CommonViewSet):
 
     @detail_route(methods=['get'], url_path="rabbitmq")
     def rabbitmq_test(self, request, pk=None): # pragma: no cover
-        self._publish_message({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
-        self._publish_message({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
+        rabbitmq = RabbitMQ()
+        rabbitmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
+        rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
         return Response(data={}, status=status.HTTP_200_OK)

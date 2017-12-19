@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from metax_api.services import CommonService as CS
-from metax_api.utils import RabbitMQ, RedisSentinelCache
+from metax_api.utils import RedisSentinelCache
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -154,10 +154,6 @@ class CommonViewSet(ModelViewSet):
 
         req.user.username = username
         return req
-
-    def _publish_message(self, body, routing_key='', exchange=''):
-        rabbitmq = RabbitMQ()
-        rabbitmq.publish(body, routing_key=routing_key, exchange=exchange)
 
     def set_json_schema(self, view_file):
         """

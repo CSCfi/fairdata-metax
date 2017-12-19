@@ -4,10 +4,12 @@ from os.path import dirname, join
 
 import simplexquery as sxq
 from dicttoxml import dicttoxml
+from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import Contract
+from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 from .reference_data_mixin import ReferenceDataMixin
 
@@ -79,6 +81,56 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         catalog_record.save()
         contract.records.add(catalog_record)
         contract.save()
+
+    @classmethod
+    def publish_updated_datasets(cls, response):
+        """
+        Publish updated datasets to RabbitMQ.
+
+        If the update operation resulted in a new dataset version being created,
+        publish those new versions as well.
+        """
+        if response.status_code != status.HTTP_200_OK:
+            return
+
+        next_versions = []
+
+        if 'success' in response.data:
+            updated_request_data = [ r['object'] for r in response.data['success'] ]
+            for cr in updated_request_data:
+                if cls._new_version_created(cr):
+                    next_versions.append(cls._extract_next_version_data(cr))
+        else:
+            updated_request_data = response.data
+            if cls._new_version_created(updated_request_data):
+                next_versions.append(cls._extract_next_version_data(updated_request_data))
+
+        count = len(updated_request_data) if isinstance(updated_request_data, list) else 1
+        _logger.info('Publishing updated datasets (%d items)' % count)
+
+        try:
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish(updated_request_data, routing_key='update', exchange='datasets')
+
+            if next_versions:
+                _logger.info('Publishing new dataset versions (%d items)' % len(next_versions))
+                rabbitmq.publish(next_versions, routing_key='create', exchange='datasets')
+        except Exception as e:
+            _logger.exception('Publishing rabbitmq messages failed')
+            raise Http503({ 'detail': [
+                'failed to publish updates to rabbitmq, all updates are aborted. details: %s' % str(e)
+            ]})
+        _logger.info('RabbitMQ dataset messages published')
+
+    @staticmethod
+    def _new_version_created(cr):
+        return '__actions' in cr and 'publish_next_version' in cr['__actions']
+
+    @staticmethod
+    def _extract_next_version_data(cr):
+        data = cr['__actions']['publish_next_version']['next_version']
+        cr.pop('__actions')
+        return data
 
     @staticmethod
     def transform_datasets_to_format(catalog_records, target_format):
