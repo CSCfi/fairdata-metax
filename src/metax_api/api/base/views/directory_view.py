@@ -50,8 +50,19 @@ class DirectoryViewSet(CommonViewSet):
         """
         Return a list of child files and directories of a directory.
         """
-        recursive = 'recursive' in request.query_params
-        files_and_dirs = FileService.get_directory_contents(pk, recursive=recursive)
+
+        # note: only checking key presence, dont care about its value
+        recursive = True if 'recursive' in request.query_params else False
+
+        # contrary to above, the value is also significant
+        urn_identifier = request.query_params.get('urn_identifier', False)
+
+        files_and_dirs = FileService.get_directory_contents(
+            pk,
+            recursive=recursive,
+            urn_identifier=urn_identifier
+        )
+
         return Response(files_and_dirs)
 
     @list_route(methods=['get'], url_path="root")

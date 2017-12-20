@@ -266,25 +266,49 @@ class FileService(CommonService):
         rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
 
     @classmethod
-    def get_directory_contents(cls, identifier, recursive=False):
+    def get_directory_contents(cls, dir_identifier, recursive=False, urn_identifier=None):
         """
-        Get files and directories contained by a directory. Parameter 'identifier'
+        Get files and directories contained by a directory. Parameter 'dir_identifier'
         may be a pk, or an uuid value. Search using approriate fields.
 
+        Parameter 'urn_identifier' may be used to browse files in the context of the given
+        urn_identifier: Only those files and directories are retrieved, which have been
+        selected for that CatalogRecord.
+
         Parameter 'recursive' may be used to get a flat list of all files below the
-        directory. Sorted by file_path for convenience
+        directory. Sorted by file_path for convenience.
         """
-        if identifier.isdigit():
-            directory_id = identifier
+        if dir_identifier.isdigit():
+            directory_id = dir_identifier
         else:
-            directory = Directory.objects.filter(identifier=identifier).values('id').first()
+            directory = Directory.objects.filter(identifier=dir_identifier).values('id').first()
             if not directory:
                 raise Http404
             directory_id = directory['id']
 
-        contents = cls._get_directory_contents(directory_id, recursive=recursive)
+        if urn_identifier:
+            if urn_identifier.isdigit():
+                cr_id = urn_identifier
+            else:
+                try:
+                    cr_id = CatalogRecord.objects.get_id(urn_identifier=urn_identifier)
+                except Http404:
+                    # raise 400 instead of 404, to distinguish from the error
+                    # 'directory not found', which raises a 404
+                    raise ValidationError({
+                        'detail': ['record with urn_identifier %s does not exist' % urn_identifier]
+                    })
+        else:
+            cr_id = None
+
+        contents = cls._get_directory_contents(
+            directory_id,
+            recursive=recursive,
+            cr_id=cr_id
+        )
 
         if recursive:
+            # create a flat file list of the contents
             file_list = []
             file_list_append = file_list.append
             cls._form_file_list(contents, file_list_append)
@@ -300,13 +324,20 @@ class FileService(CommonService):
             cls._form_file_list(d, file_list_append)
 
     @classmethod
-    def _get_directory_contents(cls, directory_id, recursive=False):
+    def _get_directory_contents(cls, directory_id, recursive=False, cr_id=None):
         """
-        Get files and directories contained by a directory. If recursively requested,
-        returns a flat list of all files below the directory.
+        Get files and directories contained by a directory.
+
+        If recursively requested, collects all files and dirs below the directory.
+
+        If cr_id is provided, only those files and directories are retrieved, which have been
+        selected for that CatalogRecord.
         """
-        dirs = Directory.objects.filter(parent_directory_id=directory_id)
-        files = File.objects.filter(parent_directory_id=directory_id)
+        if cr_id:
+            dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id)
+        else:
+            dirs = Directory.objects.filter(parent_directory_id=directory_id)
+            files = File.objects.filter(parent_directory_id=directory_id)
 
         contents = {
             'directories': [ DirectorySerializer(n).data for n in dirs ],
@@ -315,11 +346,70 @@ class FileService(CommonService):
 
         if recursive:
             for directory in contents['directories']:
-                sub_dir_contents = cls._get_directory_contents(directory['id'], recursive=recursive)
+                sub_dir_contents = cls._get_directory_contents(
+                    directory['id'],
+                    recursive=recursive,
+                    cr_id=cr_id
+                )
                 directory['directories'] = sub_dir_contents['directories']
                 directory['files'] = sub_dir_contents['files']
 
         return contents
+
+    def _get_directory_contents_for_catalog_record(directory_id, cr_id):
+        """
+        Browsing files in the context of a specific CR id.
+        """
+
+        # select dirs which are container by the directory,
+        # AND which contain files belonging to the cr <-> files m2m relation table,
+        # AND there exists files for CR which beging with the same path as the dir path,
+        # to successfully also include files which did not DIRECTLY contain any files, but do
+        # contain files further down the tree.
+        #
+        # dirs which otherwise contained files, but not any files that were selected for
+        # the cr, are not returned.
+        sql_select_dirs_for_cr = """
+            select d.id
+            from metax_api_directory d
+            where d.parent_directory_id = %s
+            and exists(
+                select 1
+                from metax_api_file f
+                inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
+                where f.file_path like (d.directory_path || '%%')
+                and cr_f.catalogrecord_id = %s
+                and f.removed = false
+                and f.active = true
+            )
+            """
+        with connection.cursor() as cr:
+            cr.execute(sql_select_dirs_for_cr, [directory_id, cr_id])
+            directory_ids = [ row[0] for row in cr.fetchall() ]
+
+        # select files which are contained by the directory, and which
+        # belong to the cr <-> files m2m relation table
+        sql_select_files_for_cr = """
+            select f.id
+            from metax_api_file f
+            inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
+            where f.parent_directory_id = %s
+            and cr_f.catalogrecord_id = %s
+            and f.removed = false
+            and f.active = true
+            """
+        with connection.cursor() as cr:
+            cr.execute(sql_select_files_for_cr, [directory_id, cr_id])
+            file_ids = [ row[0] for row in cr.fetchall() ]
+
+        if not directory_ids and not file_ids:
+            # for this specific version of the record, the requested directory either
+            # didnt exist, or it was not selected
+            raise Http404
+
+        dirs = Directory.objects.filter(id__in=directory_ids)
+        files = File.objects.filter(id__in=file_ids)
+        return dirs, files
 
     @classmethod
     def get_project_root_directory(cls, project_identifier):

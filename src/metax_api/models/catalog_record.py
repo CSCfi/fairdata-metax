@@ -4,6 +4,7 @@ import logging
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 from django.db.models import Q
+from django.http import Http404
 from rest_framework.serializers import ValidationError
 
 from metax_api.utils import get_tz_aware_now_without_micros
@@ -68,6 +69,20 @@ class CatalogRecordManager(CommonManager):
                     'this operation requires an identifying key to be present: '
                     'id, or research_dataset ->> urn_identifier')
         return super(CatalogRecordManager, self).get(*args, **kwargs)
+
+    def get_id(self, urn_identifier=None):
+        """
+        Takes urn_identifier, and returns the plain pk of the record. Useful for debugging,
+        and some other situations.
+        """
+        if not urn_identifier:
+            raise ValidationError('urn_identifier is a required keyword argument')
+        cr = super(CatalogRecordManager, self).filter(
+            **{ 'research_dataset__contains': {'urn_identifier': urn_identifier } }
+        ).values('id').first()
+        if not cr:
+            raise Http404
+        return cr['id']
 
 
 class CatalogRecord(Common):
