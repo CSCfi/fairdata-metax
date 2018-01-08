@@ -263,6 +263,14 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, access_rights['access_type'], label_field='pref_label')
 
+            if 'restriction_grounds' in access_rights:
+                ref_entry = cls.check_ref_data(refdata['access_restriction_grounds_type'],
+                                               access_rights['restriction_grounds']['identifier'],
+                                               'research_dataset.access_rights.restriction_grounds.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, access_rights['restriction_grounds'],
+                                               label_field='pref_label')
+
             for rights_statement_license in access_rights.get('license', []):
                 ref_entry = cls.check_ref_data(refdata['license'], rights_statement_license['identifier'],
                                                'research_dataset.access_rights.license.identifier', errors)

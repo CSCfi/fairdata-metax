@@ -990,6 +990,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
 
         data_types = [
             'access_type',
+            'access_restriction_grounds_type',
             'checksum_algorithm',
             'field_of_science',
             'identifier_type',
@@ -1037,6 +1038,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd['field_of_science'][0] = {'identifier': refs['field_of_science']['code']}
         rd['language'][0] = {'identifier': refs['language']['code']}
         rd['access_rights']['access_type'] = {'identifier': refs['access_type']['code']}
+        rd['access_rights']['restriction_grounds'] = {'identifier': refs['access_restriction_grounds_type']['code']}
         rd['access_rights']['license'][0] = {'identifier': refs['license']['code']}
         rd['other_identifier'][0]['type'] = {'identifier': refs['identifier_type']['code']}
         rd['spatial'][0]['place_uri'] = {'identifier': refs['location']['code']}
@@ -1096,6 +1098,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['field_of_science']['uri'], new_rd['field_of_science'][0]['identifier'])
         self.assertEqual(refs['language']['uri'], new_rd['language'][0]['identifier'])
         self.assertEqual(refs['access_type']['uri'], new_rd['access_rights']['access_type']['identifier'])
+        self.assertEqual(refs['access_restriction_grounds_type']['uri'],
+                         new_rd['access_rights']['restriction_grounds']['identifier'])
         self.assertEqual(refs['license']['uri'], new_rd['access_rights']['license'][0]['identifier'])
         self.assertEqual(refs['identifier_type']['uri'], new_rd['other_identifier'][0]['type']['identifier'])
         self.assertEqual(refs['location']['uri'], new_rd['spatial'][0]['place_uri']['identifier'])
@@ -1126,6 +1130,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['keyword']['label'], new_rd['theme'][0].get('pref_label', None))
         self.assertEqual(refs['field_of_science']['label'], new_rd['field_of_science'][0].get('pref_label', None))
         self.assertEqual(refs['access_type']['label'], new_rd['access_rights']['access_type'].get('pref_label', None))
+        self.assertEqual(refs['access_restriction_grounds_type']['label'],
+                         new_rd['access_rights']['restriction_grounds'].get('pref_label', None))
         self.assertEqual(refs['identifier_type']['label'],
                          new_rd['other_identifier'][0]['type'].get('pref_label', None))
         self.assertEqual(refs['location']['label'], new_rd['spatial'][0]['place_uri'].get('pref_label', None))
