@@ -103,27 +103,28 @@
         }
       ],
       "available": "2014-01-15T08:19:58Z",
-      "type": [
-        {
-          "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-          "pref_label": {
-            "en": "pref label for this type"
-          },
-          "definition": [
-            {
-              "en": "A statement or formal explanation of the meaning of a concept."
-            }
-          ],
-          "in_scheme": [
-            {
-              "pref_label": {
-                "en": "The preferred lexical label for a resource"
-              },
-              "identifier": "http://uri.of.accessrights.concept/scheme"
-            }
-          ]
-        }
-      ],
+      "access_type": {
+        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+        "pref_label": {
+          "en": "pref label for this type"
+        },
+        "definition": [
+          {
+            "en": "A statement or formal explanation of the meaning of a concept."
+          }
+        ],
+        "in_scheme": [
+          {
+            "pref_label": {
+              "en": "The preferred lexical label for a resource"
+            },
+            "identifier": "http://uri.of.accessrights.concept/scheme"
+          }
+        ]
+      },
+      "restriction_grounds": {
+        "identifier": "http://purl.org/att/es/reference_data/access_restriction_grounds_type_2"
+      },
       "has_rights_related_agent": [
         {
           "@type": "Organization",

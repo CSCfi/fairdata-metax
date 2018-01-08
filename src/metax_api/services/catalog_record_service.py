@@ -257,11 +257,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
-            for rights_statement_type in access_rights.get('type', []):
-                ref_entry = cls.check_ref_data(refdata['access_type'], rights_statement_type['identifier'],
-                                               'research_dataset.access_rights.type.identifier', errors)
+            if 'access_type' in access_rights:
+                ref_entry = cls.check_ref_data(refdata['access_type'], access_rights['access_type']['identifier'],
+                                               'research_dataset.access_rights.access_type.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, rights_statement_type, label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, access_rights['access_type'], label_field='pref_label')
 
             for rights_statement_license in access_rights.get('license', []):
                 ref_entry = cls.check_ref_data(refdata['license'], rights_statement_license['identifier'],

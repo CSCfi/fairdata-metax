@@ -221,6 +221,14 @@
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/CatalogRecord"
+                },
+                "editor":{
+                    "title":"Editor",
+                    "description":"Software or service that is used to modify the catalog record and the dataset",
+                    "@id":"http://iow.csc.fi/ns/mrd#editor",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Editor"
                 }
             },
             "required":[
@@ -467,6 +475,49 @@
             "required":[
                 "identifier"
             ]
+        },
+        "Editor":{
+            "type":"object",
+            "title":"Editor",
+            "@id":"http://iow.csc.fi/ns/mrd#Editor",
+            "description":"Software or service that is used to modify the catalog record and the dataset",
+            "properties":{
+                "identifier":{
+                    "title":"Identifier",
+                    "description":"Identifier of the editor, such as Qvain or harvester.",
+                    "@id":"http://purl.org/dc/terms/identifier",
+                    "enum":[
+                        "QVAIN"
+                    ],
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "owner_id":{
+                    "title":"Owner identifier",
+                    "description":"owner of the resource",
+                    "@id":"http://iow.csc.fi/ns/mrd#owner_identifier",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "creator_id":{
+                    "title":"Creator identifier",
+                    "description":"creator of the resource",
+                    "@id":"http://iow.csc.fi/ns/mrd#creator_identifier",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "record_id":{
+                    "title":"Record identifier",
+                    "description":"local record identifier",
+                    "@id":"http://iow.csc.fi/ns/mrd#recordIdentifier",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "maxItems":1,
+                    "type":"string"
+                }
+            }
         },
         "EntityRelation":{
             "title":"Entity relation",
@@ -1048,7 +1099,7 @@
                 },
                 "modified":{
                     "title":"Dataset modification date",
-                    "description":"Last date when a dataset metadata was modified.",
+                    "description":"Last known time when a research dataset or metadata about the research dataset has been significantly modified. This field is usually modified by the user or harvested from other source.",
                     "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "maxItems":1,
@@ -1374,16 +1425,21 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "type":{
-                    "title":"Type",
+                "access_type":{
+                    "title":"Access type",
                     "description":"The nature or genre of the resource.",
                     "@id":"http://purl.org/dc/terms/type",
                     "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/Concept"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
+                },
+                "restriction_grounds":{
+                    "title":"Restriction grounds",
+                    "description":"Classified reason of allocated access type.",
+                    "@id":"http://iow.csc.fi/ns/mrd#restrictiongrounds",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
                 },
                 "has_rights_related_agent":{
                     "title":"Related agent",
