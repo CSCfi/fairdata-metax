@@ -69,7 +69,7 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
-        self.assertTrue(response.data[0].startswith('pid:'))
+        self.assertTrue(response.data[0].startswith('urn:'))
 
 
 class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):

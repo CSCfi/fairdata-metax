@@ -914,7 +914,7 @@
                         }
                     }
                 ],
-                "identifier": "pid:urn:catalog1",
+                "identifier": "urn:nbn:fi:att:3d657f93-4758-4951-bf7c-d23b2a7c2f86",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
@@ -1031,7 +1031,7 @@
                         }
                     }
                 ],
-                "identifier": "pid:urn:catalog2",
+                "identifier": "urn:nbn:fi:att:8ae25b46-2281-4962-aded-e33a70398d7c",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
@@ -1148,7 +1148,7 @@
                         }
                     }
                 ],
-                "identifier": "pid:urn:catalog3",
+                "identifier": "urn:nbn:fi:att:8a3174d0-e71b-4fac-b165-27949a71f436",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
@@ -1265,7 +1265,7 @@
                         }
                     }
                 ],
-                "identifier": "pid:urn:catalog4",
+                "identifier": "urn:nbn:fi:att:798e64fe-2be9-4926-8cf2-7c38105ff5a8",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
@@ -1586,7 +1586,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 300,
-                "urn_identifier": "pid:urn:cr1",
+                "urn_identifier": "urn:nbn:fi:att:a7ee5a79-4937-49c1-afa0-b839df276744",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -1689,7 +1689,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 700,
-                "urn_identifier": "pid:urn:cr2",
+                "urn_identifier": "urn:nbn:fi:att:cea62cab-4233-4561-9421-9e7873f426ff",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -1792,7 +1792,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 1100,
-                "urn_identifier": "pid:urn:cr3",
+                "urn_identifier": "urn:nbn:fi:att:39acc413-1f01-4f98-a049-fcffabb10856",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -1899,7 +1899,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 1500,
-                "urn_identifier": "pid:urn:cr4",
+                "urn_identifier": "urn:nbn:fi:att:d8c32532-e3df-449b-8f71-fb1f6511d4b7",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -2006,7 +2006,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 1900,
-                "urn_identifier": "pid:urn:cr5",
+                "urn_identifier": "urn:nbn:fi:att:cad7d0e0-c4d1-4a41-b16f-2190661710cb",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -2109,7 +2109,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 2300,
-                "urn_identifier": "pid:urn:cr6",
+                "urn_identifier": "urn:nbn:fi:att:640d0d6b-000c-471a-9090-c7a8354a0609",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -2211,7 +2211,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 2700,
-                "urn_identifier": "pid:urn:cr7",
+                "urn_identifier": "urn:nbn:fi:att:3f806345-0292-46f8-aaf3-a44db72d31f7",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -2297,7 +2297,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 3100,
-                "urn_identifier": "pid:urn:cr8",
+                "urn_identifier": "urn:nbn:fi:att:097ac16d-440d-4a08-875a-16eef233d141",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -2383,7 +2383,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 3500,
-                "urn_identifier": "pid:urn:cr9",
+                "urn_identifier": "urn:nbn:fi:att:f823a95e-54df-43a9-91aa-a893f89906b4",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -2470,7 +2470,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 3900,
-                "urn_identifier": "pid:urn:cr10",
+                "urn_identifier": "urn:nbn:fi:att:0e0605d7-e166-40e0-8699-46c3d54da40e",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -3336,7 +3336,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 300,
-                "urn_identifier": "very:unique:urn-0",
+                "urn_identifier": "urn:nbn:fi:att:d859580e-48d1-4ef8-bef8-487c6e0be1a5",
                 "value": [
                     0.111
                 ],
@@ -4206,7 +4206,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 300,
-                "urn_identifier": "very:unique:urn-1",
+                "urn_identifier": "urn:nbn:fi:att:84b4a693-7e65-4f4f-b57b-ed065484ceab",
                 "value": [
                     0.111
                 ],
@@ -4297,7 +4297,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 3900,
-                "urn_identifier": "pid:urn:cr10-alt-1",
+                "urn_identifier": "urn:nbn:fi:att:0e0605d7-e166-40e0-8699-46c3d54da40e-alt-1",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -4384,7 +4384,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 3900,
-                "urn_identifier": "pid:urn:cr10-alt-2",
+                "urn_identifier": "urn:nbn:fi:att:0e0605d7-e166-40e0-8699-46c3d54da40e-alt-2",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]

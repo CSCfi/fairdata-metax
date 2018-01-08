@@ -351,7 +351,7 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
             }
             new['fields']['date_modified'] = '2017-06-15T10:07:22Z'
             new['fields']['date_created'] = '2017-05-15T10:07:22Z'
-            new['fields']['catalog_json']['identifier'] = "pid:urn:catalog%d" % i
+            new['fields']['catalog_json']['identifier'] = "urn:nbn:fi:att:%s" % (str(uuid4()))
 
             if new['fields']['catalog_json']['research_dataset_schema'] == 'att' and i in (1, 2):
                 # lets pretend that the first two are ATT catalogs, which will support versioning.
@@ -428,7 +428,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             new['fields']['research_dataset'] = row_template['research_dataset'].copy()
 
             new['fields']['data_catalog'] = data_catalog_id
-            new['fields']['research_dataset']['urn_identifier'] = "pid:urn:cr%d" % i
+            new['fields']['research_dataset']['urn_identifier'] = "urn:nbn:fi:att:%s" % str(uuid4())
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
             new['fields']['date_created'] = '2017-05-23T10:07:22Z'
@@ -597,7 +597,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             'owner_id': catalog_records_owner_ids[j],
             'creator_id': catalog_records_owner_ids[owner_idx],
         }
-        new['fields']['research_dataset']['urn_identifier'] = 'very:unique:urn-%d' % j
+        new['fields']['research_dataset']['urn_identifier'] = 'urn:nbn:fi:att:%s' % str(uuid4())
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
 
         file_identifier_0 = file_list[0]['fields']['identifier']

@@ -49,7 +49,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
             "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
         })
         catalog_record_from_test_data['research_dataset'].update({
-            "urn_identifier": "pid:urn:new1",
+            "urn_identifier": "urn:nbn:fi:att:ec55c1dd-668d-43ae-b51b-f6c56a5bd4d6",
             "preferred_identifier": None,
             "creator": [{
                 "@type": "Person",
@@ -75,7 +75,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
     def _get_second_new_test_data(self):
         catalog_record_from_test_data = self._get_new_test_data()
         catalog_record_from_test_data['research_dataset'].update({
-            "urn_identifier": "pid:urn:new2"
+            "urn_identifier": "urn:nbn:fi:att:5cd4d4f9-9583-422e-9946-990c8ea96781"
         })
         return catalog_record_from_test_data
 

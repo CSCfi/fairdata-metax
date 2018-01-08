@@ -400,7 +400,7 @@ class CatalogRecord(Common):
         Field urn_identifier in research_dataset is always generated, and it can not be changed later.
         If preferred_identifier is missing during create, copy urn_identifier to it also.
         """
-        urn_identifier = self._generate_identifier('cr')
+        urn_identifier = self._generate_identifier()
         self.research_dataset['urn_identifier'] = urn_identifier
         if not self.research_dataset.get('preferred_identifier', None):
             self.research_dataset['preferred_identifier'] = urn_identifier

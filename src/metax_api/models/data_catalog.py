@@ -44,7 +44,7 @@ class DataCatalog(Common):
         Get a generated value for field identifier and save it.
         Field identifier is always generated, and it can not be changed later.
         """
-        self.catalog_json['identifier'] = self._generate_identifier('dc')
+        self.catalog_json['identifier'] = self._generate_identifier()
         super(DataCatalog, self).save()
 
         # save can be called several times during an object's lifetime in a request. make sure
