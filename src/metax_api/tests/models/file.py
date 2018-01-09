@@ -78,7 +78,8 @@ class FileManagerTests(TestCase, TestClassUtils):
         self.assertEqual(found, False, 'get with using_dict should have not returned a result')
 
     def test_get_using_dict_error_preferred_identifier_not_allowed(self):
-        row = {'research_dataset': {'preferred_identifier': 'pid:urn:cr1'}, 'other_stuff': 'doesnt matter'}
+        row = {'research_dataset': {'preferred_identifier': 'urn:nbn:fi:att:e1a2a565-f4e5-4b55-bc92-790482e69845'},
+               'other_stuff': 'doesnt matter'}
         try:
             File.objects.get(using_dict=row)
         except ValidationError:

@@ -1,5 +1,6 @@
 import os
 import sys
+from uuid import uuid4
 
 from dateutil import parser
 from django.utils import timezone
@@ -45,3 +46,7 @@ def parse_timestamp_string_to_tz_aware_datetime(timestamp):
 
 def get_tz_aware_now_without_micros():
     return timezone.now().replace(microsecond=0)
+
+
+def generate_identifier():
+    return 'urn:nbn:fi:att:%s' % str(uuid4())
