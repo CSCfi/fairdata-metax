@@ -1,6 +1,7 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
+from metax_api.utils.utils import generate_identifier
 from .common import Common
 
 
@@ -44,7 +45,7 @@ class DataCatalog(Common):
         Get a generated value for field identifier and save it.
         Field identifier is always generated, and it can not be changed later.
         """
-        self.catalog_json['identifier'] = self._generate_identifier()
+        self.catalog_json['identifier'] = generate_identifier()
         super(DataCatalog, self).save()
 
         # save can be called several times during an object's lifetime in a request. make sure

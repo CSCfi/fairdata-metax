@@ -8,6 +8,7 @@ from django.http import Http404
 from rest_framework.serializers import ValidationError
 
 from metax_api.utils import get_tz_aware_now_without_micros
+from metax_api.utils.utils import generate_identifier
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -204,8 +205,8 @@ class CatalogRecord(Common):
         """
         Note: This method is executed by the new version - never by the old one.
         """
-        super(CatalogRecord, self).save()
         self._generate_urn_identifier()
+        super(CatalogRecord, self).save()
 
         # note: this new version was implicitly placed in the same
         # alternate_record_set as the previous version.
@@ -271,9 +272,9 @@ class CatalogRecord(Common):
     def _pre_create_operations(self):
         # There used to be more stuff here... Let it be like this
         self._calculate_total_byte_size()
+        self._generate_urn_identifier()
 
     def _post_create_operations(self):
-        self._generate_urn_identifier()
         other_record = self._check_alternate_records()
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
@@ -400,11 +401,10 @@ class CatalogRecord(Common):
         Field urn_identifier in research_dataset is always generated, and it can not be changed later.
         If preferred_identifier is missing during create, copy urn_identifier to it also.
         """
-        urn_identifier = self._generate_identifier()
+        urn_identifier = generate_identifier()
         self.research_dataset['urn_identifier'] = urn_identifier
         if not self.research_dataset.get('preferred_identifier', None):
             self.research_dataset['preferred_identifier'] = urn_identifier
-        super(CatalogRecord, self).save(update_fields=['research_dataset'])
 
     def _handle_preferred_identifier_changed(self):
         if self.has_alternate_records():

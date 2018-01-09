@@ -97,7 +97,7 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         self.assertEqual(obj.id, 1)
 
     def test_get_using_dict_with_urn_identifier(self):
-        row = {'research_dataset': {'urn_identifier': CatalogRecord.objects.first().research_dataset['urn_identifier']},
+        row = {'research_dataset': {'urn_identifier': CatalogRecord.objects.first().urn_identifier},
                'other_stuff': 'doesnt matter'}
         try:
             obj = CatalogRecord.objects.get(using_dict=row)
@@ -121,7 +121,7 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         self.assertEqual(found, False, 'get with using_dict should have not returned a result')
 
     def test_get_using_dict_error_preferred_identifier_not_allowed(self):
-        row = {'research_dataset': {'preferred_identifier': 'urn:nbn:fi:att:5e0f691d-bf41-41b1-b86b-0b27a2a9f251'},
+        row = {'research_dataset': {'preferred_identifier': CatalogRecord.objects.first().preferred_identifier},
                'other_stuff': 'doesnt matter'}
         try:
             CatalogRecord.objects.get(using_dict=row)

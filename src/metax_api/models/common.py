@@ -1,5 +1,4 @@
 from copy import deepcopy
-import uuid
 
 from dateutil import parser
 from django.core.exceptions import FieldError
@@ -211,9 +210,6 @@ class Common(models.Model):
             self.user_created = self._initial_data['user_created']
         if self.field_changed('service_created'):
             self.service_created = self._initial_data['service_created']
-
-    def _generate_identifier(self):
-        return 'urn:nbn:fi:att:%s' % str(uuid.uuid4())
 
     def _operation_is_create(self):
         return self.id is None
