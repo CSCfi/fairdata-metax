@@ -2495,6 +2495,25 @@
             ],
             "research_dataset": {
                 "access_rights": {
+                    "access_type": {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.accessrights.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
@@ -2538,27 +2557,9 @@
                             }
                         }
                     ],
-                    "type": [
-                        {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.accessrights.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
-                        }
-                    ]
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_restriction_grounds_type_2"
+                    }
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -3365,6 +3366,25 @@
             ],
             "research_dataset": {
                 "access_rights": {
+                    "access_type": {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.accessrights.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
@@ -3408,27 +3428,9 @@
                             }
                         }
                     ],
-                    "type": [
-                        {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.accessrights.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
-                        }
-                    ]
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_restriction_grounds_type_2"
+                    }
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
