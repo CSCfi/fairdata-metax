@@ -2558,7 +2558,7 @@
                         }
                     ],
                     "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_restriction_grounds_type_2"
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
                     }
                 },
                 "bibliographic_citation": "whot",
@@ -3429,7 +3429,7 @@
                         }
                     ],
                     "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_restriction_grounds_type_2"
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
                     }
                 },
                 "bibliographic_citation": "whot",

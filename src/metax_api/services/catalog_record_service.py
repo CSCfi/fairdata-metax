@@ -264,7 +264,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     cls.populate_from_ref_data(ref_entry, access_rights['access_type'], label_field='pref_label')
 
             if 'restriction_grounds' in access_rights:
-                ref_entry = cls.check_ref_data(refdata['access_restriction_grounds_type'],
+                ref_entry = cls.check_ref_data(refdata['restriction_grounds'],
                                                access_rights['restriction_grounds']['identifier'],
                                                'research_dataset.access_rights.restriction_grounds.identifier', errors)
                 if ref_entry:
