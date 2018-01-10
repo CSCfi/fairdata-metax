@@ -1,7 +1,8 @@
 {
-    "file_storage_json": {
-      "title": "Title %s",
-      "identifier": "identifier%s",
-      "url": "https://some.storage.url"
-    }
+  "file_storage_json": {
+    "title": "Title %s",
+    "identifier": "identifier%s",
+    "url": "https://some.storage.url"
+  },
+  "service_created": "metax"
 }

@@ -1,6 +1,7 @@
 from base64 import b64encode
-from os import path
 from json import load as json_load
+from os import path
+
 from django.conf import settings as django_settings
 
 datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
@@ -8,12 +9,28 @@ datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 # path to data used by automatic tests
 test_data_file_path = 'metax_api/tests/testdata/test_data.json'
 
+
 def get_json_schema(model_name):
     with open(path.dirname(path.realpath(__file__)) + '/../api/base/schemas/%s_schema.json' % model_name) as f:
         return json_load(f)
 
-class TestClassUtils():
 
+def generate_test_identifier(itype, index):
+    '''
+    Generate urn-type identifier ending with uuid4
+
+    :param index: positive integer for making test identifiers unique. Replaces characters from the end of uuid
+    :param itype: to separate identifiers from each other on model level (e.g. is it a catalog record or data catalog)
+    :return: test identifier
+    '''
+
+    postfix = str(index)
+    # Use the same base identifier for the tests and vary by the identifier type and the incoming positive integer
+    uuid = str(itype) + '955e904-e3dd-4d7e-99f1-3fed446f96d5'
+    return 'urn:nbn:fi:att:%s' % (uuid[:-len(postfix)] + postfix)
+
+
+class TestClassUtils():
     """
     Test classes may (multi-)inherit this class in addition to APITestCase to use these helpers
     """
@@ -60,6 +77,6 @@ class TestClassUtils():
                 else:
                     i += 1
 
-        raise Exception('Could not find model %s from test data with index == %d.'
-            ' Are you certain you generated rows for model %s in generate_test_data.py?'
-            % (model_name, requested_index))
+        raise Exception('Could not find model %s from test data with index == %d. '
+                        'Are you certain you generated rows for model %s in generate_test_data.py?'
+                        % (model_name, requested_index))

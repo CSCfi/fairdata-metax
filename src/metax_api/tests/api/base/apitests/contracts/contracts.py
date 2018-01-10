@@ -5,8 +5,8 @@ from rest_framework.test import APITestCase
 from metax_api.models import Contract, CatalogRecord
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
-class ContractApiReadTestV1(APITestCase, TestClassUtils):
 
+class ContractApiReadTestV1(APITestCase, TestClassUtils):
     @classmethod
     def setUpClass(cls):
         """
@@ -38,7 +38,6 @@ class ContractApiReadTestV1(APITestCase, TestClassUtils):
 
 
 class ContractApiWriteTestV1(APITestCase, TestClassUtils):
-
     def setUp(self):
         """
         Reloaded for every test case
@@ -58,8 +57,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
     def test_update_contract(self):
         self.test_new_data['pk'] = self.pk
         response = self.client.put('/rest/contracts/%s' % self.pk, self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-        self.assertEqual(len(response.data.keys()), 0, 'Returned dict should be empty')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_contract_not_found(self):
         response = self.client.put('/rest/contracts/doesnotexist', self.test_new_data, format="json")
@@ -81,12 +79,13 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
 
         contract = Contract.objects.get(pk=self.pk)
         try:
-            contract.catalogrecord_set.get(pk=response.data['id'])
+            contract.records.get(pk=response.data['id'])
         except CatalogRecord.DoesNotExist:
-            raise Exception('The added CatalogRecord should appear in the relation contract.catalogrecord_set')
+            raise Exception('The added CatalogRecord should appear in the relation contract.records')
 
         response = self.client.get('/rest/contracts/%d/datasets' % self.pk)
-        self.assertIn(created_catalog_record['id'], [ cr['id'] for cr in response.data ], 'The added CatalogRecord should appear in the results of /contracts/id/datasets')
+        self.assertIn(created_catalog_record['id'], [cr['id'] for cr in response.data],
+                      'The added CatalogRecord should appear in the results of /contracts/id/datasets')
 
     def test_delete_contract(self):
         url = '/rest/contracts/%s' % self.pk
@@ -121,11 +120,13 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
 
         self.client.delete('/rest/contracts/%s' % self.pk)
         contract = Contract.objects_unfiltered.get(pk=self.pk)
-        related_crs = contract.catalogrecord_set(manager='objects_unfiltered').all()
+        related_crs = contract.records(manager='objects_unfiltered').all()
         response_get_1 = self.client.get('/rest/datasets/%d' % related_crs[0].id)
-        self.assertEqual(response_get_1.status_code, status.HTTP_404_NOT_FOUND, 'CatalogRecords of deleted contracts should not be retrievable through the api')
+        self.assertEqual(response_get_1.status_code, status.HTTP_404_NOT_FOUND,
+                         'CatalogRecords of deleted contracts should not be retrievable through the api')
         response_get_2 = self.client.get('/rest/datasets/%d' % related_crs[1].id)
-        self.assertEqual(response_get_2.status_code, status.HTTP_404_NOT_FOUND, 'CatalogRecords of deleted contracts should not be retrievable through the api')
+        self.assertEqual(response_get_2.status_code, status.HTTP_404_NOT_FOUND,
+                         'CatalogRecords of deleted contracts should not be retrievable through the api')
 
         for cr in related_crs:
             self.assertEqual(cr.removed, True, 'Related CatalogRecord objects should be marked as removed')
@@ -134,7 +135,8 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         deleted_id = 1
         self.client.delete('/rest/datasets/%d' % deleted_id)
         response = self.client.get('/rest/contracts/%d/datasets' % self.pk)
-        self.assertNotIn(deleted_id, [ cr['id'] for cr in response.data ], 'The deleted CatalogRecord should not appear in the results of /contracts/id/datasets')
+        self.assertNotIn(deleted_id, [cr['id'] for cr in response.data],
+                         'The deleted CatalogRecord should not appear in the results of /contracts/id/datasets')
 
     def _get_new_test_data(self):
         return {
@@ -197,7 +199,6 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         return {
             "identifier": "http://urn.fi/urn:nbn:fi:iiidentifier",
             "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "modified": "2014-01-17T08:19:58Z",
                 "version_notes": [
@@ -210,13 +211,18 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 }],
                 "creator": [{
-                    "name": "Teppo Testaaja"
+                    "@type": "Person",
+                    "name": "Teppo Testaaja",
+                    "member_of": {
+                        "@type": "Organization",
+                        "name": {"fi": "Mysterious Organization"}
+                    }
                 }],
                 "curator": [{
-                    "name": "Default Owner"
+                    "@type": "Organization",
+                    "name": {"en": "Curator org", "fi": "Organisaatio"}
                 }],
                 "language": [{
-                    "title": "en",
                     "identifier": "http://lexvo.org/id/iso639-3/aar"
                 }],
                 "total_byte_size": 1024,

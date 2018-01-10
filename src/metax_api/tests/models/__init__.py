@@ -1,4 +1,4 @@
-from .test_data_catalog_model import DataCatalogModelTests
-from .test_file_model import FileModelBasicTest, FileManagerTests
-from .test_catalog_record_model import CatalogRecordModelBasicTest, CatalogRecordModelTests, CatalogRecordManagerTests
-from ...services.common_service import CommonService
+from .catalog_record import CatalogRecordModelBasicTest, CatalogRecordModelTests, CatalogRecordManagerTests
+from .common import *
+from .data_catalog import DataCatalogModelTests
+from .file import FileModelBasicTest, FileManagerTests

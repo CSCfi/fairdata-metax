@@ -1,15 +1,17 @@
+import logging
+
 from django.http import Http404
 from rest_framework import status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from metax_api.models import CatalogRecord
-from metax_api.services import CatalogRecordService as CRS
 from metax_api.renderers import XMLRenderer
+from metax_api.services import CatalogRecordService as CRS, CommonService as CS
+from metax_api.utils import RabbitMQ
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -36,19 +38,19 @@ class DatasetViewSet(CommonViewSet):
             return super(DatasetViewSet, self).get_object()
         except Http404:
             if CRS.is_primary_key(self.kwargs.get(self.lookup_field, False)):
-                # fail on pk search is clear, but other identifiers can have matches
-                # in a dataset's other identifier fields
+                # fail on pk search is clear...
                 raise
-        except Exception:
-            raise
-
+        # ...but other identifiers can have matches in a dataset's other identifier fields
         return self._search_using_other_dataset_identifiers()
 
     def get_queryset(self):
+
+        additional_filters = {}
+
         if self.kwargs.get('pk', None):
             # operations on individual resources can find old versions. those operations
             # then decide if they allow modifying the resource or not
-            additional_filters = {}
+            pass
         else:
             # list operations only list current versions
             additional_filters = { 'next_version_id': None }
@@ -56,9 +58,13 @@ class DatasetViewSet(CommonViewSet):
         if hasattr(self, 'queryset_search_params'):
             additional_filters.update(**self.queryset_search_params)
 
+        CS.set_if_modified_since_filter(self.request, additional_filters)
+
         return super(DatasetViewSet, self).get_queryset().filter(**additional_filters)
 
     def retrieve(self, request, *args, **kwargs):
+        self.queryset_search_params = {}
+        CS.set_if_modified_since_filter(self.request, self.queryset_search_params)
         res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
         if 'dataset_format' in request.query_params:
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
@@ -74,38 +80,30 @@ class DatasetViewSet(CommonViewSet):
 
     def update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update(request, *args, **kwargs)
-        if res.status_code == status.HTTP_204_NO_CONTENT:
-            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        CRS.publish_updated_datasets(res)
         return res
 
     def update_bulk(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).update_bulk(request, *args, **kwargs)
-
-        # successful operation returns no content at all.
-        # however, partially successful operation has to return
-        # the errors, so status code cant be 204
-        if res.status_code in (status.HTTP_204_NO_CONTENT, status.HTTP_200_OK):
-            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
-
+        CRS.publish_updated_datasets(res)
         return res
 
     def partial_update(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).partial_update(request, *args, **kwargs)
-        if res.status_code == status.HTTP_200_OK:
-            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        CRS.publish_updated_datasets(res)
         return res
 
     def partial_update_bulk(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).partial_update_bulk(request, *args, **kwargs)
-        if res.status_code == status.HTTP_200_OK:
-            self._publish_message(self._updated_request_data, routing_key='update', exchange='datasets')
+        CRS.publish_updated_datasets(res)
         return res
 
     def destroy(self, request, *args, **kwargs):
         res = super(DatasetViewSet, self).destroy(request, *args, **kwargs)
         if res.status_code == status.HTTP_204_NO_CONTENT:
             removed_object = self._get_removed_dataset()
-            self._publish_message({ 'urn_identifier': removed_object.research_dataset['urn_identifier'] },
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish({'urn_identifier': removed_object.research_dataset['urn_identifier']},
                 routing_key='delete', exchange='datasets')
         return res
 
@@ -118,7 +116,8 @@ class DatasetViewSet(CommonViewSet):
                 message = [ r['object'] for r in res.data['success'] ]
             else:
                 message = res.data
-            self._publish_message(message, routing_key='create', exchange='datasets')
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish(message, routing_key='create', exchange='datasets')
 
         return res
 
@@ -131,15 +130,6 @@ class DatasetViewSet(CommonViewSet):
         files = [ FileSerializer(f).data for f in catalog_record.files.all() ]
         return Response(data=files, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], url_path="createversion")
-    def create_version(self, request, pk=None):
-        """
-        Create a new version from a dataset that has been marked as finished
-        """
-        kwargs = { 'context': self.get_serializer_context() }
-        new_version_data, http_status = CRS.create_new_dataset_version(request, self.get_object(), **kwargs)
-        return Response(data=new_version_data, status=http_status)
-
     @detail_route(methods=['post'], url_path="proposetopas")
     def propose_to_pas(self, request, pk=None):
         CRS.propose_to_pas(request, self.get_object())
@@ -149,10 +139,19 @@ class DatasetViewSet(CommonViewSet):
     def dataset_exists(self, request, pk=None):
         try:
             self.get_object()
+        except Http404:
+            return Response(data=False, status=status.HTTP_200_OK)
         except Exception:
-            return Response(data=False, status=status.HTTP_404_NOT_FOUND)
+            return Response(data='', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response(data=True, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], url_path="urn_identifiers")
+    def get_all_urn_identifiers(self, request):
+        self.queryset_search_params = CRS.get_queryset_search_params(request)
+        q = self.get_queryset().values('research_dataset')
+        urn_ids = [item['research_dataset']['urn_identifier'] for item in q]
+        return Response(urn_ids)
 
     def _search_using_other_dataset_identifiers(self):
         """
@@ -160,18 +159,15 @@ class DatasetViewSet(CommonViewSet):
         preferred_identifier first, and array other_identifier after, if there are matches
         """
         lookup_value = self.kwargs.get(self.lookup_field)
-        try:
-            obj = self._search_from_research_dataset({'urn_identifier': lookup_value}, False)
+        obj = self._search_from_research_dataset({'urn_identifier': lookup_value}, False)
 
-            # allow preferred and other identifier searches only for GET, since their persistence
-            # is not guaranteed over time.
-            if not obj and self.request.method == 'GET':
-                obj = self._search_from_research_dataset({'preferred_identifier': lookup_value}, False)
-                if not obj:
-                    obj = self._search_from_research_dataset(
-                        {'other_identifier': [{'local_identifier': lookup_value}]}, True)
-        except Exception:
-            raise
+        # allow preferred and other identifier searches only for GET, since their persistence
+        # is not guaranteed over time.
+        if not obj and self.request.method == 'GET':
+            obj = self._search_from_research_dataset({'preferred_identifier': lookup_value}, False)
+            if not obj:
+                obj = self._search_from_research_dataset(
+                    {'other_identifier': [{'local_identifier': lookup_value}]}, True)
 
         if not obj:
             raise Http404
@@ -185,10 +181,7 @@ class DatasetViewSet(CommonViewSet):
         except Http404:
             if raise_on_404:
                 raise
-            else:
-                return None
-        except Exception:
-            raise
+            return None
 
     def _get_removed_dataset(self):
         """
@@ -199,7 +192,8 @@ class DatasetViewSet(CommonViewSet):
             {},
             { 'search_params': { 'research_dataset__contains': {'urn_identifier': lookup_value }} },
             { 'search_params': { 'research_dataset__contains': {'preferred_identifier': lookup_value }} },
-            { 'search_params': { 'research_dataset__contains': {'other_identifier': [{'local_identifier': lookup_value }]}}},
+            { 'search_params': { 'research_dataset__contains':
+                                {'other_identifier': [{'local_identifier': lookup_value }]}}},
         ]
         for params in different_fields:
             try:
@@ -233,6 +227,7 @@ class DatasetViewSet(CommonViewSet):
 
     @detail_route(methods=['get'], url_path="rabbitmq")
     def rabbitmq_test(self, request, pk=None): # pragma: no cover
-        self._publish_message({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
-        self._publish_message({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
+        rabbitmq = RabbitMQ()
+        rabbitmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
+        rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
         return Response(data={}, status=status.HTTP_200_OK)

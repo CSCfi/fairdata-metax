@@ -1,8 +1,12 @@
 from os import path
+
 from rest_framework.serializers import ValidationError
+
 from metax_api.models import DataCatalog
+from metax_api.services import DataCatalogService as DCS
 from .common_serializer import CommonSerializer
 from .serializer_utils import validate_json
+
 
 class DataCatalogSerializer(CommonSerializer):
 
@@ -13,27 +17,21 @@ class DataCatalogSerializer(CommonSerializer):
             'catalog_json',
             'catalog_record_group_edit',
             'catalog_record_group_create',
-            'modified_by_user_id',
-            'modified_by_api',
-            'created_by_user_id',
-            'created_by_api',
-        )
-        extra_kwargs = {
-            # not required during creation, or updating
-            # they would be overwritten by the api anyway
-            'modified_by_user_id': { 'required': False },
-            'modified_by_api': { 'required': False },
-            'created_by_user_id': { 'required': False },
-            'created_by_api': { 'required': False },
-        }
+        ) + CommonSerializer.Meta.fields
+
+        extra_kwargs = CommonSerializer.Meta.extra_kwargs
 
     def is_valid(self, raise_exception=False):
+        super(DataCatalogSerializer, self).is_valid(raise_exception=raise_exception)
         if 'catalog_json' in self.initial_data:
             self._validate_dataset_schema()
-        super(DataCatalogSerializer, self).is_valid(raise_exception=raise_exception)
+            # ensure any operation made on data_catalog during serializer.is_valid(),
+            # is still compatible with the schema
+            self._validate_json_schema(self.initial_data['catalog_json'])
 
     def validate_catalog_json(self, value):
         self._validate_json_schema(value)
+        DCS.validate_reference_data(value, self.context['view'].cache)
         return value
 
     def _validate_json_schema(self, value):

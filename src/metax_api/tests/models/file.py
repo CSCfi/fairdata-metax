@@ -2,14 +2,13 @@ from django.core.management import call_command
 from django.test import TestCase
 from rest_framework.serializers import ValidationError
 
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.models import File
+from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 d = print
 
 
 class FileModelBasicTest(TestCase, TestClassUtils):
-
     """
     Verify that the model works at least on a basic level
     """
@@ -33,7 +32,6 @@ class FileModelBasicTest(TestCase, TestClassUtils):
 
 
 class FileManagerTests(TestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         call_command('loaddata', test_data_file_path, verbosity=0)
@@ -45,7 +43,7 @@ class FileManagerTests(TestCase, TestClassUtils):
         self.pk = file_from_test_data['id']
 
     def test_get_using_dict_with_id(self):
-        row = { 'id': 1, 'other_stuff': 'doesnt matter' }
+        row = {'id': 1, 'other_stuff': 'doesnt matter'}
         try:
             obj = File.objects.get(using_dict=row)
         except File.DoesNotExist:
@@ -57,7 +55,7 @@ class FileManagerTests(TestCase, TestClassUtils):
         self.assertEqual(obj.id, 1)
 
     def test_get_using_dict_with_identifier(self):
-        row = { 'identifier': self.identifier, 'other_stuff': 'doesnt matter' }
+        row = {'identifier': self.identifier, 'other_stuff': 'doesnt matter'}
         try:
             obj = File.objects.get(using_dict=row)
         except File.DoesNotExist:
@@ -69,7 +67,7 @@ class FileManagerTests(TestCase, TestClassUtils):
         self.assertEqual(obj.id, 1)
 
     def test_get_using_dict_error_not_found_1(self):
-        row = { 'id': 101010, 'other_stuff': 'doesnt matter'}
+        row = {'id': 101010, 'other_stuff': 'doesnt matter'}
         try:
             File.objects.get(using_dict=row)
         except File.DoesNotExist:
@@ -80,7 +78,8 @@ class FileManagerTests(TestCase, TestClassUtils):
         self.assertEqual(found, False, 'get with using_dict should have not returned a result')
 
     def test_get_using_dict_error_preferred_identifier_not_allowed(self):
-        row = { 'research_dataset': { 'preferred_identifier': 'pid:urn:cr1' }, 'other_stuff': 'doesnt matter' }
+        row = {'research_dataset': {'preferred_identifier': 'urn:nbn:fi:att:e1a2a565-f4e5-4b55-bc92-790482e69845'},
+               'other_stuff': 'doesnt matter'}
         try:
             File.objects.get(using_dict=row)
         except ValidationError:
@@ -88,10 +87,11 @@ class FileManagerTests(TestCase, TestClassUtils):
         else:
             found = True
 
-        self.assertEqual(found, False, 'get with using_dict should have not returned a result, because preferred_identifier was used')
+        self.assertEqual(found, False,
+                         'get with using_dict should have not returned a result, because preferred_identifier was used')
 
     def test_get_using_dict_error_identifier_field_missing(self):
-        row = { 'somefield': 111, 'other_stuff': 'doesnt matter'}
+        row = {'somefield': 111, 'other_stuff': 'doesnt matter'}
         try:
             File.objects.get(using_dict=row)
         except ValidationError:
@@ -99,4 +99,5 @@ class FileManagerTests(TestCase, TestClassUtils):
         else:
             found = True
 
-        self.assertEqual(found, False, 'get with using_dict should have not returned a result because an identifier field is missing')
+        self.assertEqual(found, False,
+                         'get with using_dict should have not returned a result because an identifier field is missing')

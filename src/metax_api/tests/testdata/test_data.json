@@ -1,26 +1,26 @@
 [
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier1",
                 "title": "Title 1",
                 "url": "https://metax.csc.local/rest/files/"
-            },
-            "modified_by_api": "2017-05-23T10:07:22.559656Z"
+            }
         },
         "model": "metax_api.filestorage",
         "pk": 1
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier2",
                 "title": "Title 2",
                 "url": "https://metax.csc.local/rest/files/"
-            },
-            "modified_by_api": "2017-05-23T10:07:22.559656Z"
+            }
         },
         "model": "metax_api.filestorage",
         "pk": 2
@@ -29,9 +29,10 @@
         "fields": {
             "byte_size": 100,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/1",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -42,16 +43,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_1",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_1",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:1",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 3,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 1
@@ -60,9 +64,10 @@
         "fields": {
             "byte_size": 200,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/2",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -73,16 +78,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_2",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_2",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:2",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 3,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 2
@@ -91,9 +99,10 @@
         "fields": {
             "byte_size": 300,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/3",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -104,16 +113,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_3",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_3",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:3",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 3,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 3
@@ -122,9 +134,10 @@
         "fields": {
             "byte_size": 400,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/4",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -135,16 +148,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_4",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_4",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:4",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 3,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 4
@@ -153,9 +169,10 @@
         "fields": {
             "byte_size": 500,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/5",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -166,16 +183,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_5",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/file_name_5",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:5",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 3,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 5
@@ -184,9 +204,10 @@
         "fields": {
             "byte_size": 600,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/6",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -197,16 +218,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_6",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_6",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:6",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 4,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 6
@@ -215,9 +239,10 @@
         "fields": {
             "byte_size": 700,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/7",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -228,16 +253,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_7",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_7",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:7",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 4,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 7
@@ -246,9 +274,10 @@
         "fields": {
             "byte_size": 800,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/8",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -259,16 +288,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_8",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_8",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:8",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 4,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 8
@@ -277,9 +309,10 @@
         "fields": {
             "byte_size": 900,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/9",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -290,16 +323,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_9",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_9",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:9",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 4,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 9
@@ -308,9 +344,10 @@
         "fields": {
             "byte_size": 1000,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/10",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -321,16 +358,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_10",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/file_name_10",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:10",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 4,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 10
@@ -339,9 +379,10 @@
         "fields": {
             "byte_size": 1100,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/11",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -352,16 +393,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_11",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_11",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:11",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 11
@@ -370,9 +414,10 @@
         "fields": {
             "byte_size": 1200,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/12",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -383,16 +428,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_12",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_12",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:12",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 12
@@ -401,9 +449,10 @@
         "fields": {
             "byte_size": 1300,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/13",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -414,16 +463,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_13",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_13",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:13",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 13
@@ -432,9 +484,10 @@
         "fields": {
             "byte_size": 1400,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/14",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -445,16 +498,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_14",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_14",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:14",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 14
@@ -463,9 +519,10 @@
         "fields": {
             "byte_size": 1500,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/15",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -476,16 +533,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_15",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_15",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:15",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 15
@@ -494,9 +554,10 @@
         "fields": {
             "byte_size": 1600,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/16",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -507,16 +568,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_16",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_16",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:16",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 16
@@ -525,9 +589,10 @@
         "fields": {
             "byte_size": 1700,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/17",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -538,16 +603,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_17",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_17",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:17",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 17
@@ -556,9 +624,10 @@
         "fields": {
             "byte_size": 1800,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/18",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -569,16 +638,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_18",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_18",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:18",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 18
@@ -587,9 +659,10 @@
         "fields": {
             "byte_size": 1900,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/19",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -600,16 +673,19 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_19",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_19",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:19",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 19
@@ -618,9 +694,10 @@
         "fields": {
             "byte_size": 2000,
             "checksum_algorithm": "sha2",
-            "checksum_checked": "2017-05-23T14:41:59.507392Z",
+            "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
             "download_url": "http://some.url.csc.fi/20",
             "file_characteristics": {
                 "application_name": "Application Name",
@@ -631,23 +708,186 @@
                 "title": "A title 20"
             },
             "file_format": "html/text",
-            "file_modified": "2017-05-23T14:41:59.507392Z",
+            "file_frozen": "2017-05-21T14:41:59Z",
+            "file_modified": "2017-06-23T14:41:59Z",
             "file_name": "file_name_20",
-            "file_path": "/some/path/",
+            "file_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01/file_name_20",
             "file_storage": 1,
+            "file_uploaded": "2017-05-21T14:41:59Z",
             "identifier": "pid:urn:20",
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "open_access": false,
-            "project_identifier": "my group",
+            "parent_directory": 6,
+            "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file"
+            "replication_path": "/path/to/copy/of/file",
+            "service_created": "metax"
         },
         "model": "metax_api.file",
         "pk": 20
     },
     {
         "fields": {
+            "byte_size": 12345,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-06-23T12:41:59Z",
+            "directory_name": "",
+            "directory_path": "/",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:1",
+            "parent_directory": null,
+            "project_identifier": "project_x",
+            "removed": false,
+            "service_created": "metax"
+        },
+        "model": "metax_api.directory",
+        "pk": 1
+    },
+    {
+        "fields": {
+            "byte_size": 12345,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-06-23T12:41:59Z",
+            "directory_name": "project_x_FROZEN",
+            "directory_path": "/project_x_FROZEN",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:2",
+            "parent_directory": 1,
+            "project_identifier": "project_x",
+            "removed": false,
+            "service_created": "metax"
+        },
+        "model": "metax_api.directory",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "byte_size": 12345,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-06-23T12:41:59Z",
+            "directory_name": "Experiment_X",
+            "directory_path": "/project_x_FROZEN/Experiment_X",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:3",
+            "parent_directory": 2,
+            "project_identifier": "project_x",
+            "removed": false,
+            "service_created": "metax"
+        },
+        "model": "metax_api.directory",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "byte_size": 12345,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-06-23T12:41:59Z",
+            "directory_name": "Phase_1",
+            "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:4",
+            "parent_directory": 3,
+            "project_identifier": "project_x",
+            "removed": false,
+            "service_created": "metax"
+        },
+        "model": "metax_api.directory",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "byte_size": 12345,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-06-23T12:41:59Z",
+            "directory_name": "2017",
+            "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:5",
+            "parent_directory": 4,
+            "project_identifier": "project_x",
+            "removed": false,
+            "service_created": "metax"
+        },
+        "model": "metax_api.directory",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "byte_size": 12345,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-27T10:07:22Z",
+            "directory_deleted": null,
+            "directory_modified": "2017-06-23T12:41:59Z",
+            "directory_name": "01",
+            "directory_path": "/project_x_FROZEN/Experiment_X/Phase_1/2017/01",
+            "file_count": 12345,
+            "identifier": "pid:urn:dir:6",
+            "parent_directory": 5,
+            "project_identifier": "project_x",
+            "removed": false,
+            "service_created": "metax"
+        },
+        "model": "metax_api.directory",
+        "pk": 6
+    },
+    {
+        "fields": {
             "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "dataset_versioning": true,
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -674,65 +914,34 @@
                         }
                     }
                 ],
-                "identifier": "pid:urn:catalog1",
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/fin",
-                        "notation": "fin"
+                        "identifier": "http://lexvo.org/id/iso639-3/fin"
                     },
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "notation": "eng"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "publisher": [
-                    {
-                        "homepage": [
-                            {
-                                "identifier": "http://www.publisher.fi/",
-                                "title": {
-                                    "en": "Publisher website",
-                                    "fi": "Julkaisijan kotisivu"
-                                }
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
                             }
-                        ],
-                        "identifier": "http://isni.org/isni/0000000405129137",
-                        "name": {
-                            "en": "Publisher",
-                            "fi": "Julkaisija"
                         }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
-                ],
-                "research_dataset_schema": "att",
-                "rights": {
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
-                    "license": [
-                        {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                            "title": [
-                                {
-                                    "en": "CC BY 4.0",
-                                    "fi": "CC BY 4.0"
-                                }
-                            ]
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
-                            }
-                        }
-                    ]
                 },
+                "research_dataset_schema": "att",
                 "title": {
                     "en": "Test data catalog name",
                     "fi": "Testidatakatalogin nimi"
@@ -740,8 +949,9 @@
             },
             "catalog_record_group_create": "default-record-create-group",
             "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
         },
         "model": "metax_api.datacatalog",
         "pk": 1
@@ -749,6 +959,52 @@
     {
         "fields": {
             "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "dataset_versioning": true,
                 "field_of_science": [
                     {
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
@@ -775,53 +1031,84 @@
                         }
                     }
                 ],
-                "identifier": "pid:urn:catalog2",
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "issued": "2014-02-27T08:19:58Z",
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/fin",
-                        "notation": "fin"
+                        "identifier": "http://lexvo.org/id/iso639-3/fin"
                     },
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "notation": "eng"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
-                "publisher": [
-                    {
-                        "homepage": [
-                            {
-                                "identifier": "http://www.publisher.fi/",
-                                "title": {
-                                    "en": "Publisher website",
-                                    "fi": "Julkaisijan kotisivu"
-                                }
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
                             }
-                        ],
-                        "identifier": "http://isni.org/isni/0000000405129137",
-                        "name": {
-                            "en": "Publisher",
-                            "fi": "Julkaisija"
                         }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
-                ],
+                },
                 "research_dataset_schema": "att",
-                "rights": {
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "catalog_json": {
+                "access_rights": {
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
                         }
                     ],
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
                     "license": [
                         {
                             "identifier": "https://creativecommons.org/licenses/by/4.0/",
-                            "title": [
-                                {
-                                    "en": "CC BY 4.0",
-                                    "fi": "CC BY 4.0"
-                                }
-                            ]
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
                         }
                     ],
                     "type": [
@@ -834,6 +1121,61 @@
                         }
                     ]
                 },
+                "dataset_versioning": false,
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d3",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
+                            }
+                        }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
+                    }
+                },
+                "research_dataset_schema": "att",
                 "title": {
                     "en": "Test data catalog name",
                     "fi": "Testidatakatalogin nimi"
@@ -841,11 +1183,129 @@
             },
             "catalog_record_group_create": "default-record-create-group",
             "catalog_record_group_edit": "default-record-edit-group",
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
         },
         "model": "metax_api.datacatalog",
-        "pk": 2
+        "pk": 3
+    },
+    {
+        "fields": {
+            "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "dataset_versioning": false,
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d4",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
+                            }
+                        }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
+                    }
+                },
+                "research_dataset_schema": "att",
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 4
     },
     {
         "fields": {
@@ -877,8 +1337,9 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
         },
         "model": "metax_api.contract",
         "pk": 1
@@ -913,8 +1374,9 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
         },
         "model": "metax_api.contract",
         "pk": 2
@@ -949,8 +1411,9 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
         },
         "model": "metax_api.contract",
         "pk": 3
@@ -985,8 +1448,9 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
         },
         "model": "metax_api.contract",
         "pk": 4
@@ -1021,36 +1485,57 @@
                     "start_date": "2014-01-17T08:19:58Z"
                 }
             },
-            "created_by_api": "2017-05-15T10:07:22.559656Z",
-            "modified_by_api": "2017-05-15T10:07:22.559656Z"
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
         },
         "model": "metax_api.contract",
         "pk": 5
     },
     {
+        "fields": {},
+        "model": "metax_api.alternaterecordset",
+        "pk": 1
+    },
+    {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "identifier": "qvain",
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
             "files": [
                 1,
                 2
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
-                        "identifier": "id:of:curator:default",
-                        "name": "Default Owner"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -1061,17 +1546,38 @@
                 "files": [
                     {
                         "identifier": "pid:urn:1",
-                        "title": "File metadata title 0"
+                        "title": "File metadata title 0",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                            "pref_label": {
+                                "en": "Text",
+                                "fi": "Teksti",
+                                "und": "Teksti"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:2",
-                        "title": "File metadata title 1"
+                        "title": "File metadata title 1",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                            "pref_label": {
+                                "en": "Text",
+                                "fi": "Teksti",
+                                "und": "Teksti"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1080,11 +1586,12 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 300,
-                "urn_identifier": "pid:urn:cr1",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 1
@@ -1092,27 +1599,45 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "identifier": "qvain",
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
             "files": [
                 3,
                 4
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Rahikainen"
                     }
                 ],
@@ -1124,17 +1649,38 @@
                 "files": [
                     {
                         "identifier": "pid:urn:3",
-                        "title": "File metadata title 2"
+                        "title": "File metadata title 2",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                            "pref_label": {
+                                "en": "Text",
+                                "fi": "Teksti",
+                                "und": "Teksti"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:4",
-                        "title": "File metadata title 3"
+                        "title": "File metadata title 3",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                            "pref_label": {
+                                "en": "Text",
+                                "fi": "Teksti",
+                                "und": "Teksti"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1143,11 +1689,12 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 700,
-                "urn_identifier": "pid:urn:cr2",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 2
@@ -1155,27 +1702,45 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "05593961536b76fa825281ccaedd4d4f",
+                "identifier": "qvain",
+                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+            },
             "files": [
                 5,
                 6
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Rahikainen"
                     }
                 ],
@@ -1187,17 +1752,38 @@
                 "files": [
                     {
                         "identifier": "pid:urn:5",
-                        "title": "File metadata title 4"
+                        "title": "File metadata title 4",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                            "pref_label": {
+                                "en": "Text",
+                                "fi": "Teksti",
+                                "und": "Teksti"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:6",
-                        "title": "File metadata title 5"
+                        "title": "File metadata title 5",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                            "pref_label": {
+                                "en": "Text",
+                                "fi": "Teksti",
+                                "und": "Teksti"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1206,11 +1792,12 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 1100,
-                "urn_identifier": "pid:urn:cr3",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 3
@@ -1218,9 +1805,15 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "identifier": "qvain",
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
+            },
             "files": [
                 7,
                 8
@@ -1230,19 +1823,31 @@
                 "b",
                 "c"
             ],
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 3,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Rahikainen"
                     }
                 ],
@@ -1254,17 +1859,38 @@
                 "files": [
                     {
                         "identifier": "pid:urn:7",
-                        "title": "File metadata title 6"
+                        "title": "File metadata title 6",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                            "pref_label": {
+                                "en": "Text",
+                                "fi": "Teksti",
+                                "und": "Teksti"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:8",
-                        "title": "File metadata title 7"
+                        "title": "File metadata title 7",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1273,11 +1899,12 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 1500,
-                "urn_identifier": "pid:urn:cr4",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 4
@@ -1285,9 +1912,15 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
             "files": [
                 9,
                 10
@@ -1297,19 +1930,31 @@
                 "b",
                 "c"
             ],
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 4,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Rahikainen"
                     }
                 ],
@@ -1321,17 +1966,38 @@
                 "files": [
                     {
                         "identifier": "pid:urn:9",
-                        "title": "File metadata title 8"
+                        "title": "File metadata title 8",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:10",
-                        "title": "File metadata title 9"
+                        "title": "File metadata title 9",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1340,11 +2006,12 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 1900,
-                "urn_identifier": "pid:urn:cr5",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 5
@@ -1352,27 +2019,45 @@
     {
         "fields": {
             "contract": 1,
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "identifier": "qvain",
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
             "files": [
                 11,
                 12
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Rahikainen"
                     }
                 ],
@@ -1384,17 +2069,38 @@
                 "files": [
                     {
                         "identifier": "pid:urn:11",
-                        "title": "File metadata title 10"
+                        "title": "File metadata title 10",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:12",
-                        "title": "File metadata title 11"
+                        "title": "File metadata title 11",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1403,38 +2109,57 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 2300,
-                "urn_identifier": "pid:urn:cr6",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 6
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "identifier": "qvain",
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
             "files": [
                 13,
                 14
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Jarski"
                     }
                 ],
@@ -1446,17 +2171,38 @@
                 "files": [
                     {
                         "identifier": "pid:urn:13",
-                        "title": "File metadata title 12"
+                        "title": "File metadata title 12",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:14",
-                        "title": "File metadata title 13"
+                        "title": "File metadata title 13",
+                        "type": {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "en": "Model",
+                                "fi": "Mallinnus",
+                                "und": "Mallinnus"
+                            }
+                        },
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1465,38 +2211,57 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 2700,
-                "urn_identifier": "pid:urn:cr7",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 7
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "05593961536b76fa825281ccaedd4d4f",
+                "identifier": "qvain",
+                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+            },
             "files": [
                 15,
                 16
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Jarski"
                     }
                 ],
@@ -1508,17 +2273,22 @@
                 "files": [
                     {
                         "identifier": "pid:urn:15",
-                        "title": "File metadata title 14"
+                        "title": "File metadata title 14",
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:16",
-                        "title": "File metadata title 15"
+                        "title": "File metadata title 15",
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1527,38 +2297,57 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 3100,
-                "urn_identifier": "pid:urn:cr8",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 8
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "identifier": "qvain",
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
+            },
             "files": [
                 17,
                 18
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Jarski"
                     }
                 ],
@@ -1570,17 +2359,22 @@
                 "files": [
                     {
                         "identifier": "pid:urn:17",
-                        "title": "File metadata title 16"
+                        "title": "File metadata title 16",
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:18",
-                        "title": "File metadata title 17"
+                        "title": "File metadata title 17",
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1589,38 +2383,58 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 3500,
-                "urn_identifier": "pid:urn:cr9",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 9
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
+            "alternate_record_set": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
             "files": [
                 19,
                 20
             ],
             "mets_object_identifier": null,
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
             "preservation_state": 0,
             "preservation_state_modified": null,
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "creator": [
                     {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Person",
                         "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
                         "name": "Jarski"
                     }
                 ],
@@ -1632,17 +2446,22 @@
                 "files": [
                     {
                         "identifier": "pid:urn:19",
-                        "title": "File metadata title 18"
+                        "title": "File metadata title 18",
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     },
                     {
                         "identifier": "pid:urn:20",
-                        "title": "File metadata title 19"
+                        "title": "File metadata title 19",
+                        "use_category": {
+                            "identifier": "source"
+                        }
                     }
                 ],
                 "language": [
                     {
-                        "identifier": "http://lexvo.org/id/iso639-3/eng",
-                        "title": "English"
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
                 "modified": "2014-01-17T08:19:58Z",
@@ -1651,35 +2470,59 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 3900,
-                "urn_identifier": "pid:urn:cr10",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 10
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-09-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
             "files": [
                 1,
                 2
             ],
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "access_rights": {
+                    "access_type": {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.accessrights.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
                         }
                     ],
-                    "has_right_related_agent": [
+                    "has_rights_related_agent": [
                         {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "homepage": {
                                 "description": {
@@ -1691,7 +2534,10 @@
                                 }
                             },
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -1706,44 +2552,32 @@
                             ],
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
-                            "title": [
-                                {
-                                    "en": "A name given to the resource"
-                                }
-                            ]
-                        }
-                    ],
-                    "type": [
-                        {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.accessrights.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
+                            "title": {
+                                "en": "A name given to the resource"
                             }
                         }
-                    ]
+                    ],
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
                 },
-                "bibliographical_sitation": "whot",
+                "bibliographic_citation": "whot",
                 "contributor": [
                     {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                        },
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
-                        "is_part_of": {
+                        "member_of": {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Mysterious Organization 1",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -1754,14 +2588,22 @@
                         ]
                     },
                     {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "project_administration"
+                        },
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
-                        "is_part_of": {
-                            "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                        "member_of": {
+                            "@type": "Organization",
+                            "email": "joo@csc.fi",
+                            "identifier": "org_identifier",
+                            "name": {
+                                "en": "Mysterious Organization 2",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
-                                "+358501231235"
+                                "+23423423"
                             ]
                         },
                         "name": "Franzibald Kontribuuttaja",
@@ -1772,18 +2614,60 @@
                 ],
                 "creator": [
                     {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "data_curation"
+                        },
+                        "member_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Organization",
                         "identifier": "id:of:curator:default",
-                        "name": "Default Owner"
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
+                        "name": {
+                            "en": "Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "directories": [
+                    {
+                        "description": "What is in this directory",
+                        "identifier": "directory-identifier-1",
+                        "title": "dir_name",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                        }
+                    },
+                    {
+                        "description": "What is in this directory",
+                        "identifier": "directory-identifier-2",
+                        "title": "dir_name_2",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                        }
                     }
                 ],
                 "field_of_science": [
@@ -1819,15 +2703,13 @@
                             }
                         },
                         "description": "file description",
-                        "identifier": "pid:urn:1",
-                        "title": "file title",
-                        "type": {
+                        "file_type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_audiovisual",
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
@@ -1835,10 +2717,12 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label"
-                            }
+                            ]
+                        },
+                        "identifier": "pid:urn:1",
+                        "title": "file title",
+                        "use_category": {
+                            "identifier": "configuration"
                         }
                     },
                     {
@@ -1860,7 +2744,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_text",
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
@@ -1868,21 +2752,33 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label"
-                            }
+                            ]
+                        },
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
                         }
+                    }
+                ],
+                "infrastructure": [
+                    {
+                        "identifier": "urn-nbn-fi-research-infras-2016072530"
                     }
                 ],
                 "is_output_of": [
                     {
+                        "funder_type": {
+                            "identifier": "tekes"
+                        },
                         "has_funder_identifier": "funderprojectidentifier",
                         "has_funding_agency": [
                             {
+                                "@type": "Organization",
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
-                                "name": "Rahoittava Organisaatio",
+                                "name": {
+                                    "en": "Funding Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501232233"
                                 ]
@@ -1894,9 +2790,13 @@
                         },
                         "source_organization": [
                             {
+                                "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501231235"
                                 ]
@@ -1918,24 +2818,20 @@
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
-                        "creator": {
-                            "email": "teppo.testaaja@csc.fi",
-                            "identifier": "teppoidentifier",
-                            "is_part_of": {
-                                "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
-                                "telephone": [
-                                    "+358501231235"
-                                ]
-                            },
-                            "name": "Teppo Testaaja",
-                            "telephone": [
-                                "+358501231234"
-                            ]
-                        },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
                         "notation": "doi:10.12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -1957,26 +2853,22 @@
                         }
                     },
                     {
-                        "creator": {
-                            "email": "teppo.testaaja@csc.fi",
-                            "identifier": "teppoidentifier",
-                            "is_part_of": {
-                                "email": "info@csc.fi",
-                                "identifier": [
-                                    "http://purl.org/att/es/organization_data/organization/organization_1901"
-                                ],
-                                "name": "Mysterious Organization",
-                                "telephone": [
-                                    "+358501231235"
-                                ]
-                            },
-                            "name": "Teppo Testaaja",
-                            "telephone": [
-                                "+358501231234"
-                            ]
-                        },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
                         "notation": "urn:nbn:fi-12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": [
+                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                            ],
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -2002,28 +2894,22 @@
                 "provenance": [
                     {
                         "description": {
-                            "en": "Description of provenance"
+                            "en": "Description of provenance activity"
                         },
-                        "spatial": [
-                            {
-                                "alt": "11.111",
-                                "fullAddress": "The complete address written as a string, with or without formatting",
-                                "geographic_name": "Geographic name",
-                                "place_uri": [
-                                    {
-                                        "identifier": "http://www.yso.fi/onto/yso/p107966"
-                                    }
-                                ]
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
                             }
-                        ],
-                        "temporal": [
-                            {
-                                "end_date": "2014-12-31T08:19:58Z",
-                                "start_date": "2014-01-01T08:19:58Z"
-                            }
-                        ],
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
                         "title": {
-                            "en": "Title"
+                            "en": "Some activity"
                         },
                         "type": {
                             "definition": [
@@ -2031,7 +2917,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "provenancetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.provenance.concept/scheme",
@@ -2039,10 +2925,7 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
+                            ]
                         },
                         "used_entity": [
                             {
@@ -2134,30 +3017,79 @@
                         ],
                         "was_associated_with": [
                             {
+                                "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501231235"
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "description": {
+                            "en": "Description of other provenance activity"
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p105917"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some other activity"
+                        },
+                        "type": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        }
                     }
                 ],
                 "publisher": {
-                    "email": "teppo.testaaja@csc.fi",
-                    "identifier": "teppoidentifier",
+                    "@type": "Organization",
+                    "email": "info@csc.fi",
+                    "homepage": {
+                        "identifier": "http://www.publisher.fi/",
+                        "title": {
+                            "en": "Publisher website",
+                            "fi": "Julkaisijan kotisivu"
+                        }
+                    },
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
                     "is_part_of": {
+                        "@type": "Organization",
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                        "name": "Mysterious Organization",
+                        "homepage": {
+                            "identifier": "http://www.publisher_parent.fi/",
+                            "title": {
+                                "en": "Publisher parent website",
+                                "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
+                            }
+                        },
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "name": {
+                            "en": "Parent of Mysterious Organization",
+                            "fi": "Organisaatio"
+                        },
                         "telephone": [
-                            "+358501231235"
+                            "+234234"
                         ]
                     },
-                    "name": "Teppo Testaaja",
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
                     "telephone": [
-                        "+358501231234"
+                        "+358501231235"
                     ]
                 },
                 "related_entity": [
@@ -2189,6 +3121,76 @@
                             "pref_label": {
                                 "en": "pref label for this type"
                             }
+                        }
+                    }
+                ],
+                "relation": [
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset:identifier",
+                            "title": {
+                                "en": "External dataset 1",
+                                "fi": "Ulkopuolinen aineisto 1"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "wasDerivedFrom"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "cites"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset_2:identifier",
+                            "title": {
+                                "en": "External dataset 2",
+                                "fi": "Ulkopuolinen aineisto 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "isPartOf"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing_2:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "hasPreviousVersion"
                         }
                     }
                 ],
@@ -2234,23 +3236,20 @@
                                 ],
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
-                                "title": [
-                                    {
-                                        "en": "A name given to the resource"
-                                    }
-                                ]
+                                "title": {
+                                    "en": "A name given to the resource"
+                                }
                             }
                         ],
-                        "mediatype": "fileformat here",
+                        "mediatype": "image/jpeg",
                         "modified": "2013-01-17T08:19:58Z",
-                        "title": "A name given to the distribution",
-                        "type": {
+                        "resource_type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_software",
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.resource.concept/scheme",
@@ -2258,17 +3257,30 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
+                            ]
+                        },
+                        "title": "A name given to the distribution",
+                        "use_category": {
+                            "identifier": "rights"
                         }
                     }
                 ],
-                "rightsHolder": {
+                "rights_holder": {
+                    "@type": "Organization",
                     "email": "info@csc.fi",
                     "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                    "name": "Mysterious Organization",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "identifier": "10076",
+                        "name": {
+                            "en": "Parent Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
+                    },
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
                     "telephone": [
                         "+358501231235"
                     ]
@@ -2281,11 +3293,17 @@
                         ],
                         "full_address": "The complete address written as a string, with or without formatting",
                         "geographic_name": "Geographic name",
-                        "place_uri": [
-                            {
-                                "identifier": "http://www.yso.fi/onto/yso/p107966"
-                            }
-                        ]
+                        "place_uri": {
+                            "identifier": "http://www.yso.fi/onto/yso/p107966"
+                        }
+                    },
+                    {
+                        "alt": "60",
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name 2",
+                        "place_uri": {
+                            "identifier": "http://www.yso.fi/onto/yso/p107966"
+                        }
                     }
                 ],
                 "temporal": [
@@ -2319,7 +3337,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 300,
-                "urn_identifier": "very:unique:urn-0",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "value": [
                     0.111
                 ],
@@ -2327,31 +3345,55 @@
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 11
     },
     {
         "fields": {
-            "created_by_api": "2017-05-23T10:07:22.559656Z",
             "data_catalog": 1,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-09-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
             "files": [
                 1,
                 2
             ],
-            "modified_by_api": "2017-05-23T10:07:22.559656Z",
-            "ready_status": "Unfinished",
             "research_dataset": {
                 "access_rights": {
+                    "access_type": {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.accessrights.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
                         }
                     ],
-                    "has_right_related_agent": [
+                    "has_rights_related_agent": [
                         {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "homepage": {
                                 "description": {
@@ -2363,7 +3405,10 @@
                                 }
                             },
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -2378,44 +3423,32 @@
                             ],
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
-                            "title": [
-                                {
-                                    "en": "A name given to the resource"
-                                }
-                            ]
-                        }
-                    ],
-                    "type": [
-                        {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.accessrights.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
+                            "title": {
+                                "en": "A name given to the resource"
                             }
                         }
-                    ]
+                    ],
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
                 },
-                "bibliographical_sitation": "whot",
+                "bibliographic_citation": "whot",
                 "contributor": [
                     {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                        },
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
-                        "is_part_of": {
+                        "member_of": {
+                            "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                            "name": {
+                                "en": "Mysterious Organization 1",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
                                 "+358501231235"
                             ]
@@ -2426,14 +3459,22 @@
                         ]
                     },
                     {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "project_administration"
+                        },
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
-                        "is_part_of": {
-                            "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                            "name": "Mysterious Organization",
+                        "member_of": {
+                            "@type": "Organization",
+                            "email": "joo@csc.fi",
+                            "identifier": "org_identifier",
+                            "name": {
+                                "en": "Mysterious Organization 2",
+                                "fi": "Organisaatio"
+                            },
                             "telephone": [
-                                "+358501231235"
+                                "+23423423"
                             ]
                         },
                         "name": "Franzibald Kontribuuttaja",
@@ -2444,18 +3485,60 @@
                 ],
                 "creator": [
                     {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "data_curation"
+                        },
+                        "member_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": "Teppo Testaaja"
                     }
                 ],
                 "curator": [
                     {
+                        "@type": "Organization",
                         "identifier": "id:of:curator:default",
-                        "name": "Default Owner"
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
+                        "name": {
+                            "en": "Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
                     {
                         "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "directories": [
+                    {
+                        "description": "What is in this directory",
+                        "identifier": "directory-identifier-1",
+                        "title": "dir_name",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                        }
+                    },
+                    {
+                        "description": "What is in this directory",
+                        "identifier": "directory-identifier-2",
+                        "title": "dir_name_2",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                        }
                     }
                 ],
                 "field_of_science": [
@@ -2491,15 +3574,13 @@
                             }
                         },
                         "description": "file description",
-                        "identifier": "pid:urn:1",
-                        "title": "file title",
-                        "type": {
+                        "file_type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_audiovisual",
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
@@ -2507,10 +3588,12 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label"
-                            }
+                            ]
+                        },
+                        "identifier": "pid:urn:1",
+                        "title": "file title",
+                        "use_category": {
+                            "identifier": "configuration"
                         }
                     },
                     {
@@ -2532,7 +3615,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_text",
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.filetype.concept/scheme",
@@ -2540,21 +3623,33 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label"
-                            }
+                            ]
+                        },
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
                         }
+                    }
+                ],
+                "infrastructure": [
+                    {
+                        "identifier": "urn-nbn-fi-research-infras-2016072530"
                     }
                 ],
                 "is_output_of": [
                     {
+                        "funder_type": {
+                            "identifier": "tekes"
+                        },
                         "has_funder_identifier": "funderprojectidentifier",
                         "has_funding_agency": [
                             {
+                                "@type": "Organization",
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
-                                "name": "Rahoittava Organisaatio",
+                                "name": {
+                                    "en": "Funding Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501232233"
                                 ]
@@ -2566,9 +3661,13 @@
                         },
                         "source_organization": [
                             {
+                                "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501231235"
                                 ]
@@ -2590,24 +3689,20 @@
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
-                        "creator": {
-                            "email": "teppo.testaaja@csc.fi",
-                            "identifier": "teppoidentifier",
-                            "is_part_of": {
-                                "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
-                                "telephone": [
-                                    "+358501231235"
-                                ]
-                            },
-                            "name": "Teppo Testaaja",
-                            "telephone": [
-                                "+358501231234"
-                            ]
-                        },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
                         "notation": "doi:10.12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -2629,26 +3724,22 @@
                         }
                     },
                     {
-                        "creator": {
-                            "email": "teppo.testaaja@csc.fi",
-                            "identifier": "teppoidentifier",
-                            "is_part_of": {
-                                "email": "info@csc.fi",
-                                "identifier": [
-                                    "http://purl.org/att/es/organization_data/organization/organization_1901"
-                                ],
-                                "name": "Mysterious Organization",
-                                "telephone": [
-                                    "+358501231235"
-                                ]
-                            },
-                            "name": "Teppo Testaaja",
-                            "telephone": [
-                                "+358501231234"
-                            ]
-                        },
                         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
                         "notation": "urn:nbn:fi-12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": [
+                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                            ],
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
                         "type": {
                             "definition": [
                                 {
@@ -2674,28 +3765,22 @@
                 "provenance": [
                     {
                         "description": {
-                            "en": "Description of provenance"
+                            "en": "Description of provenance activity"
                         },
-                        "spatial": [
-                            {
-                                "alt": "11.111",
-                                "fullAddress": "The complete address written as a string, with or without formatting",
-                                "geographic_name": "Geographic name",
-                                "place_uri": [
-                                    {
-                                        "identifier": "http://www.yso.fi/onto/yso/p107966"
-                                    }
-                                ]
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
                             }
-                        ],
-                        "temporal": [
-                            {
-                                "end_date": "2014-12-31T08:19:58Z",
-                                "start_date": "2014-01-01T08:19:58Z"
-                            }
-                        ],
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
                         "title": {
-                            "en": "Title"
+                            "en": "Some activity"
                         },
                         "type": {
                             "definition": [
@@ -2703,7 +3788,7 @@
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "provenancetypeidentifier",
+                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.provenance.concept/scheme",
@@ -2711,10 +3796,7 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
+                            ]
                         },
                         "used_entity": [
                             {
@@ -2806,30 +3888,79 @@
                         ],
                         "was_associated_with": [
                             {
+                                "@type": "Organization",
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                                "name": "Mysterious Organization",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
                                 "telephone": [
                                     "+358501231235"
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "description": {
+                            "en": "Description of other provenance activity"
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p105917"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some other activity"
+                        },
+                        "type": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        }
                     }
                 ],
                 "publisher": {
-                    "email": "teppo.testaaja@csc.fi",
-                    "identifier": "teppoidentifier",
+                    "@type": "Organization",
+                    "email": "info@csc.fi",
+                    "homepage": {
+                        "identifier": "http://www.publisher.fi/",
+                        "title": {
+                            "en": "Publisher website",
+                            "fi": "Julkaisijan kotisivu"
+                        }
+                    },
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
                     "is_part_of": {
+                        "@type": "Organization",
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                        "name": "Mysterious Organization",
+                        "homepage": {
+                            "identifier": "http://www.publisher_parent.fi/",
+                            "title": {
+                                "en": "Publisher parent website",
+                                "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
+                            }
+                        },
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "name": {
+                            "en": "Parent of Mysterious Organization",
+                            "fi": "Organisaatio"
+                        },
                         "telephone": [
-                            "+358501231235"
+                            "+234234"
                         ]
                     },
-                    "name": "Teppo Testaaja",
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
                     "telephone": [
-                        "+358501231234"
+                        "+358501231235"
                     ]
                 },
                 "related_entity": [
@@ -2861,6 +3992,76 @@
                             "pref_label": {
                                 "en": "pref label for this type"
                             }
+                        }
+                    }
+                ],
+                "relation": [
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset:identifier",
+                            "title": {
+                                "en": "External dataset 1",
+                                "fi": "Ulkopuolinen aineisto 1"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "wasDerivedFrom"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "cites"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset_2:identifier",
+                            "title": {
+                                "en": "External dataset 2",
+                                "fi": "Ulkopuolinen aineisto 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "isPartOf"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing_2:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "hasPreviousVersion"
                         }
                     }
                 ],
@@ -2906,23 +4107,20 @@
                                 ],
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
-                                "title": [
-                                    {
-                                        "en": "A name given to the resource"
-                                    }
-                                ]
+                                "title": {
+                                    "en": "A name given to the resource"
+                                }
                             }
                         ],
-                        "mediatype": "fileformat here",
+                        "mediatype": "image/jpeg",
                         "modified": "2013-01-17T08:19:58Z",
-                        "title": "A name given to the distribution",
-                        "type": {
+                        "resource_type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
                                 }
                             ],
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_software",
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
                             "in_scheme": [
                                 {
                                     "identifier": "http://uri.of.resource.concept/scheme",
@@ -2930,17 +4128,30 @@
                                         "en": "The preferred lexical label for a resource"
                                     }
                                 }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
+                            ]
+                        },
+                        "title": "A name given to the distribution",
+                        "use_category": {
+                            "identifier": "rights"
                         }
                     }
                 ],
-                "rightsHolder": {
+                "rights_holder": {
+                    "@type": "Organization",
                     "email": "info@csc.fi",
                     "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
-                    "name": "Mysterious Organization",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "identifier": "10076",
+                        "name": {
+                            "en": "Parent Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
+                    },
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
                     "telephone": [
                         "+358501231235"
                     ]
@@ -2953,11 +4164,17 @@
                         ],
                         "full_address": "The complete address written as a string, with or without formatting",
                         "geographic_name": "Geographic name",
-                        "place_uri": [
-                            {
-                                "identifier": "http://www.yso.fi/onto/yso/p107966"
-                            }
-                        ]
+                        "place_uri": {
+                            "identifier": "http://www.yso.fi/onto/yso/p107966"
+                        }
+                    },
+                    {
+                        "alt": "60",
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name 2",
+                        "place_uri": {
+                            "identifier": "http://www.yso.fi/onto/yso/p107966"
+                        }
                     }
                 ],
                 "temporal": [
@@ -2991,7 +4208,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_byte_size": 300,
-                "urn_identifier": "very:unique:urn-1",
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "value": [
                     0.111
                 ],
@@ -2999,9 +4216,184 @@
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
-            }
+            },
+            "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
         "pk": 12
+    },
+    {
+        "fields": {
+            "alternate_record_set": 1,
+            "data_catalog": 2,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
+            "files": [
+                19,
+                20
+            ],
+            "mets_object_identifier": null,
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:19",
+                        "title": "File metadata title 18",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    },
+                    {
+                        "identifier": "pid:urn:20",
+                        "title": "File metadata title 19",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_byte_size": 3900,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 13
+    },
+    {
+        "fields": {
+            "alternate_record_set": 1,
+            "data_catalog": 3,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
+            "files": [
+                19,
+                20
+            ],
+            "mets_object_identifier": null,
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "files": [
+                    {
+                        "identifier": "pid:urn:19",
+                        "title": "File metadata title 18",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    },
+                    {
+                        "identifier": "pid:urn:20",
+                        "title": "File metadata title 19",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_byte_size": 3900,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 14
     }
 ]

@@ -1,0 +1,376 @@
+{
+    "modified":"Mon, 28 Aug 2017 13:23:07 EEST",
+    "$schema":"http://json-schema.org/draft-04/schema#",
+    "type":"object",
+    "allOf": [
+        {
+            "$ref": "#/definitions/File"
+        }
+    ],
+    "definitions":{
+        "Checksum":{
+            "description":"Checksum of the file",
+            "properties":{
+                "value":{
+                    "description":"Value of the checksum. xsd:hexBinary",
+                    "type":"string"
+                },
+                "algorithm":{
+                    "enum":[
+                        "md5",
+                        "sha2"
+                    ],
+                    "type":"string"
+                },
+                "checked":{
+                    "description":"Last time the file checksum is validated",
+                    "type":"string",
+                    "format":"date-time"
+                }
+            },
+            "required":[
+                "value",
+                "algorithm",
+                "checked"
+            ]
+        },
+        "Directory":{
+            "properties":{
+                "byte_size":{
+                    "description":"Size of files recursively contained by the directory.",
+                    "type":"integer",
+                    "readonly": true
+                },
+                "directory_deleted":{
+                    "description":"date when the directory was deleted",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "directory_modified":{
+                    "description":"Date on which the resource was changed.",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "directory_name":{
+                    "description":"Directory name",
+                    "type":"string",
+                    "readonly": true
+                },
+                "directory_path":{
+                    "description":"Path to the item as file: URI",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "type":"string",
+                    "readonly": true
+                },
+                "file_count":{
+                    "description":"Number of files recursively contained by the directory.",
+                    "type":"integer",
+                    "readonly": true
+                },
+                "id":{
+                    "description": "internal primary key",
+                    "type": "integer",
+                    "readonly": true
+                },
+                "identifier":{
+                    "description":"A persistent identifier (PID) in urn: scheme",
+                    "type":"string",
+                    "readonly": true
+                },
+                "parent_directory":{
+                    "description":"Parent directory of the directory. Can be empty for root directories.",
+                    "type":"object",
+                    "readonly": true,
+                    "$ref":"#/definitions/ParentDirectory"
+                },
+                "project_identifier":{
+                    "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
+                    "type":"string",
+                    "readonly": true
+                },
+                 "date_modified":{
+                    "description":"Date on which the resource was changed.",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "user_modified":{
+                    "description":"User id of the person who last edited this record",
+                    "type":"string",
+                    "readonly": true
+                },
+                "date_created":{
+                    "description":"Date of creation of the resource. Can't be updated once set.",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "user_created":{
+                    "description":"User id of the person who created this record. Can't be updated once set.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "service_created":{
+                    "description":"Service name who created this resource.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "service_modified":{
+                    "description":"Service name who last modified this resource.",
+                    "type":"string",
+                    "readonly": true
+                }
+            },
+            "required":[
+                "byte_size",
+                "directory_name",
+                "directory_path",
+                "file_count",
+                "id",
+                "identifier",
+                "project_identifier",
+                "date_modified",
+                "user_modified",
+                "date_created",
+                "user_created"
+            ]
+        },
+        "File":{
+            "properties":{
+                "id":{
+                    "description": "internal primary key",
+                    "type": "integer",
+                    "readonly": true
+                },
+                "identifier":{
+                    "description":"A persistent identifier (PID) in urn: scheme",
+                    "type":"string"
+                },
+                "file_name":{
+                    "description":"File name including the extension",
+                    "type":"string"
+                },
+                "file_path":{
+                    "description":"Path to the item as file: URI",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "type":"string"
+                },
+                "replication_path":{
+                    "description":"Identifier in file: scheme for the place that the file is replicated",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "type":"string"
+                },
+                "file_uploaded":{
+                    "description":"date when data was uploaded",
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "file_modified":{
+                    "description":"Date on which the resource was changed.",
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "file_frozen":{
+                    "description":"date when the file is frozen",
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "file_deleted":{
+                    "description":"date when the frozen file was deleted",
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "file_characteristics":{
+                    "description":"Optional file metadata and file format specific charasteristics",
+                    "type":"object",
+                    "$ref":"#/definitions/FileCharacteristics"
+                },
+                "file_format":{
+                    "description":"File format, must usually IANA mediatype",
+                    "type":"string"
+                },
+                "byte_size":{
+                    "description":"The size of a resource in bytes.",
+                    "type":"integer"
+                },
+                "file_storage":{
+                    "description":"A related storage system",
+                    "type":"object",
+                    "$ref":"#/definitions/FileStorage"
+                },
+                "download_url":{
+                    "description":"If the file can be downloaded, URL to download the binary.",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "type":"string"
+                },
+                "project_identifier":{
+                    "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
+                    "type":"string"
+                },
+                "checksum":{
+                    "description":"Checksum of the file",
+                    "type":"object",
+                    "$ref":"#/definitions/Checksum"
+                },
+                "parent_directory":{
+                    "description":"Parent directory of the file",
+                    "type":"object",
+                    "readonly": true,
+                    "$ref":"#/definitions/ParentDirectory"
+                },
+                "open_access":{
+                    "description":"This should be true if data is open and accessible. If attribute is not present it should be interpreted as implicit false.",
+                    "type":"boolean"
+                },
+                "file_characteristics_extension":{
+                    "description":"Format-specific metadata that is defined externally. Can be represented as ObjectCharacteristicsExtension in PREMIS format.",
+                    "type":"object",
+                    "$ref":"#/definitions/FileCharacteristicsExtension"
+                },
+                 "date_modified":{
+                    "description":"Date on which the resource was changed.",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "user_modified":{
+                    "description":"User id of the person who last edited this record",
+                    "type":"string"
+                },
+                "date_created":{
+                    "description":"Date of creation of the resource. Can't be updated once set.",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "user_created":{
+                    "description":"User id of the person who created this record. Can't be updated once set.",
+                    "type":"string"
+                },
+                "service_created":{
+                    "description":"Service name who created this resource.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "service_modified":{
+                    "description":"Service name who last modified this resource.",
+                    "type":"string",
+                    "readonly": true
+                }
+            },
+            "required":[
+                "identifier",
+                "file_name",
+                "file_path",
+                "file_uploaded",
+                "file_modified",
+                "file_frozen",
+                "file_format",
+                "byte_size",
+                "file_storage",
+                "project_identifier",
+                "parent_directory",
+                "checksum"
+            ]
+        },
+        "FileCharacteristics":{
+            "description":"This class is used as extension point to additional file charasteristics",
+            "properties":{
+                "title":{
+                    "description":"A name given to the file",
+                    "type":"string"
+                },
+                "description":{
+                    "description":"Free-text account of the distribution.",
+                    "type":"string"
+                },
+                "encoding":{
+                    "description":"Used text encoding",
+                    "type":"string"
+                },
+                "application_name":{
+                    "description":"A designation for the name of the software program that created the object",
+                    "type":"string"
+                },
+                "file_created":{
+                    "description":"Original creation date of the file",
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "metadata_modified":{
+                    "description":"Date on which the File Charasteristics have been last updated",
+                    "type":"string",
+                    "format":"date-time"
+                },
+                "open_access":{
+                    "description":"This should be true if data is open and accessible. If attribute is not present it should be interpreted as implicit false.",
+                    "type":"boolean"
+                }
+            }
+        },
+        "FileCharacteristicsExtension":{
+            "description":"This class is used as extension point to additional file charasteristics",
+            "properties":{
+                "anything_you_need_here":{
+                    "description":"Anything additional needed here. Value can be any type",
+                    "type":"string"
+                }
+            }
+        },
+        "FileStorage":{
+            "title":"File storage",
+            "description":"File storage the file is stored in",
+            "properties":{
+                "id":{
+                    "description": "internal primary key",
+                    "type": "integer",
+                    "readonly": true
+                },
+                "file_storage_json":{
+                    "type":"object",
+                    "$ref":"#/definitions/FileStorageJson"
+                }
+            }
+        },
+        "FileStorageJson":{
+            "properties":{
+                "identifier":{
+                    "description":"Persistent identifier for the storage system",
+                    "type":"string"
+                },
+                "title":{
+                    "description":"A name given to the resource.",
+                    "type":"string"
+                },
+                "url":{
+                    "description":"URL of the storage system",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "type":"string"
+                }
+            },
+            "required":[
+                "identifier",
+                "title"
+            ]
+        },
+        "ParentDirectory":{
+            "description":"Parent directory",
+            "properties":{
+                "id":{
+                    "description":"pk of parent directory in the db",
+                    "type":"integer"
+                },
+                "identifier":{
+                    "description":"persistend identifier of the directory",
+                    "type":"string"
+                }
+            },
+            "required":[
+                "id",
+                "identifier",
+            ]
+        },
+    }
+}

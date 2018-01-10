@@ -1,6 +1,6 @@
-from urllib import request
 import ssl
 import time
+from urllib import request
 
 d = print
 d("STARTING MEASUREMENTS")

@@ -1,13 +1,53 @@
-from datetime import datetime
+from copy import deepcopy
+import logging
 
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
+from django.db.models import Q
+from django.http import Http404
 from rest_framework.serializers import ValidationError
 
+from metax_api.utils import get_tz_aware_now_without_micros
+from metax_api.utils.utils import generate_identifier
 from .common import Common, CommonManager
-from .file import File
-from .data_catalog import DataCatalog
 from .contract import Contract
+from .data_catalog import DataCatalog
+from .file import File
+
+_logger = logging.getLogger(__name__)
+
+
+class AlternateRecordSet(models.Model):
+
+    """
+    A table which contains records that share a common preferred_identifier,
+    but belong to different data catalogs.
+
+    Note! Does not inherit from model Common, so does not have timestmap fields,
+    and a delete is an actual delete.
+    """
+
+    id = models.BigAutoField(primary_key=True, editable=False)
+
+    def print_records(self): # pragma: no cover
+        for r in self.records.all():
+            print(r.__repr__())
+
+
+class VersionSet(models.Model):
+
+    """
+    A table which contains records that are versions of each other.
+
+    Note! Does not inherit from model Common, so does not have timestmap fields,
+    and a delete is an actual delete.
+    """
+
+    id = models.BigAutoField(primary_key=True, editable=False)
+
+    def print_records(self): # pragma: no cover
+        for r in self.records.all():
+            print(r.__repr__())
 
 
 class CatalogRecordManager(CommonManager):
@@ -26,8 +66,24 @@ class CatalogRecordManager(CommonManager):
             elif row.get('research_dataset', None) and row['research_dataset'].get('urn_identifier', None):
                 kwargs['research_dataset__contains'] = { 'urn_identifier': row['research_dataset']['urn_identifier'] }
             else:
-                raise ValidationError('this operation requires an identifying key to be present: id, or research_dataset ->> urn_identifier')
+                raise ValidationError(
+                    'this operation requires an identifying key to be present: '
+                    'id, or research_dataset ->> urn_identifier')
         return super(CatalogRecordManager, self).get(*args, **kwargs)
+
+    def get_id(self, urn_identifier=None):
+        """
+        Takes urn_identifier, and returns the plain pk of the record. Useful for debugging,
+        and some other situations.
+        """
+        if not urn_identifier:
+            raise ValidationError('urn_identifier is a required keyword argument')
+        cr = super(CatalogRecordManager, self).filter(
+            **{ 'research_dataset__contains': {'urn_identifier': urn_identifier } }
+        ).values('id').first()
+        if not cr:
+            raise Http404
+        return cr['id']
 
 
 class CatalogRecord(Common):
@@ -54,30 +110,71 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_MIDTERM_PAS_REJECTED, 'Midterm PAS rejected'),
     )
 
-    READY_STATUS_FINISHED = 'Finished'
-    READY_STATUS_UNFINISHED = 'Unfinished'
-    READY_STATUS_REMOVED = 'Removed'
+    # MODEL FIELD DEFINITIONS #
 
-    contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING)
-    data_catalog = models.ForeignKey(DataCatalog)
-    dataset_group_edit = models.CharField(max_length=200, blank=True, null=True, help_text='Group which is allowed to edit the dataset in this catalog record.')
+    alternate_record_set = models.ForeignKey(
+        AlternateRecordSet, on_delete=models.SET_NULL, null=True, related_name='records',
+        help_text='Records which are duplicates of this record, but in another catalog.')
+
+    contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING, related_name='records')
+
+    data_catalog = models.ForeignKey(DataCatalog, on_delete=models.DO_NOTHING, related_name='records')
+
+    dataset_group_edit = models.CharField(
+        max_length=200, blank=True, null=True,
+        help_text='Group which is allowed to edit the dataset in this catalog record.')
+
+    deprecated = models.BooleanField(
+        default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
+
     files = models.ManyToManyField(File)
+
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
-    owner_id = models.CharField(max_length=200, null=True)
-    preservation_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
-    preservation_reason_description = models.CharField(max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
-    preservation_state = models.IntegerField(choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
+
+    editor = JSONField(null=True, help_text='Editor specific fields, such as owner_id, modified, record_identifier')
+
+    preservation_description = models.CharField(
+        max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
+
+    preservation_reason_description = models.CharField(
+        max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
+
+    preservation_state = models.IntegerField(
+        choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
+
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
-    ready_status = models.CharField(max_length=200, blank=True, null=True, help_text='Dataset ready status.')
+
     research_dataset = JSONField()
 
-    next_version_id = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True, db_column='next_version_id', related_name='next_version')
-    next_version_identifier = models.CharField(max_length=200, null=True)
-    previous_version_id = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True, db_column='previous_version_id', related_name='previous_version')
-    previous_version_identifier = models.CharField(max_length=200, null=True)
-    version_created = models.DateTimeField(help_text='Date when this version was first created.', null=True)
+    next_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+        related_name='+')
 
-    _need_to_generate_urn_identifier = False
+    previous_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+        related_name='+')
+
+    version_set = models.ForeignKey(
+        VersionSet, on_delete=models.SET_NULL, null=True, related_name='records',
+        help_text='Records which are versions of each other.')
+
+    # END OF MODEL FIELD DEFINITIONS #
+
+    """
+    Can be set on an instance when updates are requested without creating new versions,
+    when a new version would otherwise normally be created. Has no effect on create operations.
+    Note: Has to be explicitly set before calling instance.save() on the record!
+    """
+    preserve_version = False
+
+    """
+    Used to signal to the serializer (or other interested parties), that the object
+    being serialized had a new version created in the current request save operation.
+    The serializer then places a 'publish in rabbitmq' key in the dict-representation,
+    so that the view knows to publish it just before returning. The publishing needs to be done
+    as late as possible (= not here in the model right after the new version object
+    was created), because if the request is interrupted for whatever reason after publishing,
+    the new version will not get created after all, but the publish message already left.
+    """
+    next_version_created_in_current_request = False
 
     objects = CatalogRecordManager()
 
@@ -88,35 +185,48 @@ class CatalogRecord(Common):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
             'preservation_state',
+            'research_dataset',
             'research_dataset.files',
             'research_dataset.total_byte_size',
             'research_dataset.urn_identifier',
+            'research_dataset.preferred_identifier',
         )
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():
-            self._need_to_generate_urn_identifier = True
-            self._calculate_total_byte_size()
+            self._pre_create_operations()
+            super(CatalogRecord, self).save(*args, **kwargs)
+            self._post_create_operations()
         else:
-            if self.field_changed('preservation_state'):
-                self.preservation_state_modified = datetime.now()
+            self._pre_update_operations()
+            super(CatalogRecord, self).save(*args, **kwargs)
 
-            if self.field_changed('research_dataset.urn_identifier'):
-                # read-only after creating
-                self.research_dataset['urn_identifier'] = self._initial_data['research_dataset']['urn_identifier']
+    def save_as_new_version(self):
+        """
+        Note: This method is executed by the new version - never by the old one.
+        """
+        self._generate_urn_identifier()
+        super(CatalogRecord, self).save()
 
-            if self._files_changed():
-                self._calculate_total_byte_size()
-            elif self.field_changed('research_dataset.total_byte_size'):
-                # somebody is trying to update total_byte_size manually. im afraid i cant let you do that
-                self.research_dataset['total_byte_size'] = self._initial_data['research_dataset']['total_byte_size']
-            else:
-                pass
+        # note: this new version was implicitly placed in the same
+        # alternate_record_set as the previous version.
 
-        super(CatalogRecord, self).save(*args, **kwargs)
+        if self.field_changed('research_dataset.preferred_identifier'):
+            # in case the previous version had an alternate_record_set,
+            # the prev version will keep staying there, since preferred_identifier
+            # was changed for the new version.
+            self._handle_preferred_identifier_changed()
+        else:
+            if self.has_alternate_records():
+                # remove previous previous version from alternate_record_set.
+                # alternate_record_set should always have the newest versions
+                # of records holding a specific preferred_identifier.
+                self.previous_version.alternate_record_set = None
 
-        if self._need_to_generate_urn_identifier:
-            self._generate_urn_identifier()
+    def delete(self, *args, **kwargs):
+        if self.has_alternate_records():
+            self._remove_from_alternate_record_set()
+        super(CatalogRecord, self).delete(*args, **kwargs)
 
     def can_be_proposed_to_pas(self):
         return self.preservation_state in (
@@ -138,8 +248,14 @@ class CatalogRecord(Common):
         except:
             return None
 
-    def dataset_is_finished(self):
-        return self.ready_status and self.ready_status == self.READY_STATUS_FINISHED
+    def catalog_versions_datasets(self):
+        return self.data_catalog.catalog_json.get('dataset_versioning', False) is True
+
+    def has_alternate_records(self):
+        return bool(self.alternate_record_set)
+
+    def has_versions(self):
+        return bool(self.version_set)
 
     def _calculate_total_byte_size(self):
         """
@@ -153,6 +269,113 @@ class CatalogRecord(Common):
         else:
             rd['total_byte_size'] = 0
 
+    def _pre_create_operations(self):
+        # There used to be more stuff here... Let it be like this
+        self._calculate_total_byte_size()
+        self._generate_urn_identifier()
+
+    def _post_create_operations(self):
+        other_record = self._check_alternate_records()
+        if other_record:
+            self._create_or_update_alternate_record_set(other_record)
+
+    def _pre_update_operations(self):
+        if self.field_changed('research_dataset.urn_identifier'):
+            # read-only after creating
+            self.research_dataset['urn_identifier'] = self._initial_data['research_dataset']['urn_identifier']
+
+        if self.field_changed('research_dataset.total_byte_size'):
+            # read-only
+            self.research_dataset['total_byte_size'] = self._initial_data['research_dataset']['total_byte_size']
+
+        if self.field_changed('preservation_state'):
+            self.preservation_state_modified = get_tz_aware_now_without_micros()
+
+        if self.catalog_versions_datasets() and not self.preserve_version:
+            if self.field_changed('research_dataset'):
+                if not self.next_version_id:
+                    self._create_new_version()
+                else:
+                    raise ValidationError({ 'detail': [
+                        'modifying dataset metadata of old versions not permitted'
+                    ]})
+            else:
+                # edits to any other field than research_dataset are OK even in
+                # old versions of a CR.
+                pass
+        else:
+            # non-versioning catalogs, such as harvesters, or if an update
+            # was forced to occur without version update.
+            if self.field_changed('research_dataset.preferred_identifier'):
+                self._handle_preferred_identifier_changed()
+
+    def _create_new_version(self):
+        """
+        Create a new version of the record who calls this method.
+
+        - Creates a new version_set if required
+        - Sets links next_version and previous_version to related objects
+        - Forces preferred_identifier change if necessary
+        """
+        _logger.info('Creating new version from CatalogRecord %s...' % self.urn_identifier)
+
+        new_version = CatalogRecord.objects.get(pk=self.id)
+        new_version.id = None
+        new_version.contract = None
+        new_version.date_created = self.date_modified
+        new_version.date_modified = self.date_modified
+        new_version.next_version = None
+        new_version.user_created = self.user_modified
+        new_version.user_modified = self.user_modified
+        new_version.preservation_description = None
+        new_version.preservation_state = 0
+        new_version.preservation_state_modified = None
+        new_version.previous_version = self
+        new_version.research_dataset = deepcopy(self.research_dataset)
+        new_version.research_dataset.pop('urn_identifier')
+        new_version.service_created = self.service_modified or self.service_created
+        new_version.service_modified = None
+
+        # some of the old editor fields cant be true in the new version, so keep
+        # only the ones that make sense. it is up to the editor, to update other fields
+        # they see as relevant. we also dont want null values in there
+        old_editor = deepcopy(new_version.editor)
+        new_version.editor = {}
+        if 'owner_id' in old_editor:
+            new_version.editor['owner_id'] = old_editor['owner_id']
+        if 'owner_id' in old_editor:
+            new_version.editor['creator_id'] = old_editor['owner_id']
+        if 'identifier' in old_editor:
+            new_version.editor['identifier'] = old_editor['identifier']
+
+        if self._files_changed():
+            # files changed requires that preferred_identifier is changed also. if a new value
+            # is not provided by the user, preferred_identifier is removed, so that
+            # urn_identifier will be copied to it once it is generated.
+            if not new_version.field_changed('research_dataset.preferred_identifier'):
+                new_version.research_dataset.pop('preferred_identifier', None)
+            new_version._calculate_total_byte_size()
+
+        new_version.save_as_new_version()
+
+        if self.has_versions():
+            # if a version_set existed, the new version inherited it from the previous version.
+            pass
+        else:
+            vs = VersionSet()
+            vs.save()
+            vs.records.add(self, new_version)
+            vs.save()
+
+        self.next_version = new_version
+        self.next_version_created_in_current_request = True
+
+        # nothing must change in the now old version of research_dataset, so copy
+        # from _initial_data so that super().save() does not change it later.
+        self.research_dataset = deepcopy(self._initial_data['research_dataset'])
+
+        _logger.info('New CatalogRecord version %s created' % new_version.urn_identifier)
+
     def _files_changed(self):
         """
         Check if research_dataset.files have changed. Since there are objects and not simple values,
@@ -161,22 +384,93 @@ class CatalogRecord(Common):
 
         Note: set removes duplicates. It is assumed that file listings do not include duplicate files.
         """
-        if self._initial_data['research_dataset'].get('files', None):
-            initial_files = set( f['identifier'] for f in self._initial_data['research_dataset']['files'] )
-            received_files = set( f['identifier'] for f in self.research_dataset['files'] )
+        if not self._field_is_loaded('research_dataset'):
+            return False
+
+        if self._field_initial_value_loaded('research_dataset'):
+            initial_files = set( f['identifier'] for f in self._initial_data['research_dataset'].get('files', []) )
+            received_files = set( f['identifier'] for f in self.research_dataset.get('files', []) )
             return initial_files != received_files
+        else:
+            self._raise_field_not_tracked_error('research_dataset.files')
+
+        return False
 
     def _generate_urn_identifier(self):
         """
         Field urn_identifier in research_dataset is always generated, and it can not be changed later.
         If preferred_identifier is missing during create, copy urn_identifier to it also.
         """
-        urn_identifier = self._generate_identifier('cr')
+        urn_identifier = generate_identifier()
         self.research_dataset['urn_identifier'] = urn_identifier
         if not self.research_dataset.get('preferred_identifier', None):
             self.research_dataset['preferred_identifier'] = urn_identifier
-        super(CatalogRecord, self).save()
 
-        # save can be called several times during an object's lifetime in a request. make sure
-        # not to generate urn again.
-        self._need_to_generate_urn_identifier = False
+    def _handle_preferred_identifier_changed(self):
+        if self.has_alternate_records():
+            self._remove_from_alternate_record_set()
+
+        other_record = self._check_alternate_records()
+
+        if other_record:
+            self._create_or_update_alternate_record_set(other_record)
+
+    def _check_alternate_records(self):
+        """
+        Check if there exists records in other catalogs with identical preferred_identifier
+        value, and return it.
+
+        It is enough that the first match is returned, because the related alternate_record_set
+        (if it exists) can be accessed through it, or, if alternate_record_set does not exist,
+        then it is the only duplicate record, and will later be used for creating the record set.
+
+        Note: Due to some limitations in the ORM, using select_related to get CatalogRecord and
+        DataCatalog is preferable to using .only() to select specific fields, since that seems
+        to cause multiple queries to the db for some reason (even as many as 4!!). The query
+        below makes only one query. We are only interested in alternate_record_set though, since
+        fetching it now saves another query later when checking if it already exists.
+        """
+        return CatalogRecord.objects.select_related('data_catalog', 'alternate_record_set') \
+            .filter(research_dataset__contains={ 'preferred_identifier': self.preferred_identifier }) \
+            .exclude(Q(data_catalog__id=self.data_catalog_id) | Q(id=self.id)) \
+            .first()
+
+    def _create_or_update_alternate_record_set(self, other_record):
+        """
+        Create a new one, or update an existing alternate_records set using the
+        passed other_record.
+        """
+        if other_record.alternate_record_set:
+            # append to existing alternate record set
+            other_record.alternate_record_set.records.add(self)
+        else:
+            # create a new set, and add the current, and the other record to it.
+            # note that there should ever only be ONE other alternate record
+            # at this stage, if the alternate_record_set didnt exist already.
+            ars = AlternateRecordSet()
+            ars.save()
+            ars.records.add(self, other_record)
+
+    def _remove_from_alternate_record_set(self):
+        """
+        Remove record from previous alternate_records set, and delete the record set if
+        necessary.
+        """
+        if self.alternate_record_set.records.count() <= 2:
+            # only two records in the set, so the set can be deleted.
+            # delete() takes care of the references in the other record,
+            # since models.SET_NULL is used.
+            self.alternate_record_set.delete()
+
+        # note: save to db occurs in delete()
+        self.alternate_record_set = None
+
+    def __repr__(self):
+        return '<%s: %d, removed: %s, data_catalog: %s, urn_identifier: %s, preferred_identifier: %s >' % (
+            'CatalogRecord',
+            self.id,
+            str(self.removed),
+            self.data_catalog.catalog_json['identifier'],
+            self.urn_identifier,
+            self.preferred_identifier
+        )

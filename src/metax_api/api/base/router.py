@@ -14,7 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from rest_framework.routers import DefaultRouter, Route
-from .views import FileViewSet, DatasetViewSet, DataCatalogViewSet, ContractViewSet
+
+from .views import (
+    ContractViewSet,
+    DataCatalogViewSet,
+    DatasetViewSet,
+    DirectoryViewSet,
+    FileViewSet
+)
+
 
 class CustomRouter(DefaultRouter):
 
@@ -38,10 +46,12 @@ class CustomRouter(DefaultRouter):
         ))
         super(CustomRouter, self).__init__(*args, **kwargs)
 
+
 router = CustomRouter(trailing_slash=False)
 router.register(r'contracts/?', ContractViewSet)
 router.register(r'datasets/?', DatasetViewSet)
 router.register(r'datacatalogs/?', DataCatalogViewSet)
+router.register(r'directories/?', DirectoryViewSet)
 router.register(r'files/?', FileViewSet)
 
 api_urlpatterns = router.urls

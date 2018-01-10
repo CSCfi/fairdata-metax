@@ -6,9 +6,4 @@ def validate_json(value, schema):
     try:
         json_validate(value, schema)
     except JsonValidationError as e:
-        if 'required property' in e.message:
-            # raise only error about the field missing altogether
-            raise ValidationError(e.message)
-        else:
-            # field is present but has errors: raise more specific error what is wrong with the field
-            raise ValidationError('%s. Json field: %s, schema: %s' % (e.message, e.path[0], e.schema))
+        raise ValidationError('%s. Json path: %s. Schema: %s' % (e.message, [p for p in e.path], e.schema))
