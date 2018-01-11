@@ -65,10 +65,15 @@ class DatasetViewSet(CommonViewSet):
     def retrieve(self, request, *args, **kwargs):
         self.queryset_search_params = {}
         CS.set_if_modified_since_filter(self.request, self.queryset_search_params)
+
         res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
+
         if 'dataset_format' in request.query_params:
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
             request.accepted_renderer = XMLRenderer()
+        elif 'file_details' in request.query_params:
+            CRS.populate_file_details(res.data)
+
         return res
 
     def list(self, request, *args, **kwargs):

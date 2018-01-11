@@ -594,7 +594,8 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             'model': 'metax_api.catalogrecord',
             'pk': len(test_data_list) + 1,
         }
-        new['fields']['files'] = [1, 2]  # for the relation in the db
+        # for the relation in the db. includes dir id 3, which includes all 20 files
+        new['fields']['files'] = [i for i in range(1, 21)]
         new['fields']['date_modified'] = '2017-09-23T10:07:22Z'
         new['fields']['date_created'] = '2017-05-23T10:07:22Z'
         new['fields']['editor'] = {
