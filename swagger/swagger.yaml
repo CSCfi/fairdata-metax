@@ -723,6 +723,15 @@ paths:
           description: Name of the format the dataset should be returned in. <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
           required: false
           type: string
+        - name: file_details
+          in: query
+          description: |
+            Populate individual research_dataset.files and directories objects with their corresponding db object details. 
+            The details can be found behind the appended key 'details' that is placed into each file and directory in the dataset.
+            Additionally total byte size and total file counts are calculated for directories, and are placed into fields 
+            byte_size and file_count in each directory's details as extra information.
+          required: false
+          type: boolean
       responses:
         '200':
           description: return dataset metadata

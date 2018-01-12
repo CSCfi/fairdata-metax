@@ -2491,7 +2491,25 @@
             },
             "files": [
                 1,
-                2
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
             ],
             "research_dataset": {
                 "access_rights": {
@@ -2655,7 +2673,7 @@
                 "directories": [
                     {
                         "description": "What is in this directory",
-                        "identifier": "directory-identifier-1",
+                        "identifier": "pid:urn:dir:2",
                         "title": "dir_name",
                         "use_category": {
                             "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
@@ -2663,7 +2681,7 @@
                     },
                     {
                         "description": "What is in this directory",
-                        "identifier": "directory-identifier-2",
+                        "identifier": "pid:urn:dir:3",
                         "title": "dir_name_2",
                         "use_category": {
                             "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
@@ -3362,7 +3380,25 @@
             },
             "files": [
                 1,
-                2
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
             ],
             "research_dataset": {
                 "access_rights": {
@@ -3526,7 +3562,7 @@
                 "directories": [
                     {
                         "description": "What is in this directory",
-                        "identifier": "directory-identifier-1",
+                        "identifier": "pid:urn:dir:2",
                         "title": "dir_name",
                         "use_category": {
                             "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
@@ -3534,7 +3570,7 @@
                     },
                     {
                         "description": "What is in this directory",
-                        "identifier": "directory-identifier-2",
+                        "identifier": "pid:urn:dir:3",
                         "title": "dir_name_2",
                         "use_category": {
                             "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"

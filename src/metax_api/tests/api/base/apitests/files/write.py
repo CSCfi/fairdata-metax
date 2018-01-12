@@ -425,7 +425,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
             {
                 "file_name": "b_path.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/image.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/b_path.png",
             },
             {
                 "file_name": "path.png",
@@ -433,23 +433,23 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
             {
                 "file_name": "pathx.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/other_image.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/pathx.png",
             },
             {
                 "file_name": "kansio.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/Important/important.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/Important/kansio.png",
             },
             {
                 "file_name": "some.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/an_image.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/some.png",
             },
             {
                 "file_name": "aa_toka.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/an_image_also.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/aa_toka.png",
             },
             {
                 "file_name": "aa_eka.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/image_as_well.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/aa_eka.png",
             },
             {
                 "file_name": "kissa.png",
@@ -457,7 +457,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
             {
                 "file_name": "ekaa.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/an_image_layeth_here.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/ekaa.png",
             },
         ]
 

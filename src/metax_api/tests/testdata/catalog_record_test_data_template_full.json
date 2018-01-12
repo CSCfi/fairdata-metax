@@ -627,7 +627,7 @@
     ],
     "directories": [
       {
-        "identifier": "directory-identifier-1",
+        "identifier": "pid:urn:dir:2",
         "title": "dir_name",
         "description": "What is in this directory",
         "use_category": {
@@ -635,7 +635,7 @@
         }
       },
       {
-        "identifier": "directory-identifier-2",
+        "identifier": "pid:urn:dir:3",
         "title": "dir_name_2",
         "description": "What is in this directory",
         "use_category": {
