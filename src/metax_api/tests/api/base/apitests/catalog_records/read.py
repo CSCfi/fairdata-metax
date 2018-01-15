@@ -253,3 +253,41 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) > 2)
+
+
+class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
+
+    """
+    Test populating individual research_dataset.file and directory objects with their
+    corresponding objects from their db tables.
+    """
+
+    def test_file_details_populated(self):
+        # without the flag nothing should happen
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(all('details' not in f for f in response.data['research_dataset']['files']), True)
+
+        response = self.client.get('/rest/datasets/1?file_details')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # check all fiels have the extra key 'details', and all details have the key 'identifier'.
+        # presumably the details were then filled in.
+        self.assertEqual(all('details' in f for f in response.data['research_dataset']['files']), True)
+        self.assertEqual(all('identifier' in f['details'] for f in response.data['research_dataset']['files']), True)
+
+    def test_directory_details_populated(self):
+        # id 11 is one of the example datasets with full details. they should have a couple
+        # of directories attached.
+        response = self.client.get('/rest/datasets/11?file_details')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # check all dirs have the extra key 'details', and all details have the key 'identifier'.
+        # presumably the details were then filled in.
+        self.assertEqual(all('details' in f for f in response.data['research_dataset']['directories']), True)
+        self.assertEqual(all('identifier' in f['details'] for f in response.data['research_dataset']['directories']),
+            True)
+
+        # additionally check that file counts and total byte sizes are as expected
+        self.assertEqual(response.data['research_dataset']['directories'][0]['details']['byte_size'], 21000)
+        self.assertEqual(response.data['research_dataset']['directories'][1]['details']['byte_size'], 21000)
+        self.assertEqual(response.data['research_dataset']['directories'][0]['details']['file_count'], 20)
+        self.assertEqual(response.data['research_dataset']['directories'][1]['details']['file_count'], 20)

@@ -4,17 +4,30 @@ from os.path import dirname, join
 
 import simplexquery as sxq
 from dicttoxml import dicttoxml
+from django.db import connection
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.models import Contract
+from metax_api.models import Contract, Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 from .reference_data_mixin import ReferenceDataMixin
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
+
+
+# avoiding circular imports
+def DirectorySerializer(*args, **kwargs):
+    from metax_api.api.base.serializers import DirectorySerializer as DS
+    DirectorySerializer = DS
+    return DirectorySerializer(*args, **kwargs)
+
+def FileSerializer(*args, **kwargs):
+    from metax_api.api.base.serializers import FileSerializer as FS
+    FileSerializer = FS
+    return FileSerializer(*args, **kwargs)
 
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
@@ -51,6 +64,62 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['user_created'] = request.query_params['user_created']
 
         return queryset_search_params
+
+    @staticmethod
+    def populate_file_details(catalog_record):
+        """
+        Populate individual research_dataset.file and directory objects with their
+        corresponding objects from their db tables.
+
+        Additionally, for directories, include two other calculated fields:
+        - byte_size, for total size of files
+        - file_count, for total number of files
+
+        Note: Some of these results may be very useful to cache, or cache the entire dataset
+        if feasible.
+        """
+        rd = catalog_record['research_dataset']
+
+        file_identifiers = [ f['identifier'] for f in rd.get('files', [])]
+
+        for file in File.objects.filter(identifier__in=file_identifiers):
+            for f in rd['files']:
+                if f['identifier'] == file.identifier:
+                    f['details'] = FileSerializer(file).data
+
+        dir_identifiers = [ dr['identifier'] for dr in rd.get('directories', []) ]
+
+        for directory in Directory.objects.filter(identifier__in=dir_identifiers):
+            for dr in rd['directories']:
+                if dr['identifier'] == directory.identifier:
+                    dr['details'] = DirectorySerializer(directory).data
+
+        if not dir_identifiers:
+            return
+
+        sql = '''
+            select sum(f.byte_size) as byte_size, count(*) as file_count
+            from metax_api_file f
+            inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
+            where cr_f.catalogrecord_id = %s
+            and f.project_identifier = %s
+            and f.file_path like (%s || '%%')
+            and f.active = true and f.removed = false
+        '''
+
+        with connection.cursor() as cr:
+            for dr in rd['directories']:
+                cr.execute(
+                    sql,
+                    [
+                        catalog_record['id'],
+                        dr['details']['project_identifier'],
+                        dr['details']['directory_path']
+                    ]
+                )
+                for row in cr.fetchall():
+                    dr['details']['byte_size'] = row[0]
+                    dr['details']['file_count'] = row[1]
 
     @staticmethod
     def propose_to_pas(request, catalog_record):

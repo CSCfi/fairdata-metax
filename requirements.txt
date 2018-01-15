@@ -4,7 +4,7 @@ python-dateutil==2.6.1
 Django==2.0  # BSD-license
 elasticsearch<6.0.0
 hiredis==0.2.0 # Used by redis (redis-py) for parser
-djangorestframework==3.7.3  # BSD-license
+djangorestframework==3.7.7  # BSD-license
 django-rainbowtests==0.6.0 # colored test output
 flake8==3.5.0 # MIT-license
 gevent==1.2.2 # gunicorn dep
