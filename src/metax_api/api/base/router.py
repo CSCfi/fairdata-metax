@@ -20,7 +20,8 @@ from .views import (
     DataCatalogViewSet,
     DatasetViewSet,
     DirectoryViewSet,
-    FileViewSet
+    FileViewSet,
+    SchemaViewSet
 )
 
 
@@ -53,5 +54,6 @@ router.register(r'datasets/?', DatasetViewSet)
 router.register(r'datacatalogs/?', DataCatalogViewSet)
 router.register(r'directories/?', DirectoryViewSet)
 router.register(r'files/?', FileViewSet)
+router.register(r'schemas/?', SchemaViewSet, 'schema')
 
 api_urlpatterns = router.urls

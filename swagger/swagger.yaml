@@ -66,7 +66,7 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - File Storage API (not implemented)
-        
+
 # File API
   /files:
     get:
@@ -726,9 +726,9 @@ paths:
         - name: file_details
           in: query
           description: |
-            Populate individual research_dataset.files and directories objects with their corresponding db object details. 
+            Populate individual research_dataset.files and directories objects with their corresponding db object details.
             The details can be found behind the appended key 'details' that is placed into each file and directory in the dataset.
-            Additionally total byte size and total file counts are calculated for directories, and are placed into fields 
+            Additionally total byte size and total file counts are calculated for directories, and are placed into fields
             byte_size and file_count in each directory's details as extra information.
           required: false
           type: boolean
@@ -1039,6 +1039,35 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Contract API
+
+
+# Schema API
+  /schemas:
+    get:
+      summary: "list schemas"
+      responses:
+        '200':
+          description: successful operation, return list of schema names
+      tags:
+        - Schema API
+  /schemas/{name}:
+    get:
+      summary: get schema content
+      parameters:
+        - name: name
+          in: path
+          description: name of the schema to be retrieved
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return JSON schema
+        '404':
+          description: not found
+      tags:
+        - Schema API
+
+              
 definitions:
   CatalogRecord:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
