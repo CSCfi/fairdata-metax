@@ -18,3 +18,6 @@ class SchemaViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         return SchemaService.get_schema_content(kwargs.get('pk'))
+
+    def get_queryset(self):
+        return self.list(None)

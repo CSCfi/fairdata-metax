@@ -9,6 +9,12 @@ class SchemaApiReadTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['count'] > 0)
 
+    def test_read_schemas_list_html(self):
+        headers = {'HTTP_ACCEPT': 'text/html'}
+        response = self.client.get('/rest/schemas', **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response._headers['content-type'][1].find('text/html') >= 0)
+
     def test_read_schema_retrieve_existing(self):
         list_response = self.client.get('/rest/schemas')
         self.assertEqual(list_response.status_code, status.HTTP_200_OK)
