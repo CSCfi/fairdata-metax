@@ -707,11 +707,12 @@ class CatalogRecord(Common):
 
         for project_identifier, dir_paths in highest_level_dirs_by_project.items():
             for dir_path in dir_paths:
-                files = files | File.objects \
-                    .filter(project_identifier=project_identifier, file_path__startswith='%s/' % dir_path) \
-                    .exclude(id__in=ignore_files) \
-                    .values_list('id', flat=True)
-        return files
+                files = files | File.objects.filter(
+                    project_identifier=project_identifier,
+                    file_path__startswith='%s/' % dir_path
+                )
+
+        return files.exclude(id__in=ignore_files).values_list('id', flat=True)
 
     def _get_top_level_parent_dirs_by_project(self, dir_identifiers):
         """
