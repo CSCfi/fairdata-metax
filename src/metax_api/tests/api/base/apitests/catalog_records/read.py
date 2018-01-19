@@ -196,7 +196,7 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
     def test_read_dataset_xml_format_metax(self):
         response = self.client.get('/rest/datasets/1?dataset_format=metax')
-        self._check_dataset_xml_format_response(response, '<researchdataset>')
+        self._check_dataset_xml_format_response(response, '<researchdataset')
 
     def test_read_dataset_xml_format_datacite(self):
         response = self.client.get('/rest/datasets/1?dataset_format=datacite')
