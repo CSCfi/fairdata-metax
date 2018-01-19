@@ -450,7 +450,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             # add files
 
             files = []
-            total_byte_size = 0
+            total_ida_byte_size = 0
             third_of_files = len(file_list) / 3
 
             for j in range(files_start_idx, files_start_idx + files_per_dataset):
@@ -486,10 +486,10 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
                     pass
 
                 new['fields']['files'].append(file_list[j]['pk'])
-                total_byte_size += file_list[j]['fields']['byte_size']
+                total_ida_byte_size += file_list[j]['fields']['byte_size']
 
             new['fields']['research_dataset']['files'] = files
-            new['fields']['research_dataset']['total_byte_size'] = total_byte_size
+            new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
             files_start_idx += files_per_dataset
             if validate_json or i == 1:
                 json_validate(new['fields']['research_dataset'], json_schema)
@@ -587,7 +587,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
     with open('catalog_record_test_data_template_full.json') as json_file:
         row_template_full = json_load(json_file)
 
-    total_byte_size = 0
+    total_ida_byte_size = 0
     for j in [0, 1]:
         new = {
             'fields': deepcopy(row_template_full),
@@ -608,9 +608,9 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
 
         file_identifier_0 = file_list[0]['fields']['identifier']
         file_identifier_1 = file_list[1]['fields']['identifier']
-        total_byte_size = sum(f['fields']['byte_size'] for f in file_list[:2])
+        total_ida_byte_size = sum(f['fields']['byte_size'] for f in file_list)
 
-        new['fields']['research_dataset']['total_byte_size'] = total_byte_size
+        new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
         new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
         new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
         json_validate(new['fields']['research_dataset'], json_schema)

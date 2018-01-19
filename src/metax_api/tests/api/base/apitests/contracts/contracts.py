@@ -225,7 +225,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                 "language": [{
                     "identifier": "http://lexvo.org/id/iso639-3/aar"
                 }],
-                "total_byte_size": 1024,
+                "total_ida_byte_size": 1024,
                 "files": catalog_record_from_test_data['research_dataset']['files']
             }
         }

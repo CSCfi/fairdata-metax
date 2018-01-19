@@ -1,10 +1,11 @@
-from datetime import timedelta
+from copy import deepcopy
+from datetime import datetime, timedelta
 
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import AlternateRecordSet, CatalogRecord, DataCatalog, File
+from metax_api.models import AlternateRecordSet, CatalogRecord, DataCatalog, Directory, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import RedisSentinelCache, get_tz_aware_now_without_micros
 
@@ -34,6 +35,16 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
 
         self._use_http_authorization()
 
+    def update_record(self, record):
+        return self.client.put('/rest/datasets/%d' % record['id'], record, format="json")
+
+    def get_next_version(self, record):
+        if 'next_version' not in record:
+            raise Exception('record has no next version')
+        response = self.client.get('/rest/datasets/%d' % record['next_version']['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        return response.data
+
     #
     #
     #
@@ -42,11 +53,11 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
     #
     #
 
-    def _get_new_test_data(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+    def _get_new_test_data(self, cr_index=0, dc_index=0, c_index=0):
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=cr_index)
         catalog_record_from_test_data.update({
-            "contract": self._get_object_from_test_data('contract', requested_index=0),
-            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=0),
+            "contract": self._get_object_from_test_data('contract', requested_index=c_index),
+            "data_catalog": self._get_object_from_test_data('datacatalog', requested_index=dc_index),
         })
         catalog_record_from_test_data['research_dataset'].update({
             "urn_identifier": "urn:nbn:fi:att:ec55c1dd-668d-43ae-b51b-f6c56a5bd4d6",
@@ -67,7 +78,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
                     "name": {"fi": "Mysterious Organization"}
                 }
             }],
-            "total_byte_size": 1024,
+            "total_ida_byte_size": 1024,
             "files": catalog_record_from_test_data['research_dataset']['files']
         })
         return catalog_record_from_test_data
@@ -439,7 +450,9 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
 
         # set data to update another record to have the same preferred_identifier and catalog
         # as another already existing record. in ATT catalog, that should be fine.
-        data = {'research_dataset': self.test_new_data['research_dataset']}
+        # note: since we are updating /datasets/2, make sure to select corresponding cr from
+        # test data, to not have its files changed in the update (which would force pref id change)
+        data = {'research_dataset': self._get_new_test_data(cr_index=1)['research_dataset']}
         data['research_dataset']['preferred_identifier'] = unique_identifier
         data['data_catalog'] = target_catalog
 
@@ -1469,6 +1482,14 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         cr = CatalogRecord.objects.get(pk=self.pk)
         self.assertEqual(cr.next_version, None)
 
+    def test_preserve_version_parameter_does_not_allow_file_changes(self):
+        self._set_cr_to_catalog(pk=self.pk, dc=1)
+        data = self.client.get('/rest/datasets/%d' % self.pk, format="json").data
+        data['research_dataset']['files'][0]['identifier'] = 'pid:urn:11'
+        response = self.client.put('/rest/datasets/%d?preserve_version' % self.pk, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('not supported' in response.data['detail'][0], True, response.data)
+
     def test_update_rd_title_creates_new_version(self):
         """
         Updating the title should create a new version, but should not change the
@@ -1558,7 +1579,7 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         cr = CatalogRecord.objects.get(pk=self.pk)
         preferred_identifier_before = cr.preferred_identifier
 
-        response, new_preferred_identifier = self._get_and_update_preferred_identifier(self.pk)
+        response, new_preferred_identifier = self._get_and_update_files(self.pk, update_preferred_identifier=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('next_version' in response.data, True, response.data)
 
@@ -1667,3 +1688,425 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
     def _get_old_and_new_version(self, pk):
         old_version = CatalogRecord.objects.get(pk=pk)
         return old_version, old_version.next_version
+
+
+class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
+
+    """
+    Test assigning files and directories to datasets and related functionality,
+    except: Tests related to file updates/versioning are handled in the
+    CatalogRecordApiWriteDatasetVersioning -suite.
+    """
+
+    def _get_file_from_test_data(self):
+        from_test_data = self._get_object_from_test_data('file', requested_index=0)
+        from_test_data.update({
+            "checksum": {
+                "value": "checksumvalue",
+                "algorithm": "sha2",
+                "checked": "2017-05-23T10:07:22.559656Z",
+            },
+            "file_name": "must_replace",
+            "file_path": "must_replace",
+            "identifier": "must_replace",
+            "project_identifier": "must_replace",
+            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
+        })
+        return from_test_data
+
+    def _form_test_file_hierarchy(self):
+        """
+        A file hierarchy that will be created prior to executing the tests.
+        Files and dirs from these files will then be added to a dataset.
+        """
+        file_data = [
+            {
+                "file_name": "file_1.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_1/file_1.txt",
+            },
+            {
+                "file_name": "file_2.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_1/file_2.txt",
+            },
+            {
+                "file_name": "file_3.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_2/file_3.txt",
+            },
+            {
+                "file_name": "file_4.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_2/file_4.txt",
+            },
+            {
+                "file_name": "file_5.txt",
+                "file_path": "/TestExperiment/Directory_1/file_5.txt",
+            },
+            {
+                "file_name": "file_6.txt",
+                "file_path": "/TestExperiment/Directory_1/file_6.txt",
+            },
+            {
+                "file_name": "file_7.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_1/file_7.txt",
+            },
+            {
+                "file_name": "file_8.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_1/file_8.txt",
+            },
+            {
+                "file_name": "file_9.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/file_9.txt",
+            },
+            {
+                "file_name": "file_10.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/file_10.txt",
+            },
+            {
+                "file_name": "file_9.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt",
+            },
+            {
+                "file_name": "file_10.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_12.txt",
+            },
+            {
+                "file_name": "file_11.txt",
+                "file_path": "/TestExperiment/Directory_2/file_13.txt",
+            },
+            {
+                "file_name": "file_12.txt",
+                "file_path": "/TestExperiment/Directory_2/file_14.txt",
+            },
+        ]
+
+        file_template = self._get_file_from_test_data()
+        self._single_file_byte_size = file_template['byte_size']
+        files = []
+
+        for i, f in enumerate(file_data):
+            file = deepcopy(file_template)
+            file.update(f, identifier='test:file:%d' % i, project_identifier='testproject')
+            files.append(file)
+        return files
+
+    def _add_directory(self, ds, path):
+        identifier = Directory.objects.filter(directory_path__startswith=path).first().identifier
+
+        if 'directories' not in ds['research_dataset']:
+            ds['research_dataset']['directories'] = []
+
+        ds['research_dataset']['directories'].append({
+            "identifier": identifier,
+            "title": "Directory Title",
+            "description": "This is directory at %s" % path,
+            "use_category": {
+                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+            }
+        })
+
+    def _add_file(self, ds, path):
+        identifier = File.objects.filter(file_path__startswith=path).first().identifier
+
+        if 'files' not in ds['research_dataset']:
+            ds['research_dataset']['files'] = []
+
+        ds['research_dataset']['files'].append({
+            "identifier": identifier,
+            "title": "File Title",
+            "description": "This is file at %s" % path,
+            "use_category": {
+                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+            }
+        })
+
+    def _add_nonexisting_directory(self, ds):
+        ds['research_dataset']['directories'] = [{
+            "identifier": "doesnotexist",
+            "title": "Directory Title",
+            "description": "This is directory does not exist",
+            "use_category": {
+                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+            }
+        }]
+
+    def _add_nonexisting_file(self, ds):
+        ds['research_dataset']['files'] = [{
+            "identifier": "doesnotexist",
+            "title": "File Title",
+            "description": "This is file does not exist",
+            "use_category": {
+                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+            }
+        }]
+
+    def _remove_directory(self, ds, path):
+        if 'directories' not in ds['research_dataset']:
+            raise Exception('ds has no dirs')
+
+        identifier = Directory.objects.get(directory_path=path).identifier
+
+        for i, dr in enumerate(ds['research_dataset']['directories']):
+            if dr['identifier'] == identifier:
+                ds['research_dataset']['directories'].pop(i)
+                return
+        raise Exception('path %s not found in directories' % path)
+
+    def _remove_file(self, ds, path):
+        if 'files' not in ds['research_dataset']:
+            raise Exception('ds has no files')
+
+        identifier = File.objects.get(file_path=path).identifier
+
+        for i, f in enumerate(ds['research_dataset']['files']):
+            if f['identifier'] == identifier:
+                ds['research_dataset']['files'].pop(i)
+                return
+        raise Exception('path %s not found in files' % path)
+
+    def _freeze_new_files(self):
+        file_data = [
+            {
+                "file_name": "file_15.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_3/file_15.txt",
+            },
+            {
+                "file_name": "file_16.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_3/file_16.txt",
+            },
+        ]
+
+        file_template = self._get_file_from_test_data()
+        self._single_file_byte_size = file_template['byte_size']
+        files = []
+
+        for i, f in enumerate(file_data):
+            file = deepcopy(file_template)
+            file.update(f, identifier='frozen:later:file:%d' % i, project_identifier='testproject')
+            files.append(file)
+        response = self.client.post('/rest/files', files, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def setUp(self):
+        """
+        For each test:
+        - remove files and dirs from the metadata record that is being created
+        - create 12 new files in a new project
+        """
+        super(CatalogRecordApiWriteAssignFilesToDataset, self).setUp()
+        self.test_new_data['research_dataset'].pop('files', None)
+        self.test_new_data['research_dataset'].pop('directories', None)
+        file_hierarchy = self._form_test_file_hierarchy()
+        response = self.client.post('/rest/files', file_hierarchy, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def assert_preferred_identifier_changed(self, response, true_or_false):
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_version' in response.data, True)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'] !=
+            response.data['next_version']['preferred_identifier'], true_or_false)
+
+    def assert_file_count(self, cr, expected_file_count):
+        self.assertEqual(CatalogRecord.objects.get(pk=cr['id']).files.count(), expected_file_count)
+
+    def assert_total_ida_byte_size(self, cr, expected_size):
+        self.assertEqual(cr['research_dataset']['total_ida_byte_size'], expected_size)
+
+    def test_files_are_saved_during_create(self):
+        """
+        A very simple "add two individual files" test.
+        """
+        self._add_file(self.test_new_data, '/TestExperiment/Directory_1/file_5.txt')
+        self._add_file(self.test_new_data, '/TestExperiment/Directory_1/file_6.txt')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 2)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+
+    def test_directories_are_saved_during_create(self):
+        """
+        A very simple "add two individual directories" test.
+        """
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_1/Group_1')
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_1/Group_2')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 4)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+
+    def test_files_and_directories_are_saved_during_create(self):
+        """
+        A very simple "add two individual directories and two files" test.
+        """
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_1/Group_1')
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_1/Group_2')
+        self._add_file(self.test_new_data,      '/TestExperiment/Directory_1/file_5.txt')
+        self._add_file(self.test_new_data,      '/TestExperiment/Directory_1/file_6.txt')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 6)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 6)
+
+    def test_files_and_directories_are_saved_during_create_2(self):
+        """
+        Save a directory, and also two files from the same directory.
+        """
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_1/Group_1')
+        self._add_file(self.test_new_data,      '/TestExperiment/Directory_1/Group_1/file_1.txt')
+        self._add_file(self.test_new_data,      '/TestExperiment/Directory_1/Group_1/file_2.txt')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 2)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+
+    def test_multiple_file_and_directory_changes(self):
+        """
+        Multiple add file/add directory updates, followed by multiple remove file/remove directory updates.
+        Some of the updates add new files since the path was not already included by other directories, and
+        some dont.
+
+        Ensure preferred_identifier changes and file counts and byte sizes change as expected.
+        """
+
+        # create the original record with just one file
+        self._add_file(self.test_new_data, '/TestExperiment/Directory_2/file_13.txt')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(CatalogRecord.objects.get(pk=response.data['id']).files.count(), 1)
+
+        # add one directory, which holds a couple of files and one sub directory which also holds two files.
+        # new files are added
+        original_version = response.data
+        self._add_directory(original_version, '/TestExperiment/Directory_2/Group_2')
+        response = self.update_record(original_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 5)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+
+        # separately add (describe) a child directory of the previous dir.
+        # no new files are added
+        self._add_directory(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, False)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 5)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+
+        # add a single new file not included by the previously added directories.
+        # new files are added
+        self._add_file(new_version, '/TestExperiment/Directory_2/file_14.txt')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 6)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 6)
+
+        # remove the previously added file, not included by the previously added directories.
+        # files are removed
+        self._remove_file(new_version, '/TestExperiment/Directory_2/file_14.txt')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 5)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+
+        # add a single new file already included by the previously added directories.
+        # new files are added
+        self._add_file(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, False)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 5)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+
+        # remove the sub dir added previously. files are also still contained by the other upper dir.
+        # files are removed
+        self._remove_directory(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, False)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 5)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+
+        # remove the last directory, which should remove the 4 files included by this dir and the sub dir.
+        # files are removed.
+        # only the originally added single file should be left.
+        self._remove_directory(new_version, '/TestExperiment/Directory_2/Group_2')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 1)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 1)
+
+    def test_add_files_which_were_frozen_later(self):
+        """
+        It is possible to append files to a directory by freezing new files later.
+        Such new files or directories can specifically be added to a dataset by
+        explicitly selecting/describing them, even if their path is already included
+        by another directory.
+
+        Ensure preferred_identifier changes and file counts and byte sizes change as expected.
+        """
+
+        # create the original record with just one directory
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(CatalogRecord.objects.get(pk=response.data['id']).files.count(), 8)
+        original_version = response.data
+
+        self._freeze_new_files()
+
+        # add one new file
+        self._add_file(original_version, '/TestExperiment/Directory_2/Group_3/file_15.txt')
+        response = self.update_record(original_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 9)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 9)
+
+        # add one new directory, which holds one new file, since the other file was already added
+        self._add_directory(new_version, '/TestExperiment/Directory_2/Group_3')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 10)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 10)
+
+    def test_metadata_changes_do_not_add_later_frozen_files(self):
+        """
+        Ensure simple metadata updates do not automatically also include new frozen files.
+        New frozen files should only be searched when those new files or directories are
+        specifically added in the update.
+        """
+
+        # create the original record with just one directory
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(CatalogRecord.objects.get(pk=response.data['id']).files.count(), 8)
+        original_version = response.data
+
+        self._freeze_new_files()
+
+        original_version['research_dataset']['version_notes'] = [str(datetime.now())]
+        response = self.update_record(original_version)
+        self.assert_preferred_identifier_changed(response, False)
+        new_version = self.get_next_version(response.data)
+        self.assert_file_count(new_version, 8)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 8)
+
+    def test_file_not_found(self):
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        original_version = response.data
+        self._add_nonexisting_file(original_version)
+        response = self.update_record(original_version)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_directory_not_found(self):
+        self._add_directory(self.test_new_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        original_version = response.data
+        self._add_nonexisting_directory(original_version)
+        response = self.update_record(original_version)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
