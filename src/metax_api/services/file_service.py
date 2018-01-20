@@ -266,7 +266,8 @@ class FileService(CommonService):
         rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
 
     @classmethod
-    def get_directory_contents(cls, dir_identifier, recursive=False, urn_identifier=None):
+    def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
+            recursive=False, urn_identifier=None):
         """
         Get files and directories contained by a directory. Parameter 'dir_identifier'
         may be a pk, or an uuid value. Search using approriate fields.
@@ -278,10 +279,17 @@ class FileService(CommonService):
         Parameter 'recursive' may be used to get a flat list of all files below the
         directory. Sorted by file_path for convenience.
         """
-        if dir_identifier.isdigit():
-            directory_id = dir_identifier
+        if identifier and identifier.isdigit():
+            directory_id = identifier
         else:
-            directory = Directory.objects.filter(identifier=dir_identifier).values('id').first()
+            if identifier:
+                params = { 'identifier': identifier }
+            elif path and project_identifier:
+                params = { 'directory_path': path, 'project_identifier': project_identifier }
+            else: # pragma: no cover
+                raise ValidationError({'detail': 'no parameters to query by'})
+
+            directory = Directory.objects.filter(**params).values('id').first()
             if not directory:
                 raise Http404
             directory_id = directory['id']

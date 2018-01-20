@@ -429,6 +429,41 @@ paths:
           description: directory not found
       tags:
         - File API
+  /directories/files:
+    get:
+      summary: get list of files and directories contained by a directory, queried by dir path and project
+      description: |
+        functions the same as /directories/pid, except queried by dir path and project identifier, instead of directly by directory identifier.
+      parameters:
+        - name: path
+          in: path
+          description: path of the directory to browse
+          required: true
+          type: string
+        - name: project
+          in: query
+          description: project_identifier of the project to browse from
+          required: true
+          type: string
+        - name: recursive
+          in: query
+          description: return a flat list of file objects contained by the target directory and its sub-directories
+          required: false
+          type: boolean
+        - name: urn_identifier
+          in: query
+          description: urn_identifier of a dataset. browse only files that have been selected for that record.
+          required: false
+          type: string
+      responses:
+        '200':
+          description: |
+            returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
+            note&#58; if parameter 'recursive' is used, return value is a flat list of file objects instead.
+        '404':
+          description: directory not found
+      tags:
+        - File API
   /directories/root:
     get:
       summary: return root directory for a project, and its files and directories
