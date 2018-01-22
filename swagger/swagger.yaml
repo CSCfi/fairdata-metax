@@ -619,6 +619,11 @@ paths:
     get:
       summary: "list datasets"
       parameters:
+        - name: latest
+          in: query
+          description: only return latest versions
+          required: false
+          type: boolean
         - name: owner_id
           in: query
           description: id of the person who owns the record in metax
@@ -719,6 +724,11 @@ paths:
     get:
       summary: "list all dataset urn identifiers"
       parameters:
+        - name: latest
+          in: query
+          description: only return latest versions
+          required: false
+          type: boolean
         - name: owner_id
           in: query
           description: id of the person who owns the record in metax

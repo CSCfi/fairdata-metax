@@ -188,6 +188,22 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['user_created'], '123')
 
+    def test_read_catalog_record_latest_versions_only(self):
+        all_newest_versions_count = CatalogRecord.objects.filter(next_version_id=None).count()
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.research_dataset['title']['en'] = 'Updated'
+        cr.save()
+        response = self.client.get('/rest/datasets?latest')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], all_newest_versions_count)
+        for cr in response.data['results']:
+            self.assertEqual('next_version' not in cr, True, 'only latest versions should be listed')
+
+        # ?latest should have effect in all /datasets list apis
+        response = self.client.get('/rest/datasets/urn_identifiers?latest')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), all_newest_versions_count)
+
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
     """
