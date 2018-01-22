@@ -1329,9 +1329,17 @@
                         "$ref":"#/definitions/Activity"
                     }
                 },
-                "total_byte_size":{
+                "total_ida_byte_size":{
                     "title":"Total byte size",
                     "description":"Sum of all distribution byte size. Read only field.",
+                    "@id":"http://iow.csc.fi/ns/mrd#totalbytesize",
+                    "@type":"http://www.w3.org/2001/XMLSchema#decimal",
+                    "maxItems":1,
+                    "type":"number"
+                },
+                "total_remote_resources_byte_size":{
+                    "title":"Total remote resources byte size",
+                    "description":"Sum of all remote resource byte sizes, if known. Read only field.",
                     "@id":"http://iow.csc.fi/ns/mrd#totalbytesize",
                     "@type":"http://www.w3.org/2001/XMLSchema#decimal",
                     "maxItems":1,

@@ -1,6 +1,7 @@
 import logging
 from collections import OrderedDict
 
+from django.db import transaction
 from rest_framework.fields import SkipField
 from rest_framework.relations import PKOnlyObject
 from rest_framework.serializers import ModelSerializer
@@ -35,6 +36,22 @@ class CommonSerializer(ModelSerializer):
             'service_modified':    { 'required': False },
             'service_created':     { 'required': False },
         }
+
+    @transaction.atomic
+    def save(self, *args, **kwargs):
+        """
+        Inherited to use @transaction.atomic, which creates a "save point" in the larger scope
+        transaction that lasts during the entire http request, to allow rolling back individual
+        serializer.save() operations.
+
+        This is necessary for bulk operations to NOT save changes when an object executes its
+        save() multiple times, and there is an irrecoverable failure between those saves.
+
+        Most realistic example: CatalogRecord, which executes multiple saves to deal with
+        with urn_identifier generation, file changes handling, alternate_record_set and
+        versions handling.
+        """
+        super(CommonSerializer, self).save(*args, **kwargs)
 
     def to_representation(self, instance):
         """

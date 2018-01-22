@@ -1585,7 +1585,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 300,
+                "total_ida_byte_size": 300,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -1688,7 +1688,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 700,
+                "total_ida_byte_size": 700,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -1791,7 +1791,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 1100,
+                "total_ida_byte_size": 1100,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -1898,7 +1898,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 1500,
+                "total_ida_byte_size": 1500,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -2005,7 +2005,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 1900,
+                "total_ida_byte_size": 1900,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -2108,7 +2108,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 2300,
+                "total_ida_byte_size": 2300,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -2210,7 +2210,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 2700,
+                "total_ida_byte_size": 2700,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -2296,7 +2296,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 3100,
+                "total_ida_byte_size": 3100,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -2382,7 +2382,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 3500,
+                "total_ida_byte_size": 3500,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -2469,7 +2469,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 3900,
+                "total_ida_byte_size": 3900,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -3354,7 +3354,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 300,
+                "total_ida_byte_size": 21000,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "value": [
                     0.111
@@ -4243,7 +4243,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 300,
+                "total_ida_byte_size": 21000,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "value": [
                     0.111
@@ -4334,7 +4334,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 3900,
+                "total_ida_byte_size": 3900,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -4421,7 +4421,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_byte_size": 3900,
+                "total_ida_byte_size": 3900,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
                 "version_notes": [
                     "This version contains changes to x and y."

@@ -18,6 +18,7 @@ exclude_lines =
     if self._debug
     if self._DEBUG
     if settings.DEBUG
+    if DEBUG
     raise AssertionError
     raise NotImplementedError
     if 0:
