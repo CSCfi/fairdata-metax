@@ -657,17 +657,17 @@ class CatalogRecord(Common):
         file_ids = []
 
         if 'files' in self.research_dataset:
-            file_ids.extend(self._get_file_objects_from_file_list(self.research_dataset['files']))
+            file_ids.extend(self._get_file_ids_from_file_list(self.research_dataset['files']))
 
         if 'directories' in self.research_dataset:
-            file_ids.extend(self._get_file_objects_from_dir_list(self.research_dataset['directories'],
+            file_ids.extend(self._get_file_ids_from_dir_list(self.research_dataset['directories'],
                 ignore_files=file_ids))
 
         # note: possibly might wanto to use set() to remove duplicates instead of using ignore_files=list
-        # to ignore already included files in _get_file_objects_from_dir_list()
+        # to ignore already included files in _get_file_ids_from_dir_list()
         return file_ids
 
-    def _get_file_objects_from_file_list(self, file_list):
+    def _get_file_ids_from_file_list(self, file_list):
         """
         Simply retrieve db ids of files in research_dataset.files
         """
@@ -688,7 +688,7 @@ class CatalogRecord(Common):
 
         return file_ids
 
-    def _get_file_objects_from_dir_list(self, dirs_list, ignore_files=[]):
+    def _get_file_ids_from_dir_list(self, dirs_list, ignore_files=[]):
         """
         The field research_dataset.directories can contain directories from multiple
         projects. Find the top-most dirs in each project used, and put their files -
