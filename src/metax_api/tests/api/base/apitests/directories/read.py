@@ -2,7 +2,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, Directory
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -138,6 +138,29 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
         response = self.client.get('/rest/directories/root')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('required' in response.data['detail'], True, response.data)
+
+    def test_read_directory_get_files_by_path(self):
+        dr = Directory.objects.get(pk=2)
+        response = self.client.get('/rest/directories/files?path=%s&project=%s' %
+            (dr.directory_path, dr.project_identifier))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(response.data['directories'][0]['id'], 3)
+        self.assertEqual(response.data['directories'][0]['parent_directory']['id'], 2)
+        self.assertEqual(len(response.data['files']), 0)
+
+    def test_read_directory_get_files_by_path_not_found(self):
+        response = self.client.get('/rest/directories/files?path=%s&project=%s' %
+            ('doesnotexist', 'doesnotexist'))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_read_directory_get_files_by_path_check_parameters(self):
+        response = self.client.get('/rest/directories/files')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.get('/rest/directories/files?path=something')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.get('/rest/directories/files?project=something')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):

@@ -1,5 +1,4 @@
-# from django.http import Http404
-# from rest_framework import status
+from collections import defaultdict
 import logging
 
 from rest_framework.decorators import detail_route, list_route
@@ -58,7 +57,38 @@ class DirectoryViewSet(CommonViewSet):
         urn_identifier = request.query_params.get('urn_identifier', False)
 
         files_and_dirs = FileService.get_directory_contents(
-            pk,
+            identifier=pk,
+            recursive=recursive,
+            urn_identifier=urn_identifier
+        )
+
+        return Response(files_and_dirs)
+
+    @list_route(methods=['get'], url_path="files")
+    def get_files_by_path(self, request):
+        """
+        Return a list of child files and directories of a directory, queried
+        by path and project identifier, instead of directly by identifier
+        """
+        errors = defaultdict(list)
+
+        if 'project' not in request.query_params:
+            errors['detail'].append('project is a required query parameter')
+        if 'path' not in request.query_params:
+            errors['detail'].append('path is a required query parameter')
+
+        if errors:
+            raise Http400(errors)
+
+        # note: only checking key presence, dont care about its value
+        recursive = True if 'recursive' in request.query_params else False
+
+        # contrary to above, the value is also significant
+        urn_identifier = request.query_params.get('urn_identifier', False)
+
+        files_and_dirs = FileService.get_directory_contents(
+            path=request.query_params['path'],
+            project_identifier=request.query_params['project'],
             recursive=recursive,
             urn_identifier=urn_identifier
         )
