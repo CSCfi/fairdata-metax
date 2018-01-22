@@ -53,6 +53,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     raise Http400({ 'state': ['Value \'%s\' is not an integer' % val] })
             queryset_search_params['preservation_state__in'] = state_vals
 
+        if request.query_params.get('latest', False):
+            queryset_search_params['next_version_id'] = None
+
         if request.query_params.get('curator', False):
             queryset_search_params['research_dataset__contains'] = \
                 {'curator': [{ 'identifier': request.query_params['curator']}]}
