@@ -31,12 +31,7 @@ class CommonService():
         Helper method to also check for values, instead of only presence of a boolean parameter,
         such as ?recursive=true/false instead of only ?recursive, which can only evaluate to true.
         """
-        if param_name not in request.query_params:
-            return False
-        elif len(request.query_params.get(param_name, '')) == 0:
-            return True
-        else:
-            return request.query_params[param_name].lower() == 'true'
+        return request.query_params.get(param_name, None) in ('', 'true')
 
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):

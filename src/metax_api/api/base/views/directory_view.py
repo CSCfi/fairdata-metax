@@ -61,7 +61,7 @@ class DirectoryViewSet(CommonViewSet):
             if max_depth != '*':
                 raise Http400({ 'detail': ['value of depth must be an integer higher than 0, or *'] })
         else:
-            if max_depth == 0:
+            if max_depth <= 0:
                 raise Http400({ 'detail': ['value of depth must be higher than 0'] })
 
         urn_identifier = request.query_params.get('urn_identifier', None)
