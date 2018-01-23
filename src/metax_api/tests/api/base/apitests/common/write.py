@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -178,3 +180,40 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets', [data_1, data_2], format="json", **headers)
         self.assertEqual('modified' in response.data['failed'][0]['errors']['detail'][0], True,
                          'error should indicate resource has been modified')
+
+
+class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
+
+    def test_atomic_create(self):
+        response = self.client.get('/rest/datasets/1', format="json")
+        cr = response.data
+        cr.pop('id')
+        cr['research_dataset'].pop('urn_identifier')
+        cr['research_dataset'].pop('preferred_identifier')
+        cr2 = deepcopy(cr)
+        cr3 = deepcopy(cr)
+        cr3.pop('data_catalog')
+
+        record_count_before = CatalogRecord.objects.all().count()
+
+        response = self.client.post('/rest/datasets?atomic=true', [cr, cr2, cr3], format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('failed' in response.data, True)
+        self.assertEqual('detail' in response.data, True)
+        self.assertEqual('atomic' in response.data['detail'][0], True)
+        self.assertEqual(record_count_before, CatalogRecord.objects.all().count())
+
+    def test_atomic_update(self):
+        cr = self.client.get('/rest/datasets/1', format="json").data
+        cr2 = self.client.get('/rest/datasets/2', format="json").data
+        cr3 = self.client.get('/rest/datasets/3', format="json").data
+        cr3.pop('data_catalog')
+
+        record_count_before = CatalogRecord.objects.all().count()
+
+        response = self.client.put('/rest/datasets?atomic=true', [cr, cr2, cr3], format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('failed' in response.data, True)
+        self.assertEqual('detail' in response.data, True)
+        self.assertEqual('atomic' in response.data['detail'][0], True)
+        self.assertEqual(record_count_before, CatalogRecord.objects.all().count())
