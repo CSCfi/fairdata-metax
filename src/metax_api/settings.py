@@ -314,10 +314,19 @@ if not executing_in_travis:
         ]
     }
 
-OAI = {
-    'BASE_URL': app_config_dict['OAI']['BASE_URL'],
-    'BATCH_SIZE': app_config_dict['OAI']['BATCH_SIZE'],
-    'REPOSITORY_NAME': app_config_dict['OAI']['REPOSITORY_NAME'],
-    'ETSIN_URL_TEMPLATE': app_config_dict['OAI']['ETSIN_URL_TEMPLATE'],
-    'ADMIN_EMAIL': app_config_dict['OAI']['ADMIN_EMAIL']
-}
+if executing_in_travis:
+    OAI = {
+        'BASE_URL': 'http://metax-test.csc.fi/oai/',
+        'BATCH_SIZE': 10,
+        'REPOSITORY_NAME': 'Metax',
+        'ETSIN_URL_TEMPLATE': 'http://etsin.something.fi/dataset/%s',
+        'ADMIN_EMAIL': 'noreply@csc.fi'
+    }
+else:
+    OAI = {
+        'BASE_URL': app_config_dict['OAI']['BASE_URL'],
+        'BATCH_SIZE': app_config_dict['OAI']['BATCH_SIZE'],
+        'REPOSITORY_NAME': app_config_dict['OAI']['REPOSITORY_NAME'],
+        'ETSIN_URL_TEMPLATE': app_config_dict['OAI']['ETSIN_URL_TEMPLATE'],
+        'ADMIN_EMAIL': app_config_dict['OAI']['ADMIN_EMAIL']
+    }
