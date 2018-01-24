@@ -44,6 +44,10 @@ def FileSerializer(*args, **kwargs):
     return FileSerializer(*args, **kwargs)
 
 
+class MaxRecursionDepthExceeded(Exception):
+    pass
+
+
 class FileService(CommonService):
 
     @classmethod
@@ -267,32 +271,58 @@ class FileService(CommonService):
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
-            recursive=False, urn_identifier=None):
+            recursive=False, max_depth=1, dirs_only=False, include_parent=False, urn_identifier=None):
         """
-        Get files and directories contained by a directory. Parameter 'dir_identifier'
-        may be a pk, or an uuid value. Search using approriate fields.
+        Get files and directories contained by a directory.
 
-        Parameter 'urn_identifier' may be used to browse files in the context of the given
+        Parameters:
+
+        identifier: may be a pk, or an uuid value. Search using approriate fields.
+
+        urn_identifier: may be used to browse files in the context of the given
         urn_identifier: Only those files and directories are retrieved, which have been
         selected for that CatalogRecord.
 
-        Parameter 'recursive' may be used to get a flat list of all files below the
-        directory. Sorted by file_path for convenience.
+        path and project_identifier: may be specified to search directly by
+        a known project and path, instead of a directory identifier. If identifier is passed,
+        it is used instead of path and project.
+
+        recursive: may be used to either get a flat list of all files below the
+        directory, or a hierarchial directory tree with depth of max_depth.
+
+        max_depth: has to be specified to a higher number than 1 for 'recursive' to go
+        deeper than one level. 0 Does not return anything.
+
+        dirs_only: may be set to True to retrieve only directories. If combined with
+        'recursive', the returned directories will be hierarchial, and not a flat list, unlike
+        with files.
+
+        include_parent: may be set to True to include the 'parent' directory of the content
+        being retrieved in the results. Example: /directories/3/files?include_parent=true also
+        includes the data about directory id 3 in the results. Normally its data would not be
+        present, and instead would need to be retrieved by calling /directories/3.
         """
-        if identifier and identifier.isdigit():
+        if identifier and identifier.isdigit() and not include_parent:
             directory_id = identifier
         else:
             if identifier:
-                params = { 'identifier': identifier }
+                if identifier.isdigit():
+                    # go this path because parent needs to be included. avoid having to retrieve
+                    # directory info again later
+                    params = { 'id': identifier }
+                else:
+                    params = { 'identifier': identifier }
             elif path and project_identifier:
                 params = { 'directory_path': path, 'project_identifier': project_identifier }
             else: # pragma: no cover
                 raise ValidationError({'detail': 'no parameters to query by'})
 
-            directory = Directory.objects.filter(**params).values('id').first()
-            if not directory:
+            try:
+                # get entire object in case parent has to be included also (include_parent)
+                directory = Directory.objects.get(**params)
+            except Directory.DoesNotExist:
                 raise Http404
-            directory_id = directory['id']
+            directory_id = directory.id
 
         if urn_identifier:
             if urn_identifier.isdigit():
@@ -312,27 +342,37 @@ class FileService(CommonService):
         contents = cls._get_directory_contents(
             directory_id,
             recursive=recursive,
+            max_depth=max_depth,
+            dirs_only=dirs_only,
             cr_id=cr_id
         )
 
         if recursive:
-            # create a flat file list of the contents
-            file_list = []
-            file_list_append = file_list.append
-            cls._form_file_list(contents, file_list_append)
-            return file_list
-        else:
-            return contents
+            if dirs_only:
+                # taken care of the in the called methods. can return the result as is
+                # as a directory tree
+                pass
+            else:
+                # create a flat file list of the contents
+                file_list = []
+                file_list_append = file_list.append
+                cls._form_file_list(contents, file_list_append)
+                return file_list
+
+        if include_parent:
+            contents.update(DirectorySerializer(directory).data)
+
+        return contents
 
     @classmethod
     def _form_file_list(cls, contents, file_list_append):
-        for f in contents['files']:
+        for f in contents.get('files', []):
             file_list_append(f)
-        for d in contents['directories']:
+        for d in contents.get('directories', []):
             cls._form_file_list(d, file_list_append)
 
     @classmethod
-    def _get_directory_contents(cls, directory_id, recursive=False, cr_id=None):
+    def _get_directory_contents(cls, directory_id, recursive=False, max_depth=1, depth=0, dirs_only=False, cr_id=None):
         """
         Get files and directories contained by a directory.
 
@@ -341,30 +381,49 @@ class FileService(CommonService):
         If cr_id is provided, only those files and directories are retrieved, which have been
         selected for that CatalogRecord.
         """
+        if recursive and max_depth != '*':
+            if depth > max_depth:
+                raise MaxRecursionDepthExceeded('max depth is %d' % max_depth)
+            depth += 1
+
         if cr_id:
-            dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id)
+            dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id,
+                dirs_only=dirs_only)
         else:
             dirs = Directory.objects.filter(parent_directory_id=directory_id)
-            files = File.objects.filter(parent_directory_id=directory_id)
+            if dirs_only:
+                files = None
+            else:
+                files = File.objects.filter(parent_directory_id=directory_id)
 
-        contents = {
-            'directories': [ DirectorySerializer(n).data for n in dirs ],
-            'files': [ FileSerializer(n).data for n in files ]
-        }
+        contents = { 'directories': [ DirectorySerializer(n).data for n in dirs ] }
+
+        if files or not dirs_only:
+            # for normal file browsing (not with 'dirs_only'), the files-key should be present,
+            # even if empty.
+            contents['files'] = [ FileSerializer(n).data for n in files ]
 
         if recursive:
             for directory in contents['directories']:
-                sub_dir_contents = cls._get_directory_contents(
-                    directory['id'],
-                    recursive=recursive,
-                    cr_id=cr_id
-                )
+                try:
+                    sub_dir_contents = cls._get_directory_contents(
+                        directory['id'],
+                        recursive=recursive,
+                        max_depth=max_depth,
+                        depth=depth,
+                        dirs_only=dirs_only,
+                        cr_id=cr_id
+                    )
+                except MaxRecursionDepthExceeded:
+                    continue
+
                 directory['directories'] = sub_dir_contents['directories']
-                directory['files'] = sub_dir_contents['files']
+                if 'files' in sub_dir_contents:
+                    directory['files'] = sub_dir_contents['files']
 
         return contents
 
-    def _get_directory_contents_for_catalog_record(directory_id, cr_id):
+    def _get_directory_contents_for_catalog_record(directory_id, cr_id, dirs_only=False):
         """
         Browsing files in the context of a specific CR id.
         """
@@ -391,9 +450,6 @@ class FileService(CommonService):
                 and f.active = true
             )
             """
-        with connection.cursor() as cr:
-            cr.execute(sql_select_dirs_for_cr, [directory_id, cr_id])
-            directory_ids = [ row[0] for row in cr.fetchall() ]
 
         # select files which are contained by the directory, and which
         # belong to the cr <-> files m2m relation table
@@ -406,9 +462,14 @@ class FileService(CommonService):
             and f.removed = false
             and f.active = true
             """
+
         with connection.cursor() as cr:
-            cr.execute(sql_select_files_for_cr, [directory_id, cr_id])
-            file_ids = [ row[0] for row in cr.fetchall() ]
+            cr.execute(sql_select_dirs_for_cr, [directory_id, cr_id])
+            directory_ids = [ row[0] for row in cr.fetchall() ]
+
+            if not dirs_only:
+                cr.execute(sql_select_files_for_cr, [directory_id, cr_id])
+                file_ids = [ row[0] for row in cr.fetchall() ]
 
         if not directory_ids and not file_ids:
             # for this specific version of the record, the requested directory either
@@ -416,7 +477,8 @@ class FileService(CommonService):
             raise Http404
 
         dirs = Directory.objects.filter(id__in=directory_ids)
-        files = File.objects.filter(id__in=file_ids)
+        files = None if dirs_only else File.objects.filter(id__in=file_ids)
+
         return dirs, files
 
     @classmethod
