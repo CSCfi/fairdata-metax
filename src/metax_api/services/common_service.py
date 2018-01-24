@@ -81,6 +81,9 @@ class CommonService():
         else:
             results, http_status = cls._create_single(common_info, request.data, serializer_class, **kwargs)
 
+        if 'failed' in results:
+            cls._check_and_raise_atomic_error(request, results)
+
         return results, http_status
 
     @classmethod
@@ -196,6 +199,9 @@ class CommonService():
         else:
             http_status = status.HTTP_400_BAD_REQUEST
 
+        if 'failed' in results:
+            cls._check_and_raise_atomic_error(request, results)
+
         return results, http_status
 
     @staticmethod
@@ -240,6 +246,21 @@ class CommonService():
             return common_info
         else:
             request.data.update(common_info)
+
+    @staticmethod
+    def _check_and_raise_atomic_error(request, results):
+        if 'success' in results and not len(results['success']):
+            # everything failed anyway, so return normal route even if atomic was used
+            return
+        if len(results.get('failed', [])) > 0 and request.query_params.get('atomic', None) in ('', 'true'):
+            raise ValidationError({
+                'success': [],
+                'failed': results['failed'],
+                'detail': [
+                    'request was failed due to parameter atomic=true. all changes were rolled back. '
+                    'actual failed rows are listed in the field \"failed\".'
+                ]
+            })
 
     @staticmethod
     def _append_error(results, serializer, error):
