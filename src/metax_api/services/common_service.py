@@ -31,7 +31,17 @@ class CommonService():
         Helper method to also check for values, instead of only presence of a boolean parameter,
         such as ?recursive=true/false instead of only ?recursive, which can only evaluate to true.
         """
-        return request.query_params.get(param_name, None) in ('', 'true')
+        value = request.query_params.get(param_name, None)
+        if value in ('', 'true'):
+            # flag was specified without value (?recursive), or with value (?recursive=true)
+            return True
+        elif value in (None, 'false'):
+            # flag was not present, or its value was ?recursive=false
+            return False
+        else:
+            raise ValidationError({ param_name: [
+                'boolean value must be true or false. received value was %s' % value
+            ]})
 
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):
