@@ -16,8 +16,10 @@ Including another URLconf
 from django.conf.urls import url, include
 
 from metax_api.api.base.router import api_urlpatterns as api_v1
+from metax_api.api.oaipmh.base.view import oaipmh_view as oaipmh
 
 urlpatterns = [
     url(r'^rest/', include(api_v1)),
     url(r'^rest/v1/', include(api_v1)),
+    url(r'^oai/', oaipmh, name='oai')
 ]
