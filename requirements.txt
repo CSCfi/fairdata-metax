@@ -11,8 +11,10 @@ gevent==1.2.2 # gunicorn dep
 gunicorn==19.7.1 # MIT-license
 ipdb==0.10.3 # dev tool
 jsonschema==2.6.0
+lxml==4.1.1
 pika==0.11.2
 psycopg2==2.7.3.2  # LGPL with exceptions or ZPL
+pyoai==2.5.0
 python-simplexquery==1.0.5.3
 pytz==2017.3
 pyyaml==3.12
