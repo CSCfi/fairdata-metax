@@ -184,6 +184,11 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
 
 class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
 
+    """
+    Test use of ?atomic=true/false parameter in bulk create and update operations. When atomic flag
+    is used, all changes should be rolled back if even one operation fails.
+    """
+
     def test_atomic_create(self):
         response = self.client.get('/rest/datasets/1', format="json")
         cr = response.data
@@ -192,28 +197,38 @@ class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
         cr['research_dataset'].pop('preferred_identifier')
         cr2 = deepcopy(cr)
         cr3 = deepcopy(cr)
-        cr3.pop('data_catalog')
+        cr3.pop('data_catalog') # causes error
 
         record_count_before = CatalogRecord.objects.all().count()
 
         response = self.client.post('/rest/datasets?atomic=true', [cr, cr2, cr3], format="json")
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('failed' in response.data, True)
+        self.assertEqual(len(response.data['success']) == 0, True)
+        self.assertEqual(len(response.data['failed']) == 1, True)
         self.assertEqual('detail' in response.data, True)
         self.assertEqual('atomic' in response.data['detail'][0], True)
-        self.assertEqual(record_count_before, CatalogRecord.objects.all().count())
+        self.assertEqual(record_count_before, CatalogRecord.objects.all().count(), 'shouldnt create new records')
 
     def test_atomic_update(self):
         cr = self.client.get('/rest/datasets/1', format="json").data
         cr2 = self.client.get('/rest/datasets/2', format="json").data
         cr3 = self.client.get('/rest/datasets/3', format="json").data
-        cr3.pop('data_catalog')
+        cr['research_dataset']['title']['en'] = 'updated'
+        cr2['research_dataset']['title']['en'] = 'updated'
+        cr3.pop('data_catalog') # causes error
 
         record_count_before = CatalogRecord.objects.all().count()
 
         response = self.client.put('/rest/datasets?atomic=true', [cr, cr2, cr3], format="json")
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('failed' in response.data, True)
-        self.assertEqual('detail' in response.data, True)
+        self.assertEqual(len(response.data['success']) == 0, True)
+        self.assertEqual(len(response.data['failed']) == 1, True)
         self.assertEqual('atomic' in response.data['detail'][0], True)
-        self.assertEqual(record_count_before, CatalogRecord.objects.all().count())
+        self.assertEqual(record_count_before, CatalogRecord.objects.all().count(), 'shouldnt create new versions')
+
+        cr = self.client.get('/rest/datasets/1', format="json").data
+        cr2 = self.client.get('/rest/datasets/2', format="json").data
+        self.assertEqual('next_version' in cr, False)
+        self.assertEqual('next_version' in cr2, False)

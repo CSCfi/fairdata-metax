@@ -231,11 +231,17 @@ class CommonService():
 
     @staticmethod
     def _check_and_raise_atomic_error(request, results):
+        if 'success' in results and not len(results['success']):
+            # everything failed anyway, so return normal route even if atomic was used
+            return
         if len(results.get('failed', [])) > 0 and request.query_params.get('atomic', None) in ('', 'true'):
-            raise Http400({
+            raise ValidationError({
                 'success': [],
                 'failed': results['failed'],
-                'detail': ['request was failed due to parameter atomic=true']
+                'detail': [
+                    'request was failed due to parameter atomic=true. all changes were rolled back. '
+                    'actual failed rows are listed in the field \"failed\".'
+                ]
             })
 
     @staticmethod
