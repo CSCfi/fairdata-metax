@@ -146,25 +146,25 @@ to detect the session, and changes the default database accordingly.
 if executing_in_travis:
     DATABASES = {
         'default': {
-            'ENGINE':   'django.db.backends.postgresql_psycopg2',
             'NAME':     'metax_db_test',
             'USER':     'metax_test',
             'PASSWORD': '',
-            'HOST':     'localhost'
+            'HOST':     'localhost',
         }
     }
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': app_config_dict['METAX_DATABASE'],
             'USER': app_config_dict['METAX_DATABASE_USER'],
             'PASSWORD': app_config_dict['METAX_DATABASE_PASSWORD'],
             'HOST': app_config_dict['METAX_DATABASE_HOST'],
             'PORT': '',
-            'ATOMIC_REQUESTS': True
         }
     }
+
+DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 """
 Colorize automated test console output
