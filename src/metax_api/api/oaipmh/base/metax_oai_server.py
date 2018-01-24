@@ -1,10 +1,12 @@
+import datetime
+
+from django.utils import timezone
+from django.conf import settings
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError
+
 from metax_api.models.catalog_record import CatalogRecord
-from django.utils import timezone
-import datetime
-from django.conf import settings
 
 
 class MetaxOAIServer(ResumptionOAIPMH):
