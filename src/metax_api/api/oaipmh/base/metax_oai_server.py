@@ -5,6 +5,7 @@ from django.conf import settings
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError
+from oaipmh.error import NoSetHierarchyError
 
 from metax_api.models.catalog_record import CatalogRecord
 
@@ -12,19 +13,25 @@ from metax_api.models.catalog_record import CatalogRecord
 class MetaxOAIServer(ResumptionOAIPMH):
 
     def _get_set_filter(self, set=None):
+        # These are the ids of catalogues that use the att catalog
         return [1, 2]
 
     def _get_filtered_records(self, set, cursor, batch_size, from_=None, until=None):
+        if set: # no support for user defined sets yet
+            raise NoSetHierarchyError("The repository does not support sets.")
+
         query_set = None
         if from_ and until:
-            query_set = CatalogRecord.objects.filter(date_modified__gt=from_, date_modified__lt=until)
+            query_set = CatalogRecord.objects.filter(date_modified__gte=from_, date_modified__lte=until)
         elif from_:
-            query_set = CatalogRecord.objects.filter(date_modified__gt=from_)
+            query_set = CatalogRecord.objects.filter(date_modified__gte=from_)
         elif until:
-            query_set = CatalogRecord.objects.filter(date_modified__lt=until)
+            query_set = CatalogRecord.objects.filter(date_modified__lte=until)
         else:
             query_set = CatalogRecord.objects.all()
 
+        if set:
+            query_set.filter(data_catalog_id__in=set)
         return query_set[cursor:batch_size]
 
     def _get_metadata_for_record(self, record, metadata_prefix):
@@ -80,7 +87,6 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def listSets(self, cursor=None, batch_size=None):
         data = []
-        data.append(('metax', 'metax', 'metax datasets'))
         return data
 
     def listIdentifiers(self, metadataPrefix=None, set=None, cursor=None,
@@ -103,7 +109,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return data
 
     def getRecord(self, metadataPrefix, identifier):
-        record = CatalogRecord.objects.filter(
+        record = CatalogRecord.objects.filter(data_catalog_id__in=self._get_set_filter(),
             **{ 'research_dataset__contains': {'urn_identifier': identifier } }).first()
         if not record:
             raise IdDoesNotExistError("No dataset with id %s" % identifier)

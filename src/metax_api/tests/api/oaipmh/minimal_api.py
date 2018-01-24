@@ -8,6 +8,11 @@ from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 class OAIPMHReadTests(APITestCase, TestClassUtils):
 
+    _namespaces = {'o': 'http://www.openarchives.org/OAI/2.0/',
+                   'oai_dc': "http://www.openarchives.org/OAI/2.0/oai_dc/",
+                   'dc': "http://purl.org/dc/elements/1.1/",
+                   'dct': "http://purl.org/dc/terms/"}
+
     @classmethod
     def setUpClass(cls):
         """
@@ -16,10 +21,9 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         call_command('loaddata', test_data_file_path, verbosity=0)
         super(OAIPMHReadTests, cls).setUpClass()
 
-    _namespaces = {'o': 'http://www.openarchives.org/OAI/2.0/',
-                   'oai_dc': "http://www.openarchives.org/OAI/2.0/oai_dc/",
-                   'dc': "http://purl.org/dc/elements/1.1/",
-                   'dct': "http://purl.org/dc/terms/"}
+    def setUp(self):
+        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+        self.urn_identifier = catalog_record_from_test_data['research_dataset']['urn_identifier']
 
     def _get_results(self, data, xpath):
         root = data
@@ -50,10 +54,8 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def test_list_sets(self):
         response = self.client.get('/oai/?verb=ListSets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # must contain metax set
         sets = self._get_results(response.content, '//o:setSpec')
-        metax_set = [s for s in sets if s.text == 'metax' ]
-        self.assertEquals(len(metax_set), 1)
+        self.assertEquals(len(sets), 0)
 
     def test_list_identifiers(self):
         response = self.client.get('/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc')
@@ -81,10 +83,10 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
 
     def test_get_record(self):
         response = self.client.get(
-            '/oai/?verb=GetRecord&identifier=urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5&metadataPrefix=oai_dc')
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
-            '//o:record/o:header/o:identifier[text()="urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5"]')
+            '//o:record/o:header/o:identifier[text()="%s"]' % self.urn_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
     def test_get_record_non_existing(self):

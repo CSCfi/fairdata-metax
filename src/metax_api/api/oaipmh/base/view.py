@@ -1,8 +1,9 @@
+from django.conf import settings
 from django.http import HttpResponse
-from .metax_oai_server import MetaxOAIServer
 import oaipmh.metadata as oaimd
 import oaipmh.server as oaiserver
-from django.conf import settings
+
+from .metax_oai_server import MetaxOAIServer
 
 def oaipmh_view(request):
     metax_server = MetaxOAIServer()
