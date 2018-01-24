@@ -92,28 +92,33 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
         Test query parameter 'recursive'.
         """
 
-        # dir id 1 (the root) contains 0 files, but recursively 20
+        # without depth, returns from depth=1, which should contain no files
         response = self.client.get('/rest/directories/1/files?recursive')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+        # dir id 1 (the root) contains 0 files, but recursively 20
+        response = self.client.get('/rest/directories/1/files?recursive=true&depth=*')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 20)
 
         # dir id 3 contains 5 files, but recursively 20
-        response = self.client.get('/rest/directories/3/files?recursive')
+        response = self.client.get('/rest/directories/3/files?recursive=true&depth=*')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 20)
 
         # dir id 4 contains 5 files, but recursively 15
-        response = self.client.get('/rest/directories/4/files?recursive')
+        response = self.client.get('/rest/directories/4/files?recursive=true&depth=*')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 15)
 
         # dir id 5 contains 0 files
-        response = self.client.get('/rest/directories/5/files?recursive')
+        response = self.client.get('/rest/directories/5/files?recursive=true&depth=*')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 10)
 
         # dir id 6 contains 10 files
-        response = self.client.get('/rest/directories/6/files?recursive')
+        response = self.client.get('/rest/directories/6/files?recursive=true&depth=*')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 10)
 
@@ -161,6 +166,49 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         response = self.client.get('/rest/directories/files?project=something')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_read_directory_recursively_with_max_depth(self):
+        """
+        Should return a flat list of files, three directories deep
+        """
+        response = self.client.get('/rest/directories/2/files?recursive=true&depth=3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 10)
+
+    def test_read_directory_recursively_with_dirs_only_and_max_depth(self):
+        """
+        Should return a directory hierarchy, three directories deep, with no files at all.
+        """
+        response = self.client.get('/rest/directories/2/files?recursive=true&directories_only=true&depth=3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('directories' in response.data, True)
+        self.assertEqual('directories' in response.data['directories'][0], True)
+        self.assertEqual('directories' in response.data['directories'][0]['directories'][0], True)
+
+    def test_read_directory_recursively_with_no_depth(self):
+        """
+        recursive=true with no depth specified should not return everything, but instead depth=1
+        by default.
+
+        Using parameter directories_only=true to easier count the depth.
+        """
+        response = self.client.get('/rest/directories/3/files?recursive=true&directories_only=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('directories' in response.data, True)
+        self.assertEqual('directories' in response.data['directories'][0], True)
+
+    def test_read_directory_return_directories_only(self):
+        response = self.client.get('/rest/directories/3/files?directories_only')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual('files' in response.data, False)
+
+    def test_read_directory_with_include_parent(self):
+        response = self.client.get('/rest/directories/3/files?include_parent')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(len(response.data['files']), 5)
+        self.assertEqual(response.data.get('id', None), 3)
 
 
 class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
@@ -212,7 +260,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         Test query parameter 'urn_identifier' with 'recursive'.
         """
         urn_identifier = CatalogRecord.objects.get(pk=1).urn_identifier
-        response = self.client.get('/rest/directories/1/files?recursive&urn_identifier=%s' % urn_identifier)
+        response = self.client.get('/rest/directories/1/files?recursive&urn_identifier=%s&depth=*' % urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
