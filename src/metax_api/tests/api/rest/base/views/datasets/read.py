@@ -216,7 +216,7 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
     def test_read_dataset_xml_format_datacite(self):
         response = self.client.get('/rest/datasets/1?dataset_format=datacite')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._check_dataset_xml_format_response(response, '<resource')
 
     def test_read_dataset_xml_format_error_unknown_format(self):

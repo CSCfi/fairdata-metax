@@ -85,7 +85,7 @@ DEBUG = False
 urllib3.disable_warnings()
 
 # Location of schema files
-schema_path = os.path.dirname(__file__) + '../api/base/schemas'
+schema_path = os.path.dirname(__file__) + '../api.rest.base/schemas'
 
 # identifier model type
 cr_type = 1  # catalog record
