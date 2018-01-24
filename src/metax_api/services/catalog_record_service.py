@@ -20,12 +20,12 @@ d = logging.getLogger(__name__).debug
 
 # avoiding circular imports
 def DirectorySerializer(*args, **kwargs):
-    from metax_api.api.base.serializers import DirectorySerializer as DS
+    from metax_api.api.rest.base.serializers import DirectorySerializer as DS
     DirectorySerializer = DS
     return DirectorySerializer(*args, **kwargs)
 
 def FileSerializer(*args, **kwargs):
-    from metax_api.api.base.serializers import FileSerializer as FS
+    from metax_api.api.rest.base.serializers import FileSerializer as FS
     FileSerializer = FS
     return FileSerializer(*args, **kwargs)
 
@@ -241,7 +241,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             # mostly for debugging purposes, the 'metax xml' can be returned as well
             return xml_str
 
-        target_xslt_file_path = join(dirname(dirname(__file__)), 'api/base/xslt/%s.xslt' % target_format)
+        target_xslt_file_path = join(dirname(dirname(__file__)), 'api/rest/base/xslt/%s.xslt' % target_format)
 
         try:
             with open(target_xslt_file_path) as f:

@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord
-from metax_api.tests.api.base.apitests.catalog_records.write import CatalogRecordApiWriteCommon
+from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 

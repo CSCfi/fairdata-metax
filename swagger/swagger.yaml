@@ -1115,10 +1115,10 @@ paths:
               
 definitions:
   CatalogRecord:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/datacatalog.json#/definitions/Catalog'
   File:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/file.json#/definitions/File'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/File'
   Directory:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/file.json#/definitions/Directory'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/Directory'

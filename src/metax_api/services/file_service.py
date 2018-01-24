@@ -29,17 +29,17 @@ multiple times in itself isnt bad, but using this function-replacement
 FileService where they would otherwise be needed.
 """
 def CatalogRecordSerializer(*args, **kwargs):
-    from metax_api.api.base.serializers import CatalogRecordSerializer as CRS
+    from metax_api.api.rest.base.serializers import CatalogRecordSerializer as CRS
     CatalogRecordSerializer = CRS
     return CatalogRecordSerializer(*args, **kwargs)
 
 def DirectorySerializer(*args, **kwargs):
-    from metax_api.api.base.serializers import DirectorySerializer as DS
+    from metax_api.api.rest.base.serializers import DirectorySerializer as DS
     DirectorySerializer = DS
     return DirectorySerializer(*args, **kwargs)
 
 def FileSerializer(*args, **kwargs):
-    from metax_api.api.base.serializers import FileSerializer as FS
+    from metax_api.api.rest.base.serializers import FileSerializer as FS
     FileSerializer = FS
     return FileSerializer(*args, **kwargs)
 

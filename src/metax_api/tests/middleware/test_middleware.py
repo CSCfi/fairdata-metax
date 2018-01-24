@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime
-from metax_api.tests.api.base.apitests.catalog_records.write import CatalogRecordApiWriteCommon
+from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import TestClassUtils
 
 FORBIDDEN = status.HTTP_403_FORBIDDEN
