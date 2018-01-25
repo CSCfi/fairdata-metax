@@ -926,6 +926,11 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - name: removed_files
+          in: query
+          description: return only deleted files
+          required: false
+          type: boolean
       responses:
         '200':
           description: successful operation, return list of full files metadata

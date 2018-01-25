@@ -6,7 +6,7 @@ from pytz import timezone as tz
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -307,3 +307,30 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.data['research_dataset']['directories'][1]['details']['byte_size'], 21000)
         self.assertEqual(response.data['research_dataset']['directories'][0]['details']['file_count'], 20)
         self.assertEqual(response.data['research_dataset']['directories'][1]['details']['file_count'], 20)
+
+
+class CatalogRecordApiReadRemovedFiles(CatalogRecordApiReadCommon):
+
+    """
+    Test use of query parameter removed_files=bool in /datasets/pid/files, which should return
+    only deleted files.
+    """
+
+    def test_removed_query_param(self):
+        response = self.client.get('/rest/datasets/1/files')
+        file_ids_before = set([ f['id'] for f in response.data ])
+        obj = File.objects.get(pk=1)
+        obj.removed = True
+        obj.save()
+        obj2 = File.objects.get(pk=2)
+        obj2.removed = True
+        obj2.save()
+
+        response = self.client.get('/rest/datasets/1/files')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+        response = self.client.get('/rest/datasets/1/files?removed_files=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), len(file_ids_before))
+        self.assertEqual(file_ids_before, set([ f['id'] for f in response.data ]))

@@ -129,10 +129,19 @@ class DatasetViewSet(CommonViewSet):
     @detail_route(methods=['get'], url_path="files")
     def files_get(self, request, pk=None):
         """
-        Get files associated to this dataset
+        Get files associated to this dataset. Can be used to retrieve a list of only
+        deleted files by providing the query parameter removed_files=true.
         """
+        params = {}
+        manager = 'objects'
         catalog_record = self.get_object()
-        files = [ FileSerializer(f).data for f in catalog_record.files.all() ]
+
+        if CS.get_boolean_query_param(request, 'removed_files'):
+            params['removed'] = True
+            manager = 'objects_unfiltered'
+
+        files = [ FileSerializer(f).data for f in catalog_record.files(manager=manager).filter(**params) ]
+
         return Response(data=files, status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'], url_path="proposetopas")
