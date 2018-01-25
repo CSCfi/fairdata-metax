@@ -4,8 +4,41 @@ from django.utils import timezone
 from pytz import timezone as tz
 from rest_framework import status
 
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, File
 from metax_api.tests.api.rest.base.views.datasets.read import CatalogRecordApiReadCommon
+
+
+class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
+
+    """
+    Test use of query parameter removed=bool, which is common for all apis
+    """
+
+    def test_removed_query_param(self):
+        obj = CatalogRecord.objects.get(pk=1)
+        obj.removed = True
+        obj.save()
+        obj2 = CatalogRecord.objects.get(pk=2)
+        obj2.removed = True
+        obj2.save()
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        response = self.client.get('/rest/datasets/1?removed=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/rest/datasets/urn_identifiers')
+        self.assertEqual(obj.urn_identifier not in response.data, True)
+        self.assertEqual(obj2.urn_identifier not in response.data, True)
+
+        obj = File.objects.get(pk=1)
+        obj.removed = True
+        obj.save()
+        obj2 = File.objects.get(pk=2)
+        obj2.removed = True
+        obj2.save()
+        response = self.client.get('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        response = self.client.get('/rest/files/1?removed=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class ApiReadPaginationTests(CatalogRecordApiReadCommon):
