@@ -41,4 +41,4 @@ class SchemaService():
     @staticmethod
     def _get_schema_dir():
         cur_dir = abspath(dirname(__file__))
-        return abspath('%s/../api/base/schemas' % cur_dir)
+        return abspath('%s/../api/rest/base/schemas' % cur_dir)

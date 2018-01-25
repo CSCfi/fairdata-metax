@@ -1,6 +1,6 @@
 {
     "@id":"http://iow.csc.fi/ns/mrd#",
-    "title":"SYKE Research Datasets",
+    "title":"Metax Research Datasets",
     "modified":"Mon, 09 Oct 2017 14:41:39 EEST",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
@@ -838,7 +838,8 @@
             },
             "required":[
                 "@type",
-                "name"
+                "name",
+                "member_of"
             ]
         },
         "Project":{
@@ -1329,9 +1330,17 @@
                         "$ref":"#/definitions/Activity"
                     }
                 },
-                "total_byte_size":{
+                "total_ida_byte_size":{
                     "title":"Total byte size",
                     "description":"Sum of all distribution byte size. Read only field.",
+                    "@id":"http://iow.csc.fi/ns/mrd#totalbytesize",
+                    "@type":"http://www.w3.org/2001/XMLSchema#decimal",
+                    "maxItems":1,
+                    "type":"number"
+                },
+                "total_remote_resources_byte_size":{
+                    "title":"Total remote resources byte size",
+                    "description":"Sum of all remote resource byte sizes, if known. Read only field.",
                     "@id":"http://iow.csc.fi/ns/mrd#totalbytesize",
                     "@type":"http://www.w3.org/2001/XMLSchema#decimal",
                     "maxItems":1,
@@ -1397,7 +1406,9 @@
                 "urn_identifier",
                 "preferred_identifier",
                 "title",
-                "description"
+                "description",
+                "creator",
+                "curator"
             ]
         },
         "RightsStatement":{
@@ -1463,7 +1474,11 @@
                         "$ref":"#/definitions/ResearchDataLicenseDocument"
                     }
                 }
-            }
+            },
+            "required":[
+                "access_type",
+                "restriction_grounds"
+            ]
         },
         "StructuredIdentifier":{
 			"type":"object",
@@ -1690,7 +1705,10 @@
                 }
             },
             "required":[
-                "title"
+                "title",
+                "modified",
+                "checksum",
+                "use_category"
             ]
         },
         "langString":{

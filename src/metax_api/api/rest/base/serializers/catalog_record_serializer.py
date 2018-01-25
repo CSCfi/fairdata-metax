@@ -3,7 +3,7 @@ from os import path
 
 from rest_framework.serializers import ValidationError
 
-from metax_api.models import CatalogRecord, DataCatalog, File, Contract
+from metax_api.models import CatalogRecord, DataCatalog, Contract
 from metax_api.services import CatalogRecordService as CRS, CommonService
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
@@ -79,26 +79,10 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'preserve_version' in self.context['view'].request.query_params:
             # execute updates without creating new versions
             instance.preserve_version = True
-        instance = super(CatalogRecordSerializer, self).update(instance, validated_data)
-
-        # for partial updates research_dataset is not necessarily set
-        files_dict = validated_data.get('research_dataset', None) and \
-            validated_data['research_dataset'].get('files', None) or None
-
-        if files_dict:
-            instance.files.clear()
-            instance.files.add(*self._get_file_objects(files_dict))
-            instance.save()
-
-        return instance
+        return super(CatalogRecordSerializer, self).update(instance, validated_data)
 
     def create(self, validated_data):
-        instance = super(CatalogRecordSerializer, self).create(validated_data)
-        files_dict = validated_data['research_dataset'].get('files', None)
-        if files_dict:
-            instance.files.add(*self._get_file_objects(files_dict))
-            instance.save()
-        return instance
+        return super(CatalogRecordSerializer, self).create(validated_data)
 
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
@@ -326,10 +310,6 @@ class CatalogRecordSerializer(CommonSerializer):
             catalog_json = self.instance.data_catalog.catalog_json
 
         return catalog_json.get('dataset_versioning', False) is True
-
-    def _get_file_objects(self, files_dict):
-        file_pids = [ f['identifier'] for f in files_dict ]
-        return File.objects.filter(identifier__in=file_pids)
 
     def _get_contract_relation(self, identifier_value):
         """

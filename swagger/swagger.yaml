@@ -412,7 +412,91 @@ paths:
           type: string
         - name: recursive
           in: query
+          description: |
+            return a flat list of file objects contained by the target directory and its sub-directories.
+            if directories_only=true is also specified, returns a hierarchial directory tree instead, of x depth.
+          required: false
+          type: boolean
+        - name: depth
+          in: query
+          description: max depth of recursion. value must be an integer > 0, or *. default value is 1.
+          required: false
+          type: string
+        - name: directories_only
+          in: query
+          description: |
+            omit files entirely from the returned results. use together with recursive=true and depth=x
+            to get a directory tree.
+          required: false
+          type: boolean
+        - name: include_parent
+          in: query
+          description: |
+            includes the 'parent directory' of the contents being fetched in the results also. example&#58;
+            GET /directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            otherwise, one would query for its data separately by GET /directories/3.
+          required: false
+          type: boolean
+        - name: urn_identifier
+          in: query
+          description: urn_identifier of a dataset. browse only files that have been selected for that record.
+          required: false
+          type: string
+      responses:
+        '200':
+          description: |
+            returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
+            note&#58; if parameter 'recursive' is used, return value is a flat list of file objects instead.
+        '404':
+          description: directory not found
+      tags:
+        - File API
+  /directories/files:
+    get:
+      summary: get list of files and directories contained by a directory, queried by dir path and project
+      description: |
+        functions the same as /directories/pid, except queried by dir path and project identifier, instead of directly by directory identifier.
+      parameters:
+        - name: path
+          in: path
+          description: path of the directory to browse
+          required: true
+          type: string
+        - name: project
+          in: query
+          description: project_identifier of the project to browse from
+          required: true
+          type: string
+        - name: recursive
+          in: query
           description: return a flat list of file objects contained by the target directory and its sub-directories
+          required: false
+          type: boolean
+        - name: recursive
+          in: query
+          description: |
+            return a flat list of file objects contained by the target directory and its sub-directories.
+            if directories_only=true is also specified, returns a hierarchial directory tree instead, of x depth.
+          required: false
+          type: boolean
+        - name: depth
+          in: query
+          description: max depth of recursion. value must be an integer > 0, or *. default value is 1.
+          required: false
+          type: string
+        - name: directories_only
+          in: query
+          description: |
+            omit files entirely from the returned results. use together with recursive=true and depth=x
+            to get a directory tree.
+          required: false
+          type: boolean
+        - name: include_parent
+          in: query
+          description: |
+            includes the 'parent directory' of the contents being fetched in the results also. example&#58;
+            GET /directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            otherwise, one would query for its data separately by GET /directories/3.
           required: false
           type: boolean
         - name: urn_identifier
@@ -584,6 +668,11 @@ paths:
     get:
       summary: "list datasets"
       parameters:
+        - name: latest
+          in: query
+          description: only return latest versions
+          required: false
+          type: boolean
         - name: owner_id
           in: query
           description: id of the person who owns the record in metax
@@ -684,6 +773,11 @@ paths:
     get:
       summary: "list all dataset urn identifiers"
       parameters:
+        - name: latest
+          in: query
+          description: only return latest versions
+          required: false
+          type: boolean
         - name: owner_id
           in: query
           description: id of the person who owns the record in metax
@@ -1070,10 +1164,10 @@ paths:
               
 definitions:
   CatalogRecord:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/datacatalog.json#/definitions/Catalog'
   File:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/file.json#/definitions/File'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/File'
   Directory:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/base/api_schemas/file.json#/definitions/Directory'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/Directory'

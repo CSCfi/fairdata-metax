@@ -5,7 +5,7 @@ from pytz import timezone as tz
 from rest_framework import status
 
 from metax_api.models import CatalogRecord
-from metax_api.tests.api.base.apitests.catalog_records.read import CatalogRecordApiReadCommon
+from metax_api.tests.api.rest.base.views.datasets.read import CatalogRecordApiReadCommon
 
 
 class ApiReadPaginationTests(CatalogRecordApiReadCommon):

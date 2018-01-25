@@ -121,8 +121,8 @@ class Common(models.Model):
 
     def _track_json_field(self, field_name):
         field_name, json_field_name = field_name.split('.')
-        if self._field_is_loaded(field_name):
-            json_field_value = getattr(self, field_name).get(json_field_name, None)
+        if self._field_is_loaded(field_name) and json_field_name in getattr(self, field_name):
+            json_field_value = getattr(self, field_name)[json_field_name]
 
             if not self._initial_data.get(field_name, None):
                 self._initial_data[field_name] = {}
@@ -180,8 +180,8 @@ class Common(models.Model):
         else: # pragma: no cover
             raise FieldError('Field %s is not being tracked for changes' % (field_name_full))
 
-        json_field_value = self._initial_data[field_name][json_field_name]
-        return getattr(self, field_name).get(json_field_name) != json_field_value
+        json_field_value = self._initial_data[field_name].get(json_field_name, None)
+        return getattr(self, field_name).get(json_field_name, None) != json_field_value
 
     def _raise_field_not_tracked_error(self, field_name):
         """

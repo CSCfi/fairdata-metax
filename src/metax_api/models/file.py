@@ -55,7 +55,7 @@ class File(Common):
     # END OF MODEL FIELD DEFINITIONS #
 
     indexes = [
-        models.Index(fields=['identifier']),
+        models.Index(fields=['identifier', 'file_path', 'project_identifier']),
     ]
 
     objects = FileManager()
