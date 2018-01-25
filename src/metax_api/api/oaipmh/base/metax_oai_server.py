@@ -109,9 +109,12 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return data
 
     def getRecord(self, metadataPrefix, identifier):
-        record = CatalogRecord.objects.filter(data_catalog_id__in=self._get_set_filter(),
-            **{ 'research_dataset__contains': {'urn_identifier': identifier } }).first()
-        if not record:
+        try:
+            record = CatalogRecord.objects.get(data_catalog_id__in=self._get_set_filter(),
+                research_dataset__contains={'urn_identifier': identifier })
+        except:
+            # This now includes both MultipleObjectsReturned (should not happen, because urn
+            # should be unique) and DoesNotExist
             raise IdDoesNotExistError("No dataset with id %s" % identifier)
         metadata = self._get_metadata_for_record(record, metadataPrefix)
 
