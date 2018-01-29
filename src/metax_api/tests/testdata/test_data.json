@@ -941,7 +941,7 @@
                         "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
                 },
-                "research_dataset_schema": "att",
+                "research_dataset_schema": "ida",
                 "title": {
                     "en": "Test data catalog name",
                     "fi": "Testidatakatalogin nimi"
@@ -1058,7 +1058,7 @@
                         "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
                 },
-                "research_dataset_schema": "att",
+                "research_dataset_schema": "ida",
                 "title": {
                     "en": "Test data catalog name",
                     "fi": "Testidatakatalogin nimi"
@@ -1175,7 +1175,7 @@
                         "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
                 },
-                "research_dataset_schema": "att",
+                "research_dataset_schema": "ida",
                 "title": {
                     "en": "Test data catalog name",
                     "fi": "Testidatakatalogin nimi"
@@ -1292,7 +1292,7 @@
                         "fi": "Datakatalogin julkaisijaorganisaatio"
                     }
                 },
-                "research_dataset_schema": "att",
+                "research_dataset_schema": "ida",
                 "title": {
                     "en": "Test data catalog name",
                     "fi": "Testidatakatalogin nimi"
@@ -3212,77 +3212,6 @@
                         }
                     }
                 ],
-                "remote_resources": [
-                    {
-                        "access_url": {
-                            "description": {
-                                "en": "Description of the link. For example to be used as hover text."
-                            },
-                            "identifier": "https://url.of.resource.com",
-                            "title": {
-                                "en": "A name given to the document, which may be e.g. a landing page"
-                            }
-                        },
-                        "bytesize": "2048",
-                        "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
-                            "checksum_value": "u5y6f4y68765ngf6ry8n"
-                        },
-                        "description": "Free-text account of the distribution.",
-                        "download_url": {
-                            "description": {
-                                "en": "Description of the link. For example to be used as hover text."
-                            },
-                            "identifier": "https://download.url.of.resource.com",
-                            "title": {
-                                "en": "A name given to the document, which would be an actual downloadable file"
-                            }
-                        },
-                        "has_object_characteristics": {
-                            "description": "Description of file type",
-                            "encoding": "utf-8",
-                            "has_creating_application_name": "Creating application name",
-                            "title": "File type name"
-                        },
-                        "identifier": "identifierofresource",
-                        "license": [
-                            {
-                                "description": [
-                                    {
-                                        "en": "Free account of the rights"
-                                    }
-                                ],
-                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
-                                "license": "https://url.of.license.which.applies.org",
-                                "title": {
-                                    "en": "A name given to the resource"
-                                }
-                            }
-                        ],
-                        "mediatype": "image/jpeg",
-                        "modified": "2013-01-17T08:19:58Z",
-                        "resource_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
-                        },
-                        "title": "A name given to the distribution",
-                        "use_category": {
-                            "identifier": "rights"
-                        }
-                    }
-                ],
                 "rights_holder": {
                     "@type": "Organization",
                     "email": "info@csc.fi",
@@ -4098,77 +4027,6 @@
                         },
                         "relation_type": {
                             "identifier": "hasPreviousVersion"
-                        }
-                    }
-                ],
-                "remote_resources": [
-                    {
-                        "access_url": {
-                            "description": {
-                                "en": "Description of the link. For example to be used as hover text."
-                            },
-                            "identifier": "https://url.of.resource.com",
-                            "title": {
-                                "en": "A name given to the document, which may be e.g. a landing page"
-                            }
-                        },
-                        "bytesize": "2048",
-                        "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
-                            "checksum_value": "u5y6f4y68765ngf6ry8n"
-                        },
-                        "description": "Free-text account of the distribution.",
-                        "download_url": {
-                            "description": {
-                                "en": "Description of the link. For example to be used as hover text."
-                            },
-                            "identifier": "https://download.url.of.resource.com",
-                            "title": {
-                                "en": "A name given to the document, which would be an actual downloadable file"
-                            }
-                        },
-                        "has_object_characteristics": {
-                            "description": "Description of file type",
-                            "encoding": "utf-8",
-                            "has_creating_application_name": "Creating application name",
-                            "title": "File type name"
-                        },
-                        "identifier": "identifierofresource",
-                        "license": [
-                            {
-                                "description": [
-                                    {
-                                        "en": "Free account of the rights"
-                                    }
-                                ],
-                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
-                                "license": "https://url.of.license.which.applies.org",
-                                "title": {
-                                    "en": "A name given to the resource"
-                                }
-                            }
-                        ],
-                        "mediatype": "image/jpeg",
-                        "modified": "2013-01-17T08:19:58Z",
-                        "resource_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
-                        },
-                        "title": "A name given to the distribution",
-                        "use_category": {
-                            "identifier": "rights"
                         }
                     }
                 ],

@@ -357,8 +357,8 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
             new['fields']['date_created'] = '2017-05-15T10:07:22Z'
             new['fields']['catalog_json']['identifier'] = generate_test_identifier(dc_type, i)
 
-            if new['fields']['catalog_json']['research_dataset_schema'] == 'att' and i in (1, 2):
-                # lets pretend that the first two are ATT catalogs, which will support versioning.
+            if new['fields']['catalog_json']['research_dataset_schema'] == 'ida' and i in (1, 2):
+                # lets pretend that the first two are ida catalogs, which will support versioning.
                 dataset_versioning = True
             else:
                 dataset_versioning = False
@@ -419,7 +419,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
 
         if mode == 'json':
 
-            json_schema = get_json_schema('att_dataset')
+            json_schema = get_json_schema('ida_dataset')
 
             new = {
                 'fields': row_template.copy(),
@@ -446,6 +446,12 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             owner_idx += 1
             if owner_idx >= len(catalog_records_owner_ids):
                 owner_idx = 0
+
+            total_remote_resources_byte_size = 0
+            if 'remote_resources' in new['fields']['research_dataset']:
+                for rr in new['fields']['research_dataset']['remote_resources']:
+                    total_remote_resources_byte_size += rr.get('byte_size', 0)
+                new['fields']['research_dataset']['total_remote_resources_byte_size'] = total_remote_resources_byte_size
 
             # add files
 
@@ -584,10 +590,11 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             row['fields']['preservation_state_modified'] = '2017-05-23T10:07:22.559656Z'
 
     # add a couple of catalog records with fuller research_dataset fields
-    with open('catalog_record_test_data_template_full.json') as json_file:
+    with open('catalog_record_test_data_template_full_ida.json') as json_file:
         row_template_full = json_load(json_file)
 
     total_ida_byte_size = 0
+
     for j in [0, 1]:
         new = {
             'fields': deepcopy(row_template_full),
@@ -609,8 +616,14 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         file_identifier_0 = file_list[0]['fields']['identifier']
         file_identifier_1 = file_list[1]['fields']['identifier']
         total_ida_byte_size = sum(f['fields']['byte_size'] for f in file_list)
-
         new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+
+        total_remote_resources_byte_size = 0
+        if 'remote_resources' in new['fields']['research_dataset']:
+            for rr in new['fields']['research_dataset']['remote_resources']:
+                total_remote_resources_byte_size += rr.get('byte_size', 0)
+            new['fields']['research_dataset']['total_remote_resources_byte_size'] = total_remote_resources_byte_size
+
         new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
         new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
         json_validate(new['fields']['research_dataset'], json_schema)

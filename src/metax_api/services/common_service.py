@@ -128,7 +128,7 @@ class CommonService():
             if data_catalog_prefix:
                 schema_name = data_catalog_prefix
             else:
-                schema_name = 'att'
+                schema_name = 'ida'
 
             schema_name += '_'
 
@@ -142,7 +142,7 @@ class CommonService():
                 # only datasets have a default schema
                 raise
             _logger.warning(e)
-            with open('%s/att_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
+            with open('%s/ida_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
                 return json_load(f)
 
     @classmethod
