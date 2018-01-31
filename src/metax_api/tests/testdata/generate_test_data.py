@@ -46,11 +46,15 @@ file_max_rows = 20
 # how many filestorage rows to generate
 file_storage_max_rows = 2
 
-data_catalog_max_rows = 4
+ida_data_catalog_max_rows = 4
+
+att_data_catalog_max_rows = 4
 
 contract_max_rows = 5
 
-catalog_record_max_rows = 10
+ida_catalog_record_max_rows = 10
+
+att_catalog_record_max_rows = 10
 
 files_per_dataset = 2
 
@@ -337,7 +341,7 @@ def save_test_data(mode, file_storage_list, file_list, directory_list,
         pass
 
 
-def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
+def generate_data_catalogs(mode, start_idx, data_catalog_max_rows, validate_json, type):
     test_data_catalog_list = []
     json_schema = get_json_schema('datacatalog')
 
@@ -346,7 +350,7 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
         with open('data_catalog_test_data_template.json') as json_file:
             row_template = json_load(json_file)
 
-        for i in range(1, data_catalog_max_rows + 1):
+        for i in range(start_idx, start_idx + data_catalog_max_rows):
 
             new = {
                 'fields': deepcopy(row_template),
@@ -357,8 +361,13 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
             new['fields']['date_created'] = '2017-05-15T10:07:22Z'
             new['fields']['catalog_json']['identifier'] = generate_test_identifier(dc_type, i)
 
-            if new['fields']['catalog_json']['research_dataset_schema'] == 'ida' and i in (1, 2):
-                # lets pretend that the first two are ida catalogs, which will support versioning.
+            if type == 'ida':
+                new['fields']['catalog_json']['research_dataset_schema'] = 'ida'
+            elif type == 'att':
+                new['fields']['catalog_json']['research_dataset_schema'] = 'att'
+
+            if i in (start_idx, start_idx + 1):
+                # lets pretend that the first two data catalogs will support versioning.
                 dataset_versioning = True
             else:
                 dataset_versioning = False
@@ -366,7 +375,7 @@ def generate_data_catalogs(mode, data_catalog_max_rows, validate_json):
 
             test_data_catalog_list.append(new)
 
-            if validate_json or i == 1:
+            if validate_json or i == start_idx:
                 json_validate(new['fields']['catalog_json'], json_schema)
 
     return test_data_catalog_list
@@ -402,24 +411,30 @@ def generate_contracts(mode, contract_max_rows, validate_json):
     return test_contract_list
 
 
-def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list, file_list, validate_json,
-                             url):
-    print('generating catalog records%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
+def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_list, contract_list, file_list,
+                             validate_json, url, type, test_data_list=[]):
+    print('generating {0} catalog records{1}...' .format(type,
+                                                         '' if mode in ('json', 'request_list') else ' and uploading'))
 
     with open('catalog_record_test_data_template.json') as json_file:
         row_template = json_load(json_file)
 
-    test_data_list = []
     total_time_elapsed = 0
     files_start_idx = 0
     data_catalog_id = data_catalogs_list[0]['pk']
     owner_idx = 0
+    loop_counter = 0
+    start_idx = len(test_data_list) + 1
 
-    for i in range(1, catalog_record_max_rows + 1):
-
+    for i in range(start_idx, start_idx + basic_catalog_record_max_rows):
+        loop_counter += 1
         if mode == 'json':
 
-            json_schema = get_json_schema('ida_dataset')
+            json_schema = None
+            if type == 'ida':
+                json_schema = get_json_schema('ida_dataset')
+            elif type == 'att':
+                json_schema = get_json_schema('att_dataset')
 
             new = {
                 'fields': row_template.copy(),
@@ -447,57 +462,76 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             if owner_idx >= len(catalog_records_owner_ids):
                 owner_idx = 0
 
-            total_remote_resources_byte_size = 0
-            if 'remote_resources' in new['fields']['research_dataset']:
-                for rr in new['fields']['research_dataset']['remote_resources']:
-                    total_remote_resources_byte_size += rr.get('byte_size', 0)
-                new['fields']['research_dataset']['total_remote_resources_byte_size'] = total_remote_resources_byte_size
-
             # add files
 
-            files = []
-            total_ida_byte_size = 0
-            third_of_files = len(file_list) / 3
+            if type == 'ida':
+                files = []
+                total_ida_byte_size = 0
+                third_of_files = len(file_list) / 3
 
-            for j in range(files_start_idx, files_start_idx + files_per_dataset):
-                files.append({
-                    'identifier': file_list[j]['fields']['identifier'],
-                    'title': 'File metadata title %d' % j,
-                    'use_category': {
-                        'identifier': 'source'
-                    }
-                })
-                if j < third_of_files:
-                    # first third of files has this as type
-                    files[-1]['type'] = {
-                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
-                        "pref_label": {
-                            "fi": "Teksti",
-                            "en": "Text",
-                            "und": "Teksti"
+                for j in range(files_start_idx, files_start_idx + files_per_dataset):
+                    files.append({
+                        'identifier': file_list[j]['fields']['identifier'],
+                        'title': 'File metadata title %d' % j,
+                        'use_category': {
+                            'identifier': 'source'
                         }
-                    }
-                elif third_of_files <= j < (third_of_files * 2):
-                    # second third of files has this as type
-                    files[-1]['type'] = {
-                        "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                        "pref_label": {
-                            "fi": "Mallinnus",
-                            "en": "Model",
-                            "und": "Mallinnus"
+                    })
+                    if j < third_of_files:
+                        # first third of files has this as type
+                        files[-1]['type'] = {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                            "pref_label": {
+                                "fi": "Teksti",
+                                "en": "Text",
+                                "und": "Teksti"
+                            }
                         }
+                    elif third_of_files <= j < (third_of_files * 2):
+                        # second third of files has this as type
+                        files[-1]['type'] = {
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
+                            "pref_label": {
+                                "fi": "Mallinnus",
+                                "en": "Model",
+                                "und": "Mallinnus"
+                            }
+                        }
+                    else:
+                        # the last third wont have any type
+                        pass
+
+                    new['fields']['files'].append(file_list[j]['pk'])
+                    total_ida_byte_size += file_list[j]['fields']['byte_size']
+
+                new['fields']['research_dataset']['files'] = files
+                new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+                files_start_idx += files_per_dataset
+
+            elif type == 'att':
+                new['fields']['research_dataset']['remote_resources'] = [
+                    {
+                        "title": "Remote resource {0}".format(str(i)),
+                        "modified": "2014-01-12T17:11:54Z",
+                        "use_category": {"identifier": "outcome"},
+                        "checksum": {"algorithm": "SHA-256", "checksum_value": "u5y6f4y68765ngf6ry8n"},
+                        "byte_size": i * 512
+                    },
+                    {
+                        "title": "Other remote resource {0}".format(str(i)),
+                        "modified": "2013-01-12T11:11:54Z",
+                        "use_category": {"identifier": "source"},
+                        "checksum": {"algorithm": "SHA-512", "checksum_value": "u3k4kn7n1g56l6rq5a5s"},
+                        "byte_size": i * 1024
                     }
-                else:
-                    # the last third wont have any type
-                    pass
+                ]
+                total_remote_resources_byte_size = 0
+                for rr in new['fields']['research_dataset']['remote_resources']:
+                    total_remote_resources_byte_size += rr.get('byte_size', 0)
+                new['fields']['research_dataset'][
+                    'total_remote_resources_byte_size'] = total_remote_resources_byte_size
 
-                new['fields']['files'].append(file_list[j]['pk'])
-                total_ida_byte_size += file_list[j]['fields']['byte_size']
-
-            new['fields']['research_dataset']['files'] = files
-            new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
-            files_start_idx += files_per_dataset
-            if validate_json or i == 1:
+            if validate_json or i == start_idx:
                 json_validate(new['fields']['research_dataset'], json_schema)
 
             test_data_list.append(new)
@@ -541,15 +575,16 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         #         # sent later in bulk request
         #         test_data_list.append(new)
 
-        percent = i / float(catalog_record_max_rows) * 100.0
+        percent = loop_counter / float(basic_catalog_record_max_rows) * 100.0
 
         if percent % 10 == 0:
             print("%d%%%s" % (percent, '' if percent == 100.0 else '...'))
 
     # set some preservation_state dependent values
-    for i in range(1, 6):
+    pres_state_value = 1
+    for i in range(start_idx, start_idx + 5):
 
-        test_data_list[i]['fields']['preservation_state'] = i
+        test_data_list[i]['fields']['preservation_state'] = pres_state_value
 
         if i > 0:
             test_data_list[i]['fields']['contract'] = 1
@@ -568,9 +603,10 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
                 }
             }
         }]
+        pres_state_value += 1
 
     # set different owner
-    for i in range(6, len(test_data_list)):
+    for i in range(start_idx + 5, len(test_data_list)):
         test_data_list[i]['fields']['research_dataset']['curator'] = [{
             "@type": "Person",
             "name": "Jarski",
@@ -585,15 +621,20 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
 
     # if preservation_state is other than 0, means it has been modified at some point,
     # so set timestamp
-    for row in test_data_list:
+    for i in range(start_idx - 1, len(test_data_list)):
+        row = test_data_list[i]
         if row['fields']['preservation_state'] != 0:
             row['fields']['preservation_state_modified'] = '2017-05-23T10:07:22.559656Z'
 
-    # add a couple of catalog records with fuller research_dataset fields
-    with open('catalog_record_test_data_template_full_ida.json') as json_file:
-        row_template_full = json_load(json_file)
-
+    # add a couple of catalog records with fuller research_dataset fields belonging to both ida and att data catalog
     total_ida_byte_size = 0
+    if type == 'ida':
+        template = 'catalog_record_test_data_template_full_ida.json'
+    elif type == 'att':
+        template = 'catalog_record_test_data_template_full_att.json'
+
+    with open(template) as json_file:
+        row_template_full = json_load(json_file)
 
     for j in [0, 1]:
         new = {
@@ -602,30 +643,32 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             'pk': len(test_data_list) + 1,
         }
         # for the relation in the db. includes dir id 3, which includes all 20 files
-        new['fields']['files'] = [i for i in range(1, 21)]
+
+        new['fields']['data_catalog'] = data_catalog_id
         new['fields']['date_modified'] = '2017-09-23T10:07:22Z'
         new['fields']['date_created'] = '2017-05-23T10:07:22Z'
         new['fields']['editor'] = {
             'owner_id': catalog_records_owner_ids[j],
             'creator_id': catalog_records_owner_ids[owner_idx],
         }
-        new['fields']['research_dataset']['urn_identifier'] = generate_test_identifier(cr_type,
-                                                                                       catalog_record_max_rows + 1 + j)
+        new['fields']['research_dataset']['urn_identifier'] = generate_test_identifier(cr_type, len(test_data_list) + 1)
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
 
-        file_identifier_0 = file_list[0]['fields']['identifier']
-        file_identifier_1 = file_list[1]['fields']['identifier']
-        total_ida_byte_size = sum(f['fields']['byte_size'] for f in file_list)
-        new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+        if type == 'ida':
+            new['fields']['files'] = [i for i in range(1, 21)]
+            file_identifier_0 = file_list[0]['fields']['identifier']
+            file_identifier_1 = file_list[1]['fields']['identifier']
+            total_ida_byte_size = sum(f['fields']['byte_size'] for f in file_list)
+            new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+            new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
+            new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
+        elif type == 'att':
+            total_remote_resources_byte_size = 0
+            if 'remote_resources' in new['fields']['research_dataset']:
+                for rr in new['fields']['research_dataset']['remote_resources']:
+                    total_remote_resources_byte_size += rr.get('byte_size', 0)
+                new['fields']['research_dataset']['total_remote_resources_byte_size'] = total_remote_resources_byte_size
 
-        total_remote_resources_byte_size = 0
-        if 'remote_resources' in new['fields']['research_dataset']:
-            for rr in new['fields']['research_dataset']['remote_resources']:
-                total_remote_resources_byte_size += rr.get('byte_size', 0)
-            new['fields']['research_dataset']['total_remote_resources_byte_size'] = total_remote_resources_byte_size
-
-        new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
-        new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
         json_validate(new['fields']['research_dataset'], json_schema)
         test_data_list.append(new)
 
@@ -633,22 +676,25 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         print('generated catalog records into a list')
     elif mode == 'request':
         print('collected created objects from responses into a list')
-        print('total time elapsed for %d rows: %.3f seconds' % (catalog_record_max_rows, total_time_elapsed))
+        print('total time elapsed for %d rows: %.3f seconds' % (basic_catalog_record_max_rows, total_time_elapsed))
 
+    return test_data_list
+
+
+def generate_alt_catalog_records(test_data_list):
     #
     # create a couple of alternate records for record with id 10
     #
     # note, these alt records wont have an editor-field set, since they presumably
     # originated to metax from somewhere else than qvain (were harvested).
     #
-
     alternate_record_set = {
         'fields': {},
         'model': 'metax_api.alternaterecordset',
         'pk': 1,
     }
 
-    # first record belongs to alt recorc set
+    # first record belongs to alt record set
     test_data_list[9]['fields']['alternate_record_set'] = 1
 
     # create one other record
@@ -675,7 +721,6 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
     test_data_list.insert(0, alternate_record_set)
     return test_data_list
 
-
 print('generating %d test file rows' % file_max_rows)
 print('mode: %s' % mode)
 if 'request' in mode:
@@ -684,14 +729,21 @@ print('validate json: %s' % str(validate_json))
 print('generating %d test file storage rows' % file_storage_max_rows)
 print('DEBUG: %s' % str(DEBUG))
 
+contract_list = generate_contracts(mode, contract_max_rows, validate_json)
 file_storage_list = generate_file_storages(mode, file_storage_max_rows)
 file_list, directory_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
-data_catalogs_list = generate_data_catalogs(mode, data_catalog_max_rows, validate_json)
-contract_list = generate_contracts(mode, contract_max_rows, validate_json)
-catalog_record_list = generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, contract_list,
-                                               file_list, validate_json, url)
 
-save_test_data(mode, file_storage_list, directory_list, file_list,
-               data_catalogs_list, contract_list, catalog_record_list, batch_size)
+ida_data_catalogs_list = generate_data_catalogs(mode, 1, ida_data_catalog_max_rows, validate_json, 'ida')
+att_data_catalogs_list = generate_data_catalogs(mode, ida_data_catalog_max_rows + 1, att_data_catalog_max_rows,
+                                                validate_json, 'att')
+
+catalog_record_list = generate_catalog_records(mode, ida_catalog_record_max_rows, ida_data_catalogs_list,
+                                               contract_list, file_list, validate_json, url, 'ida')
+catalog_record_list = generate_catalog_records(mode, att_catalog_record_max_rows, att_data_catalogs_list,
+                                               contract_list, [], validate_json, url, 'att', catalog_record_list)
+
+catalog_record_list = generate_alt_catalog_records(catalog_record_list)
+save_test_data(mode, file_storage_list, directory_list, file_list, ida_data_catalogs_list + att_data_catalogs_list,
+               contract_list, catalog_record_list, batch_size)
 
 print('done')

@@ -103,7 +103,7 @@
         }
       }
     ],
-    "research_dataset_schema": "ida",
+    "research_dataset_schema": null,
     "dataset_versioning": true
   },
   "service_created": "metax"

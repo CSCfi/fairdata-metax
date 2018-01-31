@@ -103,7 +103,7 @@ class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_search_by_preservation_state_many(self):
         response = self.client.get('/rest/datasets?state=1,2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual(len(response.data['results']), 4)
         self.assertEqual(response.data['results'][0]['preservation_state'], 1)
         self.assertEqual(response.data['results'][1]['preservation_state'], 2)
 
@@ -122,7 +122,7 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_search_by_curator_1(self):
         response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 5)
+        self.assertEqual(len(response.data['results']), 10)
         self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
                          'Curator name is not matching')
         self.assertEqual(response.data['results'][4]['research_dataset']['curator'][0]['name'], 'Rahikainen',
@@ -150,7 +150,7 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_search_by_curator_and_state_1(self):
         response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(len(response.data['results']), 2)
         self.assertEqual(response.data['results'][0]['id'], 2)
         self.assertEqual(response.data['results'][0]['preservation_state'], 1)
         self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
@@ -159,7 +159,7 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_search_by_curator_and_state_2(self):
         response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(len(response.data['results']), 2)
         self.assertEqual(response.data['results'][0]['id'], 3)
         self.assertEqual(response.data['results'][0]['preservation_state'], 2)
         self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
@@ -251,14 +251,14 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) == 2)
+        self.assertTrue(len(response.data) == 4)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) == 2)
+        self.assertTrue(len(response.data) == 4)
 
         # The assert below may brake if the date_modified timestamps or the amount of test data objects are altered
         # in the test data
@@ -268,7 +268,7 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) > 2)
+        self.assertTrue(len(response.data) > 4)
 
 
 class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):

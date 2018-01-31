@@ -1309,6 +1309,474 @@
     },
     {
         "fields": {
+            "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "dataset_versioning": true,
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d5",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
+                            }
+                        }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
+                    }
+                },
+                "research_dataset_schema": "att",
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "dataset_versioning": true,
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d6",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
+                            }
+                        }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
+                    }
+                },
+                "research_dataset_schema": "att",
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 6
+    },
+    {
+        "fields": {
+            "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "dataset_versioning": false,
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d7",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
+                            }
+                        }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
+                    }
+                },
+                "research_dataset_schema": "att",
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 7
+    },
+    {
+        "fields": {
+            "catalog_json": {
+                "access_rights": {
+                    "description": [
+                        {
+                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "title": {
+                                "en": "CC BY 4.0",
+                                "fi": "CC BY 4.0"
+                            }
+                        }
+                    ],
+                    "type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ]
+                },
+                "dataset_versioning": false,
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": false,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d8",
+                "issued": "2014-02-27T08:19:58Z",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin"
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
+                            }
+                        }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
+                    }
+                },
+                "research_dataset_schema": "att",
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_group_create": "default-record-create-group",
+            "catalog_record_group_edit": "default-record-edit-group",
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 8
+    },
+    {
+        "fields": {
             "contract_json": {
                 "contact": [
                     {
@@ -4118,6 +4586,2592 @@
     },
     {
         "fields": {
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "identifier": "qvain",
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset13",
+                "remote_resources": [
+                    {
+                        "byte_size": 6656,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 13",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 13312,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 13",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 19968,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9613",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 13
+    },
+    {
+        "fields": {
+            "contract": 1,
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "identifier": "qvain",
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 1,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Rahikainen"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset14",
+                "remote_resources": [
+                    {
+                        "byte_size": 7168,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 14",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 14336,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 14",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 21504,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9614",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 14
+    },
+    {
+        "fields": {
+            "contract": 1,
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "05593961536b76fa825281ccaedd4d4f",
+                "identifier": "qvain",
+                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 2,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Rahikainen"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset15",
+                "remote_resources": [
+                    {
+                        "byte_size": 7680,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 15",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 15360,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 15",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 23040,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9615",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 15
+    },
+    {
+        "fields": {
+            "contract": 1,
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "identifier": "qvain",
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 3,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Rahikainen"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset16",
+                "remote_resources": [
+                    {
+                        "byte_size": 8192,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 16",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 16384,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 16",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 24576,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9616",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 16
+    },
+    {
+        "fields": {
+            "contract": 1,
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 4,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Rahikainen"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset17",
+                "remote_resources": [
+                    {
+                        "byte_size": 8704,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 17",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 17408,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 17",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 26112,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9617",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 17
+    },
+    {
+        "fields": {
+            "contract": 1,
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "identifier": "qvain",
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 5,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Rahikainen"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset18",
+                "remote_resources": [
+                    {
+                        "byte_size": 9216,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 18",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 18432,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 18",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 27648,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9618",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 18
+    },
+    {
+        "fields": {
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "identifier": "qvain",
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset19",
+                "remote_resources": [
+                    {
+                        "byte_size": 9728,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 19",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 19456,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 19",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 29184,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9619",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 19
+    },
+    {
+        "fields": {
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "05593961536b76fa825281ccaedd4d4f",
+                "identifier": "qvain",
+                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset20",
+                "remote_resources": [
+                    {
+                        "byte_size": 10240,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 20",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 20480,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 20",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 30720,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9620",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 20
+    },
+    {
+        "fields": {
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "identifier": "qvain",
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset21",
+                "remote_resources": [
+                    {
+                        "byte_size": 10752,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 21",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 21504,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 21",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 32256,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9621",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 21
+    },
+    {
+        "fields": {
+            "data_catalog": 5,
+            "dataset_group_edit": "default-dataset-edit-group",
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-06-23T10:07:22Z",
+            "editor": {
+                "creator_id": "055ea531a6cac569425bed94459266ee",
+                "identifier": "qvain",
+                "owner_id": "055ea531a6cac569425bed94459266ee"
+            },
+            "files": [],
+            "mets_object_identifier": null,
+            "preservation_state": 0,
+            "preservation_state_modified": null,
+            "research_dataset": {
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "Mysteeriorganisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Person",
+                        "identifier": "id:of:curator:jarski",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Jarski"
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "preferred_identifier": "pid:urn:preferred:dataset22",
+                "remote_resources": [
+                    {
+                        "byte_size": 11264,
+                        "checksum": {
+                            "algorithm": "SHA-256",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "modified": "2014-01-12T17:11:54Z",
+                        "title": "Remote resource 22",
+                        "use_category": {
+                            "identifier": "outcome"
+                        }
+                    },
+                    {
+                        "byte_size": 22528,
+                        "checksum": {
+                            "algorithm": "SHA-512",
+                            "checksum_value": "u3k4kn7n1g56l6rq5a5s"
+                        },
+                        "modified": "2013-01-12T11:11:54Z",
+                        "title": "Other remote resource 22",
+                        "use_category": {
+                            "identifier": "source"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_remote_resources_byte_size": 33792,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9622",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 22
+    },
+    {
+        "fields": {
+            "data_catalog": 5,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-09-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+            },
+            "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.accessrights.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
+                    },
+                    "available": "2014-01-15T08:19:58Z",
+                    "description": [
+                        {
+                            "en": "Free account of the rights"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "homepage": {
+                                "description": {
+                                    "en": "homepage description"
+                                },
+                                "identifier": "https://www.csc.fi",
+                                "title": {
+                                    "en": "homepage title"
+                                }
+                            },
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "description": [
+                                {
+                                    "en": "Free account of the rights"
+                                }
+                            ],
+                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                            "license": "https://url.of.license.which.applies.here.org",
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
+                        }
+                    ],
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
+                "bibliographic_citation": "whot",
+                "contributor": [
+                    {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                        },
+                        "email": "kalle.kontribuuttaaja@csc.fi",
+                        "identifier": "contributorid",
+                        "member_of": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": {
+                                "en": "Mysterious Organization 1",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
+                        "name": "Kalle Kontribuuttaja",
+                        "telephone": [
+                            "+358501231122"
+                        ]
+                    },
+                    {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "project_administration"
+                        },
+                        "email": "franzibald.kontribuuttaaja@csc.fi",
+                        "identifier": "contributorid2",
+                        "member_of": {
+                            "@type": "Organization",
+                            "email": "joo@csc.fi",
+                            "identifier": "org_identifier",
+                            "name": {
+                                "en": "Mysterious Organization 2",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+23423423"
+                            ]
+                        },
+                        "name": "Franzibald Kontribuuttaja",
+                        "telephone": [
+                            "+358501231133"
+                        ]
+                    }
+                ],
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "data_curation"
+                        },
+                        "member_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Organization",
+                        "identifier": "id:of:curator:default",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
+                        "name": {
+                            "en": "Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "field_of_science": [
+                    {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.that.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
+                    }
+                ],
+                "infrastructure": [
+                    {
+                        "identifier": "urn-nbn-fi-research-infras-2016072530"
+                    }
+                ],
+                "is_output_of": [
+                    {
+                        "funder_type": {
+                            "identifier": "tekes"
+                        },
+                        "has_funder_identifier": "funderprojectidentifier",
+                        "has_funding_agency": [
+                            {
+                                "@type": "Organization",
+                                "email": "rahoitus@rahaorg.fi",
+                                "identifier": "fundingagencyidentifier",
+                                "name": {
+                                    "en": "Funding Organization",
+                                    "fi": "Organisaatio"
+                                },
+                                "telephone": [
+                                    "+358501232233"
+                                ]
+                            }
+                        ],
+                        "identifier": "projectidentifier",
+                        "name": {
+                            "en": "Name of project"
+                        },
+                        "source_organization": [
+                            {
+                                "@type": "Organization",
+                                "email": "info@csc.fi",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
+                                "telephone": [
+                                    "+358501231235"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "issued": "2014-01-17T08:19:58Z",
+                "keyword": [
+                    "keyword",
+                    "keyword2",
+                    "keyword3"
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "other_identifier": [
+                    {
+                        "local_identifier_type": "Local identifier type defines use of the identifier in given context",
+                        "notation": "doi:10.12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
+                        "type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "doi",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.some.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ],
+                            "pref_label": {
+                                "en": "pref label"
+                            }
+                        }
+                    },
+                    {
+                        "local_identifier_type": "Local identifier type defines use of the identifier in given context",
+                        "notation": "urn:nbn:fi-12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": [
+                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                            ],
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
+                        "type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.other.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ],
+                            "pref_label": {
+                                "en": "pref label for y"
+                            }
+                        }
+                    }
+                ],
+                "preferred_identifier": "very:unique:urn-0",
+                "provenance": [
+                    {
+                        "description": {
+                            "en": "Description of provenance activity"
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some activity"
+                        },
+                        "type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.provenance.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ]
+                        },
+                        "used_entity": [
+                            {
+                                "description": [
+                                    {
+                                        "en": "Description"
+                                    }
+                                ],
+                                "identifier": "someidhereagain",
+                                "title": {
+                                    "en": "Title"
+                                },
+                                "type": {
+                                    "definition": [
+                                        {
+                                            "en": "A statement or formal explanation of the meaning of a concept."
+                                        }
+                                    ],
+                                    "identifier": "thisisnotenoughconcepts",
+                                    "in_scheme": [
+                                        {
+                                            "identifier": "http://uri.of.used.concept/scheme",
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
+                                        }
+                                    ],
+                                    "pref_label": {
+                                        "en": "pref label for this type"
+                                    }
+                                }
+                            }
+                        ],
+                        "variable": [
+                            {
+                                "concept": {
+                                    "definition": [
+                                        {
+                                            "en": "A statement or formal explanation of the meaning of a concept."
+                                        }
+                                    ],
+                                    "identifier": "variableconceptidentifier",
+                                    "in_scheme": [
+                                        {
+                                            "identifier": "http://uri.of.variable.concept/scheme",
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
+                                        }
+                                    ],
+                                    "pref_label": {
+                                        "en": "pref label"
+                                    }
+                                },
+                                "description": [
+                                    {
+                                        "en": "Description"
+                                    }
+                                ],
+                                "pref_label": {
+                                    "en": "Preferred label"
+                                },
+                                "representation": {
+                                    "identifier": "identifierheretoo",
+                                    "pref_label": {
+                                        "en": "Preferred label"
+                                    }
+                                },
+                                "universe": {
+                                    "definition": [
+                                        {
+                                            "en": "A statement or formal explanation of the meaning of a concept."
+                                        }
+                                    ],
+                                    "identifier": "universeconceptidentifier",
+                                    "in_scheme": [
+                                        {
+                                            "identifier": "http://uri.of.universe.concept/scheme",
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
+                                        }
+                                    ],
+                                    "pref_label": {
+                                        "en": "pref label"
+                                    }
+                                }
+                            }
+                        ],
+                        "was_associated_with": [
+                            {
+                                "@type": "Organization",
+                                "email": "info@csc.fi",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
+                                "telephone": [
+                                    "+358501231235"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "description": {
+                            "en": "Description of other provenance activity"
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p105917"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some other activity"
+                        },
+                        "type": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        }
+                    }
+                ],
+                "publisher": {
+                    "@type": "Organization",
+                    "email": "info@csc.fi",
+                    "homepage": {
+                        "identifier": "http://www.publisher.fi/",
+                        "title": {
+                            "en": "Publisher website",
+                            "fi": "Julkaisijan kotisivu"
+                        }
+                    },
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "email": "info@csc.fi",
+                        "homepage": {
+                            "identifier": "http://www.publisher_parent.fi/",
+                            "title": {
+                                "en": "Publisher parent website",
+                                "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
+                            }
+                        },
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "name": {
+                            "en": "Parent of Mysterious Organization",
+                            "fi": "Organisaatio"
+                        },
+                        "telephone": [
+                            "+234234"
+                        ]
+                    },
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
+                    "telephone": [
+                        "+358501231235"
+                    ]
+                },
+                "related_entity": [
+                    {
+                        "description": [
+                            {
+                                "en": "An account of the resource"
+                            }
+                        ],
+                        "identifier": "urn:nbn:fi:research-infras-2016111647",
+                        "title": {
+                            "en": "A name given to the resource"
+                        },
+                        "type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.this.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ],
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
+                        }
+                    }
+                ],
+                "relation": [
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset:identifier",
+                            "title": {
+                                "en": "External dataset 1",
+                                "fi": "Ulkopuolinen aineisto 1"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "wasDerivedFrom"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "cites"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset_2:identifier",
+                            "title": {
+                                "en": "External dataset 2",
+                                "fi": "Ulkopuolinen aineisto 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "isPartOf"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing_2:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "hasPreviousVersion"
+                        }
+                    }
+                ],
+                "remote_resources": [
+                    {
+                        "byte_size": 2048,
+                        "checksum": {
+                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "description": "Free-text account of the distribution.",
+                        "download_url": {
+                            "description": {
+                                "en": "Description of the link. For example to be used as hover text."
+                            },
+                            "identifier": "https://download.url.of.resource.com",
+                            "title": {
+                                "en": "A name given to the document, which would be an actual downloadable file"
+                            }
+                        },
+                        "file_type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.resource.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ]
+                        },
+                        "has_object_characteristics": {
+                            "description": "Description of file type",
+                            "encoding": "utf-8",
+                            "has_creating_application_name": "Creating application name",
+                            "title": "File type name"
+                        },
+                        "identifier": "identifierofresource",
+                        "license": [
+                            {
+                                "description": [
+                                    {
+                                        "en": "Free account of the rights"
+                                    }
+                                ],
+                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "license": "https://url.of.license.which.applies.org",
+                                "title": {
+                                    "en": "A name given to the resource"
+                                }
+                            }
+                        ],
+                        "mediatype": "image/jpeg",
+                        "modified": "2013-01-17T08:19:58Z",
+                        "title": "A name given to the distribution",
+                        "use_category": {
+                            "identifier": "rights"
+                        }
+                    },
+                    {
+                        "access_url": {
+                            "description": {
+                                "en": "Description of the link. For example to be used as hover text."
+                            },
+                            "identifier": "https://url.of.resource.com/landing",
+                            "title": {
+                                "en": "A name given to the document, which may be e.g. a landing page"
+                            }
+                        },
+                        "byte_size": 4096,
+                        "checksum": {
+                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "description": "Free-text account of the second distribution.",
+                        "identifier": "identifierofresource_2",
+                        "license": [
+                            {
+                                "description": [
+                                    {
+                                        "en": "Free account of the rights"
+                                    }
+                                ],
+                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "license": "https://url.of.license.which.applies.org",
+                                "title": {
+                                    "en": "A name given to the resource"
+                                }
+                            }
+                        ],
+                        "mediatype": "image/gif",
+                        "modified": "2013-01-17T08:19:58Z",
+                        "resource_type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.resource.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ]
+                        },
+                        "title": "A name given to the second distribution",
+                        "use_category": {
+                            "identifier": "documentation"
+                        }
+                    }
+                ],
+                "rights_holder": {
+                    "@type": "Organization",
+                    "email": "info@csc.fi",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "identifier": "10076",
+                        "name": {
+                            "en": "Parent Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
+                    },
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
+                    "telephone": [
+                        "+358501231235"
+                    ]
+                },
+                "spatial": [
+                    {
+                        "alt": "11.111",
+                        "as_wkt": [
+                            "POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"
+                        ],
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name",
+                        "place_uri": {
+                            "identifier": "http://www.yso.fi/onto/yso/p107966"
+                        }
+                    },
+                    {
+                        "alt": "60",
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name 2",
+                        "place_uri": {
+                            "identifier": "http://www.yso.fi/onto/yso/p107966"
+                        }
+                    }
+                ],
+                "temporal": [
+                    {
+                        "end_date": "2014-12-31T08:19:58Z",
+                        "start_date": "2014-01-01T08:19:58Z"
+                    }
+                ],
+                "theme": [
+                    {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://www.yso.fi/onto/yso/p20518",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for theme"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_ida_byte_size": 12345,
+                "total_remote_resources_byte_size": 6144,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
+                "value": [
+                    0.111
+                ],
+                "version_info": "0.1.2",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 23
+    },
+    {
+        "fields": {
+            "data_catalog": 5,
+            "date_created": "2017-05-23T10:07:22Z",
+            "date_modified": "2017-09-23T10:07:22Z",
+            "editor": {
+                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+            },
+            "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.accessrights.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
+                    },
+                    "available": "2014-01-15T08:19:58Z",
+                    "description": [
+                        {
+                            "en": "Free account of the rights"
+                        }
+                    ],
+                    "has_rights_related_agent": [
+                        {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "homepage": {
+                                "description": {
+                                    "en": "homepage description"
+                                },
+                                "identifier": "https://www.csc.fi",
+                                "title": {
+                                    "en": "homepage title"
+                                }
+                            },
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "description": [
+                                {
+                                    "en": "Free account of the rights"
+                                }
+                            ],
+                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                            "license": "https://url.of.license.which.applies.here.org",
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
+                        }
+                    ],
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
+                "bibliographic_citation": "whot",
+                "contributor": [
+                    {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                        },
+                        "email": "kalle.kontribuuttaaja@csc.fi",
+                        "identifier": "contributorid",
+                        "member_of": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": {
+                                "en": "Mysterious Organization 1",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
+                        "name": "Kalle Kontribuuttaja",
+                        "telephone": [
+                            "+358501231122"
+                        ]
+                    },
+                    {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "project_administration"
+                        },
+                        "email": "franzibald.kontribuuttaaja@csc.fi",
+                        "identifier": "contributorid2",
+                        "member_of": {
+                            "@type": "Organization",
+                            "email": "joo@csc.fi",
+                            "identifier": "org_identifier",
+                            "name": {
+                                "en": "Mysterious Organization 2",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+23423423"
+                            ]
+                        },
+                        "name": "Franzibald Kontribuuttaja",
+                        "telephone": [
+                            "+358501231133"
+                        ]
+                    }
+                ],
+                "creator": [
+                    {
+                        "@type": "Person",
+                        "contributor_role": {
+                            "identifier": "data_curation"
+                        },
+                        "member_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
+                        "name": "Teppo Testaaja"
+                    }
+                ],
+                "curator": [
+                    {
+                        "@type": "Organization",
+                        "identifier": "id:of:curator:default",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
+                        "name": {
+                            "en": "Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
+                    }
+                ],
+                "description": [
+                    {
+                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                    }
+                ],
+                "field_of_science": [
+                    {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.that.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for this type"
+                        }
+                    }
+                ],
+                "infrastructure": [
+                    {
+                        "identifier": "urn-nbn-fi-research-infras-2016072530"
+                    }
+                ],
+                "is_output_of": [
+                    {
+                        "funder_type": {
+                            "identifier": "tekes"
+                        },
+                        "has_funder_identifier": "funderprojectidentifier",
+                        "has_funding_agency": [
+                            {
+                                "@type": "Organization",
+                                "email": "rahoitus@rahaorg.fi",
+                                "identifier": "fundingagencyidentifier",
+                                "name": {
+                                    "en": "Funding Organization",
+                                    "fi": "Organisaatio"
+                                },
+                                "telephone": [
+                                    "+358501232233"
+                                ]
+                            }
+                        ],
+                        "identifier": "projectidentifier",
+                        "name": {
+                            "en": "Name of project"
+                        },
+                        "source_organization": [
+                            {
+                                "@type": "Organization",
+                                "email": "info@csc.fi",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
+                                "telephone": [
+                                    "+358501231235"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "issued": "2014-01-17T08:19:58Z",
+                "keyword": [
+                    "keyword",
+                    "keyword2",
+                    "keyword3"
+                ],
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng"
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "other_identifier": [
+                    {
+                        "local_identifier_type": "Local identifier type defines use of the identifier in given context",
+                        "notation": "doi:10.12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
+                        "type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "doi",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.some.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ],
+                            "pref_label": {
+                                "en": "pref label"
+                            }
+                        }
+                    },
+                    {
+                        "local_identifier_type": "Local identifier type defines use of the identifier in given context",
+                        "notation": "urn:nbn:fi-12345",
+                        "provider": {
+                            "@type": "Organization",
+                            "email": "info@csc.fi",
+                            "identifier": [
+                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                            ],
+                            "name": {
+                                "en": "Mysterious Organization",
+                                "fi": "Organisaatio"
+                            },
+                            "telephone": [
+                                "+358501231235"
+                            ]
+                        },
+                        "type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.other.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ],
+                            "pref_label": {
+                                "en": "pref label for y"
+                            }
+                        }
+                    }
+                ],
+                "preferred_identifier": "very:unique:urn-1",
+                "provenance": [
+                    {
+                        "description": {
+                            "en": "Description of provenance activity"
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some activity"
+                        },
+                        "type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.provenance.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ]
+                        },
+                        "used_entity": [
+                            {
+                                "description": [
+                                    {
+                                        "en": "Description"
+                                    }
+                                ],
+                                "identifier": "someidhereagain",
+                                "title": {
+                                    "en": "Title"
+                                },
+                                "type": {
+                                    "definition": [
+                                        {
+                                            "en": "A statement or formal explanation of the meaning of a concept."
+                                        }
+                                    ],
+                                    "identifier": "thisisnotenoughconcepts",
+                                    "in_scheme": [
+                                        {
+                                            "identifier": "http://uri.of.used.concept/scheme",
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
+                                        }
+                                    ],
+                                    "pref_label": {
+                                        "en": "pref label for this type"
+                                    }
+                                }
+                            }
+                        ],
+                        "variable": [
+                            {
+                                "concept": {
+                                    "definition": [
+                                        {
+                                            "en": "A statement or formal explanation of the meaning of a concept."
+                                        }
+                                    ],
+                                    "identifier": "variableconceptidentifier",
+                                    "in_scheme": [
+                                        {
+                                            "identifier": "http://uri.of.variable.concept/scheme",
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
+                                        }
+                                    ],
+                                    "pref_label": {
+                                        "en": "pref label"
+                                    }
+                                },
+                                "description": [
+                                    {
+                                        "en": "Description"
+                                    }
+                                ],
+                                "pref_label": {
+                                    "en": "Preferred label"
+                                },
+                                "representation": {
+                                    "identifier": "identifierheretoo",
+                                    "pref_label": {
+                                        "en": "Preferred label"
+                                    }
+                                },
+                                "universe": {
+                                    "definition": [
+                                        {
+                                            "en": "A statement or formal explanation of the meaning of a concept."
+                                        }
+                                    ],
+                                    "identifier": "universeconceptidentifier",
+                                    "in_scheme": [
+                                        {
+                                            "identifier": "http://uri.of.universe.concept/scheme",
+                                            "pref_label": {
+                                                "en": "The preferred lexical label for a resource"
+                                            }
+                                        }
+                                    ],
+                                    "pref_label": {
+                                        "en": "pref label"
+                                    }
+                                }
+                            }
+                        ],
+                        "was_associated_with": [
+                            {
+                                "@type": "Organization",
+                                "email": "info@csc.fi",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "name": {
+                                    "en": "Mysterious Organization",
+                                    "fi": "Organisaatio"
+                                },
+                                "telephone": [
+                                    "+358501231235"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "description": {
+                            "en": "Description of other provenance activity"
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p105917"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some other activity"
+                        },
+                        "type": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        }
+                    }
+                ],
+                "publisher": {
+                    "@type": "Organization",
+                    "email": "info@csc.fi",
+                    "homepage": {
+                        "identifier": "http://www.publisher.fi/",
+                        "title": {
+                            "en": "Publisher website",
+                            "fi": "Julkaisijan kotisivu"
+                        }
+                    },
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "email": "info@csc.fi",
+                        "homepage": {
+                            "identifier": "http://www.publisher_parent.fi/",
+                            "title": {
+                                "en": "Publisher parent website",
+                                "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
+                            }
+                        },
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "name": {
+                            "en": "Parent of Mysterious Organization",
+                            "fi": "Organisaatio"
+                        },
+                        "telephone": [
+                            "+234234"
+                        ]
+                    },
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
+                    "telephone": [
+                        "+358501231235"
+                    ]
+                },
+                "related_entity": [
+                    {
+                        "description": [
+                            {
+                                "en": "An account of the resource"
+                            }
+                        ],
+                        "identifier": "urn:nbn:fi:research-infras-2016111647",
+                        "title": {
+                            "en": "A name given to the resource"
+                        },
+                        "type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.this.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ],
+                            "pref_label": {
+                                "en": "pref label for this type"
+                            }
+                        }
+                    }
+                ],
+                "relation": [
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset:identifier",
+                            "title": {
+                                "en": "External dataset 1",
+                                "fi": "Ulkopuolinen aineisto 1"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "wasDerivedFrom"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "cites"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:dataset_2:identifier",
+                            "title": {
+                                "en": "External dataset 2",
+                                "fi": "Ulkopuolinen aineisto 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "isPartOf"
+                        }
+                    },
+                    {
+                        "entity": {
+                            "description": [
+                                {
+                                    "fi": "Kuvailutiedot"
+                                }
+                            ],
+                            "identifier": "external:thing_2:identifier",
+                            "title": {
+                                "en": "External thing 2",
+                                "fi": "Ulkopuolinen asia 2"
+                            }
+                        },
+                        "relation_type": {
+                            "identifier": "hasPreviousVersion"
+                        }
+                    }
+                ],
+                "remote_resources": [
+                    {
+                        "byte_size": 2048,
+                        "checksum": {
+                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "description": "Free-text account of the distribution.",
+                        "download_url": {
+                            "description": {
+                                "en": "Description of the link. For example to be used as hover text."
+                            },
+                            "identifier": "https://download.url.of.resource.com",
+                            "title": {
+                                "en": "A name given to the document, which would be an actual downloadable file"
+                            }
+                        },
+                        "file_type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.resource.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ]
+                        },
+                        "has_object_characteristics": {
+                            "description": "Description of file type",
+                            "encoding": "utf-8",
+                            "has_creating_application_name": "Creating application name",
+                            "title": "File type name"
+                        },
+                        "identifier": "identifierofresource",
+                        "license": [
+                            {
+                                "description": [
+                                    {
+                                        "en": "Free account of the rights"
+                                    }
+                                ],
+                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "license": "https://url.of.license.which.applies.org",
+                                "title": {
+                                    "en": "A name given to the resource"
+                                }
+                            }
+                        ],
+                        "mediatype": "image/jpeg",
+                        "modified": "2013-01-17T08:19:58Z",
+                        "title": "A name given to the distribution",
+                        "use_category": {
+                            "identifier": "rights"
+                        }
+                    },
+                    {
+                        "access_url": {
+                            "description": {
+                                "en": "Description of the link. For example to be used as hover text."
+                            },
+                            "identifier": "https://url.of.resource.com/landing",
+                            "title": {
+                                "en": "A name given to the document, which may be e.g. a landing page"
+                            }
+                        },
+                        "byte_size": 4096,
+                        "checksum": {
+                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "checksum_value": "u5y6f4y68765ngf6ry8n"
+                        },
+                        "description": "Free-text account of the second distribution.",
+                        "identifier": "identifierofresource_2",
+                        "license": [
+                            {
+                                "description": [
+                                    {
+                                        "en": "Free account of the rights"
+                                    }
+                                ],
+                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "license": "https://url.of.license.which.applies.org",
+                                "title": {
+                                    "en": "A name given to the resource"
+                                }
+                            }
+                        ],
+                        "mediatype": "image/gif",
+                        "modified": "2013-01-17T08:19:58Z",
+                        "resource_type": {
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
+                            "in_scheme": [
+                                {
+                                    "identifier": "http://uri.of.resource.concept/scheme",
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    }
+                                }
+                            ]
+                        },
+                        "title": "A name given to the second distribution",
+                        "use_category": {
+                            "identifier": "documentation"
+                        }
+                    }
+                ],
+                "rights_holder": {
+                    "@type": "Organization",
+                    "email": "info@csc.fi",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "is_part_of": {
+                        "@type": "Organization",
+                        "identifier": "10076",
+                        "name": {
+                            "en": "Parent Mysterious Organization",
+                            "fi": "Organisaatio"
+                        }
+                    },
+                    "name": {
+                        "en": "Mysterious Organization",
+                        "fi": "Organisaatio"
+                    },
+                    "telephone": [
+                        "+358501231235"
+                    ]
+                },
+                "spatial": [
+                    {
+                        "alt": "11.111",
+                        "as_wkt": [
+                            "POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"
+                        ],
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name",
+                        "place_uri": {
+                            "identifier": "http://www.yso.fi/onto/yso/p107966"
+                        }
+                    },
+                    {
+                        "alt": "60",
+                        "full_address": "The complete address written as a string, with or without formatting",
+                        "geographic_name": "Geographic name 2",
+                        "place_uri": {
+                            "identifier": "http://www.yso.fi/onto/yso/p107966"
+                        }
+                    }
+                ],
+                "temporal": [
+                    {
+                        "end_date": "2014-12-31T08:19:58Z",
+                        "start_date": "2014-01-01T08:19:58Z"
+                    }
+                ],
+                "theme": [
+                    {
+                        "definition": [
+                            {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            }
+                        ],
+                        "identifier": "http://www.yso.fi/onto/yso/p20518",
+                        "in_scheme": [
+                            {
+                                "identifier": "http://uri.of.concept/scheme",
+                                "pref_label": {
+                                    "en": "The preferred lexical label for a resource"
+                                }
+                            }
+                        ],
+                        "pref_label": {
+                            "en": "pref label for theme"
+                        }
+                    }
+                ],
+                "title": {
+                    "en": "Wonderful Title"
+                },
+                "total_ida_byte_size": 12345,
+                "total_remote_resources_byte_size": 6144,
+                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9624",
+                "value": [
+                    0.111
+                ],
+                "version_info": "0.1.2",
+                "version_notes": [
+                    "This version contains changes to x and y."
+                ]
+            },
+            "service_created": "metax"
+        },
+        "model": "metax_api.catalogrecord",
+        "pk": 24
+    },
+    {
+        "fields": {
             "alternate_record_set": 1,
             "data_catalog": 2,
             "dataset_group_edit": "default-dataset-edit-group",
@@ -4201,7 +7255,7 @@
             "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
-        "pk": 13
+        "pk": 25
     },
     {
         "fields": {
@@ -4288,6 +7342,6 @@
             "service_created": "metax"
         },
         "model": "metax_api.catalogrecord",
-        "pk": 14
+        "pk": 26
     }
 ]

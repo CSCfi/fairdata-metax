@@ -1,5 +1,5 @@
 {
-  "data_catalog": 1,
+  "data_catalog": null,
   "research_dataset": {
     "urn_identifier": null,
     "preferred_identifier": null,
@@ -659,7 +659,7 @@
             "license": "https://url.of.license.which.applies.org"
           }
         ],
-        "resource_type": {
+        "file_type": {
           "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
           "definition": [
             {
