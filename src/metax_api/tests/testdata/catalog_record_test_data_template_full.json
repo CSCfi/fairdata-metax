@@ -717,7 +717,7 @@
         "title": "A name given to the distribution",
         "description": "Free-text account of the distribution.",
         "modified": "2013-01-17T08:19:58Z",
-        "bytesize": "2048",
+        "byte_size": 2048,
         "access_url": {
           "identifier": "https://url.of.resource.com",
           "title": {
