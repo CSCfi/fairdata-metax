@@ -3578,38 +3578,6 @@
                         "+358501231235"
                     ]
                 },
-                "related_entity": [
-                    {
-                        "description": [
-                            {
-                                "en": "An account of the resource"
-                            }
-                        ],
-                        "identifier": "urn:nbn:fi:research-infras-2016111647",
-                        "title": {
-                            "en": "A name given to the resource"
-                        },
-                        "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.this.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
-                        }
-                    }
-                ],
                 "relation": [
                     {
                         "entity": {
@@ -4396,38 +4364,6 @@
                         "+358501231235"
                     ]
                 },
-                "related_entity": [
-                    {
-                        "description": [
-                            {
-                                "en": "An account of the resource"
-                            }
-                        ],
-                        "identifier": "urn:nbn:fi:research-infras-2016111647",
-                        "title": {
-                            "en": "A name given to the resource"
-                        },
-                        "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.this.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
-                        }
-                    }
-                ],
                 "relation": [
                     {
                         "entity": {
@@ -6038,38 +5974,6 @@
                         "+358501231235"
                     ]
                 },
-                "related_entity": [
-                    {
-                        "description": [
-                            {
-                                "en": "An account of the resource"
-                            }
-                        ],
-                        "identifier": "urn:nbn:fi:research-infras-2016111647",
-                        "title": {
-                            "en": "A name given to the resource"
-                        },
-                        "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.this.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
-                        }
-                    }
-                ],
                 "relation": [
                     {
                         "entity": {
@@ -6864,38 +6768,6 @@
                         "+358501231235"
                     ]
                 },
-                "related_entity": [
-                    {
-                        "description": [
-                            {
-                                "en": "An account of the resource"
-                            }
-                        ],
-                        "identifier": "urn:nbn:fi:research-infras-2016111647",
-                        "title": {
-                            "en": "A name given to the resource"
-                        },
-                        "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
-                            "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.this.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
-                            "pref_label": {
-                                "en": "pref label for this type"
-                            }
-                        }
-                    }
-                ],
                 "relation": [
                     {
                         "entity": {
