@@ -6327,7 +6327,6 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 12345,
                 "total_remote_resources_byte_size": 6144,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
                 "value": [
@@ -7154,7 +7153,6 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 12345,
                 "total_remote_resources_byte_size": 6144,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9624",
                 "value": [

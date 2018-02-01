@@ -93,18 +93,6 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
             }]
         })
 
-        if dc['catalog_json']['research_dataset_schema'] == 'ida':
-            catalog_record_from_test_data['research_dataset'].update({
-                "total_ida_byte_size": 1024,
-                "files": catalog_record_from_test_data['research_dataset']['files']
-            })
-
-        if dc['catalog_json']['research_dataset_schema'] == 'att':
-            catalog_record_from_test_data['research_dataset'].update({
-                "total_remote_resources_byte_size": 1024,
-                "remote_resources": catalog_record_from_test_data['research_dataset']['remote_resources']
-            })
-
         return catalog_record_from_test_data
 
     def _get_new_test_cr_data_with_updated_identifier(self):
