@@ -3223,7 +3223,7 @@
                                 "en": "A name given to the document, which may be e.g. a landing page"
                             }
                         },
-                        "bytesize": "2048",
+                        "byte_size": 2048,
                         "checksum": {
                             "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
@@ -3355,6 +3355,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 21000,
+                "total_remote_resources_byte_size": 2048,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "value": [
                     0.111
@@ -4112,7 +4113,7 @@
                                 "en": "A name given to the document, which may be e.g. a landing page"
                             }
                         },
-                        "bytesize": "2048",
+                        "byte_size": 2048,
                         "checksum": {
                             "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
@@ -4244,6 +4245,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 21000,
+                "total_remote_resources_byte_size": 2048,
                 "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "value": [
                     0.111

@@ -447,6 +447,12 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
             if owner_idx >= len(catalog_records_owner_ids):
                 owner_idx = 0
 
+            total_remote_resources_byte_size = 0
+            if 'remote_resources' in new['fields']['research_dataset']:
+                for rr in new['fields']['research_dataset']['remote_resources']:
+                    total_remote_resources_byte_size += rr.get('byte_size', 0)
+                new['fields']['research_dataset']['total_remote_resources_byte_size'] = total_remote_resources_byte_size
+
             # add files
 
             files = []
@@ -588,6 +594,7 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         row_template_full = json_load(json_file)
 
     total_ida_byte_size = 0
+
     for j in [0, 1]:
         new = {
             'fields': deepcopy(row_template_full),
@@ -609,8 +616,14 @@ def generate_catalog_records(mode, catalog_record_max_rows, data_catalogs_list, 
         file_identifier_0 = file_list[0]['fields']['identifier']
         file_identifier_1 = file_list[1]['fields']['identifier']
         total_ida_byte_size = sum(f['fields']['byte_size'] for f in file_list)
-
         new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+
+        total_remote_resources_byte_size = 0
+        if 'remote_resources' in new['fields']['research_dataset']:
+            for rr in new['fields']['research_dataset']['remote_resources']:
+                total_remote_resources_byte_size += rr.get('byte_size', 0)
+            new['fields']['research_dataset']['total_remote_resources_byte_size'] = total_remote_resources_byte_size
+
         new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
         new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
         json_validate(new['fields']['research_dataset'], json_schema)

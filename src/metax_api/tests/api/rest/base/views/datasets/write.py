@@ -2110,3 +2110,21 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self._add_nonexisting_directory(original_version)
         response = self.update_record(original_version)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+
+class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
+
+    """
+    remote_resources related tests
+    """
+
+    def test_calculate_total_remote_resources_byte_size(self):
+        cr_with_rr = self._get_object_from_test_data('catalogrecord', requested_index=11)
+        rr = cr_with_rr['research_dataset']['remote_resources']
+        total_remote_resources_byte_size = sum(res['byte_size'] for res in rr)
+        self.test_new_data['research_dataset']['remote_resources'] = rr
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('total_remote_resources_byte_size' in response.data['research_dataset'], True)
+        self.assertEqual(response.data['research_dataset']['total_remote_resources_byte_size'],
+            total_remote_resources_byte_size)
