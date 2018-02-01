@@ -58,38 +58,6 @@
         }
       }
     ],
-    "related_entity": [
-      {
-        "title": {
-          "en": "A name given to the resource"
-        },
-        "description": [
-          {
-            "en": "An account of the resource"
-          }
-        ],
-        "identifier": "urn:nbn:fi:research-infras-2016111647",
-        "type": {
-          "identifier": "http://urn.fi/urn:nbn:fi:research-infras-2016111647",
-          "pref_label": {
-            "en": "pref label for this type"
-          },
-          "definition": [
-            {
-              "en": "A statement or formal explanation of the meaning of a concept."
-            }
-          ],
-          "in_scheme": [
-            {
-              "pref_label": {
-                "en": "The preferred lexical label for a resource"
-              },
-              "identifier": "http://uri.of.this.concept/scheme"
-            }
-          ]
-        }
-      }
-    ],
     "infrastructure": [
       {
         "identifier": "urn-nbn-fi-research-infras-2016072530"
