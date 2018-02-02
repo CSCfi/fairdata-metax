@@ -83,14 +83,14 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data.get('results')) == 2)
+        self.assertTrue(len(response.data.get('results')) == 4)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data.get('results')) == 2)
+        self.assertTrue(len(response.data.get('results')) == 4)
 
         # The asserts below may brake if the date_modified timestamps or the amount of test data objects are altered
         # in the test data
@@ -100,5 +100,5 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data.get('results')) > 2)
-        self.assertTrue(len(response.data.get('results')) == 14)
+        self.assertTrue(len(response.data.get('results')) > 4)
+        self.assertTrue(len(response.data.get('results')) == 26)

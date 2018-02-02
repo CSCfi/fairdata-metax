@@ -131,6 +131,8 @@ class DatasetViewSet(CommonViewSet):
         """
         Get files associated to this dataset
         """
+        # TODO: This applies only to IDA files, not remote resources.
+        # TODO: Should this apply also to remote resources?
         catalog_record = self.get_object()
         files = [ FileSerializer(f).data for f in catalog_record.files.all() ]
         return Response(data=files, status=status.HTTP_200_OK)

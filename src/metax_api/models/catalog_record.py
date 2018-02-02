@@ -414,8 +414,9 @@ class CatalogRecord(Common):
             with connection.cursor() as cr:
                 cr.execute(sql_copy_files_from_prev_version, [self.id, self.previous_version.id])
 
-            self.research_dataset['total_ida_byte_size'] = \
-                self.previous_version.research_dataset['total_ida_byte_size']
+            if 'total_ida_byte_size' in self.previous_version.research_dataset:
+                self.research_dataset['total_ida_byte_size'] = \
+                    self.previous_version.research_dataset['total_ida_byte_size']
 
         return actual_files_changed
 
@@ -647,7 +648,7 @@ class CatalogRecord(Common):
                 rr['byte_size'] for rr in rd['remote_resources'] if 'byte_size' in rr
             )
         else:
-            rd['total_remote_resource_byte_size'] = 0
+            rd['total_remote_resources_byte_size'] = 0
 
     def _get_dataset_selected_file_ids(self):
         """
