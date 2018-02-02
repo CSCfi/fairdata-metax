@@ -36,7 +36,9 @@ class CommonViewSet(ModelViewSet):
 
         param search_params: pass a custom filter instead of using the default search mechanism
         """
-        if search_params:
+        if CS.get_boolean_query_param(self.request, 'removed'):
+            return self.get_removed_object(search_params=search_params)
+        elif search_params:
             filter_kwargs = search_params
         else:
             if CS.is_primary_key(self.kwargs.get(self.lookup_field, False)) or not hasattr(self, 'lookup_field_other'):
