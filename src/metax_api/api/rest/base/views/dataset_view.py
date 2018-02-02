@@ -134,6 +134,8 @@ class DatasetViewSet(CommonViewSet):
         """
         params = {}
         manager = 'objects'
+        # TODO: This applies only to IDA files, not remote resources.
+        # TODO: Should this apply also to remote resources?
         catalog_record = self.get_object()
 
         if CS.get_boolean_query_param(request, 'removed_files'):

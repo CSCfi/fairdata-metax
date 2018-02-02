@@ -138,7 +138,7 @@ class ApiModifyResponseTestV1(CatalogRecordApiWriteCommon):
         self._validate_response(response)
 
     def test_catalog_record_post_last_modified_header(self):
-        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self._validate_response(response)
 
     # TODO: Uncomment this once PUT returns the updated object
@@ -148,8 +148,8 @@ class ApiModifyResponseTestV1(CatalogRecordApiWriteCommon):
     #     self._validate_response(response)
 
     def test_catalog_record_patch_last_modified_header(self):
-        self.test_new_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
-        response = self.client.patch('/rest/datasets/1', self.test_new_data, format="json")
+        self.cr_test_data['research_dataset']['preferred_identifier'] = self.preferred_identifier
+        response = self.client.patch('/rest/datasets/1', self.cr_test_data, format="json")
         self._validate_response(response)
 
     def test_catalog_record_delete_does_not_contain_last_modified_header(self):
@@ -157,7 +157,7 @@ class ApiModifyResponseTestV1(CatalogRecordApiWriteCommon):
         self.assertFalse(response.has_header('Last-Modified'))
 
     def test_catalog_record_bulk_create_get_last_modified_header(self):
-        response = self.client.post('/rest/datasets', [self.test_new_data, self.test_new_data], format="json")
+        response = self.client.post('/rest/datasets', [self.cr_test_data, self.cr_test_data], format="json")
         self._validate_response(response)
 
     def _validate_response(self, response):

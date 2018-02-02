@@ -82,25 +82,25 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
     #
 
     def test_update_with_if_unmodified_since_header_ok(self):
-        self.test_new_data['preservation_description'] = 'damn this is good coffee'
+        self.cr_test_data['preservation_description'] = 'damn this is good coffee'
         cr = CatalogRecord.objects.get(pk=1)
         headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.date_modified.strftime('%a, %d %b %Y %H:%M:%S GMT')}
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json",
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.cr_test_data, format="json",
                                    **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_with_if_unmodified_since_header_precondition_failed_error(self):
-        self.test_new_data['preservation_description'] = 'the owls are not what they seem'
+        self.cr_test_data['preservation_description'] = 'the owls are not what they seem'
         headers = {'HTTP_IF_UNMODIFIED_SINCE': 'Wed, 23 Sep 2009 22:15:29 GMT'}
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json",
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.cr_test_data, format="json",
                                    **headers)
         self.assertEqual(response.status_code, 412, 'http status should be 412 = precondition failed')
 
     def test_update_with_if_unmodified_since_header_syntax_error(self):
-        self.test_new_data['preservation_description'] = 'the owls are not what they seem'
+        self.cr_test_data['preservation_description'] = 'the owls are not what they seem'
         cr = CatalogRecord.objects.get(pk=1)
         headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.date_modified.strftime('%a, %d %b %Y %H:%M:%S UTC')}
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.test_new_data, format="json",
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.cr_test_data, format="json",
                                    **headers)
         self.assertEqual(response.status_code, 400, 'http status should be 400')
 
