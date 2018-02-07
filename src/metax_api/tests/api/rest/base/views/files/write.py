@@ -648,6 +648,28 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_bulk_delete_files_identifiers_not_found(self):
+        """
+        A bulk delete request to /files, but any of the identifiers provided are not found.
+        Should return 404.
+        """
+        identifiers = ['nope', 'doesnotexist', 'stillno']
+        response = self.client.delete('/rest/files', identifiers, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+
+    def test_bulk_delete_files_some_identifiers_not_found(self):
+        """
+        A bulk delete request to /files, but some of the identifiers provided are not found.
+        Should be ok, delete those files that are found. Assumably those identifiers that were
+        not found did not exist anyway, therefore no harm is done.
+        """
+        identifiers = ['nope', 'doesnotexist', 'stillno']
+        identifiers.append(File.objects.get(pk=1).identifier)
+        response = self.client.delete('/rest/files', identifiers, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        removed = File.objects_unfiltered.get(pk=1).removed
+        self.assertEqual(removed, True, 'file should have been removed')
+
     def test_bulk_delete_files_in_single_directory_1(self):
         """
         A bulk delete request to /files, where the list of files does not contain a full

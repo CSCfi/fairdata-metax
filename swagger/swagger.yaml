@@ -153,10 +153,14 @@ paths:
           description: A list of ids, or a list of identifiers.
           required: true
       responses:
-        '204':
-          description: Successful operation. All files were marked deleted.
+        '200':
+          description: |
+            Successful operation. At least some requested files were marked deleted. If some of the provided
+            identifiers were not found, those are ignored. Returns count of deleted files in json body.
         '400':
           description: All updates failed. A list of errors is returned.
+        '404':
+          description: None of the provided identifiers were found.
       tags:
         - File API
   /files/{PID}:
