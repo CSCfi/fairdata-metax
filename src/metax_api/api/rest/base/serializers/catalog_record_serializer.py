@@ -158,7 +158,8 @@ class CatalogRecordSerializer(CommonSerializer):
             if not value.get('preferred_identifier', None):
                 # preferred_identifier can not be updated to empty. if the user is trying to
                 # do so, copy urn_identifier to it.
-                value['preferred_identifier'] = value['urn_identifier']
+                # note: if urn_identifier was missing too, validate_json will raise an error
+                value['preferred_identifier'] = value.get('urn_identifier', None)
 
             validate_json(value, self.json_schema)
 
