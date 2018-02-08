@@ -68,9 +68,6 @@ class FileService(CommonService):
 
         file_ids = cls._file_identifiers_to_ids(file_identifiers)
 
-        if not file_ids:
-            raise Http404
-
         sql_select_related_records = """
             select research_dataset->>'urn_identifier' as urn_identifier
             from metax_api_catalogrecord cr
@@ -140,13 +137,18 @@ class FileService(CommonService):
         In case file_identifiers is identifiers (strings), which they probably are in real use,
         do a query to get a list of pk's instead, since they will be used quite a few times.
         """
-        if not file_identifiers:
+        if not isinstance(file_identifiers, list):
+            raise Http400('Received identifiers is not a list')
+        elif not file_identifiers:
             _logger.info('Received empty list of identifiers. Aborting')
             raise Http400('Received empty list of identifiers')
         elif isinstance(file_identifiers[0], int):
             return file_identifiers
         else:
-            return [ id for id in File.objects.filter(identifier__in=file_identifiers).values_list('id', flat=True) ]
+            ids = [ id for id in File.objects.filter(identifier__in=file_identifiers).values_list('id', flat=True) ]
+            if not ids:
+                raise Http404
+            return ids
 
     @staticmethod
     def _mark_files_as_deleted(file_ids):
