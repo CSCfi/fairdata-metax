@@ -20,12 +20,12 @@ d = logging.getLogger(__name__).debug
 
 # avoiding circular imports
 def DirectorySerializer(*args, **kwargs):
-    from metax_api.api.base.serializers import DirectorySerializer as DS
+    from metax_api.api.rest.base.serializers import DirectorySerializer as DS
     DirectorySerializer = DS
     return DirectorySerializer(*args, **kwargs)
 
 def FileSerializer(*args, **kwargs):
-    from metax_api.api.base.serializers import FileSerializer as FS
+    from metax_api.api.rest.base.serializers import FileSerializer as FS
     FileSerializer = FS
     return FileSerializer(*args, **kwargs)
 
@@ -52,6 +52,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 except ValueError:
                     raise Http400({ 'state': ['Value \'%s\' is not an integer' % val] })
             queryset_search_params['preservation_state__in'] = state_vals
+
+        if CommonService.get_boolean_query_param(request, 'latest'):
+            queryset_search_params['next_version_id'] = None
 
         if request.query_params.get('curator', False):
             queryset_search_params['research_dataset__contains'] = \
@@ -231,12 +234,14 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             attr_type=False,
             item_func=item_func
         ).decode('utf-8')
-
+        # This is a bit ugly way to put the metax data to the datacite namespace,
+        # which allows us to use the default namespace in xquery files.
+        xml_str = xml_str.replace('<researchdataset>', '<researchdataset xmlns="http://datacite.org/schema/kernel-3">')
         if target_format == 'metax':
             # mostly for debugging purposes, the 'metax xml' can be returned as well
             return xml_str
 
-        target_xslt_file_path = join(dirname(dirname(__file__)), 'api/base/xslt/%s.xslt' % target_format)
+        target_xslt_file_path = join(dirname(dirname(__file__)), 'api/rest/base/xslt/%s.xslt' % target_format)
 
         try:
             with open(target_xslt_file_path) as f:

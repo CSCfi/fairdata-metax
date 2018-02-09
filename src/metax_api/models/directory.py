@@ -20,7 +20,7 @@ class Directory(Common):
     # END OF MODEL FIELD DEFINITIONS #
 
     indexes = [
-        models.Index(fields=['identifier']),
+        models.Index(fields=['identifier', 'directory_path', 'project_identifier']),
     ]
 
     def delete(self):

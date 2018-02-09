@@ -25,6 +25,24 @@ class CommonService():
         else:
             return True
 
+    @staticmethod
+    def get_boolean_query_param(request, param_name):
+        """
+        Helper method to also check for values, instead of only presence of a boolean parameter,
+        such as ?recursive=true/false instead of only ?recursive, which can only evaluate to true.
+        """
+        value = request.query_params.get(param_name, None)
+        if value in ('', 'true'):
+            # flag was specified without value (?recursive), or with value (?recursive=true)
+            return True
+        elif value in (None, 'false'):
+            # flag was not present, or its value was ?recursive=false
+            return False
+        else:
+            raise ValidationError({ param_name: [
+                'boolean value must be true or false. received value was %s' % value
+            ]})
+
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):
         """
@@ -62,6 +80,9 @@ class CommonService():
 
         else:
             results, http_status = cls._create_single(common_info, request.data, serializer_class, **kwargs)
+
+        if 'failed' in results:
+            cls._check_and_raise_atomic_error(request, results)
 
         return results, http_status
 
@@ -107,7 +128,7 @@ class CommonService():
             if data_catalog_prefix:
                 schema_name = data_catalog_prefix
             else:
-                schema_name = 'att'
+                schema_name = 'ida'
 
             schema_name += '_'
 
@@ -121,7 +142,7 @@ class CommonService():
                 # only datasets have a default schema
                 raise
             _logger.warning(e)
-            with open('%s/att_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
+            with open('%s/ida_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
                 return json_load(f)
 
     @classmethod
@@ -178,6 +199,9 @@ class CommonService():
         else:
             http_status = status.HTTP_400_BAD_REQUEST
 
+        if 'failed' in results:
+            cls._check_and_raise_atomic_error(request, results)
+
         return results, http_status
 
     @staticmethod
@@ -222,6 +246,21 @@ class CommonService():
             return common_info
         else:
             request.data.update(common_info)
+
+    @staticmethod
+    def _check_and_raise_atomic_error(request, results):
+        if 'success' in results and not len(results['success']):
+            # everything failed anyway, so return normal route even if atomic was used
+            return
+        if len(results.get('failed', [])) > 0 and request.query_params.get('atomic', None) in ('', 'true'):
+            raise ValidationError({
+                'success': [],
+                'failed': results['failed'],
+                'detail': [
+                    'request was failed due to parameter atomic=true. all changes were rolled back. '
+                    'actual failed rows are listed in the field \"failed\".'
+                ]
+            })
 
     @staticmethod
     def _append_error(results, serializer, error):

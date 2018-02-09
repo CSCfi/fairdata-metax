@@ -146,25 +146,25 @@ to detect the session, and changes the default database accordingly.
 if executing_in_travis:
     DATABASES = {
         'default': {
-            'ENGINE':   'django.db.backends.postgresql_psycopg2',
             'NAME':     'metax_db_test',
             'USER':     'metax_test',
             'PASSWORD': '',
-            'HOST':     'localhost'
+            'HOST':     'localhost',
         }
     }
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': app_config_dict['METAX_DATABASE'],
             'USER': app_config_dict['METAX_DATABASE_USER'],
             'PASSWORD': app_config_dict['METAX_DATABASE_PASSWORD'],
             'HOST': app_config_dict['METAX_DATABASE_HOST'],
             'PORT': '',
-            'ATOMIC_REQUESTS': True
         }
     }
+
+DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 """
 Colorize automated test console output
@@ -312,4 +312,21 @@ if not executing_in_travis:
                 'DURABLE': True
             }
         ]
+    }
+
+if executing_in_travis:
+    OAI = {
+        'BASE_URL': 'http://metax-test.csc.fi/oai/',
+        'BATCH_SIZE': 10,
+        'REPOSITORY_NAME': 'Metax',
+        'ETSIN_URL_TEMPLATE': 'http://etsin.something.fi/dataset/%s',
+        'ADMIN_EMAIL': 'noreply@csc.fi'
+    }
+else:
+    OAI = {
+        'BASE_URL': app_config_dict['OAI']['BASE_URL'],
+        'BATCH_SIZE': app_config_dict['OAI']['BATCH_SIZE'],
+        'REPOSITORY_NAME': app_config_dict['OAI']['REPOSITORY_NAME'],
+        'ETSIN_URL_TEMPLATE': app_config_dict['OAI']['ETSIN_URL_TEMPLATE'],
+        'ADMIN_EMAIL': app_config_dict['OAI']['ADMIN_EMAIL']
     }
