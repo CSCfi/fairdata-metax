@@ -58,6 +58,12 @@ class ApiReadPaginationTests(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
         self.assertEqual(response.data['results'][0]['id'], 3, 'Id of first result should have been 3')
 
+    def test_disable_pagination(self):
+        response = self.client.get('/rest/datasets?no_pagination=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('next' not in response.data, True)
+        self.assertEqual('results' not in response.data, True)
+
 
 class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
     #

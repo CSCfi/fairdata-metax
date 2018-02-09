@@ -174,3 +174,19 @@ class ApiModifyResponseTestV1(CatalogRecordApiWriteCommon):
                                              timezone=tz('GMT'))
 
         self.assertEqual(expected_modified, actual_modified)
+
+
+class ApiStreamHttpResponse(CatalogRecordApiWriteCommon):
+
+    def test_no_streaming_with_paging(self):
+        response = self.client.get('/rest/datasets?stream=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.streaming, False)
+
+    def test_streaming_json(self):
+        response = self.client.get('/rest/datasets?no_pagination=true&stream=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.streaming, True)
+        response = self.client.get('/rest/files?no_pagination=true&stream=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.streaming, True)

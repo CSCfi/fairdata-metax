@@ -29,6 +29,11 @@ class CommonViewSet(ModelViewSet):
     # customized method to be called instead instead of the generic one.
     create_bulk_method = CS.create_bulk
 
+    def paginate_queryset(self, queryset):
+        if CS.get_boolean_query_param(self.request, 'no_pagination'):
+            return None
+        return super(CommonViewSet, self).paginate_queryset(queryset)
+
     def get_object(self, search_params=None):
         """
         Overrided from rest_framework generics.py method to also allow searching by the field
