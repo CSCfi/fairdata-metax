@@ -3179,15 +3179,6 @@
                 ],
                 "files": [
                     {
-                        "access_url": {
-                            "description": {
-                                "en": "file url description"
-                            },
-                            "identifier": "https://www.url.address.perhaps.fi",
-                            "title": {
-                                "en": "file url title"
-                            }
-                        },
                         "description": "file description",
                         "file_type": {
                             "definition": [
@@ -3212,19 +3203,8 @@
                         }
                     },
                     {
-                        "access_url": {
-                            "description": {
-                                "en": "file url description"
-                            },
-                            "identifier": "https://www.url.address.perhaps.fi",
-                            "title": {
-                                "en": "file url title"
-                            }
-                        },
                         "description": "file description",
-                        "identifier": "pid:urn:2",
-                        "title": "file title",
-                        "type": {
+                        "file_type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
@@ -3240,6 +3220,8 @@
                                 }
                             ]
                         },
+                        "identifier": "pid:urn:2",
+                        "title": "file title",
                         "use_category": {
                             "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
                         }
@@ -3965,15 +3947,6 @@
                 ],
                 "files": [
                     {
-                        "access_url": {
-                            "description": {
-                                "en": "file url description"
-                            },
-                            "identifier": "https://www.url.address.perhaps.fi",
-                            "title": {
-                                "en": "file url title"
-                            }
-                        },
                         "description": "file description",
                         "file_type": {
                             "definition": [
@@ -3998,19 +3971,8 @@
                         }
                     },
                     {
-                        "access_url": {
-                            "description": {
-                                "en": "file url description"
-                            },
-                            "identifier": "https://www.url.address.perhaps.fi",
-                            "title": {
-                                "en": "file url title"
-                            }
-                        },
                         "description": "file description",
-                        "identifier": "pid:urn:2",
-                        "title": "file title",
-                        "type": {
+                        "file_type": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
@@ -4026,6 +3988,8 @@
                                 }
                             ]
                         },
+                        "identifier": "pid:urn:2",
+                        "title": "file title",
                         "use_category": {
                             "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
                         }
