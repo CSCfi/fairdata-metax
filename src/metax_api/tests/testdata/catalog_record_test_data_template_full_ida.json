@@ -631,15 +631,6 @@
             }
           ]
         },
-        "access_url": {
-          "identifier": "https://www.url.address.perhaps.fi",
-          "title": {
-            "en": "file url title"
-          },
-          "description": {
-            "en": "file url description"
-          }
-        },
         "use_category": {
           "identifier": "configuration"
         }
