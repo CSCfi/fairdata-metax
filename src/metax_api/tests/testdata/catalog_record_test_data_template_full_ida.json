@@ -648,7 +648,7 @@
         "identifier": "urn:nbn:fi:csc-att201401202",
         "title": "file title",
         "description": "file description",
-        "type": {
+        "file_type": {
           "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
           "definition": [
             {
@@ -663,15 +663,6 @@
               "identifier": "http://uri.of.filetype.concept/scheme"
             }
           ]
-        },
-        "access_url": {
-          "identifier": "https://www.url.address.perhaps.fi",
-          "title": {
-            "en": "file url title"
-          },
-          "description": {
-            "en": "file url description"
-          }
         },
         "use_category": {
           "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
