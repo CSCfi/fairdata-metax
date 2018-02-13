@@ -8,6 +8,8 @@ _logger = logging.getLogger(__name__)
 
 class StreamHttpResponse(object):
 
+    _METHODS = ('GET', 'HEAD')
+
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -21,11 +23,12 @@ class StreamHttpResponse(object):
 
         # Code to be executed for each request/response after
         # the view is called.
-        # import ipdb; ipdb.set_trace()
 
-        if request.method == 'GET' and isinstance(response.data, list) and self._check_query_param(request, 'stream'):
+        if request.method in self._METHODS and isinstance(response.data, list) \
+                and self._check_query_param(request, 'stream'):
             resp = StreamingHttpResponse(self._stream_response(response))
             resp._headers['content-type'] = ('Content-Type', 'application/json; charset=utf=8')
+            resp._headers['x-count'] = ('X-Count', str(len(response.data)))
             return resp
 
         return response
@@ -60,8 +63,7 @@ class StreamHttpResponse(object):
         return False
 
     def _stream_response(self, response):
+        yield '['
         for item in response.data:
-            if isinstance(item, dict):
-                yield json_dumps(item)
-            else:
-                yield item
+            yield '%s,' % (json_dumps(item) if isinstance(item, dict) else item)
+        yield ']'
