@@ -281,6 +281,16 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
 
+    def test_create_catalog_record_editor_field_is_optional(self):
+        self.cr_test_data['research_dataset']['preferred_identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        new = response.data
+        new['research_dataset']['title']['en'] = 'updated title'
+        new.pop('editor')
+        response = self.client.put('/rest/datasets/%d' % new['id'], new, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
     """
