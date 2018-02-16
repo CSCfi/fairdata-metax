@@ -795,17 +795,18 @@ class CatalogRecord(Common):
         # from _initial_data so that super().save() does not change it later.
         self.research_dataset = deepcopy(self._initial_data['research_dataset'])
 
-        # some of the old editor fields cant be true in the new version, so keep
-        # only the ones that make sense. it is up to the editor, to update other fields
-        # they see as relevant. we also dont want null values in there
-        old_editor = deepcopy(new_version.editor)
-        new_version.editor = {}
-        if 'owner_id' in old_editor:
-            new_version.editor['owner_id'] = old_editor['owner_id']
-        if 'owner_id' in old_editor:
-            new_version.editor['creator_id'] = old_editor['owner_id']
-        if 'identifier' in old_editor:
-            new_version.editor['identifier'] = old_editor['identifier']
+        if new_version.editor:
+            # some of the old editor fields cant be true in the new version, so keep
+            # only the ones that make sense. it is up to the editor, to update other fields
+            # they see as relevant. we also dont want null values in there
+            old_editor = deepcopy(new_version.editor)
+            new_version.editor = {}
+            if 'owner_id' in old_editor:
+                new_version.editor['owner_id'] = old_editor['owner_id']
+            if 'owner_id' in old_editor:
+                new_version.editor['creator_id'] = old_editor['owner_id']
+            if 'identifier' in old_editor:
+                new_version.editor['identifier'] = old_editor['identifier']
 
         new_version.save_as_new_version()
 
