@@ -740,6 +740,18 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 1)
         self.assertEqual(len(response.data['failed']), 1)
 
+    def test_catalog_record_deprecated_from_true_to_false_not_allowed(self):
+        # Test catalog record's deprecated field cannot be changed from true to false value
+        self.cr_test_data['deprecated'] = True
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.cr_test_data, format="json")
+        self.assertEqual(response.data['deprecated'], True)
+
+        new = response.data
+        new['deprecated'] = False
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, new, format="json")
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST, "Changing deprecated from true to false"
+                                                                             "should result in 400 bad request")
+
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
     #

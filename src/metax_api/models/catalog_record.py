@@ -9,6 +9,7 @@ from django.db.models import Q, Sum
 from django.http import Http404
 from rest_framework.serializers import ValidationError
 
+from metax_api.exceptions import Http400
 from metax_api.utils import get_tz_aware_now_without_micros
 from metax_api.utils.utils import generate_identifier
 from .common import Common, CommonManager
@@ -190,6 +191,7 @@ class CatalogRecord(Common):
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
+            'deprecated',
             'preservation_state',
             'research_dataset',
             'research_dataset.files',
@@ -608,6 +610,9 @@ class CatalogRecord(Common):
 
         if self.field_changed('preservation_state'):
             self.preservation_state_modified = get_tz_aware_now_without_micros()
+
+        if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
+            raise Http400("Cannot change dataset deprecation state from true to false")
 
         if self.catalog_versions_datasets() and not self.preserve_version:
             if self.field_changed('research_dataset'):
