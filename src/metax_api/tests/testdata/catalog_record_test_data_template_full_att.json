@@ -95,7 +95,7 @@
       "has_rights_related_agent": [
         {
           "@type": "Organization",
-          "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
           "name": {
             "en": "Org in ref data",
             "fi": "Organisaatio"
@@ -136,7 +136,7 @@
         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
         "provider": {
           "@type": "Organization",
-          "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
           "name": {
             "en": "Org in ref data",
             "fi": "Organisaatio"
@@ -172,7 +172,7 @@
         "provider": {
           "@type": "Organization",
           "identifier": [
-            "http://purl.org/att/es/organization_data/organization/organization_1901"
+            "http://purl.org/att/es/organization_data/organization/organization_01901"
           ],
           "name": {
             "en": "Mysterious Organization",
@@ -317,7 +317,7 @@
         "was_associated_with": [
           {
             "@type": "Organization",
-            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
             "name": {
               "en": "Mysterious Organization",
               "fi": "Organisaatio"
@@ -411,7 +411,7 @@
     ],
     "rights_holder": {
       "@type": "Organization",
-      "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+      "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
       "name": {
         "en": "Mysterious Organization",
         "fi": "Organisaatio"
@@ -513,7 +513,7 @@
         ],
         "member_of": {
           "@type": "Organization",
-          "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
           "name": {
             "en": "Mysterious Organization 1",
             "fi": "Organisaatio"
@@ -576,7 +576,7 @@
         "source_organization": [
           {
             "@type": "Organization",
-            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
             "name": {
               "en": "Mysterious Organization",
               "fi": "Organisaatio"
