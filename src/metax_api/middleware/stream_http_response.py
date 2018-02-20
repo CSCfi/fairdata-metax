@@ -24,8 +24,8 @@ class StreamHttpResponse(object):
         # Code to be executed for each request/response after
         # the view is called.
 
-        if request.method in self._METHODS and isinstance(response.data, list) \
-                and self._check_query_param(request, 'stream'):
+        if request.method in self._METHODS and hasattr(response, 'data') \
+                and isinstance(response.data, list) and self._check_query_param(request, 'stream'):
             resp = StreamingHttpResponse(self._stream_response(response))
             resp._headers['content-type'] = ('Content-Type', 'application/json; charset=utf=8')
             resp._headers['x-count'] = ('X-Count', str(len(response.data)))
