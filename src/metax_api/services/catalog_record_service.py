@@ -205,7 +205,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         return data
 
     @staticmethod
-    def transform_datasets_to_format(catalog_records, target_format):
+    def transform_datasets_to_format(catalog_records, target_format, include_xml_declaration=True):
         """
         params:
         catalog_records: a list of catalog record dicts, or a single dict
@@ -255,7 +255,10 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             _logger.exception('Something is wrong with the xslt file at %s:' % target_xslt_file_path)
             raise Http503('Requested format \'%s\' is currently unavailable' % target_format)
 
-        return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
+        if include_xml_declaration:
+            return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
+        else:
+            return transformed_xml
 
     @classmethod
     def validate_reference_data(cls, research_dataset, cache):
