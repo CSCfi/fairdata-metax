@@ -8,6 +8,7 @@ from oaipmh.error import IdDoesNotExistError
 from oaipmh.error import NoSetHierarchyError
 
 from metax_api.models.catalog_record import CatalogRecord
+from metax_api.services import CatalogRecordService as CRS
 
 
 class MetaxOAIServer(ResumptionOAIPMH):
@@ -34,13 +35,39 @@ class MetaxOAIServer(ResumptionOAIPMH):
             query_set.filter(data_catalog_id__in=set)
         return query_set[cursor:batch_size]
 
-    def _get_metadata_for_record(self, record, metadata_prefix):
-        # This is just a very minimal test implementation
-        # CSCMETAX-278 is for actual implementation
-        metadata = {}
+    def get_oai_dc_urnresolver_metadata(self, record):
         meta = {
             'identifier':  [settings.OAI['ETSIN_URL_TEMPLATE'] % record.urn_identifier, record.urn_identifier]
         }
+        return meta
+
+    def get_oai_dc_metadata(self, record):
+        meta = {
+            'identifier':  [settings.OAI['ETSIN_URL_TEMPLATE'] % record.urn_identifier, record.urn_identifier]
+        }
+        return meta
+
+    def get_oai_datacite_metadata(self, record):
+        datacite_xml = CRS.transform_datasets_to_format(
+            {'research_dataset': record.research_dataset},'datacite', False
+            )
+        meta = {
+            'datacentreSymbol': 'Metax',
+            'schemaVersion': '4.1',
+            'payload': datacite_xml
+        }
+        return meta
+
+    def _get_metadata_for_record(self, record, metadata_prefix):
+        meta = {}
+        if metadata_prefix == 'oai_dc':
+            meta = self.get_oai_dc_metadata(record)
+        elif metadata_prefix == 'oai_datacite':
+            meta = self.get_oai_datacite_metadata(record)
+        elif metadata_prefix == 'oai_dc_urnresolver':
+            meta = self.get_oai_dc_urnresolver_metadata(record)
+
+        metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
         # letters
         for key, value in meta.items():
@@ -81,6 +108,12 @@ class MetaxOAIServer(ResumptionOAIPMH):
         '''List available metadata formats.
         '''
         return [('oai_dc',
+                'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+                'http://www.openarchives.org/OAI/2.0/oai_dc/'),
+                ('oai_datacite',
+                'https://schema.datacite.org/meta/kernel-4.1/metadata.xsd',
+                'https://schema.datacite.org/meta/kernel-4.1/'),
+                ('oai_dc_urnresolver',
                 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
                 'http://www.openarchives.org/OAI/2.0/oai_dc/')
                 ]
