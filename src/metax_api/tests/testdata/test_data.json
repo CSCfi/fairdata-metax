@@ -3019,7 +3019,7 @@
                                     "en": "homepage title"
                                 }
                             },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -3059,7 +3059,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -3260,7 +3260,7 @@
                             {
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -3291,7 +3291,7 @@
                         "provider": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -3327,7 +3327,7 @@
                             "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": [
-                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                                "http://purl.org/att/es/organization_data/organization/organization_01901"
                             ],
                             "name": {
                                 "en": "Mysterious Organization",
@@ -3487,7 +3487,7 @@
                             {
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -3633,7 +3633,7 @@
                 "rights_holder": {
                     "@type": "Organization",
                     "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                     "is_part_of": {
                         "@type": "Organization",
                         "identifier": "10076",
@@ -3787,7 +3787,7 @@
                                     "en": "homepage title"
                                 }
                             },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -3827,7 +3827,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -4028,7 +4028,7 @@
                             {
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -4059,7 +4059,7 @@
                         "provider": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -4095,7 +4095,7 @@
                             "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": [
-                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                                "http://purl.org/att/es/organization_data/organization/organization_01901"
                             ],
                             "name": {
                                 "en": "Mysterious Organization",
@@ -4255,7 +4255,7 @@
                             {
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -4401,7 +4401,7 @@
                 "rights_holder": {
                     "@type": "Organization",
                     "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                     "is_part_of": {
                         "@type": "Organization",
                         "identifier": "10076",
@@ -5465,7 +5465,7 @@
                                     "en": "homepage title"
                                 }
                             },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -5505,7 +5505,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -5638,7 +5638,7 @@
                             {
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -5669,7 +5669,7 @@
                         "provider": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -5705,7 +5705,7 @@
                             "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": [
-                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                                "http://purl.org/att/es/organization_data/organization/organization_01901"
                             ],
                             "name": {
                                 "en": "Mysterious Organization",
@@ -5865,7 +5865,7 @@
                             {
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -6127,7 +6127,7 @@
                 "rights_holder": {
                     "@type": "Organization",
                     "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                     "is_part_of": {
                         "@type": "Organization",
                         "identifier": "10076",
@@ -6259,7 +6259,7 @@
                                     "en": "homepage title"
                                 }
                             },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -6299,7 +6299,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -6432,7 +6432,7 @@
                             {
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -6463,7 +6463,7 @@
                         "provider": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -6499,7 +6499,7 @@
                             "@type": "Organization",
                             "email": "info@csc.fi",
                             "identifier": [
-                                "http://purl.org/att/es/organization_data/organization/organization_1901"
+                                "http://purl.org/att/es/organization_data/organization/organization_01901"
                             ],
                             "name": {
                                 "en": "Mysterious Organization",
@@ -6659,7 +6659,7 @@
                             {
                                 "@type": "Organization",
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -6921,7 +6921,7 @@
                 "rights_holder": {
                     "@type": "Organization",
                     "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                     "is_part_of": {
                         "@type": "Organization",
                         "identifier": "10076",
