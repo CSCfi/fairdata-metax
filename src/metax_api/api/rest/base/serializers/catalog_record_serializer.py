@@ -99,7 +99,10 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'version_set' in res:
             version_set = instance.version_set.records.exclude(pk=instance.id).order_by('date_created')
             if len(version_set):
-                res['version_set'] = [ v.urn_identifier for v in version_set ]
+                res['version_set'] = [{
+                    'urn_identifier': v.urn_identifier,
+                    'date_created': v.date_created.astimezone().isoformat()
+                } for v in version_set]
 
         if 'next_version' in res:
             res['next_version'] = {
