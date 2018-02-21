@@ -236,7 +236,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         ).decode('utf-8')
         # This is a bit ugly way to put the metax data to the datacite namespace,
         # which allows us to use the default namespace in xquery files.
-        xml_str = xml_str.replace('<researchdataset>', 
+        xml_str = xml_str.replace('<researchdataset>',
             '<researchdataset xmlns="http://uri.suomi.fi/datamodel/ns/mrd#">')
         if target_format == 'metax':
             # mostly for debugging purposes, the 'metax xml' can be returned as well

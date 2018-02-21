@@ -49,8 +49,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def get_oai_datacite_metadata(self, record):
         datacite_xml = CRS.transform_datasets_to_format(
-            {'research_dataset': record.research_dataset},'datacite', False
-            )
+            {'research_dataset': record.research_dataset}, 'datacite', False
+        )
         meta = {
             'datacentreSymbol': 'Metax',
             'schemaVersion': '4.1',
