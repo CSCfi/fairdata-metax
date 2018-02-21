@@ -12,6 +12,7 @@ from ..serializers import DataCatalogSerializer
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
+
 class DataCatalogViewSet(CommonViewSet):
 
     authentication_classes = ()
@@ -19,6 +20,8 @@ class DataCatalogViewSet(CommonViewSet):
 
     # note: override get_queryset() to get more control
     queryset = DataCatalog.objects.filter(active=True, removed=False)
+    queryset_unfiltered = DataCatalog.objects_unfiltered.all()
+
     serializer_class = DataCatalogSerializer
     object = DataCatalog
 

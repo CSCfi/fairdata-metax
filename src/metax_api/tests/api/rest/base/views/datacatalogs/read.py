@@ -1,6 +1,7 @@
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
+from metax_api.models import DataCatalog
 
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
@@ -31,3 +32,25 @@ class DataCatalogApiReadBasicTests(APITestCase, TestClassUtils):
         response = self.client.get('/rest/datacatalogs/%s/exists' % 'urn:nbn:fi:non_existing_data_catalog_identifier')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data)
+
+    def test_removed_parameter_gets_correct_amount_of_objects(self):
+        path = '/rest/datacatalogs'
+        objects = DataCatalog.objects.all().values()
+
+        results = self.client.get('{0}?no_pagination&removed=false'.format(path)).json()
+        initial_amt = len(results)
+
+        results = self.client.get('{0}?no_pagination&removed=true'.format(path)).json()
+        self.assertEqual(len(results), 0, "Without removed objects remove=true should return 0 results")
+
+        self._use_http_authorization()
+        amt_to_delete = 2
+        for i in range(amt_to_delete):
+            response = self.client.delete('{0}/{1}'.format(path, objects[i]['id']))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, "Deleting object failed")
+
+        results = self.client.get('{0}?no_pagination&removed=false'.format(path)).json()
+        self.assertEqual(len(results), initial_amt - amt_to_delete, "Non-removed object amount is incorrect")
+
+        results = self.client.get('{0}?no_pagination&removed=true'.format(path)).json()
+        self.assertEqual(len(results), amt_to_delete, "Removed object amount is incorrect")

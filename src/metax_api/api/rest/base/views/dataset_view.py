@@ -23,6 +23,8 @@ class DatasetViewSet(CommonViewSet):
 
     # note: override get_queryset() to get more control
     queryset = CatalogRecord.objects.select_related('data_catalog', 'contract').all()
+    queryset_unfiltered = CatalogRecord.objects_unfiltered.select_related('data_catalog', 'contract').all()
+
     serializer_class = CatalogRecordSerializer
     object = CatalogRecord
 
