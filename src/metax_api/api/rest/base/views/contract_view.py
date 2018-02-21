@@ -12,12 +12,15 @@ from ..serializers import ContractSerializer, CatalogRecordSerializer
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
+
 class ContractViewSet(CommonViewSet):
 
     authentication_classes = ()
     permission_classes = ()
 
     queryset = Contract.objects.all()
+    queryset_unfiltered = Contract.objects_unfiltered.all()
+
     serializer_class = ContractSerializer
     object = Contract
 
@@ -43,7 +46,7 @@ class ContractViewSet(CommonViewSet):
             if query_params.get('organization', False):
                 additional_filters['contract_json__contains'] = {
                     'organization': { 'organization_identifier': query_params['organization'] }}
-            return self.queryset.filter(**additional_filters)
+            return super(ContractViewSet, self).get_queryset().filter(**additional_filters)
 
     @detail_route(methods=['get'], url_path="datasets")
     def datasets_get(self, request, pk=None):
