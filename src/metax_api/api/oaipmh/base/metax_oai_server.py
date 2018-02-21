@@ -35,19 +35,19 @@ class MetaxOAIServer(ResumptionOAIPMH):
             query_set.filter(data_catalog_id__in=set)
         return query_set[cursor:batch_size]
 
-    def get_oai_dc_urnresolver_metadata(self, record):
+    def _get_oai_dc_urnresolver_metadata(self, record):
         meta = {
             'identifier':  [settings.OAI['ETSIN_URL_TEMPLATE'] % record.urn_identifier, record.urn_identifier]
         }
         return meta
 
-    def get_oai_dc_metadata(self, record):
+    def _get_oai_dc_metadata(self, record):
         meta = {
             'identifier':  [settings.OAI['ETSIN_URL_TEMPLATE'] % record.urn_identifier, record.urn_identifier]
         }
         return meta
 
-    def get_oai_datacite_metadata(self, record):
+    def _get_oai_datacite_metadata(self, record):
         datacite_xml = CRS.transform_datasets_to_format(
             {'research_dataset': record.research_dataset}, 'datacite', False
         )
@@ -61,11 +61,11 @@ class MetaxOAIServer(ResumptionOAIPMH):
     def _get_metadata_for_record(self, record, metadata_prefix):
         meta = {}
         if metadata_prefix == 'oai_dc':
-            meta = self.get_oai_dc_metadata(record)
+            meta = self._get_oai_dc_metadata(record)
         elif metadata_prefix == 'oai_datacite':
-            meta = self.get_oai_datacite_metadata(record)
+            meta = self._get_oai_datacite_metadata(record)
         elif metadata_prefix == 'oai_dc_urnresolver':
-            meta = self.get_oai_dc_urnresolver_metadata(record)
+            meta = self._get_oai_dc_urnresolver_metadata(record)
 
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
