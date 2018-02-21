@@ -11,7 +11,8 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     _namespaces = {'o': 'http://www.openarchives.org/OAI/2.0/',
                    'oai_dc': "http://www.openarchives.org/OAI/2.0/oai_dc/",
                    'dc': "http://purl.org/dc/elements/1.1/",
-                   'dct': "http://purl.org/dc/terms/"}
+                   'dct': "http://purl.org/dc/terms/",
+                   'datacite': 'http://schema.datacite.org/oai/oai-1.0/'}
 
     @classmethod
     def setUpClass(cls):
@@ -45,11 +46,16 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         #import ipdb;ipdb.set_trace(context=6)
         formats = self._get_single_result(response.content, '//o:ListMetadataFormats')
-        self.assertEqual(len(formats), 1)
+        self.assertEqual(len(formats), 3)
 
-        format = formats[0]
-        metadataPrefix = self._get_single_result(format, '//o:metadataPrefix')
-        self.assertEqual(metadataPrefix.text, 'oai_dc')
+        metadataPrefix = self._get_results(formats, '//o:metadataPrefix[text() = "oai_dc"]')
+        self.assertEqual(len(metadataPrefix), 1)
+
+        metadataPrefix = self._get_results(formats, '//o:metadataPrefix[text() = "oai_datacite"]')
+        self.assertEqual(len(metadataPrefix), 1)
+
+        metadataPrefix = self._get_results(formats, '//o:metadataPrefix[text() = "oai_dc_urnresolver"]')
+        self.assertEqual(len(metadataPrefix), 1)
 
     def test_list_sets(self):
         response = self.client.get('/oai/?verb=ListSets')
@@ -94,3 +100,31 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         errors = self._get_results(response.content, '//o:error[@code="idDoesNotExist"]')
         self.assertTrue(len(errors) == 1, response.content)
+
+    def test_get_using_invalid_metadata_prefix(self):
+        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_notavailable')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        errors = self._get_results(response.content, '//o:error[@code="cannotDisseminateFormat"]')
+        self.assertTrue(len(errors) == 1, response.content)
+
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_notavailable' % self.urn_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        errors = self._get_results(response.content, '//o:error[@code="cannotDisseminateFormat"]')
+        self.assertTrue(len(errors) == 1, response.content)
+
+    def test_get_datacite_record(self):
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_datacite' % self.urn_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        identifiers = self._get_results(response.content,
+            '//o:record/o:metadata/datacite:oai_datacite/datacite:schemaVersion[text()="%s"]' % '4.1')
+        self.assertTrue(len(identifiers) == 1, response.content)
+
+    def test_get_urnresolver_record(self):
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.urn_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        identifiers = self._get_results(response.content,
+            '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' % self.urn_identifier)
+        self.assertTrue(len(identifiers) == 1, response.content)
