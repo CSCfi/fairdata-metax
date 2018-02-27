@@ -159,8 +159,8 @@ def generate_files(mode, test_file_storage_list, validate_json, url):
             project_identifier = 'project_x'
             project_root_folder = 'project_x_FROZEN'
         else:
-            project_identifier = 'project_y'
-            project_root_folder = 'project_y_root'
+            project_identifier = 'research_project_112'
+            project_root_folder = 'prj_112_root'
             
         loop = str(i)
         if mode == 'json':

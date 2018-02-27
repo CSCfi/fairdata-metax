@@ -705,7 +705,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         Otherwise complete set of files, but from one dir one file is missing.
         Should leave the one file intact, while preserving the directory tree.
         """
-        all_files_count_before = File.objects.all().count()
+        all_files_count_before = File.objects.filter(project_identifier='project_x').count()
         file_ids = [f.id for f in File.objects.filter(project_identifier='project_x')]
 
         # everything except the last file should be removed
