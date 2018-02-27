@@ -273,14 +273,14 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) == 4)
+        self.assertTrue(len(response.data) == 6)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) == 4)
+        self.assertTrue(len(response.data) == 6)
 
         # The assert below may brake if the date_modified timestamps or the amount of test data objects are altered
         # in the test data
@@ -290,7 +290,7 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) > 4)
+        self.assertTrue(len(response.data) > 6)
 
 
 class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):

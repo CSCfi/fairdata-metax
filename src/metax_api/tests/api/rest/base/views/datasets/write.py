@@ -2185,7 +2185,7 @@ class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
     """
 
     def test_calculate_total_remote_resources_byte_size(self):
-        cr_with_rr = self._get_object_from_test_data('catalogrecord', requested_index=13)
+        cr_with_rr = self._get_object_from_test_data('catalogrecord', requested_index=14)
         rr = cr_with_rr['research_dataset']['remote_resources']
         total_remote_resources_byte_size = sum(res['byte_size'] for res in rr)
         self.cr_test_data['research_dataset']['remote_resources'] = rr
