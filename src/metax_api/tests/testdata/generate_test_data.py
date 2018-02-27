@@ -161,7 +161,7 @@ def generate_files(mode, test_file_storage_list, validate_json, url):
         else:
             project_identifier = 'research_project_112'
             project_root_folder = 'prj_112_root'
-            
+
         loop = str(i)
         if mode == 'json':
 
@@ -517,7 +517,7 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
 
                     dataset_files.append({
                         'identifier': file_list[j]['fields']['identifier'],
-                        'title': 'File metadata title %d' % (j-1)
+                        'title': 'File metadata title %d' % (j - 1)
                     })
                     if j < file_divider:
                         # first fifth of files
@@ -558,8 +558,8 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
                             'identifier': 'configuration'
                         }
 
-                    new['fields']['files'].append(file_list[j-1]['pk'])
-                    total_ida_byte_size += file_list[j-1]['fields']['byte_size']
+                    new['fields']['files'].append(file_list[j - 1]['pk'])
+                    total_ida_byte_size += file_list[j - 1]['fields']['byte_size']
 
                 new['fields']['research_dataset']['files'] = dataset_files
                 new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
