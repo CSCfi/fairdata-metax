@@ -204,28 +204,6 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), all_newest_versions_count)
 
-    def test_removed_parameter_gets_correct_amount_of_objects(self):
-        path = '/rest/datasets'
-        objects = CatalogRecord.objects.all().values()
-
-        results = self.client.get('{0}?no_pagination&removed=false'.format(path)).json()
-        initial_amt = len(results)
-
-        results = self.client.get('{0}?no_pagination&removed=true'.format(path)).json()
-        self.assertEqual(len(results), 0, "Without removed objects remove=true should return 0 results")
-
-        self._use_http_authorization()
-        amt_to_delete = 2
-        for i in range(amt_to_delete):
-            response = self.client.delete('{0}/{1}'.format(path, objects[i]['id']))
-            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, "Deleting object failed")
-
-        results = self.client.get('{0}?no_pagination&removed=false'.format(path)).json()
-        self.assertEqual(len(results), initial_amt - amt_to_delete, "Non-removed object amount is incorrect")
-
-        results = self.client.get('{0}?no_pagination&removed=true'.format(path)).json()
-        self.assertEqual(len(results), amt_to_delete, "Removed object amount is incorrect")
-
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
     """
