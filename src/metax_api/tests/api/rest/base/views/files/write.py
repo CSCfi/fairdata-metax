@@ -709,7 +709,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         file_ids = [f.id for f in File.objects.filter(project_identifier='project_x')]
 
         # everything except the last file should be removed
-        file_ids.pop(len(file_ids) - 1)
+        file_ids.pop()
 
         response = self.client.delete('/rest/files', file_ids, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)

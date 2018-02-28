@@ -227,20 +227,18 @@ class FileService(CommonService):
         deleting the directory.
         """
         sub_dirs_can_be_deleted = False
-        sub_dirs_are_empty = False
+        sub_dirs_are_empty = []
 
         sub_dirs = dr.child_directories.all()
 
         if sub_dirs.exists():
             # start deleting directories from the bottom to up
             for sub_dr in sub_dirs:
-                sub_dirs_are_empty = cls._delete_empy_directories(sub_dr)
-                if sub_dirs_are_empty:
-                    # sub_dirs_can_be_deleted will only be updated if sub_dirs_are_empty == True,
-                    # i.e. never update its value to False, if a later directory was empty.
-                    # even one dir that needs to be preserved, requires that current directory
-                    # is preserved.
-                    sub_dirs_can_be_deleted = True
+                sub_dirs_are_empty.append(cls._delete_empy_directories(sub_dr))
+
+            if all(sub_dirs_are_empty):
+                # if even one sub dir needs to be preserved, the current directory must be preserved.
+                sub_dirs_can_be_deleted = True
         else:
             sub_dirs_can_be_deleted = True
 
