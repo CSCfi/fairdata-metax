@@ -39,15 +39,28 @@ class MetaxOAIServer(ResumptionOAIPMH):
         elif until:
             query_set = CatalogRecord.objects.filter(date_modified__lte=until)
 
-        if set and set != 'urnresolver':
+        if set and set != "urnresolver":
             query_set = query_set.filter(data_catalog__catalog_json__identifier__in=settings.OAI['SET_MAPPINGS'][set])
         else:
             query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
         return query_set[cursor:batch_size]
 
-    def _get_oai_dc_urnresolver_metadata(self, source_identifier, target_identifier):
+    def _get_oai_dc_urnresolver_metadata(self, record):
+        """
+        Preferred identifier is added only for ida and att catalog records
+        other identifiers are added for all.
+        """
+        identifiers = []
+        identifiers.append(settings.OAI['ETSIN_URL_TEMPLATE'] % record.urn_identifier)
+        if record.catalog_versions_datasets():
+            identifiers.append(record.urn_identifier)
+        for id_obj in record.research_dataset.get('other_identifier', []):
+            if id_obj.get('notation', '').startswith('urn:nbn:fi:csc-kata'):
+                other_urn = id_obj['notation']
+                identifiers.append(other_urn)
+
         meta = {
-            'identifier':  [settings.OAI['ETSIN_URL_TEMPLATE'] % source_identifier, target_identifier]
+            'identifier':  identifiers
         }
         return meta
 
@@ -75,7 +88,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         elif metadata_prefix == 'oai_datacite':
             meta = self._get_oai_datacite_metadata(record)
         elif metadata_prefix == 'oai_dc_urnresolver':
-            meta = self._get_oai_dc_urnresolver_metadata(record.urn_identifier, record.urn_identifier)
+            meta = self._get_oai_dc_urnresolver_metadata(record)
         return self._fix_metadata(meta)
 
     def _get_header_timestamp(self, record):
@@ -85,23 +98,6 @@ class MetaxOAIServer(ResumptionOAIPMH):
         else:
             timestamp = record.date_created
         return timezone.make_naive(timestamp)
-
-    def _get_extra_items_for_urn_resolver(self, record):
-        extra_items = []
-        if 'other_identifier' in record.research_dataset:
-            for id_obj in record.research_dataset['other_identifier']:
-                if 'notation' in id_obj:
-                    if id_obj['notation'].startswith('urn:nbn:fi:csc-kata'):
-                        other_urn = id_obj['notation']
-                        metadata = self._fix_metadata(
-                            self._get_oai_dc_urnresolver_metadata(other_urn, record.urn_identifier))
-                        item = (common.Header('', other_urn,
-                                self._get_header_timestamp(record),
-                                ['metax'], False),
-                                common.Metadata('', metadata), None)
-                        extra_items.append(item)
-
-        return extra_items
 
     def _get_oai_item(self, record, metadata_prefix):
         metadata = self._get_metadata_for_record(record, metadata_prefix)
@@ -121,6 +117,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return metadata
 
     def identify(self):
+        """Implement OAI-PMH verb Identify ."""
         first = CatalogRecord.objects.filter(
             data_catalog__catalog_json__identifier__in=self._get_default_set_filter()
         ).order_by(
@@ -142,6 +139,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
             compression=['identity'])
 
     def listMetadataFormats(self, identifier=None):
+        """Implement OAI-PMH verb listMetadataFormats ."""
         return [('oai_dc',
                  'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
                  'http://www.openarchives.org/OAI/2.0/oai_dc/'),
@@ -154,6 +152,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 ]
 
     def listSets(self, cursor=None, batch_size=None):
+        """Implement OAI-PMH verb ListSets."""
         data = []
         for set_key in settings.OAI['SET_MAPPINGS'].keys():
             data.append((set_key, set_key, ''))
@@ -161,6 +160,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def listIdentifiers(self, metadataPrefix=None, set=None, cursor=None,
                         from_=None, until=None, batch_size=None):
+        """Implement OAI-PMH verb listIdentifiers."""
         records = self._get_filtered_records(set, cursor, batch_size, from_, until)
         data = []
         for record in records:
@@ -169,15 +169,15 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def listRecords(self, metadataPrefix=None, set=None, cursor=None, from_=None,
                     until=None, batch_size=None):
+        """Implement OAI-PMH verb ListRecords."""
         data = []
         records = self._get_filtered_records(set, cursor, batch_size, from_, until)
         for record in records:
             data.append(self._get_oai_item(record, metadataPrefix))
-            if set == 'urnresolver':
-                data.extend(self._get_extra_items_for_urn_resolver(record))
         return data
 
     def getRecord(self, metadataPrefix, identifier):
+        """Implement OAI-PMH verb GetRecord."""
         try:
             record = CatalogRecord.objects.get(
                 data_catalog__catalog_json__identifier__in=self._get_default_set_filter(),

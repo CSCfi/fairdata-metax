@@ -10,6 +10,7 @@ from .metax_oai_server import MetaxOAIServer
 NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 NS_OAIDC = 'http://schema.datacite.org/oai/oai-1.0/'
 
+
 def oai_datacite_writer(element, metadata):
     e_dc = SubElement(element, 'oai_datacite', nsmap={None: NS_OAIDC})
     e_dc.set('{%s}schemaLocation' % NS_XSI,
@@ -22,6 +23,7 @@ def oai_datacite_writer(element, metadata):
     e = SubElement(e_dc, 'payload')
     e.append(etree.fromstring(metadata['payload'][0]))
 
+
 def oaipmh_view(request):
     metax_server = MetaxOAIServer()
     metadata_registry = oaimd.MetadataRegistry()
@@ -30,8 +32,8 @@ def oaipmh_view(request):
     metadata_registry.registerWriter('oai_datacite', oai_datacite_writer)
 
     server = oaiserver.BatchingServer(metax_server,
-                                 metadata_registry=metadata_registry,
-                                 resumption_batch_size=settings.OAI['BATCH_SIZE'])
+                                      metadata_registry=metadata_registry,
+                                      resumption_batch_size=settings.OAI['BATCH_SIZE'])
     xml = server.handleRequest(request.GET.dict())
 
     return HttpResponse(xml, content_type='text/xml; charset=utf-8')

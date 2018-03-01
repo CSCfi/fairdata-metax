@@ -96,7 +96,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
 
     def test_list_metadata_formats(self):
         response = self.client.get('/oai/?verb=ListMetadataFormats')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         formats = self._get_single_result(response.content, '//o:ListMetadataFormats')
         self.assertEqual(len(formats), 3)
 
@@ -135,9 +135,9 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertTrue(len(headers) > 0)
         records = self._get_results(response.content, '//oai_dc:dc')
         for record_metadata in records:
-            urn_element = self._get_single_result(record_metadata, 'dc:identifier[starts-with(text(), "urn")]')
+            urn_elements = self._get_results(record_metadata, 'dc:identifier[starts-with(text(), "urn")]')
             url_element = self._get_single_result(record_metadata, 'dc:identifier[starts-with(text(), "http")]')
-            self.assertTrue(urn_element is not None)
+            self.assertTrue(urn_elements is not None and len(urn_elements) > 0)
             self.assertTrue(url_element is not None)
 
     def test_get_record(self):
@@ -204,7 +204,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc&set=urnresolver')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, '//o:record')
-        self.assertTrue(len(records) == 14)
+        self.assertTrue(len(records) == 13)
 
     def test_distinct_records_in_set(self):
         att_resp = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc&set=att_datasets')
