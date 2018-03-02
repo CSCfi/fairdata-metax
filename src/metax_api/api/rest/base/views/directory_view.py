@@ -20,7 +20,10 @@ class DirectoryViewSet(CommonViewSet):
     permission_classes = ()
 
     object = Directory
+
     queryset = Directory.objects.select_related('parent_directory').all()
+    queryset_unfiltered = Directory.objects_unfiltered.select_related('parent_directory').all()
+
     serializer_class = DirectorySerializer
 
     lookup_field_other = 'identifier'

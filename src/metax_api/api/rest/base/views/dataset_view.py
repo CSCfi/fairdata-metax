@@ -23,6 +23,8 @@ class DatasetViewSet(CommonViewSet):
 
     # note: override get_queryset() to get more control
     queryset = CatalogRecord.objects.select_related('data_catalog', 'contract').all()
+    queryset_unfiltered = CatalogRecord.objects_unfiltered.select_related('data_catalog', 'contract').all()
+
     serializer_class = CatalogRecordSerializer
     object = CatalogRecord
 
@@ -40,8 +42,8 @@ class DatasetViewSet(CommonViewSet):
             if CRS.is_primary_key(self.kwargs.get(self.lookup_field, False)):
                 # fail on pk search is clear...
                 raise
-        # ...but other identifiers can have matches in a dataset's other identifier fields
-        return self._search_using_other_dataset_identifiers()
+
+        return self._search_using_dataset_identifiers()
 
     def get_queryset(self):
 
@@ -169,35 +171,33 @@ class DatasetViewSet(CommonViewSet):
         urn_ids = [item['research_dataset']['urn_identifier'] for item in q]
         return Response(urn_ids)
 
-    def _search_using_other_dataset_identifiers(self):
+    def _search_using_dataset_identifiers(self):
         """
-        URN-lookup from self.lookup_field failed. Look from dataset json fields
-        preferred_identifier first, and array other_identifier after, if there are matches
+        Search by lookup value from urn_identifier and preferred_identifier fields. preferred_identifier
+        searched only with GET requests.
         """
-        lookup_value = self.kwargs.get(self.lookup_field)
-        obj = self._search_from_research_dataset({'urn_identifier': lookup_value}, False)
+        lookup_value = self.kwargs.get(self.lookup_field, False)
 
-        # allow preferred and other identifier searches only for GET, since their persistence
-        # is not guaranteed over time.
-        if not obj and self.request.method == 'GET':
-            obj = self._search_from_research_dataset({'preferred_identifier': lookup_value}, False)
-            if not obj:
-                obj = self._search_from_research_dataset(
-                    {'other_identifier': [{'local_identifier': lookup_value}]}, True)
-
-        if not obj:
-            raise Http404
-
-        return obj
-
-    def _search_from_research_dataset(self, search_json, raise_on_404):
         try:
             return super(DatasetViewSet, self).get_object(
-                search_params={'research_dataset__contains': search_json})
+                search_params={ 'research_dataset__contains': {'urn_identifier': lookup_value} })
         except Http404:
-            if raise_on_404:
+            if self.request.method != 'GET':
                 raise
-            return None
+
+        # search by preferred_identifier only for GET requests, while preferring:
+        # - hits from att catalogs (assumed to be first created. improve logic if situation changes)
+        # - latest version records (= has no next_version_id)
+        # - first created (the first harvested occurrence, probably)
+
+        # note: cant use get_object() like above, because get_object() will throw an error if there are
+        # multiple results
+        obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
+            .order_by('data_catalog_id', '-next_version_id', 'date_created').first()
+        if obj:
+            return obj
+
+        raise Http404
 
     def _get_removed_dataset(self):
         """

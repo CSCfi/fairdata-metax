@@ -532,7 +532,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         super(CatalogRecordApiWriteDatasetSchemaSelection, self).setUp()
         self._set_data_catalog_schema_to_harvester()
 
-    def test_catalog_record_with_not_found_json_schema_defaults_to_att_schema(self):
+    def test_catalog_record_with_not_found_json_schema_gets_default_schema(self):
         # catalog has dataset schema, but it is not found on the server
         dc = DataCatalog.objects.get(pk=1)
         dc.catalog_json['research_dataset_schema'] = 'nonexisting'
@@ -552,7 +552,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
     def test_catalog_record_create_with_other_schema(self):
         """
         Ensure that dataset json schema validation works with other
-        json schemas than the default ida
+        json schemas than the default IDA
         """
         self.cr_test_data['research_dataset']['remote_resources'] = [
             {'title': 'title'},
@@ -574,7 +574,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
     def test_catalog_record_ref_data_validation_with_other_schema(self):
         """
         Ensure that dataset reference data validation and population works with other
-        json schemas than the default ATT. Ref data validation should be schema agnostic
+        json schemas than the default IDA. Ref data validation should be schema agnostic
         """
         self.cr_test_data['research_dataset']['other_identifier'] = [
             {
@@ -595,7 +595,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
 
     def _set_data_catalog_schema_to_harvester(self):
         dc = DataCatalog.objects.get(pk=1)
-        dc.catalog_json['research_dataset_schema'] = 'syke_harvester'
+        dc.catalog_json['research_dataset_schema'] = 'harvester'
         dc.save()
 
 
@@ -2185,7 +2185,7 @@ class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
     """
 
     def test_calculate_total_remote_resources_byte_size(self):
-        cr_with_rr = self._get_object_from_test_data('catalogrecord', requested_index=13)
+        cr_with_rr = self._get_object_from_test_data('catalogrecord', requested_index=14)
         rr = cr_with_rr['research_dataset']['remote_resources']
         total_remote_resources_byte_size = sum(res['byte_size'] for res in rr)
         self.cr_test_data['research_dataset']['remote_resources'] = rr

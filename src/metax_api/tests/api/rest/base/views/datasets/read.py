@@ -23,6 +23,7 @@ class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
         self.catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         self.pk = self.catalog_record_from_test_data['id']
         self.urn_identifier = self.catalog_record_from_test_data['research_dataset']['urn_identifier']
+        self.preferred_identifier = self.catalog_record_from_test_data['research_dataset']['preferred_identifier']
 
 
 class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
@@ -39,10 +40,54 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['research_dataset']['urn_identifier'], self.urn_identifier)
 
-    def test_read_catalog_record_details_by_identifier(self):
+    def test_read_catalog_record_details_by_urn_identifier(self):
         response = self.client.get('/rest/datasets/%s' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['research_dataset']['urn_identifier'], self.urn_identifier)
+
+    def test_get_by_preferred_identifier(self):
+        response = self.client.get('/rest/datasets/%s' % self.preferred_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
+
+    def test_get_removed_by_preferred_identifier(self):
+        self._use_http_authorization()
+        response = self.client.delete('/rest/datasets/%s' % self.urn_identifier)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        response = self.client.get('/rest/datasets/%s?removed=true' % self.preferred_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_by_preferred_identifier_search_prefers_oldest_data_catalog(self):
+        '''
+        Search by preferred_identifier should prefer hits from oldest created catalogs
+        which are assumed to be att/fairdata catalogs.
+        '''
+
+        # get a cr that has alternate records
+        cr = self._get_object_from_test_data('catalogrecord', requested_index=9)
+        pid = cr['research_dataset']['preferred_identifier']
+
+        # the retrieved record should be the one that is in catalog 1
+        response = self.client.get('/rest/datasets/%s' % pid)
+        self.assertEqual('alternate_record_set' in response.data, True)
+        self.assertEqual(response.data['data_catalog']['id'], cr['data_catalog'])
+
+    def test_get_by_preferred_identifier_search_prefers_newest_version(self):
+        '''
+        Search by preferred_identifier should prefer newest versions of records.
+        '''
+        response = self.client.get('/rest/datasets/%s' % self.urn_identifier)
+        new = response.data
+        new['research_dataset']['title']['en'] = 'updated title'
+
+        self._use_http_authorization()
+        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, new, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        newest_version_id = response.data['next_version']['id']
+
+        response = self.client.get('/rest/datasets/%s' % response.data['research_dataset']['preferred_identifier'])
+        self.assertEqual(response.data['id'], newest_version_id)
 
     def test_read_catalog_record_details_not_found(self):
         response = self.client.get('/rest/datasets/shouldnotexist')
@@ -251,14 +296,14 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) == 4)
+        self.assertTrue(len(response.data) == 6)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) == 4)
+        self.assertTrue(len(response.data) == 6)
 
         # The assert below may brake if the date_modified timestamps or the amount of test data objects are altered
         # in the test data
@@ -268,7 +313,7 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets/urn_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data) > 4)
+        self.assertTrue(len(response.data) > 6)
 
 
 class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):

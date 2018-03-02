@@ -34,6 +34,16 @@ class CommonViewSet(ModelViewSet):
             return None
         return super(CommonViewSet, self).paginate_queryset(queryset)
 
+    def get_queryset(self):
+        additional_filters = {}
+
+        removed = CS.get_boolean_query_param(self.request, 'removed')
+        if removed:
+            additional_filters.update({'removed': True})
+            self.queryset = self.queryset_unfiltered
+
+        return super(CommonViewSet, self).get_queryset().filter(**additional_filters)
+
     def get_object(self, search_params=None):
         """
         Overrided from rest_framework generics.py method to also allow searching by the field
