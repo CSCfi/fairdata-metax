@@ -50,10 +50,12 @@ class MetaxOAIServer(ResumptionOAIPMH):
         Preferred identifier is added only for ida and att catalog records
         other identifiers are added for all.
         """
+        preferred_identifier = record.research_dataset.get('preferred_identifier')
         identifiers = []
-        identifiers.append(settings.OAI['ETSIN_URL_TEMPLATE'] % record.urn_identifier)
+        identifiers.append(settings.OAI['ETSIN_URL_TEMPLATE'] % preferred_identifier)
+
         if record.catalog_versions_datasets():
-            identifiers.append(record.urn_identifier)
+            identifiers.append(preferred_identifier)
         for id_obj in record.research_dataset.get('other_identifier', []):
             if id_obj.get('notation', '').startswith('urn:nbn:fi:csc-kata'):
                 other_urn = id_obj['notation']
@@ -65,8 +67,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return meta
 
     def _get_oai_dc_metadata(self, record):
+        identifier = record.research_dataset.get('preferred_identifier')
         meta = {
-            'identifier':  [settings.OAI['ETSIN_URL_TEMPLATE'] % record.urn_identifier, record.urn_identifier]
+            'identifier':  [settings.OAI['ETSIN_URL_TEMPLATE'] % identifier, identifier]
         }
         return meta
 
@@ -100,8 +103,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return timezone.make_naive(timestamp)
 
     def _get_oai_item(self, record, metadata_prefix):
+        identifier = record.research_dataset.get('preferred_identifier')
         metadata = self._get_metadata_for_record(record, metadata_prefix)
-        item = (common.Header('', record.urn_identifier, self._get_header_timestamp(record), ['metax'], False),
+        item = (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
                 common.Metadata('', metadata), None)
         return item
 
@@ -164,7 +168,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
         records = self._get_filtered_records(set, cursor, batch_size, from_, until)
         data = []
         for record in records:
-            data.append(common.Header('', record.urn_identifier, self._get_header_timestamp(record), ['metax'], False))
+            identifier = record.research_dataset.get('preferred_identifier')
+            data.append(common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False))
         return data
 
     def listRecords(self, metadataPrefix=None, set=None, cursor=None, from_=None,
@@ -181,11 +186,11 @@ class MetaxOAIServer(ResumptionOAIPMH):
         try:
             record = CatalogRecord.objects.get(
                 data_catalog__catalog_json__identifier__in=self._get_default_set_filter(),
-                research_dataset__contains={'urn_identifier': identifier}
+                research_dataset__contains={'preferred_identifier': identifier}
             )
         except CatalogRecord.DoesNotExist:
             raise IdDoesNotExistError("No dataset with id %s available through the OAI-PMH interface." % identifier)
         metadata = self._get_metadata_for_record(record, metadataPrefix)
-
-        return (common.Header('', record.urn_identifier, self._get_header_timestamp(record), ['metax'], False),
+        identifier = record.research_dataset.get('preferred_identifier')
+        return (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
                 common.Metadata('', metadata), None)

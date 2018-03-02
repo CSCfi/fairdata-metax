@@ -27,7 +27,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
 
     def setUp(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        self.urn_identifier = catalog_record_from_test_data['research_dataset']['urn_identifier']
+        self.urn_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
 
         self._use_http_authorization()
 
@@ -35,7 +35,6 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
             self.new_version = self._get_new_version()
 
     def _get_new_test_cr_data(self, cr_index=0, dc_index=0, c_index=0):
-        dc = self._get_object_from_test_data('datacatalog', requested_index=dc_index)
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=cr_index)
 
         catalog_record_from_test_data['research_dataset'].update({
@@ -70,7 +69,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         # add one versioned record for datasets/1
         target_catalog = 1
         data = {'research_dataset': self._get_new_test_cr_data(cr_index=0)['research_dataset']}
-        data['research_dataset']['preferred_identifier'] = self.urn_identifier
+        data['research_dataset']['preferred_identifier'] = self.urn_identifier + '-new-version'
         data['data_catalog'] = target_catalog
 
         response = self.client.patch('/rest/datasets/1', data, format="json")
@@ -87,7 +86,6 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
 
     def _get_single_result(self, data, xpath):
         results = self._get_results(data, xpath)
-        self.assertEquals(len(results), 1)
         return results[0]
 
     def test_identity(self):
@@ -120,7 +118,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         response = self.client.get('/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         headers = self._get_results(response.content, '//o:header')
-        self.assertTrue(len(headers) == 13)
+        self.assertTrue(len(headers) == 13, len(headers))
 
     def test_list_records(self):
         response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc')
@@ -136,8 +134,8 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         records = self._get_results(response.content, '//oai_dc:dc')
         for record_metadata in records:
             urn_elements = self._get_results(record_metadata, 'dc:identifier[starts-with(text(), "urn")]')
+            self.assertTrue(urn_elements is not None or len(urn_elements) > 0)
             url_element = self._get_single_result(record_metadata, 'dc:identifier[starts-with(text(), "http")]')
-            self.assertTrue(urn_elements is not None and len(urn_elements) > 0)
             self.assertTrue(url_element is not None)
 
     def test_get_record(self):
@@ -171,7 +169,8 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
             '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_datacite' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
-                                        '//o:record/o:metadata/datacite:oai_datacite/datacite:schemaVersion[text()="%s"]' % '4.1')
+                                        '//o:record/o:metadata/datacite:oai_datacite/' +
+                                        'datacite:schemaVersion[text()="%s"]' % '4.1')
         self.assertTrue(len(identifiers) == 1, response.content)
 
     def test_get_urnresolver_record(self):
@@ -179,7 +178,8 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
             '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
-                                        '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' % self.urn_identifier)
+                                        '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' %
+                                        self.urn_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
     def test_list_records_from_datasets_set(self):
@@ -205,6 +205,17 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, '//o:record')
         self.assertTrue(len(records) == 13)
+
+    def test_get_urnresolver_record_with_multiple_ids(self):
+        response = self.client.get('/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver'
+                                   % self.new_version.research_dataset['preferred_identifier'])
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        records = self._get_results(response.content, '//o:record')
+        self.assertTrue(len(records) == 1)
+
+        ids = self._get_results(records[0], '//o:record/o:metadata//dc:identifier')
+        self.assertTrue(len(ids) == 3)
 
     def test_distinct_records_in_set(self):
         att_resp = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc&set=att_datasets')
