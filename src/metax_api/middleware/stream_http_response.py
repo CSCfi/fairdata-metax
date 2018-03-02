@@ -63,9 +63,12 @@ class StreamHttpResponse(object):
         return False
 
     def _stream_response(self, response):
-        yield '['
-        if len(response.data) > 1:
-            for item in response.data[:-1]:
-                yield '%s,' % (json_dumps(item) if isinstance(item, dict) else item)
-        yield json_dumps(response.data[-1]) if isinstance(response.data[-1], dict) else response.data[-1]
-        yield ']'
+        if response.data:
+            yield '['
+            if len(response.data) > 1:
+                for item in response.data[:-1]:
+                    yield '%s,' % (json_dumps(item) if isinstance(item, dict) else item)
+            yield json_dumps(response.data[-1]) if isinstance(response.data[-1], dict) else response.data[-1]
+            yield ']'
+        else:
+            yield '[]'
