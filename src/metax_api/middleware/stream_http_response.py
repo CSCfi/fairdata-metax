@@ -27,7 +27,7 @@ class StreamHttpResponse(object):
         if request.method in self._METHODS and hasattr(response, 'data') \
                 and isinstance(response.data, list) and self._check_query_param(request, 'stream'):
             resp = StreamingHttpResponse(self._stream_response(response))
-            resp._headers['content-type'] = ('Content-Type', 'application/json; charset=utf=8')
+            resp._headers['content-type'] = ('Content-Type', 'application/json')
             resp._headers['x-count'] = ('X-Count', str(len(response.data)))
             return resp
 
@@ -63,7 +63,12 @@ class StreamHttpResponse(object):
         return False
 
     def _stream_response(self, response):
-        yield '['
-        for item in response.data:
-            yield '%s,' % (json_dumps(item) if isinstance(item, dict) else item)
-        yield ']'
+        if response.data:
+            yield '['
+            if len(response.data) > 1:
+                for item in response.data[:-1]:
+                    yield '%s,' % (json_dumps(item) if isinstance(item, dict) else item)
+            yield json_dumps(response.data[-1]) if isinstance(response.data[-1], dict) else response.data[-1]
+            yield ']'
+        else:
+            yield '[]'
