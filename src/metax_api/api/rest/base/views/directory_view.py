@@ -5,7 +5,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from metax_api.api.rest.base.serializers import DirectorySerializer
-from metax_api.exceptions import Http400, Http501
+from metax_api.exceptions import Http400, Http403, Http501
 from metax_api.models import Directory
 from metax_api.services import CommonService, FileService
 from .common_view import CommonViewSet
@@ -122,3 +122,20 @@ class DirectoryViewSet(CommonViewSet):
         root_dirs = FileService.get_project_root_directory(request.query_params['project'])
 
         return Response(root_dirs)
+
+    @list_route(methods=['get'], url_path="update_byte_sizes_and_file_counts")
+    def update_byte_sizes_and_file_counts(self, request): # pragma: no cover
+        """
+        Calculate byte sizes and file counts for all dirs in all projects. Intended to be called after
+        importing test data.
+
+        If needed there should be no harm in calling this method again at any time in an attempt to
+        correct mistakes in real data.
+        """
+        if request.user.username != 'metax':
+            raise Http403
+
+        for p in Directory.objects.all().distinct('project_identifier').values_list('project_identifier', flat=True):
+            FileService.calculate_project_directory_byte_sizes_and_file_counts(p)
+
+        return Response()

@@ -697,3 +697,16 @@ class FileService(CommonService):
                 'No parent found for path %s, even though existing_dirs had stuff '
                 'in it. This should never happen' % node.get('file_path', node.get('directory_path', None))
             )
+
+    @staticmethod
+    def calculate_project_directory_byte_sizes_and_file_counts(project_identifier):
+        """
+        (Re-)calculate directory byte sizes and file counts in this project.
+        """
+        try:
+            project_root_dir = Directory.objects.get(project_identifier=project_identifier, parent_directory_id=None)
+        except Directory.DoesNotExist:
+            # root directory does not exist - all project files have been deleted
+            pass
+        else:
+            project_root_dir.calculate_byte_size_and_file_count()

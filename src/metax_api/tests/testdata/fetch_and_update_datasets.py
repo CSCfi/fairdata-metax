@@ -104,6 +104,15 @@ def retrieve_and_update_all_data_catalogs_in_db(headers):
     print('-- done --')
 
 
+def update_directory_byte_sizes_and_file_counts(headers):
+    print('-- begin updating byte sizes and file counts in all dirs in all projects --')
+    response = requests.get('https://localhost/rest/directories/update_byte_sizes_and_file_counts',
+        headers=headers, verify=False)
+    if response.status_code not in (200, 201, 204):
+        raise Exception(response.text)
+    print('-- done --')
+
+
 if __name__ == '__main__':
     headers = {'Content-type': 'application/json'}
     headers.update(get_auth_header())
@@ -125,3 +134,4 @@ if __name__ == '__main__':
 
     retrieve_and_update_all_datasets_in_db(headers)
     retrieve_and_update_all_data_catalogs_in_db(headers)
+    update_directory_byte_sizes_and_file_counts(headers)
