@@ -4,7 +4,6 @@ from os.path import dirname, join
 
 import simplexquery as sxq
 from dicttoxml import dicttoxml
-from django.db import connection
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
@@ -12,7 +11,9 @@ from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import Contract, Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
+from .file_service import FileService
 from .reference_data_mixin import ReferenceDataMixin
+
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -100,29 +101,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if not dir_identifiers:
             return
 
-        sql = '''
-            select sum(f.byte_size) as byte_size, count(*) as file_count
-            from metax_api_file f
-            inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
-            where cr_f.catalogrecord_id = %s
-            and f.project_identifier = %s
-            and f.file_path like (%s || '%%')
-            and f.active = true and f.removed = false
-        '''
-
-        with connection.cursor() as cr:
-            for dr in rd['directories']:
-                cr.execute(
-                    sql,
-                    [
-                        catalog_record['id'],
-                        dr['details']['project_identifier'],
-                        dr['details']['directory_path']
-                    ]
-                )
-                for row in cr.fetchall():
-                    dr['details']['byte_size'] = row[0]
-                    dr['details']['file_count'] = row[1]
+        for dr in rd['directories']:
+            FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(dr['details'], catalog_record['id'])
 
     @staticmethod
     def propose_to_pas(request, catalog_record):

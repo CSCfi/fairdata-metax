@@ -1,10 +1,9 @@
 {
-  "byte_size": 12345,
-  "directory_deleted": null,
+  "byte_size": 0,
   "directory_modified": "2017-06-23T12:41:59Z",
   "directory_name": "dir",
   "directory_path": "/dir",
-  "file_count": 12345,
+  "file_count": 0,
   "identifier": "pid:urn:dir:%s",
   "parent_directory": 1,
   "project_identifier": "some_project_identifier",

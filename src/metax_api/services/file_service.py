@@ -16,6 +16,7 @@ from metax_api.utils import RabbitMQ
 from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
 
+
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -97,6 +98,7 @@ class FileService(CommonService):
 
         deleted_files_count, project_identifier = cls._mark_files_as_deleted([file.id])
         cls._delete_empy_dir_chain_above(file.parent_directory)
+        cls.calculate_project_directory_byte_sizes_and_file_counts(file.project_identifier)
         cls._mark_datasets_as_deprecated([file.id])
 
         _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
@@ -125,7 +127,7 @@ class FileService(CommonService):
         deleted_files_count, project_identifier = cls._mark_files_as_deleted(file_ids)
 
         cls._find_and_delete_empty_directories(project_identifier)
-
+        cls.calculate_project_directory_byte_sizes_and_file_counts(project_identifier)
         cls._mark_datasets_as_deprecated(file_ids)
 
         _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
@@ -362,6 +364,9 @@ class FileService(CommonService):
         if include_parent:
             contents.update(DirectorySerializer(directory).data)
 
+        if cr_id and isinstance(contents, dict):
+            cls.calculate_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id, dirs_only)
+
         return contents
 
     @classmethod
@@ -387,9 +392,15 @@ class FileService(CommonService):
             depth += 1
 
         if cr_id:
-            dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id,
-                dirs_only=dirs_only)
+            try:
+                dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id,
+                    dirs_only=dirs_only)
+            except Http404:
+                if recursive:
+                    return { 'directories': [] }
+                raise
         else:
+            # browsing from ALL files, not cr specific
             dirs = Directory.objects.filter(parent_directory_id=directory_id)
             if dirs_only:
                 files = None
@@ -428,7 +439,7 @@ class FileService(CommonService):
         Browsing files in the context of a specific CR id.
         """
 
-        # select dirs which are container by the directory,
+        # select dirs which are contained by the directory,
         # AND which contain files belonging to the cr <-> files m2m relation table,
         # AND there exists files for CR which beging with the same path as the dir path,
         # to successfully also include files which did not DIRECTLY contain any files, but do
@@ -444,7 +455,7 @@ class FileService(CommonService):
                 select 1
                 from metax_api_file f
                 inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
-                where f.file_path like (d.directory_path || '%%')
+                where f.file_path like (d.directory_path || '/%%')
                 and cr_f.catalogrecord_id = %s
                 and f.removed = false
                 and f.active = true
@@ -467,7 +478,9 @@ class FileService(CommonService):
             cr.execute(sql_select_dirs_for_cr, [directory_id, cr_id])
             directory_ids = [ row[0] for row in cr.fetchall() ]
 
-            if not dirs_only:
+            if dirs_only:
+                file_ids = []
+            else:
                 cr.execute(sql_select_files_for_cr, [directory_id, cr_id])
                 file_ids = [ row[0] for row in cr.fetchall() ]
 
@@ -480,6 +493,63 @@ class FileService(CommonService):
         files = None if dirs_only else File.objects.filter(id__in=file_ids)
 
         return dirs, files
+
+    @classmethod
+    def calculate_directory_byte_sizes_and_file_counts_for_cr(cls, directory, cr_id, dirs_only=False):
+        """
+        Calculate total byte size and file counts of a directory, sub-directories included,
+        in the context of a specific catalog record.
+        Note: Called recursively.
+        """
+        if len(directory.get('directories', [])):
+            for sub_dir in directory.get('directories', []):
+                cls.calculate_directory_byte_sizes_and_file_counts_for_cr(sub_dir, cr_id, dirs_only)
+
+            # this block is not executed for the top-level directory, unless query param
+            # include_parent is used.
+            if 'id' in directory:
+
+                # sub dir numbers
+                byte_size = sum(d['byte_size'] for d in directory.get('directories', []))
+                file_count = sum(d['file_count'] for d in directory.get('directories', []))
+
+                # add current dir numbers from already retrieved files
+                byte_size += sum(f['byte_size'] for f in directory.get('files', []))
+                file_count += len(directory.get('files', []))
+
+                directory['byte_size'] = byte_size
+                directory['file_count'] = file_count
+
+        elif 'id' in directory:
+            # bottom dir - retrieve total byte_size and file_count from db
+
+            sql_calculate_byte_size_and_file_count = """
+                select sum(f.byte_size) as byte_size, count(f.id) as file_count
+                from metax_api_file f
+                inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
+                where cr_f.catalogrecord_id = %s
+                and f.project_identifier = %s
+                and f.file_path like (%s || '/%%')
+                and f.removed = false
+                and f.active = true
+                """
+
+            with connection.cursor() as cr:
+                cr.execute(
+                    sql_calculate_byte_size_and_file_count,
+                    [
+                        cr_id,
+                        directory['project_identifier'],
+                        directory['directory_path']
+                    ]
+                )
+
+                bs, fc = cr.fetchall()[0]
+                directory['byte_size'] += bs or 0
+                directory['file_count'] += fc or 0
+        else:
+            # called without include_parent on a directory which has files, but no directories - do nothing
+            return
 
     @classmethod
     def get_project_root_directory(cls, project_identifier):
@@ -516,6 +586,8 @@ class FileService(CommonService):
         res = super(FileService, cls)._create_single(
             common_info, initial_data_with_dirs[0], serializer_class, **kwargs)
 
+        cls.calculate_project_directory_byte_sizes_and_file_counts(initial_data['project_identifier'])
+
         _logger.info('Created 1 new files')
         return res
 
@@ -533,6 +605,8 @@ class FileService(CommonService):
         _logger.info('Creating files...')
         super(FileService, cls)._create_bulk(
             common_info, file_list_with_dirs, results, serializer_class, **kwargs)
+
+        cls.calculate_project_directory_byte_sizes_and_file_counts(initial_data_list[0]['project_identifier'])
 
         _logger.info('Created %d new files' % len(results.get('success', [])))
 
