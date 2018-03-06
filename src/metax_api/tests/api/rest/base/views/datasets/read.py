@@ -20,10 +20,10 @@ class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
         super(CatalogRecordApiReadCommon, cls).setUpClass()
 
     def setUp(self):
-        self.catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        self.pk = self.catalog_record_from_test_data['id']
-        self.urn_identifier = self.catalog_record_from_test_data['research_dataset']['urn_identifier']
-        self.preferred_identifier = self.catalog_record_from_test_data['research_dataset']['preferred_identifier']
+        self.cr_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+        self.pk = self.cr_from_test_data['id']
+        self.metadata_version_identifier = self.cr_from_test_data['research_dataset']['metadata_version_identifier']
+        self.preferred_identifier = self.cr_from_test_data['research_dataset']['preferred_identifier']
 
 
 class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
@@ -38,12 +38,14 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_details_by_pk(self):
         response = self.client.get('/rest/datasets/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['urn_identifier'], self.urn_identifier)
+        self.assertEqual(response.data['research_dataset']['metadata_version_identifier'],
+            self.metadata_version_identifier)
 
-    def test_read_catalog_record_details_by_urn_identifier(self):
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier)
+    def test_read_catalog_record_details_by_metadata_version_identifier(self):
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['urn_identifier'], self.urn_identifier)
+        self.assertEqual(response.data['research_dataset']['metadata_version_identifier'],
+            self.metadata_version_identifier)
 
     def test_get_by_preferred_identifier(self):
         response = self.client.get('/rest/datasets/%s' % self.preferred_identifier)
@@ -52,7 +54,7 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
 
     def test_get_removed_by_preferred_identifier(self):
         self._use_http_authorization()
-        response = self.client.delete('/rest/datasets/%s' % self.urn_identifier)
+        response = self.client.delete('/rest/datasets/%s' % self.metadata_version_identifier)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         response = self.client.get('/rest/datasets/%s?removed=true' % self.preferred_identifier)
@@ -77,14 +79,14 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         '''
         Search by preferred_identifier should prefer newest versions of records.
         '''
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier)
         new = response.data
         new['research_dataset']['title']['en'] = 'updated title'
 
         self._use_http_authorization()
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, new, format="json")
+        response = self.client.put('/rest/datasets/%s' % self.metadata_version_identifier, new, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        newest_version_id = response.data['next_version']['id']
+        newest_version_id = response.data['next_metadata_version']['id']
 
         response = self.client.get('/rest/datasets/%s' % response.data['research_dataset']['preferred_identifier'])
         self.assertEqual(response.data['id'], newest_version_id)
@@ -97,10 +99,10 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/%s/exists' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.urn_identifier)
+        response = self.client.get('/rest/datasets/%s/exists' % self.metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.urn_identifier)
+        response = self.client.get('/rest/datasets/%s/exists' % self.metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data)
 
@@ -109,8 +111,8 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data)
 
-    def test_read_catalog_record_urn_identifiers(self):
-        response = self.client.get('/rest/datasets/urn_identifiers')
+    def test_read_catalog_record_metadata_version_identifiers(self):
+        response = self.client.get('/rest/datasets/metadata_version_identifiers')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
@@ -234,7 +236,7 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.data['results'][0]['user_created'], '123')
 
     def test_read_catalog_record_latest_versions_only(self):
-        all_newest_versions_count = CatalogRecord.objects.filter(next_version_id=None).count()
+        all_newest_versions_count = CatalogRecord.objects.filter(next_metadata_version_id=None).count()
         cr = CatalogRecord.objects.get(pk=1)
         cr.research_dataset['title']['en'] = 'Updated'
         cr.save()
@@ -242,10 +244,10 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], all_newest_versions_count)
         for cr in response.data['results']:
-            self.assertEqual('next_version' not in cr, True, 'only latest versions should be listed')
+            self.assertEqual('next_metadata_version' not in cr, True, 'only latest versions should be listed')
 
         # ?latest should have effect in all /datasets list apis
-        response = self.client.get('/rest/datasets/urn_identifiers?latest')
+        response = self.client.get('/rest/datasets/metadata_version_identifiers?latest')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), all_newest_versions_count)
 
@@ -284,24 +286,24 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
     # modified after the header timestamp
 
     #
-    # header if-modified-since tests, urn_identifiers
+    # header if-modified-since tests, metadata_version_identifiers
     #
 
-    def test_urn_identifiers_get_with_if_modified_since_header_ok(self):
+    def test_metadata_version_identifiers_get_with_if_modified_since_header_ok(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
         date_modified = cr.date_modified
         date_modified_in_gmt = timezone.localtime(date_modified, timezone=tz('GMT'))
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/urn_identifiers', **headers)
+        response = self.client.get('/rest/datasets/metadata_version_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) == 6)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/urn_identifiers', **headers)
+        response = self.client.get('/rest/datasets/metadata_version_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) == 6)
 
@@ -311,7 +313,7 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/urn_identifiers', **headers)
+        response = self.client.get('/rest/datasets/metadata_version_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) > 6)
 

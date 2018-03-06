@@ -1,7 +1,7 @@
 {
   "data_catalog": null,
   "research_dataset": {
-    "urn_identifier": null,
+    "metadata_version_identifier": null,
     "preferred_identifier": null,
     "modified": "2014-01-17T08:19:58Z",
     "version_info": "0.1.2",

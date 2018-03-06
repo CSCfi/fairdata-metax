@@ -23,23 +23,23 @@ class ApiWriteCommon(APITestCase, TestClassUtils):
 
     def setUp(self):
         call_command('loaddata', test_data_file_path, verbosity=0)
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord')
-        self.urn_identifier = catalog_record_from_test_data['research_dataset']['urn_identifier']
-        self.pk = catalog_record_from_test_data['id']
+        record_from_test_data = self._get_object_from_test_data('catalogrecord')
+        self.mvi = record_from_test_data['research_dataset']['metadata_version_identifier']
+        self.pk = record_from_test_data['id']
         self.test_new_data = self._get_new_test_data()
         self._use_http_authorization()
 
     def _get_new_test_data(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        catalog_record_from_test_data.update({
+        record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+        record_from_test_data.update({
             "data_catalog": 1,
         })
-        catalog_record_from_test_data['research_dataset'].update({
+        record_from_test_data['research_dataset'].update({
             "preferred_identifier": None,
         })
-        catalog_record_from_test_data.pop('id', None)
-        catalog_record_from_test_data.pop('contract', None)
-        return catalog_record_from_test_data
+        record_from_test_data.pop('id', None)
+        record_from_test_data.pop('contract', None)
+        return record_from_test_data
 
 
 class ApiWriteCommonFieldsTests(ApiWriteCommon):
@@ -85,23 +85,23 @@ class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
         self.cr_test_data['preservation_description'] = 'damn this is good coffee'
         cr = CatalogRecord.objects.get(pk=1)
         headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.date_modified.strftime('%a, %d %b %Y %H:%M:%S GMT')}
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.cr_test_data, format="json",
-                                   **headers)
+        response = self.client.put('/rest/datasets/%s' % self.mvi, self.cr_test_data,
+            format="json", **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_with_if_unmodified_since_header_precondition_failed_error(self):
         self.cr_test_data['preservation_description'] = 'the owls are not what they seem'
         headers = {'HTTP_IF_UNMODIFIED_SINCE': 'Wed, 23 Sep 2009 22:15:29 GMT'}
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.cr_test_data, format="json",
-                                   **headers)
+        response = self.client.put('/rest/datasets/%s' % self.mvi, self.cr_test_data,
+            format="json", **headers)
         self.assertEqual(response.status_code, 412, 'http status should be 412 = precondition failed')
 
     def test_update_with_if_unmodified_since_header_syntax_error(self):
         self.cr_test_data['preservation_description'] = 'the owls are not what they seem'
         cr = CatalogRecord.objects.get(pk=1)
         headers = {'HTTP_IF_UNMODIFIED_SINCE': cr.date_modified.strftime('%a, %d %b %Y %H:%M:%S UTC')}
-        response = self.client.put('/rest/datasets/%s' % self.urn_identifier, self.cr_test_data, format="json",
-                                   **headers)
+        response = self.client.put('/rest/datasets/%s' % self.mvi, self.cr_test_data,
+            format="json", **headers)
         self.assertEqual(response.status_code, 400, 'http status should be 400')
 
     #
@@ -193,7 +193,7 @@ class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
         response = self.client.get('/rest/datasets/1', format="json")
         cr = response.data
         cr.pop('id')
-        cr['research_dataset'].pop('urn_identifier')
+        cr['research_dataset'].pop('metadata_version_identifier')
         cr['research_dataset'].pop('preferred_identifier')
         cr2 = deepcopy(cr)
         cr3 = deepcopy(cr)
@@ -230,5 +230,5 @@ class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
 
         cr = self.client.get('/rest/datasets/1', format="json").data
         cr2 = self.client.get('/rest/datasets/2', format="json").data
-        self.assertEqual('next_version' in cr, False)
-        self.assertEqual('next_version' in cr2, False)
+        self.assertEqual('next_metadata_version' in cr, False)
+        self.assertEqual('next_metadata_version' in cr2, False)

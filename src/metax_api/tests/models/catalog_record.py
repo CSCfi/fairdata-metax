@@ -21,11 +21,13 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
 
     def setUp(self):
         dataset_from_test_data = self._get_object_from_test_data('catalogrecord')
-        self.urn_identifier = dataset_from_test_data['research_dataset']['urn_identifier']
+        self.metadata_version_identifier = dataset_from_test_data['research_dataset']['metadata_version_identifier']
 
     def test_get_by_identifier(self):
-        catalog_record = CatalogRecord.objects.get(research_dataset__contains={'urn_identifier': self.urn_identifier})
-        self.assertEqual(catalog_record.urn_identifier, self.urn_identifier)
+        catalog_record = CatalogRecord.objects.get(
+            research_dataset__contains={'metadata_version_identifier': self.metadata_version_identifier}
+        )
+        self.assertEqual(catalog_record.metadata_version_identifier, self.metadata_version_identifier)
 
 
 class CatalogRecordModelTests(TestCase, TestClassUtils):
@@ -47,12 +49,12 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
         cr.save()
         self.assertEqual(old, cr.research_dataset['total_ida_byte_size'])
 
-    def test_disallow_urn_identifier_manual_update(self):
+    def test_disallow_metadata_version_identifier_manual_update(self):
         cr = self.cr
-        old = cr.research_dataset['urn_identifier']
-        cr.research_dataset['urn_identifier'] = 'changed'
+        old = cr.research_dataset['metadata_version_identifier']
+        cr.research_dataset['metadata_version_identifier'] = 'changed'
         cr.save()
-        self.assertEqual(old, cr.research_dataset['urn_identifier'])
+        self.assertEqual(old, cr.research_dataset['metadata_version_identifier'])
 
     def test_total_ida_byte_size_auto_update_on_files_changed(self):
         """
@@ -64,7 +66,7 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
         old = cr.research_dataset['total_ida_byte_size']
         cr.research_dataset['files'] = [file_from_testdata]
         cr.save()
-        new_version = cr.next_version
+        new_version = cr.next_metadata_version
 
         self.assertEqual(old, cr.research_dataset['total_ida_byte_size'])
         self.assertNotEqual(old, new_version.research_dataset['total_ida_byte_size'])
@@ -96,9 +98,13 @@ class CatalogRecordManagerTests(TestCase, TestClassUtils):
         self.assertEqual(found, True, 'get with using_dict should have returned a result')
         self.assertEqual(obj.id, 1)
 
-    def test_get_using_dict_with_urn_identifier(self):
-        row = {'research_dataset': {'urn_identifier': CatalogRecord.objects.first().urn_identifier},
-               'other_stuff': 'doesnt matter'}
+    def test_get_using_dict_with_metadata_version_identifier(self):
+        row = {
+            'research_dataset': {
+                'metadata_version_identifier': CatalogRecord.objects.first().metadata_version_identifier
+            },
+            'other_stuff': 'doesnt matter'
+        }
         try:
             obj = CatalogRecord.objects.get(using_dict=row)
         except CatalogRecord.DoesNotExist:

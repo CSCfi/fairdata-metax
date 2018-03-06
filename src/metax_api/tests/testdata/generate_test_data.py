@@ -490,7 +490,7 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
             new['fields']['research_dataset'] = row_template['research_dataset'].copy()
 
             new['fields']['data_catalog'] = data_catalog_id
-            new['fields']['research_dataset']['urn_identifier'] = generate_test_identifier(cr_type, i)
+            new['fields']['research_dataset']['metadata_version_identifier'] = generate_test_identifier(cr_type, i)
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
             new['fields']['date_created'] = '2017-05-23T10:07:22Z'
@@ -708,7 +708,8 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
             'owner_id': catalog_records_owner_ids[j],
             'creator_id': catalog_records_owner_ids[owner_idx],
         }
-        new['fields']['research_dataset']['urn_identifier'] = generate_test_identifier(cr_type, len(test_data_list) + 1)
+        new['fields']['research_dataset']['metadata_version_identifier'] = \
+            generate_test_identifier(cr_type, len(test_data_list) + 1)
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
 
         if type == 'ida':
@@ -860,7 +861,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['pk'] = test_data_list[-1]['pk'] + 1
     alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
         'preferred_identifier']
-    alt_rec['fields']['research_dataset']['urn_identifier'] += '-alt-1'
+    alt_rec['fields']['research_dataset']['metadata_version_identifier'] += '-alt-1'
     alt_rec['fields']['data_catalog'] = 2
     alt_rec['fields']['alternate_record_set'] = 1
     test_data_list.append(alt_rec)
@@ -870,7 +871,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['pk'] = test_data_list[-1]['pk'] + 1
     alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
         'preferred_identifier']
-    alt_rec['fields']['research_dataset']['urn_identifier'] += '-alt-2'
+    alt_rec['fields']['research_dataset']['metadata_version_identifier'] += '-alt-2'
     alt_rec['fields']['data_catalog'] = 3
     alt_rec['fields']['alternate_record_set'] = 1
     test_data_list.append(alt_rec)

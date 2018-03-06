@@ -101,7 +101,7 @@ class Common(models.Model):
         Save initial values from object fields when object is created (= retrieved from db),
         so that they can be checked at a later time if the value is being changed or not.
 
-        If field_name contains a dot, i.e. research_data.urn_identifier, it is assumed that
+        If field_name contains a dot, i.e. research_data.metadata_version_identifier, it is assumed that
         field_name is a dict (a JSON field). For now only one level of nesting is supported.
         If a need arises, can be made mega generic.
         """

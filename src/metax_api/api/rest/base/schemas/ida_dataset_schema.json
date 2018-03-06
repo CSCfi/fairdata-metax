@@ -1008,7 +1008,7 @@
             "@id":"http://www.w3.org/ns/dcat#Dataset",
             "description":"A collection of data, published or curated by a single source, and available for access or download in one or more formats",
             "properties":{
-                "urn_identifier":{
+                "metadata_version_identifier":{
                     "title":"Dataset URN identifier",
                     "description":"Dataset identifier",
                     "@id":"http://iow.csc.fi/ns/mrd#datasetidentifier",
@@ -1311,7 +1311,7 @@
                 }
             },
             "required":[
-                "urn_identifier",
+                "metadata_version_identifier",
                 "preferred_identifier",
                 "title",
                 "description",

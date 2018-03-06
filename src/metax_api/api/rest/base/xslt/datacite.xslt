@@ -1,7 +1,7 @@
 <resource xsi:schemaLocation="http://datacite.org/schema/kernel-4.1 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd" xmlns="http://datacite.org/schema/kernel-4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mrd="http://uri.suomi.fi/datamodel/ns/mrd#">
     <identifier>{ mrd:researchdataset/mrd:preferred_identifier/text() }</identifier>
     <alternateIdentifier alternateIdentifierType="URN">
-        { mrd:researchdataset/mrd:urn_identifier/text() }
+        { mrd:researchdataset/mrd:metadata_version_identifier/text() }
     </alternateIdentifier>
     <alternateIdentifier alternateIdentifierType="preferred_identifier">
         { mrd:researchdataset/mrd:preferred_identifier/text() }

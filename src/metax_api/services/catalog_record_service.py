@@ -55,7 +55,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['preservation_state__in'] = state_vals
 
         if CommonService.get_boolean_query_param(request, 'latest'):
-            queryset_search_params['next_version_id'] = None
+            queryset_search_params['next_metadata_version_id'] = None
 
         if request.query_params.get('curator', False):
             queryset_search_params['research_dataset__contains'] = \
@@ -145,17 +145,17 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if response.status_code != status.HTTP_200_OK:
             return
 
-        next_versions = []
+        next_metadata_versions = []
 
         if 'success' in response.data:
             updated_request_data = [ r['object'] for r in response.data['success'] ]
             for cr in updated_request_data:
                 if cls._new_version_created(cr):
-                    next_versions.append(cls._extract_next_version_data(cr))
+                    next_metadata_versions.append(cls._extract_next_metadata_version_data(cr))
         else:
             updated_request_data = response.data
             if cls._new_version_created(updated_request_data):
-                next_versions.append(cls._extract_next_version_data(updated_request_data))
+                next_metadata_versions.append(cls._extract_next_metadata_version_data(updated_request_data))
 
         count = len(updated_request_data) if isinstance(updated_request_data, list) else 1
         _logger.info('Publishing updated datasets (%d items)' % count)
@@ -164,9 +164,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             rabbitmq = RabbitMQ()
             rabbitmq.publish(updated_request_data, routing_key='update', exchange='datasets')
 
-            if next_versions:
-                _logger.info('Publishing new dataset versions (%d items)' % len(next_versions))
-                rabbitmq.publish(next_versions, routing_key='create', exchange='datasets')
+            if next_metadata_versions:
+                _logger.info('Publishing new dataset versions (%d items)' % len(next_metadata_versions))
+                rabbitmq.publish(next_metadata_versions, routing_key='create', exchange='datasets')
         except Exception as e:
             _logger.exception('Publishing rabbitmq messages failed')
             raise Http503({ 'detail': [
@@ -176,11 +176,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
     @staticmethod
     def _new_version_created(cr):
-        return '__actions' in cr and 'publish_next_version' in cr['__actions']
+        return '__actions' in cr and 'publish_next_metadata_version' in cr['__actions']
 
     @staticmethod
-    def _extract_next_version_data(cr):
-        data = cr['__actions']['publish_next_version']['next_version']
+    def _extract_next_metadata_version_data(cr):
+        data = cr['__actions']['publish_next_metadata_version']['next_metadata_version']
         cr.pop('__actions')
         return data
 

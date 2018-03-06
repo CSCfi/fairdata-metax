@@ -31,7 +31,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
             raise BadArgumentError('invalid set value')
 
         # only get the latest metadata versions
-        query_set = CatalogRecord.objects.filter(next_version__isnull=True)
+        query_set = CatalogRecord.objects.filter(next_metadata_version__isnull=True)
         if from_ and until:
             query_set = CatalogRecord.objects.filter(date_modified__gte=from_, date_modified__lte=until)
         elif from_:

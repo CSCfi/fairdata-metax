@@ -5856,13 +5856,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset1",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 300,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -5949,13 +5949,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset2",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 700,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6042,13 +6042,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset3",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 1100,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6139,13 +6139,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset4",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 1500,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6236,13 +6236,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset5",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 1900,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6329,13 +6329,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset6",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 2300,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6421,13 +6421,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset7",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 2700,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6510,13 +6510,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset8",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 3100,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6596,13 +6596,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset9",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 3500,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6683,13 +6683,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset10",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 3900,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -7034,6 +7034,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -7453,7 +7454,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 19000,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "value": [
                     0.111
                 ],
@@ -7802,6 +7802,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -8221,7 +8222,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 19000,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "value": [
                     0.111
                 ],
@@ -8659,6 +8659,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9613",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -9078,7 +9079,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 699100,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9613",
                 "value": [
                     0.111
                 ],
@@ -9140,6 +9140,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9614",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset14",
                 "remote_resources": [
@@ -9172,7 +9173,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 21504,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9614",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9234,6 +9234,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9615",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset15",
                 "remote_resources": [
@@ -9266,7 +9267,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 23040,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9615",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9328,6 +9328,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9616",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset16",
                 "remote_resources": [
@@ -9360,7 +9361,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 24576,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9616",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9422,6 +9422,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9617",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset17",
                 "remote_resources": [
@@ -9454,7 +9455,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 26112,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9617",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9516,6 +9516,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9618",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset18",
                 "remote_resources": [
@@ -9548,7 +9549,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 27648,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9618",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9610,6 +9610,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9619",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset19",
                 "remote_resources": [
@@ -9642,7 +9643,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 29184,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9619",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9703,6 +9703,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9620",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset20",
                 "remote_resources": [
@@ -9735,7 +9736,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 30720,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9620",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9796,6 +9796,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9621",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset21",
                 "remote_resources": [
@@ -9828,7 +9829,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 32256,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9621",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9889,6 +9889,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9622",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset22",
                 "remote_resources": [
@@ -9921,7 +9922,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 33792,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9622",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -9982,6 +9982,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset23",
                 "remote_resources": [
@@ -10014,7 +10015,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 35328,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -10269,6 +10269,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9624",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -10804,7 +10805,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 6144,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9624",
                 "value": [
                     0.111
                 ],
@@ -11063,6 +11063,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9625",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -11598,7 +11599,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 6144,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9625",
                 "value": [
                     0.111
                 ],
@@ -11857,6 +11857,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9626",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -12392,7 +12393,6 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 6144,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9626",
                 "value": [
                     0.111
                 ],
@@ -12477,13 +12477,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset10",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 3900,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -12564,13 +12564,13 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
+                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "pid:urn:preferred:dataset10",
                 "title": {
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 3900,
-                "urn_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
