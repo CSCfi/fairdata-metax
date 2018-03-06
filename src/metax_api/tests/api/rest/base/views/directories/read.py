@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -215,7 +216,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     """
     Test browsing files in the context of a specific CatalogRecord. Should always
-    only dispaly those fiels that were selected for that CR, and only those dirs,
+    only dispaly those files that were selected for that CR, and only those dirs,
     that contained suchs files, or would contain such files further down the tree.
     """
 
@@ -268,3 +269,39 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         # directory itself is not found. the error contains details about the 400
         response = self.client.get('/rest/directories/1/files?recursive&urn_identifier=notexisting')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_directory_byte_size_and_file_count(self):
+        """
+        Test byte size and file count are calculated correctly for directories when browsing files
+        in the context of a single record.
+        """
+        dr = Directory.objects.get(pk=2)
+        cr = CatalogRecord.objects.get(pk=1)
+
+        byte_size = cr.files.filter(file_path__startswith='%s/' % dr.directory_path) \
+            .aggregate(Sum('byte_size'))['byte_size__sum']
+        file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
+
+        response = self.client.get(
+            '/rest/directories/%d/files?urn_identifier=%s' % (dr.id, cr.urn_identifier))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('directories' in response.data, True)
+        self.assertEqual('byte_size' in response.data['directories'][0], True)
+        self.assertEqual('file_count' in response.data['directories'][0], True)
+        self.assertEqual(response.data['directories'][0]['byte_size'], byte_size)
+        self.assertEqual(response.data['directories'][0]['file_count'], file_count)
+
+        # browse the sub dir, with ?include_parent=true for added verification
+        dr = Directory.objects.get(pk=response.data['directories'][0]['id'])
+
+        byte_size = cr.files.filter(file_path__startswith='%s/' % dr.directory_path) \
+            .aggregate(Sum('byte_size'))['byte_size__sum']
+        file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
+
+        response = self.client.get(
+            '/rest/directories/%d/files?urn_identifier=%s&include_parent' % (dr.id, cr.urn_identifier))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('byte_size' in response.data, True)
+        self.assertEqual('file_count' in response.data, True)
+        self.assertEqual(response.data['byte_size'], byte_size)
+        self.assertEqual(response.data['file_count'], file_count)
