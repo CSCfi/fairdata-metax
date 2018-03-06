@@ -118,18 +118,14 @@ if __name__ == '__main__':
     headers = {'Content-type': 'application/json'}
     headers.update(get_auth_header())
 
-    is_ok = False
-    no = 1
-    while not is_ok and no <= 10:
+    for i in range(1, 10):
         response = requests.get('https://localhost/rest/datasets/1', headers=headers, verify=False)
         if response.status_code == 200:
-            is_ok = True
-        else:
-            no += 1
-            sleep(1)
-
-    if not is_ok:
-        print("Unable to GET dataset with pk 1, aborting..")
+            break
+        sleep(1)
+    else:
+        print("Unable to GET dataset with pk 1, aborting... reason:")
+        print(response.content)
         import sys
         sys.exit(1)
 
