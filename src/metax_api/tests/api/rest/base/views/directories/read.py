@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord, Directory
+from metax_api.services import FileService
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -280,6 +281,9 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         """
         dr = Directory.objects.get(pk=2)
         cr = CatalogRecord.objects.get(pk=1)
+
+        # calculate all directory byte sizes and file counts to real values, from their default 0 values
+        FileService.calculate_project_directory_byte_sizes_and_file_counts(dr.project_identifier)
 
         byte_size = cr.files.filter(file_path__startswith='%s/' % dr.directory_path) \
             .aggregate(Sum('byte_size'))['byte_size__sum']
