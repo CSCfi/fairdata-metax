@@ -55,7 +55,7 @@ class FileService(CommonService):
     def get_datasets_where_file_belongs_to(cls, file_identifiers):
         """
         Find out which (non-deprecated) datasets a list of files belongs to, and return
-        their urn_identifiers as a list. Includes only latest versions of datasets.
+        their metadata_version_identifiers as a list. Includes only latest versions of datasets.
 
         Parameter file_identifiers can be a list of pk's (integers), or file identifiers (strings).
         """
@@ -70,23 +70,23 @@ class FileService(CommonService):
         file_ids = cls._file_identifiers_to_ids(file_identifiers)
 
         sql_select_related_records = """
-            select research_dataset->>'urn_identifier' as urn_identifier
+            select research_dataset->>'metadata_version_identifier' as metadata_version_identifier
             from metax_api_catalogrecord cr
             inner join metax_api_catalogrecord_files cr_f on catalogrecord_id = cr.id
             where cr_f.file_id in %s and cr.removed = false and cr.active = true
-            group by urn_identifier
+            group by metadata_version_identifier
             """
 
         with connection.cursor() as cr:
             cr.execute(sql_select_related_records, [tuple(file_ids)])
             if cr.rowcount == 0:
-                urn_identifiers = []
+                metadata_version_identifiers = []
                 _logger.info('No datasets found for files')
             else:
-                urn_identifiers = [ row[0] for row in cr.fetchall() ]
-                _logger.info('Found following datasets:\n%s' % '\n'.join(urn_identifiers))
+                metadata_version_identifiers = [ row[0] for row in cr.fetchall() ]
+                _logger.info('Found following datasets:\n%s' % '\n'.join(metadata_version_identifiers))
 
-        return Response(urn_identifiers, status=status.HTTP_200_OK)
+        return Response(metadata_version_identifiers, status=status.HTTP_200_OK)
 
     @classmethod
     def destroy_single(cls, file):
@@ -273,7 +273,7 @@ class FileService(CommonService):
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
-            recursive=False, max_depth=1, dirs_only=False, include_parent=False, urn_identifier=None):
+            recursive=False, max_depth=1, dirs_only=False, include_parent=False, metadata_version_identifier=None):
         """
         Get files and directories contained by a directory.
 
@@ -281,8 +281,8 @@ class FileService(CommonService):
 
         identifier: may be a pk, or an uuid value. Search using approriate fields.
 
-        urn_identifier: may be used to browse files in the context of the given
-        urn_identifier: Only those files and directories are retrieved, which have been
+        metadata_version_identifier: may be used to browse files in the context of the given
+        metadata_version_identifier: Only those files and directories are retrieved, which have been
         selected for that CatalogRecord.
 
         path and project_identifier: may be specified to search directly by
@@ -326,17 +326,18 @@ class FileService(CommonService):
                 raise Http404
             directory_id = directory.id
 
-        if urn_identifier:
-            if urn_identifier.isdigit():
-                cr_id = urn_identifier
+        if metadata_version_identifier:
+            if metadata_version_identifier.isdigit():
+                cr_id = metadata_version_identifier
             else:
                 try:
-                    cr_id = CatalogRecord.objects.get_id(urn_identifier=urn_identifier)
+                    cr_id = CatalogRecord.objects.get_id(metadata_version_identifier=metadata_version_identifier)
                 except Http404:
                     # raise 400 instead of 404, to distinguish from the error
                     # 'directory not found', which raises a 404
                     raise ValidationError({
-                        'detail': ['record with urn_identifier %s does not exist' % urn_identifier]
+                        'detail': ['record with metadata_version_identifier %s does not exist'
+                                   % metadata_version_identifier]
                     })
         else:
             cr_id = None

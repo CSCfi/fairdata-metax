@@ -68,23 +68,24 @@ class CatalogRecordManager(CommonManager):
             row = kwargs.pop('using_dict')
             if row.get('id', None):
                 kwargs['id'] = row['id']
-            elif row.get('research_dataset', None) and row['research_dataset'].get('urn_identifier', None):
-                kwargs['research_dataset__contains'] = { 'urn_identifier': row['research_dataset']['urn_identifier'] }
+            elif row.get('research_dataset', None) and row['research_dataset'].get('metadata_version_identifier', None):
+                kwargs['research_dataset__contains'] = {'metadata_version_identifier':
+                                                        row['research_dataset']['metadata_version_identifier']}
             else:
                 raise ValidationError(
                     'this operation requires an identifying key to be present: '
-                    'id, or research_dataset ->> urn_identifier')
+                    'id, or research_dataset ->> metadata_version_identifier')
         return super(CatalogRecordManager, self).get(*args, **kwargs)
 
-    def get_id(self, urn_identifier=None):
+    def get_id(self, metadata_version_identifier=None):
         """
-        Takes urn_identifier, and returns the plain pk of the record. Useful for debugging,
+        Takes metadata_version_identifier, and returns the plain pk of the record. Useful for debugging,
         and some other situations.
         """
-        if not urn_identifier:
-            raise ValidationError('urn_identifier is a required keyword argument')
+        if not metadata_version_identifier:
+            raise ValidationError('metadata_version_identifier is a required keyword argument')
         cr = super(CatalogRecordManager, self).filter(
-            **{ 'research_dataset__contains': {'urn_identifier': urn_identifier } }
+            **{ 'research_dataset__contains': {'metadata_version_identifier': metadata_version_identifier } }
         ).values('id').first()
         if not cr:
             raise Http404
@@ -198,7 +199,7 @@ class CatalogRecord(Common):
             'research_dataset.directories',
             'research_dataset.total_ida_byte_size',
             'research_dataset.total_remote_resources_byte_size',
-            'research_dataset.urn_identifier',
+            'research_dataset.metadata_version_identifier',
             'research_dataset.preferred_identifier',
         )
 
@@ -211,8 +212,9 @@ class CatalogRecord(Common):
             self._pre_create_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_create_operations()
-            _logger.info('Created a new <CatalogRecord id: %d, urn_identifier: %s, preferred_identifier: %s >'
-                % (self.id, self.urn_identifier, self.preferred_identifier))
+            _logger.info(
+                'Created a new <CatalogRecord id: %d, metadata_version_identifier: %s, preferred_identifier: %s >'
+                % (self.id, self.metadata_version_identifier, self.preferred_identifier))
         else:
             self._pre_update_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
@@ -225,7 +227,7 @@ class CatalogRecord(Common):
 
         file_changes = self._find_file_changes()
 
-        self._generate_urn_identifier()
+        self._generate_metadata_version_identifier()
 
         # note: save() updates self._initial_data with data received from the request, so after this
         # point checking changed fields need to be compared with self.previous_version, instead of
@@ -242,7 +244,7 @@ class CatalogRecord(Common):
                 'Forcing preferred_identifier change'
             )
             # force preferred_identifier change if not already changed by the user
-            self.research_dataset['preferred_identifier'] = self.urn_identifier
+            self.research_dataset['preferred_identifier'] = self.metadata_version_identifier
 
         # note: this new version was implicitly placed in the same
         # alternate_record_set as the previous version.
@@ -555,9 +557,9 @@ class CatalogRecord(Common):
             return None
 
     @property
-    def urn_identifier(self):
+    def metadata_version_identifier(self):
         try:
-            return self.research_dataset['urn_identifier']
+            return self.research_dataset['metadata_version_identifier']
         except:
             return None
 
@@ -571,7 +573,7 @@ class CatalogRecord(Common):
         return bool(self.version_set)
 
     def _pre_create_operations(self):
-        self._generate_urn_identifier()
+        self._generate_metadata_version_identifier()
         if 'remote_resources' in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
@@ -588,9 +590,10 @@ class CatalogRecord(Common):
             self._create_or_update_alternate_record_set(other_record)
 
     def _pre_update_operations(self):
-        if self.field_changed('research_dataset.urn_identifier'):
+        if self.field_changed('research_dataset.metadata_version_identifier'):
             # read-only
-            self.research_dataset['urn_identifier'] = self._initial_data['research_dataset']['urn_identifier']
+            self.research_dataset['metadata_version_identifier'] = \
+                self._initial_data['research_dataset']['metadata_version_identifier']
 
         if self.field_changed('research_dataset.total_ida_byte_size'):
             # read-only
@@ -775,7 +778,7 @@ class CatalogRecord(Common):
         - Sets links next_version and previous_version to related objects
         - Forces preferred_identifier change if necessary
         """
-        _logger.info('Creating new version from CatalogRecord %s...' % self.urn_identifier)
+        _logger.info('Creating new version from CatalogRecord %s...' % self.metadata_version_identifier)
         new_version = CatalogRecord.objects.get(pk=self.id)
         new_version.id = None # setting id to None creates a new row
         new_version.contract = None
@@ -792,7 +795,7 @@ class CatalogRecord(Common):
         # contains the new field data from the request. this effectively transfers
         # the changes to the new
         new_version.research_dataset = deepcopy(self.research_dataset)
-        new_version.research_dataset.pop('urn_identifier')
+        new_version.research_dataset.pop('metadata_version_identifier')
         new_version.service_created = self.service_modified or self.service_created
         new_version.service_modified = None
 
@@ -827,7 +830,7 @@ class CatalogRecord(Common):
         self.next_version = new_version
         self.next_version_created_in_current_request = True
 
-        _logger.info('New CatalogRecord version %s created' % new_version.urn_identifier)
+        _logger.info('New CatalogRecord version %s created' % new_version.metadata_version_identifier)
 
     def _get_selected_files_changed(self):
         """
@@ -866,15 +869,15 @@ class CatalogRecord(Common):
 
         return changes
 
-    def _generate_urn_identifier(self):
+    def _generate_metadata_version_identifier(self):
         """
-        Field urn_identifier in research_dataset is always generated, and it can not be changed later.
-        If preferred_identifier is missing during create, copy urn_identifier to it also.
+        Field metadata_version_identifier in research_dataset is always generated, and it can not be changed later.
+        If preferred_identifier is missing during create, copy metadata_version_identifier to it also.
         """
-        urn_identifier = generate_identifier()
-        self.research_dataset['urn_identifier'] = urn_identifier
+        metadata_version_identifier = generate_identifier()
+        self.research_dataset['metadata_version_identifier'] = metadata_version_identifier
         if not self.research_dataset.get('preferred_identifier', None):
-            self.research_dataset['preferred_identifier'] = urn_identifier
+            self.research_dataset['preferred_identifier'] = metadata_version_identifier
 
     def _handle_preferred_identifier_changed(self):
         if self.has_alternate_records():
@@ -921,7 +924,7 @@ class CatalogRecord(Common):
             ars.save()
             ars.records.add(self, other_record)
             _logger.info('Creating new alternate_record_set for preferred_identifier: %s, with records: %s and %s' %
-                (self.preferred_identifier, self.urn_identifier, other_record.urn_identifier))
+                (self.preferred_identifier, self.metadata_version_identifier, other_record.metadata_version_identifier))
 
     def _remove_from_alternate_record_set(self):
         """
@@ -938,13 +941,14 @@ class CatalogRecord(Common):
         self.alternate_record_set = None
 
     def __repr__(self):
-        return '<%s: %d, removed: %s, data_catalog: %s, urn_identifier: %s, preferred_identifier: %s, file_count: %d >'\
+        return '<%s: %d, removed: %s, data_catalog: %s, metadata_version_identifier: %s, preferred_identifier: %s, ' \
+               'file_count: %d >'\
             % (
                 'CatalogRecord',
                 self.id,
                 str(self.removed),
                 self.data_catalog.catalog_json['identifier'],
-                self.urn_identifier,
+                self.metadata_version_identifier,
                 self.preferred_identifier,
                 self.files.count(),
             )

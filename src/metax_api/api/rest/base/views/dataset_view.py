@@ -110,7 +110,8 @@ class DatasetViewSet(CommonViewSet):
         if res.status_code == status.HTTP_204_NO_CONTENT:
             removed_object = self._get_removed_dataset()
             rabbitmq = RabbitMQ()
-            rabbitmq.publish({'urn_identifier': removed_object.research_dataset['urn_identifier']},
+            rabbitmq.publish({'metadata_version_identifier':
+                              removed_object.research_dataset['metadata_version_identifier']},
                 routing_key='delete', exchange='datasets')
         return res
 
@@ -164,23 +165,23 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data=True, status=status.HTTP_200_OK)
 
-    @list_route(methods=['get'], url_path="urn_identifiers")
-    def get_all_urn_identifiers(self, request):
+    @list_route(methods=['get'], url_path="metadata_version_identifiers")
+    def get_all_metadata_version_identifiers(self, request):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
         q = self.get_queryset().values('research_dataset')
-        urn_ids = [item['research_dataset']['urn_identifier'] for item in q]
-        return Response(urn_ids)
+        metadata_ids = [item['research_dataset']['metadata_version_identifier'] for item in q]
+        return Response(metadata_ids)
 
     def _search_using_dataset_identifiers(self):
         """
-        Search by lookup value from urn_identifier and preferred_identifier fields. preferred_identifier
+        Search by lookup value from metadata_version_identifier and preferred_identifier fields. preferred_identifier
         searched only with GET requests.
         """
         lookup_value = self.kwargs.get(self.lookup_field, False)
 
         try:
             return super(DatasetViewSet, self).get_object(
-                search_params={ 'research_dataset__contains': {'urn_identifier': lookup_value} })
+                search_params={ 'research_dataset__contains': {'metadata_version_identifier': lookup_value} })
         except Http404:
             if self.request.method != 'GET':
                 raise
@@ -206,7 +207,7 @@ class DatasetViewSet(CommonViewSet):
         lookup_value = self.kwargs.get('pk')
         different_fields = [
             {},
-            { 'search_params': { 'research_dataset__contains': {'urn_identifier': lookup_value }} },
+            { 'search_params': { 'research_dataset__contains': {'metadata_version_identifier': lookup_value }} },
             { 'search_params': { 'research_dataset__contains': {'preferred_identifier': lookup_value }} },
             { 'search_params': { 'research_dataset__contains':
                                 {'other_identifier': [{'local_identifier': lookup_value }]}}},

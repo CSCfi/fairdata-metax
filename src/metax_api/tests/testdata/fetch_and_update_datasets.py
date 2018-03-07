@@ -36,15 +36,16 @@ def get_auth_header():
 def retrieve_and_update_all_datasets_in_db(headers):
     print('-- begin retrieving and updating all datasets in the db --')
 
-    print('retrieving all urn_identifiers...')
-    response = requests.get('https://localhost/rest/datasets/urn_identifiers', headers=headers, verify=False)
+    print('retrieving all metadata_version_identifiers...')
+    response = requests.get('https://localhost/rest/datasets/metadata_version_identifiers',
+                            headers=headers, verify=False)
     if response.status_code != 200:
         raise Exception(response.content)
 
     records = []
     count = 0
 
-    print('received %d urn_identifiers' % len(response.json()))
+    print('received %d metadata_version_identifiers' % len(response.json()))
     print('retrieving details of datasets...')
 
     for urn in response.json():

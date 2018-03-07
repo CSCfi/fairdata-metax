@@ -25,9 +25,9 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         response = self.client.get('/rest/datasets/1?removed=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get('/rest/datasets/urn_identifiers')
-        self.assertEqual(obj.urn_identifier not in response.data, True)
-        self.assertEqual(obj2.urn_identifier not in response.data, True)
+        response = self.client.get('/rest/datasets/metadata_version_identifiers')
+        self.assertEqual(obj.metadata_version_identifier not in response.data, True)
+        self.assertEqual(obj2.metadata_version_identifier not in response.data, True)
 
         obj = File.objects.get(pk=1)
         obj.removed = True
@@ -104,19 +104,19 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_with_if_modified_since_header_syntax_error(self):
@@ -126,7 +126,7 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S UTC')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     #

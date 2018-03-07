@@ -27,7 +27,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
 
     def setUp(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-        self.urn_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
+        self.metadata_version_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
 
         self._use_http_authorization()
 
@@ -38,7 +38,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=cr_index)
 
         catalog_record_from_test_data['research_dataset'].update({
-            "urn_identifier": "urn:nbn:fi:att:ec55c1dd-668d-43ae-b51b-f6c56a5bd4d6",
+            "metadata_version_identifier": "urn:nbn:fi:att:ec55c1dd-668d-43ae-b51b-f6c56a5bd4d6",
             "preferred_identifier": None,
             "other_identifier": [
                 {
@@ -69,7 +69,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         # add one versioned record for datasets/1
         target_catalog = 1
         data = {'research_dataset': self._get_new_test_cr_data(cr_index=0)['research_dataset']}
-        data['research_dataset']['preferred_identifier'] = self.urn_identifier + '-new-version'
+        data['research_dataset']['preferred_identifier'] = self.metadata_version_identifier + '-new-version'
         data['data_catalog'] = target_catalog
 
         response = self.client.patch('/rest/datasets/1', data, format="json")
@@ -140,10 +140,11 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
 
     def test_get_record(self):
         response = self.client.get(
-            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc' % self.urn_identifier)
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc' % self.metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
-                                        '//o:record/o:header/o:identifier[text()="%s"]' % self.urn_identifier)
+                                        '//o:record/o:header/o:identifier[text()="%s"]'
+                                        % self.metadata_version_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
     def test_get_record_non_existing(self):
@@ -159,14 +160,14 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertTrue(len(errors) == 1, response.content)
 
         response = self.client.get(
-            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_notavailable' % self.urn_identifier)
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_notavailable' % self.metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         errors = self._get_results(response.content, '//o:error[@code="cannotDisseminateFormat"]')
         self.assertTrue(len(errors) == 1, response.content)
 
     def test_get_datacite_record(self):
         response = self.client.get(
-            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_datacite' % self.urn_identifier)
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_datacite' % self.metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
                                         '//o:record/o:metadata/datacite:oai_datacite/' +
@@ -175,11 +176,11 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
 
     def test_get_urnresolver_record(self):
         response = self.client.get(
-            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.urn_identifier)
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
                                         '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' %
-                                        self.urn_identifier)
+                                        self.metadata_version_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
     def test_list_records_from_datasets_set(self):

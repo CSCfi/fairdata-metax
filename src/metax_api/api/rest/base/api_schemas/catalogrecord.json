@@ -32,7 +32,7 @@
                 },
                 "alternate_record_set":{
                     "title":"Alternate Records",
-                    "description":"List of records who share the same preferred_identifier value, but are saved in different data catalogs. The list of contains the urn_identifier values of those records.",
+                    "description":"List of records who share the same preferred_identifier value, but are saved in different data catalogs. The list of contains the metadata_version_identifier values of those records.",
                     "type":"array",
                     "items":{
                         "type":"string"
@@ -97,7 +97,7 @@
                 },
                 "version_set":{
                     "title":"Versions",
-                    "description":"List of records (urn_identifiers) which are different versions of the same record.",
+                    "description":"List of records (metadata_version_identifiers) which are different versions of the same record.",
                     "type":"array",
                     "items":{
                         "type":"string"
@@ -188,9 +188,9 @@
                     "type":"integer",
                     "readonly": true
                 },
-                "urn_identifier":{
-                    "title":"urn_identifier",
-                    "description":"urn_identifier of the record",
+                "metadata_version_identifier":{
+                    "title":"metadata_version_identifier",
+                    "description":"metadata_version_identifier of the record",
                     "type":"string",
                     "readonly": true
                 },
