@@ -4661,6 +4661,15 @@
         "fields": {
             "catalog_json": {
                 "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ],
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -4692,15 +4701,6 @@
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
-                            }
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
                             }
                         }
                     ]
@@ -4778,6 +4778,15 @@
         "fields": {
             "catalog_json": {
                 "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ],
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -4809,15 +4818,6 @@
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
-                            }
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
                             }
                         }
                     ]
@@ -4895,6 +4895,15 @@
         "fields": {
             "catalog_json": {
                 "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ],
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -4926,15 +4935,6 @@
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
-                            }
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
                             }
                         }
                     ]
@@ -5012,6 +5012,15 @@
         "fields": {
             "catalog_json": {
                 "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ],
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -5043,15 +5052,6 @@
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
-                            }
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
                             }
                         }
                     ]
@@ -5129,6 +5129,15 @@
         "fields": {
             "catalog_json": {
                 "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ],
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -5160,15 +5169,6 @@
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
-                            }
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
                             }
                         }
                     ]
@@ -5246,6 +5246,15 @@
         "fields": {
             "catalog_json": {
                 "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ],
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -5277,15 +5286,6 @@
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
-                            }
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
                             }
                         }
                     ]
@@ -5363,6 +5363,15 @@
         "fields": {
             "catalog_json": {
                 "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ],
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -5394,15 +5403,6 @@
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
-                            }
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
                             }
                         }
                     ]
@@ -5480,6 +5480,15 @@
         "fields": {
             "catalog_json": {
                 "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin"
+                            }
+                        }
+                    ],
                     "description": [
                         {
                             "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
@@ -5511,15 +5520,6 @@
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
-                            }
-                        }
-                    ],
-                    "type": [
-                        {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                            "pref_label": {
-                                "en": "Open",
-                                "fi": "Avoin"
                             }
                         }
                     ]
