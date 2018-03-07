@@ -171,9 +171,7 @@
         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
         "provider": {
           "@type": "Organization",
-          "identifier": [
-            "http://purl.org/att/es/organization_data/organization/organization_01901"
-          ],
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
           "name": {
             "en": "Mysterious Organization",
             "fi": "Organisaatio"

@@ -1,7 +1,8 @@
+
 {
-    "@id":"http://iow.csc.fi/ns/mfs#",
+    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#",
     "title":"Metax Data Storage Metadata",
-    "modified":"Fri, 06 Oct 2017 13:09:35 EEST",
+    "modified":"Tue, 30 Jan 2018 15:44:59 GMT",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "anyOf":[
@@ -18,33 +19,28 @@
             "description":"Checksum of the file",
             "properties":{
                 "checksum_value":{
+                    "@id":"http://spdx.org/rdf/terms#checksumValue",
                     "title":"Checksum value",
                     "description":"Value of the checksum. xsd:hexBinary",
-                    "@id":"http://spdx.org/rdf/terms#checksumValue",
                     "@type":"http://www.w3.org/2001/XMLSchema#hexBinary",
-                    "minItems":1,
-                    "maxItems":1
+                    "type":"string"
                 },
                 "checksum_algorithm":{
+                    "@id":"http://spdx.org/rdf/terms#algorithm",
                     "title":"Checksum algorithm",
                     "description":"Used checksum algortihm",
-                    "@id":"http://spdx.org/rdf/terms#algorithm",
                     "enum":[
                         "md5",
                         "sha2"
                     ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "checksum_checked":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#checksumchecked",
                     "title":"Checksum checked",
                     "description":"Last time the file checksum is validated",
-                    "@id":"http://iow.csc.fi/ns/mfs#checksumchecked",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 }
@@ -53,111 +49,95 @@
                 "checksum_value",
                 "checksum_algorithm",
                 "checksum_checked"
-            ],
-            "additionalProperties":false
+            ]
         },
         "Directory":{
             "type":"object",
             "title":"Directory",
-            "@id":"http://iow.csc.fi/ns/mfs#Directory",
+            "@id":"http://uri.suomi.fi/datamodel/ns/mfs#Directory",
             "description":"Container for folders",
             "properties":{
                 "identifier":{
+                    "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Local directory identifier",
-                    "@id":"http://purl.org/dc/terms/identifier",
-                    "@type":"@id",
-                    "minItems":1,
-                    "maxItems":1,
-                    "type":"string"
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"string",
+                    "example":[
+                        ""
+                    ]
                 },
                 "directory_name":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#fileName",
                     "title":"Directory name",
                     "description":"Directory name",
-                    "@id":"http://iow.csc.fi/ns/mfs#fileName",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "directory_path":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#filePath",
                     "title":"Directory Path",
                     "description":"Path to the directory",
-                    "@id":"http://iow.csc.fi/ns/mfs#filePath",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "replication_path":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#replicationpath",
                     "title":"Replication path",
                     "description":"Identifier for the place that the directory is replicated",
-                    "@id":"http://iow.csc.fi/ns/mfs#replicationpath",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "maxItems":1,
                     "type":"string"
                 },
                 "directory_uploaded":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#dateUploaded",
                     "title":"Date uploaded",
                     "description":"date when data was uploaded",
-                    "@id":"http://iow.csc.fi/ns/mfs#dateUploaded",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "directory_modified":{
+                    "@id":"http://purl.org/dc/terms/modified",
                     "title":"Date modified",
                     "description":"Date on which the resource was changed.",
-                    "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "directory_frozen":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#datefrozen",
                     "title":"Date frozen",
                     "description":"date when the file is frozen",
-                    "@id":"http://iow.csc.fi/ns/mfs#datefrozen",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "directory_deleted":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#datedeleted",
                     "title":"Date deleted",
                     "description":"date when the frozen file was deleted",
-                    "@id":"http://iow.csc.fi/ns/mfs#datedeleted",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "byte_size":{
+                    "@id":"http://www.w3.org/ns/dcat#byteSize",
                     "title":"Directory byte size",
                     "description":"The size of a resource in bytes.",
-                    "@id":"http://www.w3.org/ns/dcat#byteSize",
                     "@type":"http://www.w3.org/2001/XMLSchema#integer",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"integer"
                 },
                 "project_identifier":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#group",
                     "title":"Project identifier",
                     "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
-                    "@id":"http://iow.csc.fi/ns/mfs#group",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "contains":{
+                    "@id":"http://www.w3.org/ns/ldp#contains",
                     "title":"Contains",
                     "description":"Links a directory to contained file",
-                    "@id":"http://www.w3.org/ns/ldp#contains",
                     "@type":"@id",
                     "type":"array",
                     "items":{
@@ -166,34 +146,41 @@
                     }
                 },
                 "parent_directory":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#parent",
                     "title":"Parent directory",
                     "description":"Reference to parent directory",
-                    "@id":"http://iow.csc.fi/ns/mfs#parent",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Directory"
                 },
                 "file_storage":{
+                    "@id":"http://purl.org/dc/terms/isPartOf",
                     "title":"Is Stored To",
                     "description":"A related storage system",
-                    "@id":"http://purl.org/dc/terms/isPartOf",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/FileStorage"
+                },
+                "number_of_files":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#numberOfFiles",
+                    "title":"Number of files",
+                    "description":"Number of files in adirectory",
+                    "@type":"http://www.w3.org/2001/XMLSchema#integer",
+                    "type":"integer"
                 }
             },
             "required":[
                 "identifier",
-                "directory_name",
+                "byte_size",
                 "directory_path",
                 "directory_uploaded",
                 "directory_modified",
+                "file_storage",
+                "number_of_files",
                 "directory_frozen",
-                "byte_size",
-                "project_identifier",
-                "file_storage"
-            ],
-            "additionalProperties":false
+                "directory_name",
+                "project_identifier"
+            ]
         },
         "File":{
             "type":"object",
@@ -202,148 +189,123 @@
             "description":"The class of File",
             "properties":{
                 "identifier":{
+                    "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"A persistent identifier (PID) in urn: scheme",
-                    "@id":"http://purl.org/dc/terms/identifier",
-                    "@type":"@id",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "type":"string",
-                    "minItems":1,
-                    "maxItems":1
+                    "format":"uri"
                 },
                 "file_name":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#fileName",
                     "title":"File name",
                     "description":"File name including the extension",
-                    "@id":"http://iow.csc.fi/ns/mfs#fileName",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "file_path":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#filePath",
                     "title":"File Path",
                     "description":"Path to the item as file: URI",
-                    "@id":"http://iow.csc.fi/ns/mfs#filePath",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "replication_path":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#replicationpath",
                     "title":"Replication path",
                     "description":"Identifier in file: scheme for the place that the file is replicated",
-                    "@id":"http://iow.csc.fi/ns/mfs#replicationpath",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "maxItems":1
+                    "type":"string",
+                    "format":"uri"
                 },
                 "file_uploaded":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#dateUploaded",
                     "title":"Date uploaded",
                     "description":"date when data was uploaded",
-                    "@id":"http://iow.csc.fi/ns/mfs#dateUploaded",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "file_modified":{
+                    "@id":"http://purl.org/dc/terms/modified",
                     "title":"Date modified",
                     "description":"Date on which the resource was changed.",
-                    "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "file_frozen":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#datefrozen",
                     "title":"Date frozen",
                     "description":"date when the file is frozen",
-                    "@id":"http://iow.csc.fi/ns/mfs#datefrozen",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "file_deleted":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#datedeleted",
                     "title":"Date deleted",
                     "description":"date when the frozen file was deleted",
-                    "@id":"http://iow.csc.fi/ns/mfs#datedeleted",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "file_characteristics":{
+                    "@id":"http://www.loc.gov/premis/rdf/v1#hasObjectCharacteristics",
                     "title":"Optional metadata",
                     "description":"Optional file metadata and file format specific charasteristics",
-                    "@id":"http://www.loc.gov/premis/rdf/v1#hasObjectCharacteristics",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/FileCharacteristics"
                 },
                 "file_format":{
+                    "@id":"http://schema.org/fileFormat",
                     "title":"File format",
                     "description":"File format, must usually IANA mediatype",
-                    "@id":"http://schema.org/fileFormat",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "byte_size":{
+                    "@id":"http://www.w3.org/ns/dcat#byteSize",
                     "title":"Byte size",
                     "description":"The size of a resource in bytes.",
-                    "@id":"http://www.w3.org/ns/dcat#byteSize",
-                    "@type":"http://www.w3.org/2001/XMLSchema#integer",
-                    "minItems":1,
-                    "maxItems":1,
-                    "type":"integer"
+                    "@type":"http://www.w3.org/2001/XMLSchema#decimal",
+                    "type":"number"
                 },
                 "file_storage":{
+                    "@id":"http://purl.org/dc/terms/isPartOf",
                     "title":"Is Stored To",
                     "description":"A related storage system",
-                    "@id":"http://purl.org/dc/terms/isPartOf",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/FileStorage"
                 },
-                "download_url":{
-                    "title":"Download url",
-                    "description":"If the file can be downloaded, URL to download the binary.",
-                    "@id":"http://schema.org/downloadUrl",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "maxItems":1
-                },
                 "project_identifier":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#group",
                     "title":"Project identifier",
                     "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
-                    "@id":"http://iow.csc.fi/ns/mfs#group",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "checksum":{
+                    "@id":"http://spdx.org/rdf/terms#checksum",
                     "title":"checksum",
                     "description":"Checksum of the file",
-                    "@id":"http://spdx.org/rdf/terms#checksum",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Checksum"
                 },
                 "open_access":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#openaccess",
                     "title":"Open access",
                     "description":"This should be true if data is open and accessible. If attribute is not present it should be interpreted as implicit false.",
-                    "@id":"http://iow.csc.fi/ns/mfs#openaccess",
                     "@type":"http://www.w3.org/2001/XMLSchema#boolean",
-                    "maxItems":1,
                     "type":"boolean"
                 },
                 "file_characteristics_extension":{
+                    "@id":"http://www.loc.gov/premis/rdf/v1#objectCharacteristicsExtension",
                     "title":"Metadata Extension",
                     "description":"Format-specific metadata that is defined externally. Can be represented as ObjectCharacteristicsExtension in PREMIS format.",
-                    "@id":"http://www.loc.gov/premis/rdf/v1#objectCharacteristicsExtension",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/FileCharacteristicsExtension"
@@ -351,18 +313,17 @@
             },
             "required":[
                 "identifier",
-                "file_name",
                 "file_path",
+                "byte_size",
+                "file_name",
                 "file_uploaded",
                 "file_modified",
-                "file_frozen",
-                "file_format",
-                "byte_size",
                 "file_storage",
+                "checksum",
                 "project_identifier",
-                "checksum"
-            ],
-            "additionalProperties":false
+                "file_frozen",
+                "file_format"
+            ]
         },
         "FileCharacteristics":{
             "type":"object",
@@ -371,102 +332,95 @@
             "description":"This class is used as extension point to additional file charasteristics",
             "properties":{
                 "title":{
+                    "@id":"http://purl.org/dc/terms/title",
                     "title":"Title",
                     "description":"A name given to the file",
-                    "@id":"http://purl.org/dc/terms/title",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "maxItems":1,
                     "type":"string"
                 },
                 "description":{
+                    "@id":"http://purl.org/dc/terms/description",
                     "title":"Description",
                     "description":"Free-text account of the distribution.",
-                    "@id":"http://purl.org/dc/terms/description",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "maxItems":1,
                     "type":"string"
                 },
                 "encoding":{
+                    "@id":"http://schema.org/encoding",
                     "title":"Text encoding",
                     "description":"Used text encoding",
-                    "@id":"http://schema.org/encoding",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "maxItems":1,
                     "type":"string"
                 },
                 "application_name":{
+                    "@id":"http://www.loc.gov/premis/rdf/v1#hasCreatingApplicationName",
                     "title":"Application name",
                     "description":"A designation for the name of the software program that created the object",
-                    "@id":"http://www.loc.gov/premis/rdf/v1#hasCreatingApplicationName",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "maxItems":1,
-                    "type":"string"
+                    "type":"string",
+                    "example":[
+                        "MSWord"
+                    ]
                 },
                 "file_created":{
+                    "@id":"http://purl.org/dc/terms/created",
                     "title":"File Created",
                     "description":"Original creation date of the file",
-                    "@id":"http://purl.org/dc/terms/created",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "maxItems":1,
                     "type":"string",
                     "format":"date-time"
                 },
                 "metadata_modified":{
+                    "@id":"http://purl.org/dc/terms/modified",
                     "title":"Metadata Modified",
                     "description":"Date on which the File Charasteristics have been last updated",
-                    "@id":"http://purl.org/dc/terms/modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "type":"string",
                     "format":"date-time"
                 },
                 "open_access":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#openaccess",
                     "title":"Open access",
                     "description":"This should be true if data is open and accessible. If attribute is not present it should be interpreted as implicit false.",
-                    "@id":"http://iow.csc.fi/ns/mfs#openaccess",
                     "@type":"http://www.w3.org/2001/XMLSchema#boolean",
-                    "maxItems":1,
                     "type":"boolean"
                 }
-            },
-            "additionalProperties":false
+            }
         },
         "FileStorage":{
             "type":"object",
             "title":"File storage",
-            "@id":"http://iow.csc.fi/ns/mfs#FileStorage",
+            "@id":"http://uri.suomi.fi/datamodel/ns/mfs#FileStorage",
             "description":"File storage system",
             "properties":{
                 "identifier":{
+                    "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Persistent identifier for the storage system",
-                    "@id":"http://purl.org/dc/terms/identifier",
-                    "@type":"@id",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "type":"string",
-                    "minItems":1,
-                    "maxItems":1
+                    "format":"uri"
                 },
                 "title":{
+                    "@id":"http://purl.org/dc/terms/title",
                     "title":"Title",
                     "description":"A name given to the resource.",
-                    "@id":"http://purl.org/dc/terms/title",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minItems":1,
-                    "maxItems":1,
                     "type":"string"
                 },
                 "url":{
+                    "@id":"http://schema.org/url",
                     "title":"Access url",
                     "description":"URL of the storage system",
-                    "@id":"http://schema.org/url",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "maxItems":1
+                    "type":"string",
+                    "format":"uri"
                 }
             },
             "required":[
                 "identifier",
                 "title"
-            ],
-            "additionalProperties":false
+            ]
         },
         "langString":{
             "type":"object",

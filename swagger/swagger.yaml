@@ -775,7 +775,7 @@ paths:
         - Dataset API
   /datasets/metadata_version_identifiers:
     get:
-      summary: "list all dataset urn identifiers"
+      summary: "list all dataset metadata version identifiers"
       parameters:
         - name: latest
           in: query
@@ -804,7 +804,7 @@ paths:
           type: string
       responses:
         "200":
-          description: successful operation, returns a list of all dataset urn identifiers.
+          description: successful operation, returns a list of all dataset metadata version identifiers.
       tags:
         - Dataset API
   /datasets/{PID}:

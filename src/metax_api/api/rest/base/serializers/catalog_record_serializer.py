@@ -192,7 +192,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
         found_objs = None
         found_using_pref_id = False
-        found_using_urn_id = False
+        found_using_metadata_id = False
 
         found_objs = self._find_object_using_identifier('preferred_identifier', preferred_identifier_value)
 
@@ -204,7 +204,7 @@ class CatalogRecordSerializer(CommonSerializer):
             # using metadata_version_identifier also
             found_objs = self._find_object_using_identifier('metadata_version_identifier', preferred_identifier_value)
             if found_objs:
-                found_using_urn_id = True
+                found_using_metadata_id = True
 
         if not found_objs:
             return
@@ -221,7 +221,7 @@ class CatalogRecordSerializer(CommonSerializer):
                     'a catalog record with this research_dataset ->> preferred_identifier'
                     ' already exists in this data catalog.'
                 ])
-        elif found_using_urn_id:
+        elif found_using_metadata_id:
             raise ValidationError([
                 'a catalog record already exists which has the given preferred_identifier'
                 ' value as its metadata_version_identifier value.'

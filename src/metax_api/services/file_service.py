@@ -523,7 +523,8 @@ class FileService(CommonService):
                 directory['file_count'] = file_count
 
         elif 'id' in directory:
-            # bottom dir - retrieve total byte_size and file_count from db
+            # bottom dir - retrieve total byte_size and file_count from db for this cr,
+            # and replace the original byte_size and file_count of the directory
 
             sql_calculate_byte_size_and_file_count = """
                 select sum(f.byte_size) as byte_size, count(f.id) as file_count
@@ -547,8 +548,8 @@ class FileService(CommonService):
                 )
 
                 bs, fc = cr.fetchall()[0]
-                directory['byte_size'] += bs or 0
-                directory['file_count'] += fc or 0
+                directory['byte_size'] = bs or 0
+                directory['file_count'] = fc or 0
         else:
             # called without include_parent on a directory which has files, but no directories - do nothing
             return
