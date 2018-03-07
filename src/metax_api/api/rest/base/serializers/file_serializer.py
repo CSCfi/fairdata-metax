@@ -29,7 +29,6 @@ class FileSerializer(CommonSerializer):
             'checksum_checked',
             'checksum_value',
             'parent_directory',
-            'download_url',
             'file_deleted',
             'file_frozen',
             'file_format',

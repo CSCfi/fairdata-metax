@@ -134,7 +134,6 @@ def generate_files(mode, test_file_storage_list, validate_json, url):
 
     json_template = row_template['file_characteristics'].copy()
     file_name = row_template['file_name']
-    download_url = row_template['download_url']
     json_title = json_template['title']
     json_description = json_template['description']
 
@@ -221,7 +220,6 @@ def generate_files(mode, test_file_storage_list, validate_json, url):
             new['fields']['file_name'] = file_name % loop
             new['fields']['file_path'] = file_path % loop
             new['fields']['identifier'] = "pid:urn:" + loop
-            new['fields']['download_url'] = download_url % loop
             new['fields']['file_characteristics']['title'] = json_title % loop
             new['fields']['file_characteristics']['description'] = json_description % loop
             new['fields']['file_storage'] = file_storage
@@ -241,7 +239,6 @@ def generate_files(mode, test_file_storage_list, validate_json, url):
 
             new['file_name'] = file_name % loop
             new['identifier'] = "pid:urn:" + uuid_str
-            new['download_url'] = download_url % loop
             new['file_characteristics']['title'] = json_title % loop
             new['file_characteristics']['description'] = json_description % loop
             new['file_storage'] = file_storage
@@ -600,7 +597,6 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
 
         #     new['file_name'] = file_name % loop
         #     new['identifier'] = uuid_str
-        #     new['download_url'] = download_url % loop
         #     new['file_characteristics']['title'] = json_title % loop
         #     new['file_characteristics']['description'] = json_description % loop
         #     new['file_storage'] = file_storage
