@@ -2,7 +2,7 @@
 {
     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#",
     "title":"Metax Data Storage Metadata",
-    "modified":"Tue, 30 Jan 2018 15:44:59 GMT",
+    "modified":"Thu, 08 Mar 2018 11:51:24 GMT",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "anyOf":[
@@ -382,6 +382,31 @@
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#openaccess",
                     "title":"Open access",
                     "description":"This should be true if data is open and accessible. If attribute is not present it should be interpreted as implicit false.",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "type":"boolean"
+                },
+                "csv_delimiter":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#csv_delimiter",
+                    "title":"CSV delimiter",
+                    "description":"",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"string"
+                },
+                "csv_record_separator":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#csv_record_separator",
+                    "title":"CSV record separator",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"string"
+                },
+                "csv_quoting_char":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#csv_quoting_char",
+                    "title":"CSV quoting char",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"string"
+                },
+                "csv_has_header":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#csv_has_header",
+                    "title":"CSV header",
                     "@type":"http://www.w3.org/2001/XMLSchema#boolean",
                     "type":"boolean"
                 }
