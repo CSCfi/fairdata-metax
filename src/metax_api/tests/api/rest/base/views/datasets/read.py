@@ -116,6 +116,14 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertTrue(len(response.data) > 0)
         self.assertTrue(response.data[0].startswith('urn:'))
 
+    def test_get_only_by_preferred_identifier(self):
+        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.preferred_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
+
+        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.urn_identifier)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
     """

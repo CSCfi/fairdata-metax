@@ -830,6 +830,12 @@ paths:
             byte_size and file_count in each directory's details as extra information.
           required: false
           type: boolean
+        - name: preferred_identifier
+          in: query
+          description: |
+            Return a hit only if the given PID is a preferred identifier.
+          required: false
+          type: boolean
       responses:
         '200':
           description: return dataset metadata
