@@ -22,6 +22,7 @@ class DataCatalogApiWriteCommon(APITestCase, TestClassUtils):
 
 
 class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
+
     def test_identifier_is_auto_generated(self):
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -36,6 +37,13 @@ class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
         self.new_test_data['catalog_json']['research_dataset_schema'] = 'notfound'
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_disallow_versioning_in_harvested_catalogs(self):
+        self.new_test_data['catalog_json']['dataset_versioning'] = True
+        self.new_test_data['catalog_json']['harvested'] = True
+        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('versioning' in response.data['detail'][0], True)
 
 
 class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):

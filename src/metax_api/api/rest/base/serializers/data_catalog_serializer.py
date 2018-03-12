@@ -28,6 +28,11 @@ class DataCatalogSerializer(CommonSerializer):
             # ensure any operation made on data_catalog during serializer.is_valid(),
             # is still compatible with the schema
             self._validate_json_schema(self.initial_data['catalog_json'])
+            if self.initial_data['catalog_json'].get('dataset_versioning', False) is True \
+                    and self.initial_data['catalog_json'].get('harvested', False) is True:
+                raise ValidationError({
+                    'detail': ['versioning cannot be enabled in harvested catalogs.']
+                })
 
     def validate_catalog_json(self, value):
         self._validate_json_schema(value)
