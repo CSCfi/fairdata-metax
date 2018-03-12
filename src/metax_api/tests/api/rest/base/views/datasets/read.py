@@ -124,6 +124,15 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.urn_identifier)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_read_catalog_record_unique_preferred_identifiers(self):
+        urn_ids_len = len(self.client.get('/rest/datasets/urn_identifiers').data)
+        response = self.client.get('/rest/datasets/unique_preferred_identifiers')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(isinstance(response.data, list))
+        self.assertTrue(len(response.data) > 0)
+        # - 2 below comes from the fact that test data contains three records having same pref id
+        self.assertTrue(len(response.data) == urn_ids_len - 2)
+
 
 class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
     """

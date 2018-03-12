@@ -171,6 +171,13 @@ class DatasetViewSet(CommonViewSet):
         urn_ids = [item['research_dataset']['urn_identifier'] for item in q]
         return Response(urn_ids)
 
+    @list_route(methods=['get'], url_path="unique_preferred_identifiers")
+    def get_all_unique_preferred_identifiers(self, request):
+        self.queryset_search_params = CRS.get_queryset_search_params(request)
+        q = self.get_queryset().values('research_dataset')
+        unique_pref_ids = list(dict.fromkeys([item['research_dataset']['preferred_identifier'] for item in q]))
+        return Response(unique_pref_ids)
+
     def _search_using_dataset_identifiers(self):
         """
         Search by lookup value from urn_identifier and preferred_identifier fields. preferred_identifier
