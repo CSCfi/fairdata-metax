@@ -728,9 +728,10 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
             'owner_id': catalog_records_owner_ids[j],
             'creator_id': catalog_records_owner_ids[owner_idx],
         }
+
         new['fields']['research_dataset']['metadata_version_identifier'] = \
             generate_test_identifier(cr_type, len(test_data_list) + 1)
-        new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
+        new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % (len(test_data_list) + 1)
 
         if type == 'ida':
             if j in [0, 1]:

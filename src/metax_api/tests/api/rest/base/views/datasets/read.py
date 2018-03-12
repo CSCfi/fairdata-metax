@@ -118,6 +118,23 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertTrue(len(response.data) > 0)
         self.assertTrue(response.data[0].startswith('urn:'))
 
+    def test_get_only_by_preferred_identifier(self):
+        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.preferred_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
+
+        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.metadata_version_identifier)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_read_catalog_record_unique_preferred_identifiers(self):
+        mvi_ids_len = len(self.client.get('/rest/datasets/metadata_version_identifiers').data)
+        response = self.client.get('/rest/datasets/unique_preferred_identifiers')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(isinstance(response.data, list))
+        self.assertTrue(len(response.data) > 0)
+        # - 2 below comes from the fact that test data contains three records having same pref id
+        self.assertTrue(len(response.data) == mvi_ids_len - 2)
+
 
 class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
     """

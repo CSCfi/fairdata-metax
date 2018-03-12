@@ -168,34 +168,44 @@ class DatasetViewSet(CommonViewSet):
     def get_all_metadata_version_identifiers(self, request):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
         q = self.get_queryset().values('research_dataset')
-        urn_ids = [item['research_dataset']['metadata_version_identifier'] for item in q]
-        return Response(urn_ids)
+        identifiers = [item['research_dataset']['metadata_version_identifier'] for item in q]
+        return Response(identifiers)
+
+    @list_route(methods=['get'], url_path="unique_preferred_identifiers")
+    def get_all_unique_preferred_identifiers(self, request):
+        self.queryset_search_params = CRS.get_queryset_search_params(request)
+        q = self.get_queryset().values('research_dataset')
+        unique_pref_ids = list(dict.fromkeys([item['research_dataset']['preferred_identifier'] for item in q]))
+        return Response(unique_pref_ids)
 
     def _search_using_dataset_identifiers(self):
         """
         Search by lookup value from metadata_version_identifier and preferred_identifier fields. preferred_identifier
-        searched only with GET requests.
+        searched only with GET requests. If query contains parameter 'preferred_identifier', do not lookup
+        using metadata_version_identifier
         """
         lookup_value = self.kwargs.get(self.lookup_field, False)
 
-        try:
-            return super(DatasetViewSet, self).get_object(
-                search_params={ 'research_dataset__contains': {'metadata_version_identifier': lookup_value} })
-        except Http404:
-            if self.request.method != 'GET':
-                raise
+        if not CS.get_boolean_query_param(self.request, 'preferred_identifier'):
+            try:
+                return super(DatasetViewSet, self).get_object(
+                    search_params={ 'research_dataset__contains': {'metadata_version_identifier': lookup_value} })
+            except Http404:
+                if self.request.method != 'GET':
+                    raise
 
-        # search by preferred_identifier only for GET requests, while preferring:
         # - hits from att catalogs (assumed to be first created. improve logic if situation changes)
+        # search by preferred_identifier only for GET requests, while preferring:
         # - latest version records (= has no next_metadata_version_id)
         # - first created (the first harvested occurrence, probably)
 
         # note: cant use get_object() like above, because get_object() will throw an error if there are
         # multiple results
-        obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
-            .order_by('data_catalog_id', '-next_metadata_version_id', 'date_created').first()
-        if obj:
-            return obj
+        if self.request.method == 'GET':
+            obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
+                .order_by('data_catalog_id', '-next_metadata_version_id', 'date_created').first()
+            if obj:
+                return obj
 
         raise Http404
 
