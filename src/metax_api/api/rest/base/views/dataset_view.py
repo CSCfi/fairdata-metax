@@ -181,16 +181,18 @@ class DatasetViewSet(CommonViewSet):
     def _search_using_dataset_identifiers(self):
         """
         Search by lookup value from urn_identifier and preferred_identifier fields. preferred_identifier
-        searched only with GET requests.
+        searched only with GET requests. If query contains parameter 'preferred_identifier', do not lookup
+        using urn_identifier
         """
         lookup_value = self.kwargs.get(self.lookup_field, False)
 
-        try:
-            return super(DatasetViewSet, self).get_object(
-                search_params={ 'research_dataset__contains': {'urn_identifier': lookup_value} })
-        except Http404:
-            if self.request.method != 'GET':
-                raise
+        if not CS.get_boolean_query_param(self.request, 'preferred_identifier'):
+            try:
+                return super(DatasetViewSet, self).get_object(
+                    search_params={ 'research_dataset__contains': {'urn_identifier': lookup_value} })
+            except Http404:
+                if self.request.method != 'GET':
+                    raise
 
         # search by preferred_identifier only for GET requests, while preferring:
         # - hits from att catalogs (assumed to be first created. improve logic if situation changes)
@@ -199,10 +201,11 @@ class DatasetViewSet(CommonViewSet):
 
         # note: cant use get_object() like above, because get_object() will throw an error if there are
         # multiple results
-        obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
-            .order_by('data_catalog_id', '-next_version_id', 'date_created').first()
-        if obj:
-            return obj
+        if self.request.method == 'GET':
+            obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
+                .order_by('data_catalog_id', '-next_version_id', 'date_created').first()
+            if obj:
+                return obj
 
         raise Http404
 
