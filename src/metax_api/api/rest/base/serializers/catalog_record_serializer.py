@@ -22,6 +22,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'alternate_record_set',
             'contract',
             'data_catalog',
+            'dataset_version_set',
             'deprecated',
             'research_dataset',
             'preservation_state',
@@ -57,6 +58,7 @@ class CatalogRecordSerializer(CommonSerializer):
             self.initial_data['contract'] = self._get_id_from_related_object('contract', self._get_contract_relation)
 
         self.initial_data.pop('alternate_record_set', None)
+        self.initial_data.pop('dataset_version_set', None)
         self.initial_data.pop('metadata_version_set', None)
         self.initial_data.pop('next_metadata_version', None)
         self.initial_data.pop('previous_metadata_version', None)
@@ -97,36 +99,42 @@ class CatalogRecordSerializer(CommonSerializer):
                 res['alternate_record_set'] = [ ar.metadata_version_identifier for ar in alternate_records ]
 
         if 'metadata_version_set' in res:
-            metadata_version_set = instance.metadata_version_set.records \
-                .exclude(pk=instance.id).order_by('date_created')
-            if len(metadata_version_set):
-                res['metadata_version_set'] = [{
-                    'metadata_version_identifier': v.metadata_version_identifier,
-                    'date_created': v.date_created.astimezone().isoformat()
-                } for v in metadata_version_set]
+            res['metadata_version_set'] = instance.metadata_version_set.get_listing()
 
         if 'next_metadata_version' in res:
             res['next_metadata_version'] = {
                 'id': instance.next_metadata_version.id,
                 'metadata_version_identifier': instance.next_metadata_version.metadata_version_identifier,
-                'preferred_identifier': instance.next_metadata_version.preferred_identifier,
             }
 
         if 'previous_metadata_version' in res:
             res['previous_metadata_version'] = {
                 'id': instance.previous_metadata_version.id,
                 'metadata_version_identifier': instance.previous_metadata_version.metadata_version_identifier,
-                'preferred_identifier': instance.previous_metadata_version.preferred_identifier,
             }
 
-        if instance.next_metadata_version_created_in_current_request:
-            # inform the view that next_metadata_version should be published as a new dataset.
-            # the view should also remove the key __actions once it is done.
-            res['__actions'] = {
-                'publish_next_metadata_version': {
-                    'next_metadata_version': self.to_representation(instance.next_metadata_version)
-                }
+        if 'dataset_version_set' in res:
+                res['dataset_version_set'] = instance.dataset_version_set.get_listing()
+
+        if instance.next_dataset_version:
+            res['next_dataset_version'] = {
+                'id': instance.next_dataset_version.id,
+                'preferred_identifier': instance.next_dataset_version.preferred_identifier,
             }
+
+        if instance.next_metadata_version_created_in_current_request \
+                or instance.next_dataset_version_created_in_current_request:
+            # inform the view that new versions should be published as a new record.
+            # the view should also remove the key __actions once it is done.
+            res['__actions'] = {}
+            if instance.next_metadata_version_created_in_current_request:
+                res['__actions']['publish_new_version'] = {
+                    'dataset': self.to_representation(instance.next_metadata_version)
+                }
+            if instance.next_dataset_version_created_in_current_request:
+                res['__actions']['publish_new_version'] = {
+                    'dataset': self.to_representation(instance.next_dataset_version)
+                }
 
         return res
 
@@ -147,7 +155,7 @@ class CatalogRecordSerializer(CommonSerializer):
             value['metadata_version_identifier'] = 'temp'
 
             if not value.get('preferred_identifier', None):
-                # mandatory, but might not be present (metadata_version_identifier copied to it later).
+                # normally not present, but may be set by harvesters. if missing,
                 # use temporary value and remove after schema validation.
                 value['preferred_identifier'] = 'temp'
 

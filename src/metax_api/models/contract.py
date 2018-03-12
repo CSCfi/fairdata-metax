@@ -24,3 +24,13 @@ class Contract(Common):
               'and contract_id = %s'
         with connection.cursor() as cr:
             cr.execute(sql, [self.id])
+
+    def __repr__(self):
+        return '<%s: %d, removed: %s, identifier: %d, record_count: %d >' \
+            % (
+                'Contract',
+                self.id,
+                str(self.removed),
+                self.contract_json['identifier'],
+                self.records.count(),
+            )

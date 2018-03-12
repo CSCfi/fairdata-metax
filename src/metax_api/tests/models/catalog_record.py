@@ -2,7 +2,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from rest_framework.serializers import ValidationError
 
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -61,12 +61,15 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
         Changing files of a dataset creates a new version, so make sure that the file size
         of the old version does NOT change, and the file size of the new version DOES change.
         """
-        file_from_testdata = self._get_object_from_test_data('file', requested_index=3)
-        cr = self.cr
+        already_included_files = CatalogRecord.objects.get(pk=1).files.all().values_list('id', flat=True)
+        new_file_id = File.objects.all().exclude(id__in=already_included_files).first().id
+        file_from_testdata = self._get_object_from_test_data('file', requested_index=new_file_id)
+
+        cr = CatalogRecord.objects.get(pk=1)
         old = cr.research_dataset['total_ida_byte_size']
         cr.research_dataset['files'] = [file_from_testdata]
         cr.save()
-        new_version = cr.next_metadata_version
+        new_version = cr.next_dataset_version
 
         self.assertEqual(old, cr.research_dataset['total_ida_byte_size'])
         self.assertNotEqual(old, new_version.research_dataset['total_ida_byte_size'])
