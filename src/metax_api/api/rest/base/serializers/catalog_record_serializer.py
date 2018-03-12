@@ -168,21 +168,13 @@ class CatalogRecordSerializer(CommonSerializer):
 
         else:
             # update operations
-
-            if not value.get('preferred_identifier', None):
-                # preferred_identifier can not be updated to empty. if the user is trying to
-                # do so, copy metadata_version_identifier to it.
-                # note: if metadata_version_identifier was missing too, validate_json will raise an error
-                value['preferred_identifier'] = value.get('metadata_version_identifier', None)
-
             validate_json(value, self.json_schema)
 
     def _validate_research_dataset_uniqueness(self, research_dataset):
         """
         Validate research_dataset preferred_identifier uniqueness, that it is...
-        - unique within the data catalog it is being saved into, when not being saved
-          into ATT catalog
-        - unique globally, when being saved into ATT catalog, i.e., when
+        - unique within the data catalog it is being saved into, when saved into harvested catalogs
+        - unique globally, when being saved into ATT catalogs, i.e., when
           saving to ATT catalog, and preferred_identifier already exists in other catalogs,
           reject it. When saving to ATT catalog, and preferred_identifier is now
           appearing for the first time, permit it.
@@ -198,26 +190,7 @@ class CatalogRecordSerializer(CommonSerializer):
             # during create, preferred_identifier is not necessarily set
             return
 
-        found_objs = None
-        found_using_pref_id = False
-        found_using_metadata_id = False
-
-        found_objs = self._find_object_using_identifier('preferred_identifier', preferred_identifier_value)
-
-        if found_objs:
-            found_using_pref_id = True
-        else:
-            # cr not found using preferred_identifier. preferred_identifier value can never
-            # be metadata_version_identifier value in any catalog, so look for existing records
-            # using metadata_version_identifier also
-            found_objs = self._find_object_using_identifier('metadata_version_identifier', preferred_identifier_value)
-            if found_objs:
-                found_using_metadata_id = True
-
-        if not found_objs:
-            return
-
-        if found_using_pref_id:
+        if self._find_object_using_identifier('preferred_identifier', preferred_identifier_value):
             if self._data_catalog_supports_versioning():
                 raise ValidationError([
                     'a catalog record with this research_dataset ->> preferred_identifier'
@@ -225,18 +198,20 @@ class CatalogRecordSerializer(CommonSerializer):
                     ' the preferred_identifier must not already exist in other catalogs.'
                 ])
             else:
+                # harvested catalog
                 raise ValidationError([
                     'a catalog record with this research_dataset ->> preferred_identifier'
                     ' already exists in this data catalog.'
                 ])
-        elif found_using_metadata_id:
+
+        # cr not found using preferred_identifier. preferred_identifier value should never
+        # be the same as metadata_version_identifier value in any catalog, so look for existing records
+        # using metadata_version_identifier also
+        if self._find_object_using_identifier('metadata_version_identifier', preferred_identifier_value):
             raise ValidationError([
                 'a catalog record already exists which has the given preferred_identifier'
                 ' value as its metadata_version_identifier value.'
             ])
-        else:
-            # good case
-            pass
 
     def _find_object_using_identifier(self, field_name, identifier):
         """
@@ -274,14 +249,15 @@ class CatalogRecordSerializer(CommonSerializer):
             pass
 
         if self._operation_is_create():
-            return CatalogRecord.objects.filter(**params)
+            return CatalogRecord.objects.filter(**params).exists()
         elif self._data_catalog_supports_versioning():
-            # preferred_identifiers already existing in ATT catalog are fine, so exclude
-            # results from ATT catalog. matches in other catalogs however are considered
+            # preferred_identifiers already existing in ATT catalogs are fine, so exclude
+            # results from ATT catalogs. matches in other catalogs however are considered
             # an error.
-            return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=1)
+            return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=self.instance.data_catalog_id) \
+                .exists()
         else:
-            return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id)
+            return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id).exists()
 
     def _data_catalog_is_changed(self):
         """
@@ -302,19 +278,9 @@ class CatalogRecordSerializer(CommonSerializer):
     def _preferred_identifier_is_changed(self):
         """
         Check if preferred_identifier is being updated in the current request or not.
-
-        For PUT, all fields are always present, so checking is easy. for PATCH, first check
-        if the field is even present, and only then check if it being changed.
         """
-        if self._operation_is_update('PUT'):
-            return self.initial_data['research_dataset']['preferred_identifier'] \
-                != self.instance.preferred_identifier
-        elif self._operation_is_update('PATCH'):
-            if 'preferred_identifier' in self.initial_data['research_dataset']:
-                return self.initial_data['research_dataset']['preferred_identifier'] \
-                    != self.instance.preferred_identifier
-        else:
-            return False
+        return self.initial_data['research_dataset'].get('preferred_identifier', None) \
+            != self.instance.preferred_identifier
 
     def _data_catalog_supports_versioning(self):
         if 'data_catalog' in self.initial_data:

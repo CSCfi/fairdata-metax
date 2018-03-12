@@ -700,7 +700,6 @@ class CatalogRecord(Common):
                 self._handle_preferred_identifier_changed()
 
     def _calculate_total_ida_byte_size(self):
-        # todo refactor
         rd = self.research_dataset
         if 'files' in rd or 'directories' in rd:
             rd['total_ida_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum']
@@ -708,7 +707,6 @@ class CatalogRecord(Common):
             rd['total_ida_byte_size'] = 0
 
     def _calculate_total_remote_resources_byte_size(self):
-        # todo refactor
         rd = self.research_dataset
         if 'remote_resources' in rd:
             rd['total_remote_resources_byte_size'] = sum(
