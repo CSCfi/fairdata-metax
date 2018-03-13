@@ -526,10 +526,18 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
 
                 for j in range(files_start_idx, files_start_idx + files_per_dataset):
 
+                    total_ida_byte_size += file_list[j - 1]['fields']['byte_size']
+
+                    # note - this field will go in the m2m table in the db when importing generated testdata...
+                    new['fields']['files'].append(file_list[j - 1]['pk'])
+
+                    # ... while every API operation will look at research_dataset.files.identifier
+                    # to lookup the file - be careful the identifier below matches with the m2m id set above
                     dataset_files.append({
-                        'identifier': file_list[j]['fields']['identifier'],
-                        'title': 'File metadata title %d' % (j - 1)
+                        'identifier': file_list[j + 1]['fields']['identifier'],
+                        'title': 'File metadata title %d' % j
                     })
+
                     if j < file_divider:
                         # first fifth of files
                         dataset_files[-1]['file_type'] = {
@@ -568,9 +576,6 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
                         dataset_files[-1]['use_category'] = {
                             'identifier': 'configuration'
                         }
-
-                    new['fields']['files'].append(file_list[j - 1]['pk'])
-                    total_ida_byte_size += file_list[j - 1]['fields']['byte_size']
 
                 new['fields']['research_dataset']['files'] = dataset_files
                 new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
