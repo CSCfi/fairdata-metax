@@ -1961,7 +1961,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         original_version = response.data
 
         self._freeze_new_files()
-        # import ipdb; ipdb.set_trace()
+
         # add one new file
         self._add_file(original_version, '/TestExperiment/Directory_2/Group_3/file_15.txt')
         response = self.update_record(original_version)

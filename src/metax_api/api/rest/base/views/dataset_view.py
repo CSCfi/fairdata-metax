@@ -1,10 +1,10 @@
 import logging
 
+from django.db.models import Q
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-
 from metax_api.models import CatalogRecord
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService as CRS, CommonService as CS
@@ -174,8 +174,20 @@ class DatasetViewSet(CommonViewSet):
     @list_route(methods=['get'], url_path="unique_preferred_identifiers")
     def get_all_unique_preferred_identifiers(self, request):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
-        q = self.get_queryset().values('research_dataset')
-        unique_pref_ids = list(dict.fromkeys([item['research_dataset']['preferred_identifier'] for item in q]))
+
+        if CS.get_boolean_query_param(request, 'latest'):
+            # search latest dataset versions only. while this still possibly returns duplicates
+            # (from harvested catalogs), the later set(results) will weed those out
+            queryset = self.get_queryset().filter(
+                Q(metadata_version_set_id=None) |
+                Q(metadata_version_set_id__isnull=False,
+                metadata_version_set__next_dataset_version_id=None,
+                next_metadata_version_id=None)
+            ).values('research_dataset')
+        else:
+            queryset = self.get_queryset().values('research_dataset')
+
+        unique_pref_ids = list(set(item['research_dataset']['preferred_identifier'] for item in queryset))
         return Response(unique_pref_ids)
 
     def _search_using_dataset_identifiers(self):

@@ -126,14 +126,65 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_read_catalog_record_unique_preferred_identifiers(self):
-        mvi_ids_len = len(self.client.get('/rest/datasets/metadata_version_identifiers').data)
+    def test_get_unique_preferred_identifiers(self):
+        """
+        Get all unique preferred_identifiers, no matter if they are the latest dataset version or not.
+        """
         response = self.client.get('/rest/datasets/unique_preferred_identifiers')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
-        # - 2 below comes from the fact that test data contains three records having same pref id
-        self.assertTrue(len(response.data) == mvi_ids_len - 2)
+
+        # save the current len, do some more operations, and compare the difference
+        ids_len = len(response.data)
+
+        self._create_new_ds()
+        self._create_new_ds()
+        response = self.client.get('/rest/datasets/unique_preferred_identifiers')
+        self.assertEqual(len(response.data) - ids_len, 2, 'should be two new PIDs')
+
+    def test_get_latest_unique_preferred_identifiers(self):
+        """
+        Get all unique preferred_identifiers, but only from the latest dataset versions.
+        """
+        response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(isinstance(response.data, list))
+        self.assertTrue(len(response.data) > 0)
+
+        # save the current len, do some more operations, and compare the difference
+        ids_len = len(response.data)
+
+        cr = CatalogRecord.objects.get(pk=1)
+
+        # metadata change
+        cr.research_dataset['title']['en'] = 'updated title'
+        cr.save()
+        response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
+        self.assertEqual(ids_len, len(response.data), 'count should stay the same')
+
+        # files change
+        new_file_id = cr.files.all().order_by('-id').first().id + 1
+        file_from_testdata = self._get_object_from_test_data('file', requested_index=new_file_id)
+        # warning, this is actual file metadata, would not pass schema validation if sent through api
+        cr.research_dataset['files'] = [file_from_testdata]
+        cr.save()
+        response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
+        self.assertEqual(ids_len, len(response.data), 'count should stay the same')
+
+        # create new
+        self._create_new_ds()
+        self._create_new_ds()
+        response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
+        self.assertEqual(len(response.data) - ids_len, 2, 'should be two new PIDs')
+
+    def _create_new_ds(self):
+        new_cr = self.client.get('/rest/datasets/2').data
+        new_cr.pop('id')
+        new_cr['research_dataset'].pop('preferred_identifier')
+        self._use_http_authorization()
+        response = self.client.post('/rest/datasets', new_cr, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
 class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):

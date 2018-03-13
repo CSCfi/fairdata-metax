@@ -79,8 +79,11 @@ class MetadataVersionSet(models.Model):
     """
     id = models.BigAutoField(primary_key=True, editable=False)
 
-    previous_dataset_version = models.CharField(max_length=200,
-        help_text='preferred_identifier of the previous dataset version')
+    next_dataset_version = models.ForeignKey('self', null=True, on_delete=models.DO_NOTHING,
+        related_name='+', help_text='Link to next dataset version')
+
+    previous_dataset_version = models.ForeignKey('self', null=True, on_delete=models.DO_NOTHING,
+        related_name='+', help_text='Link to previous dataset version')
 
     def get_listing(self):
         """
@@ -591,7 +594,7 @@ class CatalogRecord(Common):
         return bool(self.metadata_version_set)
 
     def has_newer_dataset_versions(self):
-        return MetadataVersionSet.objects.filter(previous_dataset_version=self.preferred_identifier).exists()
+        return self.metadata_version_set_id and self.metadata_version_set.next_dataset_version_id
 
     @property
     def next_dataset_version(self):
@@ -599,8 +602,18 @@ class CatalogRecord(Common):
         Find the next known dataset version, if any, and return its latest valid metadata version record.
         """
         try:
-            cr = MetadataVersionSet.objects.filter(previous_dataset_version=self.preferred_identifier) \
-                .first().records.order_by('-date_created').first()
+            cr = self.metadata_version_set.next_dataset_version.records.order_by('-date_created').first()
+        except:
+            return None
+        return cr or None
+
+    @property
+    def previous_dataset_version(self):
+        """
+        Find the previous known dataset version, if any, and return its latest valid metadata version record.
+        """
+        try:
+            cr = self.metadata_version_set.previous_dataset_version.records.order_by('-date_created').first()
         except:
             return None
         return cr or None
@@ -624,12 +637,10 @@ class CatalogRecord(Common):
             mvs = MetadataVersionSet()
             mvs.save()
             mvs.records.add(self)
-            mvs.save()
 
             dvs = DatasetVersionSet()
             dvs.save()
             dvs.records.add(self)
-            dvs.save()
 
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
@@ -833,10 +844,15 @@ class CatalogRecord(Common):
 
         - Creates a new metadata_version_set if required
         - Sets links next_metadata_version and previous_metadata_version to related objects
-        - Forces preferred_identifier change if necessary
+        - Creates a new dataset version if required
         """
         old_version = self
         _logger.info('Creating new version from CatalogRecord %s...' % old_version.metadata_version_identifier)
+
+        if not old_version.metadata_version_set_id:
+            mvs = MetadataVersionSet()
+            mvs.save()
+            mvs.records.add(old_version)
 
         new_version = CatalogRecord.objects.get(pk=old_version.id)
         new_version.id = None # setting id to None creates a new record
@@ -849,7 +865,7 @@ class CatalogRecord(Common):
         new_version.preservation_description = None
         new_version.preservation_state = 0
         new_version.preservation_state_modified = None
-        new_version.previous_metadata_version = old_version
+        new_version.previous_metadata_version_id = old_version.id
         # note: copying research_dataset from the currently open instance 'old_version',
         # contains the new field data from the request. this effectively transfers
         # the changes to the new
@@ -897,33 +913,32 @@ class CatalogRecord(Common):
                 raise ValidationError({ 'detail': ['Changing files in old dataset versions is not permitted.'] })
 
             # new dataset version
-            _logger.info(
-                'Files changed during CatalogRecord update. Creating new dataset version...'
-            )
+            _logger.info('Files changed during CatalogRecord update. Creating new dataset version...')
+
             # break connection to old MetadataVersionSet, and create a new MetadataVersionSet for
             # the new dataset version, and its coming different metadata versions.
             new_version.metadata_version_set_id = None
             new_version.previous_metadata_version_id = None
             new_version.alternate_record_set = None
 
+            # create new metadata_version_set and set links...
             mvs = MetadataVersionSet()
-            mvs.previous_dataset_version = old_version.preferred_identifier
+            mvs.previous_dataset_version_id = old_version.metadata_version_set_id
             mvs.save()
             mvs.records.add(new_version)
-            mvs.save()
+
+            # update old metadata_version_set links...
+            old_version.metadata_version_set.next_dataset_version_id = mvs.id
+            old_version.metadata_version_set.save()
+
             new_version.research_dataset['preferred_identifier'] = generate_identifier()
 
             # old_version is the one that is returned to the requestor from the api
             old_version.new_dataset_version_created_in_current_request = True
         else:
-            # new metadata version
+            # new metadata version - new version automatically belongs to the same metadata_version_set
 
-            if not old_version.metadata_version_set_id:
-                # in preparation of linking files to metadata version sets...
-                mvs = MetadataVersionSet()
-                mvs.save()
-                mvs.records.add(old_version, new_version)
-                mvs.save()
+            old_version.next_metadata_version_id = new_version.id
 
             if new_version.has_alternate_records():
                 # note: this new version was implicitly placed in the same
@@ -933,8 +948,6 @@ class CatalogRecord(Common):
                 # alternate_record_set should always have the newest versions
                 # of records holding a specific preferred_identifier.
                 old_version.alternate_record_set = None
-
-            old_version.next_metadata_version = new_version
 
             # old_version is the one that is returned to the requestor from the api
             old_version.next_metadata_version_created_in_current_request = True
