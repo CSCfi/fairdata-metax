@@ -122,6 +122,12 @@ class CatalogRecordSerializer(CommonSerializer):
                 'preferred_identifier': instance.next_dataset_version.preferred_identifier,
             }
 
+        if instance.previous_dataset_version:
+            res['previous_dataset_version'] = {
+                'id': instance.previous_dataset_version.id,
+                'preferred_identifier': instance.previous_dataset_version.preferred_identifier,
+            }
+
         if instance.next_metadata_version_created_in_current_request \
                 or instance.next_dataset_version_created_in_current_request:
             # inform the view that new versions should be published as a new record.
