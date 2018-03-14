@@ -957,7 +957,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(len(response.data['research_dataset']), 15)
-        self.assertEqual(len(response.data['research_dataset']['research_dataset.activity.type.identifier']), 2)
+        self.assertEqual(len(response.data['research_dataset']['research_dataset.provenance.type.identifier']), 2)
 
         rd_att = self.cr_full_att_test_data['research_dataset']
         rd_att['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
