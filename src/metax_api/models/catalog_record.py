@@ -279,59 +279,96 @@ class CatalogRecord(Common):
         """
         Process any changes in files between versions.
 
-        Copy files from the previous version to the new version. Omit any files from the copy according
-        to files_to_remove and dirs_to_remove_by_project, and separately add any new files according to
+        Copy files from the previous version to the new version. Only copy files and directories according
+        to files_to_keep and dirs_to_keep_by_project, and separately add any new files according to
         files_to_add and dirs_to_add_by_project.
 
         Returns a boolean actual_files_changed
         """
         actual_files_changed = False
 
-        files_to_add, files_to_remove, dirs_to_add_by_project, dirs_to_remove_by_project = file_changes
+        (files_to_add,
+            files_to_remove,
+            files_to_keep,
+            dirs_to_add_by_project,
+            dirs_to_remove_by_project,
+            dirs_to_keep_by_project) = file_changes
 
         if files_to_add or files_to_remove or dirs_to_add_by_project or dirs_to_remove_by_project:
+
+            # note: if only files_to_keep and dirs_to_keep_by_project contained entries,
+            # it means there were no file changes. this block is then not executed.
 
             if DEBUG:
                 _logger.debug('Detected the following file changes:')
 
-            sql_copy_files_from_prev_version = '''
-                insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
-                select %s as catalogrecord_id, file_id
-                from metax_api_catalogrecord_files as cr_f
-                inner join metax_api_file as f on f.id = cr_f.file_id
-                where catalogrecord_id = %s
-            '''
-            sql_params_copy = [self.id, self.previous_metadata_version.id]
-
-            if files_to_remove:
-                # in the above sql, dont copy files which were considered to have unique
-                # paths, and were concluded to be removed based on them being misisng from
-                # research_dataset.files, and not included by other dirs.
-                sql_copy_files_from_prev_version += '''
-                    and file_id not in %s'''
-                sql_params_copy.append(tuple(files_to_remove))
+            if files_to_keep:
+                # sql to copy single files from the previous version to the new version. only copy those
+                # files which have been listed in research_dataset.files
+                sql_copy_files_from_prev_version = '''
+                    insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+                    select %s as catalogrecord_id, file_id
+                    from metax_api_catalogrecord_files as cr_f
+                    inner join metax_api_file as f on f.id = cr_f.file_id
+                    where catalogrecord_id = %s
+                    and file_id in %s
+                '''
+                sql_params_copy_files = [self.id, self.previous_metadata_version.id, tuple(files_to_keep)]
 
                 if DEBUG:
-                    _logger.debug('File ids to remove: %s' % files_to_remove)
+                    _logger.debug('File ids to keep: %s' % files_to_keep)
 
-            if dirs_to_remove_by_project:
-                # in the above sql, dont copy files which should be removed due to directories
-                # being removed from research_dataset.directories, and not included by other dirs.
-                for project, dir_paths in dirs_to_remove_by_project.items():
+            if dirs_to_keep_by_project:
+                # sql top copy files from entire directories. only copy files from the upper level dirs found
+                # by processing research_dataset.directories.
+                sql_copy_dirs_from_prev_version = '''
+                    insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+                    select %s as catalogrecord_id, file_id
+                    from metax_api_catalogrecord_files as cr_f
+                    inner join metax_api_file as f on f.id = cr_f.file_id
+                    where catalogrecord_id = %s
+                    and (
+                        COMPARE_PROJECT_AND_FILE_PATHS
+                    )
+                    and f.id not in (
+                        select file_id from
+                        metax_api_catalogrecord_files cr_f
+                        where catalogrecord_id = %s
+                    )
+                '''
+                sql_params_copy_dirs = [self.id, self.previous_metadata_version.id]
+
+                copy_dirs_sql = []
+
+                for project, dir_paths in dirs_to_keep_by_project.items():
                     for dir_path in dir_paths:
-                        sql_copy_files_from_prev_version += '''
-                            and not (f.project_identifier = %s and f.file_path like (%s || '/%%'))'''
-                        sql_params_copy.extend([project, dir_path])
+                        copy_dirs_sql.append("(f.project_identifier = %s and f.file_path like (%s || '/%%'))")
+                        sql_params_copy_dirs.extend([project, dir_path])
+
+                sql_params_copy_dirs.extend([self.id])
+
+                sql_copy_dirs_from_prev_version = sql_copy_dirs_from_prev_version.replace(
+                    'COMPARE_PROJECT_AND_FILE_PATHS',
+                    ' or '.join(copy_dirs_sql)
+                )
+                # ^ generates:
+                # and (
+                #   (f.project_identifier = %s and f.file_path like %s/)
+                #   or
+                #   (f.project_identifier = %s and f.file_path like %s/)
+                #   or
+                #   (f.project_identifier = %s and f.file_path like %s/)
+                # )
 
                 if DEBUG:
-                    _logger.debug('Directory paths to remove, by project:')
-                    for project, dir_paths in dirs_to_remove_by_project.items():
+                    _logger.debug('Directory paths to keep, by project:')
+                    for project, dir_paths in dirs_to_keep_by_project.items():
                         _logger.debug('\tProject: %s' % project)
                         for dir_path in dir_paths:
                             _logger.debug('\t\t%s' % dir_path)
 
             if dirs_to_add_by_project:
-                # sql to add files by directory path that were not previously included.
+                # sql to add new files by directory path that were not previously included.
                 # also takes care of "path is already included by another dir, but i want to check if there
                 # are new files to add in there"
                 sql_select_and_insert_files_by_dir_path = '''
@@ -339,19 +376,30 @@ class CatalogRecord(Common):
                     select %s as catalogrecord_id, f.id
                     from metax_api_file as f
                     where f.active = true and f.removed = false
+                    and (
+                        COMPARE_PROJECT_AND_FILE_PATHS
+                    )
                     and f.id not in (
                         select file_id from
                         metax_api_catalogrecord_files cr_f
                         where catalogrecord_id = %s
                     )
                 '''
-                sql_params_insert_dirs = [self.id, self.id]
+                sql_params_insert_dirs = [self.id]
+
+                add_dirs_sql = []
 
                 for project, dir_paths in dirs_to_add_by_project.items():
                     for dir_path in dir_paths:
-                        sql_select_and_insert_files_by_dir_path += '''
-                            and (f.project_identifier = %s and f.file_path like (%s || '/%%'))'''
+                        add_dirs_sql.append("(f.project_identifier = %s and f.file_path like (%s || '/%%'))")
                         sql_params_insert_dirs.extend([project, dir_path])
+
+                sql_select_and_insert_files_by_dir_path = sql_select_and_insert_files_by_dir_path.replace(
+                    'COMPARE_PROJECT_AND_FILE_PATHS',
+                    ' or '.join(add_dirs_sql)
+                )
+
+                sql_params_insert_dirs.extend([self.id])
 
                 if DEBUG:
                     _logger.debug('Directory paths to add, by project:')
@@ -361,7 +409,7 @@ class CatalogRecord(Common):
                             _logger.debug('\t\t%s' % dir_path)
 
             if files_to_add:
-                # sql to add any singular files which were not covered by any directory path
+                # sql to add any new singular files which were not covered by any directory path
                 # being added. also takes care of "path is already included by another dir,
                 # but this file did not necessarily exist yet at that time, so add it in case
                 # its a new file"
@@ -403,7 +451,11 @@ class CatalogRecord(Common):
             ]
 
             with connection.cursor() as cr:
-                cr.execute(sql_copy_files_from_prev_version, sql_params_copy)
+                if files_to_keep:
+                    cr.execute(sql_copy_files_from_prev_version, sql_params_copy_files)
+
+                if dirs_to_keep_by_project:
+                    cr.execute(sql_copy_dirs_from_prev_version, sql_params_copy_dirs)
 
                 if dirs_to_add_by_project:
                     cr.execute(sql_select_and_insert_files_by_dir_path, sql_params_insert_dirs)
@@ -445,8 +497,9 @@ class CatalogRecord(Common):
         Find new additions and removed entries in research_metadata.files and directories, and return
         - lists of files to add and remove
         - lists of dirs to add and remove, grouped by project
+        - list of files and dirs to keep between versions
         """
-        file_description_changes = self._get_selected_files_changed()
+        file_description_changes = self._get_metadata_file_changes()
 
         # after copying files from the previous version to the new version, these arrays hold any new
         # individual files and new directories that should be separately added as well.
@@ -465,25 +518,49 @@ class CatalogRecord(Common):
         files_to_remove = []
         dirs_to_remove_by_project = defaultdict(list)
 
-        self._find_new_dirs_to_add(file_description_changes, dirs_to_add_by_project, dirs_to_remove_by_project)
-        self._find_new_files_to_add(file_description_changes, files_to_add, files_to_remove)
+        # lists of files and dir entries, which did not change between versions
+        files_to_keep = []
+        dirs_to_keep_by_project = defaultdict(list)
 
-        return files_to_add, files_to_remove, dirs_to_add_by_project, dirs_to_remove_by_project
+        self._find_new_dirs_to_add(file_description_changes,
+                                   dirs_to_add_by_project,
+                                   dirs_to_remove_by_project,
+                                   dirs_to_keep_by_project)
 
-    def _find_new_dirs_to_add(self, file_description_changes, dirs_to_add_by_project, dirs_to_remove_by_project):
+        self._find_new_files_to_add(file_description_changes,
+                                    files_to_add,
+                                    files_to_remove,
+                                    files_to_keep)
+
+        return (
+            files_to_add,
+            files_to_remove,
+            files_to_keep,
+            dirs_to_add_by_project,
+            dirs_to_remove_by_project,
+            dirs_to_keep_by_project
+        )
+
+    def _find_new_dirs_to_add(self, file_description_changes, dirs_to_add_by_project, dirs_to_remove_by_project,
+            dirs_to_keep_by_project):
         """
         Based on changes in research_metadata.directories (parameter file_description_changes), find out which
-        directories should be left out when copying files from the previous version to the new version,
+        directories should be kept when copying files from the previous version to the new version,
         and which new directories should be added.
         """
-        if 'directories' not in file_description_changes:
-            return
+        assert 'directories' in file_description_changes
 
         dir_identifiers = list(file_description_changes['directories']['removed']) + \
             list(file_description_changes['directories']['added'])
 
         dir_details = Directory.objects.filter(identifier__in=dir_identifiers) \
             .values('project_identifier', 'identifier', 'directory_path')
+
+        if len(dir_identifiers) != len(dir_details):
+            existig_dirs = set( d['identifier'] for d in dir_details )
+            missing_identifiers = [ d for d in dir_identifiers if d not in existig_dirs ]
+            raise ValidationError({'detail': ['the following directory identifiers were not found:\n%s'
+                % '\n'.join(missing_identifiers) ]})
 
         for dr in dir_details:
             if dr['identifier'] in file_description_changes['directories']['added']:
@@ -498,26 +575,33 @@ class CatalogRecord(Common):
                     # in the new directory additions
                     dirs_to_remove_by_project[dr['project_identifier']].append(dr['directory_path'])
 
-        if len(dir_identifiers) != len(dir_details):
-            existig_dirs = set( d['identifier'] for d in dir_details )
-            missing_identifiers = [ d for d in dir_identifiers if d not in existig_dirs ]
-            raise ValidationError({'detail': ['the following directory identifiers were not found:\n%s'
-                % '\n'.join(missing_identifiers) ]})
+        # when keeping directories when copying, only the top level dirs are required
+        top_dirs_by_project = self._get_top_level_parent_dirs_by_project(
+            file_description_changes['directories']['keep'])
 
-    def _find_new_files_to_add(self, file_description_changes, files_to_add, files_to_remove):
+        for project, dirs in top_dirs_by_project.items():
+            dirs_to_keep_by_project[project] = dirs
+
+    def _find_new_files_to_add(self, file_description_changes, files_to_add, files_to_remove, files_to_keep):
         """
         Based on changes in research_metadata.files (parameter file_description_changes), find out which
-        files should be left out when copying files from the previous version to the new version,
+        files should be kept when copying files from the previous version to the new version,
         and which new files should be added.
         """
-        if 'files' not in file_description_changes:
-            return
+        assert 'files' in file_description_changes
 
         file_identifiers = list(file_description_changes['files']['removed']) + \
-            list(file_description_changes['files']['added'])
+            list(file_description_changes['files']['added']) + \
+            list(file_description_changes['files']['keep'])
 
         file_details = File.objects.filter(identifier__in=file_identifiers) \
             .values('id', 'project_identifier', 'identifier', 'file_path')
+
+        if len(file_identifiers) != len(file_details):
+            existig_files = set( f['identifier'] for f in file_details )
+            missing_identifiers = [ f for f in file_identifiers if f not in existig_files ]
+            raise ValidationError({'detail': ['the following file identifiers were not found:\n%s'
+                % '\n'.join(missing_identifiers) ]})
 
         for f in file_details:
             if f['identifier'] in file_description_changes['files']['added']:
@@ -532,12 +616,8 @@ class CatalogRecord(Common):
                     # which means the actual set of files may change, if the path is not included
                     # in the new directory additions
                     files_to_remove.append(f['id'])
-
-        if len(file_identifiers) != len(file_details):
-            existig_files = set( f['identifier'] for f in file_details )
-            missing_identifiers = [ f for f in file_identifiers if f not in existig_files ]
-            raise ValidationError({'detail': ['the following file identifiers were not found:\n%s'
-                % '\n'.join(missing_identifiers) ]})
+            elif f['identifier'] in file_description_changes['files']['keep']:
+                files_to_keep.append(f['id'])
 
     def _path_included_in_previous_metadata_version(self, project, path):
         """
@@ -701,11 +781,19 @@ class CatalogRecord(Common):
             # non-versioning catalogs, such as harvesters, or if an update
             # was forced to occur without version update.
 
-            if self.preserve_version and self._get_selected_files_changed():
-                raise ValidationError({ 'detail': [
-                    'currently trying to preserve version while making changes which may result in files '
-                    'being changed is not supported.'
-                ]})
+            if self.preserve_version:
+
+                changes = self._get_metadata_file_changes()
+
+                if any((changes['files']['added'], changes['files']['removed'],
+                        changes['directories']['added'], changes['directories']['removed'])):
+
+                    raise ValidationError({
+                        'detail': [
+                            'currently trying to preserve version while making changes which may result in files '
+                            'being changed is not supported.'
+                        ]
+                    })
 
             if self.catalog_is_harvested() and self.field_changed('research_dataset.preferred_identifier'):
                 self._handle_preferred_identifier_changed()
@@ -957,13 +1045,10 @@ class CatalogRecord(Common):
         super(CatalogRecord, new_version).save()
         _logger.info('New CatalogRecord object %s created' % new_version.metadata_version_identifier)
 
-    def _get_selected_files_changed(self):
+    def _get_metadata_file_changes(self):
         """
-        Check if files or directories selected in research_dataset have changed.
-
-        Since there are objects and not simple values, easier to do a custom check
-        because the target of checking is a specific field in the object. If a need
-        arises, more magic can be applied to track_fields() to be more generic.
+        Check which files and directories selected in research_dataset have changed, and which to keep.
+        This data will later be used when copying files from a previous version to a new version.
 
         Note: set removes duplicates. It is assumed that file listings do not include
         duplicate files.
@@ -978,19 +1063,19 @@ class CatalogRecord(Common):
 
         initial_files = set( f['identifier'] for f in self._initial_data['research_dataset'].get('files', []) )
         received_files = set( f['identifier'] for f in self.research_dataset.get('files', []) )
-        if initial_files != received_files:
-            changes['files'] = {
-                'removed': initial_files.difference(received_files),
-                'added': received_files.difference(initial_files),
-            }
+        changes['files'] = {
+            'keep': initial_files.intersection(received_files),
+            'removed': initial_files.difference(received_files),
+            'added': received_files.difference(initial_files),
+        }
 
         initial_dirs = set(dr['identifier'] for dr in self._initial_data['research_dataset'].get('directories', []))
         received_dirs = set( dr['identifier'] for dr in self.research_dataset.get('directories', []) )
-        if initial_dirs != received_dirs:
-            changes['directories'] = {
-                'removed': initial_dirs.difference(received_dirs),
-                'added': received_dirs.difference(initial_dirs),
-            }
+        changes['directories'] = {
+            'keep': initial_dirs.intersection(received_dirs),
+            'removed': initial_dirs.difference(received_dirs),
+            'added': received_dirs.difference(initial_dirs),
+        }
 
         return changes
 
