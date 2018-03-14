@@ -2,7 +2,7 @@
 {
     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#",
     "title":"Metax Research Datasets",
-    "modified":"Tue, 30 Jan 2018 15:46:09 GMT",
+    "modified":"Thu, 08 Mar 2018 11:47:54 GMT",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "allOf":[
@@ -49,10 +49,18 @@
                     "type":"object",
                     "$ref":"#/definitions/Location"
                 },
-                "type":{
+                "lifecycle_event":{
                     "@id":"http://purl.org/dc/terms/type",
-                    "title":"Type",
-                    "description":"The nature or genre of the resource.",
+                    "title":"Lifecycle Event",
+                    "description":"Lifecycle event",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
+                },
+                "preservation_event":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#preservation_event",
+                    "title":"Preservation Event",
+                    "description":"Preservation event",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Concept"

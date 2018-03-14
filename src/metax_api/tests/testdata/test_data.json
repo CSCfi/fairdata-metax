@@ -7070,22 +7070,7 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
-                        "spatial": {
-                            "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
-                            "geographic_name": "Geographic name",
-                            "place_uri": {
-                                "identifier": "http://www.yso.fi/onto/yso/p107966"
-                            }
-                        },
-                        "temporal": {
-                            "end_date": "2014-12-31T08:19:58Z",
-                            "start_date": "2014-01-01T08:19:58Z"
-                        },
-                        "title": {
-                            "en": "Some activity"
-                        },
-                        "type": {
+                        "lifecycle_event": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
@@ -7100,6 +7085,21 @@
                                     }
                                 }
                             ]
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some activity"
                         },
                         "used_entity": [
                             {
@@ -7208,6 +7208,9 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "preservation_event": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "fullAddress": "The complete address written as a string, with or without formatting",
@@ -7222,9 +7225,6 @@
                         },
                         "title": {
                             "en": "Some other activity"
-                        },
-                        "type": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         }
                     }
                 ],
@@ -7837,22 +7837,7 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
-                        "spatial": {
-                            "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
-                            "geographic_name": "Geographic name",
-                            "place_uri": {
-                                "identifier": "http://www.yso.fi/onto/yso/p107966"
-                            }
-                        },
-                        "temporal": {
-                            "end_date": "2014-12-31T08:19:58Z",
-                            "start_date": "2014-01-01T08:19:58Z"
-                        },
-                        "title": {
-                            "en": "Some activity"
-                        },
-                        "type": {
+                        "lifecycle_event": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
@@ -7867,6 +7852,21 @@
                                     }
                                 }
                             ]
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some activity"
                         },
                         "used_entity": [
                             {
@@ -7975,6 +7975,9 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "preservation_event": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "fullAddress": "The complete address written as a string, with or without formatting",
@@ -7989,9 +7992,6 @@
                         },
                         "title": {
                             "en": "Some other activity"
-                        },
-                        "type": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         }
                     }
                 ],
@@ -8696,22 +8696,7 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
-                        "spatial": {
-                            "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
-                            "geographic_name": "Geographic name",
-                            "place_uri": {
-                                "identifier": "http://www.yso.fi/onto/yso/p107966"
-                            }
-                        },
-                        "temporal": {
-                            "end_date": "2014-12-31T08:19:58Z",
-                            "start_date": "2014-01-01T08:19:58Z"
-                        },
-                        "title": {
-                            "en": "Some activity"
-                        },
-                        "type": {
+                        "lifecycle_event": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
@@ -8726,6 +8711,21 @@
                                     }
                                 }
                             ]
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some activity"
                         },
                         "used_entity": [
                             {
@@ -8834,6 +8834,9 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "preservation_event": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "fullAddress": "The complete address written as a string, with or without formatting",
@@ -8848,9 +8851,6 @@
                         },
                         "title": {
                             "en": "Some other activity"
-                        },
-                        "type": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         }
                     }
                 ],
@@ -10304,22 +10304,7 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
-                        "spatial": {
-                            "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
-                            "geographic_name": "Geographic name",
-                            "place_uri": {
-                                "identifier": "http://www.yso.fi/onto/yso/p107966"
-                            }
-                        },
-                        "temporal": {
-                            "end_date": "2014-12-31T08:19:58Z",
-                            "start_date": "2014-01-01T08:19:58Z"
-                        },
-                        "title": {
-                            "en": "Some activity"
-                        },
-                        "type": {
+                        "lifecycle_event": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
@@ -10334,6 +10319,21 @@
                                     }
                                 }
                             ]
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some activity"
                         },
                         "used_entity": [
                             {
@@ -10442,6 +10442,9 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "preservation_event": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "fullAddress": "The complete address written as a string, with or without formatting",
@@ -10456,9 +10459,6 @@
                         },
                         "title": {
                             "en": "Some other activity"
-                        },
-                        "type": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         }
                     }
                 ],
@@ -11096,22 +11096,7 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
-                        "spatial": {
-                            "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
-                            "geographic_name": "Geographic name",
-                            "place_uri": {
-                                "identifier": "http://www.yso.fi/onto/yso/p107966"
-                            }
-                        },
-                        "temporal": {
-                            "end_date": "2014-12-31T08:19:58Z",
-                            "start_date": "2014-01-01T08:19:58Z"
-                        },
-                        "title": {
-                            "en": "Some activity"
-                        },
-                        "type": {
+                        "lifecycle_event": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
@@ -11126,6 +11111,21 @@
                                     }
                                 }
                             ]
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some activity"
                         },
                         "used_entity": [
                             {
@@ -11234,6 +11234,9 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "preservation_event": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "fullAddress": "The complete address written as a string, with or without formatting",
@@ -11248,9 +11251,6 @@
                         },
                         "title": {
                             "en": "Some other activity"
-                        },
-                        "type": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         }
                     }
                 ],
@@ -11888,22 +11888,7 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
-                        "spatial": {
-                            "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
-                            "geographic_name": "Geographic name",
-                            "place_uri": {
-                                "identifier": "http://www.yso.fi/onto/yso/p107966"
-                            }
-                        },
-                        "temporal": {
-                            "end_date": "2014-12-31T08:19:58Z",
-                            "start_date": "2014-01-01T08:19:58Z"
-                        },
-                        "title": {
-                            "en": "Some activity"
-                        },
-                        "type": {
+                        "lifecycle_event": {
                             "definition": [
                                 {
                                     "en": "A statement or formal explanation of the meaning of a concept."
@@ -11918,6 +11903,21 @@
                                     }
                                 }
                             ]
+                        },
+                        "spatial": {
+                            "alt": "11.111",
+                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "geographic_name": "Geographic name",
+                            "place_uri": {
+                                "identifier": "http://www.yso.fi/onto/yso/p107966"
+                            }
+                        },
+                        "temporal": {
+                            "end_date": "2014-12-31T08:19:58Z",
+                            "start_date": "2014-01-01T08:19:58Z"
+                        },
+                        "title": {
+                            "en": "Some activity"
                         },
                         "used_entity": [
                             {
@@ -12026,6 +12026,9 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "preservation_event": {
+                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "fullAddress": "The complete address written as a string, with or without formatting",
@@ -12040,9 +12043,6 @@
                         },
                         "title": {
                             "en": "Some other activity"
-                        },
-                        "type": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         }
                     }
                 ],
