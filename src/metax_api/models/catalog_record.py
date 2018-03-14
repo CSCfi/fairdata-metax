@@ -39,16 +39,63 @@ class AlternateRecordSet(models.Model):
             print(r.__repr__())
 
 
-class VersionSet(models.Model):
+class DatasetVersionSet(models.Model):
 
     """
-    A table which contains records that are versions of each other.
+    A table which contains records, that are different dataset versions of each other.
 
     Note! Does not inherit from model Common, so does not have timestmap fields,
     and a delete is an actual delete.
     """
-
     id = models.BigAutoField(primary_key=True, editable=False)
+
+    def get_listing(self):
+        """
+        Return a list of record preferred_identifiers that belong in the same dataset version chain.
+        Latest first.
+        """
+        records = CatalogRecord.objects \
+            .filter(dataset_version_set_id=self.id, previous_metadata_version_id=None) \
+            .distinct('metadata_version_set_id') \
+            .order_by('metadata_version_set_id', 'date_created')
+
+        return [
+            { 'preferred_identifier': r.preferred_identifier, 'date_created': r.date_created.astimezone().isoformat() }
+            for r in reversed(records) # unable to order_by -date_created when using distinct()...
+        ]
+
+    def print_records(self): # pragma: no cover
+        for r in self.records.all():
+            print(r.__repr__())
+
+
+class MetadataVersionSet(models.Model):
+
+    """
+    A table which contains records that are different metadata versions of each other.
+
+    Note! Does not inherit from model Common, so does not have timestmap fields,
+    and a delete is an actual delete.
+    """
+    id = models.BigAutoField(primary_key=True, editable=False)
+
+    next_dataset_version = models.ForeignKey('self', null=True, on_delete=models.DO_NOTHING,
+        related_name='+', help_text='Link to next dataset version')
+
+    previous_dataset_version = models.ForeignKey('self', null=True, on_delete=models.DO_NOTHING,
+        related_name='+', help_text='Link to previous dataset version')
+
+    def get_listing(self):
+        """
+        Return a list of record metadata_version_identifiers that belong in the same metadata version chain.
+        Latest first.
+        """
+        return [
+            {
+                'metadata_version_identifier': r.metadata_version_identifier,
+                'date_created': r.date_created.astimezone().isoformat()
+            } for r in self.records.order_by('-date_created')
+        ]
 
     def print_records(self): # pragma: no cover
         for r in self.records.all():
@@ -68,23 +115,25 @@ class CatalogRecordManager(CommonManager):
             row = kwargs.pop('using_dict')
             if row.get('id', None):
                 kwargs['id'] = row['id']
-            elif row.get('research_dataset', None) and row['research_dataset'].get('urn_identifier', None):
-                kwargs['research_dataset__contains'] = { 'urn_identifier': row['research_dataset']['urn_identifier'] }
+            elif row.get('research_dataset', None) and row['research_dataset'].get('metadata_version_identifier', None):
+                kwargs['research_dataset__contains'] = {
+                    'metadata_version_identifier': row['research_dataset']['metadata_version_identifier']
+                }
             else:
                 raise ValidationError(
                     'this operation requires an identifying key to be present: '
-                    'id, or research_dataset ->> urn_identifier')
+                    'id, or research_dataset ->> metadata_version_identifier')
         return super(CatalogRecordManager, self).get(*args, **kwargs)
 
-    def get_id(self, urn_identifier=None):
+    def get_id(self, metadata_version_identifier=None):
         """
-        Takes urn_identifier, and returns the plain pk of the record. Useful for debugging,
+        Takes metadata_version_identifier, and returns the plain pk of the record. Useful for debugging,
         and some other situations.
         """
-        if not urn_identifier:
-            raise ValidationError('urn_identifier is a required keyword argument')
+        if not metadata_version_identifier:
+            raise ValidationError('metadata_version_identifier is a required keyword argument')
         cr = super(CatalogRecordManager, self).filter(
-            **{ 'research_dataset__contains': {'urn_identifier': urn_identifier } }
+            **{ 'research_dataset__contains': {'metadata_version_identifier': metadata_version_identifier } }
         ).values('id').first()
         if not cr:
             raise Http404
@@ -151,15 +200,19 @@ class CatalogRecord(Common):
 
     research_dataset = JSONField()
 
-    next_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+    next_metadata_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
         related_name='+')
 
-    previous_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+    previous_metadata_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
         related_name='+')
 
-    version_set = models.ForeignKey(
-        VersionSet, on_delete=models.SET_NULL, null=True, related_name='records',
-        help_text='Records which are versions of each other.')
+    metadata_version_set = models.ForeignKey(
+        MetadataVersionSet, on_delete=models.SET_NULL, null=True, related_name='records',
+        help_text='Records which are different metadata versions of each other.')
+
+    dataset_version_set = models.ForeignKey(
+        DatasetVersionSet, on_delete=models.SET_NULL, null=True, related_name='records',
+        help_text='Records which are different dataset versions of each other.')
 
     # END OF MODEL FIELD DEFINITIONS #
 
@@ -181,7 +234,8 @@ class CatalogRecord(Common):
     was created), because if the request is interrupted for whatever reason after publishing,
     the new version will not get created after all, but the publish message already left.
     """
-    next_version_created_in_current_request = False
+    next_metadata_version_created_in_current_request = False
+    next_dataset_version_created_in_current_request = False
 
     objects = CatalogRecordManager()
 
@@ -198,7 +252,7 @@ class CatalogRecord(Common):
             'research_dataset.directories',
             'research_dataset.total_ida_byte_size',
             'research_dataset.total_remote_resources_byte_size',
-            'research_dataset.urn_identifier',
+            'research_dataset.metadata_version_identifier',
             'research_dataset.preferred_identifier',
         )
 
@@ -211,56 +265,15 @@ class CatalogRecord(Common):
             self._pre_create_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_create_operations()
-            _logger.info('Created a new <CatalogRecord id: %d, urn_identifier: %s, preferred_identifier: %s >'
-                % (self.id, self.urn_identifier, self.preferred_identifier))
+            _logger.info(
+                'Created a new <CatalogRecord id: %d, '
+                'metadata_version_identifier: %s, '
+                'preferred_identifier: %s >'
+                % (self.id, self.metadata_version_identifier, self.preferred_identifier)
+            )
         else:
             self._pre_update_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
-
-    def save_as_new_version(self):
-        """
-        Note: This method is executed by the new version - never by the old one.
-        """
-        self._pre_create_operations()
-
-        file_changes = self._find_file_changes()
-
-        self._generate_urn_identifier()
-
-        # note: save() updates self._initial_data with data received from the request, so after this
-        # point checking changed fields need to be compared with self.previous_version, instead of
-        # self._initial_data, which is what field_changed() would do.
-        super(CatalogRecord, self).save()
-
-        # files can be processed only after creating the new version in the db, because
-        # the new recorde's id is needed for relations.
-        actual_files_changed = self._process_file_changes(file_changes)
-
-        if actual_files_changed and self.preferred_identifier == self.previous_version.preferred_identifier:
-            _logger.debug(
-                'Files changed during version change, but preferred_identifier not updated: '
-                'Forcing preferred_identifier change'
-            )
-            # force preferred_identifier change if not already changed by the user
-            self.research_dataset['preferred_identifier'] = self.urn_identifier
-
-        # note: this new version was implicitly placed in the same
-        # alternate_record_set as the previous version.
-
-        if self.preferred_identifier != self.previous_version.preferred_identifier:
-            # in case the previous version had an alternate_record_set,
-            # the prev version will keep staying there, since preferred_identifier
-            # was changed for the new version.
-            self._handle_preferred_identifier_changed()
-        else:
-            if self.has_alternate_records():
-                # remove previous previous version from alternate_record_set.
-                # alternate_record_set should always have the newest versions
-                # of records holding a specific preferred_identifier.
-                self.previous_version.alternate_record_set = None
-
-        # save file size calculations, changed preferred_identifier, and any other fields
-        super(CatalogRecord, self).save()
 
     def _process_file_changes(self, file_changes):
         """
@@ -288,7 +301,7 @@ class CatalogRecord(Common):
                 inner join metax_api_file as f on f.id = cr_f.file_id
                 where catalogrecord_id = %s
             '''
-            sql_params_copy = [self.id, self.previous_version.id]
+            sql_params_copy = [self.id, self.previous_metadata_version.id]
 
             if files_to_remove:
                 # in the above sql, dont copy files which were considered to have unique
@@ -382,7 +395,12 @@ class CatalogRecord(Common):
                     select b.file_id from metax_api_catalogrecord_files b where b.catalogrecord_id = %s
                 ) as compare_old_to_new
             '''
-            sql_params_files_changed = [self.id, self.previous_version_id, self.previous_version_id, self.id]
+            sql_params_files_changed = [
+                self.id,
+                self.previous_metadata_version_id,
+                self.previous_metadata_version_id,
+                self.id
+            ]
 
             with connection.cursor() as cr:
                 cr.execute(sql_copy_files_from_prev_version, sql_params_copy)
@@ -414,11 +432,11 @@ class CatalogRecord(Common):
                 where catalogrecord_id = %s
             '''
             with connection.cursor() as cr:
-                cr.execute(sql_copy_files_from_prev_version, [self.id, self.previous_version.id])
+                cr.execute(sql_copy_files_from_prev_version, [self.id, self.previous_metadata_version.id])
 
-            if 'total_ida_byte_size' in self.previous_version.research_dataset:
+            if 'total_ida_byte_size' in self.previous_metadata_version.research_dataset:
                 self.research_dataset['total_ida_byte_size'] = \
-                    self.previous_version.research_dataset['total_ida_byte_size']
+                    self.previous_metadata_version.research_dataset['total_ida_byte_size']
 
         return actual_files_changed
 
@@ -474,7 +492,7 @@ class CatalogRecord(Common):
                 # as a result the actual set of files may or may not change.
                 dirs_to_add_by_project[dr['project_identifier']].append(dr['directory_path'])
             elif dr['identifier'] in file_description_changes['directories']['removed']:
-                if not self._path_included_in_previous_version(dr['project_identifier'], dr['directory_path']):
+                if not self._path_included_in_previous_metadata_version(dr['project_identifier'], dr['directory_path']):
                     # only remove dirs that are not included by other directory paths.
                     # as a result the actual set of files may change, if the path is not included
                     # in the new directory additions
@@ -508,7 +526,7 @@ class CatalogRecord(Common):
                 # as a result the actual set of files may or may not change.
                 files_to_add.append(f['id'])
             elif f['identifier'] in file_description_changes['files']['removed']:
-                if not self._path_included_in_previous_version(f['project_identifier'], f['file_path']):
+                if not self._path_included_in_previous_metadata_version(f['project_identifier'], f['file_path']):
                     # file is being removed.
                     # path is not included by other directories in the previous version,
                     # which means the actual set of files may change, if the path is not included
@@ -521,15 +539,17 @@ class CatalogRecord(Common):
             raise ValidationError({'detail': ['the following file identifiers were not found:\n%s'
                 % '\n'.join(missing_identifiers) ]})
 
-    def _path_included_in_previous_version(self, project, path):
+    def _path_included_in_previous_metadata_version(self, project, path):
         """
         Check if a path in a specific project is already included in the path of
         another directory included in the PREVIOUS VERSION dataset selected directories.
         """
         if not hasattr(self, '_previous_highest_level_dirs_by_project'):
-            if 'directories' not in self.previous_version.research_dataset:
+            if 'directories' not in self.previous_metadata_version.research_dataset:
                 return False
-            dir_identifiers = [ d['identifier'] for d in self.previous_version.research_dataset['directories'] ]
+            dir_identifiers = [
+                d['identifier'] for d in self.previous_metadata_version.research_dataset['directories']
+            ]
             self._previous_highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
         return any(
             True for dr_path in self._previous_highest_level_dirs_by_project[project]
@@ -555,27 +575,73 @@ class CatalogRecord(Common):
             return None
 
     @property
-    def urn_identifier(self):
+    def metadata_version_identifier(self):
         try:
-            return self.research_dataset['urn_identifier']
+            return self.research_dataset['metadata_version_identifier']
         except:
             return None
 
     def catalog_versions_datasets(self):
         return self.data_catalog.catalog_json.get('dataset_versioning', False) is True
 
+    def catalog_is_harvested(self):
+        return self.data_catalog.catalog_json.get('harvested', False) is True
+
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
     def has_versions(self):
-        return bool(self.version_set)
+        return bool(self.metadata_version_set)
+
+    def has_newer_dataset_versions(self):
+        return self.metadata_version_set_id and self.metadata_version_set.next_dataset_version_id
+
+    @property
+    def next_dataset_version(self):
+        """
+        Find the next known dataset version, if any, and return its latest valid metadata version record.
+        """
+        try:
+            cr = self.metadata_version_set.next_dataset_version.records.order_by('-date_created').first()
+        except:
+            return None
+        return cr or None
+
+    @property
+    def previous_dataset_version(self):
+        """
+        Find the previous known dataset version, if any, and return its latest valid metadata version record.
+        """
+        try:
+            cr = self.metadata_version_set.previous_dataset_version.records.order_by('-date_created').first()
+        except:
+            return None
+        return cr or None
 
     def _pre_create_operations(self):
-        self._generate_urn_identifier()
+        if self.catalog_is_harvested():
+            # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
+            # do not overwrite. note: if the value was left empty, an error would have been
+            # raised in the serializer validation.
+            pass
+        else:
+            self.research_dataset['preferred_identifier'] = generate_identifier()
+
+        self.research_dataset['metadata_version_identifier'] = generate_identifier()
+
         if 'remote_resources' in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
     def _post_create_operations(self):
+        if self.catalog_versions_datasets():
+            mvs = MetadataVersionSet()
+            mvs.save()
+            mvs.records.add(self)
+
+            dvs = DatasetVersionSet()
+            dvs.save()
+            dvs.records.add(self)
+
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
             # to insert into a many2many relation.
@@ -588,9 +654,14 @@ class CatalogRecord(Common):
             self._create_or_update_alternate_record_set(other_record)
 
     def _pre_update_operations(self):
-        if self.field_changed('research_dataset.urn_identifier'):
+        if self.field_changed('research_dataset.metadata_version_identifier'):
             # read-only
-            self.research_dataset['urn_identifier'] = self._initial_data['research_dataset']['urn_identifier']
+            self.research_dataset['metadata_version_identifier'] = \
+                self._initial_data['research_dataset']['metadata_version_identifier']
+
+        if self.field_changed('research_dataset.preferred_identifier'):
+            if not self.catalog_is_harvested():
+                raise Http400("Cannot change preferred_identifier in datasets in non-harvested catalogs")
 
         if self.field_changed('research_dataset.total_ida_byte_size'):
             # read-only
@@ -616,15 +687,15 @@ class CatalogRecord(Common):
 
         if self.catalog_versions_datasets() and not self.preserve_version:
             if self.field_changed('research_dataset'):
-                if not self.next_version_id:
-                    self._create_new_version()
-                else:
+                if self.next_metadata_version_id:
                     raise ValidationError({ 'detail': [
-                        'modifying dataset metadata of old versions not permitted'
+                        'modifying metadata of old metadata versions not permitted'
                     ]})
+                else:
+                    self._create_new_version()
             else:
                 # edits to any other field than research_dataset are OK even in
-                # old versions of a CR.
+                # old metadata versions of a dataset.
                 pass
         else:
             # non-versioning catalogs, such as harvesters, or if an update
@@ -636,7 +707,7 @@ class CatalogRecord(Common):
                     'being changed is not supported.'
                 ]})
 
-            if self.field_changed('research_dataset.preferred_identifier'):
+            if self.catalog_is_harvested() and self.field_changed('research_dataset.preferred_identifier'):
                 self._handle_preferred_identifier_changed()
 
     def _calculate_total_ida_byte_size(self):
@@ -771,34 +842,41 @@ class CatalogRecord(Common):
         """
         Create a new version of the record who calls this method.
 
-        - Creates a new version_set if required
-        - Sets links next_version and previous_version to related objects
-        - Forces preferred_identifier change if necessary
+        - Creates a new metadata_version_set if required
+        - Sets links next_metadata_version and previous_metadata_version to related objects
+        - Creates a new dataset version if required
         """
-        _logger.info('Creating new version from CatalogRecord %s...' % self.urn_identifier)
-        new_version = CatalogRecord.objects.get(pk=self.id)
-        new_version.id = None # setting id to None creates a new row
+        old_version = self
+        _logger.info('Creating new version from CatalogRecord %s...' % old_version.metadata_version_identifier)
+
+        if not old_version.metadata_version_set_id:
+            mvs = MetadataVersionSet()
+            mvs.save()
+            mvs.records.add(old_version)
+
+        new_version = CatalogRecord.objects.get(pk=old_version.id)
+        new_version.id = None # setting id to None creates a new record
         new_version.contract = None
-        new_version.date_created = self.date_modified
-        new_version.date_modified = self.date_modified
-        new_version.next_version = None
-        new_version.user_created = self.user_modified
-        new_version.user_modified = self.user_modified
+        new_version.date_created = old_version.date_modified
+        new_version.date_modified = old_version.date_modified
+        new_version.next_metadata_version = None
+        new_version.user_created = old_version.user_modified
+        new_version.user_modified = old_version.user_modified
         new_version.preservation_description = None
         new_version.preservation_state = 0
         new_version.preservation_state_modified = None
-        new_version.previous_version = self
-        # note: copying research_dataset from the currently open instance 'self',
+        new_version.previous_metadata_version_id = old_version.id
+        # note: copying research_dataset from the currently open instance 'old_version',
         # contains the new field data from the request. this effectively transfers
         # the changes to the new
-        new_version.research_dataset = deepcopy(self.research_dataset)
-        new_version.research_dataset.pop('urn_identifier')
-        new_version.service_created = self.service_modified or self.service_created
+        new_version.research_dataset = deepcopy(old_version.research_dataset)
+        new_version.research_dataset.pop('metadata_version_identifier')
+        new_version.service_created = old_version.service_modified or old_version.service_created
         new_version.service_modified = None
 
         # nothing must change in the now old version of research_dataset, so copy
         # from _initial_data so that super().save() does not change it later.
-        self.research_dataset = deepcopy(self._initial_data['research_dataset'])
+        old_version.research_dataset = deepcopy(old_version._initial_data['research_dataset'])
 
         if new_version.editor:
             # some of the old editor fields cant be true in the new version, so keep
@@ -808,26 +886,76 @@ class CatalogRecord(Common):
             new_version.editor = {}
             if 'owner_id' in old_editor:
                 new_version.editor['owner_id'] = old_editor['owner_id']
-            if 'owner_id' in old_editor:
-                new_version.editor['creator_id'] = old_editor['owner_id']
+            if 'creator_id' in old_editor:
+                new_version.editor['creator_id'] = old_editor['creator_id']
             if 'identifier' in old_editor:
                 new_version.editor['identifier'] = old_editor['identifier']
 
-        new_version.save_as_new_version()
+        if 'remote_resources' in new_version.research_dataset:
+            new_version._calculate_total_remote_resources_byte_size()
 
-        if self.has_versions():
-            # if a version_set existed, the new version inherited it from the previous version.
-            pass
+        new_version.research_dataset['metadata_version_identifier'] = generate_identifier()
+
+        file_changes = new_version._find_file_changes()
+
+        # note: save() updates new_version._initial_data with data received from the request, so after this
+        # point checking changed fields need to be compared with new_version.previous_metadata_version, instead of
+        # new_version._initial_data, which is what field_changed() would do.
+        super(CatalogRecord, new_version).save()
+
+        # files can be processed only after creating the new version in the db, because
+        # the new record's id is needed for relations.
+        actual_files_changed = new_version._process_file_changes(file_changes)
+
+        if actual_files_changed:
+
+            if old_version.has_newer_dataset_versions():
+                raise ValidationError({ 'detail': ['Changing files in old dataset versions is not permitted.'] })
+
+            # new dataset version
+            _logger.info('Files changed during CatalogRecord update. Creating new dataset version...')
+
+            # break connection to old MetadataVersionSet, and create a new MetadataVersionSet for
+            # the new dataset version, and its coming different metadata versions.
+            new_version.metadata_version_set_id = None
+            new_version.previous_metadata_version_id = None
+            new_version.alternate_record_set = None
+
+            # create new metadata_version_set and set links...
+            mvs = MetadataVersionSet()
+            mvs.previous_dataset_version_id = old_version.metadata_version_set_id
+            mvs.save()
+            mvs.records.add(new_version)
+
+            # update old metadata_version_set links...
+            old_version.metadata_version_set.next_dataset_version_id = mvs.id
+            old_version.metadata_version_set.save()
+
+            new_version.research_dataset['preferred_identifier'] = generate_identifier()
+
+            # old_version is the one that is returned to the requestor from the api
+            old_version.new_dataset_version_created_in_current_request = True
         else:
-            vs = VersionSet()
-            vs.save()
-            vs.records.add(self, new_version)
-            vs.save()
+            # new metadata version - new version automatically belongs to the same metadata_version_set
 
-        self.next_version = new_version
-        self.next_version_created_in_current_request = True
+            old_version.next_metadata_version_id = new_version.id
 
-        _logger.info('New CatalogRecord version %s created' % new_version.urn_identifier)
+            if new_version.has_alternate_records():
+                # note: this new version was implicitly placed in the same
+                # alternate_record_set as the previous version.
+
+                # remove previous previous version from alternate_record_set.
+                # alternate_record_set should always have the newest versions
+                # of records holding a specific preferred_identifier.
+                old_version.alternate_record_set = None
+
+            # old_version is the one that is returned to the requestor from the api
+            old_version.next_metadata_version_created_in_current_request = True
+
+        new_version.dataset_version_set.records.add(new_version)
+
+        super(CatalogRecord, new_version).save()
+        _logger.info('New CatalogRecord object %s created' % new_version.metadata_version_identifier)
 
     def _get_selected_files_changed(self):
         """
@@ -865,16 +993,6 @@ class CatalogRecord(Common):
             }
 
         return changes
-
-    def _generate_urn_identifier(self):
-        """
-        Field urn_identifier in research_dataset is always generated, and it can not be changed later.
-        If preferred_identifier is missing during create, copy urn_identifier to it also.
-        """
-        urn_identifier = generate_identifier()
-        self.research_dataset['urn_identifier'] = urn_identifier
-        if not self.research_dataset.get('preferred_identifier', None):
-            self.research_dataset['preferred_identifier'] = urn_identifier
 
     def _handle_preferred_identifier_changed(self):
         if self.has_alternate_records():
@@ -921,7 +1039,7 @@ class CatalogRecord(Common):
             ars.save()
             ars.records.add(self, other_record)
             _logger.info('Creating new alternate_record_set for preferred_identifier: %s, with records: %s and %s' %
-                (self.preferred_identifier, self.urn_identifier, other_record.urn_identifier))
+                (self.preferred_identifier, self.metadata_version_identifier, other_record.metadata_version_identifier))
 
     def _remove_from_alternate_record_set(self):
         """
@@ -938,13 +1056,14 @@ class CatalogRecord(Common):
         self.alternate_record_set = None
 
     def __repr__(self):
-        return '<%s: %d, removed: %s, data_catalog: %s, urn_identifier: %s, preferred_identifier: %s, file_count: %d >'\
+        return '<%s: %d, removed: %s, data_catalog: %s, metadata_version_identifier: %s, ' \
+            'preferred_identifier: %s, file_count: %d >' \
             % (
                 'CatalogRecord',
                 self.id,
                 str(self.removed),
                 self.data_catalog.catalog_json['identifier'],
-                self.urn_identifier,
+                self.metadata_version_identifier,
                 self.preferred_identifier,
                 self.files.count(),
             )

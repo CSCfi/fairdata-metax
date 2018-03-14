@@ -55,7 +55,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['preservation_state__in'] = state_vals
 
         if CommonService.get_boolean_query_param(request, 'latest'):
-            queryset_search_params['next_version_id'] = None
+            queryset_search_params['next_metadata_version_id'] = None
 
         if request.query_params.get('curator', False):
             queryset_search_params['research_dataset__contains'] = \
@@ -145,17 +145,19 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if response.status_code != status.HTTP_200_OK:
             return
 
-        next_versions = []
+        new_versions = []
 
         if 'success' in response.data:
+            # bulk update
             updated_request_data = [ r['object'] for r in response.data['success'] ]
             for cr in updated_request_data:
                 if cls._new_version_created(cr):
-                    next_versions.append(cls._extract_next_version_data(cr))
+                    new_versions.append(cls._extract_new_version_data(cr))
         else:
+            # single update
             updated_request_data = response.data
             if cls._new_version_created(updated_request_data):
-                next_versions.append(cls._extract_next_version_data(updated_request_data))
+                new_versions.append(cls._extract_new_version_data(updated_request_data))
 
         count = len(updated_request_data) if isinstance(updated_request_data, list) else 1
         _logger.info('Publishing updated datasets (%d items)' % count)
@@ -164,9 +166,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             rabbitmq = RabbitMQ()
             rabbitmq.publish(updated_request_data, routing_key='update', exchange='datasets')
 
-            if next_versions:
-                _logger.info('Publishing new dataset versions (%d items)' % len(next_versions))
-                rabbitmq.publish(next_versions, routing_key='create', exchange='datasets')
+            if new_versions:
+                _logger.info('Publishing new versions (%d items)' % len(new_versions))
+                rabbitmq.publish(new_versions, routing_key='create', exchange='datasets')
         except Exception as e:
             _logger.exception('Publishing rabbitmq messages failed')
             raise Http503({ 'detail': [
@@ -176,11 +178,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
     @staticmethod
     def _new_version_created(cr):
-        return '__actions' in cr and 'publish_next_version' in cr['__actions']
+        return '__actions' in cr and 'publish_new_version' in cr['__actions']
 
     @staticmethod
-    def _extract_next_version_data(cr):
-        data = cr['__actions']['publish_next_version']['next_version']
+    def _extract_new_version_data(cr):
+        data = cr['__actions']['publish_new_version']['dataset']
         cr.pop('__actions')
         return data
 
@@ -446,13 +448,13 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             if activity.get('type', False):
                 ref_entry = cls.check_ref_data(refdata['lifecycle_event'],
                                                activity['type']['identifier'],
-                                               'research_dataset.activity.type.identifier',
+                                               'research_dataset.provenance.type.identifier',
                                                value_not_found_is_error=False)
 
                 if not ref_entry:
                     ref_entry = cls.check_ref_data(refdata['preservation_event'],
                                                    activity['type']['identifier'],
-                                                   'research_dataset.activity.type.identifier', errors)
+                                                   'research_dataset.provenance.type.identifier', errors)
 
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, activity['type'], label_field='pref_label')

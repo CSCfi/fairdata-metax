@@ -48,7 +48,7 @@ class CommonSerializer(ModelSerializer):
         save() multiple times, and there is an irrecoverable failure between those saves.
 
         Most realistic example: CatalogRecord, which executes multiple saves to deal with
-        with urn_identifier generation, file changes handling, alternate_record_set and
+        with metadata_version_identifier generation, file changes handling, alternate_record_set and
         versions handling.
         """
         super(CommonSerializer, self).save(*args, **kwargs)

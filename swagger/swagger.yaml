@@ -8,10 +8,8 @@ schemes:
 basePath: /rest/v1/
 produces:
   - application/json
+
 paths:
-
-
-
 
 # File Storage API
   /filestorages:
@@ -363,7 +361,7 @@ paths:
           type: string
       responses:
         '200':
-          description: a list of urn_identifiers. if the files were not found to belong to any datasets, an empty list is returned
+          description: a list of metadata_version_identifiers. if the files were not found to belong to any datasets, an empty list is returned
         '404':
           description: files given in the list not found
       tags:
@@ -441,9 +439,9 @@ paths:
             otherwise, one would query for its data separately by GET /directories/3.
           required: false
           type: boolean
-        - name: urn_identifier
+        - name: metadata_version_identifier
           in: query
-          description: urn_identifier of a dataset. browse only files that have been selected for that record.
+          description: metadata_version_identifier of a dataset. browse only files that have been selected for that record.
           required: false
           type: string
       responses:
@@ -503,9 +501,9 @@ paths:
             otherwise, one would query for its data separately by GET /directories/3.
           required: false
           type: boolean
-        - name: urn_identifier
+        - name: metadata_version_identifier
           in: query
-          description: urn_identifier of a dataset. browse only files that have been selected for that record.
+          description: metadata_version_identifier of a dataset. browse only files that have been selected for that record.
           required: false
           type: string
       responses:
@@ -719,10 +717,12 @@ paths:
       summary: create new dataset metadata
       description: |
         # research_dataset identifiers
-        The field <b>urn_identifier</b> is always generated for the user. <b>preferred_identifier</b> can be provided by the user, and if omitted, the value of <b>urn_identifier</b> is copied to it.
+        The fields <b>metadata_version_identifier</b> and <b>preferred_identifier</b> are generally always generated server-side. <b>Exception</b>: In harvested catalogs, preferred_identifier value can be provided by the user.
         # research_dataset read-only fields
-        - urn_identifier
-        - total_byte_size (generated from files in the db according to files listed in the given dataset)
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs)
+        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
       consumes:
         - application/json
       parameters:
@@ -758,7 +758,7 @@ paths:
     patch:
       summary: bulk update partial
       description: |
-        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, research_dataset->urn_identifier</b>
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, research_dataset->metadata_version_identifier</b>
       consumes:
         - application/json
       parameters:
@@ -773,9 +773,9 @@ paths:
           description: All updates failed. A list of errors is returned.
       tags:
         - Dataset API
-  /datasets/urn_identifiers:
+  /datasets/metadata_version_identifiers:
     get:
-      summary: "list all dataset urn identifiers"
+      summary: "list all dataset metadata version identifiers"
       parameters:
         - name: latest
           in: query
@@ -804,7 +804,7 @@ paths:
           type: string
       responses:
         "200":
-          description: successful operation, returns a list of all dataset urn identifiers.
+          description: successful operation, returns a list of all dataset metadata version identifiers.
       tags:
         - Dataset API
   /datasets/unique_preferred_identifiers:
@@ -883,8 +883,10 @@ paths:
       summary: replace dataset metadata
       description: |
         # research_dataset read-only fields
-        - urn_identifier
-        - total_byte_size (generated from files in the db according to files listed in the given dataset)
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs)
+        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
       parameters:
         - in: "body"
           name: "body"
@@ -908,8 +910,10 @@ paths:
       summary: replace part of dataset metadata
       description: |
         # research_dataset read-only fields
-        - urn_identifier
-        - total_byte_size (generated from files in the db according to files listed in the given dataset)
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs)
+        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
       parameters:
         - in: "body"
           name: "body"

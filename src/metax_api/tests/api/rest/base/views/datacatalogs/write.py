@@ -22,6 +22,7 @@ class DataCatalogApiWriteCommon(APITestCase, TestClassUtils):
 
 
 class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
+
     def test_identifier_is_auto_generated(self):
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -37,6 +38,13 @@ class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
+    def test_disallow_versioning_in_harvested_catalogs(self):
+        self.new_test_data['catalog_json']['dataset_versioning'] = True
+        self.new_test_data['catalog_json']['harvested'] = True
+        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('versioning' in response.data['detail'][0], True)
+
 
 class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
     """
@@ -48,7 +56,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         dc = self.new_test_data['catalog_json']
         dc['field_of_science'][0]['identifier'] = 'nonexisting'
         dc['language'][0]['identifier'] = 'nonexisting'
-        dc['access_rights']['type'][0]['identifier'] = 'nonexisting'
+        dc['access_rights']['access_type'][0]['identifier'] = 'nonexisting'
         dc['access_rights']['license'][0]['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -98,7 +106,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         dc = self.new_test_data['catalog_json']
         dc['field_of_science'][0] = {'identifier': refs['field_of_science']['code']}
         dc['language'][0] = {'identifier': refs['language']['code']}
-        dc['access_rights']['type'][0] = {'identifier': refs['access_type']['code']}
+        dc['access_rights']['access_type'][0] = {'identifier': refs['access_type']['code']}
         dc['access_rights']['license'][0] = {'identifier': refs['license']['code']}
 
         # these have other required fields, so only update the identifier with code
@@ -118,7 +126,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
     def _assert_uri_copied_to_identifier(self, refs, new_dc):
         self.assertEqual(refs['field_of_science']['uri'], new_dc['field_of_science'][0]['identifier'])
         self.assertEqual(refs['language']['uri'], new_dc['language'][0]['identifier'])
-        self.assertEqual(refs['access_type']['uri'], new_dc['access_rights']['type'][0]['identifier'])
+        self.assertEqual(refs['access_type']['uri'], new_dc['access_rights']['access_type'][0]['identifier'])
         self.assertEqual(refs['license']['uri'], new_dc['access_rights']['license'][0]['identifier'])
         self.assertEqual(refs['organization']['uri'], new_dc['publisher']['identifier'])
         self.assertEqual(refs['organization']['uri'],
@@ -126,7 +134,8 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
 
     def _assert_label_copied_to_pref_label(self, refs, new_dc):
         self.assertEqual(refs['field_of_science']['label'], new_dc['field_of_science'][0].get('pref_label', None))
-        self.assertEqual(refs['access_type']['label'], new_dc['access_rights']['type'][0].get('pref_label', None))
+        self.assertEqual(refs['access_type']['label'],
+                         new_dc['access_rights']['access_type'][0].get('pref_label', None))
 
     def _assert_label_copied_to_title(self, refs, new_dc):
         self.assertEqual(refs['license']['label'], new_dc['access_rights']['license'][0].get('title', None))
