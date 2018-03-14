@@ -264,7 +264,7 @@
             "identifier": "http://www.yso.fi/onto/yso/p107966"
           }
         },
-        "type": {
+        "lifecycle_event": {
           "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
           "definition": [
             {
@@ -402,7 +402,7 @@
             "identifier": "http://www.yso.fi/onto/yso/p105917"
           }
         },
-        "type": {
+        "preservation_event": {
           "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
         }
       }

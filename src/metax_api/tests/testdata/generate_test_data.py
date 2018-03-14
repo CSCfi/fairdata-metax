@@ -534,7 +534,7 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
                     # ... while every API operation will look at research_dataset.files.identifier
                     # to lookup the file - be careful the identifier below matches with the m2m id set above
                     dataset_files.append({
-                        'identifier': file_list[j + 1]['fields']['identifier'],
+                        'identifier': file_list[j - 1]['fields']['identifier'],
                         'title': 'File metadata title %d' % j
                     })
 

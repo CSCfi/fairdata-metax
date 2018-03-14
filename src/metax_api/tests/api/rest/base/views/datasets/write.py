@@ -951,13 +951,12 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['is_output_of'][0]['funder_type']['identifier'] = 'nonexisting'
         rd_ida['directories'][0]['use_category']['identifier'] = 'nonexisting'
         rd_ida['relation'][0]['relation_type']['identifier'] = 'nonexisting'
-        rd_ida['provenance'][0]['type']['identifier'] = 'nonexisting'
-        rd_ida['provenance'][1]['type']['identifier'] = 'nonexisting'
+        rd_ida['provenance'][0]['lifecycle_event']['identifier'] = 'nonexisting'
+        rd_ida['provenance'][1]['preservation_event']['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 15)
-        self.assertEqual(len(response.data['research_dataset']['research_dataset.provenance.type.identifier']), 2)
+        self.assertEqual(len(response.data['research_dataset']), 16)
 
         rd_att = self.cr_full_att_test_data['research_dataset']
         rd_att['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
@@ -1044,8 +1043,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['creator'][0]['contributor_role'] = {'identifier': refs['contributor_role']['code']}
         rd_ida['is_output_of'][0]['funder_type'] = {'identifier': refs['funder_type']['code']}
         rd_ida['relation'][0]['relation_type'] = {'identifier': refs['relation_type']['code']}
-        rd_ida['provenance'][0]['type'] = {'identifier': refs['lifecycle_event']['code']}
-        rd_ida['provenance'][1]['type'] = {'identifier': refs['preservation_event']['code']}
+        rd_ida['provenance'][0]['lifecycle_event'] = {'identifier': refs['lifecycle_event']['code']}
+        rd_ida['provenance'][1]['preservation_event'] = {'identifier': refs['preservation_event']['code']}
 
         # these have other required fields, so only update the identifier with code
         rd_ida['is_output_of'][0]['source_organization'][0]['identifier'] = refs['organization']['code']
@@ -1132,8 +1131,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role']['identifier'])
         self.assertEqual(refs['funder_type']['uri'], new_rd['is_output_of'][0]['funder_type']['identifier'])
         self.assertEqual(refs['relation_type']['uri'], new_rd['relation'][0]['relation_type']['identifier'])
-        self.assertEqual(refs['lifecycle_event']['uri'], new_rd['provenance'][0]['type']['identifier'])
-        self.assertEqual(refs['preservation_event']['uri'], new_rd['provenance'][1]['type']['identifier'])
+        self.assertEqual(refs['lifecycle_event']['uri'], new_rd['provenance'][0]['lifecycle_event']['identifier'])
+        self.assertEqual(refs['preservation_event']['uri'], new_rd['provenance'][1]['preservation_event']['identifier'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_rd):
         self.assertEqual(refs['keyword']['label'], new_rd['theme'][0].get('pref_label', None))
@@ -1154,8 +1153,10 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
                          new_rd['creator'][0]['contributor_role'].get('pref_label', None))
         self.assertEqual(refs['funder_type']['label'], new_rd['is_output_of'][0]['funder_type'].get('pref_label', None))
         self.assertEqual(refs['relation_type']['label'], new_rd['relation'][0]['relation_type'].get('pref_label', None))
-        self.assertEqual(refs['lifecycle_event']['label'], new_rd['provenance'][0]['type'].get('pref_label', None))
-        self.assertEqual(refs['preservation_event']['label'], new_rd['provenance'][1]['type'].get('pref_label', None))
+        self.assertEqual(refs['lifecycle_event']['label'],
+                         new_rd['provenance'][0]['lifecycle_event'].get('pref_label', None))
+        self.assertEqual(refs['preservation_event']['label'],
+                         new_rd['provenance'][1]['preservation_event'].get('pref_label', None))
 
     def _assert_label_copied_to_title(self, refs, new_rd):
         required_langs = dict((lang, val) for lang, val in refs['language']['label'].items()
