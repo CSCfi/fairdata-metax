@@ -1635,74 +1635,129 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         A file hierarchy that will be created prior to executing the tests.
         Files and dirs from these files will then be added to a dataset.
         """
-        file_data = [
+        file_data_1 = [
             {
-                "file_name": "file_1.txt",
-                "file_path": "/TestExperiment/Directory_1/Group_1/file_1.txt",
+                "file_name": "file_01.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_1/file_01.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_2.txt",
-                "file_path": "/TestExperiment/Directory_1/Group_1/file_2.txt",
+                "file_name": "file_02.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_1/file_02.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_3.txt",
-                "file_path": "/TestExperiment/Directory_1/Group_2/file_3.txt",
+                "file_name": "file_03.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_2/file_03.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_4.txt",
-                "file_path": "/TestExperiment/Directory_1/Group_2/file_4.txt",
+                "file_name": "file_04.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_2/file_04.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_5.txt",
-                "file_path": "/TestExperiment/Directory_1/file_5.txt",
+                "file_name": "file_05.txt",
+                "file_path": "/TestExperiment/Directory_1/file_05.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_6.txt",
-                "file_path": "/TestExperiment/Directory_1/file_6.txt",
+                "file_name": "file_06.txt",
+                "file_path": "/TestExperiment/Directory_1/file_06.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_7.txt",
-                "file_path": "/TestExperiment/Directory_2/Group_1/file_7.txt",
+                "file_name": "file_07.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_1/file_07.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_8.txt",
-                "file_path": "/TestExperiment/Directory_2/Group_1/file_8.txt",
+                "file_name": "file_08.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_1/file_08.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_9.txt",
-                "file_path": "/TestExperiment/Directory_2/Group_2/file_9.txt",
+                "file_name": "file_09.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/file_09.txt",
+                'project_identifier': 'testproject',
             },
             {
                 "file_name": "file_10.txt",
                 "file_path": "/TestExperiment/Directory_2/Group_2/file_10.txt",
-            },
-            {
-                "file_name": "file_9.txt",
-                "file_path": "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt",
-            },
-            {
-                "file_name": "file_10.txt",
-                "file_path": "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_12.txt",
+                'project_identifier': 'testproject',
             },
             {
                 "file_name": "file_11.txt",
-                "file_path": "/TestExperiment/Directory_2/file_13.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt",
+                'project_identifier': 'testproject',
             },
             {
                 "file_name": "file_12.txt",
-                "file_path": "/TestExperiment/Directory_2/file_14.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_12.txt",
+                'project_identifier': 'testproject',
             },
+            {
+                "file_name": "file_13.txt",
+                "file_path": "/TestExperiment/Directory_2/file_13.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_14.txt",
+                "file_path": "/TestExperiment/Directory_2/file_14.txt",
+                'project_identifier': 'testproject',
+            },
+        ]
+
+        file_data_2 = [
+            {
+                "file_name": "file_15.txt",
+                "file_path": "/SecondExperiment/Directory_1/Group_1/file_15.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_16.txt",
+                "file_path": "/SecondExperiment/Directory_1/Group_1/file_16.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_17.txt",
+                "file_path": "/SecondExperiment/Directory_1/Group_2/file_18.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_18.txt",
+                "file_path": "/SecondExperiment/Directory_1/Group_2/file_18.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_19.txt",
+                "file_path": "/SecondExperiment/Directory_1/file_19.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_20.txt",
+                "file_path": "/SecondExperiment/Directory_1/file_20.txt",
+                'project_identifier': 'testproject_2',
+            },
+
         ]
 
         file_template = self._get_file_from_test_data()
         self._single_file_byte_size = file_template['byte_size']
-        files = []
 
-        for i, f in enumerate(file_data):
+        files_1 = []
+        for i, f in enumerate(file_data_1):
             file = deepcopy(file_template)
-            file.update(f, identifier='test:file:%d' % i, project_identifier='testproject')
-            files.append(file)
-        return files
+            file.update(f, identifier='test:file:%s' % f['file_name'][-6:-4])
+            files_1.append(file)
+
+        files_2 = []
+        for i, f in enumerate(file_data_2):
+            file = deepcopy(file_template)
+            file.update(f, identifier='test:file:%s' % f['file_name'][-6:-4])
+            files_2.append(file)
+
+        return files_1, files_2
 
     def _add_directory(self, ds, path):
         identifier = Directory.objects.filter(directory_path__startswith=path).first().identifier
@@ -1781,12 +1836,14 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
     def _freeze_new_files(self):
         file_data = [
             {
-                "file_name": "file_15.txt",
-                "file_path": "/TestExperiment/Directory_2/Group_3/file_15.txt",
+                "file_name": "file_90.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_3/file_90.txt",
+                'project_identifier': 'testproject',
             },
             {
-                "file_name": "file_16.txt",
-                "file_path": "/TestExperiment/Directory_2/Group_3/file_16.txt",
+                "file_name": "file_91.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_3/file_91.txt",
+                'project_identifier': 'testproject',
             },
         ]
 
@@ -1796,7 +1853,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
 
         for i, f in enumerate(file_data):
             file = deepcopy(file_template)
-            file.update(f, identifier='frozen:later:file:%d' % i, project_identifier='testproject')
+            file.update(f, identifier='frozen:later:file:%s' % f['file_name'][-6:-4])
             files.append(file)
         response = self.client.post('/rest/files', files, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -1812,9 +1869,10 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset'].pop('preferred_identifier', None)
         self.cr_test_data['research_dataset'].pop('files', None)
         self.cr_test_data['research_dataset'].pop('directories', None)
-        file_hierarchy = self._form_test_file_hierarchy()
-        response = self.client.post('/rest/files', file_hierarchy, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        project_files = self._form_test_file_hierarchy()
+        for p_files in project_files:
+            response = self.client.post('/rest/files', p_files, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def assert_preferred_identifier_changed(self, response, true_or_false):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -1834,8 +1892,8 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         """
         A very simple "add two individual files" test.
         """
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_5.txt')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_6.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_06.txt')
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
@@ -1858,8 +1916,8 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         """
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_5.txt')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_6.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_06.txt')
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 6)
@@ -1870,8 +1928,8 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         Save a directory, and also two files from the same directory.
         """
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_1.txt')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_2.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_02.txt')
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
@@ -1947,6 +2005,15 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_file_count(new_version, 5)
         self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
 
+        # remove a previously added file, the file is still contained by the other upper dir.
+        # files are not removed
+        self._remove_file(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, False)
+        new_version = self.get_next_version(response.data, version_type='metadata')
+        self.assert_file_count(new_version, 5)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+
         # remove the last directory, which should remove the 4 files included by this dir and the sub dir.
         # files are removed.
         # only the originally added single file should be left.
@@ -1977,7 +2044,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self._freeze_new_files()
 
         # add one new file
-        self._add_file(original_version, '/TestExperiment/Directory_2/Group_3/file_15.txt')
+        self._add_file(original_version, '/TestExperiment/Directory_2/Group_3/file_90.txt')
         response = self.update_record(original_version)
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data, version_type='dataset')
@@ -2014,6 +2081,99 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         new_version = self.get_next_version(response.data, version_type='metadata')
         self.assert_file_count(new_version, 8)
         self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 8)
+
+    def test_removing_top_level_directory_does_not_remove_all_files(self):
+        """
+        Ensure removing a top-level directory does not remove all its sub-files from a dataset,
+        if the dataset contains other sub-directories. Only the files contained by the top-level
+        directory (and whatever files fall between the old top-level, and the next known new top-level
+        directories) should be removed.
+        """
+
+        # note: see the method _form_test_file_hierarchy() to inspect what the directories
+        # contain in more detail.
+        self._add_directory(self.cr_test_data, '/TestExperiment') # 14 files (removed later)
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1') # 6 files
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2') # 8 files (removed later)
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2') # 4 files
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 14)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 14)
+        original_version = response.data
+
+        # remove the root dir, and another sub-dir. there should be two directories left. both of them
+        # are now "top-level directories", since they have no common parent.
+        # files are removed
+        self._remove_directory(original_version, '/TestExperiment')
+        self._remove_directory(original_version, '/TestExperiment/Directory_2')
+        response = self.update_record(original_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data, version_type='dataset')
+        self.assert_file_count(new_version, 10)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 10)
+
+    def test_add_multiple_directories(self):
+        """
+        Ensure adding multiple directories at once really adds files from all new directories.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 2)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+        original_version = response.data
+
+        # add a new directories.
+        # files are added
+        self._add_directory(original_version, '/TestExperiment/Directory_2/Group_1')
+        self._add_directory(original_version, '/TestExperiment/Directory_2/Group_2')
+        self._add_directory(original_version, '/SecondExperiment/Directory_1/Group_1')
+        response = self.update_record(original_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data, version_type='dataset')
+        self.assert_file_count(new_version, 8)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 8)
+
+    def test_add_files_from_different_projects(self):
+        """
+        Add directories from two different projects, ensure both projects' top-level dirs
+        are handled properly, and none of the projects interferes with each other.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Directory_1/Group_1')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 4)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+        original_version = response.data
+
+        # add a new directory. this is a top-level of the previous dir, which contains new files.
+        # files are added
+        self._add_directory(original_version, '/TestExperiment/Directory_2/Group_2')
+        response = self.update_record(original_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data, version_type='dataset')
+        self.assert_file_count(new_version, 6)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 6)
+
+        # remove the previously added dir, which is now the top-level dir in that project.
+        # files are removed
+        self._remove_directory(new_version, '/TestExperiment/Directory_2/Group_2')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data, version_type='dataset')
+        self.assert_file_count(new_version, 4)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 4)
+
+        # remove dirs from the second project entirely.
+        # files are removed
+        self._remove_directory(new_version, '/SecondExperiment/Directory_1/Group_1')
+        response = self.update_record(new_version)
+        self.assert_preferred_identifier_changed(response, True)
+        new_version = self.get_next_version(response.data, version_type='dataset')
+        self.assert_file_count(new_version, 2)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 2)
 
     def test_file_not_found(self):
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
