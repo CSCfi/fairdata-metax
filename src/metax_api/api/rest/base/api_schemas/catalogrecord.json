@@ -93,16 +93,56 @@
                 "editor":{
                     "title":"Editor",
                     "description":"The editor that is used to modify the record.",
-                    "type":"object"
+                    "type":"object",
+                    "$ref":"#/definitions/Editor"
                 },
                 "metadata_version_set":{
-                    "title":"Versions",
-                    "description":"List of records (metadata_version_identifiers) which are different versions of the same record.",
+                    "title":"Metadata version set",
+                    "description":"List of records (metadata_version_identifiers) which are different metadata versions of the same record.",
                     "type":"array",
                     "items":{
                         "type":"string"
                     },
                     "readonly": true
+                },
+                "next_metadata_version":{
+                    "title":"Next metadata version record",
+                    "description":"Link to the next metadata version record",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecordVersion"
+                },
+                "previous_metadata_version":{
+                    "title":"Previous metadata version record",
+                    "description":"Link to the previous metadata version record",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecordVersion"
+                },
+                "dataset_version_set":{
+                    "title":"Dataset version set",
+                    "description":"List of preferred_identifiers of the different related dataset versions.",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    },
+                    "readonly": true
+                },
+                "next_dataset_version":{
+                    "title":"Next dataset version",
+                    "description":"Next dataset version preferred_identifier",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecordVersion"
+                },
+                "previous_dataset_version":{
+                    "title":"Previous dataset version",
+                    "description":"previous dataset version preferred_identifier",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecordVersion"
+                },
+                "new_version_created":{
+                    "title":"New version created",
+                    "description":"Included in the API response when an update results in a new version being created.",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecordVersionCreatedInfo"
                 },
                 "date_modified":{
                     "title":"Date Modified",
@@ -180,7 +220,7 @@
         },
         "CatalogRecordVersion":{
             "title":"CatalogRecord Version",
-            "description":"Information about a previous or next version of a CatalogRecord",
+            "description":"Information about a previous or next version of a CatalogRecord. Can describe both metadata versions, and dataset versions.",
             "properties":{
                 "id":{
                     "title":"id",
@@ -189,18 +229,56 @@
                     "readonly": true
                 },
                 "metadata_version_identifier":{
-                    "title":"metadata_version_identifier",
-                    "description":"metadata_version_identifier of the record",
+                    "title":"Metadata version identifier",
+                    "description":"metadata_version_identifier of the record. Only present in links to different metadata version records.",
                     "type":"string",
                     "readonly": true
                 },
                 "preferred_identifier":{
-                    "title":"preferred_identifier",
-                    "description":"preferred_identifier of the record",
+                    "title":"Preferred identifier",
+                    "description":"preferred_identifier of the new dataset version. Only present in links to different dataset versions.",
                     "type":"string",
                     "readonly": true
                 }
             }
+        },
+        "CatalogRecordVersionCreatedInfo":{
+            "title":"CatalogRecord Version Created Info",
+            "description":"A notification field returned from the API when a new dataset version has been created as the result of an update.",
+            "properties":{
+                "id":{
+                    "title":"id",
+                    "description":"Internal primary key of the record",
+                    "type":"integer",
+                    "readonly": true
+                },
+                "metadata_version_identifier":{
+                    "title":"Metadata version identifier",
+                    "description":"metadata_version_identifier of the new version record",
+                    "type":"string",
+                    "readonly": true
+                },
+                "preferred_identifier":{
+                    "title":"Preferred identifier",
+                    "description":"preferred_identifier of the new version record. Only preset for new dataset version records.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "version_type":{
+                    "title":"Version type",
+                    "description":"Type of the new version created.",
+                    "type":"string",
+                    "readonly": true,
+                    "enum":[
+                        "metadata",
+                        "dataset",
+                    ],
+                },
+            },
+            "required":[
+                "metadata_version_identifier",
+                "version_type"
+            ]
         }
     }
 }
