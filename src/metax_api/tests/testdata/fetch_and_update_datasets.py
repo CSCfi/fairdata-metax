@@ -36,15 +36,16 @@ def get_auth_header():
 def retrieve_and_update_all_datasets_in_db(headers):
     print('-- begin retrieving and updating all datasets in the db --')
 
-    print('retrieving all urn_identifiers...')
-    response = requests.get('https://localhost/rest/datasets/urn_identifiers', headers=headers, verify=False)
+    print('retrieving all metadata_version_identifiers...')
+    response = requests.get('https://localhost/rest/datasets/metadata_version_identifiers',
+        headers=headers, verify=False)
     if response.status_code != 200:
         raise Exception(response.content)
 
     records = []
     count = 0
 
-    print('received %d urn_identifiers' % len(response.json()))
+    print('received %d metadata_version_identifiers' % len(response.json()))
     print('retrieving details of datasets...')
 
     for urn in response.json():
@@ -104,24 +105,30 @@ def retrieve_and_update_all_data_catalogs_in_db(headers):
     print('-- done --')
 
 
+def update_directory_byte_sizes_and_file_counts(headers):
+    print('-- begin updating byte sizes and file counts in all dirs in all projects --')
+    response = requests.get('https://localhost/rest/directories/update_byte_sizes_and_file_counts',
+        headers=headers, verify=False)
+    if response.status_code not in (200, 201, 204):
+        raise Exception(response.text)
+    print('-- done --')
+
+
 if __name__ == '__main__':
     headers = {'Content-type': 'application/json'}
     headers.update(get_auth_header())
 
-    is_ok = False
-    no = 1
-    while not is_ok and no <= 10:
+    for i in range(1, 10):
         response = requests.get('https://localhost/rest/datasets/1', headers=headers, verify=False)
         if response.status_code == 200:
-            is_ok = True
-        else:
-            no += 1
-            sleep(1)
-
-    if not is_ok:
-        print("Unable to GET dataset with pk 1, aborting..")
+            break
+        sleep(1)
+    else:
+        print("Unable to GET dataset with pk 1, aborting... reason:")
+        print(response.content)
         import sys
         sys.exit(1)
 
     retrieve_and_update_all_datasets_in_db(headers)
     retrieve_and_update_all_data_catalogs_in_db(headers)
+    update_directory_byte_sizes_and_file_counts(headers)

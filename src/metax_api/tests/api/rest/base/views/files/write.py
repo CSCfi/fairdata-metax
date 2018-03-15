@@ -1,6 +1,7 @@
 from copy import deepcopy
 from os.path import dirname
 
+from django.db.models import Sum
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -70,6 +71,20 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
             expected_dirs_count += 1
         return expected_dirs_count
 
+    def _check_project_root_byte_size_and_file_count(self, project_identifier):
+        """
+        A rather simple test to fetch the root directory of a project, and verify that the
+        root's calculated total byte size and file count match what exists in the db.
+        """
+        byte_size = File.objects.filter(project_identifier=project_identifier) \
+            .aggregate(Sum('byte_size'))['byte_size__sum']
+        file_count = File.objects.filter(project_identifier=project_identifier).count()
+
+        response = self.client.get('/rest/directories/root?project=%s' % project_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['byte_size'], byte_size)
+        self.assertEqual(response.data['file_count'], file_count)
+
 
 class FileApiWriteCreateTests(FileApiWriteCommon):
     #
@@ -86,10 +101,10 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
         response = self.client.post('/rest/files', self.test_new_data, format="json")
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('file_name' in response.data.keys(), True)
         self.assertEqual(response.data['file_name'], newly_created_file_name)
+        self._check_project_root_byte_size_and_file_count(response.data['project_identifier'])
 
     def test_create_file_error_identifier_exists(self):
         # first ok
@@ -150,6 +165,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.assertEqual('object' in response.data['success'][0].keys(), True)
         self.assertEqual(len(response.data['success']), 2)
         self.assertEqual(len(response.data['failed']), 0)
+        self._check_project_root_byte_size_and_file_count(response.data['success'][0]['object']['project_identifier'])
 
     def test_create_file_list_error_one_fails(self):
         newly_created_file_name = 'newly_created_file_name'
@@ -362,18 +378,29 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
     def test_create_file_hierarchy_error_file_list_has_invalid_data(self):
         """
         If even one file is missing file_path or project_identifier, the
-        request is immediately terminated.
+        request is immediately terminated. Creating files for multiple projects
+        in a single request is also not permitted.
         """
         experiment_1_file_list = self._form_complex_list_from_test_file()
         experiment_1_file_list[0].pop('file_path')
-        experiment_1_file_list[0].pop('project_identifier')
-
         response = self.client.post('/rest/files', experiment_1_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_path' in response.data, True)
-        self.assertEqual('project_identifier' in response.data, True)
         self.assertEqual('required parameter' in response.data['file_path'][0], True)
+
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+        experiment_1_file_list[0].pop('project_identifier')
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('project_identifier' in response.data, True)
         self.assertEqual('required parameter' in response.data['project_identifier'][0], True)
+
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+        experiment_1_file_list[0]['project_identifier'] = 'second_project'
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('project_identifier' in response.data, True)
+        self.assertEqual('multiple projects' in response.data['project_identifier'][0], True)
 
     def _assert_directory_parent_dirs(self, project_identifier):
         """
@@ -382,8 +409,10 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         dirs_dict = {}
 
         for d in Directory.objects.filter(project_identifier=project_identifier):
-            dirs_dict[d.directory_path] = {'dir_id': d.id,
-                                           'parent_dir_id': d.parent_directory and d.parent_directory.id or None}
+            dirs_dict[d.directory_path] = {
+                'dir_id': d.id,
+                'parent_dir_id': d.parent_directory and d.parent_directory.id or None
+            }
 
         for dir_path, ids in dirs_dict.items():
             if dir_path == '/':
@@ -619,33 +648,33 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
     #
 
     def test_delete_single_file_ok(self):
-        url = '/rest/files/1'
         dir_count_before = Directory.objects.all().count()
-        response = self.client.delete(url)
+        response = self.client.delete('/rest/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('deleted_files_count' in response.data, True, response.data)
         self.assertEqual(response.data['deleted_files_count'], 1, response.data)
         dir_count_after = Directory.objects.all().count()
         self.assertEqual(dir_count_before, dir_count_after, 'no dirs should have been deleted')
+        self._check_project_root_byte_size_and_file_count(File.objects_unfiltered.get(pk=1).project_identifier)
 
     def test_delete_single_file_ok_destroy_leading_dirs(self):
+        project_identifier = 'project_z'
         test_data = deepcopy(self.test_new_data)
         test_data['file_path'] = '/project_z/some/path/here/%s' % test_data['file_name']
-        test_data['project_identifier'] = 'project_z'
+        test_data['project_identifier'] = project_identifier
         test_data['identifier'] = 'abc123'
         response = self.client.post('/rest/files', test_data, format='json')
-        self.assertEqual(Directory.objects.filter(project_identifier='project_z').exists(), True)
+        self.assertEqual(Directory.objects.filter(project_identifier=project_identifier).exists(), True)
 
         response = self.client.delete('/rest/files/%s' % response.data['id'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('deleted_files_count' in response.data, True, response.data)
         self.assertEqual(response.data['deleted_files_count'], 1, response.data)
 
-        self.assertEqual(Directory.objects.filter(project_identifier='project_z').exists(), False)
+        self.assertEqual(Directory.objects.filter(project_identifier=project_identifier).exists(), False)
 
     def test_delete_single_file_404(self):
-        url = '/rest/files/doesnotexist'
-        response = self.client.delete(url)
+        response = self.client.delete('/rest/files/doesnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_bulk_delete_files_identifiers_not_found(self):
@@ -669,6 +698,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         removed = File.objects_unfiltered.get(pk=1).removed
         self.assertEqual(removed, True, 'file should have been removed')
+        self._check_project_root_byte_size_and_file_count(File.objects_unfiltered.get(pk=1).project_identifier)
 
     def test_bulk_delete_files_in_single_directory_1(self):
         """
@@ -705,11 +735,11 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         Otherwise complete set of files, but from one dir one file is missing.
         Should leave the one file intact, while preserving the directory tree.
         """
-        all_files_count_before = File.objects.all().count()
+        all_files_count_before = File.objects.filter(project_identifier='project_x').count()
         file_ids = [f.id for f in File.objects.filter(project_identifier='project_x')]
 
         # everything except the last file should be removed
-        file_ids.pop(len(file_ids) - 1)
+        file_ids.pop()
 
         response = self.client.delete('/rest/files', file_ids, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)

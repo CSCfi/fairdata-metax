@@ -5,7 +5,7 @@
   "mets_object_identifier": null,
   "dataset_group_edit": "default-dataset-edit-group",
   "research_dataset": {
-    "urn_identifier": "urn:nbn:fi:att:%s",
+    "metadata_version_identifier": "urn:nbn:fi:att:%s",
     "preferred_identifier": "urn:nbn:fi:att:%s",
     "modified": "2014-01-17T08:19:58Z",
     "version_notes": [

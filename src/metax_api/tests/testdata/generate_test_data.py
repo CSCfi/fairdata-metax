@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import get_json_schema, generate_test_identifier
 
 """
-Execute this file to generate file_max_rows amount of rows to metax_api_file table. Uses
+Execute this file to generate rows to metax_api_file table. Uses
 file_test_data_template.json as template, and slightly modifies fields each loop.
 
 When sending generated files immediately using requests for the first time, make sure to
@@ -41,7 +41,7 @@ todo:
 """
 
 # how many file rows to generate
-file_max_rows = 20
+file_max_rows = 120
 
 # how many filestorage rows to generate
 file_storage_max_rows = 2
@@ -126,20 +126,20 @@ def generate_file_storages(mode, file_storage_max_rows):
     return test_file_storage_list
 
 
-def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, url):
+def generate_files(mode, test_file_storage_list, validate_json, url):
     print('generating files%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
 
     with open('file_test_data_template.json') as json_file:
         row_template = json_load(json_file)
 
-    directories = []
-    test_data_list = []
-    directory_test_data_list = []
     json_template = row_template['file_characteristics'].copy()
     file_name = row_template['file_name']
-    download_url = row_template['download_url']
     json_title = json_template['title']
     json_description = json_template['description']
+
+    directories = []
+    file_test_data_list = []
+    directory_test_data_list = []
     json_schema = get_json_schema('file')
     total_time_elapsed = 0
 
@@ -154,9 +154,14 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
             file_storage = file_test_data[0]['pk']
 
     for i in range(1, file_max_rows + 1):
+        if i <= 20:
+            project_identifier = 'project_x'
+            project_root_folder = 'project_x_FROZEN'
+        else:
+            project_identifier = 'research_project_112'
+            project_root_folder = 'prj_112_root'
 
         loop = str(i)
-
         if mode == 'json':
 
             new = {
@@ -168,19 +173,53 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
 
             # assing files to different directories to have something to browse
             if 1 <= i < 6:
-                file_path = file_path.replace('/some/path/', '/Experiment_X/')
+                file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/'.
+                                              format(project_root_folder))
             elif 6 <= i < 11:
-                file_path = file_path.replace('/some/path/', '/Experiment_X/Phase_1/')
-            elif 11 <= i:
-                file_path = file_path.replace('/some/path/', '/Experiment_X/Phase_1/2017/01/')
+                file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/Phase_1/'.
+                                              format(project_root_folder))
+            elif 11 <= i <= 20:
+                file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/Phase_1/2017/01/'.
+                                              format(project_root_folder))
+            if i == 21:
+                file_path = file_path.replace('/some/path/', '/{0}/science_data_A/'.
+                                              format(project_root_folder))
+            if 22 <= i < 25:
+                file_path = file_path.replace('/some/path/', '/{0}/science_data_A/phase_1/2018/01/'.
+                                              format(project_root_folder))
+            if i == 25:
+                file_path = file_path.replace('/some/path/', '/{0}/science_data_B/'.
+                                              format(project_root_folder))
+            if i == 26:
+                file_path = file_path.replace('/some/path/', '/{0}/other/items/'.
+                                              format(project_root_folder))
+            if 27 <= i < 30:
+                file_path = file_path.replace('/some/path/', '/{0}/random_folder/'.
+                                              format(project_root_folder))
+            if 30 <= i < 35:
+                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/'.
+                                              format(project_root_folder))
+            elif 35 <= i < 40:
+                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/'.
+                                              format(project_root_folder))
+            elif 40 <= i < 50:
+                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/2017/01/'.
+                                              format(project_root_folder))
+            elif 50 <= i < 70:
+                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/2017/02/'.
+                                              format(project_root_folder))
+            elif 70 <= i <= file_max_rows:
+                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_2/2017/10/'.
+                                              format(project_root_folder))
 
-            directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list)
+            directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list,
+                                                         project_identifier)
 
             new['fields']['parent_directory'] = directory_id
+            new['fields']['project_identifier'] = project_identifier
             new['fields']['file_name'] = file_name % loop
             new['fields']['file_path'] = file_path % loop
             new['fields']['identifier'] = "pid:urn:" + loop
-            new['fields']['download_url'] = download_url % loop
             new['fields']['file_characteristics']['title'] = json_title % loop
             new['fields']['file_characteristics']['description'] = json_description % loop
             new['fields']['file_storage'] = file_storage
@@ -190,7 +229,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
             if validate_json or i == 1:
                 json_validate(new['fields']['file_characteristics'], json_schema)
 
-            test_data_list.append(new)
+            file_test_data_list.append(new)
 
         else:
             # http POST requests
@@ -200,7 +239,6 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
 
             new['file_name'] = file_name % loop
             new['identifier'] = "pid:urn:" + uuid_str
-            new['download_url'] = download_url % loop
             new['file_characteristics']['title'] = json_title % loop
             new['file_characteristics']['description'] = json_description % loop
             new['file_storage'] = file_storage
@@ -217,7 +255,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
 
                 if res.status_code == 201:
                     # to be used in creating datasets
-                    test_data_list.append(res.data)
+                    file_test_data_list.append(res.data)
 
                 if DEBUG:
                     print(res.status_code)
@@ -230,7 +268,7 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
                         return
             else:
                 # sent later in bulk request
-                test_data_list.append(new)
+                file_test_data_list.append(new)
 
         percent = i / float(file_max_rows) * 100.0
 
@@ -243,18 +281,18 @@ def generate_files(mode, file_max_rows, test_file_storage_list, validate_json, u
         print('collected created objects from responses into a list')
         print('total time elapsed for %d rows: %.3f seconds' % (file_max_rows, total_time_elapsed))
 
-    return test_data_list, directory_test_data_list
+    return file_test_data_list, directory_test_data_list
 
 
-def get_parent_directory_for_path(directories, file_path, directory_test_data_list):
+def get_parent_directory_for_path(directories, file_path, directory_test_data_list, project_identifier):
     dir_name = os.path.dirname(file_path)
     for d in directories:
-        if d['fields']['directory_path'] == dir_name:
+        if d['fields']['directory_path'] == dir_name and d['fields']['project_identifier'] == project_identifier:
             return d['pk']
-    return create_parent_directory_for_path(directories, dir_name, directory_test_data_list)
+    return create_parent_directory_for_path(directories, dir_name, directory_test_data_list, project_identifier)
 
 
-def create_parent_directory_for_path(directories, file_path, directory_test_data_list):
+def create_parent_directory_for_path(directories, file_path, directory_test_data_list, project_identifier):
     """
     Recursively creates the requested directories for file_path
     """
@@ -265,7 +303,8 @@ def create_parent_directory_for_path(directories, file_path, directory_test_data
         directory_id = None
     else:
         # the directory where a file or dir belongs to, must be retrieved or created first
-        directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list)
+        directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list,
+                                                     project_identifier)
 
     # all parent dirs have been created - now create the dir that was originally asked for
 
@@ -282,6 +321,7 @@ def create_parent_directory_for_path(directories, file_path, directory_test_data
     new['fields']['directory_name'] = os.path.basename(file_path)
     new['fields']['directory_path'] = file_path
     new['fields']['identifier'] = new['fields']['identifier'] % new_id
+    new['fields']['project_identifier'] = project_identifier
 
     directory_test_data_list.append(new)
     directories.append(new)
@@ -289,14 +329,14 @@ def create_parent_directory_for_path(directories, file_path, directory_test_data
     return new_id
 
 
-def save_test_data(mode, file_storage_list, file_list, directory_list,
-                   data_catalogs_list, contract_list, catalog_record_list, batch_size):
+def save_test_data(mode, file_storage_list, file_list, directory_list, data_catalogs_list, contract_list,
+        catalog_record_list, dataset_version_sets, batch_size):
     if mode == 'json':
 
         with open('test_data.json', 'w') as f:
             print('dumping test data as json to metax_api/tests/test_data.json...')
             json_dump(file_storage_list + directory_list + file_list + data_catalogs_list + contract_list +
-                      catalog_record_list, f, indent=4, sort_keys=True)
+                      dataset_version_sets + catalog_record_list, f, indent=4, sort_keys=True)
 
     elif mode == 'request_list':
 
@@ -367,10 +407,16 @@ def generate_data_catalogs(mode, start_idx, data_catalog_max_rows, validate_json
                 new['fields']['catalog_json']['research_dataset_schema'] = 'att'
 
             if i in (start_idx, start_idx + 1):
-                # lets pretend that the first two data catalogs will support versioning.
+                # lets pretend that the first two data catalogs will support versioning,
+                # they are "fairdata catalogs"
                 dataset_versioning = True
+                new['fields']['catalog_json']['harvested'] = False
             else:
                 dataset_versioning = False
+
+                # rest of the catalogs are harvested
+                new['fields']['catalog_json']['harvested'] = True
+
             new['fields']['catalog_json']['dataset_versioning'] = dataset_versioning
 
             test_data_catalog_list.append(new)
@@ -412,7 +458,7 @@ def generate_contracts(mode, contract_max_rows, validate_json):
 
 
 def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_list, contract_list, file_list,
-                             validate_json, url, type, test_data_list=[]):
+                             validate_json, url, type, test_data_list=[], dataset_version_sets=[]):
     print('generating {0} catalog records{1}...' .format(type,
                                                          '' if mode in ('json', 'request_list') else ' and uploading'))
 
@@ -420,7 +466,7 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
         row_template = json_load(json_file)
 
     total_time_elapsed = 0
-    files_start_idx = 0
+    files_start_idx = 1
     data_catalog_id = data_catalogs_list[0]['pk']
     owner_idx = 0
     loop_counter = 0
@@ -442,12 +488,20 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
                 'pk': i,
             }
 
+            if data_catalog_id in (1, 2): # versioned catalogs only
+                dataset_version_set = {
+                    'fields': {},
+                    'model': 'metax_api.datasetversionset',
+                    'pk': i,
+                }
+                new['fields']['dataset_version_set'] = dataset_version_set['pk']
+                dataset_version_sets.append(dataset_version_set)
+
             # comment this line. i dare you.
             # for real tho, required to prevent some strange behaving references to old data
             new['fields']['research_dataset'] = row_template['research_dataset'].copy()
-
             new['fields']['data_catalog'] = data_catalog_id
-            new['fields']['research_dataset']['urn_identifier'] = generate_test_identifier(cr_type, i)
+            new['fields']['research_dataset']['metadata_version_identifier'] = generate_test_identifier(cr_type, i)
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
             new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
             new['fields']['date_created'] = '2017-05-23T10:07:22Z'
@@ -465,46 +519,65 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
             # add files
 
             if type == 'ida':
-                files = []
+                new['fields']['files'] = []
+                dataset_files = []
                 total_ida_byte_size = 0
-                third_of_files = len(file_list) / 3
+                file_divider = 4
 
                 for j in range(files_start_idx, files_start_idx + files_per_dataset):
-                    files.append({
-                        'identifier': file_list[j]['fields']['identifier'],
-                        'title': 'File metadata title %d' % j,
-                        'use_category': {
+
+                    total_ida_byte_size += file_list[j - 1]['fields']['byte_size']
+
+                    # note - this field will go in the m2m table in the db when importing generated testdata...
+                    new['fields']['files'].append(file_list[j - 1]['pk'])
+
+                    # ... while every API operation will look at research_dataset.files.identifier
+                    # to lookup the file - be careful the identifier below matches with the m2m id set above
+                    dataset_files.append({
+                        'identifier': file_list[j - 1]['fields']['identifier'],
+                        'title': 'File metadata title %d' % j
+                    })
+
+                    if j < file_divider:
+                        # first fifth of files
+                        dataset_files[-1]['file_type'] = {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                        }
+                        dataset_files[-1]['use_category'] = {
                             'identifier': 'source'
                         }
-                    })
-                    if j < third_of_files:
-                        # first third of files has this as type
-                        files[-1]['type'] = {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
-                            "pref_label": {
-                                "fi": "Teksti",
-                                "en": "Text",
-                                "und": "Teksti"
-                            }
+
+                    elif file_divider <= j < (file_divider * 2):
+                        # second fifth of files
+                        dataset_files[-1]['file_type'] = {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video"
                         }
-                    elif third_of_files <= j < (third_of_files * 2):
-                        # second third of files has this as type
-                        files[-1]['type'] = {
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_model",
-                            "pref_label": {
-                                "fi": "Mallinnus",
-                                "en": "Model",
-                                "und": "Mallinnus"
-                            }
+                        dataset_files[-1]['use_category'] = {
+                            'identifier': 'outcome'
+                        }
+                    elif (file_divider * 2) <= j < (file_divider * 3):
+                        # third fifth of files
+                        dataset_files[-1]['file_type'] = {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image"
+                        }
+                        dataset_files[-1]['use_category'] = {
+                            'identifier': 'publication'
+                        }
+                    elif (file_divider * 3) <= j < (file_divider * 4):
+                        # fourth fifth of files
+                        dataset_files[-1]['file_type'] = {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_source_code"
+                        }
+                        dataset_files[-1]['use_category'] = {
+                            'identifier': 'documentation'
                         }
                     else:
-                        # the last third wont have any type
-                        pass
+                        # the rest of files
+                        dataset_files[-1]['use_category'] = {
+                            'identifier': 'configuration'
+                        }
 
-                    new['fields']['files'].append(file_list[j]['pk'])
-                    total_ida_byte_size += file_list[j]['fields']['byte_size']
-
-                new['fields']['research_dataset']['files'] = files
+                new['fields']['research_dataset']['files'] = dataset_files
                 new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
                 files_start_idx += files_per_dataset
 
@@ -543,7 +616,6 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
 
         #     new['file_name'] = file_name % loop
         #     new['identifier'] = uuid_str
-        #     new['download_url'] = download_url % loop
         #     new['file_characteristics']['title'] = json_title % loop
         #     new['file_characteristics']['description'] = json_description % loop
         #     new['file_storage'] = file_storage
@@ -636,12 +708,22 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
     with open(template) as json_file:
         row_template_full = json_load(json_file)
 
-    for j in [0, 1]:
+    for j in [0, 1, 2]:
         new = {
             'fields': deepcopy(row_template_full),
             'model': 'metax_api.catalogrecord',
             'pk': len(test_data_list) + 1,
         }
+
+        if data_catalog_id in (1, 2): # versioned catalogs only
+            dataset_version_set = {
+                'fields': {},
+                'model': 'metax_api.datasetversionset',
+                'pk': len(test_data_list) + 1,
+            }
+            new['fields']['dataset_version_set'] = dataset_version_set['pk']
+            dataset_version_sets.append(dataset_version_set)
+
         # for the relation in the db. includes dir id 3, which includes all 20 files
 
         new['fields']['data_catalog'] = data_catalog_id
@@ -651,17 +733,128 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
             'owner_id': catalog_records_owner_ids[j],
             'creator_id': catalog_records_owner_ids[owner_idx],
         }
-        new['fields']['research_dataset']['urn_identifier'] = generate_test_identifier(cr_type, len(test_data_list) + 1)
-        new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % j
+
+        new['fields']['research_dataset']['metadata_version_identifier'] = \
+            generate_test_identifier(cr_type, len(test_data_list) + 1)
+        new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % (len(test_data_list) + 1)
 
         if type == 'ida':
-            new['fields']['files'] = [i for i in range(1, 21)]
-            file_identifier_0 = file_list[0]['fields']['identifier']
-            file_identifier_1 = file_list[1]['fields']['identifier']
-            total_ida_byte_size = sum(f['fields']['byte_size'] for f in file_list)
-            new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
-            new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
-            new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
+            if j in [0, 1]:
+                new['fields']['files'] = [i for i in range(1, 21)]
+                file_identifier_0 = file_list[0]['fields']['identifier']
+                file_identifier_1 = file_list[1]['fields']['identifier']
+                total_ida_byte_size = sum(f['fields']['byte_size'] for f in file_list[0:19])
+                new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+                new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
+                new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
+            elif j == 2:
+                db_files = []
+                directories = []
+                files = []
+
+                db_files = [6, 10, 22, 23, 24, 25, 26]
+                db_files.extend(list(range(35, 116)))
+
+                files = [
+                    {
+                        "identifier": "pid:urn:6",
+                        "title": "file title 6",
+                        "description": "file description 6",
+                        "file_type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "in_scheme": [
+                                {
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    },
+                                    "identifier": "http://uri.of.filetype.concept/scheme"
+                                }
+                            ]
+                        },
+                        "use_category": {
+                            "identifier": "configuration"
+                        }
+                    },
+                    {
+                        "identifier": "pid:urn:10",
+                        "title": "file title 10",
+                        "description": "file description 10",
+                        "file_type": {
+                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
+                            "definition": [
+                                {
+                                    "en": "A statement or formal explanation of the meaning of a concept."
+                                }
+                            ],
+                            "in_scheme": [
+                                {
+                                    "pref_label": {
+                                        "en": "The preferred lexical label for a resource"
+                                    },
+                                    "identifier": "http://uri.of.filetype.concept/scheme"
+                                }
+                            ]
+                        },
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
+                        }
+                    }
+                ]
+
+                directories = [
+                    {
+                        "identifier": "pid:urn:dir:18",
+                        "title": "Phase 1 of science data C",
+                        "description": "Description of the directory",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                        }
+                    },
+                    {
+                        "identifier": "pid:urn:dir:22",
+                        "title": "Phase 2 of science data C",
+                        "description": "Description of the directory",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                        }
+                    },
+                    {
+                        "identifier": "pid:urn:dir:12",
+                        "title": "Phase 1 01/2018 of Science data A",
+                        "description": "Description of the directory",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                        }
+                    },
+                    {
+                        "identifier": "pid:urn:dir:13",
+                        "title": "Science data B",
+                        "description": "Description of the directory",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source"
+                        }
+                    },
+                    {
+                        "identifier": "pid:urn:dir:14",
+                        "title": "Other stuff",
+                        "description": "Description of the directory",
+                        "use_category": {
+                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                        }
+                    }
+                ]
+
+                total_ida_byte_size += sum(file_list[file_pk - 1]['fields']['byte_size'] for file_pk in db_files)
+
+                new['fields']['files'] = db_files
+                new['fields']['research_dataset']['files'] = files
+                new['fields']['research_dataset']['directories'] = directories
+                new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
         elif type == 'att':
             total_remote_resources_byte_size = 0
             if 'remote_resources' in new['fields']['research_dataset']:
@@ -678,7 +871,7 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
         print('collected created objects from responses into a list')
         print('total time elapsed for %d rows: %.3f seconds' % (basic_catalog_record_max_rows, total_time_elapsed))
 
-    return test_data_list
+    return test_data_list, dataset_version_sets
 
 
 def generate_alt_catalog_records(test_data_list):
@@ -702,7 +895,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['pk'] = test_data_list[-1]['pk'] + 1
     alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
         'preferred_identifier']
-    alt_rec['fields']['research_dataset']['urn_identifier'] += '-alt-1'
+    alt_rec['fields']['research_dataset']['metadata_version_identifier'] += '-alt-1'
     alt_rec['fields']['data_catalog'] = 2
     alt_rec['fields']['alternate_record_set'] = 1
     test_data_list.append(alt_rec)
@@ -712,7 +905,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['pk'] = test_data_list[-1]['pk'] + 1
     alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
         'preferred_identifier']
-    alt_rec['fields']['research_dataset']['urn_identifier'] += '-alt-2'
+    alt_rec['fields']['research_dataset']['metadata_version_identifier'] += '-alt-2'
     alt_rec['fields']['data_catalog'] = 3
     alt_rec['fields']['alternate_record_set'] = 1
     test_data_list.append(alt_rec)
@@ -731,19 +924,20 @@ print('DEBUG: %s' % str(DEBUG))
 
 contract_list = generate_contracts(mode, contract_max_rows, validate_json)
 file_storage_list = generate_file_storages(mode, file_storage_max_rows)
-file_list, directory_list = generate_files(mode, file_max_rows, file_storage_list, validate_json, url)
+file_list, directory_list = generate_files(mode, file_storage_list, validate_json, url)
 
 ida_data_catalogs_list = generate_data_catalogs(mode, 1, ida_data_catalog_max_rows, validate_json, 'ida')
 att_data_catalogs_list = generate_data_catalogs(mode, ida_data_catalog_max_rows + 1, att_data_catalog_max_rows,
                                                 validate_json, 'att')
 
-catalog_record_list = generate_catalog_records(mode, ida_catalog_record_max_rows, ida_data_catalogs_list,
-                                               contract_list, file_list, validate_json, url, 'ida')
-catalog_record_list = generate_catalog_records(mode, att_catalog_record_max_rows, att_data_catalogs_list,
-                                               contract_list, [], validate_json, url, 'att', catalog_record_list)
+catalog_record_list, dataset_version_sets = generate_catalog_records(mode, ida_catalog_record_max_rows,
+    ida_data_catalogs_list, contract_list, file_list, validate_json, url, 'ida')
+
+catalog_record_list, dataset_version_sets = generate_catalog_records(mode, att_catalog_record_max_rows,
+    att_data_catalogs_list, contract_list, [], validate_json, url, 'att', catalog_record_list, dataset_version_sets)
 
 catalog_record_list = generate_alt_catalog_records(catalog_record_list)
 save_test_data(mode, file_storage_list, directory_list, file_list, ida_data_catalogs_list + att_data_catalogs_list,
-               contract_list, catalog_record_list, batch_size)
+               contract_list, catalog_record_list, dataset_version_sets, batch_size)
 
 print('done')

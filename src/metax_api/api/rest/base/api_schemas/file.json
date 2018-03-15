@@ -200,11 +200,6 @@
                     "type":"object",
                     "$ref":"#/definitions/FileStorage"
                 },
-                "download_url":{
-                    "description":"If the file can be downloaded, URL to download the binary.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "type":"string"
-                },
                 "project_identifier":{
                     "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
                     "type":"string"

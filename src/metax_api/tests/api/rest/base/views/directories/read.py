@@ -1,8 +1,10 @@
+from django.db.models import Sum
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord, Directory
+from metax_api.services import FileService
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -215,17 +217,16 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     """
     Test browsing files in the context of a specific CatalogRecord. Should always
-    only dispaly those fiels that were selected for that CR, and only those dirs,
+    only dispaly those files that were selected for that CR, and only those dirs,
     that contained suchs files, or would contain such files further down the tree.
     """
 
     def test_read_directory_for_catalog_record(self):
         """
-        Test query parameter 'urn_identifier'.
+        Test query parameter 'metadata_version_identifier'.
         """
-        urn_identifier = CatalogRecord.objects.get(pk=1).urn_identifier
-
-        response = self.client.get('/rest/directories/3/files?urn_identifier=%s' % urn_identifier)
+        response = self.client.get('/rest/directories/3/files?metadata_version_identifier=%s'
+            % CatalogRecord.objects.get(pk=1).metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('directories' in response.data, True)
         self.assertEqual('files' in response.data, True)
@@ -234,10 +235,10 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     def test_read_directory_for_catalog_record_not_found(self):
         """
-        Not found urn_identifier should raise 400 instead of 404, which is raised when the
+        Not found metadata_version_identifier should raise 400 instead of 404, which is raised when the
         directory itself is not found. the error contains details about the 400.
         """
-        response = self.client.get('/rest/directories/3/files?urn_identifier=notexisting')
+        response = self.client.get('/rest/directories/3/files?metadata_version_identifier=notexisting')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_read_directory_for_catalog_record_directory_does_not_exist(self):
@@ -250,21 +251,61 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         response = self.client.get('/rest/directories/4/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        urn_identifier = CatalogRecord.objects.get(pk=1).urn_identifier
         # ... but should not contain any files FOR THIS CR
-        response = self.client.get('/rest/directories/4/files?urn_identifier=%s' % urn_identifier)
+        response = self.client.get('/rest/directories/4/files?metadata_version_identifier=%s'
+            % CatalogRecord.objects.get(pk=1).metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_read_directory_for_catalog_record_recursively(self):
         """
-        Test query parameter 'urn_identifier' with 'recursive'.
+        Test query parameter 'metadata_version_identifier' with 'recursive'.
         """
-        urn_identifier = CatalogRecord.objects.get(pk=1).urn_identifier
-        response = self.client.get('/rest/directories/1/files?recursive&urn_identifier=%s&depth=*' % urn_identifier)
+        response = self.client.get('/rest/directories/1/files?recursive&metadata_version_identifier=%s&depth=*'
+            % CatalogRecord.objects.get(pk=1).metadata_version_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
-        # not found urn_identifier should raise 400 instead of 404, which is raised when the
+        # not found metadata_version_identifier should raise 400 instead of 404, which is raised when the
         # directory itself is not found. the error contains details about the 400
-        response = self.client.get('/rest/directories/1/files?recursive&urn_identifier=notexisting')
+        response = self.client.get('/rest/directories/1/files?recursive&metadata_version_identifier=notexisting')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_directory_byte_size_and_file_count(self):
+        """
+        Test byte size and file count are calculated correctly for directories when browsing files
+        in the context of a single record.
+        """
+        dr = Directory.objects.get(pk=2)
+        cr = CatalogRecord.objects.get(pk=1)
+
+        # calculate all directory byte sizes and file counts to real values, from their default 0 values
+        FileService.calculate_project_directory_byte_sizes_and_file_counts(dr.project_identifier)
+
+        byte_size = cr.files.filter(file_path__startswith='%s/' % dr.directory_path) \
+            .aggregate(Sum('byte_size'))['byte_size__sum']
+        file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
+
+        response = self.client.get(
+            '/rest/directories/%d/files?metadata_version_identifier=%s' % (dr.id, cr.metadata_version_identifier))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('directories' in response.data, True)
+        self.assertEqual('byte_size' in response.data['directories'][0], True)
+        self.assertEqual('file_count' in response.data['directories'][0], True)
+        self.assertEqual(response.data['directories'][0]['byte_size'], byte_size)
+        self.assertEqual(response.data['directories'][0]['file_count'], file_count)
+
+        # browse the sub dir, with ?include_parent=true for added verification
+        dr = Directory.objects.get(pk=response.data['directories'][0]['id'])
+
+        byte_size = cr.files.filter(file_path__startswith='%s/' % dr.directory_path) \
+            .aggregate(Sum('byte_size'))['byte_size__sum']
+        file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
+
+        response = self.client.get(
+            '/rest/directories/%d/files?metadata_version_identifier=%s&include_parent'
+            % (dr.id, cr.metadata_version_identifier))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('byte_size' in response.data, True)
+        self.assertEqual('file_count' in response.data, True)
+        self.assertEqual(response.data['byte_size'], byte_size)
+        self.assertEqual(response.data['file_count'], file_count)

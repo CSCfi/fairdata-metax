@@ -16,6 +16,7 @@ from metax_api.utils import RabbitMQ
 from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
 
+
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -54,7 +55,7 @@ class FileService(CommonService):
     def get_datasets_where_file_belongs_to(cls, file_identifiers):
         """
         Find out which (non-deprecated) datasets a list of files belongs to, and return
-        their urn_identifiers as a list. Includes only latest versions of datasets.
+        their metadata_version_identifiers as a list. Includes only latest versions of datasets.
 
         Parameter file_identifiers can be a list of pk's (integers), or file identifiers (strings).
         """
@@ -69,23 +70,23 @@ class FileService(CommonService):
         file_ids = cls._file_identifiers_to_ids(file_identifiers)
 
         sql_select_related_records = """
-            select research_dataset->>'urn_identifier' as urn_identifier
+            select research_dataset->>'metadata_version_identifier' as metadata_version_identifier
             from metax_api_catalogrecord cr
             inner join metax_api_catalogrecord_files cr_f on catalogrecord_id = cr.id
             where cr_f.file_id in %s and cr.removed = false and cr.active = true
-            group by urn_identifier
+            group by metadata_version_identifier
             """
 
         with connection.cursor() as cr:
             cr.execute(sql_select_related_records, [tuple(file_ids)])
             if cr.rowcount == 0:
-                urn_identifiers = []
+                metadata_version_identifiers = []
                 _logger.info('No datasets found for files')
             else:
-                urn_identifiers = [ row[0] for row in cr.fetchall() ]
-                _logger.info('Found following datasets:\n%s' % '\n'.join(urn_identifiers))
+                metadata_version_identifiers = [ row[0] for row in cr.fetchall() ]
+                _logger.info('Found following datasets:\n%s' % '\n'.join(metadata_version_identifiers))
 
-        return Response(urn_identifiers, status=status.HTTP_200_OK)
+        return Response(metadata_version_identifiers, status=status.HTTP_200_OK)
 
     @classmethod
     def destroy_single(cls, file):
@@ -97,6 +98,7 @@ class FileService(CommonService):
 
         deleted_files_count, project_identifier = cls._mark_files_as_deleted([file.id])
         cls._delete_empy_dir_chain_above(file.parent_directory)
+        cls.calculate_project_directory_byte_sizes_and_file_counts(file.project_identifier)
         cls._mark_datasets_as_deprecated([file.id])
 
         _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
@@ -125,7 +127,7 @@ class FileService(CommonService):
         deleted_files_count, project_identifier = cls._mark_files_as_deleted(file_ids)
 
         cls._find_and_delete_empty_directories(project_identifier)
-
+        cls.calculate_project_directory_byte_sizes_and_file_counts(project_identifier)
         cls._mark_datasets_as_deprecated(file_ids)
 
         _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
@@ -227,20 +229,18 @@ class FileService(CommonService):
         deleting the directory.
         """
         sub_dirs_can_be_deleted = False
-        sub_dirs_are_empty = False
+        sub_dirs_are_empty = []
 
         sub_dirs = dr.child_directories.all()
 
         if sub_dirs.exists():
             # start deleting directories from the bottom to up
             for sub_dr in sub_dirs:
-                sub_dirs_are_empty = cls._delete_empy_directories(sub_dr)
-                if sub_dirs_are_empty:
-                    # sub_dirs_can_be_deleted will only be updated if sub_dirs_are_empty == True,
-                    # i.e. never update its value to False, if a later directory was empty.
-                    # even one dir that needs to be preserved, requires that current directory
-                    # is preserved.
-                    sub_dirs_can_be_deleted = True
+                sub_dirs_are_empty.append(cls._delete_empy_directories(sub_dr))
+
+            if all(sub_dirs_are_empty):
+                # if even one sub dir needs to be preserved, the current directory must be preserved.
+                sub_dirs_can_be_deleted = True
         else:
             sub_dirs_can_be_deleted = True
 
@@ -273,7 +273,7 @@ class FileService(CommonService):
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
-            recursive=False, max_depth=1, dirs_only=False, include_parent=False, urn_identifier=None):
+            recursive=False, max_depth=1, dirs_only=False, include_parent=False, metadata_version_identifier=None):
         """
         Get files and directories contained by a directory.
 
@@ -281,8 +281,8 @@ class FileService(CommonService):
 
         identifier: may be a pk, or an uuid value. Search using approriate fields.
 
-        urn_identifier: may be used to browse files in the context of the given
-        urn_identifier: Only those files and directories are retrieved, which have been
+        metadata_version_identifier: may be used to browse files in the context of the given
+        metadata_version_identifier: Only those files and directories are retrieved, which have been
         selected for that CatalogRecord.
 
         path and project_identifier: may be specified to search directly by
@@ -326,17 +326,19 @@ class FileService(CommonService):
                 raise Http404
             directory_id = directory.id
 
-        if urn_identifier:
-            if urn_identifier.isdigit():
-                cr_id = urn_identifier
+        if metadata_version_identifier:
+            if metadata_version_identifier.isdigit():
+                cr_id = metadata_version_identifier
             else:
                 try:
-                    cr_id = CatalogRecord.objects.get_id(urn_identifier=urn_identifier)
+                    cr_id = CatalogRecord.objects.get_id(metadata_version_identifier=metadata_version_identifier)
                 except Http404:
                     # raise 400 instead of 404, to distinguish from the error
                     # 'directory not found', which raises a 404
                     raise ValidationError({
-                        'detail': ['record with urn_identifier %s does not exist' % urn_identifier]
+                        'detail': [
+                            'record with metadata_version_identifier %s does not exist' % metadata_version_identifier
+                        ]
                     })
         else:
             cr_id = None
@@ -364,6 +366,9 @@ class FileService(CommonService):
         if include_parent:
             contents.update(DirectorySerializer(directory).data)
 
+        if cr_id and isinstance(contents, dict):
+            cls.calculate_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id, dirs_only)
+
         return contents
 
     @classmethod
@@ -389,9 +394,15 @@ class FileService(CommonService):
             depth += 1
 
         if cr_id:
-            dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id,
-                dirs_only=dirs_only)
+            try:
+                dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id,
+                    dirs_only=dirs_only)
+            except Http404:
+                if recursive:
+                    return { 'directories': [] }
+                raise
         else:
+            # browsing from ALL files, not cr specific
             dirs = Directory.objects.filter(parent_directory_id=directory_id)
             if dirs_only:
                 files = None
@@ -430,7 +441,7 @@ class FileService(CommonService):
         Browsing files in the context of a specific CR id.
         """
 
-        # select dirs which are container by the directory,
+        # select dirs which are contained by the directory,
         # AND which contain files belonging to the cr <-> files m2m relation table,
         # AND there exists files for CR which beging with the same path as the dir path,
         # to successfully also include files which did not DIRECTLY contain any files, but do
@@ -446,7 +457,7 @@ class FileService(CommonService):
                 select 1
                 from metax_api_file f
                 inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
-                where f.file_path like (d.directory_path || '%%')
+                where f.file_path like (d.directory_path || '/%%')
                 and cr_f.catalogrecord_id = %s
                 and f.removed = false
                 and f.active = true
@@ -469,7 +480,9 @@ class FileService(CommonService):
             cr.execute(sql_select_dirs_for_cr, [directory_id, cr_id])
             directory_ids = [ row[0] for row in cr.fetchall() ]
 
-            if not dirs_only:
+            if dirs_only:
+                file_ids = []
+            else:
                 cr.execute(sql_select_files_for_cr, [directory_id, cr_id])
                 file_ids = [ row[0] for row in cr.fetchall() ]
 
@@ -482,6 +495,64 @@ class FileService(CommonService):
         files = None if dirs_only else File.objects.filter(id__in=file_ids)
 
         return dirs, files
+
+    @classmethod
+    def calculate_directory_byte_sizes_and_file_counts_for_cr(cls, directory, cr_id, dirs_only=False):
+        """
+        Calculate total byte size and file counts of a directory, sub-directories included,
+        in the context of a specific catalog record.
+        Note: Called recursively.
+        """
+        if len(directory.get('directories', [])):
+            for sub_dir in directory.get('directories', []):
+                cls.calculate_directory_byte_sizes_and_file_counts_for_cr(sub_dir, cr_id, dirs_only)
+
+            # this block is not executed for the top-level directory, unless query param
+            # include_parent is used.
+            if 'id' in directory:
+
+                # sub dir numbers
+                byte_size = sum(d['byte_size'] for d in directory.get('directories', []))
+                file_count = sum(d['file_count'] for d in directory.get('directories', []))
+
+                # add current dir numbers from already retrieved files
+                byte_size += sum(f['byte_size'] for f in directory.get('files', []))
+                file_count += len(directory.get('files', []))
+
+                directory['byte_size'] = byte_size
+                directory['file_count'] = file_count
+
+        elif 'id' in directory:
+            # bottom dir - retrieve total byte_size and file_count from db for this cr,
+            # and replace the original byte_size and file_count of the directory
+
+            sql_calculate_byte_size_and_file_count = """
+                select sum(f.byte_size) as byte_size, count(f.id) as file_count
+                from metax_api_file f
+                inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
+                where cr_f.catalogrecord_id = %s
+                and f.project_identifier = %s
+                and f.file_path like (%s || '/%%')
+                and f.removed = false
+                and f.active = true
+                """
+
+            with connection.cursor() as cr:
+                cr.execute(
+                    sql_calculate_byte_size_and_file_count,
+                    [
+                        cr_id,
+                        directory['project_identifier'],
+                        directory['directory_path']
+                    ]
+                )
+
+                bs, fc = cr.fetchall()[0]
+                directory['byte_size'] = bs or 0
+                directory['file_count'] = fc or 0
+        else:
+            # called without include_parent on a directory which has files, but no directories - do nothing
+            return
 
     @classmethod
     def get_project_root_directory(cls, project_identifier):
@@ -518,6 +589,8 @@ class FileService(CommonService):
         res = super(FileService, cls)._create_single(
             common_info, initial_data_with_dirs[0], serializer_class, **kwargs)
 
+        cls.calculate_project_directory_byte_sizes_and_file_counts(initial_data['project_identifier'])
+
         _logger.info('Created 1 new files')
         return res
 
@@ -536,6 +609,8 @@ class FileService(CommonService):
         super(FileService, cls)._create_bulk(
             common_info, file_list_with_dirs, results, serializer_class, **kwargs)
 
+        cls.calculate_project_directory_byte_sizes_and_file_counts(initial_data_list[0]['project_identifier'])
+
         _logger.info('Created %d new files' % len(results.get('success', [])))
 
     @staticmethod
@@ -547,19 +622,24 @@ class FileService(CommonService):
         Errors here would realistically be an extremely rare case of error from the requestor's side,
         but doing the minimum necessary here anyway since we can't count on FileSerializer.is_valid()
         """
-        errors = {}
         for row in initial_data_list:
-            if 'file_path' not in row:
-                errors['file_path'] = [
-                    'file_path is a required parameter (file id: %s)' % row['identifier']
-                ]
-            if 'project_identifier' not in row:
-                errors['project_identifier'] = [
-                    'project_identifier is a required parameter (file id: %s)' % row['identifier']
-                ]
 
-            if errors:
-                raise Http400(errors)
+            if 'file_path' not in row:
+                raise Http400({
+                    'file_path': ['file_path is a required parameter (file id: %s)' % row['identifier']]
+                })
+
+            if 'project_identifier' not in row:
+                raise Http400({
+                    'project_identifier': [
+                        'project_identifier is a required parameter (file id: %s)' % row['identifier']
+                    ]
+                })
+
+        if len(set(f['project_identifier'] for f in initial_data_list)) > 1:
+            raise Http400({
+                'project_identifier': ['creating files for multiple projects in one request is not permitted.']
+            })
 
     @classmethod
     def _create_directories_from_file_list(cls, common_info, initial_data_list, **kwargs):
@@ -699,3 +779,16 @@ class FileService(CommonService):
                 'No parent found for path %s, even though existing_dirs had stuff '
                 'in it. This should never happen' % node.get('file_path', node.get('directory_path', None))
             )
+
+    @staticmethod
+    def calculate_project_directory_byte_sizes_and_file_counts(project_identifier):
+        """
+        (Re-)calculate directory byte sizes and file counts in this project.
+        """
+        try:
+            project_root_dir = Directory.objects.get(project_identifier=project_identifier, parent_directory_id=None)
+        except Directory.DoesNotExist:
+            # root directory does not exist - all project files have been deleted
+            pass
+        else:
+            project_root_dir.calculate_byte_size_and_file_count()

@@ -35,7 +35,6 @@ class File(Common):
     checksum_algorithm = models.CharField(max_length=200)
     checksum_checked = models.DateTimeField()
     checksum_value = models.TextField()
-    download_url = models.URLField(null=True)
     file_characteristics = JSONField(blank=True, null=True)
     file_characteristics_extension = JSONField(blank=True, null=True)
     file_deleted = models.DateTimeField(null=True)

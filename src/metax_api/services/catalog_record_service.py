@@ -4,7 +4,6 @@ from os.path import dirname, join
 
 import simplexquery as sxq
 from dicttoxml import dicttoxml
-from django.db import connection
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
@@ -12,7 +11,9 @@ from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import Contract, Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
+from .file_service import FileService
 from .reference_data_mixin import ReferenceDataMixin
+
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -54,7 +55,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['preservation_state__in'] = state_vals
 
         if CommonService.get_boolean_query_param(request, 'latest'):
-            queryset_search_params['next_version_id'] = None
+            queryset_search_params['next_metadata_version_id'] = None
 
         if request.query_params.get('curator', False):
             queryset_search_params['research_dataset__contains'] = \
@@ -100,29 +101,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if not dir_identifiers:
             return
 
-        sql = '''
-            select sum(f.byte_size) as byte_size, count(*) as file_count
-            from metax_api_file f
-            inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
-            where cr_f.catalogrecord_id = %s
-            and f.project_identifier = %s
-            and f.file_path like (%s || '%%')
-            and f.active = true and f.removed = false
-        '''
-
-        with connection.cursor() as cr:
-            for dr in rd['directories']:
-                cr.execute(
-                    sql,
-                    [
-                        catalog_record['id'],
-                        dr['details']['project_identifier'],
-                        dr['details']['directory_path']
-                    ]
-                )
-                for row in cr.fetchall():
-                    dr['details']['byte_size'] = row[0]
-                    dr['details']['file_count'] = row[1]
+        for dr in rd['directories']:
+            FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(dr['details'], catalog_record['id'])
 
     @staticmethod
     def propose_to_pas(request, catalog_record):
@@ -165,17 +145,19 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if response.status_code != status.HTTP_200_OK:
             return
 
-        next_versions = []
+        new_versions = []
 
         if 'success' in response.data:
+            # bulk update
             updated_request_data = [ r['object'] for r in response.data['success'] ]
             for cr in updated_request_data:
                 if cls._new_version_created(cr):
-                    next_versions.append(cls._extract_next_version_data(cr))
+                    new_versions.append(cls._extract_new_version_data(cr))
         else:
+            # single update
             updated_request_data = response.data
             if cls._new_version_created(updated_request_data):
-                next_versions.append(cls._extract_next_version_data(updated_request_data))
+                new_versions.append(cls._extract_new_version_data(updated_request_data))
 
         count = len(updated_request_data) if isinstance(updated_request_data, list) else 1
         _logger.info('Publishing updated datasets (%d items)' % count)
@@ -184,9 +166,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             rabbitmq = RabbitMQ()
             rabbitmq.publish(updated_request_data, routing_key='update', exchange='datasets')
 
-            if next_versions:
-                _logger.info('Publishing new dataset versions (%d items)' % len(next_versions))
-                rabbitmq.publish(next_versions, routing_key='create', exchange='datasets')
+            if new_versions:
+                _logger.info('Publishing new versions (%d items)' % len(new_versions))
+                rabbitmq.publish(new_versions, routing_key='create', exchange='datasets')
         except Exception as e:
             _logger.exception('Publishing rabbitmq messages failed')
             raise Http503({ 'detail': [
@@ -196,16 +178,16 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
     @staticmethod
     def _new_version_created(cr):
-        return '__actions' in cr and 'publish_next_version' in cr['__actions']
+        return '__actions' in cr and 'publish_new_version' in cr['__actions']
 
     @staticmethod
-    def _extract_next_version_data(cr):
-        data = cr['__actions']['publish_next_version']['next_version']
+    def _extract_new_version_data(cr):
+        data = cr['__actions']['publish_new_version']['dataset']
         cr.pop('__actions')
         return data
 
     @staticmethod
-    def transform_datasets_to_format(catalog_records, target_format):
+    def transform_datasets_to_format(catalog_records, target_format, include_xml_declaration=True):
         """
         params:
         catalog_records: a list of catalog record dicts, or a single dict
@@ -236,7 +218,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         ).decode('utf-8')
         # This is a bit ugly way to put the metax data to the datacite namespace,
         # which allows us to use the default namespace in xquery files.
-        xml_str = xml_str.replace('<researchdataset>', '<researchdataset xmlns="http://datacite.org/schema/kernel-3">')
+        xml_str = xml_str.replace('<researchdataset>',
+            '<researchdataset xmlns="http://uri.suomi.fi/datamodel/ns/mrd#">')
         if target_format == 'metax':
             # mostly for debugging purposes, the 'metax xml' can be returned as well
             return xml_str
@@ -255,7 +238,10 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             _logger.exception('Something is wrong with the xslt file at %s:' % target_xslt_file_path)
             raise Http503('Requested format \'%s\' is currently unavailable' % target_format)
 
-        return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
+        if include_xml_declaration:
+            return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
+        else:
+            return transformed_xml
 
     @classmethod
     def validate_reference_data(cls, research_dataset, cache):
@@ -459,19 +445,21 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
                 spatial['as_wkt'] = as_wkt
 
-            if activity.get('type', False):
+            if activity.get('lifecycle_event', False):
                 ref_entry = cls.check_ref_data(refdata['lifecycle_event'],
-                                               activity['type']['identifier'],
-                                               'research_dataset.activity.type.identifier',
-                                               value_not_found_is_error=False)
-
-                if not ref_entry:
-                    ref_entry = cls.check_ref_data(refdata['preservation_event'],
-                                                   activity['type']['identifier'],
-                                                   'research_dataset.activity.type.identifier', errors)
+                                               activity['lifecycle_event']['identifier'],
+                                               'research_dataset.provenance.lifecycle_event.identifier', errors)
 
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, activity['type'], label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, activity['lifecycle_event'], label_field='pref_label')
+
+            if activity.get('preservation_event', False):
+                ref_entry = cls.check_ref_data(refdata['preservation_event'],
+                                               activity['preservation_event']['identifier'],
+                                               'research_dataset.provenance.preservation_event.identifier', errors)
+
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, activity['preservation_event'], label_field='pref_label')
 
         for infra in research_dataset.get('infrastructure', []):
             ref_entry = cls.check_ref_data(refdata['research_infra'], infra['identifier'],

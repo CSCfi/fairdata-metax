@@ -25,9 +25,9 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         response = self.client.get('/rest/datasets/1?removed=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get('/rest/datasets/urn_identifiers')
-        self.assertEqual(obj.urn_identifier not in response.data, True)
-        self.assertEqual(obj2.urn_identifier not in response.data, True)
+        response = self.client.get('/rest/datasets/metadata_version_identifiers')
+        self.assertEqual(obj.metadata_version_identifier not in response.data, True)
+        self.assertEqual(obj2.metadata_version_identifier not in response.data, True)
 
         obj = File.objects.get(pk=1)
         obj.removed = True
@@ -39,6 +39,28 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         response = self.client.get('/rest/files/1?removed=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_removed_parameter_gets_correct_amount_of_objects(self):
+        path = '/rest/datasets'
+        objects = CatalogRecord.objects.all().values()
+
+        results = self.client.get('{0}?no_pagination&removed=false'.format(path)).json()
+        initial_amt = len(results)
+
+        results = self.client.get('{0}?no_pagination&removed=true'.format(path)).json()
+        self.assertEqual(len(results), 0, "Without removed objects remove=true should return 0 results")
+
+        self._use_http_authorization()
+        amt_to_delete = 2
+        for i in range(amt_to_delete):
+            response = self.client.delete('{0}/{1}'.format(path, objects[i]['id']))
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, "Deleting object failed")
+
+        results = self.client.get('{0}?no_pagination&removed=false'.format(path)).json()
+        self.assertEqual(len(results), initial_amt - amt_to_delete, "Non-removed object amount is incorrect")
+
+        results = self.client.get('{0}?no_pagination&removed=true'.format(path)).json()
+        self.assertEqual(len(results), amt_to_delete, "Removed object amount is incorrect")
 
 
 class ApiReadPaginationTests(CatalogRecordApiReadCommon):
@@ -58,6 +80,12 @@ class ApiReadPaginationTests(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
         self.assertEqual(response.data['results'][0]['id'], 3, 'Id of first result should have been 3')
 
+    def test_disable_pagination(self):
+        response = self.client.get('/rest/datasets?no_pagination=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('next' not in response.data, True)
+        self.assertEqual('results' not in response.data, True)
+
 
 class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
     #
@@ -76,19 +104,19 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_with_if_modified_since_header_syntax_error(self):
@@ -98,7 +126,7 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S UTC')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.urn_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     #
@@ -116,14 +144,14 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data.get('results')) == 4)
+        self.assertTrue(len(response.data.get('results')) == 6)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data.get('results')) == 4)
+        self.assertTrue(len(response.data.get('results')) == 6)
 
         # The asserts below may brake if the date_modified timestamps or the amount of test data objects are altered
         # in the test data
@@ -133,5 +161,5 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
         response = self.client.get('/rest/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data.get('results')) > 4)
-        self.assertTrue(len(response.data.get('results')) == 26)
+        self.assertTrue(len(response.data.get('results')) > 6)
+        self.assertTrue(len(response.data.get('results')) == 28)

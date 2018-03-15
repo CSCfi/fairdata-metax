@@ -20,6 +20,7 @@ class DirectorySerializer(CommonSerializer):
             'directory_modified',
             'directory_name',
             'directory_path',
+            'file_count',
             'identifier',
             'parent_directory',
             'project_identifier',

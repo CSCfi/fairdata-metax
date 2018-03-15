@@ -22,6 +22,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'alternate_record_set',
             'contract',
             'data_catalog',
+            'dataset_version_set',
             'deprecated',
             'research_dataset',
             'preservation_state',
@@ -30,9 +31,9 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_reason_description',
             'mets_object_identifier',
             'dataset_group_edit',
-            'next_version',
-            'previous_version',
-            'version_set',
+            'next_metadata_version',
+            'previous_metadata_version',
+            'metadata_version_set',
             'editor',
         ) + CommonSerializer.Meta.fields
 
@@ -43,8 +44,8 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_description': { 'required': False },
             'preservation_state_modified':    { 'required': False },
             'mets_object_identifier':   { 'required': False },
-            'next_version':             { 'required': False },
-            'previous_version':         { 'required': False },
+            'next_metadata_version':             { 'required': False },
+            'previous_metadata_version':         { 'required': False },
         }
 
         extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
@@ -57,9 +58,10 @@ class CatalogRecordSerializer(CommonSerializer):
             self.initial_data['contract'] = self._get_id_from_related_object('contract', self._get_contract_relation)
 
         self.initial_data.pop('alternate_record_set', None)
-        self.initial_data.pop('version_set', None)
-        self.initial_data.pop('next_version', None)
-        self.initial_data.pop('previous_version', None)
+        self.initial_data.pop('dataset_version_set', None)
+        self.initial_data.pop('metadata_version_set', None)
+        self.initial_data.pop('next_metadata_version', None)
+        self.initial_data.pop('previous_metadata_version', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
@@ -94,33 +96,51 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'alternate_record_set' in res:
             alternate_records = instance.alternate_record_set.records.exclude(pk=instance.id)
             if len(alternate_records):
-                res['alternate_record_set'] = [ ar.urn_identifier for ar in alternate_records ]
+                res['alternate_record_set'] = [ ar.metadata_version_identifier for ar in alternate_records ]
 
-        if 'version_set' in res:
-            version_set = instance.version_set.records.exclude(pk=instance.id).order_by('date_created')
-            if len(version_set):
-                res['version_set'] = [ v.urn_identifier for v in version_set ]
+        if 'metadata_version_set' in res:
+            res['metadata_version_set'] = instance.metadata_version_set.get_listing()
 
-        if 'next_version' in res:
-            res['next_version'] = {
-                'id': instance.next_version.id,
-                'urn_identifier': instance.next_version.urn_identifier,
-                'preferred_identifier': instance.next_version.preferred_identifier,
+        if 'next_metadata_version' in res:
+            res['next_metadata_version'] = {
+                'id': instance.next_metadata_version.id,
+                'metadata_version_identifier': instance.next_metadata_version.metadata_version_identifier,
             }
 
-        if 'previous_version' in res:
-            res['previous_version'] = {
-                'id': instance.previous_version.id,
-                'urn_identifier': instance.previous_version.urn_identifier,
-                'preferred_identifier': instance.previous_version.preferred_identifier,
+        if 'previous_metadata_version' in res:
+            res['previous_metadata_version'] = {
+                'id': instance.previous_metadata_version.id,
+                'metadata_version_identifier': instance.previous_metadata_version.metadata_version_identifier,
             }
 
-        if instance.next_version_created_in_current_request:
-            # inform the view that next_version should be published as a new dataset.
+        if 'dataset_version_set' in res:
+                res['dataset_version_set'] = instance.dataset_version_set.get_listing()
+
+        if instance.next_dataset_version:
+            res['next_dataset_version'] = {
+                'id': instance.next_dataset_version.id,
+                'preferred_identifier': instance.next_dataset_version.preferred_identifier,
+            }
+
+        if instance.previous_dataset_version:
+            res['previous_dataset_version'] = {
+                'id': instance.previous_dataset_version.id,
+                'preferred_identifier': instance.previous_dataset_version.preferred_identifier,
+            }
+
+        if instance.next_metadata_version_created_in_current_request \
+                or instance.next_dataset_version_created_in_current_request:
+            # inform the view that new versions should be published as a new record.
             # the view should also remove the key __actions once it is done.
-            res['__actions'] = {
-                'publish_next_version': { 'next_version': self.to_representation(instance.next_version) }
-            }
+            res['__actions'] = {}
+            if instance.next_metadata_version_created_in_current_request:
+                res['__actions']['publish_new_version'] = {
+                    'dataset': self.to_representation(instance.next_metadata_version)
+                }
+            if instance.next_dataset_version_created_in_current_request:
+                res['__actions']['publish_new_version'] = {
+                    'dataset': self.to_representation(instance.next_dataset_version)
+                }
 
         return res
 
@@ -135,45 +155,37 @@ class CatalogRecordSerializer(CommonSerializer):
         self._set_dataset_schema()
 
         if self._operation_is_create():
-            # urn_identifier cant be provided by the user, but it is a required field =>
-            # add urn_identifier temporarily to pass schema validation. proper value
+            # metadata_version_identifier cant be provided by the user, but it is a required field =>
+            # add metadata_version_identifier temporarily to pass schema validation. proper value
             # will be generated later in CatalogRecord model save().
-            value['urn_identifier'] = 'temp'
+            value['metadata_version_identifier'] = 'temp'
 
             if not value.get('preferred_identifier', None):
-                # mandatory, but might not be present (urn_identifier copied to it later).
+                # normally not present, but may be set by harvesters. if missing,
                 # use temporary value and remove after schema validation.
                 value['preferred_identifier'] = 'temp'
 
             validate_json(value, self.json_schema)
 
-            value.pop('urn_identifier')
+            value.pop('metadata_version_identifier')
 
             if value['preferred_identifier'] == 'temp':
                 value.pop('preferred_identifier')
 
         else:
             # update operations
-
-            if not value.get('preferred_identifier', None):
-                # preferred_identifier can not be updated to empty. if the user is trying to
-                # do so, copy urn_identifier to it.
-                # note: if urn_identifier was missing too, validate_json will raise an error
-                value['preferred_identifier'] = value.get('urn_identifier', None)
-
             validate_json(value, self.json_schema)
 
     def _validate_research_dataset_uniqueness(self, research_dataset):
         """
         Validate research_dataset preferred_identifier uniqueness, that it is...
-        - unique within the data catalog it is being saved into, when not being saved
-          into ATT catalog
-        - unique globally, when being saved into ATT catalog, i.e., when
+        - unique within the data catalog it is being saved into, when saved into harvested catalogs
+        - unique globally, when being saved into ATT catalogs, i.e., when
           saving to ATT catalog, and preferred_identifier already exists in other catalogs,
           reject it. When saving to ATT catalog, and preferred_identifier is now
           appearing for the first time, permit it.
 
-        urn_identifier is always generated by the server, so no need to check its uniqueness.
+        metadata_version_identifier is always generated by the server, so no need to check its uniqueness.
 
         Unfortunately for unique fields inside a jsonfield, Django does not offer a neat
         http400 error with an error message, so have to do it ourselves.
@@ -184,26 +196,7 @@ class CatalogRecordSerializer(CommonSerializer):
             # during create, preferred_identifier is not necessarily set
             return
 
-        found_objs = None
-        found_using_pref_id = False
-        found_using_urn_id = False
-
-        found_objs = self._find_object_using_identifier('preferred_identifier', preferred_identifier_value)
-
-        if found_objs:
-            found_using_pref_id = True
-        else:
-            # cr not found using preferred_identifier. preferred_identifier value can never
-            # be urn_identifier value in any catalog, so look for existing records
-            # using urn_identifier also
-            found_objs = self._find_object_using_identifier('urn_identifier', preferred_identifier_value)
-            if found_objs:
-                found_using_urn_id = True
-
-        if not found_objs:
-            return
-
-        if found_using_pref_id:
+        if self._find_object_using_identifier('preferred_identifier', preferred_identifier_value):
             if self._data_catalog_supports_versioning():
                 raise ValidationError([
                     'a catalog record with this research_dataset ->> preferred_identifier'
@@ -211,18 +204,20 @@ class CatalogRecordSerializer(CommonSerializer):
                     ' the preferred_identifier must not already exist in other catalogs.'
                 ])
             else:
+                # harvested catalog
                 raise ValidationError([
                     'a catalog record with this research_dataset ->> preferred_identifier'
                     ' already exists in this data catalog.'
                 ])
-        elif found_using_urn_id:
+
+        # cr not found using preferred_identifier. preferred_identifier value should never
+        # be the same as metadata_version_identifier value in any catalog, so look for existing records
+        # using metadata_version_identifier also
+        if self._find_object_using_identifier('metadata_version_identifier', preferred_identifier_value):
             raise ValidationError([
                 'a catalog record already exists which has the given preferred_identifier'
-                ' value as its urn_identifier value.'
+                ' value as its metadata_version_identifier value.'
             ])
-        else:
-            # good case
-            pass
 
     def _find_object_using_identifier(self, field_name, identifier):
         """
@@ -255,19 +250,20 @@ class CatalogRecordSerializer(CommonSerializer):
                     params['data_catalog'] = self.instance.data_catalog.id
 
         else:
-            # checking urn_identifier, or saving to ATT catalog - in both cases, find matches
+            # checking metadata_version_identifier, or saving to ATT catalog - in both cases, find matches
             # globally, instead of only inside a data catalog.
             pass
 
         if self._operation_is_create():
-            return CatalogRecord.objects.filter(**params)
+            return CatalogRecord.objects.filter(**params).exists()
         elif self._data_catalog_supports_versioning():
-            # preferred_identifiers already existing in ATT catalog are fine, so exclude
-            # results from ATT catalog. matches in other catalogs however are considered
+            # preferred_identifiers already existing in ATT catalogs are fine, so exclude
+            # results from ATT catalogs. matches in other catalogs however are considered
             # an error.
-            return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=1)
+            return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=self.instance.data_catalog_id) \
+                .exists()
         else:
-            return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id)
+            return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id).exists()
 
     def _data_catalog_is_changed(self):
         """
@@ -288,19 +284,9 @@ class CatalogRecordSerializer(CommonSerializer):
     def _preferred_identifier_is_changed(self):
         """
         Check if preferred_identifier is being updated in the current request or not.
-
-        For PUT, all fields are always present, so checking is easy. for PATCH, first check
-        if the field is even present, and only then check if it being changed.
         """
-        if self._operation_is_update('PUT'):
-            return self.initial_data['research_dataset']['preferred_identifier'] \
-                != self.instance.preferred_identifier
-        elif self._operation_is_update('PATCH'):
-            if 'preferred_identifier' in self.initial_data['research_dataset']:
-                return self.initial_data['research_dataset']['preferred_identifier'] \
-                    != self.instance.preferred_identifier
-        else:
-            return False
+        return self.initial_data['research_dataset'].get('preferred_identifier', None) \
+            != self.instance.preferred_identifier
 
     def _data_catalog_supports_versioning(self):
         if 'data_catalog' in self.initial_data:

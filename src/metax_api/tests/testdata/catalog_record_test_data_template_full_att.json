@@ -1,7 +1,7 @@
 {
   "data_catalog": null,
   "research_dataset": {
-    "urn_identifier": null,
+    "metadata_version_identifier": null,
     "preferred_identifier": null,
     "modified": "2014-01-17T08:19:58Z",
     "version_info": "0.1.2",
@@ -95,7 +95,7 @@
       "has_rights_related_agent": [
         {
           "@type": "Organization",
-          "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
           "name": {
             "en": "Org in ref data",
             "fi": "Organisaatio"
@@ -136,7 +136,7 @@
         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
         "provider": {
           "@type": "Organization",
-          "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
           "name": {
             "en": "Org in ref data",
             "fi": "Organisaatio"
@@ -171,9 +171,7 @@
         "local_identifier_type": "Local identifier type defines use of the identifier in given context",
         "provider": {
           "@type": "Organization",
-          "identifier": [
-            "http://purl.org/att/es/organization_data/organization/organization_1901"
-          ],
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
           "name": {
             "en": "Mysterious Organization",
             "fi": "Organisaatio"
@@ -266,7 +264,7 @@
             "identifier": "http://www.yso.fi/onto/yso/p107966"
           }
         },
-        "type": {
+        "lifecycle_event": {
           "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
           "definition": [
             {
@@ -317,7 +315,7 @@
         "was_associated_with": [
           {
             "@type": "Organization",
-            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
             "name": {
               "en": "Mysterious Organization",
               "fi": "Organisaatio"
@@ -404,14 +402,14 @@
             "identifier": "http://www.yso.fi/onto/yso/p105917"
           }
         },
-        "type": {
+        "preservation_event": {
           "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
         }
       }
     ],
     "rights_holder": {
       "@type": "Organization",
-      "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+      "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
       "name": {
         "en": "Mysterious Organization",
         "fi": "Organisaatio"
@@ -513,7 +511,7 @@
         ],
         "member_of": {
           "@type": "Organization",
-          "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
           "name": {
             "en": "Mysterious Organization 1",
             "fi": "Organisaatio"
@@ -576,7 +574,7 @@
         "source_organization": [
           {
             "@type": "Organization",
-            "identifier": "http://purl.org/att/es/organization_data/organization/organization_1901",
+            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
             "name": {
               "en": "Mysterious Organization",
               "fi": "Organisaatio"
