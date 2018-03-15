@@ -378,18 +378,29 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
     def test_create_file_hierarchy_error_file_list_has_invalid_data(self):
         """
         If even one file is missing file_path or project_identifier, the
-        request is immediately terminated.
+        request is immediately terminated. Creating files for multiple projects
+        in a single request is also not permitted.
         """
         experiment_1_file_list = self._form_complex_list_from_test_file()
         experiment_1_file_list[0].pop('file_path')
-        experiment_1_file_list[0].pop('project_identifier')
-
         response = self.client.post('/rest/files', experiment_1_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_path' in response.data, True)
-        self.assertEqual('project_identifier' in response.data, True)
         self.assertEqual('required parameter' in response.data['file_path'][0], True)
+
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+        experiment_1_file_list[0].pop('project_identifier')
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('project_identifier' in response.data, True)
         self.assertEqual('required parameter' in response.data['project_identifier'][0], True)
+
+        experiment_1_file_list = self._form_complex_list_from_test_file()
+        experiment_1_file_list[0]['project_identifier'] = 'second_project'
+        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('project_identifier' in response.data, True)
+        self.assertEqual('multiple projects' in response.data['project_identifier'][0], True)
 
     def _assert_directory_parent_dirs(self, project_identifier):
         """

@@ -622,19 +622,24 @@ class FileService(CommonService):
         Errors here would realistically be an extremely rare case of error from the requestor's side,
         but doing the minimum necessary here anyway since we can't count on FileSerializer.is_valid()
         """
-        errors = {}
         for row in initial_data_list:
-            if 'file_path' not in row:
-                errors['file_path'] = [
-                    'file_path is a required parameter (file id: %s)' % row['identifier']
-                ]
-            if 'project_identifier' not in row:
-                errors['project_identifier'] = [
-                    'project_identifier is a required parameter (file id: %s)' % row['identifier']
-                ]
 
-            if errors:
-                raise Http400(errors)
+            if 'file_path' not in row:
+                raise Http400({
+                    'file_path': ['file_path is a required parameter (file id: %s)' % row['identifier']]
+                })
+
+            if 'project_identifier' not in row:
+                raise Http400({
+                    'project_identifier': [
+                        'project_identifier is a required parameter (file id: %s)' % row['identifier']
+                    ]
+                })
+
+        if len(set(f['project_identifier'] for f in initial_data_list)) > 1:
+            raise Http400({
+                'project_identifier': ['creating files for multiple projects in one request is not permitted.']
+            })
 
     @classmethod
     def _create_directories_from_file_list(cls, common_info, initial_data_list, **kwargs):
