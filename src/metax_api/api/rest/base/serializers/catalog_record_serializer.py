@@ -128,10 +128,13 @@ class CatalogRecordSerializer(CommonSerializer):
                 'preferred_identifier': instance.previous_dataset_version.preferred_identifier,
             }
 
-        if instance.next_metadata_version_created_in_current_request \
-                or instance.next_dataset_version_created_in_current_request:
-            # inform the view that new versions should be published as a new record.
-            # the view should also remove the key __actions once it is done.
+        if instance.new_metadata_version_created_in_current_request \
+                or instance.new_dataset_version_created_in_current_request:
+            # when a new version is created:
+            # 1) inform the view that new versions should be published as a new record.
+            #    the view should also remove the key __actions once it is done.
+            # 2) set a field which indicates to the requestor that a new version was
+            #    created.
             res['__actions'] = {}
             if instance.next_metadata_version_created_in_current_request:
                 res['__actions']['publish_new_version'] = {

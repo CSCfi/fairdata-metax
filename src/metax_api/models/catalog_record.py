@@ -234,8 +234,8 @@ class CatalogRecord(Common):
     was created), because if the request is interrupted for whatever reason after publishing,
     the new version will not get created after all, but the publish message already left.
     """
-    next_metadata_version_created_in_current_request = False
-    next_dataset_version_created_in_current_request = False
+    new_metadata_version_created_in_current_request = False
+    new_dataset_version_created_in_current_request = False
 
     objects = CatalogRecordManager()
 
@@ -950,7 +950,7 @@ class CatalogRecord(Common):
                 old_version.alternate_record_set = None
 
             # old_version is the one that is returned to the requestor from the api
-            old_version.next_metadata_version_created_in_current_request = True
+            old_version.new_metadata_version_created_in_current_request = True
 
         new_version.dataset_version_set.records.add(new_version)
 
