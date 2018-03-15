@@ -2072,24 +2072,32 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         """
         Ensure removing a top-level directory does not remove all its sub-files from a dataset,
         if the dataset contains other sub-directories. Only the files contained by the top-level
-        directory should be removed.
+        directory (and whatever files fall between the old top-level, and the next known new top-level
+        directories) should be removed.
         """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+
+        # note: see the method _form_test_file_hierarchy() to inspect what the directories
+        # contain in more detail.
+        self._add_directory(self.cr_test_data, '/TestExperiment') # 14 files (removed later)
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1') # 6 files
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2') # 8 files (removed later)
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2') # 4 files
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 4)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+        self.assert_file_count(response.data, 14)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 14)
         original_version = response.data
 
-        # remove the previously added dir, which is now the top-level dir in that project.
+        # remove the root dir, and another sub-dir. there should be two directories left. both of them
+        # are now "top-level directories", since they have no common parent.
         # files are removed
-        self._remove_directory(original_version, '/TestExperiment/Directory_2/Group_2')
+        self._remove_directory(original_version, '/TestExperiment')
+        self._remove_directory(original_version, '/TestExperiment/Directory_2')
         response = self.update_record(original_version)
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data, version_type='dataset')
-        self.assert_file_count(new_version, 2)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 2)
+        self.assert_file_count(new_version, 10)
+        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 10)
 
     def test_add_multiple_directories(self):
         """
