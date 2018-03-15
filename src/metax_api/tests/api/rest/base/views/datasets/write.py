@@ -1490,6 +1490,10 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         # new version id in the response is correctly set
         self.assertEqual(next_metadata_version.id, response.data['next_metadata_version']['id'])
 
+        # information about a new version being created is present
+        self.assertEqual('new_version_created' in response.data, True)
+        self.assertEqual(response.data['new_version_created']['version_type'], 'metadata')
+
         # pref_id did not change for the previous version
         self.assertEqual(preferred_identifier_before, old_version.preferred_identifier)
 
@@ -1529,6 +1533,15 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         data = { 'preservation_state_description': 'this edit should be ok' }
         response = self.client.patch('/rest/datasets/%d' % self.pk, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('new_version_created' in response.data, False)
+
+    def test_changing_files_creates_new_dataset_version(self):
+        cr = self.client.get('/rest/datasets/1').data
+        cr['research_dataset']['files'].pop(0)
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual('next_dataset_version' in response.data, True)
+        self.assertEqual('new_version_created' in response.data, True)
+        self.assertEqual(response.data['new_version_created']['version_type'], 'dataset')
 
     def _set_cr_to_catalog(self, pk=None, dc=None):
         cr = CatalogRecord.objects.get(pk=pk)

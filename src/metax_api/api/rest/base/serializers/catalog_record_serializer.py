@@ -114,7 +114,7 @@ class CatalogRecordSerializer(CommonSerializer):
             }
 
         if 'dataset_version_set' in res:
-                res['dataset_version_set'] = instance.dataset_version_set.get_listing()
+            res['dataset_version_set'] = instance.dataset_version_set.get_listing()
 
         if instance.next_dataset_version:
             res['next_dataset_version'] = {
@@ -136,13 +136,28 @@ class CatalogRecordSerializer(CommonSerializer):
             # 2) set a field which indicates to the requestor that a new version was
             #    created.
             res['__actions'] = {}
-            if instance.next_metadata_version_created_in_current_request:
+
+            if instance.new_metadata_version_created_in_current_request:
                 res['__actions']['publish_new_version'] = {
                     'dataset': self.to_representation(instance.next_metadata_version)
                 }
-            if instance.next_dataset_version_created_in_current_request:
+                res['new_version_created'] = {
+                    'id': instance.next_metadata_version.id,
+                    'metadata_version_identifier': instance.next_metadata_version.metadata_version_identifier,
+                    'version_type': 'metadata'
+                }
+
+            elif instance.new_dataset_version_created_in_current_request:
                 res['__actions']['publish_new_version'] = {
                     'dataset': self.to_representation(instance.next_dataset_version)
+                }
+                # note: returning metadata_version_identifier even if the new version creatd
+                # is of type 'dataset', to be explicit about the specific record that was created.
+                res['new_version_created'] = {
+                    'id': instance.next_dataset_version.id,
+                    'metadata_version_identifier': instance.next_dataset_version.metadata_version_identifier,
+                    'preferred_identifier': instance.next_dataset_version.preferred_identifier,
+                    'version_type': 'dataset'
                 }
 
         return res
