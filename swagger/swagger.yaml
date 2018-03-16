@@ -439,9 +439,9 @@ paths:
             otherwise, one would query for its data separately by GET /directories/3.
           required: false
           type: boolean
-        - name: metadata_version_identifier
+        - name: preferred_identifier
           in: query
-          description: metadata_version_identifier of a dataset. browse only files that have been selected for that record.
+          description: preferred_identifier of a dataset. browse only files that have been selected for that record.
           required: false
           type: string
       responses:
@@ -501,9 +501,9 @@ paths:
             otherwise, one would query for its data separately by GET /directories/3.
           required: false
           type: boolean
-        - name: metadata_version_identifier
+        - name: preferred_identifier
           in: query
-          description: metadata_version_identifier of a dataset. browse only files that have been selected for that record.
+          description: preferred_identifier of a dataset. browse only files that have been selected for that record.
           required: false
           type: string
       responses:
