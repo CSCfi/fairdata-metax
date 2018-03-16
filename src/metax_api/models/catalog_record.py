@@ -125,10 +125,9 @@ class CatalogRecordManager(CommonManager):
                     'id, or research_dataset ->> metadata_version_identifier')
         return super(CatalogRecordManager, self).get(*args, **kwargs)
 
-    def get_id(self, metadata_version_identifier=None):
+    def get_id(self, metadata_version_identifier=None): # pragma: no cover
         """
-        Takes metadata_version_identifier, and returns the plain pk of the record. Useful for debugging,
-        and some other situations.
+        Takes metadata_version_identifier, and returns the plain pk of the record. Useful for debugging
         """
         if not metadata_version_identifier:
             raise ValidationError('metadata_version_identifier is a required keyword argument')
