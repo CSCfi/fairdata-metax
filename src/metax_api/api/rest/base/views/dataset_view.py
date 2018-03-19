@@ -5,7 +5,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from metax_api.models import CatalogRecord, DataCatalog
+from metax_api.models import CatalogRecord, Common, DataCatalog
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService as CRS, CommonService as CS
 from metax_api.utils import RabbitMQ
@@ -284,13 +284,10 @@ class DatasetViewSet(CommonViewSet):
             ida_catalog_ids.append(dc.id)
 
         # Update IDA CR total_ida_byte_size field value without creating a new version
+        # Skip CatalogRecord save since it prohibits changing the value of total_ida_byte_size
         for cr in CatalogRecord.objects.filter(data_catalog_id__in=ida_catalog_ids):
-            calc_total_ida_byte_size = sum(f.byte_size for f in cr.files.all())
-            _logger.info("ID: {0}".format(cr.id))
-            _logger.info("Initial: {0}".format(cr.research_dataset['total_ida_byte_size']))
-            _logger.info("Calculated: {0}".format(calc_total_ida_byte_size))
-            cr.research_dataset['total_ida_byte_size'] = calc_total_ida_byte_size
+            cr.research_dataset['total_ida_byte_size'] = sum(f.byte_size for f in cr.files.all())
             cr.preserve_version = True
-            cr.save()
+            super(Common, cr).save()
 
         return Response(data={}, status=status.HTTP_200_OK)
