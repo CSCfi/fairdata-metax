@@ -5,7 +5,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, DataCatalog
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService as CRS, CommonService as CS
 from metax_api.utils import RabbitMQ
@@ -268,4 +268,29 @@ class DatasetViewSet(CommonViewSet):
         rabbitmq = RabbitMQ()
         rabbitmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
         rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
+        return Response(data={}, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], url_path="update_cr_total_ida_byte_sizes")  # pragma: no cover
+    def update_cr_total_ida_byte_sizes(self, request):
+        """
+        Meant only for updating test data having wrong total ida byte size
+
+        :param request:
+        :return:
+        """
+        # Get all IDs for ida data catalogs
+        ida_catalog_ids = []
+        for dc in DataCatalog.objects.filter(catalog_json__contains={'research_dataset_schema': 'ida'}):
+            ida_catalog_ids.append(dc.id)
+
+        # Update IDA CR total_ida_byte_size field value without creating a new version
+        for cr in CatalogRecord.objects.filter(data_catalog_id__in=ida_catalog_ids):
+            calc_total_ida_byte_size = sum(f.byte_size for f in cr.files.all())
+            _logger.info("ID: {0}".format(cr.id))
+            _logger.info("Initial: {0}".format(cr.research_dataset['total_ida_byte_size']))
+            _logger.info("Calculated: {0}".format(calc_total_ida_byte_size))
+            cr.research_dataset['total_ida_byte_size'] = calc_total_ida_byte_size
+            cr.preserve_version = True
+            cr.save()
+
         return Response(data={}, status=status.HTTP_200_OK)
