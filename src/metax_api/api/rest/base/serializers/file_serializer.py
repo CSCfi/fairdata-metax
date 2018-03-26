@@ -76,6 +76,19 @@ class FileSerializer(CommonSerializer):
         validate_json(value, self.context['view'].json_schema)
         return value
 
+    def validate_file_path(self, value):
+        """
+        Ensure file_path is unique in the project, within unremoved files.
+        file_path can exist multiple times for removed files though.
+        """
+
+        # in case project_identifier is missing, use silly value to guarantee that this does not fail.
+        # the validation for project_identifier is executed later...
+        project = self.initial_data.get('project_identifier', '-----none----')
+        if File.objects.filter(project_identifier=project, file_path=value).exists():
+            raise ValidationError('a file with path %s already exists in project %s' % (value, project))
+        return value
+
     def _get_file_storage_relation(self, identifier_value):
         """
         Passed to _get_id_from_related_object() to be used when relation was a string identifier

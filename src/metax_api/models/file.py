@@ -39,7 +39,7 @@ class File(Common):
     file_characteristics_extension = JSONField(blank=True, null=True)
     file_deleted = models.DateTimeField(null=True)
     file_frozen = models.DateTimeField()
-    file_format = models.CharField(max_length=200)
+    file_format = models.CharField(max_length=200, null=True)
     file_modified = models.DateTimeField(auto_now=True)
     file_name = models.CharField(max_length=200)
     file_path = models.TextField()

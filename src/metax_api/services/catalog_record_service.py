@@ -97,6 +97,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             for dr in rd['directories']:
                 if dr['identifier'] == directory.identifier:
                     dr['details'] = DirectorySerializer(directory).data
+                    continue
 
         if not dir_identifiers:
             return

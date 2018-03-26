@@ -46,7 +46,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
                 "algorithm": "sha2",
                 "checked": "2017-05-23T10:07:22.559656Z",
             },
-            "file_name": "new_file_1",
+            "file_name": "file_name_1",
             "file_path": from_test_data['file_path'].replace('/some/path', '/some/other_path'),
             "identifier": "urn:nbn:fi:csc-ida201401200000000001",
             "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
@@ -57,10 +57,8 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
 
     def _get_second_new_test_data(self):
         from_test_data = self._get_new_test_data()
-        from_test_data.update({
-            "file_name": "new_file_2",
-            "identifier": "urn:nbn:fi:csc-ida201401200000000002",
-        })
+        from_test_data["identifier"] = "urn:nbn:fi:csc-ida201401200000000002"
+        self._change_file_path(from_test_data, "file_name_2")
         return from_test_data
 
     def _count_dirs_from_path(self, file_path):
@@ -84,6 +82,10 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['byte_size'], byte_size)
         self.assertEqual(response.data['file_count'], file_count)
+
+    def _change_file_path(self, file, new_name):
+        file['file_path'] = file['file_path'].replace(file['file_name'], new_name)
+        file['file_name'] = new_name
 
 
 class FileApiWriteCreateTests(FileApiWriteCommon):
@@ -153,18 +155,19 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
     #
 
     def test_create_file_list(self):
-        newly_created_file_name = 'newly_created_file_name'
-        self.test_new_data['file_name'] = newly_created_file_name
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
+        self._change_file_path(self.test_new_data, 'one_file.txt')
+
         self.second_test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurnalso'
+        self._change_file_path(self.second_test_new_data, 'two_file.txt')
 
         response = self.client.post('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
+        self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('object' in response.data['success'][0].keys(), True)
+        self.assertEqual(len(response.data['failed']), 0, response.data['failed'])
         self.assertEqual(len(response.data['success']), 2)
-        self.assertEqual(len(response.data['failed']), 0)
         self._check_project_root_byte_size_and_file_count(response.data['success'][0]['object']['project_identifier'])
 
     def test_create_file_list_error_one_fails(self):
@@ -336,14 +339,14 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             experiment_2_file_list.pop()
 
         for i, f in enumerate(experiment_2_file_list):
-            f['file_path'] = '/project_y_FROZEN/Experiment_1/%s' % f['file_name']
+            f['file_path'] = '/project_y_FROZEN/Experiment_2/%s' % f['file_name']
             f['identifier'] = '%s-%d' % (f['file_path'], i)
 
         response = self.client.post('/rest/files', experiment_2_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual('success' in response.data.keys(), True)
+        self.assertEqual(len(response.data['failed']), 0, response.data['failed'])
         self.assertEqual(len(response.data['success']), 5)
-        self.assertEqual(len(response.data['failed']), 0)
 
         dirs_dict = self._assert_directory_parent_dirs('project_y')
         self._assert_file_parent_dirs(dirs_dict, response)
@@ -363,7 +366,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         experiment_2_file_list = self._form_complex_list_from_test_file()[0:1]
 
         for i, f in enumerate(experiment_2_file_list):
-            f['file_path'] = '/project_y_FROZEN/Experiment_1/%s' % f['file_name']
+            f['file_path'] = '/project_y_FROZEN/Experiment_2/%s' % f['file_name']
             f['identifier'] = '%s-%d' % (f['file_path'], i)
 
         response = self.client.post('/rest/files', experiment_2_file_list, format="json")
@@ -456,8 +459,8 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
                 "file_path": "/project_y_FROZEN/Experiment_1/b_path.png",
             },
             {
-                "file_name": "path.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_2/path.png",
+                "file_name": "everything_that_can_go_wrong_will_go_wrong.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_2/everything_that_can_go_wrong_will_go_wrong.png",
             },
             {
                 "file_name": "pathx.png",
