@@ -273,7 +273,7 @@ class FileService(CommonService):
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
-            recursive=False, max_depth=1, dirs_only=False, include_parent=False, metadata_version_identifier=None):
+            recursive=False, max_depth=1, dirs_only=False, include_parent=False, preferred_identifier=None):
         """
         Get files and directories contained by a directory.
 
@@ -281,8 +281,8 @@ class FileService(CommonService):
 
         identifier: may be a pk, or an uuid value. Search using approriate fields.
 
-        metadata_version_identifier: may be used to browse files in the context of the given
-        metadata_version_identifier: Only those files and directories are retrieved, which have been
+        preferred_identifier: may be used to browse files in the context of the given
+        preferred_identifier: Only those files and directories are retrieved, which have been
         selected for that CatalogRecord.
 
         path and project_identifier: may be specified to search directly by
@@ -326,20 +326,25 @@ class FileService(CommonService):
                 raise Http404
             directory_id = directory.id
 
-        if metadata_version_identifier:
-            if metadata_version_identifier.isdigit():
-                cr_id = metadata_version_identifier
+        if preferred_identifier:
+            if preferred_identifier.isdigit():
+                cr_id = preferred_identifier
             else:
-                try:
-                    cr_id = CatalogRecord.objects.get_id(metadata_version_identifier=metadata_version_identifier)
-                except Http404:
+                # assumed att catalogs are created first.
+                cr = CatalogRecord.objects.filter(
+                    research_dataset__contains={ 'preferred_identifier': preferred_identifier },
+                    files__isnull=False) \
+                    .values('id').first()
+                if not cr:
                     # raise 400 instead of 404, to distinguish from the error
                     # 'directory not found', which raises a 404
                     raise ValidationError({
                         'detail': [
-                            'record with metadata_version_identifier %s does not exist' % metadata_version_identifier
+                            'record with preferred_identifier %s does not have any files, or does not exist'
+                            % preferred_identifier
                         ]
                     })
+                cr_id = cr['id']
         else:
             cr_id = None
 

@@ -114,6 +114,15 @@ def update_directory_byte_sizes_and_file_counts(headers):
     print('-- done --')
 
 
+def update_ida_datasets_total_ida_byte_size(headers):
+    print('-- begin updating IDA CR total ida byte sizes --')
+    response = requests.get('https://localhost/rest/datasets/update_cr_total_ida_byte_sizes',
+        headers=headers, verify=False)
+    if response.status_code not in (200, 201, 204):
+        raise Exception(response.text)
+    print('-- done --')
+
+
 if __name__ == '__main__':
     headers = {'Content-type': 'application/json'}
     headers.update(get_auth_header())
@@ -132,3 +141,4 @@ if __name__ == '__main__':
     retrieve_and_update_all_datasets_in_db(headers)
     retrieve_and_update_all_data_catalogs_in_db(headers)
     update_directory_byte_sizes_and_file_counts(headers)
+    update_ida_datasets_total_ida_byte_size(headers)
