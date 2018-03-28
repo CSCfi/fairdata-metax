@@ -1,3 +1,4 @@
+from json import dump, load
 import logging
 
 from django.db.models import Q
@@ -5,7 +6,10 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from metax_api.models import CatalogRecord, Common, DataCatalog
+import yaml
+
+from metax_api.exceptions import Http403
+from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService as CRS, CommonService as CS
 from metax_api.utils import RabbitMQ
@@ -291,3 +295,47 @@ class DatasetViewSet(CommonViewSet):
             super(Common, cr).save()
 
         return Response(data={}, status=status.HTTP_200_OK)
+
+    @list_route(methods=['post'], url_path="flush_password")
+    def flush_password(self, request):
+        """
+        Set a password for flush api
+        """
+        if request.user.username == 'metax':
+            with open('/home/metax-user/flush_password', 'w') as f:
+                dump(request.data, f)
+        else:
+            raise Http403
+        _logger.debug('FLUSH password set')
+        return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+
+    @list_route(methods=['post'], url_path="flush")
+    def flush_records(self, request):
+        """
+        Delete all catalog records and files. Requires a password
+        """
+        with open('/home/metax-user/app_config') as app_config:
+            app_config_dict = yaml.load(app_config)
+            for host in app_config_dict['ALLOWED_HOSTS']:
+                if 'metax.csc.local' in host or 'metax-test' in host or 'metax-stable' in host:
+
+                    if 'password' in request.data:
+                        with open('/home/metax-user/flush_password', 'rb') as f:
+                            if request.data['password'] == load(f)['password']:
+                                break
+                    raise Http403
+            else:
+                raise Http403
+
+        for f in File.objects_unfiltered.all():
+            super(Common, f).delete()
+
+        for dr in Directory.objects_unfiltered.all():
+            super(Common, dr).delete()
+
+        for f in CatalogRecord.objects_unfiltered.all():
+            super(Common, f).delete()
+
+        _logger.debug('FLUSH called by %s' % request.user.username)
+
+        return Response(data=None, status=status.HTTP_204_NO_CONTENT)
