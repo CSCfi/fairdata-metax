@@ -285,10 +285,20 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                                    'research_dataset.remote_resources.checksum.algorithm', errors)
 
             for license in remote_resource.get('license', []):
+                license_url = license.get('license', None)
+
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.remote_resources.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title')
+
+                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
+                    # and when the reference data uri does not contain purl.org/att
+                    if not license_url and ref_entry.get('uri', False):
+                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
+
+                if license_url:
+                    license['license'] = license_url
 
             if remote_resource.get('resource_type', False):
                 ref_entry = cls.check_ref_data(refdata['resource_type'], remote_resource['resource_type']['identifier'],
@@ -332,11 +342,21 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     cls.populate_from_ref_data(ref_entry, access_rights['restriction_grounds'],
                                                label_field='pref_label')
 
-            for rights_statement_license in access_rights.get('license', []):
-                ref_entry = cls.check_ref_data(refdata['license'], rights_statement_license['identifier'],
+            for license in access_rights.get('license', []):
+                license_url = license.get('license', None)
+
+                ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.access_rights.license.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, rights_statement_license, label_field='title')
+                    cls.populate_from_ref_data(ref_entry, license, label_field='title')
+
+                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
+                    # and when the reference data uri does not contain purl.org/att
+                    if not license_url and ref_entry.get('uri', False):
+                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
+
+                if license_url:
+                    license['license'] = license_url
 
             for rra in access_rights.get('has_rights_related_agent', []):
                 cls.process_research_agent_obj_with_type(orgdata, refdata, errors, rra,
@@ -380,10 +400,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
                     # Populate as_wkt field from reference data only if it is empty, i.e. not provided by the user
                     # and when the coordinates are available in the reference data
-                    if len(as_wkt) == 0 and ref_entry.get('wkt', False):
+                    if not as_wkt and ref_entry.get('wkt', False):
                         as_wkt.append(ref_entry.get('wkt'))
 
-            spatial['as_wkt'] = as_wkt
+            if as_wkt:
+                spatial['as_wkt'] = as_wkt
 
         for file in research_dataset.get('files', []):
             if file.get('file_type', False):
@@ -441,10 +462,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
                         # Populate as_wkt field from reference data only if it is empty, i.e. not provided by the user
                         # and when the coordinates are available in the reference data
-                        if len(as_wkt) == 0 and ref_entry.get('wkt', False):
+                        if not as_wkt and ref_entry.get('wkt', False):
                             as_wkt.append(ref_entry.get('wkt'))
 
-                spatial['as_wkt'] = as_wkt
+                if as_wkt:
+                    spatial['as_wkt'] = as_wkt
 
             if activity.get('lifecycle_event', False):
                 ref_entry = cls.check_ref_data(refdata['lifecycle_event'],
