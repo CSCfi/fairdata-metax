@@ -35,6 +35,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'previous_metadata_version',
             'metadata_version_set',
             'editor',
+            'removed',
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -62,6 +63,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('metadata_version_set', None)
         self.initial_data.pop('next_metadata_version', None)
         self.initial_data.pop('previous_metadata_version', None)
+        self.initial_data.pop('removed', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
