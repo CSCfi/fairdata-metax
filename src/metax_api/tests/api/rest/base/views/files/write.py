@@ -507,8 +507,16 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
     """
 
     def test_update_file(self):
-        response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
+        f = self.client.get('/rest/files/1').data
+        f['file_format'] = 'csv'
+        response = self.client.put('/rest/files/%s' % f['identifier'], f, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_prevent_file_path_update_after_create(self):
+        f = self.client.get('/rest/files/1').data
+        f['file_path'] = '%s_bak' % f['file_path']
+        response = self.client.put('/rest/files/%s' % f['identifier'], f, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_file_error_required_fields(self):
         """
@@ -540,30 +548,28 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
     #
 
     def test_file_update_list(self):
-        new_project_identifier = 'changed-project-identifier'
-        new_project_identifier_2 = 'changed-project-identifier-2'
-        self.test_new_data['id'] = 1
-        self.test_new_data['project_identifier'] = new_project_identifier
+        f1 = self.client.get('/rest/files/1').data
+        f2 = self.client.get('/rest/files/2').data
+        new_file_format = 'changed-format'
+        new_file_format_2 = 'changed-format-2'
+        f1['file_format'] = new_file_format
+        f2['file_format'] = new_file_format_2
 
-        self.second_test_new_data['id'] = 2
-        self.second_test_new_data['project_identifier'] = new_project_identifier_2
-
-        response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.put('/rest/files', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update')
+        self.assertEqual(updated_file.file_format, new_file_format)
 
     def test_file_update_list_error_one_fails(self):
-        new_project_identifier = 'changed-project-identifier'
-        self.test_new_data['id'] = 1
-        self.test_new_data['project_identifier'] = new_project_identifier
-
-        self.second_test_new_data['id'] = 2
+        f1 = self.client.get('/rest/files/1').data
+        f2 = self.client.get('/rest/files/2').data
+        new_file_format = 'changed-format'
+        f1['file_format'] = new_file_format
         # cant be null - should fail
-        self.second_test_new_data['file_frozen'] = None
+        f2['file_frozen'] = None
 
-        response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.put('/rest/files', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['success']), 1, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
@@ -571,21 +577,20 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
                          'error should be about file_characteristics missing')
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.project_identifier, new_project_identifier,
-                         'project_identifier did not update for first item')
+        self.assertEqual(updated_file.file_format, new_file_format)
 
     def test_file_update_list_error_key_not_found(self):
-        new_project_identifier = 'changed-project-identifier'
-        new_project_identifier_2 = 'changed-project-identifier-2'
-        self.test_new_data['id'] = 1
-        self.test_new_data['project_identifier'] = new_project_identifier
-
+        f1 = self.client.get('/rest/files/1').data
+        f2 = self.client.get('/rest/files/2').data
+        new_file_format = 'changed-format'
+        new_file_format_2 = 'changed-format-2'
+        f1['file_format'] = new_file_format
+        f2['file_format'] = new_file_format_2
         # has no lookup key - should fail
-        self.second_test_new_data.pop('id', False)
-        self.second_test_new_data.pop('identifier')
-        self.second_test_new_data['project_identifier'] = new_project_identifier_2
+        f2.pop('id')
+        f2.pop('identifier')
 
-        response = self.client.put('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.put('/rest/files', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['success']), 1, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
@@ -594,8 +599,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
                          'error should be about identifying keys missing')
 
         updated_file = File.objects.get(pk=1)
-        self.assertEqual(updated_file.project_identifier, new_project_identifier,
-                         'project_identifier did not update for first item')
+        self.assertEqual(updated_file.file_format, new_file_format)
 
 
 class FileApiWritePartialUpdateTests(FileApiWriteCommon):

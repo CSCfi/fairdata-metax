@@ -81,12 +81,24 @@ class FileSerializer(CommonSerializer):
         Ensure file_path is unique in the project, within unremoved files.
         file_path can exist multiple times for removed files though.
         """
+        if self._operation_is_create():
+            if 'project_identifier' not in self.initial_data:
+                # the validation for project_identifier is executed later...
+                return value
+            project = self.initial_data['project_identifier']
+            if File.objects.filter(project_identifier=project, file_path=value).exists():
+                raise ValidationError('a file with path %s already exists in project %s' % (value, project))
 
-        # in case project_identifier is missing, use silly value to guarantee that this does not fail.
-        # the validation for project_identifier is executed later...
-        project = self.initial_data.get('project_identifier', '-----none----')
-        if File.objects.filter(project_identifier=project, file_path=value).exists():
-            raise ValidationError('a file with path %s already exists in project %s' % (value, project))
+        elif self._operation_is_update():
+            if 'file_path' not in self.initial_data:
+                return value
+            if self.instance.file_path != self.initial_data['file_path']:
+                # would require re-arranging the virtual file tree... implement in the future if need arises
+                raise ValidationError('file_path can not be changed after creating')
+        else:
+            # delete
+            pass
+
         return value
 
     def _get_file_storage_relation(self, identifier_value):
