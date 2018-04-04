@@ -22,8 +22,12 @@ class CatalogRecordModelBasicTest(TestCase, TestClassUtils):
     def setUp(self):
         dataset_from_test_data = self._get_object_from_test_data('catalogrecord')
         self.metadata_version_identifier = dataset_from_test_data['research_dataset']['metadata_version_identifier']
+        self.identifier = dataset_from_test_data['identifier']
 
-    def test_get_by_identifier(self):
+    def test_get_by_identifiers(self):
+        catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
+        self.assertEqual(catalog_record.identifier, self.identifier)
+
         catalog_record = CatalogRecord.objects.get(
             research_dataset__contains={'metadata_version_identifier': self.metadata_version_identifier}
         )

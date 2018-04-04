@@ -38,6 +38,7 @@ class ApiWriteCommon(APITestCase, TestClassUtils):
             "preferred_identifier": None,
         })
         record_from_test_data.pop('id', None)
+        record_from_test_data.pop('identifier', None)
         record_from_test_data.pop('contract', None)
         return record_from_test_data
 
@@ -190,6 +191,7 @@ class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
     def test_atomic_create(self):
         cr = self.client.get('/rest/datasets/1', format="json").data
         cr.pop('id')
+        cr.pop('identifier')
         cr['research_dataset'].pop('metadata_version_identifier')
         cr['research_dataset'].pop('preferred_identifier')
         cr2 = deepcopy(cr)
@@ -227,5 +229,5 @@ class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
 
         cr = self.client.get('/rest/datasets/1', format="json").data
         cr2 = self.client.get('/rest/datasets/2', format="json").data
-        self.assertEqual('next_metadata_version' in cr, False)
-        self.assertEqual('next_metadata_version' in cr2, False)
+        self.assertEqual(cr['research_dataset']['title']['en'] == 'updated', False)
+        self.assertEqual(cr2['research_dataset']['title']['en'] == 'updated', False)

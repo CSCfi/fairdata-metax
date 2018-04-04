@@ -104,19 +104,19 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_with_if_modified_since_header_syntax_error(self):
@@ -126,7 +126,7 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S UTC')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier, **headers)
+        response = self.client.get('/rest/datasets/%s' % self.identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     #

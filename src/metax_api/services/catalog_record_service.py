@@ -55,7 +55,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['preservation_state__in'] = state_vals
 
         if CommonService.get_boolean_query_param(request, 'latest'):
-            queryset_search_params['next_metadata_version_id'] = None
+            queryset_search_params['next_dataset_version_id'] = None
 
         if request.query_params.get('curator', False):
             queryset_search_params['research_dataset__contains'] = \
