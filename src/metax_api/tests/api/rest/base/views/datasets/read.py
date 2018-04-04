@@ -41,6 +41,7 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['identifier'], self.identifier)
+        self.assertEqual('identifier' in response.data['data_catalog'], True)
 
     def test_read_catalog_record_details_by_identifier(self):
         response = self.client.get('/rest/datasets/%s' % self.identifier)
@@ -155,6 +156,16 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self._create_new_ds()
         response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
         self.assertEqual(len(response.data) - ids_len, 2, 'should be two new PIDs')
+
+    def test_expand_relations(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.contract_id = 1
+        cr.force_save()
+
+        response = self.client.get('/rest/datasets/1?expand_relation=data_catalog,contract')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('catalog_json' in response.data['data_catalog'], True, response.data['data_catalog'])
+        self.assertEqual('contract_json' in response.data['contract'], True, response.data['contract'])
 
     def _create_new_ds(self):
         new_cr = self.client.get('/rest/datasets/2').data

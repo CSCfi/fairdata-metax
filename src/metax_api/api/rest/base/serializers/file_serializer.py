@@ -5,6 +5,7 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.models import Directory, File, FileStorage
 from .common_serializer import CommonSerializer
+from .directory_serializer import DirectorySerializer
 from .file_storage_serializer import FileStorageSerializer
 from .serializer_utils import validate_json
 
@@ -61,12 +62,21 @@ class FileSerializer(CommonSerializer):
     def to_representation(self, instance):
         res = super(FileSerializer, self).to_representation(instance)
 
-        res['file_storage'] = FileStorageSerializer(instance.file_storage).data
+        if self.expand_relation_requested('file_storage'):
+            res['file_storage'] = FileStorageSerializer(instance.file_storage).data
+        else:
+            res['file_storage'] = {
+                'id': instance.file_storage.id,
+                'identifier': instance.file_storage.file_storage_json['identifier'],
+            }
 
-        res['parent_directory'] = {
-            'id': instance.parent_directory.id,
-            'identifier': instance.parent_directory.identifier,
-        }
+        if self.expand_relation_requested('file_storage'):
+            res['parent_directory'] = DirectorySerializer(instance.parent_directory).data
+        else:
+            res['parent_directory'] = {
+                'id': instance.parent_directory.id,
+                'identifier': instance.parent_directory.identifier,
+            }
 
         res['checksum'] = self._form_checksum(res)
 
