@@ -6,7 +6,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import Directory, File, FileStorage
+from metax_api.models import Directory, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 d = print
@@ -137,18 +137,6 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
                          'The error should contain the name of the erroneous field')
         self.assertEqual('Json path:' in response.data['file_characteristics'][0], True,
                          'The error should contain the json path')
-
-    def test_create_file_dont_allow_file_storage_fields_update(self):
-        self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
-        original_title = self.test_new_data['file_storage']['file_storage_json']['title']
-        self.test_new_data['file_storage']['file_storage_json']['title'] = 'new title'
-
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['file_storage']['file_storage_json']['title'], original_title)
-        file_storage = FileStorage.objects.get(pk=response.data['file_storage']['id'])
-        self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
     #
     # create list operations
@@ -529,15 +517,6 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('project_identifier' in response.data.keys(), True,
                          'Error for field \'project_identifier\' is missing from response.data')
-
-    def test_update_file_dont_allow_file_storage_fields_update(self):
-        original_title = self.test_new_data['file_storage']['file_storage_json']['title']
-        self.test_new_data['file_storage']['file_storage_json']['title'] = 'new title'
-
-        response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        file_storage = FileStorage.objects.get(pk=self.test_new_data['file_storage']['id'])
-        self.assertEqual(file_storage.file_storage_json['title'], original_title)
 
     def test_update_file_not_found(self):
         response = self.client.put('/rest/files/doesnotexist', self.test_new_data, format="json")

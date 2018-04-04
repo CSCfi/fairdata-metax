@@ -213,17 +213,6 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual('is not valid' in response.data['research_dataset'][0], True, response.data)
         self.assertEqual('was_associated_with' in response.data['research_dataset'][0], True, response.data)
 
-    def test_create_catalog_record_dont_allow_data_catalog_fields_update(self):
-        original_title = self.cr_test_data['data_catalog']['catalog_json']['title']['en']
-        self.cr_test_data['data_catalog']['catalog_json']['title']['en'] = 'new title'
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['data_catalog']['catalog_json']['title']['en'], original_title)
-        data_catalog = DataCatalog.objects.get(pk=response.data['data_catalog']['id'])
-        self.assertEqual(data_catalog.catalog_json['title']['en'], original_title)
-
     #
     # create list operations
     #
