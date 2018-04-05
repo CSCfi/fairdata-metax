@@ -81,22 +81,6 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_read_catalog_record_exists(self):
-        response = self.client.get('/rest/datasets/%s/exists' % self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-
-    def test_read_catalog_record_does_not_exist(self):
-        response = self.client.get('/rest/datasets/%s/exists' % 'urn:nbn:fi:non_existing_dataset_identifier')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(response.data)
-
     def test_read_catalog_record_metadata_version_identifiers(self):
         response = self.client.get('/rest/datasets/metadata_version_identifiers')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

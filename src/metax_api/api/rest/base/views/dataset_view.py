@@ -187,17 +187,6 @@ class DatasetViewSet(CommonViewSet):
         CRS.propose_to_pas(request, self.get_object())
         return Response(data={}, status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['get'], url_path="exists")
-    def dataset_exists(self, request, pk=None):
-        try:
-            self.get_object()
-        except Http404:
-            return Response(data=False, status=status.HTTP_200_OK)
-        except Exception:
-            return Response(data='', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(data=True, status=status.HTTP_200_OK)
-
     @list_route(methods=['get'], url_path="identifiers")
     def get_all_identifiers(self, request):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
