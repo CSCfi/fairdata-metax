@@ -70,7 +70,7 @@ class FileSerializer(CommonSerializer):
                 'identifier': instance.file_storage.file_storage_json['identifier'],
             }
 
-        if self.expand_relation_requested('file_storage'):
+        if self.expand_relation_requested('parent_directory'):
             res['parent_directory'] = DirectorySerializer(instance.parent_directory).data
         else:
             res['parent_directory'] = {

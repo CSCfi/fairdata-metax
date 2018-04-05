@@ -98,7 +98,7 @@ class CatalogRecordSerializer(CommonSerializer):
             }
 
         if 'contract' in res:
-            if self.expand_relation_requested('data_catalog'):
+            if self.expand_relation_requested('contract'):
                 res['contract'] = ContractSerializer(instance.contract).data
             else:
                 res['contract'] = {
