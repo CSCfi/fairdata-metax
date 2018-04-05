@@ -25,9 +25,6 @@ class DataCatalogSerializer(CommonSerializer):
         super(DataCatalogSerializer, self).is_valid(raise_exception=raise_exception)
         if 'catalog_json' in self.initial_data:
             self._validate_dataset_schema()
-            # ensure any operation made on data_catalog during serializer.is_valid(),
-            # is still compatible with the schema
-            self._validate_json_schema(self.initial_data['catalog_json'])
             if self.initial_data['catalog_json'].get('dataset_versioning', False) is True \
                     and self.initial_data['catalog_json'].get('harvested', False) is True:
                 raise ValidationError({
@@ -35,21 +32,11 @@ class DataCatalogSerializer(CommonSerializer):
                 })
 
     def validate_catalog_json(self, value):
-        self._validate_json_schema(value)
+        validate_json(value, self.context['view'].json_schema)
         DCS.validate_reference_data(value, self.context['view'].cache)
+        # ensure ref data validation/population did not break anything
+        validate_json(value, self.context['view'].json_schema)
         return value
-
-    def _validate_json_schema(self, value):
-        if self._operation_is_create():
-            # identifier cant be provided by the user, but it is a required field =>
-            # add identifier temporarily to pass schema validation. proper value
-            # will be generated later in model save().
-            value['identifier'] = 'temp'
-            validate_json(value, self.context['view'].json_schema)
-            value.pop('identifier')
-        else:
-            # update operations
-            validate_json(value, self.context['view'].json_schema)
 
     def _validate_dataset_schema(self):
         rd_schema = self.initial_data['catalog_json'].get('research_dataset_schema', None)
