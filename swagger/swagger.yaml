@@ -550,9 +550,6 @@ paths:
         - Data Catalog API
     post:
       summary: create new data catalog
-      description: |
-        # catalog_json read-only fields
-        - identifier
       consumes:
         - application/json
       parameters:
@@ -641,23 +638,6 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Data Catalog API
-  /datacatalogs/{PID}/exists:
-    get:
-      summary: indicate whether given data catalog exists
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of the resource OR the internal pk
-          required: true
-          type: string
-      responses:
-        '200':
-          description: return true
-        '404':
-          description: return false
-      tags:
-        - Data Catalog API
-
 
 
 
