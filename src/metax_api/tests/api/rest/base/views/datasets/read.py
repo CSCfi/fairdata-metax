@@ -1,4 +1,5 @@
 from datetime import timedelta
+import urllib.parse
 
 from django.core.management import call_command
 from django.utils import timezone
@@ -50,7 +51,8 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
             self.identifier)
 
     def test_get_by_preferred_identifier(self):
-        response = self.client.get('/rest/datasets/%s' % self.preferred_identifier)
+        response = self.client.get('/rest/datasets?preferred_identifier=%s' %
+            urllib.parse.quote(self.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
 
@@ -59,7 +61,8 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.delete('/rest/datasets/%s' % self.identifier)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        response = self.client.get('/rest/datasets/%s?removed=true' % self.preferred_identifier)
+        response = self.client.get('/rest/datasets?preferred_identifier=%s&removed=true' %
+            urllib.parse.quote(self.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_by_preferred_identifier_search_prefers_oldest_data_catalog(self):
@@ -73,7 +76,8 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         pid = cr['research_dataset']['preferred_identifier']
 
         # the retrieved record should be the one that is in catalog 1
-        response = self.client.get('/rest/datasets/%s' % pid)
+        response = self.client.get('/rest/datasets?preferred_identifier=%s' %
+            urllib.parse.quote(pid))
         self.assertEqual('alternate_record_set' in response.data, True)
         self.assertEqual(response.data['data_catalog']['id'], cr['data_catalog'])
 
@@ -87,14 +91,6 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
         self.assertTrue(response.data[0].startswith('urn:'))
-
-    def test_get_only_by_preferred_identifier(self):
-        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.preferred_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
-
-        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_unique_preferred_identifiers(self):
         """
