@@ -76,21 +76,11 @@ class DatasetViewSet(CommonViewSet):
 
     def _retrieve_by_preferred_identifier(self, request, *args, **kwargs):
         lookup_value = urllib.parse.unquote(request.query_params['preferred_identifier'])
+        self.kwargs[self.lookup_field] = lookup_value
         self.request.GET._mutable = True
         self.request.query_params['no_pagination'] = 'true'
         self.request.GET._mutable = False # hehe
-
-        # search by preferred_identifier only for GET requests, while preferring:
-        # - hits from att catalogs (assumed to be first created. improve logic if situation changes)
-        # - first created (the first harvested occurrence, probably)
-        # note: cant use get_object(), because get_object() will throw an error if there are multiple results
-        if self.request.method == 'GET':
-            obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
-                .order_by('data_catalog_id', 'date_created').first()
-            if obj:
-                serializer = self.get_serializer(obj)
-                return Response(data=serializer.data, status=status.HTTP_200_OK)
-        raise Http404
+        return self.retrieve(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         # best to specify a variable for parameters intended for filtering purposes in get_queryset(),
@@ -243,6 +233,18 @@ class DatasetViewSet(CommonViewSet):
         using identifier or metadata_version_identifier
         """
         lookup_value = self.kwargs.get(self.lookup_field, False)
+
+        if 'preferred_identifier' in self.request.query_params and self.request.method == 'GET':
+            # search by preferred_identifier only for GET requests, while preferring:
+            # - hits from att catalogs (assumed to be first created. improve logic if situation changes)
+            # - first created (the first harvested occurrence, probably)
+            # note: cant use get_object(), because get_object() will throw an error if there are multiple results
+            obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
+                .order_by('data_catalog_id', 'date_created').first()
+            if obj:
+                return obj
+            raise Http404
+
         try:
             # todo probably remove this at some point. for now, doesnt do harm and does not instantly break
             # services using this...
