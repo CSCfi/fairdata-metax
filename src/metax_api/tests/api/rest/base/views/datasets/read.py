@@ -1,4 +1,5 @@
 from datetime import timedelta
+import urllib.parse
 
 from django.core.management import call_command
 from django.utils import timezone
@@ -41,6 +42,7 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['identifier'], self.identifier)
+        self.assertEqual('identifier' in response.data['data_catalog'], True)
 
     def test_read_catalog_record_details_by_identifier(self):
         response = self.client.get('/rest/datasets/%s' % self.identifier)
@@ -49,7 +51,8 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
             self.identifier)
 
     def test_get_by_preferred_identifier(self):
-        response = self.client.get('/rest/datasets/%s' % self.preferred_identifier)
+        response = self.client.get('/rest/datasets?preferred_identifier=%s' %
+            urllib.parse.quote(self.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
 
@@ -58,7 +61,8 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.delete('/rest/datasets/%s' % self.identifier)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        response = self.client.get('/rest/datasets/%s?removed=true' % self.preferred_identifier)
+        response = self.client.get('/rest/datasets?preferred_identifier=%s&removed=true' %
+            urllib.parse.quote(self.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_by_preferred_identifier_search_prefers_oldest_data_catalog(self):
@@ -72,7 +76,8 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         pid = cr['research_dataset']['preferred_identifier']
 
         # the retrieved record should be the one that is in catalog 1
-        response = self.client.get('/rest/datasets/%s' % pid)
+        response = self.client.get('/rest/datasets?preferred_identifier=%s' %
+            urllib.parse.quote(pid))
         self.assertEqual('alternate_record_set' in response.data, True)
         self.assertEqual(response.data['data_catalog']['id'], cr['data_catalog'])
 
@@ -80,36 +85,12 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_read_catalog_record_exists(self):
-        response = self.client.get('/rest/datasets/%s/exists' % self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-
-    def test_read_catalog_record_does_not_exist(self):
-        response = self.client.get('/rest/datasets/%s/exists' % 'urn:nbn:fi:non_existing_dataset_identifier')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(response.data)
-
     def test_read_catalog_record_metadata_version_identifiers(self):
         response = self.client.get('/rest/datasets/metadata_version_identifiers')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
         self.assertTrue(response.data[0].startswith('urn:'))
-
-    def test_get_only_by_preferred_identifier(self):
-        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.preferred_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
-
-        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_unique_preferred_identifiers(self):
         """
@@ -155,6 +136,16 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self._create_new_ds()
         response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
         self.assertEqual(len(response.data) - ids_len, 2, 'should be two new PIDs')
+
+    def test_expand_relations(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.contract_id = 1
+        cr.force_save()
+
+        response = self.client.get('/rest/datasets/1?expand_relation=data_catalog,contract')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('catalog_json' in response.data['data_catalog'], True, response.data['data_catalog'])
+        self.assertEqual('contract_json' in response.data['contract'], True, response.data['contract'])
 
     def _create_new_ds(self):
         new_cr = self.client.get('/rest/datasets/2').data

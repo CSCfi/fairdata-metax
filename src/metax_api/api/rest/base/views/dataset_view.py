@@ -1,4 +1,5 @@
 from json import dump, load
+import urllib.parse
 import logging
 
 from django.http import Http404
@@ -73,16 +74,36 @@ class DatasetViewSet(CommonViewSet):
 
         return res
 
+    def _retrieve_by_preferred_identifier(self, request, *args, **kwargs):
+        lookup_value = urllib.parse.unquote(request.query_params['preferred_identifier'])
+        self.request.GET._mutable = True
+        self.request.query_params['no_pagination'] = 'true'
+        self.request.GET._mutable = False # hehe
+
+        # search by preferred_identifier only for GET requests, while preferring:
+        # - hits from att catalogs (assumed to be first created. improve logic if situation changes)
+        # - first created (the first harvested occurrence, probably)
+        # note: cant use get_object(), because get_object() will throw an error if there are multiple results
+        if self.request.method == 'GET':
+            obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
+                .order_by('data_catalog_id', 'date_created').first()
+            if obj:
+                return Response(data=CatalogRecordSerializer(obj).data, status=status.HTTP_200_OK)
+        raise Http404
+
     def list(self, request, *args, **kwargs):
         # best to specify a variable for parameters intended for filtering purposes in get_queryset(),
         # because other api's may use query parameters of the same name, which can
         # mess up filtering if get_queryset() uses request.query_parameters directly.
+        self.queryset_search_params = CRS.get_queryset_search_params(request)
+
+        if 'preferred_identifier' in request.query_params:
+            return self._retrieve_by_preferred_identifier(request, *args, **kwargs)
 
         # actually a nested url /datasets/id/metadata_versions/id. this is probably a very screwed up way to do this...
         if 'identifier' in kwargs and 'metadata_version_identifier' in kwargs:
             return self._metadata_version_get(request, *args, **kwargs)
 
-        self.queryset_search_params = CRS.get_queryset_search_params(request)
         return super(DatasetViewSet, self).list(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
@@ -187,17 +208,6 @@ class DatasetViewSet(CommonViewSet):
         CRS.propose_to_pas(request, self.get_object())
         return Response(data={}, status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['get'], url_path="exists")
-    def dataset_exists(self, request, pk=None):
-        try:
-            self.get_object()
-        except Http404:
-            return Response(data=False, status=status.HTTP_200_OK)
-        except Exception:
-            return Response(data='', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(data=True, status=status.HTTP_200_OK)
-
     @list_route(methods=['get'], url_path="identifiers")
     def get_all_identifiers(self, request):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
@@ -232,35 +242,15 @@ class DatasetViewSet(CommonViewSet):
         using identifier or metadata_version_identifier
         """
         lookup_value = self.kwargs.get(self.lookup_field, False)
+        try:
+            # todo probably remove this at some point. for now, doesnt do harm and does not instantly break
+            # services using this...
+            return super(DatasetViewSet, self).get_object(
+                search_params={ 'research_dataset__contains': {'metadata_version_identifier': lookup_value} })
+        except Http404:
+            pass
 
-        if not CS.get_boolean_query_param(self.request, 'preferred_identifier'):
-            try:
-                # todo probably remove this at some point. for now, doesnt do harm and does not instantly break
-                # services using this...
-                return super(DatasetViewSet, self).get_object(
-                    search_params={ 'research_dataset__contains': {'metadata_version_identifier': lookup_value} })
-            except Http404:
-                pass
-
-            try:
-                return super(DatasetViewSet, self).get_object(search_params={ 'identifier': lookup_value })
-            except Http404:
-                if self.request.method != 'GET':
-                    raise
-
-        # - hits from att catalogs (assumed to be first created. improve logic if situation changes)
-        # search by preferred_identifier only for GET requests, while preferring:
-        # - first created (the first harvested occurrence, probably)
-
-        # note: cant use get_object() like above, because get_object() will throw an error if there are
-        # multiple results
-        if self.request.method == 'GET':
-            obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
-                .order_by('data_catalog_id', 'date_created').first()
-            if obj:
-                return obj
-
-        raise Http404
+        return super(DatasetViewSet, self).get_object(search_params={ 'identifier': lookup_value })
 
     def _get_removed_dataset(self):
         """

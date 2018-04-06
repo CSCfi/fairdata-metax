@@ -88,10 +88,23 @@ class CatalogRecordSerializer(CommonSerializer):
 
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
-        res['data_catalog'] = DataCatalogSerializer(instance.data_catalog).data
+
+        if self.expand_relation_requested('data_catalog'):
+            res['data_catalog'] = DataCatalogSerializer(instance.data_catalog).data
+        else:
+            res['data_catalog'] = {
+                'id': instance.data_catalog.id,
+                'identifier': instance.data_catalog.catalog_json['identifier'],
+            }
 
         if 'contract' in res:
-            res['contract'] = ContractSerializer(instance.contract).data
+            if self.expand_relation_requested('contract'):
+                res['contract'] = ContractSerializer(instance.contract).data
+            else:
+                res['contract'] = {
+                    'id': instance.contract.id,
+                    'identifier': instance.contract.contract_json['identifier']
+                }
 
         if 'alternate_record_set' in res:
             alternate_records = instance.alternate_record_set.records.exclude(pk=instance.id)

@@ -5,6 +5,7 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.models import Directory, File, FileStorage
 from .common_serializer import CommonSerializer
+from .directory_serializer import DirectorySerializer
 from .file_storage_serializer import FileStorageSerializer
 from .serializer_utils import validate_json
 
@@ -61,12 +62,21 @@ class FileSerializer(CommonSerializer):
     def to_representation(self, instance):
         res = super(FileSerializer, self).to_representation(instance)
 
-        res['file_storage'] = FileStorageSerializer(instance.file_storage).data
+        if self.expand_relation_requested('file_storage'):
+            res['file_storage'] = FileStorageSerializer(instance.file_storage).data
+        else:
+            res['file_storage'] = {
+                'id': instance.file_storage.id,
+                'identifier': instance.file_storage.file_storage_json['identifier'],
+            }
 
-        res['parent_directory'] = {
-            'id': instance.parent_directory.id,
-            'identifier': instance.parent_directory.identifier,
-        }
+        if self.expand_relation_requested('parent_directory'):
+            res['parent_directory'] = DirectorySerializer(instance.parent_directory).data
+        else:
+            res['parent_directory'] = {
+                'id': instance.parent_directory.id,
+                'identifier': instance.parent_directory.identifier,
+            }
 
         res['checksum'] = self._form_checksum(res)
 
@@ -81,12 +91,24 @@ class FileSerializer(CommonSerializer):
         Ensure file_path is unique in the project, within unremoved files.
         file_path can exist multiple times for removed files though.
         """
+        if self._operation_is_create():
+            if 'project_identifier' not in self.initial_data:
+                # the validation for project_identifier is executed later...
+                return value
+            project = self.initial_data['project_identifier']
+            if File.objects.filter(project_identifier=project, file_path=value).exists():
+                raise ValidationError('a file with path %s already exists in project %s' % (value, project))
 
-        # in case project_identifier is missing, use silly value to guarantee that this does not fail.
-        # the validation for project_identifier is executed later...
-        project = self.initial_data.get('project_identifier', '-----none----')
-        if File.objects.filter(project_identifier=project, file_path=value).exists():
-            raise ValidationError('a file with path %s already exists in project %s' % (value, project))
+        elif self._operation_is_update():
+            if 'file_path' not in self.initial_data:
+                return value
+            if self.instance.file_path != self.initial_data['file_path']:
+                # would require re-arranging the virtual file tree... implement in the future if need arises
+                raise ValidationError('file_path can not be changed after creating')
+        else:
+            # delete
+            pass
+
         return value
 
     def _get_file_storage_relation(self, identifier_value):
