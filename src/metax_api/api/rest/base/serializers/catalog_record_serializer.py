@@ -161,19 +161,12 @@ class CatalogRecordSerializer(CommonSerializer):
         self._set_dataset_schema()
 
         if self._operation_is_create():
-            # metadata_version_identifier cant be provided by the user, but it is a required field =>
-            # add metadata_version_identifier temporarily to pass schema validation. proper value
-            # will be generated later in CatalogRecord model save().
-            value['metadata_version_identifier'] = 'temp'
-
             if not value.get('preferred_identifier', None):
                 # normally not present, but may be set by harvesters. if missing,
                 # use temporary value and remove after schema validation.
                 value['preferred_identifier'] = 'temp'
 
             validate_json(value, self.json_schema)
-
-            value.pop('metadata_version_identifier')
 
             if value['preferred_identifier'] == 'temp':
                 value.pop('preferred_identifier')
