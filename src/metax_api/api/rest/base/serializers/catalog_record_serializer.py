@@ -13,12 +13,14 @@ from .serializer_utils import validate_json
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
+
 class CatalogRecordSerializer(CommonSerializer):
 
     class Meta:
         model = CatalogRecord
         fields = (
             'id',
+            'identifier',
             'alternate_record_set',
             'contract',
             'data_catalog',
@@ -30,10 +32,6 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_description',
             'preservation_reason_description',
             'mets_object_identifier',
-            'dataset_group_edit',
-            'next_metadata_version',
-            'previous_metadata_version',
-            'metadata_version_set',
             'editor',
             'removed',
         ) + CommonSerializer.Meta.fields
@@ -41,12 +39,13 @@ class CatalogRecordSerializer(CommonSerializer):
         extra_kwargs = {
             # these values are generated automatically or provide default values on creation.
             # some fields can be later updated by the user, some are generated
+            'identifier':       { 'required': False },
             'preservation_state':       { 'required': False },
             'preservation_description': { 'required': False },
             'preservation_state_modified':    { 'required': False },
             'mets_object_identifier':   { 'required': False },
-            'next_metadata_version':             { 'required': False },
-            'previous_metadata_version':         { 'required': False },
+            'next_dataset_version':             { 'required': False },
+            'previous_dataset_version':         { 'required': False },
         }
 
         extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
@@ -60,9 +59,8 @@ class CatalogRecordSerializer(CommonSerializer):
 
         self.initial_data.pop('alternate_record_set', None)
         self.initial_data.pop('dataset_version_set', None)
-        self.initial_data.pop('metadata_version_set', None)
-        self.initial_data.pop('next_metadata_version', None)
-        self.initial_data.pop('previous_metadata_version', None)
+        self.initial_data.pop('next_dataset_version', None)
+        self.initial_data.pop('previous_dataset_version', None)
         self.initial_data.pop('removed', None)
 
         if self._data_catalog_is_changed():
@@ -98,40 +96,26 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'alternate_record_set' in res:
             alternate_records = instance.alternate_record_set.records.exclude(pk=instance.id)
             if len(alternate_records):
-                res['alternate_record_set'] = [ ar.metadata_version_identifier for ar in alternate_records ]
-
-        if 'metadata_version_set' in res:
-            res['metadata_version_set'] = instance.metadata_version_set.get_listing()
-
-        if 'next_metadata_version' in res:
-            res['next_metadata_version'] = {
-                'id': instance.next_metadata_version.id,
-                'metadata_version_identifier': instance.next_metadata_version.metadata_version_identifier,
-            }
-
-        if 'previous_metadata_version' in res:
-            res['previous_metadata_version'] = {
-                'id': instance.previous_metadata_version.id,
-                'metadata_version_identifier': instance.previous_metadata_version.metadata_version_identifier,
-            }
+                res['alternate_record_set'] = [ ar.identifier for ar in alternate_records ]
 
         if 'dataset_version_set' in res:
             res['dataset_version_set'] = instance.dataset_version_set.get_listing()
 
-        if instance.next_dataset_version:
+        if instance.next_dataset_version_id:
             res['next_dataset_version'] = {
                 'id': instance.next_dataset_version.id,
+                'identifier': instance.next_dataset_version.identifier,
                 'preferred_identifier': instance.next_dataset_version.preferred_identifier,
             }
 
-        if instance.previous_dataset_version:
+        if instance.previous_dataset_version_id:
             res['previous_dataset_version'] = {
                 'id': instance.previous_dataset_version.id,
+                'identifier': instance.previous_dataset_version.identifier,
                 'preferred_identifier': instance.previous_dataset_version.preferred_identifier,
             }
 
-        if instance.new_metadata_version_created_in_current_request \
-                or instance.new_dataset_version_created_in_current_request:
+        if instance.new_dataset_version_created_in_current_request:
             # when a new version is created:
             # 1) inform the view that new versions should be published as a new record.
             #    the view should also remove the key __actions once it is done.
@@ -139,28 +123,17 @@ class CatalogRecordSerializer(CommonSerializer):
             #    created.
             res['__actions'] = {}
 
-            if instance.new_metadata_version_created_in_current_request:
-                res['__actions']['publish_new_version'] = {
-                    'dataset': self.to_representation(instance.next_metadata_version)
-                }
-                res['new_version_created'] = {
-                    'id': instance.next_metadata_version.id,
-                    'metadata_version_identifier': instance.next_metadata_version.metadata_version_identifier,
-                    'version_type': 'metadata'
-                }
-
-            elif instance.new_dataset_version_created_in_current_request:
-                res['__actions']['publish_new_version'] = {
-                    'dataset': self.to_representation(instance.next_dataset_version)
-                }
-                # note: returning metadata_version_identifier even if the new version creatd
-                # is of type 'dataset', to be explicit about the specific record that was created.
-                res['new_version_created'] = {
-                    'id': instance.next_dataset_version.id,
-                    'metadata_version_identifier': instance.next_dataset_version.metadata_version_identifier,
-                    'preferred_identifier': instance.next_dataset_version.preferred_identifier,
-                    'version_type': 'dataset'
-                }
+            res['__actions']['publish_new_version'] = {
+                'dataset': self.to_representation(instance.next_dataset_version)
+            }
+            # note: returning metadata_version_identifier even if the new version creatd
+            # is of type 'dataset', to be explicit about the specific record that was created.
+            res['new_version_created'] = {
+                'id': instance.next_dataset_version.id,
+                'identifier': instance.next_dataset_version.identifier,
+                'preferred_identifier': instance.next_dataset_version.preferred_identifier,
+                'version_type': 'dataset'
+            }
 
         return res
 

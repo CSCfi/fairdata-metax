@@ -1,7 +1,6 @@
 from json import dump, load
 import logging
 
-from django.db.models import Q
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
@@ -53,14 +52,6 @@ class DatasetViewSet(CommonViewSet):
 
         additional_filters = {}
 
-        if self.kwargs.get('pk', None):
-            # operations on individual resources can find old versions. those operations
-            # then decide if they allow modifying the resource or not
-            pass
-        else:
-            # list operations only list current versions
-            additional_filters = { 'next_metadata_version_id': None }
-
         if hasattr(self, 'queryset_search_params'):
             additional_filters.update(**self.queryset_search_params)
 
@@ -86,6 +77,11 @@ class DatasetViewSet(CommonViewSet):
         # best to specify a variable for parameters intended for filtering purposes in get_queryset(),
         # because other api's may use query parameters of the same name, which can
         # mess up filtering if get_queryset() uses request.query_parameters directly.
+
+        # actually a nested url /datasets/id/metadata_versions/id. this is probably a very screwed up way to do this...
+        if 'identifier' in kwargs and 'metadata_version_identifier' in kwargs:
+            return self._metadata_version_get(request, *args, **kwargs)
+
         self.queryset_search_params = CRS.get_queryset_search_params(request)
         return super(DatasetViewSet, self).list(request, *args, **kwargs)
 
@@ -114,7 +110,7 @@ class DatasetViewSet(CommonViewSet):
         if res.status_code == status.HTTP_204_NO_CONTENT:
             removed_object = self._get_removed_dataset()
             rabbitmq = RabbitMQ()
-            rabbitmq.publish({ 'metadata_version_identifier': removed_object.metadata_version_identifier },
+            rabbitmq.publish({ 'identifier': removed_object.identifier },
                 routing_key='delete', exchange='datasets')
         return res
 
@@ -131,6 +127,40 @@ class DatasetViewSet(CommonViewSet):
             rabbitmq.publish(message, routing_key='create', exchange='datasets')
 
         return res
+
+    def _metadata_version_get(self, request, *args, **kwargs):
+        """
+        Get single research_dataset version.
+        """
+        assert 'identifier' in kwargs
+        assert 'metadata_version_identifier' in kwargs
+
+        # get_object() expects the following...
+        self.kwargs[self.lookup_field] = kwargs['identifier']
+
+        cr = self.get_object()
+        search_params = { 'catalog_record_id': cr.id }
+
+        if CRS.is_primary_key(kwargs['metadata_version_identifier']):
+            search_params['id'] = kwargs['metadata_version_identifier']
+        else:
+            search_params['metadata_version_identifier'] = kwargs['metadata_version_identifier']
+
+        try:
+            research_dataset = cr.research_dataset_versions.get(**search_params).research_dataset
+        except:
+            raise Http404
+
+        return Response(data=research_dataset, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], url_path="metadata_versions")
+    def metadata_versions_list(self, request, pk=None):
+        """
+        List all research_dataset version associated with this dataset.
+        """
+        cr = self.get_object()
+        entries = cr.get_metadata_version_listing()
+        return Response(data=entries, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], url_path="files")
     def files_get(self, request, pk=None):
@@ -168,8 +198,16 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data=True, status=status.HTTP_200_OK)
 
+    @list_route(methods=['get'], url_path="identifiers")
+    def get_all_identifiers(self, request):
+        self.queryset_search_params = CRS.get_queryset_search_params(request)
+        q = self.get_queryset().values('identifier')
+        identifiers = [item['identifier'] for item in q]
+        return Response(identifiers)
+
     @list_route(methods=['get'], url_path="metadata_version_identifiers")
     def get_all_metadata_version_identifiers(self, request):
+        # todo probably remove at some point
         self.queryset_search_params = CRS.get_queryset_search_params(request)
         q = self.get_queryset().values('research_dataset')
         identifiers = [item['research_dataset']['metadata_version_identifier'] for item in q]
@@ -180,14 +218,7 @@ class DatasetViewSet(CommonViewSet):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
 
         if CS.get_boolean_query_param(request, 'latest'):
-            # search latest dataset versions only. while this still possibly returns duplicates
-            # (from harvested catalogs), the later set(results) will weed those out
-            queryset = self.get_queryset().filter(
-                Q(metadata_version_set_id=None) |
-                Q(metadata_version_set_id__isnull=False,
-                metadata_version_set__next_dataset_version_id=None,
-                next_metadata_version_id=None)
-            ).values('research_dataset')
+            queryset = self.get_queryset().filter(next_dataset_version_id=None).values('research_dataset')
         else:
             queryset = self.get_queryset().values('research_dataset')
 
@@ -198,28 +229,34 @@ class DatasetViewSet(CommonViewSet):
         """
         Search by lookup value from metadata_version_identifier and preferred_identifier fields. preferred_identifier
         searched only with GET requests. If query contains parameter 'preferred_identifier', do not lookup
-        using metadata_version_identifier
+        using identifier or metadata_version_identifier
         """
         lookup_value = self.kwargs.get(self.lookup_field, False)
 
         if not CS.get_boolean_query_param(self.request, 'preferred_identifier'):
             try:
+                # todo probably remove this at some point. for now, doesnt do harm and does not instantly break
+                # services using this...
                 return super(DatasetViewSet, self).get_object(
                     search_params={ 'research_dataset__contains': {'metadata_version_identifier': lookup_value} })
+            except Http404:
+                pass
+
+            try:
+                return super(DatasetViewSet, self).get_object(search_params={ 'identifier': lookup_value })
             except Http404:
                 if self.request.method != 'GET':
                     raise
 
         # - hits from att catalogs (assumed to be first created. improve logic if situation changes)
         # search by preferred_identifier only for GET requests, while preferring:
-        # - latest version records (= has no next_metadata_version_id)
         # - first created (the first harvested occurrence, probably)
 
         # note: cant use get_object() like above, because get_object() will throw an error if there are
         # multiple results
         if self.request.method == 'GET':
             obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
-                .order_by('data_catalog_id', '-next_metadata_version_id', 'date_created').first()
+                .order_by('data_catalog_id', 'date_created').first()
             if obj:
                 return obj
 
@@ -232,6 +269,7 @@ class DatasetViewSet(CommonViewSet):
         lookup_value = self.kwargs.get('pk')
         different_fields = [
             {},
+            { 'search_params': { 'identifier': lookup_value } },
             { 'search_params': { 'research_dataset__contains': {'metadata_version_identifier': lookup_value }} },
             { 'search_params': { 'research_dataset__contains': {'preferred_identifier': lookup_value }} },
             { 'search_params': { 'research_dataset__contains':

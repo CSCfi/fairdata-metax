@@ -12,6 +12,12 @@
             "title":"Catalog Record",
             "description":"A record in a data catalog, describing a single dataset.",
             "properties":{
+                "identifier":{
+                    "title":"Identifier",
+                    "description":"Internal identifier of the record. Required by API write operations.",
+                    "type":"string",
+                    "readonly": true
+                },
                 "data_catalog":{
                     "title":"Data catalog",
                     "description":"Data Catalog",
@@ -32,7 +38,7 @@
                 },
                 "alternate_record_set":{
                     "title":"Alternate Records",
-                    "description":"List of records who share the same preferred_identifier value, but are saved in different data catalogs. The list of contains the metadata_version_identifier values of those records.",
+                    "description":"List of records who share the same preferred_identifier value, but are saved in different data catalogs. The list of contains the identifier values of those records.",
                     "type":"array",
                     "items":{
                         "type":"string"
@@ -74,7 +80,8 @@
                     "description":"Date when preservation state was last changed",
                     "maxItems":1,
                     "type":"string",
-                    "format":"date-time"
+                    "format":"date-time",
+                    "readonly": true
                 },
                 "mets_object_identifier":{
                     "title":"Mets object identifier",
@@ -96,27 +103,6 @@
                     "type":"object",
                     "$ref":"#/definitions/Editor"
                 },
-                "metadata_version_set":{
-                    "title":"Metadata version set",
-                    "description":"List of records (metadata_version_identifiers) which are different metadata versions of the same record.",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    },
-                    "readonly": true
-                },
-                "next_metadata_version":{
-                    "title":"Next metadata version record",
-                    "description":"Link to the next metadata version record",
-                    "type":"object",
-                    "$ref":"#/definitions/CatalogRecordVersion"
-                },
-                "previous_metadata_version":{
-                    "title":"Previous metadata version record",
-                    "description":"Link to the previous metadata version record",
-                    "type":"object",
-                    "$ref":"#/definitions/CatalogRecordVersion"
-                },
                 "dataset_version_set":{
                     "title":"Dataset version set",
                     "description":"List of preferred_identifiers of the different related dataset versions.",
@@ -128,21 +114,24 @@
                 },
                 "next_dataset_version":{
                     "title":"Next dataset version",
-                    "description":"Next dataset version preferred_identifier",
+                    "description":"Next dataset version info.",
                     "type":"object",
-                    "$ref":"#/definitions/CatalogRecordVersion"
+                    "$ref":"#/definitions/CatalogRecordVersion",
+                    "readonly": true
                 },
                 "previous_dataset_version":{
                     "title":"Previous dataset version",
-                    "description":"previous dataset version preferred_identifier",
+                    "description":"Previous dataset version info.",
                     "type":"object",
-                    "$ref":"#/definitions/CatalogRecordVersion"
+                    "$ref":"#/definitions/CatalogRecordVersion",
+                    "readonly": true
                 },
                 "new_version_created":{
                     "title":"New version created",
                     "description":"Included in the API response when an update results in a new version being created.",
                     "type":"object",
-                    "$ref":"#/definitions/CatalogRecordVersionCreatedInfo"
+                    "$ref":"#/definitions/CatalogRecordVersionCreatedInfo",
+                    "readonly": true
                 },
                 "date_modified":{
                     "title":"Date Modified",
@@ -228,9 +217,9 @@
                     "type":"integer",
                     "readonly": true
                 },
-                "metadata_version_identifier":{
-                    "title":"Metadata version identifier",
-                    "description":"metadata_version_identifier of the record. Only present in links to different metadata version records.",
+                "identifier":{
+                    "title":"Identifier",
+                    "description":"Identifier of the record. Only present in links to different metadata version records.",
                     "type":"string",
                     "readonly": true
                 },
@@ -252,9 +241,9 @@
                     "type":"integer",
                     "readonly": true
                 },
-                "metadata_version_identifier":{
-                    "title":"Metadata version identifier",
-                    "description":"metadata_version_identifier of the new version record",
+                "identifier":{
+                    "title":"Identifier",
+                    "description":"Identifier of the new version record",
                     "type":"string",
                     "readonly": true
                 },
@@ -270,13 +259,13 @@
                     "type":"string",
                     "readonly": true,
                     "enum":[
-                        "metadata",
                         "dataset",
                     ],
                 },
             },
             "required":[
-                "metadata_version_identifier",
+                "identifier",
+                "preferred_identifier",
                 "version_type"
             ]
         }

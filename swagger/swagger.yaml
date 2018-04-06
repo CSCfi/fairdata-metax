@@ -361,7 +361,7 @@ paths:
           type: string
       responses:
         '200':
-          description: a list of metadata_version_identifiers. if the files were not found to belong to any datasets, an empty list is returned
+          description: a list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
         '404':
           description: files given in the list not found
       tags:
@@ -738,7 +738,7 @@ paths:
     patch:
       summary: bulk update partial
       description: |
-        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, research_dataset->metadata_version_identifier</b>
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, identifier</b>
       consumes:
         - application/json
       parameters:
@@ -753,9 +753,28 @@ paths:
           description: All updates failed. A list of errors is returned.
       tags:
         - Dataset API
-  /datasets/metadata_version_identifiers:
+  /datasets/{PID}/metadata_versions:
     get:
-      summary: "list all dataset metadata version identifiers"
+      summary: "list old research_dataset entries of a record"
+      responses:
+        "200":
+          description: successful operation, return a list of entries. may return an empty list.
+      tags:
+        - Dataset API
+  /datasets/{PID}/metadata_versions/{MVI}:
+    get:
+      summary: "get contents of a specific old research_dataset of a record."
+      description: "{MVI} is the metadata_version_identifier of the research_dataset."
+      responses:
+        "200":
+          description: successful operation, return a list of entries. may return an empty list.
+        "404":
+          description: resource not found.
+      tags:
+        - Dataset API
+  /datasets/identifiers:
+    get:
+      summary: "list all dataset identifiers"
       parameters:
         - name: latest
           in: query
