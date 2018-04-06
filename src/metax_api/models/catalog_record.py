@@ -59,8 +59,13 @@ class DatasetVersionSet(models.Model):
         Latest first.
         """
         return [
-            { 'preferred_identifier': r.preferred_identifier, 'date_created': r.date_created.astimezone().isoformat() }
-            for r in self.records.all().order_by('-date_created')
+            {
+                'identifier': r.identifier,
+                'preferred_identifier': r.preferred_identifier,
+                'removed': r.removed,
+                'date_created': r.date_created.astimezone().isoformat()
+            }
+            for r in self.records(manager='objects_unfiltered').all().order_by('-date_created')
         ]
 
     def print_records(self): # pragma: no cover

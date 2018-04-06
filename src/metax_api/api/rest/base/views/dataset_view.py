@@ -1,5 +1,4 @@
 from json import dump, load
-import urllib.parse
 import logging
 
 from django.http import Http404
@@ -75,7 +74,7 @@ class DatasetViewSet(CommonViewSet):
         return res
 
     def _retrieve_by_preferred_identifier(self, request, *args, **kwargs):
-        lookup_value = urllib.parse.unquote(request.query_params['preferred_identifier'])
+        lookup_value = request.query_params['preferred_identifier']
         self.kwargs[self.lookup_field] = lookup_value
         self.request.GET._mutable = True
         self.request.query_params['no_pagination'] = 'true'

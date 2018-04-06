@@ -1482,6 +1482,22 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/1', cr, format="json")
         self.assertEqual('next_dataset_version' in response.data, True)
         self.assertEqual('new_version_created' in response.data, True)
+        self.assertEqual('dataset_version_set' in response.data, True)
+
+    def test_dataset_version_lists_removed_records(self):
+        # create new version
+        cr = self.client.get('/rest/datasets/1').data
+        cr['research_dataset']['files'].pop(0)
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+
+        # delete the new version
+        new_ver = response.data['next_dataset_version']
+        response = self.client.delete('/rest/datasets/%d' % new_ver['id'], format="json")
+
+        # check deleted record is listed
+        response = self.client.get('/rest/datasets/1', format="json")
+        self.assertEqual(response.data['dataset_version_set'][0].get('removed', None), True,
+            response.data['dataset_version_set'])
 
     def _assert_metadata_version_count(self, record, count):
         response = self.client.get('/rest/datasets/%d/metadata_versions' % record['id'], format="json")

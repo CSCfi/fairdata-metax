@@ -1,3 +1,5 @@
+import urllib.parse
+
 from django.db.models import Sum
 from django.core.management import call_command
 from rest_framework import status
@@ -225,8 +227,11 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         """
         Test query parameter 'preferred_identifier'.
         """
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.research_dataset['preferred_identifier'] = '%s-/uhoh/special.chars?all&around' % cr.preferred_identifier
+        cr.force_save()
         response = self.client.get('/rest/directories/3/files?preferred_identifier=%s'
-            % CatalogRecord.objects.get(pk=1).preferred_identifier)
+            % urllib.parse.quote(cr.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('directories' in response.data, True)
         self.assertEqual('files' in response.data, True)

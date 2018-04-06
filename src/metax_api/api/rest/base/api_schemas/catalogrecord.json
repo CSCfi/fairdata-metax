@@ -105,10 +105,25 @@
                 },
                 "dataset_version_set":{
                     "title":"Dataset version set",
-                    "description":"List of preferred_identifiers of the different related dataset versions.",
+                    "description":"Information about the different related dataset versions.",
                     "type":"array",
                     "items":{
-                        "type":"string"
+                        "type":"object",
+                        "properties": {
+                            "identifier": {
+                                "type": "string"
+                            },
+                            "preferred_identifier": {
+                                "type": "string"
+                            },
+                            "removed": {
+                                "type": "boolean"
+                            },
+                            "date_created": {
+                                "type":"string",
+                                "format":"date-time"
+                            }
+                        }
                     },
                     "readonly": true
                 },
