@@ -670,6 +670,14 @@ paths:
           description: curator identifier (field research_dataset-> curator-> identifier)
           required: false
           type: string
+        - name: preferred_identifier
+          in: query
+          description: |
+            Use given preferred_identifier as filter. Returns a best guess of the record (always a single record!), by
+            looking from Fairdata catalogs first, then from harvested catalogs. If the value of preferred_identifier
+            contains special characters such as ampersands, the value has to be urlencoded.
+          required: false
+          type: string
         - name: state
           in: query
           description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
