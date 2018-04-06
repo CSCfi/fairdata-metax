@@ -51,10 +51,13 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
             self.identifier)
 
     def test_get_by_preferred_identifier(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.research_dataset['preferred_identifier'] = '%s-/uhoh/special.chars?all&around' % cr.preferred_identifier
+        cr.force_save()
         response = self.client.get('/rest/datasets?preferred_identifier=%s' %
-            urllib.parse.quote(self.preferred_identifier))
+            urllib.parse.quote(cr.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], cr.preferred_identifier)
 
     def test_get_removed_by_preferred_identifier(self):
         self._use_http_authorization()
