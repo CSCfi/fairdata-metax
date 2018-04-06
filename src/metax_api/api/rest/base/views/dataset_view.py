@@ -88,7 +88,8 @@ class DatasetViewSet(CommonViewSet):
             obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
                 .order_by('data_catalog_id', 'date_created').first()
             if obj:
-                return Response(data=CatalogRecordSerializer(obj).data, status=status.HTTP_200_OK)
+                serializer = self.get_serializer(obj)
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
         raise Http404
 
     def list(self, request, *args, **kwargs):
