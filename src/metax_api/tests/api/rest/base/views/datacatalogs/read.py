@@ -19,15 +19,6 @@ class DataCatalogApiReadBasicTests(APITestCase, TestClassUtils):
         self.pk = data_catalog_from_test_data['id']
         self.identifier = data_catalog_from_test_data['catalog_json']['identifier']
 
-    def test_read_data_catalog_exists(self):
-        response = self.client.get('/rest/datacatalogs/%s/exists' % self.pk)
+    def test_basic_get(self):
+        response = self.client.get('/rest/datacatalogs/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datacatalogs/%s/exists' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-
-    def test_read_catalog_record_does_not_exist(self):
-        response = self.client.get('/rest/datacatalogs/%s/exists' % 'urn:nbn:fi:non_existing_data_catalog_identifier')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(response.data)
