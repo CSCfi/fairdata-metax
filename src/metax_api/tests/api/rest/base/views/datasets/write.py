@@ -652,6 +652,8 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
     def test_catalog_record_update_list_error_key_not_found(self):
         # does not have identifier key
         cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1.pop('id')
+        cr_1.pop('identifier')
         cr_1['research_dataset'].pop('metadata_version_identifier')
 
         cr_2 = self.client.get('/rest/datasets/2').data
