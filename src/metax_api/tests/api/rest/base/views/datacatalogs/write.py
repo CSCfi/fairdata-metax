@@ -17,7 +17,7 @@ class DataCatalogApiWriteCommon(APITestCase, TestClassUtils):
     def setUp(self):
         self.new_test_data = self._get_object_from_test_data('datacatalog')
         self.new_test_data.pop('id')
-        self.new_test_data['catalog_json'].pop('identifier')
+        self.new_test_data['catalog_json']['identifier'] = 'new-data-catalog'
         self._use_http_authorization()
 
 
@@ -43,7 +43,7 @@ class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
         self.new_test_data['catalog_json']['harvested'] = True
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('versioning' in response.data['detail'][0], True)
+        self.assertEqual('versioning' in response.data['detail'][0], True, response.data)
 
 
 class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
