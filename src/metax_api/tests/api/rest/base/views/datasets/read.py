@@ -1,4 +1,5 @@
 from datetime import timedelta
+import urllib.parse
 
 from django.core.management import call_command
 from django.utils import timezone
@@ -24,9 +25,11 @@ class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
         self.pk = self.cr_from_test_data['id']
         self.metadata_version_identifier = self.cr_from_test_data['research_dataset']['metadata_version_identifier']
         self.preferred_identifier = self.cr_from_test_data['research_dataset']['preferred_identifier']
+        self.identifier = self.cr_from_test_data['identifier']
 
 
 class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
+
     """
     Basic read operations
     """
@@ -38,26 +41,31 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
     def test_read_catalog_record_details_by_pk(self):
         response = self.client.get('/rest/datasets/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['metadata_version_identifier'],
-            self.metadata_version_identifier)
+        self.assertEqual(response.data['identifier'], self.identifier)
+        self.assertEqual('identifier' in response.data['data_catalog'], True)
 
-    def test_read_catalog_record_details_by_metadata_version_identifier(self):
-        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier)
+    def test_read_catalog_record_details_by_identifier(self):
+        response = self.client.get('/rest/datasets/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['metadata_version_identifier'],
-            self.metadata_version_identifier)
+        self.assertEqual(response.data['identifier'],
+            self.identifier)
 
     def test_get_by_preferred_identifier(self):
-        response = self.client.get('/rest/datasets/%s' % self.preferred_identifier)
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.research_dataset['preferred_identifier'] = '%s-/uhoh/special.chars?all&around' % cr.preferred_identifier
+        cr.force_save()
+        response = self.client.get('/rest/datasets?preferred_identifier=%s' %
+            urllib.parse.quote(cr.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], cr.preferred_identifier)
 
     def test_get_removed_by_preferred_identifier(self):
         self._use_http_authorization()
-        response = self.client.delete('/rest/datasets/%s' % self.metadata_version_identifier)
+        response = self.client.delete('/rest/datasets/%s' % self.identifier)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        response = self.client.get('/rest/datasets/%s?removed=true' % self.preferred_identifier)
+        response = self.client.get('/rest/datasets?preferred_identifier=%s&removed=true' %
+            urllib.parse.quote(self.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_by_preferred_identifier_search_prefers_oldest_data_catalog(self):
@@ -71,45 +79,14 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         pid = cr['research_dataset']['preferred_identifier']
 
         # the retrieved record should be the one that is in catalog 1
-        response = self.client.get('/rest/datasets/%s' % pid)
+        response = self.client.get('/rest/datasets?preferred_identifier=%s' %
+            urllib.parse.quote(pid))
         self.assertEqual('alternate_record_set' in response.data, True)
         self.assertEqual(response.data['data_catalog']['id'], cr['data_catalog'])
-
-    def test_get_by_preferred_identifier_search_prefers_newest_version(self):
-        '''
-        Search by preferred_identifier should prefer newest versions of records.
-        '''
-        response = self.client.get('/rest/datasets/%s' % self.metadata_version_identifier)
-        new = response.data
-        new['research_dataset']['title']['en'] = 'updated title'
-
-        self._use_http_authorization()
-        response = self.client.put('/rest/datasets/%s' % self.metadata_version_identifier, new, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        newest_version_id = response.data['next_metadata_version']['id']
-
-        response = self.client.get('/rest/datasets/%s' % response.data['research_dataset']['preferred_identifier'])
-        self.assertEqual(response.data['id'], newest_version_id)
 
     def test_read_catalog_record_details_not_found(self):
         response = self.client.get('/rest/datasets/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_read_catalog_record_exists(self):
-        response = self.client.get('/rest/datasets/%s/exists' % self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.metadata_version_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-        response = self.client.get('/rest/datasets/%s/exists' % self.metadata_version_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data)
-
-    def test_read_catalog_record_does_not_exist(self):
-        response = self.client.get('/rest/datasets/%s/exists' % 'urn:nbn:fi:non_existing_dataset_identifier')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(response.data)
 
     def test_read_catalog_record_metadata_version_identifiers(self):
         response = self.client.get('/rest/datasets/metadata_version_identifiers')
@@ -117,14 +94,6 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
         self.assertTrue(response.data[0].startswith('urn:'))
-
-    def test_get_only_by_preferred_identifier(self):
-        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.preferred_identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['research_dataset']['preferred_identifier'], self.preferred_identifier)
-
-        response = self.client.get('/rest/datasets/%s?preferred_identifier' % self.metadata_version_identifier)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_unique_preferred_identifiers(self):
         """
@@ -155,15 +124,8 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         # save the current len, do some more operations, and compare the difference
         ids_len = len(response.data)
 
-        cr = CatalogRecord.objects.get(pk=1)
-
-        # metadata change
-        cr.research_dataset['title']['en'] = 'updated title'
-        cr.save()
-        response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
-        self.assertEqual(ids_len, len(response.data), 'count should stay the same')
-
         # files change
+        cr = CatalogRecord.objects.get(pk=1)
         new_file_id = cr.files.all().order_by('-id').first().id + 1
         file_from_testdata = self._get_object_from_test_data('file', requested_index=new_file_id)
         # warning, this is actual file metadata, would not pass schema validation if sent through api
@@ -178,10 +140,21 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
         self.assertEqual(len(response.data) - ids_len, 2, 'should be two new PIDs')
 
+    def test_expand_relations(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.contract_id = 1
+        cr.force_save()
+
+        response = self.client.get('/rest/datasets/1?expand_relation=data_catalog,contract')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('catalog_json' in response.data['data_catalog'], True, response.data['data_catalog'])
+        self.assertEqual('contract_json' in response.data['contract'], True, response.data['contract'])
+
     def _create_new_ds(self):
         new_cr = self.client.get('/rest/datasets/2').data
         new_cr.pop('id')
         new_cr['research_dataset'].pop('preferred_identifier')
+        new_cr.pop('identifier')
         self._use_http_authorization()
         response = self.client.post('/rest/datasets', new_cr, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -302,22 +275,6 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['user_created'], '123')
-
-    def test_read_catalog_record_latest_versions_only(self):
-        all_newest_versions_count = CatalogRecord.objects.filter(next_metadata_version_id=None).count()
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.research_dataset['title']['en'] = 'Updated'
-        cr.save()
-        response = self.client.get('/rest/datasets?latest')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['count'], all_newest_versions_count)
-        for cr in response.data['results']:
-            self.assertEqual('next_metadata_version' not in cr, True, 'only latest versions should be listed')
-
-        # ?latest should have effect in all /datasets list apis
-        response = self.client.get('/rest/datasets/metadata_version_identifiers?latest')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), all_newest_versions_count)
 
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):

@@ -83,6 +83,16 @@ class CommonSerializer(ModelSerializer):
 
         return ret
 
+    def expand_relation_requested(self, relation_name):
+        """
+        Check presense of query parameter 'expand_relation', which is used by serializer
+        to decide whether or not to include the complete relation object in the API response
+        or not.
+        """
+        if 'view' in self.context and 'expand_relation' in self.context['view'].request.query_params:
+            return relation_name in self.context['view'].request.query_params['expand_relation']
+        return False
+
     def _get_id_from_related_object(self, relation_field, string_relation_func):
         '''
         Use for finding out a related object's id, which Django needs to save the relation

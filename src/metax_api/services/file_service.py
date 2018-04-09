@@ -55,7 +55,7 @@ class FileService(CommonService):
     def get_datasets_where_file_belongs_to(cls, file_identifiers):
         """
         Find out which (non-deprecated) datasets a list of files belongs to, and return
-        their metadata_version_identifiers as a list. Includes only latest versions of datasets.
+        their preferred_identifiers as a list.
 
         Parameter file_identifiers can be a list of pk's (integers), or file identifiers (strings).
         """
@@ -70,23 +70,23 @@ class FileService(CommonService):
         file_ids = cls._file_identifiers_to_ids(file_identifiers)
 
         sql_select_related_records = """
-            select research_dataset->>'metadata_version_identifier' as metadata_version_identifier
+            select research_dataset->>'preferred_identifier' as preferred_identifier
             from metax_api_catalogrecord cr
             inner join metax_api_catalogrecord_files cr_f on catalogrecord_id = cr.id
             where cr_f.file_id in %s and cr.removed = false and cr.active = true
-            group by metadata_version_identifier
+            group by preferred_identifier
             """
 
         with connection.cursor() as cr:
             cr.execute(sql_select_related_records, [tuple(file_ids)])
             if cr.rowcount == 0:
-                metadata_version_identifiers = []
+                preferred_identifiers = []
                 _logger.info('No datasets found for files')
             else:
-                metadata_version_identifiers = [ row[0] for row in cr.fetchall() ]
-                _logger.info('Found following datasets:\n%s' % '\n'.join(metadata_version_identifiers))
+                preferred_identifiers = [ row[0] for row in cr.fetchall() ]
+                _logger.info('Found following datasets:\n%s' % '\n'.join(preferred_identifiers))
 
-        return Response(metadata_version_identifiers, status=status.HTTP_200_OK)
+        return Response(preferred_identifiers, status=status.HTTP_200_OK)
 
     @classmethod
     def destroy_single(cls, file):

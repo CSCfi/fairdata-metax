@@ -1,9 +1,6 @@
 import logging
 
 from django.http import Http404
-from rest_framework import status
-from rest_framework.decorators import detail_route
-from rest_framework.response import Response
 
 from metax_api.models import DataCatalog
 from .common_view import CommonViewSet
@@ -66,14 +63,3 @@ class DataCatalogViewSet(CommonViewSet):
                 return None
         except Exception:
             raise
-
-    @detail_route(methods=['get'], url_path="exists")
-    def data_catalog_exists(self, request, pk=None):
-        try:
-            self.get_object()
-        except Http404:
-            return Response(data=False, status=status.HTTP_200_OK)
-        except Exception:
-            return Response(data='', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(data=True, status=status.HTTP_200_OK)

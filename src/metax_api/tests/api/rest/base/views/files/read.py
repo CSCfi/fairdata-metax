@@ -24,6 +24,7 @@ class FileApiReadCommon(APITestCase, TestClassUtils):
 
 
 class FileApiReadBasicTests(FileApiReadCommon):
+
     def test_read_file_list(self):
         response = self.client.get('/rest/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -32,8 +33,9 @@ class FileApiReadBasicTests(FileApiReadCommon):
         response = self.client.get('/rest/files/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(hasattr(response, 'data'), True, 'Request response object is missing attribute \'data\'')
-        self.assertEqual('file_name' in response.data.keys(), True)
+        self.assertEqual('file_name' in response.data, True)
         self.assertEqual(response.data['identifier'], self.identifier)
+        self.assertEqual('identifier' in response.data['file_storage'], True)
 
     def test_read_file_details_by_identifier(self):
         response = self.client.get('/rest/files/%s' % self.identifier)
@@ -51,6 +53,12 @@ class FileApiReadBasicTests(FileApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('checksum' in response.data, True)
         self.assertEqual('value' in response.data['checksum'], True)
+
+    def test_expand_relations(self):
+        response = self.client.get('/rest/files/1?expand_relation=file_storage,parent_directory')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('file_storage_json' in response.data['file_storage'], True, response.data['file_storage'])
+        self.assertEqual('date_created' in response.data['parent_directory'], True, response.data['parent_directory'])
 
 
 class FileApiReadGetRelatedDatasets(FileApiReadCommon):

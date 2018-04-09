@@ -1389,8 +1389,7 @@
             "required":[
                 "description",
                 "preferred_identifier",
-                "title",
-                "metadata_version_identifier"
+                "title"
             ]
         },
         "RightsStatement":{

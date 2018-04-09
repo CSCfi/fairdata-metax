@@ -503,6 +503,7 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
             new['fields']['data_catalog'] = data_catalog_id
             new['fields']['research_dataset']['metadata_version_identifier'] = generate_test_identifier(cr_type, i)
             new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
+            new['fields']['identifier'] = generate_test_identifier('cr', i)
             new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
             new['fields']['date_created'] = '2017-05-23T10:07:22Z'
             new['fields']['editor'] = {
@@ -737,6 +738,7 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
         new['fields']['research_dataset']['metadata_version_identifier'] = \
             generate_test_identifier(cr_type, len(test_data_list) + 1)
         new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % (len(test_data_list) + 1)
+        new['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1)
 
         if type == 'ida':
             if j in [0, 1]:
@@ -896,6 +898,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
         'preferred_identifier']
     alt_rec['fields']['research_dataset']['metadata_version_identifier'] += '-alt-1'
+    alt_rec['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1)
     alt_rec['fields']['data_catalog'] = 2
     alt_rec['fields']['alternate_record_set'] = 1
     test_data_list.append(alt_rec)
@@ -906,6 +909,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
         'preferred_identifier']
     alt_rec['fields']['research_dataset']['metadata_version_identifier'] += '-alt-2'
+    alt_rec['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1)
     alt_rec['fields']['data_catalog'] = 3
     alt_rec['fields']['alternate_record_set'] = 1
     test_data_list.append(alt_rec)

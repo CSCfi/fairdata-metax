@@ -56,4 +56,8 @@ router.register(r'directories/?', DirectoryViewSet)
 router.register(r'files/?', FileViewSet)
 router.register(r'schemas/?', SchemaViewSet, 'schema')
 
+# note: this somehow maps to list-api... but the end result works when
+# the presence of the parameters is inspected in the list-api method.
+router.register(r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?', DatasetViewSet)
+
 api_urlpatterns = router.urls

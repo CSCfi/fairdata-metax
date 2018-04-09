@@ -5744,6 +5744,7 @@
                 1,
                 2
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d1",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -5835,6 +5836,7 @@
                 3,
                 4
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d2",
             "mets_object_identifier": null,
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -5929,6 +5931,7 @@
                 5,
                 6
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d3",
             "mets_object_identifier": null,
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6023,6 +6026,7 @@
                 7,
                 8
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d4",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -6121,6 +6125,7 @@
                 9,
                 10
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d5",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -6219,6 +6224,7 @@
                 11,
                 12
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d6",
             "mets_object_identifier": null,
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6312,6 +6318,7 @@
                 13,
                 14
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d7",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -6405,6 +6412,7 @@
                 15,
                 16
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d8",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -6495,6 +6503,7 @@
                 17,
                 18
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d9",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -6583,6 +6592,7 @@
                 19,
                 20
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9610",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -6686,6 +6696,7 @@
                 19,
                 20
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9611",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -7453,6 +7464,7 @@
                 19,
                 20
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9612",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -8288,6 +8300,7 @@
                 114,
                 115
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9613",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -9059,6 +9072,7 @@
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9614",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9150,6 +9164,7 @@
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9615",
             "mets_object_identifier": null,
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9244,6 +9259,7 @@
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9616",
             "mets_object_identifier": null,
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9338,6 +9354,7 @@
                 "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9617",
             "mets_object_identifier": null,
             "preservation_state": 3,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9432,6 +9449,7 @@
                 "owner_id": "055ea531a6cac569425bed94459266ee"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9618",
             "mets_object_identifier": null,
             "preservation_state": 4,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9526,6 +9544,7 @@
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9619",
             "mets_object_identifier": null,
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9619,6 +9638,7 @@
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9620",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9712,6 +9732,7 @@
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9621",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9805,6 +9826,7 @@
                 "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9622",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9898,6 +9920,7 @@
                 "owner_id": "055ea531a6cac569425bed94459266ee"
             },
             "files": [],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9623",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9988,6 +10011,7 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9624",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -10780,6 +10804,7 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9625",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -11572,6 +11597,7 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9626",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -12372,6 +12398,7 @@
                 19,
                 20
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9627",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -12460,6 +12487,7 @@
                 19,
                 20
             ],
+            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9628",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,

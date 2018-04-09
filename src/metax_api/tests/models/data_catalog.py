@@ -23,11 +23,3 @@ class DataCatalogModelTests(TestCase, TestClassUtils):
         dc.catalog_json['identifier'] = 'changed value'
         dc.save()
         self.assertEqual(old, dc.catalog_json['identifier'])
-
-    def test_identifier_is_auto_generated(self):
-        dc_from_test_data = self._get_object_from_test_data('datacatalog')
-        dc_from_test_data.pop('id')
-        dc_from_test_data['catalog_json'].pop('identifier')
-        new_dc = DataCatalog(**dc_from_test_data)
-        new_dc.save()
-        self.assertNotEqual(new_dc.catalog_json.get('identifier', None), None)
