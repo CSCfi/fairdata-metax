@@ -31,7 +31,7 @@ class File(Common):
 
     # MODEL FIELD DEFINITIONS #
 
-    byte_size = models.PositiveIntegerField(default=0)
+    byte_size = models.BigIntegerField(default=0)
     checksum_algorithm = models.CharField(max_length=200)
     checksum_checked = models.DateTimeField()
     checksum_value = models.TextField()
