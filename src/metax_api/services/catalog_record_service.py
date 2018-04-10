@@ -1,5 +1,5 @@
-from copy import deepcopy
-from datetime import datetime
+import logging
+from collections import defaultdict
 from os.path import dirname, join
 
 import simplexquery as sxq
@@ -8,58 +8,30 @@ from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.models import CatalogRecord, Contract
+from metax_api.models import Contract, Directory, File
+from metax_api.utils import RabbitMQ
 from .common_service import CommonService
+from .file_service import FileService
+from .reference_data_mixin import ReferenceDataMixin
 
-import logging
+
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
-class CatalogRecordService(CommonService):
 
-    @staticmethod
-    def create_new_dataset_version(request, catalog_record_current, **kwargs):
-        """
-        Note: no tests yet before further spekking
-        """
+# avoiding circular imports
+def DirectorySerializer(*args, **kwargs):
+    from metax_api.api.rest.base.serializers import DirectorySerializer as DS
+    DirectorySerializer = DS
+    return DirectorySerializer(*args, **kwargs)
 
-        if catalog_record_current.next_version_identifier:
-            raise Http403({ 'next_version_identifier': ['A newer version already exists. You can not create new versions from archived versions.'] })
+def FileSerializer(*args, **kwargs):
+    from metax_api.api.rest.base.serializers import FileSerializer as FS
+    FileSerializer = FS
+    return FileSerializer(*args, **kwargs)
 
-        if not catalog_record_current.ready_status or catalog_record_current.ready_status != CatalogRecord.READY_STATUS_FINISHED:
-            raise Http403({ 'ready_status': ['Value has to be \'Ready\' in order to create a new version.'] })
 
-        # import here instead of beginning of the file to avoid circular import in CR serializer
-        from metax_api.api.base.serializers import CatalogRecordSerializer
-
-        serializer_current = CatalogRecordSerializer(catalog_record_current, **kwargs)
-        current_time = datetime.now()
-
-        catalog_record_new = deepcopy(serializer_current.data)
-        catalog_record_new.pop('id', None)
-        catalog_record_new.pop('modified_by_api', None)
-        catalog_record_new.pop('modified_by_user_id', None)
-        catalog_record_new['identifier'] = 'urn:nice:generated:identifier' # TODO
-        catalog_record_new['research_dataset']['identifier'] = 'urn:nice:generated:identifier' # TODO
-        catalog_record_new['research_dataset']['preferred_identifier'] = request.query_params.get('preferred_identifier', None)
-        catalog_record_new['ready_status'] = 'Unfinished'
-        catalog_record_new['previous_version_identifier'] = catalog_record_current.identifier
-        catalog_record_new['previous_version_id'] = catalog_record_current.id
-        catalog_record_new['version_created'] = current_time
-        catalog_record_new['created_by_api'] = current_time
-        catalog_record_new['created_by_user_id'] = request.user.id or None
-
-        serializer_new = CatalogRecordSerializer(data=catalog_record_new, **kwargs)
-        serializer_new.is_valid()
-        serializer_new.save()
-
-        catalog_record_current.next_version_id = CatalogRecord.objects.get(pk=serializer_new.data['id'])
-        catalog_record_current.next_version_identifier = serializer_new.data['identifier']
-        catalog_record_current.modified_by_api = current_time
-        catalog_record_current.modified_by_user = request.user.id or None
-        catalog_record_current.save()
-
-        return serializer_new.data, status.HTTP_201_CREATED
+class CatalogRecordService(CommonService, ReferenceDataMixin):
 
     @staticmethod
     def get_queryset_search_params(request):
@@ -82,16 +54,56 @@ class CatalogRecordService(CommonService):
                     raise Http400({ 'state': ['Value \'%s\' is not an integer' % val] })
             queryset_search_params['preservation_state__in'] = state_vals
 
+        if CommonService.get_boolean_query_param(request, 'latest'):
+            queryset_search_params['next_dataset_version_id'] = None
+
         if request.query_params.get('curator', False):
-            queryset_search_params['research_dataset__contains'] = { 'curator': [{ 'identifier': request.query_params['curator'] }]}
+            queryset_search_params['research_dataset__contains'] = \
+                {'curator': [{ 'identifier': request.query_params['curator']}]}
 
         if request.query_params.get('owner_id', False):
-            queryset_search_params['owner_id'] = request.query_params['owner_id']
+            queryset_search_params['editor__contains'] = { 'owner_id': request.query_params['owner_id'] }
 
-        if request.query_params.get('created_by_user_id', False):
-            queryset_search_params['created_by_user_id'] = request.query_params['created_by_user_id']
+        if request.query_params.get('user_created', False):
+            queryset_search_params['user_created'] = request.query_params['user_created']
 
         return queryset_search_params
+
+    @staticmethod
+    def populate_file_details(catalog_record):
+        """
+        Populate individual research_dataset.file and directory objects with their
+        corresponding objects from their db tables.
+
+        Additionally, for directories, include two other calculated fields:
+        - byte_size, for total size of files
+        - file_count, for total number of files
+
+        Note: Some of these results may be very useful to cache, or cache the entire dataset
+        if feasible.
+        """
+        rd = catalog_record['research_dataset']
+
+        file_identifiers = [ f['identifier'] for f in rd.get('files', [])]
+
+        for file in File.objects.filter(identifier__in=file_identifiers):
+            for f in rd['files']:
+                if f['identifier'] == file.identifier:
+                    f['details'] = FileSerializer(file).data
+
+        dir_identifiers = [ dr['identifier'] for dr in rd.get('directories', []) ]
+
+        for directory in Directory.objects.filter(identifier__in=dir_identifiers):
+            for dr in rd['directories']:
+                if dr['identifier'] == directory.identifier:
+                    dr['details'] = DirectorySerializer(directory).data
+                    continue
+
+        if not dir_identifiers:
+            return
+
+        for dr in rd['directories']:
+            FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(dr['details'], catalog_record['id'])
 
     @staticmethod
     def propose_to_pas(request, catalog_record):
@@ -108,13 +120,10 @@ class CatalogRecordService(CommonService):
         if not request.query_params.get('contract', False):
             raise Http400({ 'contract': ['Query parameter \'contract\' is a required parameter.'] })
 
-        if not catalog_record.dataset_is_finished():
-            raise Http403({ 'ready_status': ['Value has to be \'Ready\' in order to propose to PAS.'] })
-
         if not catalog_record.can_be_proposed_to_pas():
-            raise Http403({ 'preservation_state': ['Value must be 0 (not proposed to PAS),'
-                ' 7 (longterm PAS rejected), or 8 (midterm PAS rejected), when proposing to PAS. '
-                'Current state is %d.' % catalog_record.preservation_state ] })
+            raise Http403({ 'preservation_state': ['Value must be 0 (not proposed to PAS), 7 (longterm PAS rejected), '
+                                                   'or 8 (midterm PAS rejected), when proposing to PAS. Current state '
+                                                   'is %d.' % catalog_record.preservation_state]})
 
         try:
             contract = Contract.objects.get(contract_json__identifier=request.query_params.get('contract'))
@@ -123,11 +132,63 @@ class CatalogRecordService(CommonService):
 
         catalog_record.preservation_state = request.query_params.get('state')
         catalog_record.save()
-        contract.catalogrecord_set.add(catalog_record)
+        contract.records.add(catalog_record)
         contract.save()
 
+    @classmethod
+    def publish_updated_datasets(cls, response):
+        """
+        Publish updated datasets to RabbitMQ.
+
+        If the update operation resulted in a new dataset version being created,
+        publish those new versions as well.
+        """
+        if response.status_code != status.HTTP_200_OK:
+            return
+
+        new_versions = []
+
+        if 'success' in response.data:
+            # bulk update
+            updated_request_data = [ r['object'] for r in response.data['success'] ]
+            for cr in updated_request_data:
+                if cls._new_version_created(cr):
+                    new_versions.append(cls._extract_new_version_data(cr))
+        else:
+            # single update
+            updated_request_data = response.data
+            if cls._new_version_created(updated_request_data):
+                new_versions.append(cls._extract_new_version_data(updated_request_data))
+
+        count = len(updated_request_data) if isinstance(updated_request_data, list) else 1
+        _logger.info('Publishing updated datasets (%d items)' % count)
+
+        try:
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish(updated_request_data, routing_key='update', exchange='datasets')
+
+            if new_versions:
+                _logger.info('Publishing new versions (%d items)' % len(new_versions))
+                rabbitmq.publish(new_versions, routing_key='create', exchange='datasets')
+        except Exception as e:
+            _logger.exception('Publishing rabbitmq messages failed')
+            raise Http503({ 'detail': [
+                'failed to publish updates to rabbitmq, all updates are aborted. details: %s' % str(e)
+            ]})
+        _logger.info('RabbitMQ dataset messages published')
+
     @staticmethod
-    def transform_datasets_to_format(catalog_records, target_format):
+    def _new_version_created(cr):
+        return '__actions' in cr and 'publish_new_version' in cr['__actions']
+
+    @staticmethod
+    def _extract_new_version_data(cr):
+        data = cr['__actions']['publish_new_version']['dataset']
+        cr.pop('__actions')
+        return data
+
+    @staticmethod
+    def transform_datasets_to_format(catalog_records, target_format, include_xml_declaration=True):
         """
         params:
         catalog_records: a list of catalog record dicts, or a single dict
@@ -156,12 +217,15 @@ class CatalogRecordService(CommonService):
             attr_type=False,
             item_func=item_func
         ).decode('utf-8')
-
+        # This is a bit ugly way to put the metax data to the datacite namespace,
+        # which allows us to use the default namespace in xquery files.
+        xml_str = xml_str.replace('<researchdataset>',
+            '<researchdataset xmlns="http://uri.suomi.fi/datamodel/ns/mrd#">')
         if target_format == 'metax':
             # mostly for debugging purposes, the 'metax xml' can be returned as well
             return xml_str
 
-        target_xslt_file_path = join(dirname(dirname(__file__)), 'api/base/xslt/%s.xslt' % target_format)
+        target_xslt_file_path = join(dirname(dirname(__file__)), 'api/rest/base/xslt/%s.xslt' % target_format)
 
         try:
             with open(target_xslt_file_path) as f:
@@ -175,79 +239,263 @@ class CatalogRecordService(CommonService):
             _logger.exception('Something is wrong with the xslt file at %s:' % target_xslt_file_path)
             raise Http503('Requested format \'%s\' is currently unavailable' % target_format)
 
-        return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
+        if include_xml_declaration:
+            return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
+        else:
+            return transformed_xml
 
-    @staticmethod
-    def validate_reference_data(research_dataset, cache):
+    @classmethod
+    def validate_reference_data(cls, research_dataset, cache):
+        """
+        Validate certain fields from the received dataset against reference data, which contains
+        the allowed values for these fields.
 
-        def check_ref_data(index, datatype, obj, field_to_check, relation_name):
-            """
-            Check if the given field exists in the reference data.
+        If a field value is valid, some of the object's fields will also be populated from the cached
+        reference data, overwriting possible values already entered. The fields that will be populated
+        from the reference data are:
 
-            In case the value is not found, an error is appended to the 'errors' dict.
+        - uri (usually to object's field 'identifier')
+        - label (usually to object's field 'pref_label')
 
-            params:
-            index:          the ES index to search from
-            datatype:       the ES datatype to search from
-            obj:            the dict to read the value from
-            field_to_check: the name of the field to read
-            relation_name:  the full relation path to the field to hand out in case of errors
-            """
-            rdtypes = refdata if index == 'ref' else orgdata
-            if not any(entry['uri'] == obj[field_to_check] or
-                       (entry.get('code', False) and entry['code'] == obj[field_to_check])
-                       for entry in rdtypes[datatype]):
-                if not isinstance(errors.get(relation_name, None), list):
-                    errors[relation_name] = []
-                errors[relation_name].append('Identifier \'%s\' not found in reference data (type: %s)' % (obj[field_to_check], datatype))
-
-        reference_data = cache.get('reference_data')
+        """
+        reference_data = cls.get_reference_data(cache)
         refdata = reference_data['reference_data']
-        orgdata = reference_data['organization_data']
-        errors = {}
+        orgdata = reference_data['organization_data']['organization']
+        errors = defaultdict(list)
 
         for theme in research_dataset.get('theme', []):
-            check_ref_data('ref', 'keyword', theme, 'identifier', 'research_dataset.theme.identifier')
+            ref_entry = cls.check_ref_data(refdata['keyword'], theme['identifier'],
+                                           'research_dataset.theme.identifier', errors)
+            if ref_entry:
+                cls.populate_from_ref_data(ref_entry, theme, label_field='pref_label')
 
         for fos in research_dataset.get('field_of_science', []):
-            check_ref_data('ref', 'field_of_science', fos, 'identifier', 'research_dataset.field_of_science.identifier')
+            ref_entry = cls.check_ref_data(refdata['field_of_science'], fos['identifier'],
+                                           'research_dataset.field_of_science.identifier', errors)
+            if ref_entry:
+                cls.populate_from_ref_data(ref_entry, fos, label_field='pref_label')
 
         for remote_resource in research_dataset.get('remote_resources', []):
-            check_ref_data('ref', 'checksum_algorithm', remote_resource['checksum'], 'algorithm', 'research_dataset.remote_resources.checksum.algorithm')
+
+            # Since checksum is a plain string field, it should not be changed to a reference data uri in case
+            # it is recognized as one of the checksum_algorithm reference data items.
+            # TODO: Find out whether a non-reference data value for the checksum_algorithm should even throw an error
+            if 'checksum' in remote_resource:
+                cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'],
+                                   'research_dataset.remote_resources.checksum.algorithm', errors)
 
             for license in remote_resource.get('license', []):
-                check_ref_data('ref', 'license', license, 'identifier', 'research_dataset.remote_resources.license.identifier')
+                license_url = license.get('license', None)
 
-            if remote_resource.get('type', False):
-                check_ref_data('ref', 'resource_type', remote_resource['type'], 'identifier',
-                               'research_dataset.remote_resources.type.identifier')
+                ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
+                                               'research_dataset.remote_resources.license.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, license, label_field='title')
+
+                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
+                    # and when the reference data uri does not contain purl.org/att
+                    if not license_url and ref_entry.get('uri', False):
+                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
+
+                if license_url:
+                    license['license'] = license_url
+
+            if remote_resource.get('resource_type', False):
+                ref_entry = cls.check_ref_data(refdata['resource_type'], remote_resource['resource_type']['identifier'],
+                                               'research_dataset.remote_resources.resource_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, remote_resource['resource_type'], label_field='pref_label')
+
+            if remote_resource.get('file_type', False):
+                ref_entry = cls.check_ref_data(refdata['file_type'], remote_resource['file_type']['identifier'],
+                                               'research_dataset.remote_resources.file_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, remote_resource['file_type'], label_field='pref_label')
+
+            if remote_resource.get('use_category', False):
+                ref_entry = cls.check_ref_data(refdata['use_category'], remote_resource['use_category']['identifier'],
+                                               'research_dataset.remote_resources.use_category.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, remote_resource['use_category'], label_field='pref_label')
 
         for language in research_dataset.get('language', []):
-            check_ref_data('ref', 'language', language, 'identifier', 'research_dataset.language.identifier')
+            ref_entry = cls.check_ref_data(refdata['language'], language['identifier'],
+                                           'research_dataset.language.identifier', errors)
+            if ref_entry:
+                label_field = 'title'
+                cls.populate_from_ref_data(ref_entry, language, label_field=label_field)
+                cls.remove_language_obj_irrelevant_titles(language, label_field)
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
-            for rights_statement_type in access_rights.get('type', []):
-                check_ref_data('ref', 'access_type', rights_statement_type, 'identifier', 'research_dataset.access_rights.type.identifier')
+            if 'access_type' in access_rights:
+                ref_entry = cls.check_ref_data(refdata['access_type'], access_rights['access_type']['identifier'],
+                                               'research_dataset.access_rights.access_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, access_rights['access_type'], label_field='pref_label')
 
-            for rights_statement_license in access_rights.get('license', []):
-                check_ref_data('ref', 'license', rights_statement_license, 'identifier', 'research_dataset.access_rights.license.identifier')
+            if 'restriction_grounds' in access_rights:
+                ref_entry = cls.check_ref_data(refdata['restriction_grounds'],
+                                               access_rights['restriction_grounds']['identifier'],
+                                               'research_dataset.access_rights.restriction_grounds.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, access_rights['restriction_grounds'],
+                                               label_field='pref_label')
+
+            for license in access_rights.get('license', []):
+                license_url = license.get('license', None)
+
+                ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
+                                               'research_dataset.access_rights.license.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, license, label_field='title')
+
+                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
+                    # and when the reference data uri does not contain purl.org/att
+                    if not license_url and ref_entry.get('uri', False):
+                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
+
+                if license_url:
+                    license['license'] = license_url
+
+            for rra in access_rights.get('has_rights_related_agent', []):
+                cls.process_research_agent_obj_with_type(orgdata, refdata, errors, rra,
+                                                         'research_dataset.access_rights.has_rights_related_agent')
 
         for project in research_dataset.get('is_output_of', []):
-            for organization in project.get('source_organization', []):
-                check_ref_data('org', 'organization', organization, 'identifier', 'research_dataset.is_output_of.source_organization.identifier')
+            for org_obj in project.get('source_organization', []):
+                cls.process_org_obj_against_ref_data(orgdata, org_obj,
+                                                     'research_dataset.is_output_of.source_organization')
+
+            for org_obj in project.get('has_funding_agency', []):
+                cls.process_org_obj_against_ref_data(orgdata, org_obj,
+                                                     'research_dataset.is_output_of.has_funding_agency')
+
+            if project.get('funder_type', False):
+                ref_entry = cls.check_ref_data(refdata['funder_type'], project['funder_type']['identifier'],
+                                               'research_dataset.is_output_of.funder_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, project['funder_type'], label_field='pref_label')
 
         for other_identifier in research_dataset.get('other_identifier', []):
-            if 'type' in other_identifier:
-                check_ref_data('ref', 'identifier_type', other_identifier['type'], 'identifier', 'research_dataset.other_identifier.type.identifier')
+            if other_identifier.get('type', False):
+                ref_entry = cls.check_ref_data(refdata['identifier_type'], other_identifier['type']['identifier'],
+                                               'research_dataset.other_identifier.type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, other_identifier['type'], label_field='pref_label')
+
+            if other_identifier.get('provider', False):
+                cls.process_org_obj_against_ref_data(orgdata, other_identifier['provider'],
+                                                     'research_dataset.other_identifier.provider')
 
         for spatial in research_dataset.get('spatial', []):
-            for place_uri in spatial.get('place_uri', []):
-                check_ref_data('ref', 'location', place_uri, 'identifier', 'research_dataset.spatial.place_uri.identifier')
+            as_wkt = spatial.get('as_wkt', [])
+
+            if spatial.get('place_uri', False):
+                place_uri = spatial.get('place_uri')
+                ref_entry = cls.check_ref_data(refdata['location'], place_uri['identifier'],
+                                               'research_dataset.spatial.place_uri.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
+
+                    # Populate as_wkt field from reference data only if it is empty, i.e. not provided by the user
+                    # and when the coordinates are available in the reference data
+                    if not as_wkt and ref_entry.get('wkt', False):
+                        as_wkt.append(ref_entry.get('wkt'))
+
+            if as_wkt:
+                spatial['as_wkt'] = as_wkt
 
         for file in research_dataset.get('files', []):
-            if file.get('type', False):
-                check_ref_data('ref', 'resource_type', file['type'], 'identifier', 'research_dataset.files.type.identifier')
+            if file.get('file_type', False):
+                ref_entry = cls.check_ref_data(refdata['file_type'], file['file_type']['identifier'],
+                                               'research_dataset.files.file_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, file['file_type'], label_field='pref_label')
+
+            if file.get('use_category', False):
+                ref_entry = cls.check_ref_data(refdata['use_category'], file['use_category']['identifier'],
+                                               'research_dataset.files.use_category.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, file['use_category'], label_field='pref_label')
+
+        for directory in research_dataset.get('directories', []):
+            if directory.get('use_category', False):
+                ref_entry = cls.check_ref_data(refdata['use_category'], directory['use_category']['identifier'],
+                                               'research_dataset.directories.use_category.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, directory['use_category'], label_field='pref_label')
+
+        for contributor in research_dataset.get('contributor', []):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, contributor,
+                                                     'research_dataset.contributor')
+
+        if research_dataset.get('publisher', False):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, research_dataset['publisher'],
+                                                     'research_dataset.publisher')
+
+        for curator in research_dataset.get('curator', []):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, curator, 'research_dataset.curator')
+
+        for creator in research_dataset.get('creator', []):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, creator, 'research_dataset.creator')
+
+        if research_dataset.get('rights_holder', False):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, research_dataset['rights_holder'],
+                                                     'research_dataset.rights_holder')
+
+        for activity in research_dataset.get('provenance', []):
+            for was_associated_with in activity.get('was_associated_with', []):
+                cls.process_research_agent_obj_with_type(orgdata, refdata, errors, was_associated_with,
+                                                         'research_dataset.provenance.was_associated_with')
+
+            if activity.get('spatial', False):
+                spatial = activity['spatial']
+                as_wkt = spatial.get('as_wkt', [])
+
+                if spatial.get('place_uri', False):
+                    place_uri = spatial.get('place_uri')
+                    ref_entry = cls.check_ref_data(refdata['location'], place_uri['identifier'],
+                                                   'research_dataset.provenance.spatial.place_uri.identifier', errors)
+                    if ref_entry:
+                        cls.populate_from_ref_data(ref_entry, place_uri, label_field='pref_label')
+
+                        # Populate as_wkt field from reference data only if it is empty, i.e. not provided by the user
+                        # and when the coordinates are available in the reference data
+                        if not as_wkt and ref_entry.get('wkt', False):
+                            as_wkt.append(ref_entry.get('wkt'))
+
+                if as_wkt:
+                    spatial['as_wkt'] = as_wkt
+
+            if activity.get('lifecycle_event', False):
+                ref_entry = cls.check_ref_data(refdata['lifecycle_event'],
+                                               activity['lifecycle_event']['identifier'],
+                                               'research_dataset.provenance.lifecycle_event.identifier', errors)
+
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, activity['lifecycle_event'], label_field='pref_label')
+
+            if activity.get('preservation_event', False):
+                ref_entry = cls.check_ref_data(refdata['preservation_event'],
+                                               activity['preservation_event']['identifier'],
+                                               'research_dataset.provenance.preservation_event.identifier', errors)
+
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, activity['preservation_event'], label_field='pref_label')
+
+        for infra in research_dataset.get('infrastructure', []):
+            ref_entry = cls.check_ref_data(refdata['research_infra'], infra['identifier'],
+                                           'research_dataset.infrastructure.identifier', errors)
+            if ref_entry:
+                cls.populate_from_ref_data(ref_entry, infra, label_field='pref_label')
+
+        for relation in research_dataset.get('relation', []):
+            if relation.get('relation_type', False):
+                ref_entry = cls.check_ref_data(refdata['relation_type'], relation['relation_type']['identifier'],
+                                               'research_dataset.relation.relation_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, relation['relation_type'], label_field='pref_label')
 
         if errors:
             raise ValidationError(errors)

@@ -1,12 +1,12 @@
-from time import sleep
+import logging
 import sys
+from time import sleep
 
 from django.apps import AppConfig
 from django.conf import settings
 
-from metax_api.utils import RedisSentinelCache, executing_test_case, ReferenceDataService
+from metax_api.utils import RedisSentinelCache, executing_test_case, ReferenceDataLoader
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -37,6 +37,7 @@ class OnAppStart(AppConfig):
             return
 
         # actual startup tasks ->
+        _logger.info('Metax API startup tasks executing...')
 
         try:
             if executing_test_case():
@@ -46,7 +47,7 @@ class OnAppStart(AppConfig):
                 cache.set('reference_data', None)
 
             if not cache.get('reference_data'):
-                ReferenceDataService.populate_cache_reference_data(cache)
+                ReferenceDataLoader.populate_cache_reference_data(cache)
             else:
                 # d('cache already populated')
                 pass
@@ -57,3 +58,5 @@ class OnAppStart(AppConfig):
             # before resetting the flag. (on local this method can be quite fast)
             sleep(2)
             cache.delete('on_app_start_executing')
+
+        _logger.info('Metax API startup tasks finished')

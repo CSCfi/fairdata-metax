@@ -8,10 +8,8 @@ schemes:
 basePath: /rest/v1/
 produces:
   - application/json
+
 paths:
-
-
-
 
 # File Storage API
   /filestorages:
@@ -58,36 +56,20 @@ paths:
           required: true
           type: string
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
         '401':
           description: Unauthorized. Reserved for admins only
       tags:
         - File Storage API (not implemented)
-        
+
 # File API
   /files:
     get:
-      summary: get list of files, optionally filtered by request parameters
+      summary: get list of files
       parameters:
-        - name: dataset
-          in: query
-          description: filter results by PID of dataset containing file
-          required: false
-          type: string
-        - name: owner_email
-          in: query
-          description: filter results by owner e-mail address
-          required: false
-          type: string
-        - name: fields
-          in: query
-          description: fields to return (TODO spec how a list is represented + is there a wildcard that gives all fields?)
-          required: false
-          type: string
-          default: PID
         - name: offset
           in: query
           description: offset for paging
@@ -98,21 +80,85 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         "200":
-          description: successful operation, return list of files containing PID and other file metadata
+          description: successful operation, return list of files
+          schema:
+            $ref: '#/definitions/File'
       tags:
         - File API
     post:
-      summary: create multiple file metadata from array of objects
+      summary: create new file metadata
       consumes:
         - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object or a list of objects to create."
+        required: true
+        schema:
+          $ref: '#/definitions/File'
       responses:
         '201':
-          description: Returns the HTTP status for each item and the PIDs of resources that were created
+          description: Returns the created object, or if a list was given, a list of objects and errors.
         '400':
-          description: Invalid list of objects
+          description: parameters contained errors, response includes details.
+      tags:
+        - File API
+    put:
+      summary: bulk update
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of objects to update."
+          required: true
+      responses:
+        '200':
+          description: Successful operation. Return values include a list of errors, if any.
+        '400':
+          description: All updates failed. A list of errors is returned.
+      tags:
+        - File API
+    patch:
+      summary: bulk update partial
+      description: |
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, identifier</b>
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of (partial) objects to update."
+          required: true
+      responses:
+        '200':
+          description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
+        '400':
+          description: All updates failed. A list of errors is returned.
+      tags:
+        - File API
+    delete:
+      summary: bulk delete
+      description: Mark files as deleted en masse.
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: A list of ids, or a list of identifiers.
+          required: true
+      responses:
+        '200':
+          description: |
+            Successful operation. At least some requested files were marked deleted. If some of the provided
+            identifiers were not found, those are ignored. Returns count of deleted files in json body.
+        '400':
+          description: All updates failed. A list of errors is returned.
+        '404':
+          description: None of the provided identifiers were found.
       tags:
         - File API
   /files/{PID}:
@@ -127,21 +173,10 @@ paths:
       responses:
         '200':
           description: return file metadata
+          schema:
+            $ref: '#/definitions/File'
         '404':
           description: not found
-      tags:
-        - File API
-    post:
-      summary: create new file metadata
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of file OR the internal pk
-          required: true
-          type: string
-      responses:
-        '204':
-          description: successful operation, no content returned
       tags:
         - File API
     put:
@@ -152,11 +187,19 @@ paths:
           description: Persistent ID of file OR the internal pk
           required: true
           type: string
+        - name: "body"
+          in: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/File'
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
+        '404':
+          description: object not found
       tags:
         - File API
     patch:
@@ -167,9 +210,21 @@ paths:
           description: Persistent ID of file OR the internal pk
           required: true
           type: string
+        - name: "body"
+          in: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/File'
       responses:
         '200':
           description: successful operation, full content returned
+          schema:
+            $ref: '#/definitions/File'
+        '400':
+          description: parameters contained errors, response includes details
+        '404':
+          description: object not found
       tags:
         - File API
     delete:
@@ -183,11 +238,16 @@ paths:
       responses:
         '204':
           description: successful operation, no content returned
+        '404':
+          description: object not found
       tags:
         - File API
   /files/{PID}/XML:
     get:
       summary: get XML metadata from file
+      produces:
+        - application/xml
+        - application/json
       parameters:
         - name: PID
           in: path
@@ -196,18 +256,74 @@ paths:
           type: string
         - name: namespace
           in: query
-          description: Namespace of the schema
-          required: true
+          description: Namespace of the schema. If omitted, returns a list of xml metadata namespaces associated with the file.
           type: string
       responses:
         '200':
-          description: XML returned
+          description: single xml metadata (application/xml), or a list of namespaces (application/json)
         '404':
-          description: not found
+          description: file not found
+      tags:
+        - File API
+    post:
+      summary: create new XML metadata
+      consumes:
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: PID
+          in: path
+          description: persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: namespace of the schema. If a xml metadata already existed with given namespace, an error is returned
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: The XML to create.
+          required: true
+      responses:
+        '201':
+          description: return created XML
+        '400':
+          description: parameters contained errors, response includes details (application/json)
       tags:
         - File API
     put:
-      summary: replace XML metadata
+      summary: update XML metadata
+      consumes:
+        - application/xml
+      parameters:
+        - name: PID
+          in: path
+          description: persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: namespace of the schema
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: "The XML to update"
+          required: true
+      responses:
+        '204':
+          description: XML saved
+        '400':
+          description: parameters contained errors, response includes details
+        '404':
+          description: file or namespace does not exist
+      tags:
+        - File API
+    delete:
+      summary: delete XML metadata
       parameters:
         - name: PID
           in: path
@@ -221,60 +337,206 @@ paths:
           type: string
       responses:
         '204':
-          description: XML saved
+          description: XML is deleted
         '400':
           description: parameters contained errors, response includes details
         '404':
-          description: file does not exist
+          description: file or namespace does not exist
       tags:
         - File API
-  /directories/{path}:
+  /files/datasets:
+    post:
+      summary: get datasets where files belong to
+      description: |
+        Note&#58; The method is invoked using POST, because there are limits to length of query
+        parameters in GET. Also, some clients forcibly shove parameters in body in GET
+        requests to query parameters, so using POST instead is more guaranteed to work.
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: a list of file id's (integers) or identifiers (strings).
+          required: true
+          type: string
+      responses:
+        '200':
+          description: a list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
+        '404':
+          description: files given in the list not found
+      tags:
+        - File API
+  /directories/{PID}:
     get:
-      summary: get list of PIDs in directory
+      summary: get details of a directory
+      description: Does not contain the directory's files and sub-directories. For that, use /directories/{PID}/files
       parameters:
-        - name: path
+        - name: PID
           in: path
-          description: directory path
+          description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
       responses:
         '200':
-          description: list of PIDs
+          description: return directory details
+          schema:
+            $ref: '#/definitions/Directory'
+        '404':
+          description: not found
       tags:
-        - File API (not implemented)
-    patch:
-      summary: change directory path
-      parameters:
-        - name: path
-          in: path
-          description: current directory path
-          required: true
-          type: string
-        - name: newpath
-          in: query
-          description: new directory path (TODO is it good to have this in the query? Body instead?)
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, full content returned
-        '400':
-          description: parameters contained errors, response includes details
-      tags:
-        - File API (not implemented)
+        - File API
     delete:
       summary: delete all files' metadata in directory, recursively
       parameters:
-        - name: path
+        - name: PID
           in: path
-          description: directory path
+          description: |
+              directory path. example value\: /path/of/directory
           required: true
           type: string
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation, returns in body the number of affected files in field affected_files
+        '400':
+          description: bad parameters, details in body
+        '404':
+          description: not a single file with given path was found
       tags:
         - File API (not implemented)
+  /directories/{PID}/files:
+    get:
+      summary: get list of files and directories contained by a directory
+      parameters:
+        - name: PID
+          in: path
+          description: persistent ID of the directory OR the internal pk
+          required: true
+          type: string
+        - name: recursive
+          in: query
+          description: |
+            return a flat list of file objects contained by the target directory and its sub-directories.
+            if directories_only=true is also specified, returns a hierarchial directory tree instead, of x depth.
+          required: false
+          type: boolean
+        - name: depth
+          in: query
+          description: max depth of recursion. value must be an integer > 0, or *. default value is 1.
+          required: false
+          type: string
+        - name: directories_only
+          in: query
+          description: |
+            omit files entirely from the returned results. use together with recursive=true and depth=x
+            to get a directory tree.
+          required: false
+          type: boolean
+        - name: include_parent
+          in: query
+          description: |
+            includes the 'parent directory' of the contents being fetched in the results also. example&#58;
+            GET /directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            otherwise, one would query for its data separately by GET /directories/3.
+          required: false
+          type: boolean
+        - name: preferred_identifier
+          in: query
+          description: preferred_identifier of a dataset. browse only files that have been selected for that record.
+          required: false
+          type: string
+      responses:
+        '200':
+          description: |
+            returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
+            note&#58; if parameter 'recursive' is used, return value is a flat list of file objects instead.
+        '404':
+          description: directory not found
+      tags:
+        - File API
+  /directories/files:
+    get:
+      summary: get list of files and directories contained by a directory, queried by dir path and project
+      description: |
+        functions the same as /directories/pid, except queried by dir path and project identifier, instead of directly by directory identifier.
+      parameters:
+        - name: path
+          in: path
+          description: path of the directory to browse
+          required: true
+          type: string
+        - name: project
+          in: query
+          description: project_identifier of the project to browse from
+          required: true
+          type: string
+        - name: recursive
+          in: query
+          description: return a flat list of file objects contained by the target directory and its sub-directories
+          required: false
+          type: boolean
+        - name: recursive
+          in: query
+          description: |
+            return a flat list of file objects contained by the target directory and its sub-directories.
+            if directories_only=true is also specified, returns a hierarchial directory tree instead, of x depth.
+          required: false
+          type: boolean
+        - name: depth
+          in: query
+          description: max depth of recursion. value must be an integer > 0, or *. default value is 1.
+          required: false
+          type: string
+        - name: directories_only
+          in: query
+          description: |
+            omit files entirely from the returned results. use together with recursive=true and depth=x
+            to get a directory tree.
+          required: false
+          type: boolean
+        - name: include_parent
+          in: query
+          description: |
+            includes the 'parent directory' of the contents being fetched in the results also. example&#58;
+            GET /directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            otherwise, one would query for its data separately by GET /directories/3.
+          required: false
+          type: boolean
+        - name: preferred_identifier
+          in: query
+          description: preferred_identifier of a dataset. browse only files that have been selected for that record.
+          required: false
+          type: string
+      responses:
+        '200':
+          description: |
+            returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
+            note&#58; if parameter 'recursive' is used, return value is a flat list of file objects instead.
+        '404':
+          description: directory not found
+      tags:
+        - File API
+  /directories/root:
+    get:
+      summary: return root directory for a project, and its files and directories
+      description: Useful when starting to browse files for a project, when individual root-level directory identifier is not yet known.
+      parameters:
+        - name: project
+          in: query
+          description: project_identifier of the project for which to find root directory
+          required: true
+          type: string
+      responses:
+        '200':
+          description: |
+            returns the root directory for the requested project.
+            returned object additionally contains fields 'directories' and 'files', which contain the child directory and file objects of the root directory, similar to what API /directories/{PID}/files does.
+        '400':
+          description: bad parameters, details in body
+        '404':
+          description: directory not found
+      tags:
+        - File API
+
 
 
 # Data Catalog API
@@ -288,9 +550,6 @@ paths:
         - Data Catalog API
     post:
       summary: create new data catalog
-      description: |
-        # catalog_json read-only fields
-        - identifier
       consumes:
         - application/json
       parameters:
@@ -345,8 +604,8 @@ paths:
           schema:
             $ref: '#/definitions/DataCatalog'
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
         '401':
@@ -379,23 +638,6 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Data Catalog API
-  /datacatalogs/{PID}/exists:
-    get:
-      summary: indicate whether given data catalog exists
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of the resource OR the internal pk
-          required: true
-          type: string
-      responses:
-        '200':
-          description: return true
-        '404':
-          description: return false
-      tags:
-        - Data Catalog API
-
 
 
 
@@ -408,12 +650,17 @@ paths:
     get:
       summary: "list datasets"
       parameters:
+        - name: latest
+          in: query
+          description: only return latest versions
+          required: false
+          type: boolean
         - name: owner_id
           in: query
           description: id of the person who owns the record in metax
           required: false
           type: string
-        - name: created_by_user_id
+        - name: user_created
           in: query
           description: id of the person who created the record in metax
           required: false
@@ -421,6 +668,14 @@ paths:
         - name: curator
           in: query
           description: curator identifier (field research_dataset-> curator-> identifier)
+          required: false
+          type: string
+        - name: preferred_identifier
+          in: query
+          description: |
+            Use given preferred_identifier as filter. Returns a best guess of the record (always a single record!), by
+            looking from Fairdata catalogs first, then from harvested catalogs. If the value of preferred_identifier
+            contains special characters such as ampersands, the value has to be urlencoded.
           required: false
           type: string
         - name: state
@@ -438,7 +693,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         "200":
           description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
@@ -450,10 +705,12 @@ paths:
       summary: create new dataset metadata
       description: |
         # research_dataset identifiers
-        The field <b>urn_identifier</b> is always generated for the user. <b>preferred_identifier</b> can be provided by the user, and if omitted, the value of <b>urn_identifier</b> is copied to it.
+        The fields <b>metadata_version_identifier</b> and <b>preferred_identifier</b> are generally always generated server-side. <b>Exception</b>: In harvested catalogs, preferred_identifier value can be provided by the user.
         # research_dataset read-only fields
-        - urn_identifier
-        - total_byte_size (generated from files in the db according to files listed in the given dataset)
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs)
+        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
       consumes:
         - application/json
       parameters:
@@ -481,9 +738,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Some objects were updated, but some contained errors. Return values include a list of errors. For PUT, response does not include created objects.
-        '204':
-          description: All updates were successful. No content returned.
+          description: Sucessful operation. Return values include a list of errors, if any.
         '400':
           description: All updates failed. A list of errors is returned.
       tags:
@@ -491,7 +746,7 @@ paths:
     patch:
       summary: bulk update partial
       description: |
-        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, research_dataset->urn_identifier</b>
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, identifier</b>
       consumes:
         - application/json
       parameters:
@@ -506,6 +761,93 @@ paths:
           description: All updates failed. A list of errors is returned.
       tags:
         - Dataset API
+  /datasets/{PID}/metadata_versions:
+    get:
+      summary: "list old research_dataset entries of a record"
+      responses:
+        "200":
+          description: successful operation, return a list of entries. may return an empty list.
+      tags:
+        - Dataset API
+  /datasets/{PID}/metadata_versions/{MVI}:
+    get:
+      summary: "get contents of a specific old research_dataset of a record."
+      description: "{MVI} is the metadata_version_identifier of the research_dataset."
+      responses:
+        "200":
+          description: successful operation, return a list of entries. may return an empty list.
+        "404":
+          description: resource not found.
+      tags:
+        - Dataset API
+  /datasets/identifiers:
+    get:
+      summary: "list all dataset identifiers"
+      parameters:
+        - name: latest
+          in: query
+          description: only return latest versions
+          required: false
+          type: boolean
+        - name: owner_id
+          in: query
+          description: id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: user_created
+          in: query
+          description: id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
+          in: query
+          description: curator identifier (field research_dataset-> curator-> identifier)
+          required: false
+          type: string
+        - name: state
+          in: query
+          description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+          required: false
+          type: string
+      responses:
+        "200":
+          description: successful operation, returns a list of all dataset metadata version identifiers.
+      tags:
+        - Dataset API
+  /datasets/unique_preferred_identifiers:
+    get:
+      summary: "list all unique dataset preferred identifiers"
+      parameters:
+        - name: latest
+          in: query
+          description: only return latest dataset versions
+          required: false
+          type: boolean
+        - name: owner_id
+          in: query
+          description: id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: user_created
+          in: query
+          description: id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
+          in: query
+          description: curator identifier (field research_dataset-> curator-> identifier)
+          required: false
+          type: string
+        - name: state
+          in: query
+          description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+          required: false
+          type: string
+      responses:
+        "200":
+          description: successful operation, returns a list of all unique dataset preferred identifiers.
+      tags:
+        - Dataset API
   /datasets/{PID}:
     get:
       summary: get dataset metadata
@@ -517,10 +859,24 @@ paths:
           type: string
         - name: dataset_format
           in: query
-          description: Name of the format the dataset should be returned in. <b>Note:</b> Using this parameter causes
-          the api to return only the field research_dataset, transformed to the requested format.
+          description: Name of the format the dataset should be returned in. <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
           required: false
           type: string
+        - name: file_details
+          in: query
+          description: |
+            Populate individual research_dataset.files and directories objects with their corresponding db object details.
+            The details can be found behind the appended key 'details' that is placed into each file and directory in the dataset.
+            Additionally total byte size and total file counts are calculated for directories, and are placed into fields
+            byte_size and file_count in each directory's details as extra information.
+          required: false
+          type: boolean
+        - name: preferred_identifier
+          in: query
+          description: |
+            Return a hit only if the given PID is a preferred identifier.
+          required: false
+          type: boolean
       responses:
         '200':
           description: return dataset metadata
@@ -534,8 +890,10 @@ paths:
       summary: replace dataset metadata
       description: |
         # research_dataset read-only fields
-        - urn_identifier
-        - total_byte_size (generated from files in the db according to files listed in the given dataset)
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs)
+        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
       parameters:
         - in: "body"
           name: "body"
@@ -549,8 +907,8 @@ paths:
           required: true
           type: string
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
       tags:
@@ -559,8 +917,10 @@ paths:
       summary: replace part of dataset metadata
       description: |
         # research_dataset read-only fields
-        - urn_identifier
-        - total_byte_size (generated from files in the db according to files listed in the given dataset)
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs)
+        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
       parameters:
         - in: "body"
           name: "body"
@@ -621,6 +981,11 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - name: removed_files
+          in: query
+          description: return only deleted files
+          required: false
+          type: boolean
       responses:
         '200':
           description: successful operation, return list of full files metadata
@@ -645,7 +1010,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         '200':
           description: successful operation, return feedback objects
@@ -704,7 +1069,7 @@ paths:
           description: limit for paging
           required: false
           type: integer
-          default: 100
+          default: 10
       responses:
         '200':
           description: successful operation, return usage objects
@@ -807,8 +1172,8 @@ paths:
           required: true
           type: string
       responses:
-        '204':
-          description: successful operation, no content returned
+        '200':
+          description: successful operation. modified content returned
         '400':
           description: parameters contained errors, response includes details
       tags:
@@ -828,8 +1193,41 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Contract API
+
+
+# Schema API
+  /schemas:
+    get:
+      summary: "list schemas"
+      responses:
+        '200':
+          description: successful operation, return list of schema names
+      tags:
+        - Schema API
+  /schemas/{name}:
+    get:
+      summary: get schema content
+      parameters:
+        - name: name
+          in: path
+          description: name of the schema to be retrieved
+          required: true
+          type: string
+      responses:
+        '200':
+          description: return JSON schema
+        '404':
+          description: not found
+      tags:
+        - Schema API
+
+              
 definitions:
   CatalogRecord:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/staging/src/metax_api/api/base/api_schemas/datacatalog.json#/definitions/Catalog'
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/datacatalog.json#/definitions/Catalog'
+  File:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/File'
+  Directory:
+    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/Directory'

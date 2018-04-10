@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+
 import yaml
+
 from metax_api.utils import executing_test_case, executing_travis
 
 executing_in_travis = executing_travis()
@@ -65,26 +67,26 @@ else:
 AUTH_USER_MODEL = 'metax_api.MetaxUser'
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'metax_api',
     'rest_framework',
-    'rest_framework_swagger',
+    'metax_api',
 ]
 
+if DEBUG:
+    INSTALLED_APPS.append('django.contrib.staticfiles')
+
 MIDDLEWARE = [
+    # note: not strictly necessary if running in a private network
+    # https://docs.djangoproject.com/en/1.11/ref/middleware/#module-django.middleware.security
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'metax_api.middleware.IdentifyApiCaller',
+    'metax_api.middleware.AddLastModifiedHeaderToResponse',
+    'metax_api.middleware.StreamHttpResponse',
 ]
 
 REST_FRAMEWORK = {
@@ -93,31 +95,45 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
 }
 
 if not DEBUG:
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ['rest_framework.renderers.JSONRenderer']
 
+REST_FRAMEWORK['DEFAULT_PARSER_CLASSES'] = [
+    'rest_framework.parsers.JSONParser',
+    'metax_api.parsers.XMLParser',
+]
+
+REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
+    'rest_framework.renderers.JSONRenderer',
+    'rest_framework.renderers.BrowsableAPIRenderer',
+    'metax_api.renderers.XMLRenderer',
+]
+
+
 ROOT_URLCONF = 'metax_api.urls'
 
 APPEND_SLASH = False
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
+if DEBUG:
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [],
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.request',
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                ],
+            },
         },
-    },
-]
+    ]
 
 WSGI_APPLICATION = 'metax_api.wsgi.application'
 
@@ -131,25 +147,25 @@ to detect the session, and changes the default database accordingly.
 if executing_in_travis:
     DATABASES = {
         'default': {
-            'ENGINE':   'django.db.backends.postgresql_psycopg2',
             'NAME':     'metax_db_test',
             'USER':     'metax_test',
             'PASSWORD': '',
-            'HOST':     'localhost'
+            'HOST':     'localhost',
         }
     }
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': app_config_dict['METAX_DATABASE'],
             'USER': app_config_dict['METAX_DATABASE_USER'],
             'PASSWORD': app_config_dict['METAX_DATABASE_PASSWORD'],
             'HOST': app_config_dict['METAX_DATABASE_HOST'],
             'PORT': '',
-            'ATOMIC_REQUESTS': True
         }
     }
+
+DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 """
 Colorize automated test console output
@@ -215,24 +231,6 @@ LOGGING = {
 logger = logging.getLogger('metax_api')
 logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
 
-# Password validation
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -255,7 +253,7 @@ USE_L10N = False
 # A boolean that specifies if datetimes will be timezone-aware by default
 # or not. If this is set to True, Django will use timezone-aware datetimes
 # internally. Otherwise, Django will use naive datetimes in local time.
-USE_TZ = False
+USE_TZ = True
 
 DATETIME_INPUT_FORMATS = ['%Y-%m-%dT%H:%M:%S.%fZ']
 
@@ -274,6 +272,7 @@ if not executing_in_travis:
         'HOSTS':    app_config_dict['REDIS']['HOSTS'],
         'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
         'SERVICE':  app_config_dict['REDIS']['SERVICE'],
+        'LOCALHOST_PORT': app_config_dict['REDIS']['LOCALHOST_PORT'],
 
         # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
         'SOCKET_TIMEOUT': 0.1,
@@ -296,7 +295,7 @@ else:
         'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
         # normally cache is reloaded from elasticsearch only if reference data is missing.
         # for one-off reload / debugging / development, use below flag
-        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': app_config_dict['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART'],
     }
 
 if not executing_in_travis:
@@ -314,4 +313,34 @@ if not executing_in_travis:
                 'DURABLE': True
             }
         ]
+    }
+
+if executing_in_travis:
+    OAI = {
+        'BASE_URL': 'http://metax-test.csc.fi/oai/',
+        'BATCH_SIZE': 25,
+        'REPOSITORY_NAME': 'Metax',
+        'ETSIN_URL_TEMPLATE': 'http://etsin.something.fi/dataset/%s',
+        'ADMIN_EMAIL': 'noreply@csc.fi',
+        'SET_MAPPINGS': {
+            'datasets': [
+                'urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1',
+                'urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d2'
+            ],
+            'ida_datasets': [
+                'urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1'
+            ],
+            'att_datasets': [
+                'urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d2'
+            ]
+        }
+    }
+else:
+    OAI = {
+        'BASE_URL': app_config_dict['OAI']['BASE_URL'],
+        'BATCH_SIZE': app_config_dict['OAI']['BATCH_SIZE'],
+        'REPOSITORY_NAME': app_config_dict['OAI']['REPOSITORY_NAME'],
+        'ETSIN_URL_TEMPLATE': app_config_dict['OAI']['ETSIN_URL_TEMPLATE'],
+        'ADMIN_EMAIL': app_config_dict['OAI']['ADMIN_EMAIL'],
+        'SET_MAPPINGS': app_config_dict['OAI']['SET_MAPPINGS']
     }

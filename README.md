@@ -1,10 +1,9 @@
-This repository contains specification documents, and later on probably code
-as well, for the METAX project, part of ATT project.
+This repository contains the code for Metax API service.
 
 # Build status
 
-[![Build Status](https://travis-ci.org/CSCfi/metax-api.svg?branch=master)](https://travis-ci.org/CSCfi/metax-api)
+## Test branch
+[![Build Status](https://travis-ci.org/CSCfi/metax-api.svg?branch=test)](https://travis-ci.org/CSCfi/metax-api)
 
-[![Build Status](https://travis-ci.org/CSCfi/metax-api.svg?branch=staging)](https://travis-ci.org/CSCfi/metax-api)
-
-[![Build Status](https://travis-ci.org/CSCfi/metax-api.svg?branch=dev)](https://travis-ci.org/CSCfi/metax-api)
+## Stable branch
+[![Build Status](https://travis-ci.org/CSCfi/metax-api.svg?branch=stable)](https://travis-ci.org/CSCfi/metax-api)

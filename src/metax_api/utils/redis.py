@@ -1,15 +1,16 @@
+import logging
 from json import dump as dump_json, load as load_json
 from pickle import dumps as pickle_dumps, loads as pickle_loads
 from random import choice as random_choice
 
 from django.conf import settings as django_settings
-from redis.sentinel import Sentinel
-from redis.exceptions import TimeoutError
+from redis.client import StrictRedis
+from redis.exceptions import TimeoutError, ConnectionError
 from redis.sentinel import MasterNotFoundError
+from redis.sentinel import Sentinel
 
 from .utils import executing_test_case, executing_travis
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -33,12 +34,13 @@ class _RedisSentinelCache():
         db: database index to read/write to. available indexes 0-15.
         master_only: always use master for read operations, for those times when you know you are going to
                      read the same key again from cache very soon.
-        settings: override redis setttings in settings.py. easier to use class from outside context of django (i.e. cron)
+        settings: override redis settings in settings.py. easier to use class from outside context of django (i.e. cron)
         """
         if not isinstance(settings, dict):
-            if not hasattr(settings, 'REDIS_SENTINEL'):
+            if hasattr(settings, 'REDIS_SENTINEL'):
+                settings = settings.REDIS_SENTINEL
+            else:
                 raise Exception('Missing configuration from settings.py: REDIS_SENTINEL')
-            settings = settings.REDIS_SENTINEL
 
         if not settings.get('HOSTS', None):
             raise Exception('Missing configuration from settings for REDIS_SENTINEL: HOSTS')
@@ -54,23 +56,39 @@ class _RedisSentinelCache():
         elif db == settings['TEST_DB']:
             raise Exception('Invalid db: db index %d is reserved for test suite execution.' % db)
 
-        self._sentinel = Sentinel(settings['HOSTS'], password=settings['PASSWORD'], socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1), db=db)
+        self._redis_local = StrictRedis(
+            host='localhost',
+            port=settings['LOCALHOST_PORT'],
+            password=settings['PASSWORD'],
+            socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1),
+            db=db
+        )
+
+        self._sentinel = Sentinel(
+            settings['HOSTS'],
+            password=settings['PASSWORD'],
+            socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1),
+            db=db
+        )
+
         self._service_name = settings['SERVICE']
         self._DEBUG = settings.get('DEBUG', False)
         self._read_from_master_only = master_only
-        self._node_count = self._node_count()
+        self._node_count = self._count_nodes()
 
     def set(self, key, value, **kwargs):
         if self._DEBUG:
             d('cache: set()...')
+
         pickled_data = pickle_dumps(value)
         master = self._get_master()
 
         try:
             return master.set(key, pickled_data, **kwargs)
-        except (TimeoutError, MasterNotFoundError):
+        except (TimeoutError, ConnectionError, MasterNotFoundError) as e:
             if self._DEBUG:
-                d('cache: master timed out or not found. no write instances available')
+                d('cache: master timed out or not found, or connection refused. no write instances available. error: %s'
+                  % str(e))
             # no master available
             return
 
@@ -93,28 +111,33 @@ class _RedisSentinelCache():
         """
         return self.set(key, value, nx=True, **kwargs)
 
-    def get(self, key, **kwargs):
+    def get(self, key, master=False, **kwargs):
         """
-        Randomly select slave or master for reading. Fallback to master anyway in case of errors.
+        Always try first from localhost, since when apps are running clustered,
+        the 'randomization' already happened when the connection reached this server.
+        If get from localhost fails, only then connect to sentinels, to randomly select
+        some slave or master for reading. Fallback to master if other slave failed.
 
-        Use of master can be forced by using the master_only flag in the constructor.
+        Use of master can be forced by using the master_only flag in the constructor, or passing
+        master=True to this method for a single get operation.
         """
-
-        # todo allow reading from cache when master is down? could possibly serve stale data.
-        # see redis.conf setting: slave-serve-stale-data
         if self._DEBUG:
             d('cache: get()...')
 
-        if self._read_from_master_only:
+        if self._read_from_master_only or master:
             return self._get_from_master(key, **kwargs)
         else:
-            if self._slave_chosen():
-                try:
-                    return self._get_from_slave(key, **kwargs)
-                except TimeoutError:
-                    pass
-            # lady luck chose master, or read from slave had an error
-            return self._get_from_master(key, **kwargs)
+            try:
+                return self._get_from_local(key, **kwargs)
+            except (TimeoutError, ConnectionError):
+                # local is broken or busy, get randomly from other instances
+                if self._slave_chosen():
+                    try:
+                        return self._get_from_slave(key, **kwargs)
+                    except (TimeoutError, ConnectionError):
+                        pass
+                # lady luck chose master, or read from slave had an error
+                return self._get_from_master(key, **kwargs)
 
     def delete(self, *keys):
         if self._DEBUG:
@@ -124,9 +147,10 @@ class _RedisSentinelCache():
 
         try:
             master.delete(*keys)
-        except (TimeoutError, MasterNotFoundError):
+        except (TimeoutError, ConnectionError, MasterNotFoundError) as e:
             if self._DEBUG:
-                d('cache: master timed out or not found. no write instances available. raising error')
+                d('cache: master timed out or not found, or connection refused. no write instances available. error: %s'
+                  % str(e))
             # no master available
             return
 
@@ -137,13 +161,25 @@ class _RedisSentinelCache():
             else:
                 d('cache: delete() unsuccessful, could not delete data?')
 
+    def _get_from_local(self, key, **kwargs):
+        try:
+            res = self._redis_local.get(key, **kwargs)
+        except (TimeoutError, ConnectionError):
+            if self._DEBUG:
+                d('cache: _redis_local.get() timed out or connection refused, '
+                  'trying from other slaves instead. fail-over in process?')
+            raise
+        else:
+            return pickle_loads(res) if res is not None else None
+
     def _get_from_slave(self, key, **kwargs):
         node = self._get_slave()
         try:
             res = node.get(key, **kwargs)
-        except TimeoutError:
+        except (TimeoutError, ConnectionError):
             if self._DEBUG:
-                d('cache: slave.get() timed out, trying from master instead. fail-over in process?')
+                d('cache: slave.get() timed out or connection refused, '
+                  'trying from master instead. fail-over in process?')
             # fail-over propbably happened, and the old slave is now a master
             # (in case there was only one slave). try master instead
             raise
@@ -181,7 +217,7 @@ class _RedisSentinelCache():
             d('cache: getting slave')
         return self._sentinel.slave_for(self._service_name, socket_timeout=0.1)
 
-    def _node_count(self):
+    def _count_nodes(self):
         return len(self._sentinel.discover_slaves(self._service_name)) + 1 # +1 is master
 
 
@@ -228,9 +264,15 @@ class _RedisSentinelCacheDummy():
         try:
             with open(self._storage_path, 'r') as f:
                 return load_json(f)
+        except IOError:
+            self._save_storage({})
+            try:
+                with open(self._storage_path, 'r') as f:
+                    return load_json(f)
+            except Exception as e:
+                _logger.error('Could not open dummy cache file for reading at %s: %s' % (self._storage_path, str(e)))
         except Exception as e:
             _logger.error('Could not open dummy cache file for reading at %s: %s' % (self._storage_path, str(e)))
-            return {}
 
     def _save_storage(self, storage):
         try:

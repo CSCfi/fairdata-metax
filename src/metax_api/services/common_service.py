@@ -1,12 +1,16 @@
-from datetime import datetime
-from json import load as json_load
 import logging
+from json import load as json_load
 
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
+from metax_api.exceptions import Http400, Http412
+from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime, get_tz_aware_now_without_micros
+
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
+
 
 class CommonService():
 
@@ -21,6 +25,24 @@ class CommonService():
         else:
             return True
 
+    @staticmethod
+    def get_boolean_query_param(request, param_name):
+        """
+        Helper method to also check for values, instead of only presence of a boolean parameter,
+        such as ?recursive=true/false instead of only ?recursive, which can only evaluate to true.
+        """
+        value = request.query_params.get(param_name, None)
+        if value in ('', 'true'):
+            # flag was specified without value (?recursive), or with value (?recursive=true)
+            return True
+        elif value in (None, 'false'):
+            # flag was not present, or its value was ?recursive=false
+            return False
+        else:
+            raise ValidationError({ param_name: [
+                'boolean value must be true or false. received value was %s' % value
+            ]})
+
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):
         """
@@ -33,28 +55,21 @@ class CommonService():
         request: the http request object
         serializer_class: does the actual saving, knows what kind of object is in question
         """
-        common_info = { 'created_by_api': datetime.now() }
+        common_info = cls.update_common_info(request, return_only=True)
 
         results = None
 
         if isinstance(request.data, list):
+
+            if len(request.data) == 0:
+                raise ValidationError(['the received object list is empty'])
 
             # dont fail the entire request if only some inserts fail.
             # successfully created rows are added to 'successful', and
             # failed inserts are added to 'failed', with a related error message.
             results = { 'success': [], 'failed': []}
 
-            for row in request.data:
-
-                serializer = serializer_class(data=row, **kwargs)
-
-                try:
-                    serializer.is_valid(raise_exception=True)
-                except Exception as e:
-                    cls._append_error(results, serializer, e)
-                else:
-                    serializer.save(**common_info)
-                    results['success'].append({ 'object': serializer.data })
+            cls._create_bulk(common_info, request.data, results, serializer_class, **kwargs)
 
             if results['success']:
                 # if even one insert was successful, general status of the request is success
@@ -64,13 +79,39 @@ class CommonService():
                 http_status = status.HTTP_400_BAD_REQUEST
 
         else:
-            serializer = serializer_class(data=request.data, **kwargs)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(**common_info)
-            http_status = status.HTTP_201_CREATED
-            results = serializer.data
+            results, http_status = cls._create_single(common_info, request.data, serializer_class, **kwargs)
+
+        if 'failed' in results:
+            cls._check_and_raise_atomic_error(request, results)
 
         return results, http_status
+
+    @classmethod
+    def _create_single(cls, common_info, initial_data, serializer_class, **kwargs):
+        """
+        Extracted into its own method so it may be inherited.
+        """
+        serializer = serializer_class(data=initial_data, **kwargs)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(**common_info)
+        return serializer.data, status.HTTP_201_CREATED
+
+    @classmethod
+    def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
+        """
+        The actual part where the list is iterated and objects validated, and created.
+        """
+        for row in initial_data_list:
+
+            serializer = serializer_class(data=row, **kwargs)
+
+            try:
+                serializer.is_valid(raise_exception=True)
+            except Exception as e:
+                cls._append_error(results, serializer, e)
+            else:
+                serializer.save(**common_info)
+                results['success'].append({ 'object': serializer.data })
 
     @staticmethod
     def get_json_schema(schema_folder_path, model_name, data_catalog_prefix=False):
@@ -87,7 +128,7 @@ class CommonService():
             if data_catalog_prefix:
                 schema_name = data_catalog_prefix
             else:
-                schema_name = 'att'
+                schema_name = 'ida'
 
             schema_name += '_'
 
@@ -101,7 +142,7 @@ class CommonService():
                 # only datasets have a default schema
                 raise
             _logger.warning(e)
-            with open('%s/att_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
+            with open('%s/ida_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
                 return json_load(f)
 
     @classmethod
@@ -114,11 +155,11 @@ class CommonService():
         that is being updated, since a PUT or PATCH to i.e. /datasets or /files will not have
         an identifier in the url.
 
-        If the header If-Unmodified-Since is set, the field modified_by_api from the received
+        If the header If-Unmodified-Since is set, the field date_modified from the received
         data row will be compared to same field in the instance being updated, to see if the
         resource has been modified in the meantime. Only the presence of the header is checked
         in bulk update, its value does not matter. For PATCH, the presence of the field
-        modified_by_api is an extra requirement in the received data, and an error will be
+        date_modified is an extra requirement in the received data, and an error will be
         returned if it is missing, when the header is set.
 
         params:
@@ -130,13 +171,13 @@ class CommonService():
         if not isinstance(request.data, list):
             raise ValidationError('request.data is not a list')
 
-        check_modified_since = kwargs['context']['view']._request_has_header('If-Unmodified-Since')
-        common_info = { 'modified_by_api': datetime.now() }
+        common_info = cls.update_common_info(request, return_only=True)
         results = { 'success': [], 'failed': []}
 
         for row in request.data:
 
-            instance = cls._get_object_for_update(model_obj, row, results, check_modified_since)
+            instance = cls._get_object_for_update(model_obj, row, results,
+                                                  cls._request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'))
 
             if not instance:
                 continue
@@ -152,40 +193,74 @@ class CommonService():
                 serializer.save(**common_info)
                 results['success'].append({ 'object': serializer.data })
 
-        http_status = cls._get_http_status_for_result(results, kwargs.get('partial', False))
+        # if even one operation was successful, general status of the request is success
+        if len(results.get('success', [])) > 0:
+            http_status = status.HTTP_200_OK
+        else:
+            http_status = status.HTTP_400_BAD_REQUEST
+
+        if 'failed' in results:
+            cls._check_and_raise_atomic_error(request, results)
 
         return results, http_status
 
     @staticmethod
-    def update_common_info(request):
+    def update_common_info(request, return_only=False):
         """
         Update fields common for all tables and most actions:
-        - last modified timestamp and user
-        - created on timestamp and user
-        """
-        user_id = request.user.id or None
+        - last modified timestamp and service name
+        - created on timestamp and service name
 
-        if not user_id:
-            _logger.warning("User id not set; unknown user")
+        For cases where request data is actually xml, or bulk update/create, it is useful to
+        return the common info, so that its info can be used manually, instead of updating
+        request.data here automatically. For that purpose, use the return_only flag.
+        """
+        service_name = request.user.username or None
+
+        if not service_name: # pragma: no cover
+            # should never happen: update_common_info is executed only on update operations,
+            # which requires authorization, which should put the username into the request obj.
+            ValidationError({
+                'detail': 'request.user.username not set; unknown service. '
+                'how did you get here without passing authorization...?'
+            })
 
         method = request.stream and request.stream.method or False
-        current_time = datetime.now()
+        current_time = get_tz_aware_now_without_micros()
         common_info = {}
 
         if method in ('PUT', 'PATCH', 'DELETE'):
             common_info.update({
-                'modified_by_user_id': user_id,
-                'modified_by_api': current_time
+                'service_modified': service_name,
+                'date_modified': current_time
             })
         elif method == 'POST':
             common_info.update({
-                'created_by_user_id': user_id,
-                'created_by_api': current_time,
+                'service_created': service_name,
+                'date_created': current_time,
             })
         else:
             pass
 
-        request.data.update(common_info)
+        if return_only:
+            return common_info
+        else:
+            request.data.update(common_info)
+
+    @staticmethod
+    def _check_and_raise_atomic_error(request, results):
+        if 'success' in results and not len(results['success']):
+            # everything failed anyway, so return normal route even if atomic was used
+            return
+        if len(results.get('failed', [])) > 0 and request.query_params.get('atomic', None) in ('', 'true'):
+            raise ValidationError({
+                'success': [],
+                'failed': results['failed'],
+                'detail': [
+                    'request was failed due to parameter atomic=true. all changes were rolled back. '
+                    'actual failed rows are listed in the field \"failed\".'
+                ]
+            })
 
     @staticmethod
     def _append_error(results, serializer, error):
@@ -197,7 +272,7 @@ class CommonService():
         is still a crash, and should be fixed.
         """
         try:
-            results['failed'].append({ 'object': serializer.data, 'errors': serializer.errors })
+            results['failed'].append({ 'object': serializer.initial_data, 'errors': serializer.errors })
         except AssertionError:
             _logger.exception(
                 'Looks like serializer.is_valid() tripped - could not access serializer.errors. '
@@ -209,27 +284,7 @@ class CommonService():
             results['failed'].append({ 'object': serializer.initial_data, 'errors': str(error) })
 
     @staticmethod
-    def _get_http_status_for_result(results, partial_update):
-        if results['success']:
-            # if even one operation was successful, general status of the request is success
-            if partial_update:
-                # PATCH will contain full updated object
-                return status.HTTP_200_OK
-            else:
-                # PUT
-                if results['failed']:
-                    # some were ok, but since some failed, cant return 204 no_content
-                    return status.HTTP_200_OK
-                else:
-                    # to stay consistent with a single PUT operation, fully successful update
-                    # will return no data to the client
-                    return status.HTTP_204_NO_CONTENT
-        else:
-            # only if all rows have failed, return a general failure for the whole request
-            return status.HTTP_400_BAD_REQUEST
-
-    @staticmethod
-    def _get_object_for_update(model_obj, row, results, check_modified_since):
+    def _get_object_for_update(model_obj, row, results, check_unmodified_since):
         """
         Find the target object being updated using a row from the request payload.
 
@@ -237,7 +292,7 @@ class CommonService():
         model_obj: the model object used to search the db
         row: the payload from the request
         results: the result-list that will be returned from the api
-        check_modified_since: retrieved object should compare its modified_by_api timestamp
+        check_unmodified_since: retrieved object should compare its date_modified timestamp
             to the corresponding field in the received row. this simulates the use of the
             if-unmodified-since header that is used for single updates.
         """
@@ -249,18 +304,74 @@ class CommonService():
         except ValidationError as e:
             results['failed'].append({ 'object': row, 'errors': { 'detail': e.detail } })
 
-        if instance and check_modified_since:
-            if 'modified_by_api' not in row:
+        if instance and check_unmodified_since:
+            if 'date_modified' not in row:
                 results['failed'].append({
                     'object': row,
                     'errors': {
-                        'detail': ['Field modified_by_api is required when the header If-Unmodified-Since is set']
+                        'detail': ['Field date_modified is required when the header If-Unmodified-Since is set']
                     }
                 })
-            elif instance.modified_since(row['modified_by_api']):
+            elif instance.modified_since(row['date_modified']):
                 results['failed'].append({ 'object': row, 'errors': { 'detail': ['Resource has been modified'] } })
             else:
                 # good case - all is good
                 pass
 
         return instance
+
+    @classmethod
+    def _validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(cls, request):
+        try:
+            return cls._validate_http_date_header(request, 'HTTP_IF_UNMODIFIED_SINCE')
+        except:
+            raise Http400('Bad If-Unmodified-Since header')
+
+    @classmethod
+    def validate_and_get_if_modified_since_header_as_tz_aware_datetime(cls, request):
+        try:
+            return cls._validate_http_date_header(request, 'HTTP_IF_MODIFIED_SINCE')
+        except:
+            raise Http400('Bad If-Modified-Since header')
+
+    @staticmethod
+    def _validate_http_date_header(request, header_name):
+        timestamp = request.META.get(header_name, '')
+        # According to RFC 7232, Http date should always be expressed in 'GMT'. Forcing its use makes this explicit
+        if not timestamp.endswith('GMT'):
+            raise Exception
+        return parse_timestamp_string_to_tz_aware_datetime(timestamp)
+
+    @staticmethod
+    def _request_has_header(request, header_name):
+        return header_name in request.META
+
+    @staticmethod
+    def _request_is_write_operation(request):
+        return request.method in ('POST', 'PUT', 'PATCH', 'DELETE')
+
+    @classmethod
+    def check_if_unmodified_since(cls, request, obj):
+        if cls._request_is_write_operation(request) and \
+                cls._request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'):
+
+            header_timestamp = cls._validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(request)
+            if obj.modified_since(header_timestamp):
+                raise Http412('Resource has been modified since {0} (timezone: {1})'.format(
+                    str(header_timestamp), timezone.get_default_timezone_name()))
+
+    @classmethod
+    def set_if_modified_since_filter(cls, request, filter_obj):
+        """
+        Evaluate If-Modified-Since http header only on read operations.
+        Filter items whose date_modified field timestamp value is greater than the header value.
+        This method updates given filter object.
+
+        :param request:
+        :param filter_obj
+        :return:
+        """
+        if not cls._request_is_write_operation(request) and cls._request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
+            filter_obj.update({
+                'date_modified__gt': cls.validate_and_get_if_modified_since_header_as_tz_aware_datetime(request)
+            })

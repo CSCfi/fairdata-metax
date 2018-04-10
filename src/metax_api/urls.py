@@ -14,24 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
-# from django.contrib import admin
-from rest_framework.schemas import get_schema_view
-from rest_framework_swagger.views import get_swagger_view
 
-from metax_api.api.base.router import api_urlpatterns as api_v1
-
-swagger_view = get_swagger_view(title='Metax API')
+from metax_api.api.oaipmh.base.view import oaipmh_view as oaipmh
+from metax_api.api.rest.base.router import api_urlpatterns as api_v1
 
 urlpatterns = [
-    url(r'^$', swagger_view),
-    url(r'^schema/$', get_schema_view(title='Metax API')),
-    url(r'^swagger/$', swagger_view),
-
-    # root of the api should always use the newest version
-    url(r'^rest$', swagger_view),
     url(r'^rest/', include(api_v1)),
     url(r'^rest/v1/', include(api_v1)),
+    url(r'^oai/', oaipmh, name='oai')
 ]
-
-# django default admin site
-# urlpatterns.append(url(r'^admin/', admin.site.urls))

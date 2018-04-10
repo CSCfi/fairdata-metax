@@ -1,0 +1,288 @@
+{
+    "title":"Metax Research Datasets",
+    "modified":"Tue, 13 Jun 2017 16:09:27 EEST",
+    "type":"object",
+    "allOf":[
+        {
+            "$ref":"#/definitions/CatalogRecord"
+        }
+    ],
+    "definitions":{
+        "CatalogRecord":{
+            "title":"Catalog Record",
+            "description":"A record in a data catalog, describing a single dataset.",
+            "properties":{
+                "identifier":{
+                    "title":"Identifier",
+                    "description":"Internal identifier of the record. Required by API write operations.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "data_catalog":{
+                    "title":"Data catalog",
+                    "description":"Data Catalog",
+                    "type":["object", "integer", "string"],
+                    "minItems":1,
+                    "maxItems":1
+                },
+                "contract":{
+                    "title":"Contract",
+                    "description":"Contract identifier or embedded contract object",
+                    "maxItems":1,
+                    "type":["object", "integer", "string"]
+                },
+                "research_dataset":{
+                    "title":"Primary topic",
+                    "description":"Dataset described by this metadata record. Detailed in http://iow.csc.fi/model/mrd/ResearchDataset/",
+                    "type":"object"
+                },
+                "alternate_record_set":{
+                    "title":"Alternate Records",
+                    "description":"List of records who share the same preferred_identifier value, but are saved in different data catalogs. The list of contains the identifier values of those records.",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    },
+                    "readonly": true
+                },
+                "preservation_state":{
+                    "title":"Preservation state",
+                    "description":"state of dataset in PAS cycle: 0 = Not in PAS, 1 = Proposed for midtterm, 2 = Proposed for long term, 3, =in packaging service, 4 = in dissemination, 5 = in midterm preservation, 6 = in longterm preservation, 7 = Rejected long-term preservation, 8 = Rejected mid-term preservation",
+                    "enum":[
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8
+                    ],
+                    "default": 0,
+                    "maxItems":1,
+                    "type":"integer"
+                },
+                "preservation_description":{
+                    "title":"Preservation system description",
+                    "description":"Preservation status described for the user",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "preservation_reason_description":{
+                    "title":"Preservation reason description",
+                    "description":"Reason for the preservation from the user",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "preservation_state_modified":{
+                    "title":"Preservation state modified",
+                    "description":"Date when preservation state was last changed",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "mets_object_identifier":{
+                    "title":"Mets object identifier",
+                    "description":"PID in mid/longterm preservation",
+                    "type":"array",
+                    "items":{
+                        "type":"string"
+                    }
+                },
+                "dataset_group_edit":{
+                    "title":"Dataset group edit",
+                    "description":"Group allowed to edit this record",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "editor":{
+                    "title":"Editor",
+                    "description":"The editor that is used to modify the record.",
+                    "type":"object",
+                    "$ref":"#/definitions/Editor"
+                },
+                "dataset_version_set":{
+                    "title":"Dataset version set",
+                    "description":"Information about the different related dataset versions.",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "properties": {
+                            "identifier": {
+                                "type": "string"
+                            },
+                            "preferred_identifier": {
+                                "type": "string"
+                            },
+                            "removed": {
+                                "type": "boolean"
+                            },
+                            "date_created": {
+                                "type":"string",
+                                "format":"date-time"
+                            }
+                        }
+                    },
+                    "readonly": true
+                },
+                "next_dataset_version":{
+                    "title":"Next dataset version",
+                    "description":"Next dataset version info.",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecordVersion",
+                    "readonly": true
+                },
+                "previous_dataset_version":{
+                    "title":"Previous dataset version",
+                    "description":"Previous dataset version info.",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecordVersion",
+                    "readonly": true
+                },
+                "new_version_created":{
+                    "title":"New version created",
+                    "description":"Included in the API response when an update results in a new version being created.",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecordVersionCreatedInfo",
+                    "readonly": true
+                },
+                "date_modified":{
+                    "title":"Date Modified",
+                    "description":"Date on which the resource was changed.",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "user_modified":{
+                    "title":"Modified by user id",
+                    "description":"User id of the person who last edited this record",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "date_created":{
+                    "title":"Date Created",
+                    "description":"Date of creation of the resource. Can't be updated once set.",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "user_created":{
+                    "title":"Created by user id",
+                    "description":"User id of the person who created this record. Can't be updated once set.",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "service_created":{
+                    "description":"Service name who created this resource.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "service_modified":{
+                    "description":"Service name who last modified this resource.",
+                    "type":"string",
+                    "readonly": true
+                }
+            },
+            "required":[
+                "data_catalog",
+                "research_dataset"
+            ]
+        },
+        "Editor":{
+            "title":"Editor",
+            "description":"An editor object, holds information related to an editor that is used to modify the record. Can contain other fields that are useful to the editor.",
+            "properties":{
+                "creator_id":{
+                    "title":"Creator id",
+                    "description":"Id of the creator in the editor. May (currently) be the same value as user_created in CatalogRecord, if the requestor has set that value.",
+                    "type":"string"
+                },
+                "owner_id":{
+                    "title":"Owner id",
+                    "description":"Id of the owner in the editor",
+                    "type":"string"
+                },
+                "record_id":{
+                    "title":"Record id",
+                    "description":"Internal id of the record in the editor's system",
+                    "type":"string"
+                },
+                "identifier":{
+                    "title":"identifier",
+                    "description":"Id of the editor, for example: qvain",
+                    "type":"string"
+                }
+            },
+            "required":[
+                "owner_id",
+                "identifier",
+            ]
+        },
+        "CatalogRecordVersion":{
+            "title":"CatalogRecord Version",
+            "description":"Information about a previous or next version of a CatalogRecord. Can describe both metadata versions, and dataset versions.",
+            "properties":{
+                "id":{
+                    "title":"id",
+                    "description":"Internal primary key of the record",
+                    "type":"integer",
+                    "readonly": true
+                },
+                "identifier":{
+                    "title":"Identifier",
+                    "description":"Identifier of the record. Only present in links to different metadata version records.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "preferred_identifier":{
+                    "title":"Preferred identifier",
+                    "description":"preferred_identifier of the new dataset version. Only present in links to different dataset versions.",
+                    "type":"string",
+                    "readonly": true
+                }
+            }
+        },
+        "CatalogRecordVersionCreatedInfo":{
+            "title":"CatalogRecord Version Created Info",
+            "description":"A notification field returned from the API when a new dataset version has been created as the result of an update.",
+            "properties":{
+                "id":{
+                    "title":"id",
+                    "description":"Internal primary key of the record",
+                    "type":"integer",
+                    "readonly": true
+                },
+                "identifier":{
+                    "title":"Identifier",
+                    "description":"Identifier of the new version record",
+                    "type":"string",
+                    "readonly": true
+                },
+                "preferred_identifier":{
+                    "title":"Preferred identifier",
+                    "description":"preferred_identifier of the new version record. Only preset for new dataset version records.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "version_type":{
+                    "title":"Version type",
+                    "description":"Type of the new version created.",
+                    "type":"string",
+                    "readonly": true,
+                    "enum":[
+                        "dataset",
+                    ],
+                },
+            },
+            "required":[
+                "identifier",
+                "preferred_identifier",
+                "version_type"
+            ]
+        }
+    }
+}

@@ -1,10 +1,11 @@
+import logging
 from json import dumps as json_dumps
-import pika
 
+import pika
 from django.conf import settings as django_settings
+
 from .utils import executing_test_case, executing_travis
 
-import logging
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -84,7 +85,8 @@ class _RabbitMQ():
         In that case the exchange has to be manually removed first, which can result in lost messages.
         """
         for exchange in self._settings['EXCHANGES']:
-            self._channel.exchange_declare(exchange['NAME'], exchange_type=exchange['TYPE'], durable=exchange.get('DURABLE', True))
+            self._channel.exchange_declare(
+                exchange['NAME'], exchange_type=exchange['TYPE'], durable=exchange.get('DURABLE', True))
 
     def _validate_publish_params(self, routing_key, exchange_name):
         """

@@ -1,5 +1,6 @@
 *~
 *.pyc
+*.DS_Store
 /src/__pycache__/*
 /src/static/*
 /src/.coverage
@@ -7,3 +8,4 @@
 ubuntu-xenial-16.04-cloudimg-console.log
 /src/metax_api/migrations/*
 !/src/metax_api/migrations/*__keep*
+.ropeproject/

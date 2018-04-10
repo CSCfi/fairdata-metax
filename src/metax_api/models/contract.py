@@ -3,9 +3,14 @@ from django.db import connection
 
 from .common import Common
 
+
 class Contract(Common):
 
+    # MODEL FIELD DEFINITIONS #
+
     contract_json = JSONField(blank=True, null=True)
+
+    # END OF MODEL FIELD DEFINITIONS #
 
     def delete(self):
         """
@@ -14,5 +19,18 @@ class Contract(Common):
         https://docs.djangoproject.com/en/1.11/topics/db/models/#overriding-model-methods
         """
         super(Contract, self).delete()
+        sql = 'update metax_api_catalogrecord set removed = true ' \
+              'where active = true and removed = false ' \
+              'and contract_id = %s'
         with connection.cursor() as cr:
-            cr.execute('update metax_api_catalogrecord set removed = true where contract_id = %s', [self.id])
+            cr.execute(sql, [self.id])
+
+    def __repr__(self):
+        return '<%s: %d, removed: %s, identifier: %d, record_count: %d >' \
+            % (
+                'Contract',
+                self.id,
+                str(self.removed),
+                self.contract_json['identifier'],
+                self.records.count(),
+            )
