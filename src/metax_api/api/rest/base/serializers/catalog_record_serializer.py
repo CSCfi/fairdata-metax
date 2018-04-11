@@ -155,6 +155,14 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._operation_is_create() or self._preferred_identifier_is_changed():
             self._validate_research_dataset_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
+
+        if 'directories' in value and not value['directories']:
+            # remove if empty list
+            del value['directories']
+        if 'files' in value and not value['files']:
+            # remove if empty list
+            del value['files']
+
         return value
 
     def _validate_json_schema(self, value):

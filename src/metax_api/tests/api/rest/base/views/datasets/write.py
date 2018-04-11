@@ -1876,6 +1876,22 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_file_count(response.data, 2)
         self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
 
+    def test_empty_files_and_directories_arrays_are_removed(self):
+        """
+        If an update is trying to leave empty "files" or "directories" array into
+        research_dataset, they should be removed entirely during the update.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        cr = response.data
+        cr['research_dataset']['directories'] = []
+        cr['research_dataset']['files'] = []
+        response = self.client.put('/rest/datasets/%d' % cr['id'], cr, format="json")
+        new_version = self.get_next_version(response.data)
+        self.assertEqual('directories' in new_version['research_dataset'], False, response.data)
+        self.assertEqual('files' in new_version['research_dataset'], False, response.data)
+
     def test_multiple_file_and_directory_changes(self):
         """
         Multiple add file/add directory updates, followed by multiple remove file/remove directory updates.
