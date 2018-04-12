@@ -273,7 +273,7 @@ class FileService(CommonService):
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
-            recursive=False, max_depth=1, dirs_only=False, include_parent=False, preferred_identifier=None):
+            recursive=False, max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None):
         """
         Get files and directories contained by a directory.
 
@@ -281,8 +281,8 @@ class FileService(CommonService):
 
         identifier: may be a pk, or an uuid value. Search using approriate fields.
 
-        preferred_identifier: may be used to browse files in the context of the given
-        preferred_identifier: Only those files and directories are retrieved, which have been
+        cr_identifier: may be used to browse files in the context of the given
+        cr_identifier: Only those files and directories are retrieved, which have been
         selected for that CatalogRecord.
 
         path and project_identifier: may be specified to search directly by
@@ -326,23 +326,17 @@ class FileService(CommonService):
                 raise Http404
             directory_id = directory.id
 
-        if preferred_identifier:
-            if preferred_identifier.isdigit():
-                cr_id = preferred_identifier
+        if cr_identifier:
+            if cr_identifier.isdigit():
+                cr_id = cr_identifier
             else:
-                # assumed att catalogs are created first.
-                cr = CatalogRecord.objects.filter(
-                    research_dataset__contains={ 'preferred_identifier': preferred_identifier },
-                    files__isnull=False) \
-                    .values('id').first()
-                if not cr:
+                try:
+                    cr = CatalogRecord.objects.values('id').get(identifier=cr_identifier)
+                except CatalogRecord.DoesNotExist:
                     # raise 400 instead of 404, to distinguish from the error
                     # 'directory not found', which raises a 404
                     raise ValidationError({
-                        'detail': [
-                            'record with preferred_identifier %s does not have any files, or does not exist'
-                            % preferred_identifier
-                        ]
+                        'detail': [ 'CatalogRecord with identifier %s does not exist' % cr_identifier ]
                     })
                 cr_id = cr['id']
         else:
