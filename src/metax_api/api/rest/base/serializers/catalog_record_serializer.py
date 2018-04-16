@@ -301,7 +301,10 @@ class CatalogRecordSerializer(CommonSerializer):
             catalog_json = DataCatalog.objects.filter(pk=self.initial_data['data_catalog']) \
                 .only('catalog_json').first().catalog_json
         else:
-            catalog_json = self.instance.data_catalog.catalog_json
+            try:
+                catalog_json = self.instance.data_catalog.catalog_json
+            except AttributeError:
+                raise ValidationError({ 'data_catalog': ['data_catalog is a required field']})
 
         return catalog_json.get('dataset_versioning', False) is True
 

@@ -1195,6 +1195,44 @@ paths:
         - Contract API
 
 
+# ApiErrors API
+  /apierrors:
+    get:
+      summary: "list errors produced during api requests"
+      responses:
+        '200':
+          description: returns a list of error entries. may return an empty list.
+      tags:
+        - ApiErrors API
+  /apierrors/{identifier}:
+    get:
+      summary: get details of a single error entry
+      responses:
+        '200':
+          description: return error details as a json object
+        '404':
+          description: not found
+      tags:
+        - ApiErrors API
+    delete:
+      summary: delete a single error entry
+      responses:
+        '204':
+          description: entry deleted
+        '404':
+          description: not found
+      tags:
+        - ApiErrors API
+  /apierrors/flush:
+    post:
+      summary: "delete all error entries"
+      responses:
+        '200':
+          description: all entries deleted. return a json object telling how many items were deleted.
+      tags:
+        - ApiErrors API
+
+
 # Schema API
   /schemas:
     get:

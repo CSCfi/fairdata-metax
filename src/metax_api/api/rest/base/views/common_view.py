@@ -1,5 +1,5 @@
-import logging
 from os import path
+import logging
 
 from django.http import Http404
 from rest_framework import status
@@ -8,7 +8,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from metax_api.services import CommonService as CS
+from metax_api.exceptions import Http403
+from metax_api.services import CommonService as CS, ApiErrorService
 from metax_api.utils import RedisSentinelCache
 
 _logger = logging.getLogger(__name__)
@@ -28,6 +29,15 @@ class CommonViewSet(ModelViewSet):
     # assigning the create_bulk method here allows for other views to assing their other,
     # customized method to be called instead instead of the generic one.
     create_bulk_method = CS.create_bulk
+
+    def handle_exception(self, exc):
+        """
+        Store request and response data to disk for later inspection
+        """
+        response = super(CommonViewSet, self).handle_exception(exc)
+        if type(exc) not in (Http403, Http404):
+            ApiErrorService.store_error_details(self.request, response, exc)
+        return response
 
     def paginate_queryset(self, queryset):
         if CS.get_boolean_query_param(self.request, 'no_pagination'):
@@ -121,7 +131,9 @@ class CommonViewSet(ModelViewSet):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
-        return Response(data=results, status=http_status)
+        response = Response(results, status=http_status)
+        self._check_and_store_bulk_error(request, response)
+        return response
 
     def partial_update(self, request, *args, **kwargs):
         CS.update_common_info(request)
@@ -134,13 +146,17 @@ class CommonViewSet(ModelViewSet):
         kwargs['context'] = self.get_serializer_context()
         kwargs['partial'] = True
         results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
-        return Response(data=results, status=http_status)
+        response = Response(results, status=http_status)
+        self._check_and_store_bulk_error(request, response)
+        return response
 
     def create(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         results, http_status = self.create_bulk_method(request, serializer_class, **kwargs)
-        return Response(results, status=http_status)
+        response = Response(results, status=http_status)
+        self._check_and_store_bulk_error(request, response)
+        return response
 
     def destroy(self, request, *args, **kwargs):
         CS.update_common_info(request)
@@ -185,3 +201,12 @@ class CommonViewSet(ModelViewSet):
         """
         self.json_schema = CS.get_json_schema(path.dirname(view_file) + '/../schemas',
                                               self.__class__.__name__.lower()[:-(len('viewset'))])
+
+    def _check_and_store_bulk_error(self, request, response):
+        """
+        Unless ?atomic=true is used in bulk operations, the request does not entirely fail, and
+        error data is not saved. Separately check presence of failures in bulk operations responses,
+        and save data if necessary.
+        """
+        if 'failed' in response.data and len(response.data['failed']):
+            ApiErrorService.store_error_details(request, response, other={ 'bulk_request': True })
