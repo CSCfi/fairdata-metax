@@ -42,7 +42,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
             if set == 'urnresolver':
                 pass
             else:
-                query_set = query_set.filter(data_catalog__catalog_json__identifier__in=settings.OAI['SET_MAPPINGS'][set])
+                query_set = query_set.filter(
+                    data_catalog__catalog_json__identifier__in=settings.OAI['SET_MAPPINGS'][set])
         else:
             query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
         return query_set[cursor:batch_size]
@@ -72,7 +73,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
     def _get_oai_dc_metadata(self, record):
         identifier = record.research_dataset.get('preferred_identifier')
         meta = {
-            'identifier':  [settings.OAI['ETSIN_URL_TEMPLATE'] % identifier, identifier]
+            'identifier':  [identifier]
         }
         return meta
 
@@ -106,7 +107,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return timezone.make_naive(timestamp)
 
     def _get_oai_item(self, record, metadata_prefix):
-        identifier = record.research_dataset.get('preferred_identifier')
+        identifier = record.identifier
         metadata = self._get_metadata_for_record(record, metadata_prefix)
         item = (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
                 common.Metadata('', metadata), None)
@@ -189,11 +190,10 @@ class MetaxOAIServer(ResumptionOAIPMH):
         try:
             record = CatalogRecord.objects.get(
                 data_catalog__catalog_json__identifier__in=self._get_default_set_filter(),
-                research_dataset__contains={'preferred_identifier': identifier}
+                identifier__exact=identifier
             )
         except CatalogRecord.DoesNotExist:
             raise IdDoesNotExistError("No dataset with id %s available through the OAI-PMH interface." % identifier)
         metadata = self._get_metadata_for_record(record, metadataPrefix)
-        identifier = record.research_dataset.get('preferred_identifier')
         return (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
                 common.Metadata('', metadata), None)
