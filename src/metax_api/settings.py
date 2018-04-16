@@ -185,7 +185,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '%(asctime)s %(name)s %(levelname)s: %(message)s'
+            # timestamp, process id, python module name, loglevel, msg content...
+            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s'
         },
     },
     'filters': {
