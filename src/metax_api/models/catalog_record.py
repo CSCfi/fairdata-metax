@@ -681,9 +681,9 @@ class CatalogRecord(Common):
         else:
             self.research_dataset['preferred_identifier'] = generate_identifier()
 
-        self.research_dataset['metadata_version_identifier'] = generate_identifier()
+        self.research_dataset['metadata_version_identifier'] = generate_identifier(urn=False)
 
-        self.identifier = generate_identifier()
+        self.identifier = generate_identifier(urn=False)
 
         if 'remote_resources' in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()

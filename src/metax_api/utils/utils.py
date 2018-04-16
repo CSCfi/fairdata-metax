@@ -48,5 +48,7 @@ def get_tz_aware_now_without_micros():
     return timezone.now().replace(microsecond=0)
 
 
-def generate_identifier():
-    return 'urn:nbn:fi:att:%s' % str(uuid4())
+def generate_identifier(urn=True):
+    if urn:
+        return 'urn:nbn:fi:att:%s' % str(uuid4())
+    return str(uuid4())
