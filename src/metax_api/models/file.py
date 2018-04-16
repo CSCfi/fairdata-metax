@@ -53,9 +53,13 @@ class File(Common):
 
     # END OF MODEL FIELD DEFINITIONS #
 
-    indexes = [
-        models.Index(fields=['identifier', 'file_path', 'project_identifier']),
-    ]
+    class Meta:
+        indexes = [
+            models.Index(fields=['file_path']),
+            models.Index(fields=['identifier']),
+            models.Index(fields=['parent_directory']),
+            models.Index(fields=['project_identifier']),
+        ]
 
     objects = FileManager()
 

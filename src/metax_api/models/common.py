@@ -38,6 +38,10 @@ class Common(models.Model):
     objects_unfiltered = models.Manager()
 
     class Meta:
+        indexes = [
+            models.Index(fields=['active']),
+            models.Index(fields=['removed']),
+        ]
         abstract = True
 
     def __init__(self, *args, **kwargs):

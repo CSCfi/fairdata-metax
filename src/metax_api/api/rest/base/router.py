@@ -20,6 +20,7 @@ from .views import (
     DataCatalogViewSet,
     DatasetViewSet,
     DirectoryViewSet,
+    ApiErrorViewSet,
     FileViewSet,
     SchemaViewSet
 )
@@ -49,6 +50,7 @@ class CustomRouter(DefaultRouter):
 
 
 router = CustomRouter(trailing_slash=False)
+router.register(r'apierrors/?', ApiErrorViewSet)
 router.register(r'contracts/?', ContractViewSet)
 router.register(r'datasets/?', DatasetViewSet)
 router.register(r'datacatalogs/?', DataCatalogViewSet)
