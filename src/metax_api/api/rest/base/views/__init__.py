@@ -1,3 +1,4 @@
+from .api_error_view import ApiErrorViewSet
 from .common_view import CommonViewSet
 from .contract_view import ContractViewSet
 from .data_catalog_view import DataCatalogViewSet

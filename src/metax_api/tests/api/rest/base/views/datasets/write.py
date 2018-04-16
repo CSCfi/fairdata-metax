@@ -188,7 +188,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset']["title"] = 1234456
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(len(response.data), 1, 'there should be only one error')
+        self.assertEqual(len(response.data), 2, 'there should be two errors (error_identifier is one of them)')
         self.assertEqual('research_dataset' in response.data.keys(), True,
                          'The error should concern the field research_dataset')
         self.assertEqual('1234456 is not of type' in response.data['research_dataset'][0], True, response.data)
@@ -207,7 +207,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         }]
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(len(response.data), 1, 'there should be only one error')
+        self.assertEqual(len(response.data), 2, 'there should be two errors (error_identifier is one of them)')
         self.assertEqual('research_dataset' in response.data.keys(), True,
                          'The error should concern the field research_dataset')
         self.assertEqual('is not valid' in response.data['research_dataset'][0], True, response.data)

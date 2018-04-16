@@ -42,6 +42,16 @@ if executing_test_case() or executing_in_travis:
         'username': 'testuser',
         'password': 'testuserpassword'
     }
+    API_METAX_USER = {
+        'username': 'metax',
+        'password': 'metaxpassword'
+    }
+
+    ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
+else:
+    # location to store information about exceptions occurred during api requests
+    ERROR_FILES_PATH = '/var/log/metax-api/errors'
+
 
 # Consider enabling these
 #CSRF_COOKIE_SECURE = True
