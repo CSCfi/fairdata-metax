@@ -439,9 +439,9 @@ paths:
             otherwise, one would query for its data separately by GET /directories/3.
           required: false
           type: boolean
-        - name: preferred_identifier
+        - name: cr_identifier
           in: query
-          description: preferred_identifier of a dataset. browse only files that have been selected for that record.
+          description: identifier of a catalog record. browse only files that have been selected for that record.
           required: false
           type: string
       responses:

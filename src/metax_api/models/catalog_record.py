@@ -621,7 +621,7 @@ class CatalogRecord(Common):
             ]
             self._previous_highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
         return any(
-            True for dr_path in self._previous_highest_level_dirs_by_project[project]
+            True for dr_path in self._previous_highest_level_dirs_by_project.get(project, [])
             if path != dr_path and path.startswith(dr_path)
         )
 

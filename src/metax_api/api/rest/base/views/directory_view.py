@@ -67,7 +67,7 @@ class DirectoryViewSet(CommonViewSet):
             if max_depth <= 0:
                 raise Http400({ 'detail': ['value of depth must be higher than 0'] })
 
-        preferred_identifier = request.query_params.get('preferred_identifier', None)
+        cr_identifier = request.query_params.get('cr_identifier', None)
 
         files_and_dirs = FileService.get_directory_contents(
             identifier=identifier,
@@ -77,7 +77,7 @@ class DirectoryViewSet(CommonViewSet):
             max_depth=max_depth,
             dirs_only=dirs_only,
             include_parent=include_parent,
-            preferred_identifier=preferred_identifier
+            cr_identifier=cr_identifier
         )
 
         return Response(files_and_dirs)
