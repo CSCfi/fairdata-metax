@@ -83,6 +83,11 @@ class ResearchDatasetVersion(models.Model):
     catalog_record = models.ForeignKey('CatalogRecord', on_delete=models.DO_NOTHING,
         related_name='research_dataset_versions')
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['metadata_version_identifier']),
+        ]
+
     def __str__(self):
         return self.__repr__()
 
@@ -234,6 +239,10 @@ class CatalogRecord(Common):
     objects = CatalogRecordManager()
 
     class Meta:
+        indexes = [
+            models.Index(fields=['data_catalog']),
+            models.Index(fields=['identifier']),
+        ]
         ordering = ['id']
 
     def __init__(self, *args, **kwargs):
