@@ -42,6 +42,16 @@ if executing_test_case() or executing_in_travis:
         'username': 'testuser',
         'password': 'testuserpassword'
     }
+    API_METAX_USER = {
+        'username': 'metax',
+        'password': 'metaxpassword'
+    }
+
+    ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
+else:
+    # location to store information about exceptions occurred during api requests
+    ERROR_FILES_PATH = '/var/log/metax-api/errors'
+
 
 # Consider enabling these
 #CSRF_COOKIE_SECURE = True
@@ -185,7 +195,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '%(asctime)s %(name)s %(levelname)s: %(message)s'
+            # timestamp, process id, python module name, loglevel, msg content...
+            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s'
         },
     },
     'filters': {
