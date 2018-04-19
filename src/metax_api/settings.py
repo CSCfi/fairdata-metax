@@ -101,7 +101,7 @@ MIDDLEWARE = [
     'metax_api.middleware.StreamHttpResponse',
 ]
 
-if not executing_in_travis:
+if not (executing_test_case() or executing_in_travis):
     # security settings
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
