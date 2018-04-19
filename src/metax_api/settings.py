@@ -94,10 +94,20 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'metax_api.middleware.IdentifyApiCaller',
     'metax_api.middleware.AddLastModifiedHeaderToResponse',
     'metax_api.middleware.StreamHttpResponse',
 ]
+
+# security settings
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+X_FRAME_OPTIONS = 'DENY'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
