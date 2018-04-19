@@ -69,13 +69,13 @@ class ApiErrorService():
         if request.method in ('POST', 'PUT', 'PATCH'):
             # cast possible datetime objects to strings, because those cant be json-serialized...
             request_data = request.data
-            for k in ('date_modified', 'date_created'):
+            for date_field in ('date_modified', 'date_created'):
                 if isinstance(request_data, list):
                     for item in request_data:
-                        if k in item:
-                            item[k] = str(k)
-                elif isinstance(request_data, dict) and k in request_data:
-                    request_data[k] = str(request_data[k])
+                        if date_field in item:
+                            item[date_field] = str(item[date_field])
+                elif isinstance(request_data, dict) and date_field in request_data:
+                    request_data[date_field] = str(request_data[date_field])
                 else:
                     pass
         else:
