@@ -182,6 +182,8 @@ else:
             'PASSWORD': app_config_dict['METAX_DATABASE_PASSWORD'],
             'HOST': app_config_dict['METAX_DATABASE_HOST'],
             'PORT': '',
+            # default is 0 == "reconnect to db on every request". placing setting here for visibility
+            'CONN_MAX_AGE': 0,
         }
     }
 

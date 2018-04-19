@@ -1,6 +1,8 @@
 import logging
 
+from django.db import transaction
 from django.http import Http404
+from django.utils.decorators import method_decorator
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import ValidationError
@@ -19,6 +21,8 @@ _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
 
+# none of the methods in this class use atomic requests by default! see method dispatch()
+@transaction.non_atomic_requests
 class FileViewSet(CommonViewSet):
 
     authentication_classes = ()
@@ -43,6 +47,27 @@ class FileViewSet(CommonViewSet):
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)
         super(FileViewSet, self).__init__(*args, **kwargs)
+
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, request, **kwargs):
+        """
+        In order to decorate a class-based view method with non_atomic_requests, some
+        more effort is required.
+
+        For POST /files requests, do not wrap the request inside a transaction, in order to enable
+        closing and re-opening the db connection during the request in an effort to keep the
+        process from being dramatically slowed down during large file inserts.
+
+        Literature:
+        https://docs.djangoproject.com/en/2.0/topics/class-based-views/intro/#decorating-the-class
+        https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.non_atomic_requests
+        """
+        # todo add checking of ?atomic parameter to skip this ?
+        if request.method == 'POST' and '/rest/files' in request.META['PATH_INFO']:
+            # for POST /files only, do not use a transaction !
+            return super().dispatch(request, **kwargs)
+        with transaction.atomic():
+            return super().dispatch(request, **kwargs)
 
     @list_route(methods=['post'], url_path="datasets")
     def datasets(self, request):

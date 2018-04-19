@@ -91,10 +91,16 @@ class FileSerializer(CommonSerializer):
         Ensure file_path is unique in the project, within unremoved files.
         file_path can exist multiple times for removed files though.
         """
+        if hasattr(self, 'file_path_checked'):
+            # has been previously validated during bulk operation processing.
+            # saves a fetch to the db.
+            return value
+
         if self._operation_is_create():
             if 'project_identifier' not in self.initial_data:
                 # the validation for project_identifier is executed later...
                 return value
+
             project = self.initial_data['project_identifier']
             if File.objects.filter(project_identifier=project, file_path=value).exists():
                 raise ValidationError('a file with path %s already exists in project %s' % (value, project))

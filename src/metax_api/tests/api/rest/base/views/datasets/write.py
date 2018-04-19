@@ -1684,6 +1684,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         ]
 
         file_template = self._get_file_from_test_data()
+        del file_template['id']
         self._single_file_byte_size = file_template['byte_size']
 
         files_1 = []
@@ -1789,6 +1790,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         ]
 
         file_template = self._get_file_from_test_data()
+        del file_template['id']
         self._single_file_byte_size = file_template['byte_size']
         files = []
 
