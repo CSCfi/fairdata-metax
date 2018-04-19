@@ -101,13 +101,14 @@ MIDDLEWARE = [
     'metax_api.middleware.StreamHttpResponse',
 ]
 
-# security settings
-CSRF_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-X_FRAME_OPTIONS = 'DENY'
+if not executing_in_travis:
+    # security settings
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    X_FRAME_OPTIONS = 'DENY'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
