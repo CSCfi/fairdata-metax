@@ -101,7 +101,7 @@ MIDDLEWARE = [
     'metax_api.middleware.StreamHttpResponse',
 ]
 
-if not executing_in_travis:
+if not (executing_test_case() or executing_in_travis):
     # security settings
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -182,6 +182,8 @@ else:
             'PASSWORD': app_config_dict['METAX_DATABASE_PASSWORD'],
             'HOST': app_config_dict['METAX_DATABASE_HOST'],
             'PORT': '',
+            # default is 0 == "reconnect to db on every request". placing setting here for visibility
+            'CONN_MAX_AGE': 0,
         }
     }
 

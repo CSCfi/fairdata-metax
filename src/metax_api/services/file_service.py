@@ -4,6 +4,7 @@ from os.path import dirname, basename
 from time import time
 from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
+from django.conf import settings
 from django.db import connection
 from django.http import Http404
 from rest_framework import status
@@ -17,6 +18,7 @@ from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
 
 
+DEBUG = settings.DEBUG
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
@@ -605,12 +607,137 @@ class FileService(CommonService):
         file_list_with_dirs = cls._create_directories_from_file_list(common_info, initial_data_list, **kwargs)
 
         _logger.info('Creating files...')
-        super(FileService, cls)._create_bulk(
+        cls._create_files(
             common_info, file_list_with_dirs, results, serializer_class, **kwargs)
 
         cls.calculate_project_directory_byte_sizes_and_file_counts(initial_data_list[0]['project_identifier'])
 
         _logger.info('Created %d new files' % len(results.get('success', [])))
+
+    @classmethod
+    def _create_files(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
+        """
+        The actual part where the list is iterated and objects validated, and created.
+        """
+
+        # pre-fetch all file_paths in the project, to spare an individual db fetch for each file
+        # in serializer.save(), where they otherwise would check for path presence.
+        project_file_paths = File.objects.filter(
+            project_identifier=initial_data_list[0]['project_identifier']).values_list('file_path', flat=True)
+        project_file_paths = set(project_file_paths)
+
+        file_storage_id = None
+        entries = []
+
+        def to_model_format(entry):
+            """
+            Format that is inserted into db.
+            """
+            del entry['checksum']
+            entry['file_storage_id'] = entry['file_storage']
+            del entry['file_storage']
+            entry['parent_directory_id'] = entry['parent_directory']
+            del entry['parent_directory']
+
+        def to_repr(entry):
+            """
+            Format that is returned in the response.
+            """
+            entry['file_storage'] = { 'id': entry['file_storage_id'] }
+            entry['parent_directory'] = { 'id': entry['parent_directory_id'] }
+            del entry['file_storage_id']
+            del entry['parent_directory_id']
+
+        if DEBUG:
+            start = time()
+
+        for i, row in enumerate(initial_data_list):
+
+            if file_storage_id:
+                # saves a fetch to db in serializer.is_valid(), once file_storage_id has been retrieved
+                # for one of the files.
+                row['file_storage'] = file_storage_id
+
+            serializer = serializer_class(data=row, **kwargs)
+
+            if row['file_path'] not in project_file_paths:
+                # saves a fetch to db in serializer.is_valid()
+                serializer.file_path_checked = True
+            else:
+                # looks like path already exists in the project scope... let the serializer
+                # confirm it on its own, and raise an error along the standard validations.
+                # if the identifier also already exists, the error may be ignored if parameter
+                # ignore_already_exists_errors is used.
+                pass
+
+            try:
+                serializer.is_valid(raise_exception=True)
+            except Exception as e:
+                if CommonService.get_boolean_query_param(kwargs['context']['request'], 'ignore_already_exists_errors'):
+                    if cls._error_is_already_exists(e):
+                        # add only a minuscule response informing of the situation...
+                        results['success'].append({ 'object': {
+                            'identifier': row['identifier'], 'detail': ['already exists'] }
+                        })
+                        continue
+                cls._append_error(results, serializer, e)
+            else:
+                entry = serializer.initial_data
+                to_model_format(entry)
+                entries.append(File(**entry))
+                file_storage_id = entry['file_storage_id'] # re-used for following loops
+
+                to_repr(entry)
+                results['success'].append({ 'object': entry })
+
+                if i % 1000 == 0:
+                    # pros and cons of Model.objects.bulk_create():
+                    # pros:
+                    # - less db calls... MUCH faster
+                    # cons:
+                    # - Model.save() is not called. luckily File does not implement anything custom there
+                    # - uses a bit more memory since entries[] is accumulated. control by adjusting batch size
+                    # - the values returned to the requestor do not look identical to serializer.data. currently
+                    #   low impact though, as no service is inspecting it anyway.
+                    File.objects.bulk_create(entries)
+                    entries = []
+
+                    # for large amounts of data, the process slows down considerably as the process continues...
+                    # closing and re-opening the connection helps the speed stay constant. downside: unable
+                    # to create files inside a transaction. for rare cases where retries are made
+                    # with the same data where the requestor never got the previousy attempt's result back,
+                    # the requestor can use the parameter ignore_already_exists_errors to be spared from
+                    # uninteresting errors.
+                    if not connection.in_atomic_block:
+                        # do not close when in atomic block! should only happen when inside test cases
+                        connection.close()
+                        connection.connect()
+
+                    if DEBUG:
+                        end = time()
+                        _logger.debug('processed %d files... (%.3f seconds per batch)' % (i, end - start))
+                        start = time()
+
+        if entries:
+            _logger.debug('a final dose of %d records still left to bulk_create...' % len(entries))
+            File.objects.bulk_create(entries)
+            _logger.debug('done!')
+
+        if DEBUG:
+            end = time()
+            _logger.debug('total time for inserting %d files: %d seconds' % (len(initial_data_list), (end - start)))
+
+    @staticmethod
+    def _error_is_already_exists(e):
+        """
+        Check if the error 'identifier already exists' was raised. There may have been other errors
+        included, but they may be a symptom of the record already existing, so we don't care about them.
+        """
+        if hasattr(e, 'detail'):
+            for field_name, errors in e.detail.items():
+                if field_name == 'identifier' and 'already exists' in errors[0]:
+                    return True
+        return False
 
     @staticmethod
     def _check_errors_before_creating_dirs(initial_data_list):
