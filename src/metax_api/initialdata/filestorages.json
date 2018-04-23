@@ -1,0 +1,7 @@
+[{
+    "file_storage_json": {
+        "url": "https://metax.csc.fi/rest/filestorages/file-storage-ida",
+        "title": "IDA File Storage",
+        "identifier": "file-storage-ida"
+    }
+}]
