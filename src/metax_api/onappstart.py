@@ -28,7 +28,7 @@ class OnAppStart(AppConfig):
         once. The key 'on_app_start_executing' in the cache is set to true by the fastest process,
         informing other processes to not proceed further.
         """
-        if any(cmd in sys.argv for cmd in ['makemigrations', 'migrate']):
+        if any(cmd in sys.argv for cmd in ['manage.py']):
             return
 
         cache = RedisSentinelCache(master_only=True)

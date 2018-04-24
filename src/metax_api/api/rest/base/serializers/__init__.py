@@ -3,4 +3,5 @@ from .contract_serializer import ContractSerializer
 from .data_catalog_serializer import DataCatalogSerializer
 from .directory_serializer import DirectorySerializer
 from .file_serializer import FileSerializer
+from .file_storage_serializer import FileStorageSerializer
 from .xml_metadata_serializer import XmlMetadataSerializer

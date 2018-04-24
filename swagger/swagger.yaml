@@ -14,30 +14,32 @@ paths:
 # File Storage API
   /filestorages:
     get:
-      summary: "list of file storage systems"
+      summary: List File Storages
       responses:
         "200":
           description: return list of file storages
       tags:
-        - File Storage API (not implemented)
+        - File Storage API
     post:
-      summary: create file storage system
+      summary: Create File Storage metadata
       consumes:
         - application/json
       responses:
         '201':
-          description: new file storage created, return UUID of the system
+          description: new file storage created, returns created object
+        '400':
+          description: parameters contained errors, response includes details
         '401':
-          description: Unauthorized. Reserved for admins only
+          description: Unauthorized
       tags:
-        - File Storage API (not implemented)
+        - File Storage API
   /filestorages/{PID}:
     get:
-      summary: get file storage metadata
+      summary: Get File Storage metadata
       parameters:
         - name: PID
           in: path
-          description: UUID of the system
+          description: identifier of file storage
           required: true
           type: string
       responses:
@@ -46,13 +48,13 @@ paths:
         '404':
           description: not found
       tags:
-        - File Storage API (not implemented)
+        - File Storage API
     put:
-      summary: replace File Storage metadata
+      summary: Replace File Storage metadata
       parameters:
         - name: PID
           in: path
-          description: UUID of the system
+          description: identifier of file storage
           required: true
           type: string
       responses:
@@ -63,7 +65,41 @@ paths:
         '401':
           description: Unauthorized. Reserved for admins only
       tags:
-        - File Storage API (not implemented)
+        - File Storage API
+    patch:
+      summary: Partially replace File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: identifier of file storage
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation. modified content returned
+        '400':
+          description: parameters contained errors, response includes details
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - File Storage API
+    delete:
+      summary: Delete File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: identifier of file storage
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '404':
+          description: not found
+      tags:
+        - File Storage API
 
 # File API
   /files:
@@ -385,24 +421,6 @@ paths:
           description: not found
       tags:
         - File API
-    delete:
-      summary: delete all files' metadata in directory, recursively
-      parameters:
-        - name: PID
-          in: path
-          description: |
-              directory path. example value\: /path/of/directory
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, returns in body the number of affected files in field affected_files
-        '400':
-          description: bad parameters, details in body
-        '404':
-          description: not a single file with given path was found
-      tags:
-        - File API (not implemented)
   /directories/{PID}/files:
     get:
       summary: get list of files and directories contained by a directory

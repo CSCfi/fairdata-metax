@@ -22,6 +22,7 @@ from .views import (
     DirectoryViewSet,
     ApiErrorViewSet,
     FileViewSet,
+    FileStorageViewSet,
     SchemaViewSet
 )
 
@@ -56,6 +57,7 @@ router.register(r'datasets/?', DatasetViewSet)
 router.register(r'datacatalogs/?', DataCatalogViewSet)
 router.register(r'directories/?', DirectoryViewSet)
 router.register(r'files/?', FileViewSet)
+router.register(r'filestorages/?', FileStorageViewSet)
 router.register(r'schemas/?', SchemaViewSet, 'schema')
 
 # note: this somehow maps to list-api... but the end result works when
