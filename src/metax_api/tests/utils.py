@@ -15,19 +15,22 @@ def get_json_schema(model_name):
         return json_load(f)
 
 
-def generate_test_identifier(itype, index):
+def generate_test_identifier(itype, index, urn=True):
     '''
     Generate urn-type identifier ending with uuid4
 
     :param index: positive integer for making test identifiers unique. Replaces characters from the end of uuid
     :param itype: to separate identifiers from each other on model level (e.g. is it a catalog record or data catalog)
+    :param urn: use urn prefix or not
     :return: test identifier
     '''
 
     postfix = str(index)
     # Use the same base identifier for the tests and vary by the identifier type and the incoming positive integer
     uuid = str(itype) + '955e904-e3dd-4d7e-99f1-3fed446f96d5'
-    return 'urn:nbn:fi:att:%s' % (uuid[:-len(postfix)] + postfix)
+    if urn:
+        return 'urn:nbn:fi:att:%s' % (uuid[:-len(postfix)] + postfix)
+    return uuid[:-len(postfix)] + postfix
 
 
 class TestClassUtils():
