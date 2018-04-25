@@ -67,6 +67,12 @@ class Command(BaseCommand):
         else:
             raise CommandError('Could not find metax-user from app_config ?')
 
+    def _error_is_already_exists(self, details):
+        for field_name, errors in details.items():
+            if field_name == 'identifier' and 'already exists' in errors[0]:
+                return True
+        return False
+
     def _load_data_catalogs(self):
         try:
             with open('metax_api/initialdata/datacatalogs.json', 'r') as f:
@@ -85,11 +91,26 @@ class Command(BaseCommand):
             if response.status_code == 201:
                 self.stdout.write('Created catalog: %s' % dc['catalog_json']['identifier'])
             else:
+                # update instead
                 try:
                     errors = response.json()
                 except:
-                    errors = response.content
-                self.stdout.write('Failed to create catalog: %s. Reason: %s' %
+                    raise CommandError(response.content)
+
+                if self._error_is_already_exists(errors['catalog_json']):
+                    self.stdout.write('Catalog %s already exists, updating instead...' %
+                        dc['catalog_json']['identifier'])
+
+                    response = requests.put('%s/rest/datacatalogs/%s' %
+                        (self._metax_api_root, dc['catalog_json']['identifier']),
+                        json=dc, auth=self._metax_api_user, verify=False)
+
+                    if response.status_code == 200:
+                        self.stdout.write('Updated catalog: %s' % dc['catalog_json']['identifier'])
+                        continue
+
+                # create or update ended in error
+                self.stdout.write('Failed to process catalog: %s. Reason: %s' %
                     (dc['catalog_json']['identifier'], errors))
 
     def _load_file_storages(self):
@@ -108,11 +129,25 @@ class Command(BaseCommand):
                 json=fs, auth=self._metax_api_user, verify=False)
 
             if response.status_code == 201:
-                self.stdout.write('Created storage: %s' % fs['file_storage_json']['identifier'])
+                self.stdout.write('Created file storage: %s' % fs['file_storage_json']['identifier'])
             else:
+                # update instead
                 try:
                     errors = response.json()
                 except:
-                    errors = response.content
-                self.stdout.write('Failed to create storage: %s. Reason: %s' %
+                    raise CommandError(response.content)
+                if self._error_is_already_exists(errors['file_storage_json']):
+                    self.stdout.write('File storage %s already exists, updating instead...' %
+                        fs['file_storage_json']['identifier'])
+
+                    response = requests.put('%s/rest/filestorages/%s' %
+                        (self._metax_api_root, fs['file_storage_json']['identifier']),
+                        json=fs, auth=self._metax_api_user, verify=False)
+
+                    if response.status_code == 200:
+                        self.stdout.write('Updated file storage: %s' % fs['file_storage_json']['identifier'])
+                        continue
+
+                # create or update ended in error
+                self.stdout.write('Failed to process storage: %s. Reason: %s' %
                     (fs['file_storage_json']['identifier'], errors))
