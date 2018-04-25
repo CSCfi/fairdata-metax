@@ -42,6 +42,16 @@ if executing_test_case() or executing_in_travis:
         'username': 'testuser',
         'password': 'testuserpassword'
     }
+    API_METAX_USER = {
+        'username': 'metax',
+        'password': 'metaxpassword'
+    }
+
+    ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
+else:
+    # location to store information about exceptions occurred during api requests
+    ERROR_FILES_PATH = '/var/log/metax-api/errors'
+
 
 # Consider enabling these
 #CSRF_COOKIE_SECURE = True
@@ -84,10 +94,21 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'metax_api.middleware.IdentifyApiCaller',
     'metax_api.middleware.AddLastModifiedHeaderToResponse',
     'metax_api.middleware.StreamHttpResponse',
 ]
+
+if not (executing_test_case() or executing_in_travis):
+    # security settings
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    X_FRAME_OPTIONS = 'DENY'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -161,6 +182,8 @@ else:
             'PASSWORD': app_config_dict['METAX_DATABASE_PASSWORD'],
             'HOST': app_config_dict['METAX_DATABASE_HOST'],
             'PORT': '',
+            # default is 0 == "reconnect to db on every request". placing setting here for visibility
+            'CONN_MAX_AGE': 0,
         }
     }
 
@@ -185,7 +208,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '%(asctime)s %(name)s %(levelname)s: %(message)s'
+            # timestamp, process id, python module name, loglevel, msg content...
+            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s'
         },
     },
     'filters': {

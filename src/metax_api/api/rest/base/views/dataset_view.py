@@ -327,7 +327,7 @@ class DatasetViewSet(CommonViewSet):
         return Response(data={}, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], url_path="flush_password")
-    def flush_password(self, request):
+    def flush_password(self, request): # pragma: no cover
         """
         Set a password for flush api
         """
@@ -340,7 +340,7 @@ class DatasetViewSet(CommonViewSet):
         return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['post'], url_path="flush")
-    def flush_records(self, request):
+    def flush_records(self, request): # pragma: no cover
         """
         Delete all catalog records and files. Requires a password
         """

@@ -83,6 +83,11 @@ class ResearchDatasetVersion(models.Model):
     catalog_record = models.ForeignKey('CatalogRecord', on_delete=models.DO_NOTHING,
         related_name='research_dataset_versions')
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['metadata_version_identifier']),
+        ]
+
     def __str__(self):
         return self.__repr__()
 
@@ -234,6 +239,10 @@ class CatalogRecord(Common):
     objects = CatalogRecordManager()
 
     class Meta:
+        indexes = [
+            models.Index(fields=['data_catalog']),
+            models.Index(fields=['identifier']),
+        ]
         ordering = ['id']
 
     def __init__(self, *args, **kwargs):
@@ -612,7 +621,7 @@ class CatalogRecord(Common):
             ]
             self._previous_highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
         return any(
-            True for dr_path in self._previous_highest_level_dirs_by_project[project]
+            True for dr_path in self._previous_highest_level_dirs_by_project.get(project, [])
             if path != dr_path and path.startswith(dr_path)
         )
 
@@ -672,9 +681,9 @@ class CatalogRecord(Common):
         else:
             self.research_dataset['preferred_identifier'] = generate_identifier()
 
-        self.research_dataset['metadata_version_identifier'] = generate_identifier()
+        self.research_dataset['metadata_version_identifier'] = generate_identifier(urn=False)
 
-        self.identifier = generate_identifier()
+        self.identifier = generate_identifier(urn=False)
 
         if 'remote_resources' in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()

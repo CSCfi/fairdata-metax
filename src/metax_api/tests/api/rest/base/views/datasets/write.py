@@ -188,7 +188,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset']["title"] = 1234456
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(len(response.data), 1, 'there should be only one error')
+        self.assertEqual(len(response.data), 2, 'there should be two errors (error_identifier is one of them)')
         self.assertEqual('research_dataset' in response.data.keys(), True,
                          'The error should concern the field research_dataset')
         self.assertEqual('1234456 is not of type' in response.data['research_dataset'][0], True, response.data)
@@ -207,7 +207,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         }]
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(len(response.data), 1, 'there should be only one error')
+        self.assertEqual(len(response.data), 2, 'there should be two errors (error_identifier is one of them)')
         self.assertEqual('research_dataset' in response.data.keys(), True,
                          'The error should concern the field research_dataset')
         self.assertEqual('is not valid' in response.data['research_dataset'][0], True, response.data)
@@ -1684,6 +1684,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         ]
 
         file_template = self._get_file_from_test_data()
+        del file_template['id']
         self._single_file_byte_size = file_template['byte_size']
 
         files_1 = []
@@ -1789,6 +1790,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         ]
 
         file_template = self._get_file_from_test_data()
+        del file_template['id']
         self._single_file_byte_size = file_template['byte_size']
         files = []
 
@@ -1875,6 +1877,22 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
         self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+
+    def test_empty_files_and_directories_arrays_are_removed(self):
+        """
+        If an update is trying to leave empty "files" or "directories" array into
+        research_dataset, they should be removed entirely during the update.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        cr = response.data
+        cr['research_dataset']['directories'] = []
+        cr['research_dataset']['files'] = []
+        response = self.client.put('/rest/datasets/%d' % cr['id'], cr, format="json")
+        new_version = self.get_next_version(response.data)
+        self.assertEqual('directories' in new_version['research_dataset'], False, response.data)
+        self.assertEqual('files' in new_version['research_dataset'], False, response.data)
 
     def test_multiple_file_and_directory_changes(self):
         """

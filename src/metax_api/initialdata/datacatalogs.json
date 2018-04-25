@@ -1,0 +1,85 @@
+[{
+    "catalog_json": {
+        "title": {
+            "en": "Test data catalog name",
+            "fi": "Testidatakatalogin nimi"
+        },
+        "language": [
+            {
+                "title": {
+                    "en": "Finnish language",
+                    "fi": "Suomen kieli",
+                    "sv": "finska",
+                    "und": "Suomen kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/fin"
+            },
+            {
+                "title": {
+                    "en": "English language",
+                    "fi": "Englannin kieli",
+                    "sv": "engelska",
+                    "und": "Englannin kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/eng"
+            }
+        ],
+        "harvested": false,
+        "publisher": {
+            "name": {
+                "en": "Data catalog publisher organization",
+                "fi": "Datakatalogin julkaisijaorganisaatio"
+            }
+        },
+        "identifier": "urn:nbn:fi:att:data-catalog-ida",
+        "access_rights": {
+            "license": [
+                {
+                    "title": {
+                        "en": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+                        "fi": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)",
+                        "und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
+                    },
+                    "license": "https://creativecommons.org/licenses/by/4.0/",
+                    "identifier": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            ],
+            "access_type": [
+                {
+                    "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                    "pref_label": {
+                        "en": "Open",
+                        "fi": "Avoin",
+                        "und": "Avoin"
+                    }
+                }
+            ],
+            "description": [
+                {
+                    "fi": "Käyttöehtojen kuvaus"
+                }
+            ],
+            "has_rights_related_agent": [
+                {
+                    "name": {
+                        "en": "A rights related organization",
+                        "fi": "Oikeuksiin liittyvä organisaatio"
+                    },
+                    "identifier": "org_id"
+                },
+                {
+                    "name": {
+                        "und": "Aalto yliopisto"
+                    },
+                    "email": "wahatever@madeupdomain.com",
+                    "telephone": [
+                        "+12353495823424"
+                    ],
+                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076"
+                }
+            ]
+        },
+        "dataset_versioning": true,
+        "research_dataset_schema": "ida"
+    }
+}]

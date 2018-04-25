@@ -155,6 +155,14 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._operation_is_create() or self._preferred_identifier_is_changed():
             self._validate_research_dataset_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
+
+        if 'directories' in value and not value['directories']:
+            # remove if empty list
+            del value['directories']
+        if 'files' in value and not value['files']:
+            # remove if empty list
+            del value['files']
+
         return value
 
     def _validate_json_schema(self, value):
@@ -293,7 +301,10 @@ class CatalogRecordSerializer(CommonSerializer):
             catalog_json = DataCatalog.objects.filter(pk=self.initial_data['data_catalog']) \
                 .only('catalog_json').first().catalog_json
         else:
-            catalog_json = self.instance.data_catalog.catalog_json
+            try:
+                catalog_json = self.instance.data_catalog.catalog_json
+            except AttributeError:
+                raise ValidationError({ 'data_catalog': ['data_catalog is a required field']})
 
         return catalog_json.get('dataset_versioning', False) is True
 

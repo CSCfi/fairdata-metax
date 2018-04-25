@@ -1,5 +1,3 @@
-import urllib.parse
-
 from django.db.models import Sum
 from django.core.management import call_command
 from rest_framework import status
@@ -225,13 +223,10 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     def test_read_directory_for_catalog_record(self):
         """
-        Test query parameter 'preferred_identifier'.
+        Test query parameter 'cr_identifier'.
         """
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.research_dataset['preferred_identifier'] = '%s-/uhoh/special.chars?all&around' % cr.preferred_identifier
-        cr.force_save()
-        response = self.client.get('/rest/directories/3/files?preferred_identifier=%s'
-            % urllib.parse.quote(cr.preferred_identifier))
+        response = self.client.get('/rest/directories/3/files?cr_identifier=%s'
+            % CatalogRecord.objects.get(pk=1).identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('directories' in response.data, True)
         self.assertEqual('files' in response.data, True)
@@ -240,10 +235,10 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     def test_read_directory_for_catalog_record_not_found(self):
         """
-        Not found preferred_identifier should raise 400 instead of 404, which is raised when the
+        Not found cr_identifier should raise 400 instead of 404, which is raised when the
         directory itself is not found. the error contains details about the 400.
         """
-        response = self.client.get('/rest/directories/3/files?preferred_identifier=notexisting')
+        response = self.client.get('/rest/directories/3/files?cr_identifier=notexisting')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_read_directory_for_catalog_record_directory_does_not_exist(self):
@@ -257,22 +252,22 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # ... but should not contain any files FOR THIS CR
-        response = self.client.get('/rest/directories/4/files?preferred_identifier=%s'
-            % CatalogRecord.objects.get(pk=1).preferred_identifier)
+        response = self.client.get('/rest/directories/4/files?cr_identifier=%s'
+            % CatalogRecord.objects.get(pk=1).identifier)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_read_directory_for_catalog_record_recursively(self):
         """
-        Test query parameter 'preferred_identifier' with 'recursive'.
+        Test query parameter 'cr_identifier' with 'recursive'.
         """
-        response = self.client.get('/rest/directories/1/files?recursive&preferred_identifier=%s&depth=*'
-            % CatalogRecord.objects.get(pk=1).preferred_identifier)
+        response = self.client.get('/rest/directories/1/files?recursive&cr_identifier=%s&depth=*'
+            % CatalogRecord.objects.get(pk=1).identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
-        # not found preferred_identifier should raise 400 instead of 404, which is raised when the
+        # not found cr_identifier should raise 400 instead of 404, which is raised when the
         # directory itself is not found. the error contains details about the 400
-        response = self.client.get('/rest/directories/1/files?recursive&preferred_identifier=notexisting')
+        response = self.client.get('/rest/directories/1/files?recursive&cr_identifier=notexisting')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_directory_byte_size_and_file_count(self):
@@ -291,7 +286,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
 
         response = self.client.get(
-            '/rest/directories/%d/files?preferred_identifier=%s' % (dr.id, cr.preferred_identifier))
+            '/rest/directories/%d/files?cr_identifier=%s' % (dr.id, cr.identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('directories' in response.data, True)
         self.assertEqual('byte_size' in response.data['directories'][0], True)
@@ -307,8 +302,8 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
 
         response = self.client.get(
-            '/rest/directories/%d/files?preferred_identifier=%s&include_parent'
-            % (dr.id, cr.preferred_identifier))
+            '/rest/directories/%d/files?cr_identifier=%s&include_parent'
+            % (dr.id, cr.identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('byte_size' in response.data, True)
         self.assertEqual('file_count' in response.data, True)

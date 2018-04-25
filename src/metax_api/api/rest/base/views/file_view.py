@@ -1,14 +1,17 @@
 import logging
 
+from django.db import transaction
 from django.http import Http404
+from django.utils.decorators import method_decorator
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+import yaml
 
-from metax_api.exceptions import Http400
-from metax_api.models import File, XmlMetadata
+from metax_api.exceptions import Http400, Http403
+from metax_api.models import File, XmlMetadata, Common, Directory
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CommonService, FileService
 from .common_view import CommonViewSet
@@ -18,6 +21,8 @@ _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
 
+# none of the methods in this class use atomic requests by default! see method dispatch()
+@transaction.non_atomic_requests
 class FileViewSet(CommonViewSet):
 
     authentication_classes = ()
@@ -42,6 +47,27 @@ class FileViewSet(CommonViewSet):
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)
         super(FileViewSet, self).__init__(*args, **kwargs)
+
+    @method_decorator(transaction.non_atomic_requests)
+    def dispatch(self, request, **kwargs):
+        """
+        In order to decorate a class-based view method with non_atomic_requests, some
+        more effort is required.
+
+        For POST /files requests, do not wrap the request inside a transaction, in order to enable
+        closing and re-opening the db connection during the request in an effort to keep the
+        process from being dramatically slowed down during large file inserts.
+
+        Literature:
+        https://docs.djangoproject.com/en/2.0/topics/class-based-views/intro/#decorating-the-class
+        https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.non_atomic_requests
+        """
+        # todo add checking of ?atomic parameter to skip this ?
+        if request.method == 'POST' and '/rest/files' in request.META['PATH_INFO']:
+            # for POST /files only, do not use a transaction !
+            return super().dispatch(request, **kwargs)
+        with transaction.atomic():
+            return super().dispatch(request, **kwargs)
 
     @list_route(methods=['post'], url_path="datasets")
     def datasets(self, request):
@@ -155,3 +181,34 @@ class FileViewSet(CommonViewSet):
         }
         new_xml_metadata.update(common_info)
         return new_xml_metadata
+
+    @list_route(methods=['post'], url_path="flush_project")
+    def flush_project(self, request): # pragma: no cover
+        """
+        Permanently delete an entire project's files and directories
+        """
+        if request.user.username not in ('metax', 'ida'):
+            raise Http403
+
+        with open('/home/metax-user/app_config') as app_config:
+            app_config_dict = yaml.load(app_config)
+            for host in app_config_dict['ALLOWED_HOSTS']:
+                if 'metax.csc.local' in host or 'metax-test' in host or 'metax-stable' in host:
+                    break
+            else:
+                raise ValidationError('API currently allowed only in test environments')
+
+        if 'project' not in request.query_params:
+            raise ValidationError('project is a required query parameter')
+
+        project = request.query_params['project']
+
+        for f in File.objects_unfiltered.filter(project_identifier=project):
+            super(Common, f).delete()
+
+        for dr in Directory.objects_unfiltered.filter(project_identifier=project):
+            super(Common, dr).delete()
+
+        _logger.debug('FLUSH project called by %s' % request.user.username)
+
+        return Response(data=None, status=status.HTTP_204_NO_CONTENT)

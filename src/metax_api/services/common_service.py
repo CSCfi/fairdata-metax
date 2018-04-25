@@ -169,7 +169,7 @@ class CommonService():
 
         """
         if not isinstance(request.data, list):
-            raise ValidationError('request.data is not a list')
+            raise ValidationError({ 'detail': ['request.data is not a list'] })
 
         common_info = cls.update_common_info(request, return_only=True)
         results = { 'success': [], 'failed': []}

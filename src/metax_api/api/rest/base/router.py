@@ -20,7 +20,9 @@ from .views import (
     DataCatalogViewSet,
     DatasetViewSet,
     DirectoryViewSet,
+    ApiErrorViewSet,
     FileViewSet,
+    FileStorageViewSet,
     SchemaViewSet
 )
 
@@ -49,11 +51,13 @@ class CustomRouter(DefaultRouter):
 
 
 router = CustomRouter(trailing_slash=False)
+router.register(r'apierrors/?', ApiErrorViewSet)
 router.register(r'contracts/?', ContractViewSet)
 router.register(r'datasets/?', DatasetViewSet)
 router.register(r'datacatalogs/?', DataCatalogViewSet)
 router.register(r'directories/?', DirectoryViewSet)
 router.register(r'files/?', FileViewSet)
+router.register(r'filestorages/?', FileStorageViewSet)
 router.register(r'schemas/?', SchemaViewSet, 'schema')
 
 # note: this somehow maps to list-api... but the end result works when

@@ -31,7 +31,7 @@ class File(Common):
 
     # MODEL FIELD DEFINITIONS #
 
-    byte_size = models.PositiveIntegerField(default=0)
+    byte_size = models.BigIntegerField(default=0)
     checksum_algorithm = models.CharField(max_length=200)
     checksum_checked = models.DateTimeField()
     checksum_value = models.TextField()
@@ -53,9 +53,13 @@ class File(Common):
 
     # END OF MODEL FIELD DEFINITIONS #
 
-    indexes = [
-        models.Index(fields=['identifier', 'file_path', 'project_identifier']),
-    ]
+    class Meta:
+        indexes = [
+            models.Index(fields=['file_path']),
+            models.Index(fields=['identifier']),
+            models.Index(fields=['parent_directory']),
+            models.Index(fields=['project_identifier']),
+        ]
 
     objects = FileManager()
 

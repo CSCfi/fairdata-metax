@@ -45,6 +45,14 @@ class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('versioning' in response.data['detail'][0], True, response.data)
 
+    def test_create_identifier_already_exists(self):
+        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('already exists' in response.data['catalog_json']['identifier'][0],
+            True, response.data)
+
 
 class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
     """
