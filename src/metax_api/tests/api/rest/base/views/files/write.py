@@ -494,10 +494,18 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
         ]
 
-        files = []
+        template = self.test_new_data
+        template.pop('id', None)
+        template.pop('identifier', None)
+        template.pop('project_identifier', None)
+        template.pop('parent_directory', None)
+        template.pop('date_created', None)
+        template.pop('date_modified', None)
+        template.pop('service_created', None)
 
+        files = []
         for i, d in enumerate(dir_data):
-            files.append(deepcopy(self.test_new_data))
+            files.append(deepcopy(template))
             files[-1].update(d, identifier='pid:urn:test:file:%d' % i, project_identifier='project_y')
 
         return files

@@ -629,7 +629,7 @@ class FileService(CommonService):
         file_storage_id = None
         entries = []
 
-        def to_model_format(entry):
+        def to_model_format(entry, common_info):
             """
             Format that is inserted into db.
             """
@@ -638,8 +638,9 @@ class FileService(CommonService):
             del entry['file_storage']
             entry['parent_directory_id'] = entry['parent_directory']
             del entry['parent_directory']
+            entry.update(**common_info) # add date_created, service_created etc fields
 
-        def to_repr(entry):
+        def to_repr(entry, common_info):
             """
             Format that is returned in the response.
             """
@@ -647,6 +648,9 @@ class FileService(CommonService):
             entry['parent_directory'] = { 'id': entry['parent_directory_id'] }
             del entry['file_storage_id']
             del entry['parent_directory_id']
+            for field in common_info.keys():
+                # cast datetime objects into strings
+                entry[field] = str(entry[field])
 
         if DEBUG:
             start = time()
@@ -683,11 +687,11 @@ class FileService(CommonService):
                 cls._append_error(results, serializer, e)
             else:
                 entry = serializer.initial_data
-                to_model_format(entry)
+                to_model_format(entry, common_info)
                 entries.append(File(**entry))
                 file_storage_id = entry['file_storage_id'] # re-used for following loops
 
-                to_repr(entry)
+                to_repr(entry, common_info)
                 results['success'].append({ 'object': entry })
 
                 if i % 1000 == 0:
