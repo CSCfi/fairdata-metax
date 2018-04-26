@@ -284,10 +284,19 @@ def generate_contracts(contract_max_rows, validate_json):
     with open('contract_test_data_template.json') as json_file:
         row_template = json_load(json_file)
 
-    for i in range(1, contract_max_rows + 1):
+    # sample contract provided by PAS
+    new = {
+        'fields': deepcopy(row_template[0]),
+        'model': "metax_api.contract",
+        'pk': 1,
+    }
+    json_validate(new['fields']['contract_json'], json_schema)
+    test_contract_list.append(new)
+
+    for i in range(2, contract_max_rows + 1):
 
         new = {
-            'fields': deepcopy(row_template),
+            'fields': deepcopy(row_template[1]),
             'model': "metax_api.contract",
             'pk': i,
         }

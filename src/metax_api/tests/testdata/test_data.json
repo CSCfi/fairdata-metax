@@ -5478,33 +5478,38 @@
             "contract_json": {
                 "contact": [
                     {
-                        "email": "contact.email@csc.fi",
-                        "name": "Contact Name",
+                        "email": "taito.tieto@helsinki.fi",
+                        "name": "Taito Tieto",
+                        "phone": "+358501231234"
+                    },
+                    {
+                        "email": "seppo.pykala'@helsinki.fi",
+                        "name": "Seppo Pyk\u00e4l\u00e4",
                         "phone": "+358501231234"
                     }
                 ],
-                "created": "2014-01-17T08:19:58Z",
-                "description": "Description of unknown length",
-                "identifier": "optional:contract:identifier1",
-                "modified": "2014-01-17T08:19:58Z",
+                "created": "2018-04-05T08:19:58Z",
+                "description": "Muuttolintujen laskentatulosten s\u00e4ilytys",
+                "identifier": "urn:uuid:99ddffff-2f73-46b0-92d1-614409d83001",
+                "modified": "2018-04-05T08:19:58Z",
                 "organization": {
-                    "name": "Mysterious organization",
+                    "name": "Helsingin Yliopisto",
                     "organization_identifier": "1234567-1"
                 },
-                "quota": 111204,
+                "quota": 1000000,
                 "related_service": [
                     {
                         "identifier": "local:service:id",
-                        "name": "Name of Service"
+                        "name": "Fairdata-PAS"
                     }
                 ],
-                "title": "Title of Contract 1",
+                "title": "Helsingin yliopiston biotieteiden laitoksen muuttolintujen laskentatulosten s\u00e4ilytyssopimus",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2018-07-01T00:00:00Z"
                 }
             },
-            "date_created": "2017-05-15T10:07:22Z",
-            "date_modified": "2017-06-15T10:07:22Z",
+            "date_created": "2018-04-05T08:19:58+03:00",
+            "date_modified": "2018-04-05T08:19:58+03:00",
             "service_created": "metax"
         },
         "model": "metax_api.contract",
