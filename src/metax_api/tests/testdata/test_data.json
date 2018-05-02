@@ -6,7 +6,7 @@
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier1",
                 "title": "Title 1",
-                "url": "https://metax.csc.local/rest/files/"
+                "url": "https://metax-test.csc.fi/rest/filestorages/1"
             }
         },
         "model": "metax_api.filestorage",
@@ -19,7 +19,7 @@
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier2",
                 "title": "Title 2",
-                "url": "https://metax.csc.local/rest/files/"
+                "url": "https://metax-test.csc.fi/rest/filestorages/2"
             }
         },
         "model": "metax_api.filestorage",
@@ -5478,33 +5478,38 @@
             "contract_json": {
                 "contact": [
                     {
-                        "email": "contact.email@csc.fi",
-                        "name": "Contact Name",
+                        "email": "taito.tieto@helsinki.fi",
+                        "name": "Taito Tieto",
+                        "phone": "+358501231234"
+                    },
+                    {
+                        "email": "seppo.pykala'@helsinki.fi",
+                        "name": "Seppo Pyk\u00e4l\u00e4",
                         "phone": "+358501231234"
                     }
                 ],
-                "created": "2014-01-17T08:19:58Z",
-                "description": "Description of unknown length",
-                "identifier": "optional:contract:identifier1",
-                "modified": "2014-01-17T08:19:58Z",
+                "created": "2018-04-05T08:19:58Z",
+                "description": "Muuttolintujen laskentatulosten s\u00e4ilytys",
+                "identifier": "urn:uuid:99ddffff-2f73-46b0-92d1-614409d83001",
+                "modified": "2018-04-05T08:19:58Z",
                 "organization": {
-                    "name": "Mysterious organization",
+                    "name": "Helsingin Yliopisto",
                     "organization_identifier": "1234567-1"
                 },
-                "quota": 111204,
+                "quota": 1000000,
                 "related_service": [
                     {
                         "identifier": "local:service:id",
-                        "name": "Name of Service"
+                        "name": "Fairdata-PAS"
                     }
                 ],
-                "title": "Title of Contract 1",
+                "title": "Helsingin yliopiston biotieteiden laitoksen muuttolintujen laskentatulosten s\u00e4ilytyssopimus",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2018-07-01T00:00:00Z"
                 }
             },
-            "date_created": "2017-05-15T10:07:22Z",
-            "date_modified": "2017-06-15T10:07:22Z",
+            "date_created": "2018-04-05T08:19:58+03:00",
+            "date_modified": "2018-04-05T08:19:58+03:00",
             "service_created": "metax"
         },
         "model": "metax_api.contract",
@@ -5744,7 +5749,7 @@
                 1,
                 2
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d1",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d1",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -5803,9 +5808,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset1",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -5836,7 +5841,7 @@
                 3,
                 4
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d2",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d2",
             "mets_object_identifier": null,
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -5898,9 +5903,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset2",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -5931,7 +5936,7 @@
                 5,
                 6
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d3",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d3",
             "mets_object_identifier": null,
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -5993,9 +5998,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset3",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6026,7 +6031,7 @@
                 7,
                 8
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d4",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d4",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -6092,9 +6097,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset4",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6125,7 +6130,7 @@
                 9,
                 10
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d5",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d5",
             "mets_object_identifier": [
                 "a",
                 "b",
@@ -6191,9 +6196,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset5",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6224,7 +6229,7 @@
                 11,
                 12
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d6",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d6",
             "mets_object_identifier": null,
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6286,9 +6291,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset6",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6318,7 +6323,7 @@
                 13,
                 14
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d7",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d7",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -6380,9 +6385,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset7",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6412,7 +6417,7 @@
                 15,
                 16
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d8",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d8",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -6471,9 +6476,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset8",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6503,7 +6508,7 @@
                 17,
                 18
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d9",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d9",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -6559,9 +6564,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset9",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6592,7 +6597,7 @@
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9610",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9610",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -6648,9 +6653,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6696,7 +6701,7 @@
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9611",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9611",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -7001,7 +7006,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -7075,7 +7080,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-11",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "provenance": [
                     {
                         "description": {
@@ -7464,7 +7469,7 @@
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9612",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9612",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -7769,7 +7774,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -7843,7 +7848,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-12",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "provenance": [
                     {
                         "description": {
@@ -8300,7 +8305,7 @@
                 114,
                 115
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9613",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9613",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -8629,7 +8634,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9613",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9613",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -8703,7 +8708,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-13",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9613",
                 "provenance": [
                     {
                         "description": {
@@ -9072,7 +9077,7 @@
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9614",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9614",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9109,9 +9114,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9614",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9614",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset14",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9614",
                 "remote_resources": [
                     {
                         "byte_size": 7168,
@@ -9164,7 +9169,7 @@
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9615",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9615",
             "mets_object_identifier": null,
             "preservation_state": 1,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9204,9 +9209,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9615",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9615",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset15",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9615",
                 "remote_resources": [
                     {
                         "byte_size": 7680,
@@ -9259,7 +9264,7 @@
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9616",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9616",
             "mets_object_identifier": null,
             "preservation_state": 2,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9299,9 +9304,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9616",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9616",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset16",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9616",
                 "remote_resources": [
                     {
                         "byte_size": 8192,
@@ -9354,7 +9359,7 @@
                 "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9617",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9617",
             "mets_object_identifier": null,
             "preservation_state": 3,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9394,9 +9399,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9617",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9617",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset17",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9617",
                 "remote_resources": [
                     {
                         "byte_size": 8704,
@@ -9449,7 +9454,7 @@
                 "owner_id": "055ea531a6cac569425bed94459266ee"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9618",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9618",
             "mets_object_identifier": null,
             "preservation_state": 4,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9489,9 +9494,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9618",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9618",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset18",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9618",
                 "remote_resources": [
                     {
                         "byte_size": 9216,
@@ -9544,7 +9549,7 @@
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9619",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9619",
             "mets_object_identifier": null,
             "preservation_state": 5,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -9584,9 +9589,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9619",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9619",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset19",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9619",
                 "remote_resources": [
                     {
                         "byte_size": 9728,
@@ -9638,7 +9643,7 @@
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9620",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9620",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9678,9 +9683,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9620",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9620",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset20",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9620",
                 "remote_resources": [
                     {
                         "byte_size": 10240,
@@ -9732,7 +9737,7 @@
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9621",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9621",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9772,9 +9777,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9621",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9621",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset21",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9621",
                 "remote_resources": [
                     {
                         "byte_size": 10752,
@@ -9826,7 +9831,7 @@
                 "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9622",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9622",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9866,9 +9871,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9622",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9622",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset22",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9622",
                 "remote_resources": [
                     {
                         "byte_size": 11264,
@@ -9920,7 +9925,7 @@
                 "owner_id": "055ea531a6cac569425bed94459266ee"
             },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9623",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9623",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9960,9 +9965,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9623",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset23",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
                 "remote_resources": [
                     {
                         "byte_size": 11776,
@@ -10011,7 +10016,7 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9624",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9624",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -10248,7 +10253,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9624",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9624",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -10322,7 +10327,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-24",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9624",
                 "provenance": [
                     {
                         "description": {
@@ -10804,7 +10809,7 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9625",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9625",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -11041,7 +11046,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9625",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9625",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -11115,7 +11120,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-25",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9625",
                 "provenance": [
                     {
                         "description": {
@@ -11597,7 +11602,7 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9626",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9626",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -11834,7 +11839,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9626",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9626",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -11908,7 +11913,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-26",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9626",
                 "provenance": [
                     {
                         "description": {
@@ -12398,7 +12403,7 @@
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9627",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9627",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -12454,9 +12459,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -12487,7 +12492,7 @@
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9628",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9628",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -12543,9 +12548,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "title": {
                     "en": "Wonderful Title"
                 },

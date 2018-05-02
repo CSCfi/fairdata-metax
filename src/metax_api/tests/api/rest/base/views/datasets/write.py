@@ -170,9 +170,11 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         )
 
     def test_create_catalog_contract_string_identifier(self):
-        self.cr_test_data['contract'] = 'optional:contract:identifier1'
+        contract_identifier = Contract.objects.first().contract_json['identifier']
+        self.cr_test_data['contract'] = contract_identifier
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['contract']['identifier'], contract_identifier, response.data)
 
     def test_create_catalog_error_contract_string_identifier_not_found(self):
         self.cr_test_data['contract'] = 'doesnotexist'
