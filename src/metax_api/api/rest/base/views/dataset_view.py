@@ -193,11 +193,6 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data=files, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'], url_path="proposetopas")
-    def propose_to_pas(self, request, pk=None):
-        CRS.propose_to_pas(request, self.get_object())
-        return Response(data={}, status=status.HTTP_204_NO_CONTENT)
-
     @list_route(methods=['get'], url_path="identifiers")
     def get_all_identifiers(self, request):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
