@@ -68,9 +68,12 @@ class Command(BaseCommand):
             raise CommandError('Could not find metax-user from app_config ?')
 
     def _error_is_already_exists(self, details):
-        for field_name, errors in details.items():
-            if field_name == 'identifier' and 'already exists' in errors[0]:
-                return True
+        try:
+            for field_name, errors in details.items():
+                if field_name == 'identifier' and 'already exists' in errors[0]:
+                    return True
+        except:
+            pass
         return False
 
     def _load_data_catalogs(self):
