@@ -36,12 +36,12 @@
             "license": [
                 {
                     "title": {
-                        "en": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
-                        "fi": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)",
-                        "und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
+                        "fi": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma",
+                        "en": "Creative Commons CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+                        "und": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma"
                     },
-                    "license": "https://creativecommons.org/licenses/by/4.0/",
-                    "identifier": "https://creativecommons.org/licenses/by/4.0/"
+                    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+                    "identifier": "https://creativecommons.org/publicdomain/zero/1.0/"
                 }
             ],
             "access_type": [
@@ -103,12 +103,12 @@
             "license": [
                 {
                     "title": {
-                        "en": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
-                        "fi": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)",
-                        "und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
+                        "fi": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma",
+                        "en": "Creative Commons CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+                        "und": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma"
                     },
-                    "license": "https://creativecommons.org/licenses/by/4.0/",
-                    "identifier": "https://creativecommons.org/licenses/by/4.0/"
+                    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+                    "identifier": "https://creativecommons.org/publicdomain/zero/1.0/"
                 }
             ],
             "access_type": [
