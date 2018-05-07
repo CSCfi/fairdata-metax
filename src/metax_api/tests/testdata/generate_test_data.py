@@ -359,16 +359,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
         new['fields']['identifier'] = generate_test_identifier('cr', i, urn=False)
         new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
         new['fields']['date_created'] = '2017-05-23T10:07:22Z'
-        new['fields']['editor'] = {
-            'owner_id': catalog_records_owner_ids[owner_idx],
-            'creator_id': catalog_records_owner_ids[owner_idx],
-            'identifier': 'qvain',
-        }
         new['fields']['files'] = []
-
-        owner_idx += 1
-        if owner_idx >= len(catalog_records_owner_ids):
-            owner_idx = 0
 
         # add files
 
@@ -725,6 +716,29 @@ def generate_alt_catalog_records(test_data_list):
     return test_data_list
 
 
+def set_qvain_info_to_records(catalog_record_list):
+    '''
+    For data catalog ids 1,2 set qvain info, since they are supposedly fairdata catalogs.
+    '''
+    owner_idx = 0
+    total_qvain_users = len(catalog_records_owner_ids)
+    for cr in catalog_record_list:
+        if cr['model'] != 'metax_api.catalogrecord':
+            # there are other type of objects in the list (at least datasetversionset)
+            continue
+        if cr['fields']['data_catalog'] not in (1, 2):
+            continue
+        cr['fields']['editor'] = {
+            'owner_id': catalog_records_owner_ids[owner_idx],
+            'creator_id': catalog_records_owner_ids[owner_idx],
+            'identifier': 'qvain',
+            'record_id': '955e904-e3dd-4d7e-99f1-3fed446f9%03d' % cr['pk'], # 3 leading zeroes to preserve length
+        }
+        owner_idx += 1
+        if owner_idx >= total_qvain_users:
+            owner_idx = 0
+
+
 if __name__ == '__main__':
     print('begin generating test data...')
 
@@ -743,6 +757,9 @@ if __name__ == '__main__':
         att_data_catalogs_list, contract_list, [], validate_json, 'att', catalog_record_list, dataset_version_sets)
 
     catalog_record_list = generate_alt_catalog_records(catalog_record_list)
+
+    set_qvain_info_to_records(catalog_record_list)
+
     save_test_data(file_storage_list, directory_list, file_list, ida_data_catalogs_list + att_data_catalogs_list,
                    contract_list, catalog_record_list, dataset_version_sets)
 
