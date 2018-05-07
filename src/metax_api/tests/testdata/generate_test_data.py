@@ -1,43 +1,16 @@
-import json
 import os
 import sys
-import time
 from copy import deepcopy
 from json import dump as json_dump
-from json import dumps as json_dumps
 from json import load as json_load
-from uuid import uuid4
-
-import requests
-import urllib3
 from jsonschema import validate as json_validate
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils import get_json_schema, generate_test_identifier
 
 """
-Execute this file to generate rows to metax_api_file table. Uses
-file_test_data_template.json as template, and slightly modifies fields each loop.
-
-When sending generated files immediately using requests for the first time, make sure to
-load data from a json-generated list first, because file storages are only generated when
-usind mode=json for now. After that, sending requests will work too because then they can
-use the file_storage from the json-generated file. If you are flushing the db at times,
-remember to load file storages from json-file again.
-
-Data input options:
-
-- Generate rows as a json list to file file_test_data_list.json. Note that manage.py wont
-  handle very large files very well, i.e. dont try to load half a million rows in one file.
-  Execute the following to load the json data to django db:
-  python manage.py loaddata metax_api/tests/file_test_data_list.json
-
-- Send generated rows directly as http POST requests to your api.
-  Optionally send either one by one, or in bulk in one request, or in bulk in batches.
-  Note that nginx max request size restriction applies.
-
-todo:
-- run with proper cmd line parameters ?
+A script to generate test data. Loaded for automated tests, and as content for
+test environments.
 """
 
 # how many file rows to generate
@@ -69,24 +42,8 @@ catalog_records_owner_ids = [
     '055ea531a6cac569425bed94459266ee',
 ]
 
-# mode: json for json-file, request for request per row, request_list for bulk post
-mode = 'json'
-
-# how many rows to send in one request when using request_list.
-# sends requests in batches until all rows sent. value 0 means send all at once
-batch_size = 0
-
 # very slow with a large number of rows. we'll always validate the first loop tho
 validate_json = False
-
-# where to send POST requests if using it
-url = 'https://metax.csc.local/rest/files/'
-
-# print tasty debug information from POST requests
-DEBUG = False
-
-#  to disable self-signed certificate warnings
-urllib3.disable_warnings()
 
 # Location of schema files
 schema_path = os.path.dirname(__file__) + '../api.rest.base/schemas'
@@ -96,38 +53,37 @@ cr_type = 1  # catalog record
 dc_type = 2  # data catalog
 
 
-def generate_file_storages(mode, file_storage_max_rows):
+def generate_file_storages(file_storage_max_rows):
+    print('generating file storages...')
     test_file_storage_list = []
 
-    if mode == 'json':
+    with open('file_storage_test_data_template.json') as json_file:
+        row_template = json_load(json_file)
 
-        with open('file_storage_test_data_template.json') as json_file:
-            row_template = json_load(json_file)
+    title = row_template['file_storage_json']['title']
+    identifier = "pid:urn:storage" + row_template['file_storage_json']['identifier']
 
-        title = row_template['file_storage_json']['title']
-        identifier = "pid:urn:storage" + row_template['file_storage_json']['identifier']
-
-        for i in range(1, file_storage_max_rows + 1):
-            new = {
-                'fields': {
-                    'date_modified': '2017-06-23T10:07:22Z',
-                    'date_created': '2017-05-23T10:07:22Z',
-                    'file_storage_json': {
-                        'title': title % str(i),
-                        'identifier': identifier % str(i),
-                        'url': url,
-                    }
-                },
-                'model': "metax_api.filestorage",
-                'pk': i
-            }
-            test_file_storage_list.append(new)
+    for i in range(1, file_storage_max_rows + 1):
+        new = {
+            'fields': {
+                'date_modified': '2017-06-23T10:07:22Z',
+                'date_created': '2017-05-23T10:07:22Z',
+                'file_storage_json': {
+                    'title': title % str(i),
+                    'identifier': identifier % str(i),
+                    'url': 'https://metax-test.csc.fi/rest/filestorages/%d' % i,
+                }
+            },
+            'model': "metax_api.filestorage",
+            'pk': i
+        }
+        test_file_storage_list.append(new)
 
     return test_file_storage_list
 
 
-def generate_files(mode, test_file_storage_list, validate_json, url):
-    print('generating files%s...' % ('' if mode in ('json', 'request_list') else ' and uploading'))
+def generate_files(test_file_storage_list, validate_json):
+    print('generating files...')
 
     with open('file_test_data_template.json') as json_file:
         row_template = json_load(json_file)
@@ -141,17 +97,7 @@ def generate_files(mode, test_file_storage_list, validate_json, url):
     file_test_data_list = []
     directory_test_data_list = []
     json_schema = get_json_schema('file')
-    total_time_elapsed = 0
-
-    if mode == "json":
-        # use the file storage id from the file storage created previously during this script execution
-        file_storage = test_file_storage_list[0]['pk']
-    else:
-        # with POST requests, new file storages are not generated. instead, it is expected that they have
-        # been already loaded in from previous test data
-        with open('file_test_data_list.json') as old_test_data_file:
-            file_test_data = json_load(old_test_data_file)
-            file_storage = file_test_data[0]['pk']
+    file_storage = test_file_storage_list[0]['pk']
 
     for i in range(1, file_max_rows + 1):
         if i <= 20:
@@ -162,124 +108,72 @@ def generate_files(mode, test_file_storage_list, validate_json, url):
             project_root_folder = 'prj_112_root'
 
         loop = str(i)
-        if mode == 'json':
+        new = {
+            'fields': row_template.copy(),
+            'model': 'metax_api.file',
+        }
 
-            new = {
-                'fields': row_template.copy(),
-                'model': 'metax_api.file',
-            }
+        file_path = row_template['file_path']
 
-            file_path = row_template['file_path']
+        # assing files to different directories to have something to browse
+        if 1 <= i < 6:
+            file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/'.
+                                          format(project_root_folder))
+        elif 6 <= i < 11:
+            file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/Phase_1/'.
+                                          format(project_root_folder))
+        elif 11 <= i <= 20:
+            file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/Phase_1/2017/01/'.
+                                          format(project_root_folder))
+        if i == 21:
+            file_path = file_path.replace('/some/path/', '/{0}/science_data_A/'.
+                                          format(project_root_folder))
+        if 22 <= i < 25:
+            file_path = file_path.replace('/some/path/', '/{0}/science_data_A/phase_1/2018/01/'.
+                                          format(project_root_folder))
+        if i == 25:
+            file_path = file_path.replace('/some/path/', '/{0}/science_data_B/'.
+                                          format(project_root_folder))
+        if i == 26:
+            file_path = file_path.replace('/some/path/', '/{0}/other/items/'.
+                                          format(project_root_folder))
+        if 27 <= i < 30:
+            file_path = file_path.replace('/some/path/', '/{0}/random_folder/'.
+                                          format(project_root_folder))
+        if 30 <= i < 35:
+            file_path = file_path.replace('/some/path/', '/{0}/science_data_C/'.
+                                          format(project_root_folder))
+        elif 35 <= i < 40:
+            file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/'.
+                                          format(project_root_folder))
+        elif 40 <= i < 50:
+            file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/2017/01/'.
+                                          format(project_root_folder))
+        elif 50 <= i < 70:
+            file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/2017/02/'.
+                                          format(project_root_folder))
+        elif 70 <= i <= file_max_rows:
+            file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_2/2017/10/'.
+                                          format(project_root_folder))
 
-            # assing files to different directories to have something to browse
-            if 1 <= i < 6:
-                file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/'.
-                                              format(project_root_folder))
-            elif 6 <= i < 11:
-                file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/Phase_1/'.
-                                              format(project_root_folder))
-            elif 11 <= i <= 20:
-                file_path = file_path.replace('/some/path/', '/{0}/Experiment_X/Phase_1/2017/01/'.
-                                              format(project_root_folder))
-            if i == 21:
-                file_path = file_path.replace('/some/path/', '/{0}/science_data_A/'.
-                                              format(project_root_folder))
-            if 22 <= i < 25:
-                file_path = file_path.replace('/some/path/', '/{0}/science_data_A/phase_1/2018/01/'.
-                                              format(project_root_folder))
-            if i == 25:
-                file_path = file_path.replace('/some/path/', '/{0}/science_data_B/'.
-                                              format(project_root_folder))
-            if i == 26:
-                file_path = file_path.replace('/some/path/', '/{0}/other/items/'.
-                                              format(project_root_folder))
-            if 27 <= i < 30:
-                file_path = file_path.replace('/some/path/', '/{0}/random_folder/'.
-                                              format(project_root_folder))
-            if 30 <= i < 35:
-                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/'.
-                                              format(project_root_folder))
-            elif 35 <= i < 40:
-                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/'.
-                                              format(project_root_folder))
-            elif 40 <= i < 50:
-                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/2017/01/'.
-                                              format(project_root_folder))
-            elif 50 <= i < 70:
-                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_1/2017/02/'.
-                                              format(project_root_folder))
-            elif 70 <= i <= file_max_rows:
-                file_path = file_path.replace('/some/path/', '/{0}/science_data_C/phase_2/2017/10/'.
-                                              format(project_root_folder))
+        directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list,
+                                                     project_identifier)
 
-            directory_id = get_parent_directory_for_path(directories, file_path, directory_test_data_list,
-                                                         project_identifier)
+        new['fields']['parent_directory'] = directory_id
+        new['fields']['project_identifier'] = project_identifier
+        new['fields']['file_name'] = file_name % loop
+        new['fields']['file_path'] = file_path % loop
+        new['fields']['identifier'] = "pid:urn:" + loop
+        new['fields']['file_characteristics']['title'] = json_title % loop
+        new['fields']['file_characteristics']['description'] = json_description % loop
+        new['fields']['file_storage'] = file_storage
+        new['fields']['byte_size'] = i * 100
+        new['pk'] = i
 
-            new['fields']['parent_directory'] = directory_id
-            new['fields']['project_identifier'] = project_identifier
-            new['fields']['file_name'] = file_name % loop
-            new['fields']['file_path'] = file_path % loop
-            new['fields']['identifier'] = "pid:urn:" + loop
-            new['fields']['file_characteristics']['title'] = json_title % loop
-            new['fields']['file_characteristics']['description'] = json_description % loop
-            new['fields']['file_storage'] = file_storage
-            new['fields']['byte_size'] = i * 100
-            new['pk'] = i
+        if validate_json or i == 1:
+            json_validate(new['fields']['file_characteristics'], json_schema)
 
-            if validate_json or i == 1:
-                json_validate(new['fields']['file_characteristics'], json_schema)
-
-            file_test_data_list.append(new)
-
-        else:
-            # http POST requests
-
-            new = row_template.copy()
-            uuid_str = str(uuid4())
-
-            new['file_name'] = file_name % loop
-            new['identifier'] = "pid:urn:" + uuid_str
-            new['file_characteristics']['title'] = json_title % loop
-            new['file_characteristics']['description'] = json_description % loop
-            new['file_storage'] = file_storage
-
-            if validate_json or i == 1:
-                json_validate(new['file_characteristics'], json_schema)
-
-            if mode == 'request':
-                start = time.time()
-                res = requests.post(url, data=json_dumps(new), headers={'Content-Type': 'application/json'},
-                                    verify=False)
-                end = time.time()
-                total_time_elapsed += (end - start)
-
-                if res.status_code == 201:
-                    # to be used in creating datasets
-                    file_test_data_list.append(res.data)
-
-                if DEBUG:
-                    print(res.status_code)
-                    if res.status_code == 201:
-                        print(res.text)
-                    else:
-                        print('request failed:')
-                        print(res.text)
-                        print('------------------------------------------')
-                        return
-            else:
-                # sent later in bulk request
-                file_test_data_list.append(new)
-
-        percent = i / float(file_max_rows) * 100.0
-
-        if percent % 10 == 0:
-            print("%d%%%s" % (percent, '' if percent == 100.0 else '...'))
-
-    if mode in ("json", 'request_list'):
-        print('generated files into a list')
-    elif mode == 'request':
-        print('collected created objects from responses into a list')
-        print('total time elapsed for %d rows: %.3f seconds' % (file_max_rows, total_time_elapsed))
+        file_test_data_list.append(new)
 
     return file_test_data_list, directory_test_data_list
 
@@ -329,329 +223,245 @@ def create_parent_directory_for_path(directories, file_path, directory_test_data
     return new_id
 
 
-def save_test_data(mode, file_storage_list, file_list, directory_list, data_catalogs_list, contract_list,
-        catalog_record_list, dataset_version_sets, batch_size):
-    if mode == 'json':
-
-        with open('test_data.json', 'w') as f:
-            print('dumping test data as json to metax_api/tests/test_data.json...')
-            json_dump(file_storage_list + directory_list + file_list + data_catalogs_list + contract_list +
-                      dataset_version_sets + catalog_record_list, f, indent=4, sort_keys=True)
-
-    elif mode == 'request_list':
-
-        total_rows_count = len(file_list)
-        start = 0
-        end = batch_size or total_rows_count
-        i = 0
-        total_time_elapsed = 0
-
-        print('uploading to db using POST requests...')
-
-        while end <= total_rows_count:
-
-            batch_start = time.time()
-            res = requests.post(url, data=json_dumps(file_list[start:end]),
-                                headers={'Content-Type': 'application/json'}, verify=False)
-            batch_end = time.time()
-            batch_time_elapsed = batch_end - batch_start
-            total_time_elapsed += batch_time_elapsed
-            print('completed batch #%d: %d rows in %.3f seconds'
-                  % (i, batch_size or total_rows_count, batch_time_elapsed))
-
-            start += batch_size
-            end += batch_size or total_rows_count
-            i += 1
-
-            try:
-                res_json = json.loads(res.text)
-            except Exception:
-                print('something went wrong when loading res.text to json, here is the text:')
-                print(res.text)
-                return
-
-            if DEBUG and res_json and res_json['failed']:
-                print('some insertions failed. here is the object and the errors from the first row:')
-                print(res_json['failed'][0])
-                return
-
-        print('total time elapsed for %d rows in %d requests: %.3f seconds' % (total_rows_count, i, total_time_elapsed))
-
-    else:
-        pass
+def save_test_data(file_storage_list, file_list, directory_list, data_catalogs_list, contract_list,
+        catalog_record_list, dataset_version_sets):
+    with open('test_data.json', 'w') as f:
+        print('dumping test data as json to metax_api/tests/test_data.json...')
+        json_dump(file_storage_list + directory_list + file_list + data_catalogs_list + contract_list +
+                  dataset_version_sets + catalog_record_list, f, indent=4, sort_keys=True)
 
 
-def generate_data_catalogs(mode, start_idx, data_catalog_max_rows, validate_json, type):
+def generate_data_catalogs(start_idx, data_catalog_max_rows, validate_json, type):
+    print('generating %s data catalogs...' % type)
     test_data_catalog_list = []
     json_schema = get_json_schema('datacatalog')
 
-    if mode == 'json':
+    with open('data_catalog_test_data_template.json') as json_file:
+        row_template = json_load(json_file)
 
-        with open('data_catalog_test_data_template.json') as json_file:
-            row_template = json_load(json_file)
+    for i in range(start_idx, start_idx + data_catalog_max_rows):
 
-        for i in range(start_idx, start_idx + data_catalog_max_rows):
+        new = {
+            'fields': deepcopy(row_template),
+            'model': "metax_api.datacatalog",
+            'pk': i,
+        }
+        new['fields']['date_modified'] = '2017-06-15T10:07:22Z'
+        new['fields']['date_created'] = '2017-05-15T10:07:22Z'
+        new['fields']['catalog_json']['identifier'] = generate_test_identifier(dc_type, i)
 
-            new = {
-                'fields': deepcopy(row_template),
-                'model': "metax_api.datacatalog",
-                'pk': i,
-            }
-            new['fields']['date_modified'] = '2017-06-15T10:07:22Z'
-            new['fields']['date_created'] = '2017-05-15T10:07:22Z'
-            new['fields']['catalog_json']['identifier'] = generate_test_identifier(dc_type, i)
+        if type == 'ida':
+            new['fields']['catalog_json']['research_dataset_schema'] = 'ida'
+        elif type == 'att':
+            new['fields']['catalog_json']['research_dataset_schema'] = 'att'
 
-            if type == 'ida':
-                new['fields']['catalog_json']['research_dataset_schema'] = 'ida'
-            elif type == 'att':
-                new['fields']['catalog_json']['research_dataset_schema'] = 'att'
+        if i in (start_idx, start_idx + 1):
+            # lets pretend that the first two data catalogs will support versioning,
+            # they are "fairdata catalogs"
+            dataset_versioning = True
+            new['fields']['catalog_json']['harvested'] = False
+        else:
+            dataset_versioning = False
 
-            if i in (start_idx, start_idx + 1):
-                # lets pretend that the first two data catalogs will support versioning,
-                # they are "fairdata catalogs"
-                dataset_versioning = True
-                new['fields']['catalog_json']['harvested'] = False
-            else:
-                dataset_versioning = False
+            # rest of the catalogs are harvested
+            new['fields']['catalog_json']['harvested'] = True
 
-                # rest of the catalogs are harvested
-                new['fields']['catalog_json']['harvested'] = True
+        new['fields']['catalog_json']['dataset_versioning'] = dataset_versioning
 
-            new['fields']['catalog_json']['dataset_versioning'] = dataset_versioning
+        test_data_catalog_list.append(new)
 
-            test_data_catalog_list.append(new)
-
-            if validate_json or i == start_idx:
-                json_validate(new['fields']['catalog_json'], json_schema)
+        if validate_json or i == start_idx:
+            json_validate(new['fields']['catalog_json'], json_schema)
 
     return test_data_catalog_list
 
 
-def generate_contracts(mode, contract_max_rows, validate_json):
+def generate_contracts(contract_max_rows, validate_json):
+    print('generating contracts...')
     test_contract_list = []
     json_schema = get_json_schema('contract')
 
-    if mode == 'json':
+    with open('contract_test_data_template.json') as json_file:
+        row_template = json_load(json_file)
 
-        with open('contract_test_data_template.json') as json_file:
-            row_template = json_load(json_file)
+    # sample contract provided by PAS
+    new = {
+        'fields': deepcopy(row_template[0]),
+        'model': "metax_api.contract",
+        'pk': 1,
+    }
+    json_validate(new['fields']['contract_json'], json_schema)
+    test_contract_list.append(new)
 
-        for i in range(1, contract_max_rows + 1):
+    for i in range(2, contract_max_rows + 1):
 
-            new = {
-                'fields': deepcopy(row_template),
-                'model': "metax_api.contract",
-                'pk': i,
-            }
+        new = {
+            'fields': deepcopy(row_template[1]),
+            'model': "metax_api.contract",
+            'pk': i,
+        }
 
-            new['fields']['contract_json']['identifier'] = "optional:contract:identifier%d" % i
-            new['fields']['contract_json']['title'] = "Title of Contract %d" % i
-            new['fields']['contract_json']['organization']['organization_identifier'] = "1234567-%d" % i
-            new['fields']['date_modified'] = '2017-06-15T10:07:22Z'
-            new['fields']['date_created'] = '2017-05-15T10:07:22Z'
-            test_contract_list.append(new)
+        new['fields']['contract_json']['identifier'] = "optional:contract:identifier%d" % i
+        new['fields']['contract_json']['title'] = "Title of Contract %d" % i
+        new['fields']['contract_json']['organization']['organization_identifier'] = "1234567-%d" % i
+        new['fields']['date_modified'] = '2017-06-15T10:07:22Z'
+        new['fields']['date_created'] = '2017-05-15T10:07:22Z'
+        test_contract_list.append(new)
 
-            if validate_json or i == 1:
-                json_validate(new['fields']['contract_json'], json_schema)
+        if validate_json or i == 1:
+            json_validate(new['fields']['contract_json'], json_schema)
 
     return test_contract_list
 
 
-def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_list, contract_list, file_list,
-                             validate_json, url, type, test_data_list=[], dataset_version_sets=[]):
-    print('generating {0} catalog records{1}...' .format(type,
-                                                         '' if mode in ('json', 'request_list') else ' and uploading'))
+def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, contract_list, file_list,
+                             validate_json, type, test_data_list=[], dataset_version_sets=[]):
+    print('generating %s catalog records...' % type)
 
     with open('catalog_record_test_data_template.json') as json_file:
         row_template = json_load(json_file)
 
-    total_time_elapsed = 0
     files_start_idx = 1
     data_catalog_id = data_catalogs_list[0]['pk']
     owner_idx = 0
-    loop_counter = 0
     start_idx = len(test_data_list) + 1
 
     for i in range(start_idx, start_idx + basic_catalog_record_max_rows):
-        loop_counter += 1
-        if mode == 'json':
+        json_schema = None
 
-            json_schema = None
-            if type == 'ida':
-                json_schema = get_json_schema('ida_dataset')
-            elif type == 'att':
-                json_schema = get_json_schema('att_dataset')
+        if type == 'ida':
+            json_schema = get_json_schema('ida_dataset')
+        elif type == 'att':
+            json_schema = get_json_schema('att_dataset')
 
-            new = {
-                'fields': row_template.copy(),
-                'model': 'metax_api.catalogrecord',
+        new = {
+            'fields': row_template.copy(),
+            'model': 'metax_api.catalogrecord',
+            'pk': i,
+        }
+
+        if data_catalog_id in (1, 2): # versioned catalogs only
+            dataset_version_set = {
+                'fields': {},
+                'model': 'metax_api.datasetversionset',
                 'pk': i,
             }
+            new['fields']['dataset_version_set'] = dataset_version_set['pk']
+            dataset_version_sets.append(dataset_version_set)
 
-            if data_catalog_id in (1, 2): # versioned catalogs only
-                dataset_version_set = {
-                    'fields': {},
-                    'model': 'metax_api.datasetversionset',
-                    'pk': i,
-                }
-                new['fields']['dataset_version_set'] = dataset_version_set['pk']
-                dataset_version_sets.append(dataset_version_set)
+        # comment this line. i dare you.
+        # for real tho, required to prevent some strange behaving references to old data
+        new['fields']['research_dataset'] = row_template['research_dataset'].copy()
+        new['fields']['data_catalog'] = data_catalog_id
+        new['fields']['research_dataset']['metadata_version_identifier'] = generate_test_identifier(cr_type, i,
+                                                                                                    urn=False)
+        new['fields']['research_dataset']['preferred_identifier'] = generate_test_identifier(cr_type, i)
+        new['fields']['identifier'] = generate_test_identifier('cr', i, urn=False)
+        new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
+        new['fields']['date_created'] = '2017-05-23T10:07:22Z'
+        new['fields']['editor'] = {
+            'owner_id': catalog_records_owner_ids[owner_idx],
+            'creator_id': catalog_records_owner_ids[owner_idx],
+            'identifier': 'qvain',
+        }
+        new['fields']['files'] = []
 
-            # comment this line. i dare you.
-            # for real tho, required to prevent some strange behaving references to old data
-            new['fields']['research_dataset'] = row_template['research_dataset'].copy()
-            new['fields']['data_catalog'] = data_catalog_id
-            new['fields']['research_dataset']['metadata_version_identifier'] = generate_test_identifier(cr_type, i)
-            new['fields']['research_dataset']['preferred_identifier'] = "pid:urn:preferred:dataset%d" % i
-            new['fields']['identifier'] = generate_test_identifier('cr', i)
-            new['fields']['date_modified'] = '2017-06-23T10:07:22Z'
-            new['fields']['date_created'] = '2017-05-23T10:07:22Z'
-            new['fields']['editor'] = {
-                'owner_id': catalog_records_owner_ids[owner_idx],
-                'creator_id': catalog_records_owner_ids[owner_idx],
-                'identifier': 'qvain',
-            }
+        owner_idx += 1
+        if owner_idx >= len(catalog_records_owner_ids):
+            owner_idx = 0
+
+        # add files
+
+        if type == 'ida':
             new['fields']['files'] = []
+            dataset_files = []
+            total_ida_byte_size = 0
+            file_divider = 4
 
-            owner_idx += 1
-            if owner_idx >= len(catalog_records_owner_ids):
-                owner_idx = 0
+            for j in range(files_start_idx, files_start_idx + files_per_dataset):
 
-            # add files
+                total_ida_byte_size += file_list[j - 1]['fields']['byte_size']
 
-            if type == 'ida':
-                new['fields']['files'] = []
-                dataset_files = []
-                total_ida_byte_size = 0
-                file_divider = 4
+                # note - this field will go in the m2m table in the db when importing generated testdata...
+                new['fields']['files'].append(file_list[j - 1]['pk'])
 
-                for j in range(files_start_idx, files_start_idx + files_per_dataset):
+                # ... while every API operation will look at research_dataset.files.identifier
+                # to lookup the file - be careful the identifier below matches with the m2m id set above
+                dataset_files.append({
+                    'identifier': file_list[j - 1]['fields']['identifier'],
+                    'title': 'File metadata title %d' % j
+                })
 
-                    total_ida_byte_size += file_list[j - 1]['fields']['byte_size']
-
-                    # note - this field will go in the m2m table in the db when importing generated testdata...
-                    new['fields']['files'].append(file_list[j - 1]['pk'])
-
-                    # ... while every API operation will look at research_dataset.files.identifier
-                    # to lookup the file - be careful the identifier below matches with the m2m id set above
-                    dataset_files.append({
-                        'identifier': file_list[j - 1]['fields']['identifier'],
-                        'title': 'File metadata title %d' % j
-                    })
-
-                    if j < file_divider:
-                        # first fifth of files
-                        dataset_files[-1]['file_type'] = {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
-                        }
-                        dataset_files[-1]['use_category'] = {
-                            'identifier': 'source'
-                        }
-
-                    elif file_divider <= j < (file_divider * 2):
-                        # second fifth of files
-                        dataset_files[-1]['file_type'] = {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video"
-                        }
-                        dataset_files[-1]['use_category'] = {
-                            'identifier': 'outcome'
-                        }
-                    elif (file_divider * 2) <= j < (file_divider * 3):
-                        # third fifth of files
-                        dataset_files[-1]['file_type'] = {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image"
-                        }
-                        dataset_files[-1]['use_category'] = {
-                            'identifier': 'publication'
-                        }
-                    elif (file_divider * 3) <= j < (file_divider * 4):
-                        # fourth fifth of files
-                        dataset_files[-1]['file_type'] = {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_source_code"
-                        }
-                        dataset_files[-1]['use_category'] = {
-                            'identifier': 'documentation'
-                        }
-                    else:
-                        # the rest of files
-                        dataset_files[-1]['use_category'] = {
-                            'identifier': 'configuration'
-                        }
-
-                new['fields']['research_dataset']['files'] = dataset_files
-                new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
-                files_start_idx += files_per_dataset
-
-            elif type == 'att':
-                new['fields']['research_dataset']['remote_resources'] = [
-                    {
-                        "title": "Remote resource {0}".format(str(i)),
-                        "modified": "2014-01-12T17:11:54Z",
-                        "use_category": {"identifier": "outcome"},
-                        "checksum": {"algorithm": "SHA-256", "checksum_value": "u5y6f4y68765ngf6ry8n"},
-                        "byte_size": i * 512
-                    },
-                    {
-                        "title": "Other remote resource {0}".format(str(i)),
-                        "modified": "2013-01-12T11:11:54Z",
-                        "use_category": {"identifier": "source"},
-                        "checksum": {"algorithm": "SHA-512", "checksum_value": "u3k4kn7n1g56l6rq5a5s"},
-                        "byte_size": i * 1024
+                if j < file_divider:
+                    # first fifth of files
+                    dataset_files[-1]['file_type'] = {
+                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
                     }
-                ]
-                total_remote_resources_byte_size = 0
-                for rr in new['fields']['research_dataset']['remote_resources']:
-                    total_remote_resources_byte_size += rr.get('byte_size', 0)
-                new['fields']['research_dataset'][
-                    'total_remote_resources_byte_size'] = total_remote_resources_byte_size
+                    dataset_files[-1]['use_category'] = {
+                        'identifier': 'source'
+                    }
 
-            if validate_json or i == start_idx:
-                json_validate(new['fields']['research_dataset'], json_schema)
+                elif file_divider <= j < (file_divider * 2):
+                    # second fifth of files
+                    dataset_files[-1]['file_type'] = {
+                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video"
+                    }
+                    dataset_files[-1]['use_category'] = {
+                        'identifier': 'outcome'
+                    }
+                elif (file_divider * 2) <= j < (file_divider * 3):
+                    # third fifth of files
+                    dataset_files[-1]['file_type'] = {
+                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image"
+                    }
+                    dataset_files[-1]['use_category'] = {
+                        'identifier': 'publication'
+                    }
+                elif (file_divider * 3) <= j < (file_divider * 4):
+                    # fourth fifth of files
+                    dataset_files[-1]['file_type'] = {
+                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_source_code"
+                    }
+                    dataset_files[-1]['use_category'] = {
+                        'identifier': 'documentation'
+                    }
+                else:
+                    # the rest of files
+                    dataset_files[-1]['use_category'] = {
+                        'identifier': 'configuration'
+                    }
 
-            test_data_list.append(new)
+            new['fields']['research_dataset']['files'] = dataset_files
+            new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+            files_start_idx += files_per_dataset
 
-        # else:
-        #     # http POST requests
+        elif type == 'att':
+            new['fields']['research_dataset']['remote_resources'] = [
+                {
+                    "title": "Remote resource {0}".format(str(i)),
+                    "modified": "2014-01-12T17:11:54Z",
+                    "use_category": {"identifier": "outcome"},
+                    "checksum": {"algorithm": "SHA-256", "checksum_value": "u5y6f4y68765ngf6ry8n"},
+                    "byte_size": i * 512
+                },
+                {
+                    "title": "Other remote resource {0}".format(str(i)),
+                    "modified": "2013-01-12T11:11:54Z",
+                    "use_category": {"identifier": "source"},
+                    "checksum": {"algorithm": "SHA-512", "checksum_value": "u3k4kn7n1g56l6rq5a5s"},
+                    "byte_size": i * 1024
+                }
+            ]
+            total_remote_resources_byte_size = 0
+            for rr in new['fields']['research_dataset']['remote_resources']:
+                total_remote_resources_byte_size += rr.get('byte_size', 0)
+            new['fields']['research_dataset'][
+                'total_remote_resources_byte_size'] = total_remote_resources_byte_size
 
-        #     new = row_template.copy()
+        if validate_json or i == start_idx:
+            json_validate(new['fields']['research_dataset'], json_schema)
 
-        #     new['file_name'] = file_name % loop
-        #     new['identifier'] = uuid_str
-        #     new['file_characteristics']['title'] = json_title % loop
-        #     new['file_characteristics']['description'] = json_description % loop
-        #     new['file_storage'] = file_storage
-
-        #     if validate_json or i == 1:
-        #         json_validate(new['file_characteristics'], json_schema)
-
-        #     if mode == 'request':
-        #         start = time.time()
-        #         res = requests.post(url, data=json_dumps(new),
-        # headers={ 'Content-Type': 'application/json' }, verify=False)
-        #         end = time.time()
-        #         total_time_elapsed += (end - start)
-
-        #         if res.status_code == 201:
-        #             # to be used in creating datasets
-        #             test_data_list.append(res.data)
-
-        #         if DEBUG:
-        #             print(res.status_code)
-        #             if res.status_code == 201:
-        #                 print(res.text)
-        #             else:
-        #                 print('request failed:')
-        #                 print(res.text)
-        #                 print('------------------------------------------')
-        #                 return
-        #     else:
-        #         # sent later in bulk request
-        #         test_data_list.append(new)
-
-        percent = loop_counter / float(basic_catalog_record_max_rows) * 100.0
-
-        if percent % 10 == 0:
-            print("%d%%%s" % (percent, '' if percent == 100.0 else '...'))
+        test_data_list.append(new)
 
     # set some preservation_state dependent values
     pres_state_value = 1
@@ -736,9 +546,10 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
         }
 
         new['fields']['research_dataset']['metadata_version_identifier'] = \
+            generate_test_identifier(cr_type, len(test_data_list) + 1, urn=False)
+        new['fields']['research_dataset']['preferred_identifier'] = \
             generate_test_identifier(cr_type, len(test_data_list) + 1)
-        new['fields']['research_dataset']['preferred_identifier'] = 'very:unique:urn-%d' % (len(test_data_list) + 1)
-        new['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1)
+        new['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1, urn=False)
 
         if type == 'ida':
             if j in [0, 1]:
@@ -867,12 +678,6 @@ def generate_catalog_records(mode, basic_catalog_record_max_rows, data_catalogs_
         json_validate(new['fields']['research_dataset'], json_schema)
         test_data_list.append(new)
 
-    if mode in ("json", 'request_list'):
-        print('generated catalog records into a list')
-    elif mode == 'request':
-        print('collected created objects from responses into a list')
-        print('total time elapsed for %d rows: %.3f seconds' % (basic_catalog_record_max_rows, total_time_elapsed))
-
     return test_data_list, dataset_version_sets
 
 
@@ -883,6 +688,7 @@ def generate_alt_catalog_records(test_data_list):
     # note, these alt records wont have an editor-field set, since they presumably
     # originated to metax from somewhere else than qvain (were harvested).
     #
+    print('generating alternate catalog records...')
     alternate_record_set = {
         'fields': {},
         'model': 'metax_api.alternaterecordset',
@@ -898,7 +704,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
         'preferred_identifier']
     alt_rec['fields']['research_dataset']['metadata_version_identifier'] += '-alt-1'
-    alt_rec['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1)
+    alt_rec['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1, urn=False)
     alt_rec['fields']['data_catalog'] = 2
     alt_rec['fields']['alternate_record_set'] = 1
     test_data_list.append(alt_rec)
@@ -909,7 +715,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['fields']['research_dataset']['preferred_identifier'] = test_data_list[9]['fields']['research_dataset'][
         'preferred_identifier']
     alt_rec['fields']['research_dataset']['metadata_version_identifier'] += '-alt-2'
-    alt_rec['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1)
+    alt_rec['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1, urn=False)
     alt_rec['fields']['data_catalog'] = 3
     alt_rec['fields']['alternate_record_set'] = 1
     test_data_list.append(alt_rec)
@@ -918,30 +724,26 @@ def generate_alt_catalog_records(test_data_list):
     test_data_list.insert(0, alternate_record_set)
     return test_data_list
 
-print('generating %d test file rows' % file_max_rows)
-print('mode: %s' % mode)
-if 'request' in mode:
-    print('POST requests to url: %s' % url)
-print('validate json: %s' % str(validate_json))
-print('generating %d test file storage rows' % file_storage_max_rows)
-print('DEBUG: %s' % str(DEBUG))
 
-contract_list = generate_contracts(mode, contract_max_rows, validate_json)
-file_storage_list = generate_file_storages(mode, file_storage_max_rows)
-file_list, directory_list = generate_files(mode, file_storage_list, validate_json, url)
+if __name__ == '__main__':
+    print('begin generating test data...')
 
-ida_data_catalogs_list = generate_data_catalogs(mode, 1, ida_data_catalog_max_rows, validate_json, 'ida')
-att_data_catalogs_list = generate_data_catalogs(mode, ida_data_catalog_max_rows + 1, att_data_catalog_max_rows,
-                                                validate_json, 'att')
+    contract_list = generate_contracts(contract_max_rows, validate_json)
+    file_storage_list = generate_file_storages(file_storage_max_rows)
+    file_list, directory_list = generate_files(file_storage_list, validate_json)
 
-catalog_record_list, dataset_version_sets = generate_catalog_records(mode, ida_catalog_record_max_rows,
-    ida_data_catalogs_list, contract_list, file_list, validate_json, url, 'ida')
+    ida_data_catalogs_list = generate_data_catalogs(1, ida_data_catalog_max_rows, validate_json, 'ida')
+    att_data_catalogs_list = generate_data_catalogs(ida_data_catalog_max_rows + 1, att_data_catalog_max_rows,
+                                                    validate_json, 'att')
 
-catalog_record_list, dataset_version_sets = generate_catalog_records(mode, att_catalog_record_max_rows,
-    att_data_catalogs_list, contract_list, [], validate_json, url, 'att', catalog_record_list, dataset_version_sets)
+    catalog_record_list, dataset_version_sets = generate_catalog_records(ida_catalog_record_max_rows,
+        ida_data_catalogs_list, contract_list, file_list, validate_json, 'ida')
 
-catalog_record_list = generate_alt_catalog_records(catalog_record_list)
-save_test_data(mode, file_storage_list, directory_list, file_list, ida_data_catalogs_list + att_data_catalogs_list,
-               contract_list, catalog_record_list, dataset_version_sets, batch_size)
+    catalog_record_list, dataset_version_sets = generate_catalog_records(att_catalog_record_max_rows,
+        att_data_catalogs_list, contract_list, [], validate_json, 'att', catalog_record_list, dataset_version_sets)
 
-print('done')
+    catalog_record_list = generate_alt_catalog_records(catalog_record_list)
+    save_test_data(file_storage_list, directory_list, file_list, ida_data_catalogs_list + att_data_catalogs_list,
+                   contract_list, catalog_record_list, dataset_version_sets)
+
+    print('done')
