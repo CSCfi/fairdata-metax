@@ -584,34 +584,6 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertNotEqual(old_contract_id, new_contract_id, 'Contract should have changed')
 
     #
-    # update preservation_state operations
-    #
-
-    def test_update_catalog_record_pas_state_allowed_value(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['preservation_state'] = 30
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_update_catalog_record_pas_state_unallowed_value(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['preservation_state'] = 111
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
-                         'HTTP status should be 400 due to invalid value')
-        self.assertEqual('preservation_state' in response.data.keys(), True,
-                         'The error should mention the field preservation_state')
-
-    def test_update_catalog_record_preservation_state_modified_is_updated(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['preservation_state'] = 40
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        cr = CatalogRecord.objects.get(pk=1)
-        self.assertEqual(cr.preservation_state_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
-                         True, 'Timestamp should have been updated during object update')
-
-    #
     # update list operations PUT
     #
 
@@ -804,6 +776,50 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
         self.assertEqual(response2.status_code, status.HTTP_200_OK,
                          'The contract of CatalogRecord should not be deleted when deleting a single CatalogRecord.')
+
+
+class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
+
+    """
+    Field preservation_state related tests.
+    """
+
+    def test_update_catalog_record_pas_state_allowed_value(self):
+        cr = self.client.get('/rest/datasets/1').data
+        cr['preservation_state'] = 30
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_catalog_record_pas_state_unallowed_value(self):
+        cr = self.client.get('/rest/datasets/1').data
+        cr['preservation_state'] = 111
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                         'HTTP status should be 400 due to invalid value')
+        self.assertEqual('preservation_state' in response.data.keys(), True,
+                         'The error should mention the field preservation_state')
+
+    def test_update_catalog_record_preservation_state_modified_is_updated(self):
+        cr = self.client.get('/rest/datasets/1').data
+        cr['preservation_state'] = 40
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr = CatalogRecord.objects.get(pk=1)
+        self.assertEqual(cr.preservation_state_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
+                         True, 'Timestamp should have been updated during object update')
+
+    def test_prevent_file_changes_when_record_in_pas_process(self):
+        """
+        When preservation_state > 0, changing associated files of a dataset should not be allowed.
+        """
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.preservation_state = 10
+        cr.save()
+        cr_data = self.client.get('/rest/datasets/1', format="json").data
+        cr_data['research_dataset']['files'].pop(0)
+        response = self.client.put('/rest/datasets/1', cr_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('PAS process' in response.data['detail'][0], True, response.data)
 
 
 class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):

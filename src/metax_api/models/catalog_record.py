@@ -747,11 +747,25 @@ class CatalogRecord(Common):
             raise Http400("Cannot change dataset deprecation state from true to false")
 
         if self.catalog_versions_datasets() and not self.preserve_version:
-            if self.field_changed('research_dataset'):
-                if self._files_changed():
-                    self._create_new_dataset_version()
-                else:
-                    self._handle_metadata_versioning()
+
+            if not self.field_changed('research_dataset'):
+                # proceed directly to updating current record without any extra measures...
+                return
+
+            if self._files_changed():
+
+                if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED: # state > 0
+                    raise Http400({ 'detail': [
+                        'Changing files is not allowed when dataset is in a PAS process. Current '
+                        'preservation_state = %d. In order to alter associated files, change preservation_state '
+                        'back to 0.' % self.preservation_state
+                    ]})
+
+                self._create_new_dataset_version()
+
+            else:
+                self._handle_metadata_versioning()
+
         else:
             # non-versioning catalogs, such as harvesters, or if an update
             # was forced to occur without version update.
