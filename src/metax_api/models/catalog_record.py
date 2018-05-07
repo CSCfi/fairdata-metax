@@ -245,7 +245,6 @@ class CatalogRecord(Common):
     was created), because if the request is interrupted for whatever reason after publishing,
     the new version will not get created after all, but the publish message already left.
     """
-    # new_metadata_version_created_in_current_request = False
     new_dataset_version_created_in_current_request = False
 
     objects = CatalogRecordManager()
@@ -967,10 +966,11 @@ class CatalogRecord(Common):
 
         if old_version.next_dataset_version_id:
             raise ValidationError({ 'detail': ['Changing files in old dataset versions is not permitted.'] })
-            _logger.info(
-                'Files changed during CatalogRecord update. Creating new dataset version '
-                'from CatalogRecord %s...' % old_version.metadata_version_identifier
-            )
+
+        _logger.info(
+            'Files changed during CatalogRecord update. Creating new dataset version '
+            'from CatalogRecord %s...' % old_version.metadata_version_identifier
+        )
 
         new_version = self._new_version
         new_version.contract = None
