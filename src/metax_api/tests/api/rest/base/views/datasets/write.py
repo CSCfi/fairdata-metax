@@ -808,6 +808,28 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(cr.preservation_state_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
                          True, 'Timestamp should have been updated during object update')
 
+    def test_update_pas_state_to_needs_revalidation(self):
+        """
+        When dataset metadata is updated, and preservation_state in (40, 50, 70), metax should
+        automatically update preservation_state value to 70 ("validated metadata updated").
+        """
+        cr = CatalogRecord.objects.get(pk=1)
+
+        for i, preservation_state_value in enumerate((40, 50, 70)):
+            # set testing initial condition...
+            cr.preservation_state = preservation_state_value
+            cr.save()
+
+            # retrieve record and ensure testing state was set correctly...
+            cr_data = self.client.get('/rest/datasets/1', format="json").data
+            self.assertEqual(cr_data['preservation_state'], preservation_state_value)
+
+            # strike and verify
+            cr_data['research_dataset']['title']['en'] = 'Metadata has been updated on loop %d' % i
+            response = self.client.put('/rest/datasets/1', cr_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.data['preservation_state'], 60)
+
     def test_prevent_file_changes_when_record_in_pas_process(self):
         """
         When preservation_state > 0, changing associated files of a dataset should not be allowed.

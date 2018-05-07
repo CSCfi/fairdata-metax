@@ -764,6 +764,14 @@ class CatalogRecord(Common):
                 self._create_new_dataset_version()
 
             else:
+                if self.preservation_state in (
+                        self.PRESERVATION_STATE_INVALID_METADATA,           # 40
+                        self.PRESERVATION_STATE_METADATA_VALIDATION_FAILED, # 50
+                        self.PRESERVATION_STATE_VALID_METADATA):            # 70
+                    # notifies the user in Hallintaliittyma that the metadata needs to be re-validated
+                    self.preservation_state = self.PRESERVATION_STATE_VALIDATED_METADATA_UPDATED # 60
+                    self.preservation_state_modified = get_tz_aware_now_without_micros()
+
                 self._handle_metadata_versioning()
 
         else:
