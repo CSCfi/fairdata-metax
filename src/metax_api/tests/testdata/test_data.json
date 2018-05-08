@@ -5769,12 +5769,15 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Organization",
-                        "identifier": "10076-E700",
-                        "name": {
-                            "en": "Org in ref data",
-                            "fi": "Organisaatio"
-                        }
+                        "@type": "Person",
+                        "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -5845,7 +5848,7 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d2",
             "mets_object_identifier": null,
-            "preservation_state": 1,
+            "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -5941,7 +5944,7 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d3",
             "mets_object_identifier": null,
-            "preservation_state": 2,
+            "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -6036,12 +6039,8 @@
                 8
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d4",
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
-            "preservation_state": 3,
+            "mets_object_identifier": null,
+            "preservation_state": 40,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -6136,12 +6135,8 @@
                 10
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d5",
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
-            "preservation_state": 4,
+            "mets_object_identifier": null,
+            "preservation_state": 50,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -6237,7 +6232,7 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d6",
             "mets_object_identifier": null,
-            "preservation_state": 5,
+            "preservation_state": 70,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -6315,6 +6310,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 7,
@@ -6332,8 +6328,8 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d7",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 70,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -6350,14 +6346,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -6410,6 +6406,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 8,
@@ -6427,8 +6424,8 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d8",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 90,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -6445,14 +6442,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -6502,6 +6499,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 9,
@@ -6519,8 +6517,8 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d9",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 130,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -6537,14 +6535,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -6592,6 +6590,7 @@
     {
         "fields": {
             "alternate_record_set": 1,
+            "contract": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 10,
@@ -6609,8 +6608,8 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9610",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 140,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -6627,14 +6626,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -9169,7 +9168,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
@@ -9177,8 +9175,8 @@
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9615",
             "mets_object_identifier": null,
-            "preservation_state": 1,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9194,15 +9192,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9259,7 +9254,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
@@ -9267,8 +9261,8 @@
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9616",
             "mets_object_identifier": null,
-            "preservation_state": 2,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9284,15 +9278,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9349,7 +9340,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
@@ -9357,8 +9347,8 @@
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9617",
             "mets_object_identifier": null,
-            "preservation_state": 3,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9374,15 +9364,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9439,7 +9426,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
@@ -9447,8 +9433,8 @@
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9618",
             "mets_object_identifier": null,
-            "preservation_state": 4,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9464,15 +9450,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9529,7 +9512,6 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
@@ -9537,8 +9519,8 @@
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9619",
             "mets_object_identifier": null,
-            "preservation_state": 5,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9554,15 +9536,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -12355,6 +12334,7 @@
     {
         "fields": {
             "alternate_record_set": 1,
+            "contract": 1,
             "data_catalog": 2,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 10,
@@ -12372,8 +12352,8 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9627",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 140,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -12390,14 +12370,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -12445,6 +12425,7 @@
     {
         "fields": {
             "alternate_record_set": 1,
+            "contract": 1,
             "data_catalog": 3,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 10,
@@ -12456,8 +12437,8 @@
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9628",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 140,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -12474,14 +12455,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [

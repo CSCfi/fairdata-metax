@@ -7,8 +7,8 @@ from dicttoxml import dicttoxml
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
-from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.models import Contract, Directory, File
+from metax_api.exceptions import Http400, Http503
+from metax_api.models import Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 from .file_service import FileService
@@ -104,36 +104,6 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         for dr in rd['directories']:
             FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(dr['details'], catalog_record['id'])
-
-    @staticmethod
-    def propose_to_pas(request, catalog_record):
-        """
-        Set catalog record status to 'proposed to pas <midterm or longterm>'
-        """
-
-        if not request.query_params.get('state', False):
-            raise Http400({ 'state': ['Query parameter \'state\' is a required parameter.'] })
-
-        if request.query_params.get('state') not in ('1', '2'):
-            raise Http400({ 'state': ['Query parameter \'state\' value must be 1 or 2.'] })
-
-        if not request.query_params.get('contract', False):
-            raise Http400({ 'contract': ['Query parameter \'contract\' is a required parameter.'] })
-
-        if not catalog_record.can_be_proposed_to_pas():
-            raise Http403({ 'preservation_state': ['Value must be 0 (not proposed to PAS), 7 (longterm PAS rejected), '
-                                                   'or 8 (midterm PAS rejected), when proposing to PAS. Current state '
-                                                   'is %d.' % catalog_record.preservation_state]})
-
-        try:
-            contract = Contract.objects.get(contract_json__identifier=request.query_params.get('contract'))
-        except Contract.DoesNotExist:
-            raise Http400({ 'contract': ['Contract not found']})
-
-        catalog_record.preservation_state = request.query_params.get('state')
-        catalog_record.save()
-        contract.records.add(catalog_record)
-        contract.save()
 
     @classmethod
     def publish_updated_datasets(cls, response):

@@ -584,34 +584,6 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertNotEqual(old_contract_id, new_contract_id, 'Contract should have changed')
 
     #
-    # update preservation_state operations
-    #
-
-    def test_update_catalog_record_pas_state_allowed_value(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['preservation_state'] = 3
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_update_catalog_record_pas_state_unallowed_value(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['preservation_state'] = 111
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
-                         'HTTP status should be 400 due to invalid value')
-        self.assertEqual('preservation_state' in response.data.keys(), True,
-                         'The error should mention the field preservation_state')
-
-    def test_update_catalog_record_preservation_state_modified_is_updated(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['preservation_state'] = 4
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        cr = CatalogRecord.objects.get(pk=1)
-        self.assertEqual(cr.preservation_state_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
-                         True, 'Timestamp should have been updated during object update')
-
-    #
     # update list operations PUT
     #
 
@@ -704,11 +676,11 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
     def test_catalog_record_partial_update_list(self):
         test_data = {}
         test_data['id'] = 1
-        test_data['preservation_state'] = 1
+        test_data['preservation_state'] = 10
 
         second_test_data = {}
         second_test_data['id'] = 2
-        second_test_data['preservation_state'] = 2
+        second_test_data['preservation_state'] = 20
 
         response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -718,12 +690,12 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
                          'response.data should contain full objects')
 
         updated_cr = CatalogRecord.objects.get(pk=1)
-        self.assertEqual(updated_cr.preservation_state, 1, 'preservation state should have changed to 1')
+        self.assertEqual(updated_cr.preservation_state, 10, 'preservation state should have changed to 1')
 
     def test_catalog_record_partial_update_list_error_one_fails(self):
         test_data = {}
         test_data['id'] = 1
-        test_data['preservation_state'] = 1
+        test_data['preservation_state'] = 10
 
         second_test_data = {}
         second_test_data['preservation_state'] = 555  # value not allowed
@@ -741,11 +713,11 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
     def test_catalog_record_partial_update_list_error_key_not_found(self):
         # does not have identifier key
         test_data = {}
-        test_data['preservation_state'] = 1
+        test_data['preservation_state'] = 10
 
         second_test_data = {}
         second_test_data['id'] = 2
-        second_test_data['preservation_state'] = 2
+        second_test_data['preservation_state'] = 20
 
         response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -805,106 +777,71 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response2.status_code, status.HTTP_200_OK,
                          'The contract of CatalogRecord should not be deleted when deleting a single CatalogRecord.')
 
-    def test_delete_catalog_record_not_found_with_search_by_owner(self):
-        # owner of pk=1 is Default Owner. Delete pk=2 == first dataset owner by Rahikainen.
-        # After deleting, first dataset owned by Rahikainen should be pk=3
-        response = self.client.delete('/rest/datasets/2')
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
+
+class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
+
+    """
+    Field preservation_state related tests.
+    """
+
+    def test_update_catalog_record_pas_state_allowed_value(self):
+        cr = self.client.get('/rest/datasets/1').data
+        cr['preservation_state'] = 30
+        response = self.client.put('/rest/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 4)
-        self.assertEqual(response.data['results'][0]['id'], 3)
 
+    def test_update_catalog_record_pas_state_unallowed_value(self):
+        cr = self.client.get('/rest/datasets/1').data
+        cr['preservation_state'] = 111
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
+                         'HTTP status should be 400 due to invalid value')
+        self.assertEqual('preservation_state' in response.data.keys(), True,
+                         'The error should mention the field preservation_state')
 
-class CatalogRecordApiWriteProposeToPasTests(CatalogRecordApiWriteCommon):
-    #
-    #
-    #
-    # proposetopas apis
-    #
-    #
-    #
+    def test_update_catalog_record_preservation_state_modified_is_updated(self):
+        cr = self.client.get('/rest/datasets/1').data
+        cr['preservation_state'] = 40
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr = CatalogRecord.objects.get(pk=1)
+        self.assertEqual(cr.preservation_state_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
+                         True, 'Timestamp should have been updated during object update')
 
-    def test_catalog_record_propose_to_pas_success(self):
-        catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.save()
+    def test_update_pas_state_to_needs_revalidation(self):
+        """
+        When dataset metadata is updated, and preservation_state in (40, 50, 70), metax should
+        automatically update preservation_state value to 60 ("validated metadata updated").
+        """
+        cr = CatalogRecord.objects.get(pk=1)
 
-        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-                                    (
-                                        self.identifier,
-                                        CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-                                        self._get_object_from_test_data('contract', requested_index=0)['contract_json'][
-                                            'identifier']
-                                    ),
-                                    format="json")
+        for i, preservation_state_value in enumerate((40, 50, 70)):
+            # set testing initial condition...
+            cr.preservation_state = preservation_state_value
+            cr.save()
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        catalog_record_after = CatalogRecord.objects.get(pk=self.pk)
-        self.assertEqual(catalog_record_after.preservation_state, CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM)
+            # retrieve record and ensure testing state was set correctly...
+            cr_data = self.client.get('/rest/datasets/1', format="json").data
+            self.assertEqual(cr_data['preservation_state'], preservation_state_value)
 
-    def test_catalog_record_propose_to_pas_missing_parameter_state(self):
-        response = self.client.post('/rest/datasets/%s/proposetopas?contract=%s' %
-                                    (
-                                        self.identifier,
-                                        self._get_object_from_test_data('contract', requested_index=0)['contract_json'][
-                                            'identifier']
-                                    ),
-                                    format="json")
+            # strike and verify
+            cr_data['research_dataset']['title']['en'] = 'Metadata has been updated on loop %d' % i
+            response = self.client.put('/rest/datasets/1', cr_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.data['preservation_state'], 60)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('state' in response.data, True, 'Response data should contain an error about the field')
-
-    def test_catalog_record_propose_to_pas_wrong_parameter_state(self):
-        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-                                    (
-                                        self.identifier,
-                                        15,
-                                        self._get_object_from_test_data('contract', requested_index=0)['contract_json'][
-                                            'identifier']
-                                    ),
-                                    format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('state' in response.data, True, 'Response data should contain an error about the field')
-
-    def test_catalog_record_propose_to_pas_missing_parameter_contract(self):
-        response = self.client.post('/rest/datasets/%s/proposetopas?state=%s' %
-                                    (
-                                        self.identifier,
-                                        CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-                                    ),
-                                    format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('contract' in response.data, True, 'Response data should contain an error about the field')
-
-    def test_catalog_record_propose_to_pas_contract_not_found(self):
-        catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.save()
-
-        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-                                    (
-                                        self.identifier,
-                                        CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-                                        'does-not-exist'
-                                    ),
-                                    format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('contract' in response.data, True, 'Response data should contain an error about the field')
-
-    def test_catalog_record_propose_to_pas_wrong_preservation_state(self):
-        catalog_record_before = CatalogRecord.objects.get(pk=self.pk)
-        catalog_record_before.preservation_state = CatalogRecord.PRESERVATION_STATE_IN_LONGTERM_PAS
-        catalog_record_before.save()
-
-        response = self.client.post('/rest/datasets/%s/proposetopas?state=%d&contract=%s' %
-                                    (self.identifier, CatalogRecord.PRESERVATION_STATE_PROPOSED_MIDTERM,
-                                     self._get_object_from_test_data('contract', requested_index=0)['contract_json'][
-                                         'identifier']), format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertEqual('preservation_state' in response.data, True,
-                         'Response data should contain an error about the field')
+    def test_prevent_file_changes_when_record_in_pas_process(self):
+        """
+        When preservation_state > 0, changing associated files of a dataset should not be allowed.
+        """
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.preservation_state = 10
+        cr.save()
+        cr_data = self.client.get('/rest/datasets/1', format="json").data
+        cr_data['research_dataset']['files'].pop(0)
+        response = self.client.put('/rest/datasets/1', cr_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('PAS process' in response.data['detail'][0], True, response.data)
 
 
 class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):

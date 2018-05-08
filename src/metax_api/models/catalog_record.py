@@ -143,26 +143,38 @@ class CatalogRecordManager(CommonManager):
 
 class CatalogRecord(Common):
 
-    PRESERVATION_STATE_NOT_IN_PAS = 0
-    PRESERVATION_STATE_PROPOSED_MIDTERM = 1
-    PRESERVATION_STATE_PROPOSED_LONGTERM = 2
-    PRESERVATION_STATE_IN_PACKAGING_SERVICE = 3
-    PRESERVATION_STATE_IN_DISSEMINATION = 4
-    PRESERVATION_STATE_IN_MIDTERM_PAS = 5
-    PRESERVATION_STATE_IN_LONGTERM_PAS = 6
-    PRESERVATION_STATE_LONGTERM_PAS_REJECTED = 7
-    PRESERVATION_STATE_MIDTERM_PAS_REJECTED = 8
+    PRESERVATION_STATE_INITIALIZED = 0
+    PRESERVATION_STATE_PROPOSED = 10
+    PRESERVATION_STATE_TECHNICAL_METADATA_GENERATED = 20
+    PRESERVATION_STATE_TECHNICAL_METADATA_GENERATED_FAILED = 30
+    PRESERVATION_STATE_INVALID_METADATA = 40
+    PRESERVATION_STATE_METADATA_VALIDATION_FAILED = 50
+    PRESERVATION_STATE_VALIDATED_METADATA_UPDATED = 60
+    PRESERVATION_STATE_VALID_METADATA = 70
+    PRESERVATION_STATE_ACCEPTED_TO_PAS = 80
+    PRESERVATION_STATE_IN_PACKAGING_SERVICE = 90
+    PRESERVATION_STATE_PACKAGING_FAILED = 100
+    PRESERVATION_STATE_SIP_IN_INGESTION = 110
+    PRESERVATION_STATE_IN_PAS = 120
+    PRESERVATION_STATE_REJECTED_FROM_PAS = 130
+    PRESERVATION_STATE_IN_DISSEMINATION = 140
 
     PRESERVATION_STATE_CHOICES = (
-        (PRESERVATION_STATE_NOT_IN_PAS, 'Not in PAS'),
-        (PRESERVATION_STATE_PROPOSED_MIDTERM, 'Proposed for midterm'),
-        (PRESERVATION_STATE_PROPOSED_LONGTERM, 'Proposed for longterm'),
-        (PRESERVATION_STATE_IN_PACKAGING_SERVICE, 'In packaging service'),
-        (PRESERVATION_STATE_IN_DISSEMINATION, 'In dissemination'),
-        (PRESERVATION_STATE_IN_MIDTERM_PAS, 'In midterm PAS'),
-        (PRESERVATION_STATE_IN_LONGTERM_PAS, 'In longterm PAS'),
-        (PRESERVATION_STATE_LONGTERM_PAS_REJECTED, 'Longterm PAS rejected'),
-        (PRESERVATION_STATE_MIDTERM_PAS_REJECTED, 'Midterm PAS rejected'),
+        (PRESERVATION_STATE_INITIALIZED, 'Initialized'),
+        (PRESERVATION_STATE_PROPOSED, 'Proposed for digital preservation'),
+        (PRESERVATION_STATE_TECHNICAL_METADATA_GENERATED, 'Technical metadata generated'),
+        (PRESERVATION_STATE_TECHNICAL_METADATA_GENERATED_FAILED, 'Technical metadata generation failed'),
+        (PRESERVATION_STATE_INVALID_METADATA, 'Invalid metadata'),
+        (PRESERVATION_STATE_METADATA_VALIDATION_FAILED, 'Metadata validation failed'),
+        (PRESERVATION_STATE_VALIDATED_METADATA_UPDATED, 'Validated metadata updated'),
+        (PRESERVATION_STATE_VALID_METADATA, 'Valid metadata'),
+        (PRESERVATION_STATE_ACCEPTED_TO_PAS, 'Accepted to digital preservation'),
+        (PRESERVATION_STATE_IN_PACKAGING_SERVICE, 'in packaging service'),
+        (PRESERVATION_STATE_PACKAGING_FAILED, 'Packaging failed'),
+        (PRESERVATION_STATE_SIP_IN_INGESTION, 'SIP sent to ingestion in digital preservation service'),
+        (PRESERVATION_STATE_IN_PAS, 'in digital preservation'),
+        (PRESERVATION_STATE_REJECTED_FROM_PAS, 'Rejected in digital preservation service'),
+        (PRESERVATION_STATE_IN_DISSEMINATION, 'in dissemination'),
     )
 
     # MODEL FIELD DEFINITIONS #
@@ -197,7 +209,7 @@ class CatalogRecord(Common):
         max_length=200, blank=True, null=True, help_text='Reason for PAS proposal from the user.')
 
     preservation_state = models.IntegerField(
-        choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_NOT_IN_PAS, help_text='Record state in PAS.')
+        choices=PRESERVATION_STATE_CHOICES, default=PRESERVATION_STATE_INITIALIZED, help_text='Record state in PAS.')
 
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
 
@@ -233,7 +245,6 @@ class CatalogRecord(Common):
     was created), because if the request is interrupted for whatever reason after publishing,
     the new version will not get created after all, but the publish message already left.
     """
-    # new_metadata_version_created_in_current_request = False
     new_dataset_version_created_in_current_request = False
 
     objects = CatalogRecordManager()
@@ -630,12 +641,6 @@ class CatalogRecord(Common):
             self._remove_from_alternate_record_set()
         super(CatalogRecord, self).delete(*args, **kwargs)
 
-    def can_be_proposed_to_pas(self):
-        return self.preservation_state in (
-            CatalogRecord.PRESERVATION_STATE_NOT_IN_PAS,
-            CatalogRecord.PRESERVATION_STATE_LONGTERM_PAS_REJECTED,
-            CatalogRecord.PRESERVATION_STATE_MIDTERM_PAS_REJECTED)
-
     @property
     def preferred_identifier(self):
         try:
@@ -742,11 +747,33 @@ class CatalogRecord(Common):
             raise Http400("Cannot change dataset deprecation state from true to false")
 
         if self.catalog_versions_datasets() and not self.preserve_version:
-            if self.field_changed('research_dataset'):
-                if self._files_changed():
-                    self._create_new_dataset_version()
-                else:
-                    self._handle_metadata_versioning()
+
+            if not self.field_changed('research_dataset'):
+                # proceed directly to updating current record without any extra measures...
+                return
+
+            if self._files_changed():
+
+                if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED: # state > 0
+                    raise Http400({ 'detail': [
+                        'Changing files is not allowed when dataset is in a PAS process. Current '
+                        'preservation_state = %d. In order to alter associated files, change preservation_state '
+                        'back to 0.' % self.preservation_state
+                    ]})
+
+                self._create_new_dataset_version()
+
+            else:
+                if self.preservation_state in (
+                        self.PRESERVATION_STATE_INVALID_METADATA,           # 40
+                        self.PRESERVATION_STATE_METADATA_VALIDATION_FAILED, # 50
+                        self.PRESERVATION_STATE_VALID_METADATA):            # 70
+                    # notifies the user in Hallintaliittyma that the metadata needs to be re-validated
+                    self.preservation_state = self.PRESERVATION_STATE_VALIDATED_METADATA_UPDATED # 60
+                    self.preservation_state_modified = get_tz_aware_now_without_micros()
+
+                self._handle_metadata_versioning()
+
         else:
             # non-versioning catalogs, such as harvesters, or if an update
             # was forced to occur without version update.
@@ -961,10 +988,11 @@ class CatalogRecord(Common):
 
         if old_version.next_dataset_version_id:
             raise ValidationError({ 'detail': ['Changing files in old dataset versions is not permitted.'] })
-            _logger.info(
-                'Files changed during CatalogRecord update. Creating new dataset version '
-                'from CatalogRecord %s...' % old_version.metadata_version_identifier
-            )
+
+        _logger.info(
+            'Files changed during CatalogRecord update. Creating new dataset version '
+            'from CatalogRecord %s...' % old_version.metadata_version_identifier
+        )
 
         new_version = self._new_version
         new_version.contract = None

@@ -454,16 +454,17 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
 
         test_data_list.append(new)
 
-    # set some preservation_state dependent values
-    pres_state_value = 1
-    for i in range(start_idx, start_idx + 5):
+    # set some preservation_states and dependent values
+    # see CatalogRecord model PRESERVATION_STATE_... for value definitions
+    for i, pres_state_value in enumerate((0, 10, 10, 40, 50, 70, 70, 90, 130, 140)):
 
         test_data_list[i]['fields']['preservation_state'] = pres_state_value
 
         if i > 0:
             test_data_list[i]['fields']['contract'] = 1
 
-        if 3 <= i <= 4:
+        if i in (90, 140):
+            # packaging, dissemination
             test_data_list[i]['fields']['mets_object_identifier'] = ["a", "b", "c"]
 
         test_data_list[i]['fields']['research_dataset']['curator'] = [{
@@ -477,7 +478,6 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                 }
             }
         }]
-        pres_state_value += 1
 
     # set different owner
     for i in range(start_idx + 5, len(test_data_list)):
