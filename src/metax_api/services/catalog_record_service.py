@@ -67,6 +67,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('user_created', False):
             queryset_search_params['user_created'] = request.query_params['user_created']
 
+        if request.query_params.get('editor', False):
+            queryset_search_params['editor__contains'] = { 'identifier': request.query_params['editor'] }
+
         return queryset_search_params
 
     @staticmethod
