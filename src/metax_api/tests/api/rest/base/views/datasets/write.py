@@ -811,7 +811,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
     def test_update_pas_state_to_needs_revalidation(self):
         """
         When dataset metadata is updated, and preservation_state in (40, 50, 70), metax should
-        automatically update preservation_state value to 70 ("validated metadata updated").
+        automatically update preservation_state value to 60 ("validated metadata updated").
         """
         cr = CatalogRecord.objects.get(pk=1)
 
