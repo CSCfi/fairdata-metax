@@ -348,14 +348,14 @@ if executing_in_travis:
         'ADMIN_EMAIL': 'noreply@csc.fi',
         'SET_MAPPINGS': {
             'datasets': [
-                'urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1',
-                'urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d2'
+                'urn:nbn:fi:att:data-catalog-ida',
+                'urn:nbn:fi:att:data-catalog-att'
             ],
             'ida_datasets': [
-                'urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1'
+                'urn:nbn:fi:att:data-catalog-ida'
             ],
             'att_datasets': [
-                'urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d2'
+                'urn:nbn:fi:att:data-catalog-att'
             ]
         }
     }
