@@ -701,6 +701,11 @@ paths:
           description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
           required: false
           type: string
+        - name: contract_org_identifier
+          in: query
+          description: Filter by dataset contract.contract_json.organization.organization_identifier. Restricted to permitted users.
+          required: false
+          type: string
         - name: pas_filter
           in: query
           description: A specific filter that targets the following fields; research_dataset['title'], research_dataset['curator'][n]['name'], contract['contract_json']['title']. Restricted to permitted users.

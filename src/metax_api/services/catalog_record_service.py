@@ -72,6 +72,12 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('editor', False):
             queryset_search_params['editor__contains'] = { 'identifier': request.query_params['editor'] }
 
+        if request.query_params.get('contract_org_identifier', False):
+            if request.user.username not in ('metax', 'tpas'):
+                raise Http403({ 'detail': ['query parameter pas_filter is restricted']})
+            queryset_search_params['contract__contract_json__organization__organization_identifier__iregex'] = \
+                request.query_params['contract_org_identifier']
+
         if request.query_params.get('pas_filter', False):
             cls.set_pas_filter(queryset_search_params, request)
 
