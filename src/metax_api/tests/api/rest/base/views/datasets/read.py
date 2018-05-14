@@ -263,6 +263,7 @@ class CatalogRecordApiReadPASFilter(CatalogRecordApiReadCommon):
 
 
 class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
+
     """
     query_params filtering
     """
@@ -348,6 +349,27 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
 
         response = self.client.get('/rest/datasets')
         self.assertNotEqual(response.data['count'], qvain_records_count, 'looks like filtering had no effect')
+
+    def test_filter_by_contract_org_identifier(self):
+        """
+        Test filtering by contract_org_identifier, which matches using iregex
+        """
+        metax_user = settings.API_METAX_USER
+        self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+
+        response = self.client.get('/rest/datasets?contract_org_identifier=2345')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 10)
+
+        response = self.client.get('/rest/datasets?contract_org_identifier=1234567-1')
+        self.assertEqual(len(response.data['results']), 10)
+
+        response = self.client.get('/rest/datasets?contract_org_identifier=1234567-123')
+        self.assertEqual(len(response.data['results']), 0)
+
+    def test_filter_by_contract_org_identifier_is_restricted(self):
+        response = self.client.get('/rest/datasets?contract_org_identifier=1234')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
