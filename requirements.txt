@@ -13,7 +13,7 @@ ipdb==0.11 # dev tool
 jsonschema==2.6.0
 lxml==4.2.1
 pika==0.11.2
-psycopg2==2.7.4  # LGPL with exceptions or ZPL
+psycopg2-binary==2.7.4  # LGPL with exceptions or ZPL
 pyoai==2.5.0
 python-simplexquery==1.0.5.3
 pytz==2018.3
