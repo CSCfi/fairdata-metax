@@ -2140,12 +2140,20 @@ class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['metadata_owner_org'], response.data['metadata_provider_org'])
 
-        # update
+        # update to null - update is prevented
         cr = self.client.get('/rest/datasets/1', format="json").data
-        original = cr.pop('metadata_owner_org')
+        original = cr['metadata_owner_org']
+        cr['metadata_owner_org'] = None
         response = self.client.put('/rest/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['metadata_owner_org'], original)
+
+        # update with patch, where metadata_owner_org field is absent - value is not reverted back
+        # to metadata_provider_org
+        response = self.client.patch('/rest/datasets/1', { 'metadata_owner_org': 'abc' }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        response = self.client.patch('/rest/datasets/1', { 'contract': 1 }, format="json")
+        self.assertEqual(response.data['metadata_owner_org'], 'abc')
 
     def test_metadata_provider_org_is_readonly_after_creating(self):
         cr = self.client.get('/rest/datasets/1', format="json").data
