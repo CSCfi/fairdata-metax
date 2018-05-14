@@ -1,5 +1,8 @@
 {
   "data_catalog": null,
+  "metadata_owner_org": "abc-org-123",
+  "metadata_provider_org": "abc-org-123",
+  "metadata_provider_user": "abc-user-123",
   "research_dataset": {
     "metadata_version_identifier": null,
     "preferred_identifier": null,
