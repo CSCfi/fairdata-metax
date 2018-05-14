@@ -2113,3 +2113,52 @@ class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
         self.assertEqual('total_remote_resources_byte_size' in response.data['research_dataset'], True)
         self.assertEqual(response.data['research_dataset']['total_remote_resources_byte_size'],
                          total_remote_resources_byte_size)
+
+
+class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
+
+    """
+    Owner-fields related tests:
+    metadata_owner_org
+    metadata_provider_org
+    metadata_provider_user
+    """
+
+    def test_metadata_owner_org_is_copied_from_metadata_provider_org(self):
+        """
+        If field metadata_owner_org is omitted when creating or updating a ds, its value should be copied
+        from field metadata_provider_org.
+        """
+
+        # create
+        cr = self.client.get('/rest/datasets/1', format="json").data
+        cr.pop('id')
+        cr.pop('identifier')
+        cr.pop('metadata_owner_org')
+        cr['research_dataset'].pop('preferred_identifier')
+        response = self.client.post('/rest/datasets', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['metadata_owner_org'], response.data['metadata_provider_org'])
+
+        # update
+        cr = self.client.get('/rest/datasets/1', format="json").data
+        original = cr.pop('metadata_owner_org')
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['metadata_owner_org'], original)
+
+    def test_metadata_provider_org_is_readonly_after_creating(self):
+        cr = self.client.get('/rest/datasets/1', format="json").data
+        original = cr['metadata_provider_org']
+        cr['metadata_provider_org'] = 'changed'
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['metadata_provider_org'], original)
+
+    def test_metadata_provider_user_is_readonly_after_creating(self):
+        cr = self.client.get('/rest/datasets/1', format="json").data
+        original = cr['metadata_provider_user']
+        cr['metadata_provider_user'] = 'changed'
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['metadata_provider_user'], original)

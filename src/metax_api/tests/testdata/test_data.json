@@ -5751,6 +5751,9 @@
                 2
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d1",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -5847,6 +5850,9 @@
                 4
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d2",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -5943,6 +5949,9 @@
                 6
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d3",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6039,6 +6048,9 @@
                 8
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d4",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 40,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6135,6 +6147,9 @@
                 10
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d5",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 50,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6231,6 +6246,9 @@
                 12
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d6",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 70,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6327,6 +6345,9 @@
                 14
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d7",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 70,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6423,6 +6444,9 @@
                 16
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d8",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 90,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6516,6 +6540,9 @@
                 18
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d9",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 130,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6607,6 +6634,9 @@
                 20
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9610",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -6713,6 +6743,9 @@
                 20
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9611",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -7483,6 +7516,9 @@
                 20
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9612",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -8321,6 +8357,9 @@
                 115
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9613",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -9088,6 +9127,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9614",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9174,6 +9216,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9615",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9260,6 +9305,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9616",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9346,6 +9394,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9617",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9432,6 +9483,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9618",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9518,6 +9572,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9619",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9604,6 +9661,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9620",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9693,6 +9753,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9621",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9782,6 +9845,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9622",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9871,6 +9937,9 @@
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9623",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9962,6 +10031,9 @@
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9624",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -10755,6 +10827,9 @@
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9625",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -11548,6 +11623,9 @@
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9626",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -12351,6 +12429,9 @@
                 20
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9627",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
@@ -12436,6 +12517,9 @@
                 20
             ],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9628",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
