@@ -51,13 +51,18 @@ class DatasetViewSet(CommonViewSet):
     def get_queryset(self):
 
         additional_filters = {}
+        q_filters = []
 
         if hasattr(self, 'queryset_search_params'):
             additional_filters.update(**self.queryset_search_params)
 
+        if 'q_filters' in additional_filters:
+            # Q-filter objects, which can contain more complex filter options such as OR-clauses
+            q_filters = additional_filters.pop('q_filters')
+
         CS.set_if_modified_since_filter(self.request, additional_filters)
 
-        return super(DatasetViewSet, self).get_queryset().filter(**additional_filters)
+        return super(DatasetViewSet, self).get_queryset().filter(*q_filters, **additional_filters)
 
     def retrieve(self, request, *args, **kwargs):
         self.queryset_search_params = {}

@@ -1,13 +1,14 @@
 from datetime import timedelta
 import urllib.parse
 
+from django.conf import settings
 from django.core.management import call_command
 from django.utils import timezone
 from pytz import timezone as tz
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import CatalogRecord, File
+from metax_api.models import CatalogRecord, Contract, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -199,6 +200,66 @@ class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('is not an integer' in response.data['state'][0], True,
                          'Error should say letter a is not an integer')
+
+
+class CatalogRecordApiReadPASFilter(CatalogRecordApiReadCommon):
+
+    def test_pas_filter(self):
+        """
+        Test query param pas_filter which should search from various fields using the same search term.
+        """
+
+        # set test conditions
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.preservation_state = 10
+        cr.contract_id = 1
+        cr.research_dataset['title']['en'] = 'Catch me if you can'
+        cr.research_dataset['title']['fi'] = 'Ota kiinni jos saat'
+        cr.research_dataset['curator'] = []
+        cr.research_dataset['curator'].append({ 'name': 'Seppo Hovi' })
+        cr.research_dataset['curator'].append({ 'name': 'Esa Nieminen' })
+        cr.research_dataset['curator'].append({ 'name': 'Aku Ankka' })
+        cr.research_dataset['curator'].append({ 'name': 'Jaska Jokunen' })
+        cr.force_save()
+
+        contract = Contract.objects.get(pk=1)
+        contract.contract_json['title'] = 'An Important Agreement'
+        contract.save()
+
+        metax_user = settings.API_METAX_USER
+        self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+
+        # beging testing
+
+        response = self.client.get('/rest/datasets?state=10&pas_filter=if you')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+        response = self.client.get('/rest/datasets?state=10&pas_filter=kiinni jos')
+        self.assertEqual(len(response.data['results']), 1)
+
+        response = self.client.get('/rest/datasets?state=10&pas_filter=niemine')
+        self.assertEqual(len(response.data['results']), 1)
+
+        # more than 3 curators, requires typing exact case-sensitive name... see comments in related code
+        response = self.client.get('/rest/datasets?state=10&pas_filter=jokunen')
+        self.assertEqual(len(response.data['results']), 0)
+        response = self.client.get('/rest/datasets?state=10&pas_filter=Jaska Jokunen')
+        self.assertEqual(len(response.data['results']), 1)
+
+        # contract_id 1 has several other associated test datasets
+        response = self.client.get('/rest/datasets?state=10&pas_filter=agreement')
+        self.assertEqual(len(response.data['results']), 3)
+
+        response = self.client.get('/rest/datasets?state=10&pas_filter=does not exist')
+        self.assertEqual(len(response.data['results']), 0)
+
+    def test_pas_filter_is_restricted(self):
+        """
+        Query param is permitted to users metax and tpas.
+        """
+        response = self.client.get('/rest/datasets?state=10&pas_filter=hmmm')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):

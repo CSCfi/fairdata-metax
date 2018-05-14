@@ -1,13 +1,15 @@
 import logging
+import urllib.parse
 from collections import defaultdict
 from os.path import dirname, join
 
 import simplexquery as sxq
 from dicttoxml import dicttoxml
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
-from metax_api.exceptions import Http400, Http503
+from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
@@ -33,8 +35,8 @@ def FileSerializer(*args, **kwargs):
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
 
-    @staticmethod
-    def get_queryset_search_params(request):
+    @classmethod
+    def get_queryset_search_params(cls, request):
         """
         Get and validate parameters from request.query_params that will be used for filtering
         in view.get_queryset()
@@ -70,7 +72,49 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('editor', False):
             queryset_search_params['editor__contains'] = { 'identifier': request.query_params['editor'] }
 
+        if request.query_params.get('pas_filter', False):
+            cls.set_pas_filter(queryset_search_params, request)
+
         return queryset_search_params
+
+    @staticmethod
+    def set_pas_filter(queryset_search_params, request):
+        """
+        A somewhat specific filter for PAS needs... The below OR query is AND'ed with any
+        other possible filters from other query parameters.
+        """
+        if request.user.username not in ('metax', 'tpas'):
+            raise Http403({ 'detail': ['query parameter pas_filter is restricted']})
+
+        search_string = urllib.parse.unquote(request.query_params.get('pas_filter', ''))
+
+        # dataset title, from various languages...
+        q1 = Q(research_dataset__title__en__iregex=search_string)
+        q2 = Q(research_dataset__title__fi__iregex=search_string)
+
+        # contract...
+        q3 = Q(contract__contract_json__title__iregex=search_string)
+
+        # a limitation of jsonb-field queries...
+        # unable to use regex search directly (wildcard) since curator is an array... and __contains only
+        # matches whole string. cheating here to search from first three indexes using regex. who
+        # knows how many curators datasets will actually have, but probably most cases will produce
+        # a match with this approach... if not, the user will be more and more accurate and finally
+        # type the whole name and get a result while cursing shitty software
+        q4 = Q(research_dataset__curator__0__name__iregex=search_string)
+        q5 = Q(research_dataset__curator__1__name__iregex=search_string)
+        q6 = Q(research_dataset__curator__2__name__iregex=search_string)
+        q7 = Q(research_dataset__curator__contains=[{ 'name': search_string }])
+
+        q_filter = q1 | q2 | q3 | q4 | q5 | q6 | q7
+
+        if 'q_filters' in queryset_search_params: # pragma: no cover
+            # no usecase yet but leaving comment for future reference... if the need arises to
+            # include Q-filters from multiple sources (query params), probably AND them together
+            # by appending to list
+            queryset_search_params['q_filters'].append(q_filter)
+        else:
+            queryset_search_params['q_filters'] = [q_filter]
 
     @staticmethod
     def populate_file_details(catalog_record):
