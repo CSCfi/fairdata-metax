@@ -200,6 +200,13 @@ class CatalogRecord(Common):
 
     mets_object_identifier = ArrayField(models.CharField(max_length=200), null=True)
 
+    metadata_owner_org = models.CharField(max_length=200, null=True,
+        help_text='Actually non-nullable, but is derived from field metadata_provider_org if omitted.')
+
+    metadata_provider_org = models.CharField(max_length=200, null=False, help_text='Non-modifiable after creation')
+
+    metadata_provider_user = models.CharField(max_length=200, null=False, help_text='Non-modifiable after creation')
+
     editor = JSONField(null=True, help_text='Editor specific fields, such as owner_id, modified, record_identifier')
 
     preservation_description = models.CharField(
@@ -261,6 +268,9 @@ class CatalogRecord(Common):
         self.track_fields(
             'deprecated',
             'identifier',
+            'metadata_owner_org',
+            'metadata_provider_org',
+            'metadata_provider_user',
             'preservation_state',
             'research_dataset',
             'research_dataset.files',
@@ -690,6 +700,11 @@ class CatalogRecord(Common):
 
         self.identifier = generate_identifier(urn=False)
 
+        if not self.metadata_owner_org:
+            # field metadata_owner_org is optional, but must be set. in case it is omitted,
+            # derive from metadata_provider_org.
+            self.metadata_owner_org = self.metadata_provider_org
+
         if 'remote_resources' in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
@@ -745,6 +760,18 @@ class CatalogRecord(Common):
 
         if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
             raise Http400("Cannot change dataset deprecation state from true to false")
+
+        if not self.metadata_owner_org:
+            # can not be updated to null
+            self.metadata_owner_org = self._initial_data['metadata_owner_org']
+
+        if self.field_changed('metadata_provider_org'):
+            # read-only after creating
+            self.metadata_provider_org = self._initial_data['metadata_provider_org']
+
+        if self.field_changed('metadata_provider_user'):
+            # read-only after creating
+            self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
         if self.catalog_versions_datasets() and not self.preserve_version:
 
