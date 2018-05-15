@@ -982,8 +982,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['creator'][0]['member_of']['identifier'] = refs['organization']['code']
         rd_ida['curator'][0]['is_part_of']['identifier'] = refs['organization']['code']
         rd_ida['publisher']['is_part_of']['identifier'] = refs['organization']['code']
-        rd_ida['rights_holder']['is_part_of']['identifier'] = refs['organization']['code']
-        rd_ida['access_rights']['has_rights_related_agent'][0]['identifier'] = refs['organization']['code']
+        rd_ida['rights_holder'][0]['is_part_of']['identifier'] = refs['organization']['code']
 
         # Other type of reference data populations
         orig_wkt_value = rd_ida['spatial'][0]['as_wkt'][0]
@@ -1052,9 +1051,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['organization']['uri'], new_rd['creator'][0]['member_of']['identifier'])
         self.assertEqual(refs['organization']['uri'], new_rd['curator'][0]['is_part_of']['identifier'])
         self.assertEqual(refs['organization']['uri'], new_rd['publisher']['is_part_of']['identifier'])
-        self.assertEqual(refs['organization']['uri'], new_rd['rights_holder']['is_part_of']['identifier'])
-        self.assertEqual(refs['organization']['uri'],
-                         new_rd['access_rights']['has_rights_related_agent'][0]['identifier'])
+        self.assertEqual(refs['organization']['uri'], new_rd['rights_holder'][0]['is_part_of']['identifier'])
         self.assertEqual(refs['research_infra']['uri'], new_rd['infrastructure'][0]['identifier'])
         self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role']['identifier'])
         self.assertEqual(refs['funder_type']['uri'], new_rd['is_output_of'][0]['funder_type']['identifier'])
@@ -1102,9 +1099,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['organization']['label'], new_rd['creator'][0]['member_of'].get('name', None))
         self.assertEqual(refs['organization']['label'], new_rd['curator'][0]['is_part_of'].get('name', None))
         self.assertEqual(refs['organization']['label'], new_rd['publisher']['is_part_of'].get('name', None))
-        self.assertEqual(refs['organization']['label'], new_rd['rights_holder']['is_part_of'].get('name', None))
-        self.assertEqual(refs['organization']['label'],
-                         new_rd['access_rights']['has_rights_related_agent'][0].get('name', None))
+        self.assertEqual(refs['organization']['label'], new_rd['rights_holder'][0]['is_part_of'].get('name', None))
 
 
 class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):

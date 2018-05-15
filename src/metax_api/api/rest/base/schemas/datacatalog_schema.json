@@ -13,8 +13,8 @@
     ],
     "definitions":{
         "Catalog":{
-            "type":"object",
             "title":"Research Data Catalog",
+            "type":"object",
             "@id":"http://www.w3.org/ns/dcat#Catalog",
             "description":"A curated collection of metadata about datasets",
             "properties":{
@@ -151,8 +151,8 @@
             ]
         },
         "Concept":{
-            "type":"object",
             "title":"Concept",
+            "type":"object",
             "@id":"http://www.w3.org/2004/02/skos/core#Concept",
             "description":"An idea or notion; a unit of thought.",
             "properties":{
@@ -178,8 +178,8 @@
             ]
         },
         "Document":{
-            "type":"object",
             "title":"Documented link",
+            "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Document",
             "description":"Documented link",
             "properties":{
@@ -214,8 +214,8 @@
             ]
         },
         "LinguisticSystem":{
-            "type":"object",
             "title":"Linguistic System",
+            "type":"object",
             "@id":"http://purl.org/dc/terms/LinguisticSystem",
             "description":"Examples include written, spoken, sign, and computer languages.\n\nA system of signs, symbols, sounds, gestures, or rules used in communication.",
             "properties":{
@@ -244,8 +244,8 @@
             ]
         },
         "Organization":{
-            "type":"object",
             "title":"Organization",
+            "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Organization",
             "description":"Organization that distributes or publishes datasets",
             "properties":{
@@ -309,8 +309,8 @@
             ]
         },
         "ResearchDataLicenseDocument":{
-            "type":"object",
             "title":"License Document",
+            "type":"object",
             "@id":"http://purl.org/dc/terms/LicenseDocument",
             "description":"A legal document giving official permission to do something with a Resource.",
             "properties":{
@@ -355,8 +355,8 @@
             ]
         },
         "RightsStatement":{
-            "type":"object",
             "title":"Rights Statement",
+            "type":"object",
             "@id":"http://purl.org/dc/terms/RightsStatement",
             "description":"A statement about the intellectual property rights (IPR) held in or over a Resource, a legal document giving official permission to do something with a resource, or a statement about access rights.",
             "properties":{

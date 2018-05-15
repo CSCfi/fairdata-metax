@@ -12,8 +12,8 @@
     ],
     "definitions":{
         "Activity":{
-			"type":"object",
             "title":"Activity",
+            "type":"object",
             "@id":"http://www.w3.org/ns/prov#Activity",
             "description":"An activity is something that occurs over a period of time and acts upon or with entities; it may include consuming, processing, transforming, modifying, relocating, using, or generating entities.",
             "properties":{
@@ -48,14 +48,6 @@
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Location"
-                },
-                "lifecycle_event":{
-                    "@id":"http://purl.org/dc/terms/type",
-                    "title":"Lifecycle Event",
-                    "description":"Lifecycle event",
-                    "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Concept"
                 },
                 "preservation_event":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#preservation_event",
@@ -97,12 +89,19 @@
                         "type":"object",
                         "$ref":"#/definitions/Variable"
                     }
+                },
+                "lifecycle_event":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#lifecycle_event",
+                    "title":"Lifecycle Event",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
                 }
             }
         },
         "CatalogRecord":{
-			"type":"object",
             "title":"Catalog Record",
+            "type":"object",
             "@id":"http://www.w3.org/ns/dcat#CatalogRecord",
             "description":"A record in a data catalog, describing a single dataset.",
             "properties":{
@@ -228,16 +227,25 @@
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Editor"
+                },
+                "identifier":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#identifier",
+                    "title":"Identifier",
+                    "description":"Catalog record identifier",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "type":"string",
+                    "format":"uri"
                 }
             },
             "required":[
+                "identifier",
                 "data_catalog",
                 "research_dataset"
             ]
         },
         "Concept":{
-			"type":"object",
             "title":"Concept",
+            "type":"object",
             "@id":"http://www.w3.org/2004/02/skos/core#Concept",
             "description":"An idea or notion; a unit of thought.",
             "properties":{
@@ -285,8 +293,8 @@
             ]
         },
         "ConceptScheme":{
-			"type":"object",
             "title":"Concept Scheme",
+            "type":"object",
             "@id":"http://www.w3.org/2004/02/skos/core#ConceptScheme",
             "description":"A set of concepts, optionally including statements about semantic relationships between those concepts.",
             "properties":{
@@ -312,8 +320,8 @@
             ]
         },
         "Directory":{
-            "type":"object",
             "title":"Directory in IDA",
+            "type":"object",
             "@id":"http://www.w3.org/ns/dcat#Distribution",
             "description":"Directory that links to its contained resources.",
             "properties":{
@@ -366,8 +374,8 @@
             ]
         },
         "Document":{
-			"type":"object",
             "title":"Documented link",
+            "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Document",
             "description":"A documented link to a document in the Web.",
             "properties":{
@@ -401,8 +409,8 @@
             ]
         },
         "Editor":{
-            "type":"object",
             "title":"Editor",
+            "type":"object",
             "@id":"http://uri.suomi.fi/datamodel/ns/mrd#Editor",
             "description":"Software or service that is used to modify the catalog record and the dataset",
             "properties":{
@@ -440,8 +448,8 @@
             }
         },
         "EntityRelation":{
-            "type":"object",
             "title":"Entity relation",
+            "type":"object",
             "@id":"http://www.w3.org/ns/prov#EntityInfluence",
             "description":"Description of a the dataset influence upon any other kind of entity.",
             "properties":{
@@ -468,6 +476,7 @@
         },
         "File":{
             "title":"File in IDA",
+            "type":"object",
             "@id":"http://www.w3.org/ns/dcat#Distribution",
             "description":"File in IDA",
             "properties":{
@@ -528,8 +537,8 @@
             ]
         },
         "LinguisticSystem":{
-			"type":"object",
             "title":"Linguistic System",
+            "type":"object",
             "@id":"http://purl.org/dc/terms/LinguisticSystem",
             "description":"Examples include written, spoken, sign, and computer languages.\n\nA system of signs, symbols, sounds, gestures, or rules used in communication.",
             "properties":{
@@ -552,8 +561,8 @@
             }
         },
         "Location":{
-			"type":"object",
             "title":"Location",
+            "type":"object",
             "@id":"http://purl.org/dc/terms/Location",
             "description":"A spatial region or named place.",
             "properties":{
@@ -602,8 +611,8 @@
             }
         },
         "Organization":{
-			"type":"object",
             "title":"Organization",
+            "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Organization",
             "description":"An organization.",
             "properties":{
@@ -669,8 +678,8 @@
             ]
         },
         "PeriodOfTime":{
-			"type":"object",
             "title":"Period of Time",
+            "type":"object",
             "@id":"http://purl.org/dc/terms/PeriodOfTime",
             "description":"An interval of time that is named or defined by its start and end dates.",
             "properties":{
@@ -691,8 +700,8 @@
             }
         },
         "Person":{
-			"type":"object",
             "title":"Person",
+            "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Person",
             "description":"A person.",
             "properties":{
@@ -766,8 +775,8 @@
             ]
         },
         "Project":{
-			"type":"object",
             "title":"Project",
+            "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Project",
             "description":"A project (a collective endeavour of some kind).",
             "properties":{
@@ -838,8 +847,8 @@
             ]
         },
         "RelatedEntity":{
-			"type":"object",
             "title":"Related Entity",
+            "type":"object",
             "@id":"http://www.w3.org/ns/prov#Entity",
             "description":"Related entity",
             "properties":{
@@ -886,8 +895,8 @@
             ]
         },
         "ResearchAgent":{
-			"type":"object",
             "title":"Agent",
+            "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Agent",
 			"oneOf":[
                 {"$ref": "#/definitions/Person"},
@@ -897,8 +906,8 @@
             "description":"An agent (eg. person, group, software or physical artifact)."
         },
         "Agent":{
-			"type":"object",
             "title":"Generic Agent",
+            "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Agent",
             "description":"Generic agent type",
             "properties":{
@@ -948,8 +957,8 @@
             ]
         },
         "ResearchDataLicenseDocument":{
-			"type":"object",
             "title":"License Document",
+            "type":"object",
             "@id":"http://purl.org/dc/terms/LicenseDocument",
             "description":"A legal document giving official permission to do something with a Resource.",
             "properties":{
@@ -994,8 +1003,8 @@
             ]
         },
         "ResearchDataset":{
-			"type":"object",
             "title":"Research Dataset",
+            "type":"object",
             "@id":"http://www.w3.org/ns/dcat#Dataset",
             "description":"A collection of data, published or curated by a single source, and available for access or download in one or more formats",
             "properties":{
@@ -1148,11 +1157,15 @@
                 },
                 "rights_holder":{
                     "@id":"http://purl.org/dc/terms/rightsHolder",
-                    "title":"Dataset owner",
-                    "description":"A person or organisation who holds the copyright of the dataset at the current moment, usually the organization of the author – this does not mean the owner of the storage media (such as a memory stick) but the rights holder",
+                    "title":"Rightsholder",
+                    "description":"A person or organisation who holds the copyright, neighboring rights or moral rights of the dataset at the current moment, usually the author of the data or  the organization of the author.",
                     "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/ResearchAgent"
+                    "minItems":0,
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/ResearchAgent"
+                    }
                 },
                 "theme":{
                     "@id":"http://www.w3.org/ns/dcat#theme",
@@ -1263,9 +1276,8 @@
                 "curator":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#curator",
                     "title":"Curator",
-                    "description":"Curator of the dataset",
+                    "description":"Curator of the dataset. Curator is the primary contact person/organization for the Research Dataset.",
                     "@type":"@id",
-                    "minItems":1,
                     "type":"array",
                     "items":{
                         "type":"object",
@@ -1304,15 +1316,14 @@
             },
             "required":[
                 "creator",
-                "curator",
                 "description",
                 "preferred_identifier",
                 "title"
             ]
         },
         "RightsStatement":{
-			"type":"object",
             "title":"Rights Statement",
+            "type":"object",
             "@id":"http://purl.org/dc/terms/RightsStatement",
             "description":"A statement about the intellectual property rights (IPR) held in or over a Resource, a legal document giving official permission to do something with a resource, or a statement about access rights.",
             "properties":{
@@ -1350,14 +1361,15 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 },
-                "has_rights_related_agent":{
-                    "@id":"http://www.loc.gov/premis/rdf/v1#hasRightRelatedAgent",
-                    "title":"Related agent",
+                "access_process":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#accessProcess",
+                    "title":"Access process",
+                    "description":"Access process that can be used to obtain access to the resource",
                     "@type":"@id",
                     "type":"array",
                     "items":{
                         "type":"object",
-                        "$ref":"#/definitions/ResearchAgent"
+                        "$ref":"#/definitions/Concept"
                     }
                 },
                 "license":{
@@ -1371,6 +1383,14 @@
                         "type":"object",
                         "$ref":"#/definitions/ResearchDataLicenseDocument"
                     }
+                },
+                "access_url":{
+                    "@id":"http://www.w3.org/ns/dcat#accessURL",
+                    "title":"Access url",
+                    "description":"Access url for the dataset",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Document"
                 }
             },
             "required":[
@@ -1379,8 +1399,8 @@
             ]
         },
         "StructuredIdentifier":{
-			"type":"object",
             "title":"Identifier",
+            "type":"object",
             "@id":"http://www.w3.org/ns/adms#Identifier",
             "description":"Structured identifier",
             "properties":{
@@ -1420,8 +1440,8 @@
             ]
         },
         "Variable":{
-			"type":"object",
             "title":"Variable",
+            "type":"object",
             "@id":"http://rdf-vocabulary.ddialliance.org/discovery#Variable",
             "description":"",
             "properties":{

@@ -36,7 +36,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -70,7 +70,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -104,7 +104,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -138,7 +138,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -172,7 +172,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -206,7 +206,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -240,7 +240,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -274,7 +274,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -308,7 +308,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -342,7 +342,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -376,7 +376,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -410,7 +410,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -444,7 +444,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -478,7 +478,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -512,7 +512,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -546,7 +546,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -580,7 +580,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -614,7 +614,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -648,7 +648,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -682,7 +682,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -716,7 +716,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -750,7 +750,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -784,7 +784,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -818,7 +818,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -852,7 +852,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -886,7 +886,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -920,7 +920,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -954,7 +954,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -988,7 +988,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1022,7 +1022,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1056,7 +1056,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1090,7 +1090,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1124,7 +1124,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1158,7 +1158,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1192,7 +1192,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1226,7 +1226,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1260,7 +1260,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1294,7 +1294,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1328,7 +1328,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1362,7 +1362,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1396,7 +1396,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1430,7 +1430,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1464,7 +1464,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1498,7 +1498,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1532,7 +1532,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1566,7 +1566,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1600,7 +1600,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1634,7 +1634,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1668,7 +1668,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1702,7 +1702,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1736,7 +1736,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1770,7 +1770,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1804,7 +1804,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1838,7 +1838,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1872,7 +1872,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1906,7 +1906,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1940,7 +1940,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1974,7 +1974,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2008,7 +2008,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2042,7 +2042,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2076,7 +2076,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2110,7 +2110,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2144,7 +2144,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2178,7 +2178,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2212,7 +2212,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2246,7 +2246,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2280,7 +2280,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2314,7 +2314,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2348,7 +2348,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2382,7 +2382,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2416,7 +2416,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2450,7 +2450,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2484,7 +2484,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2518,7 +2518,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2552,7 +2552,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2586,7 +2586,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2620,7 +2620,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2654,7 +2654,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2688,7 +2688,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2722,7 +2722,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2756,7 +2756,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2790,7 +2790,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2824,7 +2824,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2858,7 +2858,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2892,7 +2892,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2926,7 +2926,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2960,7 +2960,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2994,7 +2994,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3028,7 +3028,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3062,7 +3062,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3096,7 +3096,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3130,7 +3130,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3164,7 +3164,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3198,7 +3198,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3232,7 +3232,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3266,7 +3266,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3300,7 +3300,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3334,7 +3334,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3368,7 +3368,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3402,7 +3402,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3436,7 +3436,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3470,7 +3470,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3504,7 +3504,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3538,7 +3538,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3572,7 +3572,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3606,7 +3606,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3640,7 +3640,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3674,7 +3674,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3708,7 +3708,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3742,7 +3742,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3776,7 +3776,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3810,7 +3810,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3844,7 +3844,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3878,7 +3878,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3912,7 +3912,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3946,7 +3946,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3980,7 +3980,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -4014,7 +4014,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -4048,7 +4048,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -4082,7 +4082,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -6767,33 +6767,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -7396,26 +7382,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -7540,33 +7528,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -8169,26 +8143,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -8381,33 +8357,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -9034,26 +8996,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -10055,33 +10019,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -10732,26 +10682,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -10851,33 +10803,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -11528,26 +11466,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -11647,33 +11587,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -12324,26 +12250,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",

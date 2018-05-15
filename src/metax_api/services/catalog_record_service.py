@@ -381,10 +381,6 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if license_url:
                     license['license'] = license_url
 
-            for rra in access_rights.get('has_rights_related_agent', []):
-                cls.process_research_agent_obj_with_type(orgdata, refdata, errors, rra,
-                                                         'research_dataset.access_rights.has_rights_related_agent')
-
         for project in research_dataset.get('is_output_of', []):
             for org_obj in project.get('source_organization', []):
                 cls.process_org_obj_against_ref_data(orgdata, org_obj,
@@ -463,8 +459,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         for creator in research_dataset.get('creator', []):
             cls.process_research_agent_obj_with_type(orgdata, refdata, errors, creator, 'research_dataset.creator')
 
-        if research_dataset.get('rights_holder', False):
-            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, research_dataset['rights_holder'],
+        for rights_holder in research_dataset.get('rights_holder', []):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, rights_holder,
                                                      'research_dataset.rights_holder')
 
         for activity in research_dataset.get('provenance', []):
