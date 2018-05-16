@@ -6,6 +6,7 @@ if [[ "$TRAVIS_BRANCH" == "playground" || "$TRAVIS_BRANCH" == "master" || "$TRAV
     exit 0
 fi
 
+pip install ansible
 git clone https://github.com/CSCfi/metax-ops
 cd metax-ops/ansible/
 
