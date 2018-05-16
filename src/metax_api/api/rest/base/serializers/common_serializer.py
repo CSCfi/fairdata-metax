@@ -14,6 +14,9 @@ d = _logger.debug
 
 class CommonSerializer(ModelSerializer):
 
+    # when query parameter ?fields=x,y is used, will include a list of fields to return
+    requested_fields = None
+
     class Meta:
         model = Common
         fields = (
@@ -37,6 +40,11 @@ class CommonSerializer(ModelSerializer):
             'service_created':     { 'required': False },
         }
 
+    def __init__(self, *args, **kwargs):
+        super(CommonSerializer, self).__init__(*args, **kwargs)
+        if 'request' in self.context and 'fields' in self.context['request'].query_params:
+            self.requested_fields = self.context['request'].query_params['fields'].split(',')
+
     @transaction.atomic
     def save(self, *args, **kwargs):
         """
@@ -55,7 +63,9 @@ class CommonSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         """
-        Copy-pasta / overrided from rest_framework code. Only return fields which have a non-null value
+        Copy-pasta / overrided from rest_framework code with the following modifications:
+        - Only return fields which have a non-null value
+        - When only specific fields are requested, skip fields accordingly
 
         Object instance -> Dict of primitive datatypes.
         """
@@ -63,6 +73,10 @@ class CommonSerializer(ModelSerializer):
         fields = self._readable_fields
 
         for field in fields:
+
+            if self.requested_fields and field.field_name not in self.requested_fields:
+                continue
+
             try:
                 attribute = field.get_attribute(instance)
             except SkipField:
@@ -75,7 +89,7 @@ class CommonSerializer(ModelSerializer):
             # resolve the pk value.
             check_for_none = attribute.pk if isinstance(attribute, PKOnlyObject) else attribute
             if check_for_none is None:
-                # this is the overrided block. dont return nulls
+                # this is an overrided block. dont return nulls
                 # ret[field.field_name] = None
                 pass
             else:

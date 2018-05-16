@@ -34,6 +34,9 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_state_modified',
             'preservation_description',
             'preservation_reason_description',
+            'dataset_version_set',
+            'next_dataset_version',
+            'previous_dataset_version',
             'mets_object_identifier',
             'editor',
             'removed',
@@ -92,13 +95,14 @@ class CatalogRecordSerializer(CommonSerializer):
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
 
-        if self.expand_relation_requested('data_catalog'):
-            res['data_catalog'] = DataCatalogSerializer(instance.data_catalog).data
-        else:
-            res['data_catalog'] = {
-                'id': instance.data_catalog.id,
-                'identifier': instance.data_catalog.catalog_json['identifier'],
-            }
+        if 'data_catalog' in res:
+            if self.expand_relation_requested('data_catalog'):
+                res['data_catalog'] = DataCatalogSerializer(instance.data_catalog).data
+            else:
+                res['data_catalog'] = {
+                    'id': instance.data_catalog.id,
+                    'identifier': instance.data_catalog.catalog_json['identifier'],
+                }
 
         if 'contract' in res:
             if self.expand_relation_requested('contract'):
@@ -117,14 +121,14 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'dataset_version_set' in res:
             res['dataset_version_set'] = instance.dataset_version_set.get_listing()
 
-        if instance.next_dataset_version_id:
+        if 'next_dataset_version' in res:
             res['next_dataset_version'] = {
                 'id': instance.next_dataset_version.id,
                 'identifier': instance.next_dataset_version.identifier,
                 'preferred_identifier': instance.next_dataset_version.preferred_identifier,
             }
 
-        if instance.previous_dataset_version_id:
+        if 'previous_dataset_version' in res:
             res['previous_dataset_version'] = {
                 'id': instance.previous_dataset_version.id,
                 'identifier': instance.previous_dataset_version.identifier,

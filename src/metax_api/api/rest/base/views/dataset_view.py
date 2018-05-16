@@ -46,7 +46,6 @@ class DatasetViewSet(CommonViewSet):
         return self._search_using_dataset_identifiers()
 
     def get_queryset(self):
-
         additional_filters = {}
         q_filters = []
 
