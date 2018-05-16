@@ -29,11 +29,10 @@ from .views import (
 
 class CustomRouter(DefaultRouter):
 
-    """
-    Override default router to allow PUT and PATCH methods in resource list url
-    """
-
     def __init__(self, *args, **kwargs):
+        """
+        Override to allow PUT and PATCH methods in resource list url.
+        """
         self.routes.pop(0)
         self.routes.insert(0, Route(
             url=r'^{prefix}{trailing_slash}$',
@@ -49,6 +48,13 @@ class CustomRouter(DefaultRouter):
         ))
         super(CustomRouter, self).__init__(*args, **kwargs)
 
+    def get_default_base_name(self, viewset):
+        """
+        When a viewset has no queryset set, or base_name is not passed to a router as the
+        3rd parameter, automatically determine base name.
+        """
+        return viewset.__class__.__name__.split('View')[0]
+
 
 router = CustomRouter(trailing_slash=False)
 router.register(r'apierrors/?', ApiErrorViewSet)
@@ -58,7 +64,7 @@ router.register(r'datacatalogs/?', DataCatalogViewSet)
 router.register(r'directories/?', DirectoryViewSet)
 router.register(r'files/?', FileViewSet)
 router.register(r'filestorages/?', FileStorageViewSet)
-router.register(r'schemas/?', SchemaViewSet, 'schema')
+router.register(r'schemas/?', SchemaViewSet)
 
 # note: this somehow maps to list-api... but the end result works when
 # the presence of the parameters is inspected in the list-api method.

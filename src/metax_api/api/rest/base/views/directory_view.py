@@ -19,15 +19,11 @@ class DirectoryViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    object = Directory
-
-    queryset = Directory.objects.select_related('parent_directory').all()
-    queryset_unfiltered = Directory.objects_unfiltered.select_related('parent_directory').all()
-
     serializer_class = DirectorySerializer
+    object = Directory
+    select_related = ['parent_directory']
 
     lookup_field_other = 'identifier'
-    create_bulk_method = FileService.create_bulk
 
     def list(self, request, *args, **kwargs):
         raise Http501()
