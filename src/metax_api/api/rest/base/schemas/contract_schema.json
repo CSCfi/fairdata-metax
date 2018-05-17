@@ -40,7 +40,8 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "minItems":1,
                     "maxItems":1,
-                    "type":"string"
+                    "type":"string",
+                    "format":"email"
                 }
             },
             "required":[

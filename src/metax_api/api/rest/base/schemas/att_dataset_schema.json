@@ -596,7 +596,8 @@
                     "title":"Email",
                     "description":"Email address.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"string"
+                    "type":"string",
+                    "format":"email"
                 },
                 "telephone":{
                     "@id":"http://schema.org/telephone",
@@ -684,7 +685,8 @@
                     "title":"Email",
                     "description":"Email address.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"string"
+                    "type":"string",
+                    "format":"email"
                 },
                 "telephone":{
                     "@id":"http://schema.org/telephone",
@@ -890,7 +892,8 @@
                     "title":"Email",
                     "description":"Email address.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"string"
+                    "type":"string",
+                    "format":"email"
                 },
                 "telephone":{
                     "@id":"http://schema.org/telephone",
