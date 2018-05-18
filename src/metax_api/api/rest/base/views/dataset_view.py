@@ -24,12 +24,9 @@ class DatasetViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    # note: override get_queryset() to get more control
-    queryset = CatalogRecord.objects.select_related('data_catalog', 'contract').all()
-    queryset_unfiltered = CatalogRecord.objects_unfiltered.select_related('data_catalog', 'contract').all()
-
     serializer_class = CatalogRecordSerializer
     object = CatalogRecord
+    select_related = ['data_catalog', 'contract']
 
     lookup_field = 'pk'
 
@@ -49,7 +46,6 @@ class DatasetViewSet(CommonViewSet):
         return self._search_using_dataset_identifiers()
 
     def get_queryset(self):
-
         additional_filters = {}
         q_filters = []
 
@@ -74,7 +70,7 @@ class DatasetViewSet(CommonViewSet):
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
             request.accepted_renderer = XMLRenderer()
         elif 'file_details' in request.query_params:
-            CRS.populate_file_details(res.data)
+            CRS.populate_file_details(res.data, request)
 
         return res
 

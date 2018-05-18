@@ -13,9 +13,6 @@ class FileStorageViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    queryset = FileStorage.objects.filter(active=True, removed=False)
-    queryset_unfiltered = FileStorage.objects_unfiltered.all()
-
     serializer_class = FileStorageSerializer
     object = FileStorage
 

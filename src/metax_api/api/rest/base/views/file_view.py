@@ -28,12 +28,9 @@ class FileViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    # note: override get_queryset() to get more control
-    queryset = File.objects.select_related('file_storage', 'parent_directory').all()
-    queryset_unfiltered = File.objects_unfiltered.select_related('file_storage', 'parent_directory').all()
-
     serializer_class = FileSerializer
     object = File
+    select_related = ['file_storage', 'parent_directory']
 
     lookup_field = 'pk'
 
