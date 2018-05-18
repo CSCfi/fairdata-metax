@@ -1,8 +1,8 @@
 [{
     "catalog_json": {
         "title": {
-            "en": "Test data catalog name",
-            "fi": "Testidatakatalogin nimi"
+            "en": "IDA catalog",
+            "fi": "IDA-aineistot (IDA-katalogi)"
         },
         "language": [
             {
@@ -27,8 +27,8 @@
         "harvested": false,
         "publisher": {
             "name": {
-                "en": "Data catalog publisher organization",
-                "fi": "Datakatalogin julkaisijaorganisaatio"
+                "en": "Ministry of Education and Culture, Finland",
+                "fi": "Opetus- ja kulttuuriministeriö"
             }
         },
         "identifier": "urn:nbn:fi:att:data-catalog-ida",
@@ -36,12 +36,12 @@
             "license": [
                 {
                     "title": {
-                        "en": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
-                        "fi": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)",
-                        "und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
+                        "fi": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma",
+                        "en": "Creative Commons CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+                        "und": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma"
                     },
-                    "license": "https://creativecommons.org/licenses/by/4.0/",
-                    "identifier": "https://creativecommons.org/licenses/by/4.0/"
+                    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+                    "identifier": "https://creativecommons.org/publicdomain/zero/1.0/"
                 }
             ],
             "access_type": [
@@ -56,30 +56,79 @@
             ],
             "description": [
                 {
-                    "fi": "Käyttöehtojen kuvaus"
-                }
-            ],
-            "has_rights_related_agent": [
-                {
-                    "name": {
-                        "en": "A rights related organization",
-                        "fi": "Oikeuksiin liittyvä organisaatio"
-                    },
-                    "identifier": "org_id"
-                },
-                {
-                    "name": {
-                        "und": "Aalto yliopisto"
-                    },
-                    "email": "wahatever@madeupdomain.com",
-                    "telephone": [
-                        "+12353495823424"
-                    ],
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076"
+                    "en": "Datasets stored in the IDA service",
+                    "fi": "IDA-palvelussa säilytettävät aineistot"
                 }
             ]
         },
         "dataset_versioning": true,
         "research_dataset_schema": "ida"
+    }
+},
+{
+    "catalog_json": {
+        "title": {
+            "en": "Other datasets (ATT catalog)",
+            "fi": "Muut aineistot (ATT-katalogi)"
+        },
+        "language": [
+            {
+                "title": {
+                    "en": "Finnish language",
+                    "fi": "Suomen kieli",
+                    "sv": "finska",
+                    "und": "Suomen kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/fin"
+            },
+            {
+                "title": {
+                    "en": "English language",
+                    "fi": "Englannin kieli",
+                    "sv": "engelska",
+                    "und": "Englannin kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/eng"
+            }
+        ],
+        "harvested": false,
+        "publisher": {
+            "name": {
+                "en": "Ministry of Education and Culture, Finland",
+                "fi": "Opetus- ja kulttuuriministeriö"
+            }
+        },
+        "identifier": "urn:nbn:fi:att:data-catalog-att",
+        "access_rights": {
+            "license": [
+                {
+                    "title": {
+                        "fi": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma",
+                        "en": "Creative Commons CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+                        "und": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma"
+                    },
+                    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+                    "identifier": "https://creativecommons.org/publicdomain/zero/1.0/"
+                }
+            ],
+            "access_type": [
+                {
+                    "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                    "pref_label": {
+                        "en": "Open",
+                        "fi": "Avoin",
+                        "und": "Avoin"
+                    }
+                }
+            ],
+            "description": [
+                {
+                    "en": "Contains datasets that are not stored in the Finnish Fairdata services.",
+                    "fi": "Sisältää esimerkiksi verkkoaineistot, rajapinnat ja muut muualla kuin fairdata-palveluissa säilytettävät aineistot."
+                }
+            ]
+        },
+        "dataset_versioning": false,
+        "research_dataset_schema": "att"
     }
 }]

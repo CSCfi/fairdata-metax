@@ -4,10 +4,8 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from metax_api.exceptions import Http403, Http501
-from metax_api.models import File
 from metax_api.services import ApiErrorService
 from .common_view import CommonViewSet
-from ..serializers import FileSerializer
 
 
 """
@@ -27,10 +25,6 @@ class ApiErrorViewSet(CommonViewSet):
 
     authentication_classes = ()
     permission_classes = ()
-
-    # required to make viewset work, dont serve a purpose...
-    queryset = File.objects.all()
-    serializer_class = FileSerializer
 
     def initial(self, request, *args, **kwargs):
         if request.user.username != 'metax':

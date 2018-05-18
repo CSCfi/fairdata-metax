@@ -24,12 +24,9 @@ class DatasetViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    # note: override get_queryset() to get more control
-    queryset = CatalogRecord.objects.select_related('data_catalog', 'contract').all()
-    queryset_unfiltered = CatalogRecord.objects_unfiltered.select_related('data_catalog', 'contract').all()
-
     serializer_class = CatalogRecordSerializer
     object = CatalogRecord
+    select_related = ['data_catalog', 'contract']
 
     lookup_field = 'pk'
 
@@ -49,15 +46,19 @@ class DatasetViewSet(CommonViewSet):
         return self._search_using_dataset_identifiers()
 
     def get_queryset(self):
-
         additional_filters = {}
+        q_filters = []
 
         if hasattr(self, 'queryset_search_params'):
             additional_filters.update(**self.queryset_search_params)
 
+        if 'q_filters' in additional_filters:
+            # Q-filter objects, which can contain more complex filter options such as OR-clauses
+            q_filters = additional_filters.pop('q_filters')
+
         CS.set_if_modified_since_filter(self.request, additional_filters)
 
-        return super(DatasetViewSet, self).get_queryset().filter(**additional_filters)
+        return super(DatasetViewSet, self).get_queryset().filter(*q_filters, **additional_filters)
 
     def retrieve(self, request, *args, **kwargs):
         self.queryset_search_params = {}
@@ -69,7 +70,7 @@ class DatasetViewSet(CommonViewSet):
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
             request.accepted_renderer = XMLRenderer()
         elif 'file_details' in request.query_params:
-            CRS.populate_file_details(res.data)
+            CRS.populate_file_details(res.data, request)
 
         return res
 
@@ -192,11 +193,6 @@ class DatasetViewSet(CommonViewSet):
         files = [ FileSerializer(f).data for f in catalog_record.files(manager=manager).filter(**params) ]
 
         return Response(data=files, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['post'], url_path="proposetopas")
-    def propose_to_pas(self, request, pk=None):
-        CRS.propose_to_pas(request, self.get_object())
-        return Response(data={}, status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['get'], url_path="identifiers")
     def get_all_identifiers(self, request):

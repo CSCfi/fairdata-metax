@@ -64,13 +64,17 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_catalog_record_to_contract(self):
-        new_catalog_record = self._get_new_catalog_record_test_data()
+        new_catalog_record = self.client.get('/rest/datasets/1', format="json").data
+        new_catalog_record.pop('id')
+        new_catalog_record.pop('identifier')
+        new_catalog_record['research_dataset'].pop('preferred_identifier')
         new_catalog_record['contract'] = self.pk
+
         response = self.client.post('/rest/datasets', new_catalog_record, format="json")
         created_catalog_record = response.data
 
         try:
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         except Exception:
             print(response.data)
             raise

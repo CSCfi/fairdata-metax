@@ -275,7 +275,7 @@ class FileService(CommonService):
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
-            recursive=False, max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None):
+            recursive=False, max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None, request=None):
         """
         Get files and directories contained by a directory.
 
@@ -305,7 +305,11 @@ class FileService(CommonService):
         being retrieved in the results. Example: /directories/3/files?include_parent=true also
         includes the data about directory id 3 in the results. Normally its data would not be
         present, and instead would need to be retrieved by calling /directories/3.
+
+        request: the web request object.
         """
+        assert request is not None, 'kw parameter request must be specified'
+
         if identifier and identifier.isdigit() and not include_parent:
             directory_id = identifier
         else:
@@ -344,12 +348,17 @@ class FileService(CommonService):
         else:
             cr_id = None
 
+        # note: by default all fields are retrieved
+        directory_fields, file_fields, discard_fields = cls._get_requested_file_browsing_fields(request, cr_id)
+
         contents = cls._get_directory_contents(
             directory_id,
             recursive=recursive,
             max_depth=max_depth,
             dirs_only=dirs_only,
-            cr_id=cr_id
+            cr_id=cr_id,
+            directory_fields=directory_fields,
+            file_fields=file_fields
         )
 
         if recursive:
@@ -365,12 +374,51 @@ class FileService(CommonService):
                 return file_list
 
         if include_parent:
-            contents.update(DirectorySerializer(directory).data)
+            contents.update(DirectorySerializer(directory, only_fields=directory_fields).data)
 
-        if cr_id and isinstance(contents, dict):
-            cls.calculate_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id, dirs_only)
+        if cls._include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
+            cls.calculate_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id, dirs_only,
+                directory_fields, discard_fields)
 
         return contents
+
+    @classmethod
+    def _get_requested_file_browsing_fields(cls, request, cr_id):
+        """
+        Find out if only specific fields were requested to be returned, and return those fields
+        for directories and files respectively.
+        """
+        directory_fields = []
+        file_fields = []
+        discard_fields = []
+
+        if request.query_params.get('directory_fields', False):
+            directory_fields = request.query_params['directory_fields'].split(',')
+            if cls._include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
+                # since we know byte sizes and file counts need to be calculated later,
+                # must retrieve the following additional fields also in order to calculate them.
+                # later these fields are discarded, if they were not actually requested.
+                for field in ('id', 'project_identifier', 'directory_path'):
+                    if field not in directory_fields:
+                        directory_fields.append(field)
+                        discard_fields.append(field)
+
+        if request.query_params.get('file_fields', False):
+            file_fields = request.query_params['file_fields'].split(',')
+
+        return directory_fields, file_fields, discard_fields
+
+    @staticmethod
+    def _include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
+        if not cr_id:
+            # totals are counted only when browsing files for a specific record
+            return False
+        if not directory_fields:
+            # specific fields not specified -> all fields are returned
+            return True
+        if 'byte_size' in directory_fields or 'file_count' in directory_fields:
+            return True
+        return False
 
     @classmethod
     def _form_file_list(cls, contents, file_list_append):
@@ -380,7 +428,8 @@ class FileService(CommonService):
             cls._form_file_list(d, file_list_append)
 
     @classmethod
-    def _get_directory_contents(cls, directory_id, recursive=False, max_depth=1, depth=0, dirs_only=False, cr_id=None):
+    def _get_directory_contents(cls, directory_id, recursive=False, max_depth=1, depth=0, dirs_only=False,
+            cr_id=None, directory_fields=[], file_fields=[]):
         """
         Get files and directories contained by a directory.
 
@@ -388,6 +437,9 @@ class FileService(CommonService):
 
         If cr_id is provided, only those files and directories are retrieved, which have been
         selected for that CatalogRecord.
+
+        If directory_fields and/or file_fields are specified, then only specified fields are retrieved
+        for directories and files respectively.
         """
         if recursive and max_depth != '*':
             if depth > max_depth:
@@ -397,25 +449,27 @@ class FileService(CommonService):
         if cr_id:
             try:
                 dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id,
-                    dirs_only=dirs_only)
+                    dirs_only=dirs_only, directory_fields=directory_fields, file_fields=file_fields)
             except Http404:
                 if recursive:
                     return { 'directories': [] }
                 raise
         else:
             # browsing from ALL files, not cr specific
-            dirs = Directory.objects.filter(parent_directory_id=directory_id)
+
+            dirs = Directory.objects.filter(parent_directory_id=directory_id).only(*directory_fields)
+
             if dirs_only:
                 files = None
             else:
-                files = File.objects.filter(parent_directory_id=directory_id)
+                files = File.objects.filter(parent_directory_id=directory_id).only(*file_fields)
 
-        contents = { 'directories': [ DirectorySerializer(n).data for n in dirs ] }
+        contents = { 'directories': [ DirectorySerializer(n, only_fields=directory_fields).data for n in dirs ] }
 
         if files or not dirs_only:
             # for normal file browsing (not with 'dirs_only'), the files-key should be present,
             # even if empty.
-            contents['files'] = [ FileSerializer(n).data for n in files ]
+            contents['files'] = [ FileSerializer(n, only_fields=file_fields).data for n in files ]
 
         if recursive:
             for directory in contents['directories']:
@@ -426,7 +480,9 @@ class FileService(CommonService):
                         max_depth=max_depth,
                         depth=depth,
                         dirs_only=dirs_only,
-                        cr_id=cr_id
+                        cr_id=cr_id,
+                        directory_fields=directory_fields,
+                        file_fields=file_fields
                     )
                 except MaxRecursionDepthExceeded:
                     continue
@@ -437,7 +493,8 @@ class FileService(CommonService):
 
         return contents
 
-    def _get_directory_contents_for_catalog_record(directory_id, cr_id, dirs_only=False):
+    def _get_directory_contents_for_catalog_record(directory_id, cr_id, dirs_only=False,
+            directory_fields=[], file_fields=[]):
         """
         Browsing files in the context of a specific CR id.
         """
@@ -492,13 +549,14 @@ class FileService(CommonService):
             # didnt exist, or it was not selected
             raise Http404
 
-        dirs = Directory.objects.filter(id__in=directory_ids)
-        files = None if dirs_only else File.objects.filter(id__in=file_ids)
+        dirs = Directory.objects.filter(id__in=directory_ids).only(*directory_fields)
+        files = None if dirs_only else File.objects.filter(id__in=file_ids).only(*file_fields)
 
         return dirs, files
 
     @classmethod
-    def calculate_directory_byte_sizes_and_file_counts_for_cr(cls, directory, cr_id, dirs_only=False):
+    def calculate_directory_byte_sizes_and_file_counts_for_cr(cls, directory, cr_id, dirs_only=False,
+            directory_fields=[], discard_fields=[]):
         """
         Calculate total byte size and file counts of a directory, sub-directories included,
         in the context of a specific catalog record.
@@ -553,7 +611,34 @@ class FileService(CommonService):
                 directory['file_count'] = fc or 0
         else:
             # called without include_parent on a directory which has files, but no directories - do nothing
+            pass
+
+        if discard_fields:
+            cls._cleanup_directory_contents(directory, directory_fields, discard_fields)
+
+    @staticmethod
+    def _cleanup_directory_contents(directory, directory_fields, discard_fields):
+        """
+        Cleanup in case specific fields were requested. Some fields were additionally retrieved from
+        the db since they are necessary to calculate byte sizes and file counts. However, it's
+        possible those fields were not among the actual requested fields. Ditch them if so.
+        """
+        if not discard_fields:
             return
+
+        def cleanup(directory):
+            for field in discard_fields:
+                directory.pop(field, None)
+            if 'byte_size' not in directory_fields:
+                directory.pop('byte_size', None)
+            if 'file_count' not in directory_fields:
+                directory.pop('file_count', None)
+
+        # in case 'include_parent' was used
+        cleanup(directory)
+
+        for dr in directory.get('directories', []):
+            cleanup(dr)
 
     @classmethod
     def get_project_root_directory(cls, project_identifier):

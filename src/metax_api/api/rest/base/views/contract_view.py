@@ -18,9 +18,6 @@ class ContractViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    queryset = Contract.objects.all()
-    queryset_unfiltered = Contract.objects_unfiltered.all()
-
     serializer_class = ContractSerializer
     object = Contract
 

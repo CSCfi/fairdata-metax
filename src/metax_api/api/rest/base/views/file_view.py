@@ -28,12 +28,9 @@ class FileViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    # note: override get_queryset() to get more control
-    queryset = File.objects.select_related('file_storage', 'parent_directory').all()
-    queryset_unfiltered = File.objects_unfiltered.select_related('file_storage', 'parent_directory').all()
-
     serializer_class = FileSerializer
     object = File
+    select_related = ['file_storage', 'parent_directory']
 
     lookup_field = 'pk'
 
@@ -63,7 +60,8 @@ class FileViewSet(CommonViewSet):
         https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.non_atomic_requests
         """
         # todo add checking of ?atomic parameter to skip this ?
-        if request.method == 'POST' and '/rest/files' in request.META['PATH_INFO']:
+        if request.method == 'POST' and any(url in request.META['PATH_INFO']
+                                            for url in ('/rest/files', '/rest/v1/files')):
             # for POST /files only, do not use a transaction !
             return super().dispatch(request, **kwargs)
         with transaction.atomic():

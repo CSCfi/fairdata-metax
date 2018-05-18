@@ -1,14 +1,16 @@
 import logging
+import urllib.parse
 from collections import defaultdict
 from os.path import dirname, join
 
 import simplexquery as sxq
 from dicttoxml import dicttoxml
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.models import Contract, Directory, File
+from metax_api.models import Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 from .file_service import FileService
@@ -33,8 +35,8 @@ def FileSerializer(*args, **kwargs):
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
 
-    @staticmethod
-    def get_queryset_search_params(request):
+    @classmethod
+    def get_queryset_search_params(cls, request):
         """
         Get and validate parameters from request.query_params that will be used for filtering
         in view.get_queryset()
@@ -67,10 +69,61 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('user_created', False):
             queryset_search_params['user_created'] = request.query_params['user_created']
 
+        if request.query_params.get('editor', False):
+            queryset_search_params['editor__contains'] = { 'identifier': request.query_params['editor'] }
+
+        if request.query_params.get('contract_org_identifier', False):
+            if request.user.username not in ('metax', 'tpas'):
+                raise Http403({ 'detail': ['query parameter pas_filter is restricted']})
+            queryset_search_params['contract__contract_json__organization__organization_identifier__iregex'] = \
+                request.query_params['contract_org_identifier']
+
+        if request.query_params.get('pas_filter', False):
+            cls.set_pas_filter(queryset_search_params, request)
+
         return queryset_search_params
 
     @staticmethod
-    def populate_file_details(catalog_record):
+    def set_pas_filter(queryset_search_params, request):
+        """
+        A somewhat specific filter for PAS needs... The below OR query is AND'ed with any
+        other possible filters from other query parameters.
+        """
+        if request.user.username not in ('metax', 'tpas'):
+            raise Http403({ 'detail': ['query parameter pas_filter is restricted']})
+
+        search_string = urllib.parse.unquote(request.query_params.get('pas_filter', ''))
+
+        # dataset title, from various languages...
+        q1 = Q(research_dataset__title__en__iregex=search_string)
+        q2 = Q(research_dataset__title__fi__iregex=search_string)
+
+        # contract...
+        q3 = Q(contract__contract_json__title__iregex=search_string)
+
+        # a limitation of jsonb-field queries...
+        # unable to use regex search directly (wildcard) since curator is an array... and __contains only
+        # matches whole string. cheating here to search from first three indexes using regex. who
+        # knows how many curators datasets will actually have, but probably most cases will produce
+        # a match with this approach... if not, the user will be more and more accurate and finally
+        # type the whole name and get a result while cursing shitty software
+        q4 = Q(research_dataset__curator__0__name__iregex=search_string)
+        q5 = Q(research_dataset__curator__1__name__iregex=search_string)
+        q6 = Q(research_dataset__curator__2__name__iregex=search_string)
+        q7 = Q(research_dataset__curator__contains=[{ 'name': search_string }])
+
+        q_filter = q1 | q2 | q3 | q4 | q5 | q6 | q7
+
+        if 'q_filters' in queryset_search_params: # pragma: no cover
+            # no usecase yet but leaving comment for future reference... if the need arises to
+            # include Q-filters from multiple sources (query params), probably AND them together
+            # by appending to list
+            queryset_search_params['q_filters'].append(q_filter)
+        else:
+            queryset_search_params['q_filters'] = [q_filter]
+
+    @staticmethod
+    def populate_file_details(catalog_record, request):
         """
         Populate individual research_dataset.file and directory objects with their
         corresponding objects from their db tables.
@@ -83,57 +136,35 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if feasible.
         """
         rd = catalog_record['research_dataset']
-
         file_identifiers = [ f['identifier'] for f in rd.get('files', [])]
 
-        for file in File.objects.filter(identifier__in=file_identifiers):
+        directory_fields, file_fields, discard_fields = \
+            FileService._get_requested_file_browsing_fields(request, catalog_record['id'])
+
+        for file in File.objects.filter(identifier__in=file_identifiers).only(*file_fields):
             for f in rd['files']:
                 if f['identifier'] == file.identifier:
-                    f['details'] = FileSerializer(file).data
+                    f['details'] = FileSerializer(file, only_fields=file_fields).data
+                    continue
 
         dir_identifiers = [ dr['identifier'] for dr in rd.get('directories', []) ]
 
-        for directory in Directory.objects.filter(identifier__in=dir_identifiers):
+        for directory in Directory.objects.filter(identifier__in=dir_identifiers).only(*directory_fields):
             for dr in rd['directories']:
                 if dr['identifier'] == directory.identifier:
-                    dr['details'] = DirectorySerializer(directory).data
+                    dr['details'] = DirectorySerializer(directory, only_fields=directory_fields).data
                     continue
 
         if not dir_identifiers:
             return
 
-        for dr in rd['directories']:
-            FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(dr['details'], catalog_record['id'])
-
-    @staticmethod
-    def propose_to_pas(request, catalog_record):
-        """
-        Set catalog record status to 'proposed to pas <midterm or longterm>'
-        """
-
-        if not request.query_params.get('state', False):
-            raise Http400({ 'state': ['Query parameter \'state\' is a required parameter.'] })
-
-        if request.query_params.get('state') not in ('1', '2'):
-            raise Http400({ 'state': ['Query parameter \'state\' value must be 1 or 2.'] })
-
-        if not request.query_params.get('contract', False):
-            raise Http400({ 'contract': ['Query parameter \'contract\' is a required parameter.'] })
-
-        if not catalog_record.can_be_proposed_to_pas():
-            raise Http403({ 'preservation_state': ['Value must be 0 (not proposed to PAS), 7 (longterm PAS rejected), '
-                                                   'or 8 (midterm PAS rejected), when proposing to PAS. Current state '
-                                                   'is %d.' % catalog_record.preservation_state]})
-
-        try:
-            contract = Contract.objects.get(contract_json__identifier=request.query_params.get('contract'))
-        except Contract.DoesNotExist:
-            raise Http400({ 'contract': ['Contract not found']})
-
-        catalog_record.preservation_state = request.query_params.get('state')
-        catalog_record.save()
-        contract.records.add(catalog_record)
-        contract.save()
+        if not directory_fields or ('byte_size' in directory_fields or 'file_count' in directory_fields):
+            # no specific fields requested -> calculate,
+            # OR byte_size or file_count among requested fields -> calculate
+            for dr in rd['directories']:
+                FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(
+                    dr['details'], catalog_record['id'], directory_fields=directory_fields,
+                    discard_fields=discard_fields)
 
     @classmethod
     def publish_updated_datasets(cls, response):
@@ -358,10 +389,6 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if license_url:
                     license['license'] = license_url
 
-            for rra in access_rights.get('has_rights_related_agent', []):
-                cls.process_research_agent_obj_with_type(orgdata, refdata, errors, rra,
-                                                         'research_dataset.access_rights.has_rights_related_agent')
-
         for project in research_dataset.get('is_output_of', []):
             for org_obj in project.get('source_organization', []):
                 cls.process_org_obj_against_ref_data(orgdata, org_obj,
@@ -440,8 +467,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         for creator in research_dataset.get('creator', []):
             cls.process_research_agent_obj_with_type(orgdata, refdata, errors, creator, 'research_dataset.creator')
 
-        if research_dataset.get('rights_holder', False):
-            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, research_dataset['rights_holder'],
+        for rights_holder in research_dataset.get('rights_holder', []):
+            cls.process_research_agent_obj_with_type(orgdata, refdata, errors, rights_holder,
                                                      'research_dataset.rights_holder')
 
         for activity in research_dataset.get('provenance', []):
