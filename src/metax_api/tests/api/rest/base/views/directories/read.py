@@ -1,5 +1,3 @@
-import urllib.parse
-
 from django.db.models import Sum
 from django.core.management import call_command
 from rest_framework import status
@@ -215,6 +213,48 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual(response.data.get('id', None), 3)
 
 
+class DirectoryApiReadFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
+
+    def test_retrieve_requested_directory_fields_only(self):
+        response = self.client.get('/rest/directories/3/files?directory_fields=identifier,directory_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['directories'][0], True)
+        self.assertEqual('directory_path' in response.data['directories'][0], True)
+
+    def test_retrieve_directory_byte_size_and_file_count(self):
+        """
+        There is some additional logic involved in retrieving byte_size and file_count, which warrants
+        targeted tests for just those fields.
+        """
+        response = self.client.get('/rest/directories/3/files?directory_fields=identifier,byte_size')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['directories'][0], True)
+        self.assertEqual('byte_size' in response.data['directories'][0], True)
+
+        response = self.client.get('/rest/directories/3/files?directory_fields=identifier,file_count')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['directories'][0], True)
+        self.assertEqual('file_count' in response.data['directories'][0], True)
+
+    def test_retrieve_requested_file_fields_only(self):
+        response = self.client.get('/rest/directories/3/files?file_fields=identifier,file_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['files'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['files'][0], True)
+        self.assertEqual('file_path' in response.data['files'][0], True)
+
+    def test_retrieve_requested_file_and_directory_fields_only(self):
+        response = self.client.get('/rest/directories/3/files?file_fields=identifier&directory_fields=id')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['files'][0].keys()), 1)
+        self.assertEqual('identifier' in response.data['files'][0], True)
+        self.assertEqual(len(response.data['directories'][0].keys()), 1)
+        self.assertEqual('id' in response.data['directories'][0], True)
+
+
 class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     """
@@ -225,13 +265,10 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     def test_read_directory_for_catalog_record(self):
         """
-        Test query parameter 'preferred_identifier'.
+        Test query parameter 'cr_identifier'.
         """
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.research_dataset['preferred_identifier'] = '%s-/uhoh/special.chars?all&around' % cr.preferred_identifier
-        cr.force_save()
-        response = self.client.get('/rest/directories/3/files?preferred_identifier=%s'
-            % urllib.parse.quote(cr.preferred_identifier))
+        response = self.client.get('/rest/directories/3/files?cr_identifier=%s'
+            % CatalogRecord.objects.get(pk=1).identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('directories' in response.data, True)
         self.assertEqual('files' in response.data, True)
@@ -240,10 +277,10 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     def test_read_directory_for_catalog_record_not_found(self):
         """
-        Not found preferred_identifier should raise 400 instead of 404, which is raised when the
+        Not found cr_identifier should raise 400 instead of 404, which is raised when the
         directory itself is not found. the error contains details about the 400.
         """
-        response = self.client.get('/rest/directories/3/files?preferred_identifier=notexisting')
+        response = self.client.get('/rest/directories/3/files?cr_identifier=notexisting')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_read_directory_for_catalog_record_directory_does_not_exist(self):
@@ -257,22 +294,22 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # ... but should not contain any files FOR THIS CR
-        response = self.client.get('/rest/directories/4/files?preferred_identifier=%s'
-            % CatalogRecord.objects.get(pk=1).preferred_identifier)
+        response = self.client.get('/rest/directories/4/files?cr_identifier=%s'
+            % CatalogRecord.objects.get(pk=1).identifier)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_read_directory_for_catalog_record_recursively(self):
         """
-        Test query parameter 'preferred_identifier' with 'recursive'.
+        Test query parameter 'cr_identifier' with 'recursive'.
         """
-        response = self.client.get('/rest/directories/1/files?recursive&preferred_identifier=%s&depth=*'
-            % CatalogRecord.objects.get(pk=1).preferred_identifier)
+        response = self.client.get('/rest/directories/1/files?recursive&cr_identifier=%s&depth=*'
+            % CatalogRecord.objects.get(pk=1).identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
-        # not found preferred_identifier should raise 400 instead of 404, which is raised when the
+        # not found cr_identifier should raise 400 instead of 404, which is raised when the
         # directory itself is not found. the error contains details about the 400
-        response = self.client.get('/rest/directories/1/files?recursive&preferred_identifier=notexisting')
+        response = self.client.get('/rest/directories/1/files?recursive&cr_identifier=notexisting')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_directory_byte_size_and_file_count(self):
@@ -291,7 +328,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
 
         response = self.client.get(
-            '/rest/directories/%d/files?preferred_identifier=%s' % (dr.id, cr.preferred_identifier))
+            '/rest/directories/%d/files?cr_identifier=%s' % (dr.id, cr.identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('directories' in response.data, True)
         self.assertEqual('byte_size' in response.data['directories'][0], True)
@@ -307,10 +344,52 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
 
         response = self.client.get(
-            '/rest/directories/%d/files?preferred_identifier=%s&include_parent'
-            % (dr.id, cr.preferred_identifier))
+            '/rest/directories/%d/files?cr_identifier=%s&include_parent'
+            % (dr.id, cr.identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('byte_size' in response.data, True)
         self.assertEqual('file_count' in response.data, True)
         self.assertEqual(response.data['byte_size'], byte_size)
         self.assertEqual(response.data['file_count'], file_count)
+
+
+class DirectoryApiReadCatalogRecordFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
+
+    def test_retrieve_requested_directory_fields_only(self):
+        response = self.client.get('/rest/datasets/12?file_details&directory_fields=identifier,directory_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 2)
+        self.assertEqual('identifier' in response.data['research_dataset']['directories'][0]['details'], True)
+        self.assertEqual('directory_path' in response.data['research_dataset']['directories'][0]['details'], True)
+
+    def test_retrieve_directory_byte_size_and_file_count(self):
+        """
+        There is some additional logic involved in retrieving byte_size and file_count, which warrants
+        targeted tests for just those fields.
+        """
+        response = self.client.get('/rest/datasets/12?file_details&directory_fields=identifier,byte_size')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 2)
+        self.assertEqual('identifier' in response.data['research_dataset']['directories'][0]['details'], True)
+        self.assertEqual('byte_size' in response.data['research_dataset']['directories'][0]['details'], True)
+
+        response = self.client.get('/rest/datasets/12?file_details&directory_fields=identifier,file_count')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 2)
+        self.assertEqual('identifier' in response.data['research_dataset']['directories'][0]['details'], True)
+        self.assertEqual('file_count' in response.data['research_dataset']['directories'][0]['details'], True)
+
+    def test_retrieve_requested_file_fields_only(self):
+        response = self.client.get('/rest/datasets/12?file_details&file_fields=identifier,file_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['files'][0]['details'].keys()), 2)
+        self.assertEqual('identifier' in response.data['research_dataset']['files'][0]['details'], True)
+        self.assertEqual('file_path' in response.data['research_dataset']['files'][0]['details'], True)
+
+    def test_retrieve_requested_file_and_directory_fields_only(self):
+        response = self.client.get('/rest/datasets/12?file_details&file_fields=identifier&directory_fields=id')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['files'][0]['details'].keys()), 1)
+        self.assertEqual('identifier' in response.data['research_dataset']['files'][0]['details'], True)
+        self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 1)
+        self.assertEqual('id' in response.data['research_dataset']['directories'][0]['details'], True)

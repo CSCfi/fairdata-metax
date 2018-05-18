@@ -6,7 +6,7 @@
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier1",
                 "title": "Title 1",
-                "url": "https://metax.csc.local/rest/files/"
+                "url": "https://metax-test.csc.fi/rest/filestorages/1"
             }
         },
         "model": "metax_api.filestorage",
@@ -19,7 +19,7 @@
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier2",
                 "title": "Title 2",
-                "url": "https://metax.csc.local/rest/files/"
+                "url": "https://metax-test.csc.fi/rest/filestorages/2"
             }
         },
         "model": "metax_api.filestorage",
@@ -36,7 +36,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -70,7 +70,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -104,7 +104,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -138,7 +138,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -172,7 +172,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -206,7 +206,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -240,7 +240,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -274,7 +274,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -308,7 +308,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -342,7 +342,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -376,7 +376,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -410,7 +410,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -444,7 +444,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -478,7 +478,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -512,7 +512,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -546,7 +546,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -580,7 +580,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -614,7 +614,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -648,7 +648,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -682,7 +682,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -716,7 +716,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -750,7 +750,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -784,7 +784,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -818,7 +818,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -852,7 +852,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -886,7 +886,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -920,7 +920,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -954,7 +954,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -988,7 +988,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1022,7 +1022,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1056,7 +1056,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1090,7 +1090,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1124,7 +1124,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1158,7 +1158,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1192,7 +1192,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1226,7 +1226,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1260,7 +1260,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1294,7 +1294,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1328,7 +1328,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1362,7 +1362,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1396,7 +1396,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1430,7 +1430,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1464,7 +1464,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1498,7 +1498,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1532,7 +1532,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1566,7 +1566,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1600,7 +1600,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1634,7 +1634,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1668,7 +1668,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1702,7 +1702,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1736,7 +1736,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1770,7 +1770,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1804,7 +1804,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1838,7 +1838,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1872,7 +1872,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1906,7 +1906,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1940,7 +1940,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -1974,7 +1974,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2008,7 +2008,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2042,7 +2042,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2076,7 +2076,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2110,7 +2110,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2144,7 +2144,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2178,7 +2178,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2212,7 +2212,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2246,7 +2246,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2280,7 +2280,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2314,7 +2314,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2348,7 +2348,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2382,7 +2382,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2416,7 +2416,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2450,7 +2450,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2484,7 +2484,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2518,7 +2518,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2552,7 +2552,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2586,7 +2586,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2620,7 +2620,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2654,7 +2654,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2688,7 +2688,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2722,7 +2722,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2756,7 +2756,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2790,7 +2790,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2824,7 +2824,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2858,7 +2858,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2892,7 +2892,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2926,7 +2926,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2960,7 +2960,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -2994,7 +2994,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3028,7 +3028,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3062,7 +3062,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3096,7 +3096,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3130,7 +3130,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3164,7 +3164,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3198,7 +3198,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3232,7 +3232,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3266,7 +3266,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3300,7 +3300,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3334,7 +3334,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3368,7 +3368,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3402,7 +3402,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3436,7 +3436,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3470,7 +3470,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3504,7 +3504,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3538,7 +3538,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3572,7 +3572,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3606,7 +3606,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3640,7 +3640,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3674,7 +3674,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3708,7 +3708,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3742,7 +3742,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3776,7 +3776,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3810,7 +3810,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3844,7 +3844,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3878,7 +3878,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3912,7 +3912,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3946,7 +3946,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -3980,7 +3980,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -4014,7 +4014,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -4048,7 +4048,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -4082,7 +4082,7 @@
             "file_characteristics": {
                 "application_name": "Application Name",
                 "description": "A nice description 120",
-                "encoding": "utf-8",
+                "encoding": "UTF-8",
                 "file_created": "2014-01-17T08:19:31Z",
                 "metadata_modified": "2014-01-17T08:19:31Z",
                 "title": "A title 120"
@@ -5478,33 +5478,38 @@
             "contract_json": {
                 "contact": [
                     {
-                        "email": "contact.email@csc.fi",
-                        "name": "Contact Name",
+                        "email": "taito.tieto@helsinki.fi",
+                        "name": "Taito Tieto",
+                        "phone": "+358501231234"
+                    },
+                    {
+                        "email": "seppo.pykala@helsinki.fi",
+                        "name": "Seppo Pyk\u00e4l\u00e4",
                         "phone": "+358501231234"
                     }
                 ],
-                "created": "2014-01-17T08:19:58Z",
-                "description": "Description of unknown length",
-                "identifier": "optional:contract:identifier1",
-                "modified": "2014-01-17T08:19:58Z",
+                "created": "2018-04-05T08:19:58Z",
+                "description": "Muuttolintujen laskentatulosten s\u00e4ilytys",
+                "identifier": "urn:uuid:99ddffff-2f73-46b0-92d1-614409d83001",
+                "modified": "2018-04-05T08:19:58Z",
                 "organization": {
-                    "name": "Mysterious organization",
+                    "name": "Helsingin Yliopisto",
                     "organization_identifier": "1234567-1"
                 },
-                "quota": 111204,
+                "quota": 1000000,
                 "related_service": [
                     {
                         "identifier": "local:service:id",
-                        "name": "Name of Service"
+                        "name": "Fairdata-PAS"
                     }
                 ],
-                "title": "Title of Contract 1",
+                "title": "Helsingin yliopiston biotieteiden laitoksen muuttolintujen laskentatulosten s\u00e4ilytyssopimus",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2018-07-01T00:00:00Z"
                 }
             },
-            "date_created": "2017-05-15T10:07:22Z",
-            "date_modified": "2017-06-15T10:07:22Z",
+            "date_created": "2018-04-05T08:19:58+03:00",
+            "date_modified": "2018-04-05T08:19:58+03:00",
             "service_created": "metax"
         },
         "model": "metax_api.contract",
@@ -5738,13 +5743,17 @@
             "editor": {
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "identifier": "qvain",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9001"
             },
             "files": [
                 1,
                 2
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d1",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d1",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -5763,12 +5772,15 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Organization",
-                        "identifier": "10076-E700",
-                        "name": {
-                            "en": "Org in ref data",
-                            "fi": "Organisaatio"
-                        }
+                        "@type": "Person",
+                        "identifier": "id:of:curator:rahikainen",
+                        "member_of": {
+                            "@type": "Organization",
+                            "name": {
+                                "fi": "MysteeriOrganisaatio"
+                            }
+                        },
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -5803,9 +5815,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset1",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -5830,15 +5842,19 @@
             "editor": {
                 "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
                 "identifier": "qvain",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9002"
             },
             "files": [
                 3,
                 4
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d2",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d2",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 1,
+            "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -5898,9 +5914,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset2",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -5925,15 +5941,19 @@
             "editor": {
                 "creator_id": "05593961536b76fa825281ccaedd4d4f",
                 "identifier": "qvain",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+                "owner_id": "05593961536b76fa825281ccaedd4d4f",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9003"
             },
             "files": [
                 5,
                 6
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d3",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d3",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 2,
+            "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -5993,9 +6013,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset3",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6020,19 +6040,19 @@
             "editor": {
                 "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
                 "identifier": "qvain",
-                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9004"
             },
             "files": [
                 7,
                 8
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d4",
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
-            "preservation_state": 3,
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d4",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
+            "mets_object_identifier": null,
+            "preservation_state": 40,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -6092,9 +6112,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset4",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6119,19 +6139,19 @@
             "editor": {
                 "creator_id": "055ea531a6cac569425bed94459266ee",
                 "identifier": "qvain",
-                "owner_id": "055ea531a6cac569425bed94459266ee"
+                "owner_id": "055ea531a6cac569425bed94459266ee",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9005"
             },
             "files": [
                 9,
                 10
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d5",
-            "mets_object_identifier": [
-                "a",
-                "b",
-                "c"
-            ],
-            "preservation_state": 4,
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d5",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
+            "mets_object_identifier": null,
+            "preservation_state": 50,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -6191,9 +6211,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset5",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6218,15 +6238,19 @@
             "editor": {
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "identifier": "qvain",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9006"
             },
             "files": [
                 11,
                 12
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d6",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d6",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 5,
+            "preservation_state": 70,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
@@ -6286,9 +6310,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset6",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6304,6 +6328,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 7,
@@ -6312,16 +6337,20 @@
             "editor": {
                 "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
                 "identifier": "qvain",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9007"
             },
             "files": [
                 13,
                 14
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d7",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d7",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 70,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -6338,14 +6367,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -6380,9 +6409,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset7",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6398,6 +6427,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 8,
@@ -6406,16 +6436,20 @@
             "editor": {
                 "creator_id": "05593961536b76fa825281ccaedd4d4f",
                 "identifier": "qvain",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+                "owner_id": "05593961536b76fa825281ccaedd4d4f",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9008"
             },
             "files": [
                 15,
                 16
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d8",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d8",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 90,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -6432,14 +6466,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -6471,9 +6505,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset8",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6489,6 +6523,7 @@
     },
     {
         "fields": {
+            "contract": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 9,
@@ -6497,16 +6532,20 @@
             "editor": {
                 "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
                 "identifier": "qvain",
-                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9009"
             },
             "files": [
                 17,
                 18
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f96d9",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f96d9",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 130,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -6523,14 +6562,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -6559,9 +6598,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset9",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6578,6 +6617,7 @@
     {
         "fields": {
             "alternate_record_set": 1,
+            "contract": 1,
             "data_catalog": 1,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 10,
@@ -6586,16 +6626,20 @@
             "editor": {
                 "creator_id": "055ea531a6cac569425bed94459266ee",
                 "identifier": "qvain",
-                "owner_id": "055ea531a6cac569425bed94459266ee"
+                "owner_id": "055ea531a6cac569425bed94459266ee",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9010"
             },
             "files": [
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9610",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9610",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 140,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -6612,14 +6656,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -6648,9 +6692,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6672,7 +6716,9 @@
             "date_modified": "2017-09-23T10:07:22Z",
             "editor": {
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
+                "identifier": "qvain",
+                "owner_id": "053bffbcc41edad4853bea91fc42ea18",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9011"
             },
             "files": [
                 1,
@@ -6696,7 +6742,10 @@
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9611",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9611",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -6718,33 +6767,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -7001,7 +7036,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -7075,7 +7110,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-11",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9611",
                 "provenance": [
                     {
                         "description": {
@@ -7347,26 +7382,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -7439,8 +7476,10 @@
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
             "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
+                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "identifier": "qvain",
+                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9012"
             },
             "files": [
                 1,
@@ -7464,7 +7503,10 @@
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9612",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9612",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -7486,33 +7528,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -7769,7 +7797,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -7843,7 +7871,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-12",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9612",
                 "provenance": [
                     {
                         "description": {
@@ -8115,26 +8143,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -8207,8 +8237,10 @@
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
             "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f"
+                "creator_id": "05593961536b76fa825281ccaedd4d4f",
+                "identifier": "qvain",
+                "owner_id": "05593961536b76fa825281ccaedd4d4f",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9013"
             },
             "files": [
                 6,
@@ -8300,7 +8332,10 @@
                 114,
                 115
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9613",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9613",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -8322,33 +8357,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -8629,7 +8650,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9613",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9613",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -8703,7 +8724,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-13",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9613",
                 "provenance": [
                     {
                         "description": {
@@ -8975,26 +8996,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -9066,13 +9089,11 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "identifier": "qvain",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9614",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9614",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9109,9 +9130,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9614",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9614",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset14",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9614",
                 "remote_resources": [
                     {
                         "byte_size": 7168,
@@ -9153,21 +9174,18 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
-                "identifier": "qvain",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9615",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9615",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 1,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9183,15 +9201,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9204,9 +9219,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9615",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9615",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset15",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9615",
                 "remote_resources": [
                     {
                         "byte_size": 7680,
@@ -9248,21 +9263,18 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "05593961536b76fa825281ccaedd4d4f",
-                "identifier": "qvain",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9616",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9616",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 2,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9278,15 +9290,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9299,9 +9308,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9616",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9616",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset16",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9616",
                 "remote_resources": [
                     {
                         "byte_size": 8192,
@@ -9343,21 +9352,18 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
-                "identifier": "qvain",
-                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9617",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9617",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 3,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9373,15 +9379,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9394,9 +9397,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9617",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9617",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset17",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9617",
                 "remote_resources": [
                     {
                         "byte_size": 8704,
@@ -9438,21 +9441,18 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea531a6cac569425bed94459266ee",
-                "identifier": "qvain",
-                "owner_id": "055ea531a6cac569425bed94459266ee"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9618",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9618",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 4,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9468,15 +9468,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9489,9 +9486,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9618",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9618",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset18",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9618",
                 "remote_resources": [
                     {
                         "byte_size": 9216,
@@ -9533,21 +9530,18 @@
     },
     {
         "fields": {
-            "contract": 1,
             "data_catalog": 5,
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "identifier": "qvain",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9619",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9619",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 5,
-            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
+            "preservation_state": 0,
+            "preservation_state_modified": null,
             "research_dataset": {
                 "creator": [
                     {
@@ -9563,15 +9557,12 @@
                 ],
                 "curator": [
                     {
-                        "@type": "Person",
-                        "identifier": "id:of:curator:rahikainen",
-                        "member_of": {
-                            "@type": "Organization",
-                            "name": {
-                                "fi": "MysteeriOrganisaatio"
-                            }
-                        },
-                        "name": "Rahikainen"
+                        "@type": "Organization",
+                        "identifier": "10076-E700",
+                        "name": {
+                            "en": "Org in ref data",
+                            "fi": "Organisaatio"
+                        }
                     }
                 ],
                 "description": [
@@ -9584,9 +9575,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9619",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9619",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset19",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9619",
                 "remote_resources": [
                     {
                         "byte_size": 9728,
@@ -9632,13 +9623,11 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
-                "identifier": "qvain",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9620",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9620",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9678,9 +9667,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9620",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9620",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset20",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9620",
                 "remote_resources": [
                     {
                         "byte_size": 10240,
@@ -9726,13 +9715,11 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "05593961536b76fa825281ccaedd4d4f",
-                "identifier": "qvain",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9621",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9621",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9772,9 +9759,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9621",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9621",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset21",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9621",
                 "remote_resources": [
                     {
                         "byte_size": 10752,
@@ -9820,13 +9807,11 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
-                "identifier": "qvain",
-                "owner_id": "055ea4dade5ab2145954f56d4b51cef0"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9622",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9622",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9866,9 +9851,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9622",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9622",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset22",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9622",
                 "remote_resources": [
                     {
                         "byte_size": 11264,
@@ -9914,13 +9899,11 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea531a6cac569425bed94459266ee",
-                "identifier": "qvain",
-                "owner_id": "055ea531a6cac569425bed94459266ee"
-            },
             "files": [],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9623",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9623",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
             "preservation_state": 0,
             "preservation_state_modified": null,
@@ -9960,9 +9943,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9623",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset23",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
                 "remote_resources": [
                     {
                         "byte_size": 11776,
@@ -10011,7 +9994,10 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "053bffbcc41edad4853bea91fc42ea18"
             },
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9624",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9624",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -10033,33 +10019,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -10248,7 +10220,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9624",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9624",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -10322,7 +10294,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-24",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9624",
                 "provenance": [
                     {
                         "description": {
@@ -10710,26 +10682,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -10804,7 +10778,10 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
             },
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9625",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9625",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -10826,33 +10803,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -11041,7 +11004,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9625",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9625",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -11115,7 +11078,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-25",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9625",
                 "provenance": [
                     {
                         "description": {
@@ -11503,26 +11466,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -11597,7 +11562,10 @@
                 "creator_id": "053bffbcc41edad4853bea91fc42ea18",
                 "owner_id": "05593961536b76fa825281ccaedd4d4f"
             },
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9626",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9626",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
@@ -11619,33 +11587,19 @@
                             "en": "pref label for this type"
                         }
                     },
+                    "access_url": {
+                        "description": {
+                            "en": "Description of the link. For example to be used as hover text."
+                        },
+                        "identifier": "https://access.url.com/landing",
+                        "title": {
+                            "en": "A name given to the document"
+                        }
+                    },
                     "available": "2014-01-15T08:19:58Z",
                     "description": [
                         {
                             "en": "Free account of the rights"
-                        }
-                    ],
-                    "has_rights_related_agent": [
-                        {
-                            "@type": "Organization",
-                            "email": "info@csc.fi",
-                            "homepage": {
-                                "description": {
-                                    "en": "homepage description"
-                                },
-                                "identifier": "https://www.csc.fi",
-                                "title": {
-                                    "en": "homepage title"
-                                }
-                            },
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                            "name": {
-                                "en": "Org in ref data",
-                                "fi": "Organisaatio"
-                            },
-                            "telephone": [
-                                "+358501231235"
-                            ]
                         }
                     ],
                     "license": [
@@ -11834,7 +11788,7 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9626",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9626",
                 "modified": "2014-01-17T08:19:58Z",
                 "other_identifier": [
                     {
@@ -11908,7 +11862,7 @@
                         }
                     }
                 ],
-                "preferred_identifier": "very:unique:urn-26",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9626",
                 "provenance": [
                     {
                         "description": {
@@ -12296,26 +12250,28 @@
                         }
                     }
                 ],
-                "rights_holder": {
-                    "@type": "Organization",
-                    "email": "info@csc.fi",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-                    "is_part_of": {
+                "rights_holder": [
+                    {
                         "@type": "Organization",
-                        "identifier": "10076",
+                        "email": "info@csc.fi",
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "is_part_of": {
+                            "@type": "Organization",
+                            "identifier": "10076",
+                            "name": {
+                                "en": "Parent Mysterious Organization",
+                                "fi": "Organisaatio"
+                            }
+                        },
                         "name": {
-                            "en": "Parent Mysterious Organization",
+                            "en": "Mysterious Organization",
                             "fi": "Organisaatio"
-                        }
-                    },
-                    "name": {
-                        "en": "Mysterious Organization",
-                        "fi": "Organisaatio"
-                    },
-                    "telephone": [
-                        "+358501231235"
-                    ]
-                },
+                        },
+                        "telephone": [
+                            "+358501231235"
+                        ]
+                    }
+                ],
                 "spatial": [
                     {
                         "alt": "11.111",
@@ -12384,24 +12340,29 @@
     {
         "fields": {
             "alternate_record_set": 1,
+            "contract": 1,
             "data_catalog": 2,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 10,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
-                "creator_id": "055ea531a6cac569425bed94459266ee",
+                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
                 "identifier": "qvain",
-                "owner_id": "055ea531a6cac569425bed94459266ee"
+                "owner_id": "055ea4dade5ab2145954f56d4b51cef0",
+                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9027"
             },
             "files": [
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9627",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9627",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 140,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -12418,14 +12379,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -12454,9 +12415,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -12473,24 +12434,23 @@
     {
         "fields": {
             "alternate_record_set": 1,
+            "contract": 1,
             "data_catalog": 3,
             "dataset_group_edit": "default-dataset-edit-group",
             "dataset_version_set": 10,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea531a6cac569425bed94459266ee",
-                "identifier": "qvain",
-                "owner_id": "055ea531a6cac569425bed94459266ee"
-            },
             "files": [
                 19,
                 20
             ],
-            "identifier": "urn:nbn:fi:att:cr955e904-e3dd-4d7e-99f1-3fed446f9628",
+            "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9628",
+            "metadata_owner_org": "abc-org-123",
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-user-123",
             "mets_object_identifier": null,
-            "preservation_state": 0,
-            "preservation_state_modified": null,
+            "preservation_state": 140,
+            "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
                 "creator": [
                     {
@@ -12507,14 +12467,14 @@
                 "curator": [
                     {
                         "@type": "Person",
-                        "identifier": "id:of:curator:jarski",
+                        "identifier": "id:of:curator:rahikainen",
                         "member_of": {
                             "@type": "Organization",
                             "name": {
                                 "fi": "MysteeriOrganisaatio"
                             }
                         },
-                        "name": "Jarski"
+                        "name": "Rahikainen"
                     }
                 ],
                 "description": [
@@ -12543,9 +12503,9 @@
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
                     }
                 ],
-                "metadata_version_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
+                "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
                 "modified": "2014-01-17T08:19:58Z",
-                "preferred_identifier": "pid:urn:preferred:dataset10",
+                "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "title": {
                     "en": "Wonderful Title"
                 },

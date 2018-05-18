@@ -13,8 +13,8 @@
     ],
     "definitions":{
         "Checksum":{
-            "type":"object",
             "title":"Checksum",
+            "type":"object",
             "@id":"http://spdx.org/rdf/terms#Checksum",
             "description":"Checksum of the file",
             "properties":{
@@ -52,8 +52,8 @@
             ]
         },
         "Directory":{
-            "type":"object",
             "title":"Directory",
+            "type":"object",
             "@id":"http://uri.suomi.fi/datamodel/ns/mfs#Directory",
             "description":"Container for folders",
             "properties":{
@@ -183,8 +183,8 @@
             ]
         },
         "File":{
-            "type":"object",
             "title":"File",
+            "type":"object",
             "@id":"http://www.w3.org/2000/01/rdf-schema#Resource",
             "description":"The class of File",
             "properties":{
@@ -321,13 +321,12 @@
                 "file_storage",
                 "checksum",
                 "project_identifier",
-                "file_frozen",
-                "file_format"
+                "file_frozen"
             ]
         },
         "FileCharacteristics":{
-            "type":"object",
             "title":"File Characteristics",
+            "type":"object",
             "@id":"http://www.loc.gov/premis/rdf/v1#ObjectCharacteristics",
             "description":"This class is used as extension point to additional file charasteristics",
             "properties":{
@@ -349,6 +348,26 @@
                     "@id":"http://schema.org/encoding",
                     "title":"Text encoding",
                     "description":"Used text encoding",
+                    "enum":[
+                        "ISO_8859-15",
+                        "UTF-8",
+                        "UTF-16",
+                        "UTF-32"
+                    ],
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"string"
+                },
+                "file_format":{
+                    "@id":"http://schema.org/fileFormat",
+                    "title":"File format",
+                    "description":"File format, must usually IANA mediatype",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"string"
+                },
+                "format_version":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#formatversion",
+                    "title":"Format version",
+                    "description":"Format version as number. For example 1.0, 1,1 etc.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
                 },
@@ -413,8 +432,8 @@
             }
         },
         "FileStorage":{
-            "type":"object",
             "title":"File storage",
+            "type":"object",
             "@id":"http://uri.suomi.fi/datamodel/ns/mfs#FileStorage",
             "description":"File storage system",
             "properties":{

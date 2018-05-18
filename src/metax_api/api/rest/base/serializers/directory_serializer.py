@@ -62,7 +62,7 @@ class DirectorySerializer(CommonSerializer):
     def to_representation(self, instance):
         res = super(DirectorySerializer, self).to_representation(instance)
 
-        if instance.parent_directory:
+        if 'parent_directory' in res and instance.parent_directory:
             res['parent_directory'] = {
                 'id': instance.parent_directory.id,
                 'identifier': instance.parent_directory.identifier,

@@ -163,3 +163,30 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get('results')) > 6)
         self.assertTrue(len(response.data.get('results')) == 28)
+
+
+class ApiReadQueryParamTests(CatalogRecordApiReadCommon):
+
+    """
+    Misc common query params tests
+    """
+
+    def test_return_requested_fields_only(self):
+        """
+        While the param ?fields works with write operations too, the primary use case is when GETting.
+        """
+        response = self.client.get('/rest/datasets?fields=identifier')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('identifier' in response.data['results'][0], True)
+        self.assertEqual(len(response.data['results'][0].keys()), 1)
+        self.assertEqual(len(response.data['results'][1].keys()), 1)
+
+        response = self.client.get('/rest/datasets/1?fields=identifier')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('identifier' in response.data, True)
+        self.assertEqual(len(response.data.keys()), 1)
+
+        response = self.client.get('/rest/datasets/1?fields=identifier,data_catalog')
+        self.assertEqual('identifier' in response.data, True)
+        self.assertEqual('data_catalog' in response.data, True)
+        self.assertEqual(len(response.data.keys()), 2)

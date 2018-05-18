@@ -15,10 +15,6 @@ class DataCatalogViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    # note: override get_queryset() to get more control
-    queryset = DataCatalog.objects.filter(active=True, removed=False)
-    queryset_unfiltered = DataCatalog.objects_unfiltered.all()
-
     serializer_class = DataCatalogSerializer
     object = DataCatalog
 

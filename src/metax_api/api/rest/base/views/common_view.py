@@ -1,5 +1,5 @@
-import logging
 from os import path
+import logging
 
 from django.http import Http404
 from rest_framework import status
@@ -8,7 +8,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from metax_api.services import CommonService as CS
+from metax_api.exceptions import Http403
+from metax_api.services import CommonService as CS, ApiErrorService
 from metax_api.utils import RedisSentinelCache
 
 _logger = logging.getLogger(__name__)
@@ -25,9 +26,33 @@ class CommonViewSet(ModelViewSet):
     lookup_field_internal = None
     cache = RedisSentinelCache()
 
+    # get_queryset() automatically includes these in .select_related(field1, field2...) when returning
+    # queryset to the caller
+    select_related = []
+
     # assigning the create_bulk method here allows for other views to assing their other,
     # customized method to be called instead instead of the generic one.
     create_bulk_method = CS.create_bulk
+
+    def __init__(self, *args, **kwargs):
+        super(CommonViewSet, self).__init__(*args, **kwargs)
+        if (hasattr(self, 'object') and self.object) and (not hasattr(self, 'queryset') or self.queryset is None):
+            # ^ must have attribute 'object' set, AND queryset not set.
+
+            # the primary location where a queryset is initialized for
+            # any inheriting viewset, in case not already specified in their ViewSet class.
+            # avoids having to specify queryset in each ViewSet separately.
+            self.queryset = self.object.objects.all()
+            self.queryset_unfiltered = self.object.objects_unfiltered.all()
+
+    def handle_exception(self, exc):
+        """
+        Store request and response data to disk for later inspection
+        """
+        response = super(CommonViewSet, self).handle_exception(exc)
+        if type(exc) not in (Http403, Http404):
+            ApiErrorService.store_error_details(self.request, response, exc)
+        return response
 
     def paginate_queryset(self, queryset):
         if CS.get_boolean_query_param(self.request, 'no_pagination'):
@@ -37,12 +62,25 @@ class CommonViewSet(ModelViewSet):
     def get_queryset(self):
         additional_filters = {}
 
-        removed = CS.get_boolean_query_param(self.request, 'removed')
-        if removed:
+        if CS.get_boolean_query_param(self.request, 'removed'):
             additional_filters.update({'removed': True})
             self.queryset = self.queryset_unfiltered
 
-        return super(CommonViewSet, self).get_queryset().filter(**additional_filters)
+        if self.request.query_params.get('fields', False):
+            # only specified fields are requested to be returned
+
+            fields = self.request.query_params['fields'].split(',')
+
+            # causes only requested fields to be loaded from the db
+            self.queryset = self.queryset.only(*fields)
+
+            # check if requested fields are relations, so that we know to include them in select_related.
+            # if no fields is relation, select_related will be made empty.
+            self.select_related = [ rel for rel in self.select_related if rel in fields ]
+
+        return super(CommonViewSet, self).get_queryset() \
+            .select_related(*self.select_related) \
+            .filter(**additional_filters)
 
     def get_object(self, search_params=None):
         """
@@ -121,7 +159,9 @@ class CommonViewSet(ModelViewSet):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
-        return Response(data=results, status=http_status)
+        response = Response(results, status=http_status)
+        self._check_and_store_bulk_error(request, response)
+        return response
 
     def partial_update(self, request, *args, **kwargs):
         CS.update_common_info(request)
@@ -134,13 +174,17 @@ class CommonViewSet(ModelViewSet):
         kwargs['context'] = self.get_serializer_context()
         kwargs['partial'] = True
         results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
-        return Response(data=results, status=http_status)
+        response = Response(results, status=http_status)
+        self._check_and_store_bulk_error(request, response)
+        return response
 
     def create(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         results, http_status = self.create_bulk_method(request, serializer_class, **kwargs)
-        return Response(results, status=http_status)
+        response = Response(results, status=http_status)
+        self._check_and_store_bulk_error(request, response)
+        return response
 
     def destroy(self, request, *args, **kwargs):
         CS.update_common_info(request)
@@ -185,3 +229,12 @@ class CommonViewSet(ModelViewSet):
         """
         self.json_schema = CS.get_json_schema(path.dirname(view_file) + '/../schemas',
                                               self.__class__.__name__.lower()[:-(len('viewset'))])
+
+    def _check_and_store_bulk_error(self, request, response):
+        """
+        Unless ?atomic=true is used in bulk operations, the request does not entirely fail, and
+        error data is not saved. Separately check presence of failures in bulk operations responses,
+        and save data if necessary.
+        """
+        if 'failed' in response.data and len(response.data['failed']):
+            ApiErrorService.store_error_details(request, response, other={ 'bulk_request': True })

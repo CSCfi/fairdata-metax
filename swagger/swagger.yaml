@@ -14,30 +14,32 @@ paths:
 # File Storage API
   /filestorages:
     get:
-      summary: "list of file storage systems"
+      summary: List File Storages
       responses:
         "200":
           description: return list of file storages
       tags:
-        - File Storage API (not implemented)
+        - File Storage API
     post:
-      summary: create file storage system
+      summary: Create File Storage metadata
       consumes:
         - application/json
       responses:
         '201':
-          description: new file storage created, return UUID of the system
+          description: new file storage created, returns created object
+        '400':
+          description: parameters contained errors, response includes details
         '401':
-          description: Unauthorized. Reserved for admins only
+          description: Unauthorized
       tags:
-        - File Storage API (not implemented)
+        - File Storage API
   /filestorages/{PID}:
     get:
-      summary: get file storage metadata
+      summary: Get File Storage metadata
       parameters:
         - name: PID
           in: path
-          description: UUID of the system
+          description: identifier of file storage
           required: true
           type: string
       responses:
@@ -46,13 +48,13 @@ paths:
         '404':
           description: not found
       tags:
-        - File Storage API (not implemented)
+        - File Storage API
     put:
-      summary: replace File Storage metadata
+      summary: Replace File Storage metadata
       parameters:
         - name: PID
           in: path
-          description: UUID of the system
+          description: identifier of file storage
           required: true
           type: string
       responses:
@@ -63,7 +65,41 @@ paths:
         '401':
           description: Unauthorized. Reserved for admins only
       tags:
-        - File Storage API (not implemented)
+        - File Storage API
+    patch:
+      summary: Partially replace File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: identifier of file storage
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation. modified content returned
+        '400':
+          description: parameters contained errors, response includes details
+        '401':
+          description: Unauthorized. Reserved for admins only
+      tags:
+        - File Storage API
+    delete:
+      summary: Delete File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: identifier of file storage
+          required: true
+          type: string
+      responses:
+        '204':
+          description: successful operation
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '404':
+          description: not found
+      tags:
+        - File Storage API
 
 # File API
   /files:
@@ -385,24 +421,6 @@ paths:
           description: not found
       tags:
         - File API
-    delete:
-      summary: delete all files' metadata in directory, recursively
-      parameters:
-        - name: PID
-          in: path
-          description: |
-              directory path. example value\: /path/of/directory
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, returns in body the number of affected files in field affected_files
-        '400':
-          description: bad parameters, details in body
-        '404':
-          description: not a single file with given path was found
-      tags:
-        - File API (not implemented)
   /directories/{PID}/files:
     get:
       summary: get list of files and directories contained by a directory
@@ -439,9 +457,19 @@ paths:
             otherwise, one would query for its data separately by GET /directories/3.
           required: false
           type: boolean
-        - name: preferred_identifier
+        - name: cr_identifier
           in: query
-          description: preferred_identifier of a dataset. browse only files that have been selected for that record.
+          description: identifier of a catalog record. browse only files that have been selected for that record.
+          required: false
+          type: string
+        - name: file_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for files
+          required: false
+          type: string
+        - name: directory_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for directories
           required: false
           type: string
       responses:
@@ -683,6 +711,19 @@ paths:
           description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
           required: false
           type: string
+        - name: contract_org_identifier
+          in: query
+          description: Filter by dataset contract.contract_json.organization.organization_identifier. Restricted to permitted users.
+          required: false
+          type: string
+        - name: pas_filter
+          in: query
+          description: A specific filter that targets the following fields; research_dataset['title'], research_dataset['curator'][n]['name'], contract['contract_json']['title']. Restricted to permitted users.
+          required: false
+          type: string
+        - name: editor
+          in: query
+          description: identifier of the editor used to modify the record, i.e. qvain.
         - name: offset
           in: query
           description: offset for paging
@@ -871,6 +912,16 @@ paths:
             byte_size and file_count in each directory's details as extra information.
           required: false
           type: boolean
+        - name: file_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for file details, when details are requested (query param file_details=true is passed)
+          required: false
+          type: string
+        - name: directory_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for directory details, when details are requested (query param file_details=true is passed)
+          required: false
+          type: string
         - name: preferred_identifier
           in: query
           description: |
@@ -1193,6 +1244,44 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Contract API
+
+
+# ApiErrors API
+  /apierrors:
+    get:
+      summary: "list errors produced during api requests"
+      responses:
+        '200':
+          description: returns a list of error entries. may return an empty list.
+      tags:
+        - ApiErrors API
+  /apierrors/{identifier}:
+    get:
+      summary: get details of a single error entry
+      responses:
+        '200':
+          description: return error details as a json object
+        '404':
+          description: not found
+      tags:
+        - ApiErrors API
+    delete:
+      summary: delete a single error entry
+      responses:
+        '204':
+          description: entry deleted
+        '404':
+          description: not found
+      tags:
+        - ApiErrors API
+  /apierrors/flush:
+    post:
+      summary: "delete all error entries"
+      responses:
+        '200':
+          description: all entries deleted. return a json object telling how many items were deleted.
+      tags:
+        - ApiErrors API
 
 
 # Schema API

@@ -1,5 +1,8 @@
 {
   "data_catalog": null,
+  "metadata_owner_org": "abc-org-123",
+  "metadata_provider_org": "abc-org-123",
+  "metadata_provider_user": "abc-user-123",
   "research_dataset": {
     "metadata_version_identifier": null,
     "preferred_identifier": null,
@@ -92,29 +95,6 @@
       "restriction_grounds": {
         "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
       },
-      "has_rights_related_agent": [
-        {
-          "@type": "Organization",
-          "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
-          "name": {
-            "en": "Org in ref data",
-            "fi": "Organisaatio"
-          },
-          "email": "info@csc.fi",
-          "telephone": [
-            "+358501231235"
-          ],
-          "homepage": {
-            "identifier": "https://www.csc.fi",
-            "title": {
-              "en": "homepage title"
-            },
-            "description": {
-              "en": "homepage description"
-            }
-          }
-        }
-      ],
       "license": [
         {
           "identifier": "http://www.opensource.org/licenses/Apache-2.0",
@@ -128,7 +108,16 @@
           ],
           "license": "https://url.of.license.which.applies.here.org"
         }
-      ]
+      ],
+      "access_url": {
+          "identifier": "https://access.url.com/landing",
+          "title": {
+            "en": "A name given to the document"
+          },
+          "description": {
+            "en": "Description of the link. For example to be used as hover text."
+          }
+        }
     },
     "other_identifier": [
       {
@@ -407,7 +396,7 @@
         }
       }
     ],
-    "rights_holder": {
+    "rights_holder": [{
       "@type": "Organization",
       "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
       "name": {
@@ -426,7 +415,7 @@
           "fi": "Organisaatio"
         }
       }
-    },
+    }],
     "creator": [
       {
         "@type": "Person",

@@ -26,11 +26,17 @@ class CatalogRecordSerializer(CommonSerializer):
             'data_catalog',
             'dataset_version_set',
             'deprecated',
+            'metadata_owner_org',
+            'metadata_provider_org',
+            'metadata_provider_user',
             'research_dataset',
             'preservation_state',
             'preservation_state_modified',
             'preservation_description',
             'preservation_reason_description',
+            'dataset_version_set',
+            'next_dataset_version',
+            'previous_dataset_version',
             'mets_object_identifier',
             'editor',
             'removed',
@@ -89,13 +95,14 @@ class CatalogRecordSerializer(CommonSerializer):
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
 
-        if self.expand_relation_requested('data_catalog'):
-            res['data_catalog'] = DataCatalogSerializer(instance.data_catalog).data
-        else:
-            res['data_catalog'] = {
-                'id': instance.data_catalog.id,
-                'identifier': instance.data_catalog.catalog_json['identifier'],
-            }
+        if 'data_catalog' in res:
+            if self.expand_relation_requested('data_catalog'):
+                res['data_catalog'] = DataCatalogSerializer(instance.data_catalog).data
+            else:
+                res['data_catalog'] = {
+                    'id': instance.data_catalog.id,
+                    'identifier': instance.data_catalog.catalog_json['identifier'],
+                }
 
         if 'contract' in res:
             if self.expand_relation_requested('contract'):
@@ -114,14 +121,14 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'dataset_version_set' in res:
             res['dataset_version_set'] = instance.dataset_version_set.get_listing()
 
-        if instance.next_dataset_version_id:
+        if 'next_dataset_version' in res:
             res['next_dataset_version'] = {
                 'id': instance.next_dataset_version.id,
                 'identifier': instance.next_dataset_version.identifier,
                 'preferred_identifier': instance.next_dataset_version.preferred_identifier,
             }
 
-        if instance.previous_dataset_version_id:
+        if 'previous_dataset_version' in res:
             res['previous_dataset_version'] = {
                 'id': instance.previous_dataset_version.id,
                 'identifier': instance.previous_dataset_version.identifier,
@@ -155,6 +162,14 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._operation_is_create() or self._preferred_identifier_is_changed():
             self._validate_research_dataset_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
+
+        if 'directories' in value and not value['directories']:
+            # remove if empty list
+            del value['directories']
+        if 'files' in value and not value['files']:
+            # remove if empty list
+            del value['files']
+
         return value
 
     def _validate_json_schema(self, value):
@@ -293,7 +308,10 @@ class CatalogRecordSerializer(CommonSerializer):
             catalog_json = DataCatalog.objects.filter(pk=self.initial_data['data_catalog']) \
                 .only('catalog_json').first().catalog_json
         else:
-            catalog_json = self.instance.data_catalog.catalog_json
+            try:
+                catalog_json = self.instance.data_catalog.catalog_json
+            except AttributeError:
+                raise ValidationError({ 'data_catalog': ['data_catalog is a required field']})
 
         return catalog_json.get('dataset_versioning', False) is True
 

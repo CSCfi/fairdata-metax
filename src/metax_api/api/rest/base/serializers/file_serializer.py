@@ -62,23 +62,26 @@ class FileSerializer(CommonSerializer):
     def to_representation(self, instance):
         res = super(FileSerializer, self).to_representation(instance)
 
-        if self.expand_relation_requested('file_storage'):
-            res['file_storage'] = FileStorageSerializer(instance.file_storage).data
-        else:
-            res['file_storage'] = {
-                'id': instance.file_storage.id,
-                'identifier': instance.file_storage.file_storage_json['identifier'],
-            }
+        if 'file_storage' in res:
+            if self.expand_relation_requested('file_storage'):
+                res['file_storage'] = FileStorageSerializer(instance.file_storage).data
+            else:
+                res['file_storage'] = {
+                    'id': instance.file_storage.id,
+                    'identifier': instance.file_storage.file_storage_json['identifier'],
+                }
 
-        if self.expand_relation_requested('parent_directory'):
-            res['parent_directory'] = DirectorySerializer(instance.parent_directory).data
-        else:
-            res['parent_directory'] = {
-                'id': instance.parent_directory.id,
-                'identifier': instance.parent_directory.identifier,
-            }
+        if 'parent_directory' in res:
+            if self.expand_relation_requested('parent_directory'):
+                res['parent_directory'] = DirectorySerializer(instance.parent_directory).data
+            else:
+                res['parent_directory'] = {
+                    'id': instance.parent_directory.id,
+                    'identifier': instance.parent_directory.identifier,
+                }
 
-        res['checksum'] = self._form_checksum(res)
+        if not self.requested_fields or 'checksum' in self.requested_fields:
+            res['checksum'] = self._form_checksum(res)
 
         return res
 
@@ -91,10 +94,16 @@ class FileSerializer(CommonSerializer):
         Ensure file_path is unique in the project, within unremoved files.
         file_path can exist multiple times for removed files though.
         """
+        if hasattr(self, 'file_path_checked'):
+            # has been previously validated during bulk operation processing.
+            # saves a fetch to the db.
+            return value
+
         if self._operation_is_create():
             if 'project_identifier' not in self.initial_data:
                 # the validation for project_identifier is executed later...
                 return value
+
             project = self.initial_data['project_identifier']
             if File.objects.filter(project_identifier=project, file_path=value).exists():
                 raise ValidationError('a file with path %s already exists in project %s' % (value, project))

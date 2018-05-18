@@ -53,6 +53,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
         })
         from_test_data['file_path'] = from_test_data['file_path'].replace('/Experiment_X/', '/test/path/')
         from_test_data['project_identifier'] = 'test_project_identifier'
+        del from_test_data['id']
         return from_test_data
 
     def _get_second_new_test_data(self):
@@ -190,6 +191,19 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.assertEqual('file_name' in response.data['failed'][0]['object'].keys(), True)
         self.assertEqual('identifier' in response.data['failed'][0]['errors'], True,
                          'The error should have been about an already existing identifier')
+
+    def test_parameter_ignore_already_exists_errors(self):
+        newly_created_file_name = 'newly_created_file_name'
+        self.test_new_data['file_name'] = newly_created_file_name
+        self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
+        # same as above - should cause an error.
+        self.second_test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
+
+        response = self.client.post('/rest/files?ignore_already_exists_errors',
+            [self.test_new_data, self.second_test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual('already exists' in response.data['success'][1]['object']['detail'], True)
 
     def test_create_file_list_error_all_fail(self):
         newly_created_file_name = 'newly_created_file_name'
@@ -480,10 +494,18 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
         ]
 
-        files = []
+        template = self.test_new_data
+        template.pop('id', None)
+        template.pop('identifier', None)
+        template.pop('project_identifier', None)
+        template.pop('parent_directory', None)
+        template.pop('date_created', None)
+        template.pop('date_modified', None)
+        template.pop('service_created', None)
 
+        files = []
         for i, d in enumerate(dir_data):
-            files.append(deepcopy(self.test_new_data))
+            files.append(deepcopy(template))
             files[-1].update(d, identifier='pid:urn:test:file:%d' % i, project_identifier='project_y')
 
         return files

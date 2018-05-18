@@ -1,5 +1,7 @@
 import logging
 import sys
+from os import makedirs
+from shutil import rmtree
 from time import sleep
 
 from django.apps import AppConfig
@@ -26,7 +28,7 @@ class OnAppStart(AppConfig):
         once. The key 'on_app_start_executing' in the cache is set to true by the fastest process,
         informing other processes to not proceed further.
         """
-        if any(cmd in sys.argv for cmd in ['makemigrations', 'migrate']):
+        if any(cmd in sys.argv for cmd in ['manage.py']):
             return
 
         cache = RedisSentinelCache(master_only=True)
@@ -58,5 +60,14 @@ class OnAppStart(AppConfig):
             # before resetting the flag. (on local this method can be quite fast)
             sleep(2)
             cache.delete('on_app_start_executing')
+
+        if executing_test_case():
+            # reset error files location between tests
+            rmtree(settings.ERROR_FILES_PATH, ignore_errors=True)
+
+        try:
+            makedirs(settings.ERROR_FILES_PATH)
+        except FileExistsError:
+            pass
 
         _logger.info('Metax API startup tasks finished')

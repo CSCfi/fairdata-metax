@@ -19,15 +19,11 @@ class DirectoryViewSet(CommonViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    object = Directory
-
-    queryset = Directory.objects.select_related('parent_directory').all()
-    queryset_unfiltered = Directory.objects_unfiltered.select_related('parent_directory').all()
-
     serializer_class = DirectorySerializer
+    object = Directory
+    select_related = ['parent_directory']
 
     lookup_field_other = 'identifier'
-    create_bulk_method = FileService.create_bulk
 
     def list(self, request, *args, **kwargs):
         raise Http501()
@@ -67,7 +63,7 @@ class DirectoryViewSet(CommonViewSet):
             if max_depth <= 0:
                 raise Http400({ 'detail': ['value of depth must be higher than 0'] })
 
-        preferred_identifier = request.query_params.get('preferred_identifier', None)
+        cr_identifier = request.query_params.get('cr_identifier', None)
 
         files_and_dirs = FileService.get_directory_contents(
             identifier=identifier,
@@ -77,7 +73,8 @@ class DirectoryViewSet(CommonViewSet):
             max_depth=max_depth,
             dirs_only=dirs_only,
             include_parent=include_parent,
-            preferred_identifier=preferred_identifier
+            cr_identifier=cr_identifier,
+            request=request
         )
 
         return Response(files_and_dirs)
