@@ -123,7 +123,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['q_filters'] = [q_filter]
 
     @staticmethod
-    def populate_file_details(catalog_record):
+    def populate_file_details(catalog_record, request):
         """
         Populate individual research_dataset.file and directory objects with their
         corresponding objects from their db tables.
@@ -136,27 +136,35 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if feasible.
         """
         rd = catalog_record['research_dataset']
-
         file_identifiers = [ f['identifier'] for f in rd.get('files', [])]
 
-        for file in File.objects.filter(identifier__in=file_identifiers):
+        directory_fields, file_fields, discard_fields = \
+            FileService._get_requested_file_browsing_fields(request, catalog_record['id'])
+
+        for file in File.objects.filter(identifier__in=file_identifiers).only(*file_fields):
             for f in rd['files']:
                 if f['identifier'] == file.identifier:
-                    f['details'] = FileSerializer(file).data
+                    f['details'] = FileSerializer(file, only_fields=file_fields).data
+                    continue
 
         dir_identifiers = [ dr['identifier'] for dr in rd.get('directories', []) ]
 
-        for directory in Directory.objects.filter(identifier__in=dir_identifiers):
+        for directory in Directory.objects.filter(identifier__in=dir_identifiers).only(*directory_fields):
             for dr in rd['directories']:
                 if dr['identifier'] == directory.identifier:
-                    dr['details'] = DirectorySerializer(directory).data
+                    dr['details'] = DirectorySerializer(directory, only_fields=directory_fields).data
                     continue
 
         if not dir_identifiers:
             return
 
-        for dr in rd['directories']:
-            FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(dr['details'], catalog_record['id'])
+        if not directory_fields or ('byte_size' in directory_fields or 'file_count' in directory_fields):
+            # no specific fields requested -> calculate,
+            # OR byte_size or file_count among requested fields -> calculate
+            for dr in rd['directories']:
+                FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(
+                    dr['details'], catalog_record['id'], directory_fields=directory_fields,
+                    discard_fields=discard_fields)
 
     @classmethod
     def publish_updated_datasets(cls, response):

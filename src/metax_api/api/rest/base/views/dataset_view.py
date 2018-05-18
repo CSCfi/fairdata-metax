@@ -70,7 +70,7 @@ class DatasetViewSet(CommonViewSet):
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
             request.accepted_renderer = XMLRenderer()
         elif 'file_details' in request.query_params:
-            CRS.populate_file_details(res.data)
+            CRS.populate_file_details(res.data, request)
 
         return res
 

@@ -73,7 +73,8 @@ class DirectoryViewSet(CommonViewSet):
             max_depth=max_depth,
             dirs_only=dirs_only,
             include_parent=include_parent,
-            cr_identifier=cr_identifier
+            cr_identifier=cr_identifier,
+            request=request
         )
 
         return Response(files_and_dirs)

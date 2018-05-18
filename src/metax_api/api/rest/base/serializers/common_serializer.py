@@ -41,8 +41,21 @@ class CommonSerializer(ModelSerializer):
         }
 
     def __init__(self, *args, **kwargs):
+        """
+        For most usual GET requests, the fields to retrieve for an object can be
+        specified via the query param ?fields=x,y,z. Retrieve those fields from the
+        implicitly passed request object for processing in the to_representation() method.
+
+        The list of fields can also be explicitly passed to the serializer as a list
+        in the kw arg 'only_fields', when serializing objects outside of the common GET
+        api's.
+        """
+        if 'only_fields' in kwargs:
+            self.requested_fields = kwargs.pop('only_fields')
+
         super(CommonSerializer, self).__init__(*args, **kwargs)
-        if 'request' in self.context and 'fields' in self.context['request'].query_params:
+
+        if not self.requested_fields and 'request' in self.context and 'fields' in self.context['request'].query_params:
             self.requested_fields = self.context['request'].query_params['fields'].split(',')
 
     @transaction.atomic

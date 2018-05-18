@@ -213,6 +213,48 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual(response.data.get('id', None), 3)
 
 
+class DirectoryApiReadFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
+
+    def test_retrieve_requested_directory_fields_only(self):
+        response = self.client.get('/rest/directories/3/files?directory_fields=identifier,directory_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['directories'][0], True)
+        self.assertEqual('directory_path' in response.data['directories'][0], True)
+
+    def test_retrieve_directory_byte_size_and_file_count(self):
+        """
+        There is some additional logic involved in retrieving byte_size and file_count, which warrants
+        targeted tests for just those fields.
+        """
+        response = self.client.get('/rest/directories/3/files?directory_fields=identifier,byte_size')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['directories'][0], True)
+        self.assertEqual('byte_size' in response.data['directories'][0], True)
+
+        response = self.client.get('/rest/directories/3/files?directory_fields=identifier,file_count')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['directories'][0], True)
+        self.assertEqual('file_count' in response.data['directories'][0], True)
+
+    def test_retrieve_requested_file_fields_only(self):
+        response = self.client.get('/rest/directories/3/files?file_fields=identifier,file_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['files'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['files'][0], True)
+        self.assertEqual('file_path' in response.data['files'][0], True)
+
+    def test_retrieve_requested_file_and_directory_fields_only(self):
+        response = self.client.get('/rest/directories/3/files?file_fields=identifier&directory_fields=id')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['files'][0].keys()), 1)
+        self.assertEqual('identifier' in response.data['files'][0], True)
+        self.assertEqual(len(response.data['directories'][0].keys()), 1)
+        self.assertEqual('id' in response.data['directories'][0], True)
+
+
 class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     """
@@ -309,3 +351,45 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual('file_count' in response.data, True)
         self.assertEqual(response.data['byte_size'], byte_size)
         self.assertEqual(response.data['file_count'], file_count)
+
+
+class DirectoryApiReadCatalogRecordFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
+
+    def test_retrieve_requested_directory_fields_only(self):
+        response = self.client.get('/rest/datasets/12?file_details&directory_fields=identifier,directory_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 2)
+        self.assertEqual('identifier' in response.data['research_dataset']['directories'][0]['details'], True)
+        self.assertEqual('directory_path' in response.data['research_dataset']['directories'][0]['details'], True)
+
+    def test_retrieve_directory_byte_size_and_file_count(self):
+        """
+        There is some additional logic involved in retrieving byte_size and file_count, which warrants
+        targeted tests for just those fields.
+        """
+        response = self.client.get('/rest/datasets/12?file_details&directory_fields=identifier,byte_size')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 2)
+        self.assertEqual('identifier' in response.data['research_dataset']['directories'][0]['details'], True)
+        self.assertEqual('byte_size' in response.data['research_dataset']['directories'][0]['details'], True)
+
+        response = self.client.get('/rest/datasets/12?file_details&directory_fields=identifier,file_count')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 2)
+        self.assertEqual('identifier' in response.data['research_dataset']['directories'][0]['details'], True)
+        self.assertEqual('file_count' in response.data['research_dataset']['directories'][0]['details'], True)
+
+    def test_retrieve_requested_file_fields_only(self):
+        response = self.client.get('/rest/datasets/12?file_details&file_fields=identifier,file_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['files'][0]['details'].keys()), 2)
+        self.assertEqual('identifier' in response.data['research_dataset']['files'][0]['details'], True)
+        self.assertEqual('file_path' in response.data['research_dataset']['files'][0]['details'], True)
+
+    def test_retrieve_requested_file_and_directory_fields_only(self):
+        response = self.client.get('/rest/datasets/12?file_details&file_fields=identifier&directory_fields=id')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['files'][0]['details'].keys()), 1)
+        self.assertEqual('identifier' in response.data['research_dataset']['files'][0]['details'], True)
+        self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 1)
+        self.assertEqual('id' in response.data['research_dataset']['directories'][0]['details'], True)
