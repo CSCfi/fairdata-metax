@@ -44,6 +44,7 @@ class CustomRouter(DefaultRouter):
                 'delete': 'destroy_bulk'        # custom
             },
             name='{basename}-list',
+            detail=False,
             initkwargs={'suffix': 'List'}
         ))
         super(CustomRouter, self).__init__(*args, **kwargs)
