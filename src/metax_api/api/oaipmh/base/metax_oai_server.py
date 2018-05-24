@@ -10,6 +10,8 @@ from oaipmh.error import BadArgumentError
 from metax_api.models.catalog_record import CatalogRecord
 from metax_api.services import CatalogRecordService as CRS
 
+syke_url_prefix_template = 'http://metatieto.ymparisto.fi:8080/geoportal/catalog/search/resource/details.page?uuid=%s'
+
 
 class MetaxOAIServer(ResumptionOAIPMH):
 
@@ -48,22 +50,41 @@ class MetaxOAIServer(ResumptionOAIPMH):
             query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
         return query_set[cursor:batch_size]
 
+    def _handle_syke_urnresolver_metadata(self, record):
+        identifiers = []
+        preferred_identifier = record.research_dataset.get('preferred_identifier')
+        identifiers.append(preferred_identifier)
+        for id_obj in record.research_dataset.get('other_identifier', []):
+            if id_obj.get('notation', '').startswith('{'):
+                uuid = id_obj['notation']
+                identifiers.append(syke_url_prefix_template % uuid)
+        return identifiers
+
     def _get_oai_dc_urnresolver_metadata(self, record):
         """
         Preferred identifier is added only for ida and att catalog records
         other identifiers are added for all.
-        """
-        identifiers = []
-        identifiers.append(settings.OAI['ETSIN_URL_TEMPLATE'] % record.identifier)
 
-        # assuming ida and att catalogs are not harvested
-        if not record.catalog_is_harvested():
-            preferred_identifier = record.research_dataset.get('preferred_identifier')
-            identifiers.append(preferred_identifier)
-        for id_obj in record.research_dataset.get('other_identifier', []):
-            if id_obj.get('notation', '').startswith('urn:nbn:fi:csc-kata'):
-                other_urn = id_obj['notation']
-                identifiers.append(other_urn)
+        Special handling for SYKE catalog.
+        """
+
+        identifiers = []
+
+        data_catalog = record.data_catalog.catalog_json.get('identifier')
+        if data_catalog == 'urn:nbn:fi:att:data-catalog-harvest-syke':
+            identifiers = self._handle_syke_urnresolver_metadata(record)
+
+        else:
+            identifiers.append(settings.OAI['ETSIN_URL_TEMPLATE'] % record.identifier)
+
+            # assuming ida and att catalogs are not harvested
+            if not record.catalog_is_harvested():
+                preferred_identifier = record.research_dataset.get('preferred_identifier')
+                identifiers.append(preferred_identifier)
+            for id_obj in record.research_dataset.get('other_identifier', []):
+                if id_obj.get('notation', '').startswith('urn:nbn:fi:csc-kata'):
+                    other_urn = id_obj['notation']
+                    identifiers.append(other_urn)
 
         meta = {
             'identifier':  identifiers
@@ -189,7 +210,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         """Implement OAI-PMH verb GetRecord."""
         try:
             record = CatalogRecord.objects.get(
-                data_catalog__catalog_json__identifier__in=self._get_default_set_filter(),
+                # data_catalog__catalog_json__identifier__in=self._get_default_set_filter(),
                 identifier__exact=identifier
             )
         except CatalogRecord.DoesNotExist:
