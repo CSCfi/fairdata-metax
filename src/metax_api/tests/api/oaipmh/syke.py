@@ -42,7 +42,6 @@ class SYKEOAIPMHReadTests(APITestCase, TestClassUtils):
         self.dc = cr.data_catalog.catalog_json["identifier"]
         self._use_http_authorization()
 
-
     def _get_results(self, data, xpath):
         root = data
         if isinstance(data, bytes):
