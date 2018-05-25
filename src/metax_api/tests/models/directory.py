@@ -1,12 +1,12 @@
 from django.db.models import Sum
 from django.core.management import call_command
-from django.test import TestCase
+from rest_framework.test import APITestCase
 
 from metax_api.models import Directory, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
-class DirectoryModelTests(TestCase, TestClassUtils):
+class DirectoryModelTests(APITestCase, TestClassUtils):
 
     @classmethod
     def setUpClass(cls):
@@ -15,6 +15,9 @@ class DirectoryModelTests(TestCase, TestClassUtils):
         """
         call_command('loaddata', test_data_file_path, verbosity=0)
         super(DirectoryModelTests, cls).setUpClass()
+
+    def setUp(self):
+        self._use_http_authorization()
 
     def test_calculate_byte_size_and_file_count(self):
         """

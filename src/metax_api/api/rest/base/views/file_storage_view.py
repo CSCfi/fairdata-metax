@@ -10,12 +10,8 @@ from ..serializers import FileStorageSerializer
 
 class FileStorageViewSet(CommonViewSet):
 
-    authentication_classes = ()
-    permission_classes = ()
-
     serializer_class = FileStorageSerializer
     object = FileStorage
-
     lookup_field = 'pk'
 
     def __init__(self, *args, **kwargs):

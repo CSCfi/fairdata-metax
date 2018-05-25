@@ -19,6 +19,7 @@ class ContractApiReadTestV1(APITestCase, TestClassUtils):
         contract_from_test_data = self._get_object_from_test_data('contract', requested_index=0)
         self.pk = contract_from_test_data['id']
         self.identifier = contract_from_test_data['contract_json']['identifier']
+        self._use_http_authorization()
 
     def test_read_contract_list(self):
         response = self.client.get('/rest/datasets')
@@ -43,6 +44,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         Reloaded for every test case
         """
         call_command('loaddata', test_data_file_path, verbosity=0)
+        self._use_http_authorization()
         contract_from_test_data = self._get_object_from_test_data('contract')
         self.pk = contract_from_test_data['id']
 
