@@ -4,7 +4,6 @@ import logging
 from django.http import Http404
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
-from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -199,22 +198,10 @@ class CommonViewSet(ModelViewSet):
         Overrided from rest_framework to preserve the username set during
         identifyapicaller middleware.
         """
-        username = request.user.username
-
-        # original ->
-        parser_context = self.get_parser_context(request)
-
-        req = Request(
-            request,
-            parsers=self.get_parsers(),
-            authenticators=self.get_authenticators(),
-            negotiator=self.get_content_negotiator(),
-            parser_context=parser_context
-        )
-        # ^ original
-
-        req.user.username = username
-        return req
+        username = request.user.username if hasattr(request.user, 'username') else None
+        drf_req = super(CommonViewSet, self).initialize_request(request, *args, **kwargs)
+        drf_req.user.username = username
+        return drf_req
 
     def set_json_schema(self, view_file):
         """
