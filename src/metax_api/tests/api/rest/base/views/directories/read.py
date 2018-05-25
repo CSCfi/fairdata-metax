@@ -21,6 +21,7 @@ class DirectoryApiReadCommon(APITestCase, TestClassUtils):
         dir_from_test_data = self._get_object_from_test_data('directory')
         self.identifier = dir_from_test_data['identifier']
         self.pk = dir_from_test_data['id']
+        self._use_http_authorization()
 
 
 class DirectoryApiReadBasicTests(DirectoryApiReadCommon):

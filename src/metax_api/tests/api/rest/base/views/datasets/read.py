@@ -27,6 +27,7 @@ class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
         self.metadata_version_identifier = self.cr_from_test_data['research_dataset']['metadata_version_identifier']
         self.preferred_identifier = self.cr_from_test_data['research_dataset']['preferred_identifier']
         self.identifier = self.cr_from_test_data['identifier']
+        self._use_http_authorization()
 
 
 class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):

@@ -1,5 +1,3 @@
-import logging
-
 from rest_framework import status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -9,14 +7,8 @@ from metax_api.services import CommonService
 from .common_view import CommonViewSet
 from ..serializers import ContractSerializer, CatalogRecordSerializer
 
-_logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
-
 
 class ContractViewSet(CommonViewSet):
-
-    authentication_classes = ()
-    permission_classes = ()
 
     serializer_class = ContractSerializer
     object = Contract

@@ -16,13 +16,10 @@ from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
+d = _logger.debug
 
 
 class DatasetViewSet(CommonViewSet):
-
-    authentication_classes = ()
-    permission_classes = ()
 
     serializer_class = CatalogRecordSerializer
     object = CatalogRecord

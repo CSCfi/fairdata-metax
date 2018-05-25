@@ -1,4 +1,5 @@
 import logging
+
 from django.http import Http404
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -22,9 +23,6 @@ _logger = logging.getLogger(__name__)
 
 
 class ApiErrorViewSet(CommonViewSet):
-
-    authentication_classes = ()
-    permission_classes = ()
 
     def initial(self, request, *args, **kwargs):
         if request.user.username != 'metax':
