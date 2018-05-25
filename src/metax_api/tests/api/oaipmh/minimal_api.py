@@ -1,9 +1,13 @@
 from django.core.management import call_command
 import lxml.etree
+from lxml.etree import Element
+from oaipmh import common
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from metax_api.models import CatalogRecord
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
+
 
 
 class OAIPMHReadTests(APITestCase, TestClassUtils):
@@ -25,6 +29,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def setUp(self):
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
         self.identifier = catalog_record_from_test_data['identifier']
+        self.preferred_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
         self._use_http_authorization()
 
     def _get_new_test_cr_data(self, cr_index=0, dc_index=0, c_index=0):
@@ -159,7 +164,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
                                         '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' %
-                                        self.identifier)
+                                        self.preferred_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
     def test_list_records_from_datasets_set(self):
@@ -204,3 +209,26 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         errors = self._get_results(response.content, '//o:error[@code="badArgument"]')
         self.assertTrue(len(errors) == 1, response.content)
+
+    def test_write_oai_dc_with_lang(self):
+        from metax_api.api.oaipmh.base.view import oai_dc_writer_with_lang
+        e = Element("Test")
+        md = {
+            'title': [{'value': 'title1', 'lang': 'en'}, {'value': 'title2', 'lang': 'fi'}],
+            'description': [{'value': 'value'}]
+        }
+        metadata = common.Metadata('', md)
+        oai_dc_writer_with_lang(e, metadata)
+        result = str(lxml.etree.tostring(e, pretty_print=True))
+        self.assertTrue('<dc:title xml:lang="en">title1</dc:title>' in result)
+        self.assertTrue('<dc:title xml:lang="fi">title2</dc:title>' in result)
+        self.assertTrue('<dc:description>value</dc:description>' in result)
+
+    def test_get_oai_dc_metadata(self):
+        cr = CatalogRecord.objects.get(pk=11)
+        from metax_api.api.oaipmh.base.metax_oai_server import MetaxOAIServer
+        s = MetaxOAIServer()
+        md = s._get_oai_dc_metadata(cr)
+        self.assertTrue('identifier' in md)
+        self.assertTrue('title' in md)
+        self.assertTrue('lang' in md['title'][0])

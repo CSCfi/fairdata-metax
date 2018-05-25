@@ -91,10 +91,103 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
+    def _get_oaic_dc_value(self, value, lang=None):
+        valueDict = {}
+        valueDict['value'] = value
+        if lang:
+            valueDict['lang'] = lang
+        return valueDict
+
     def _get_oai_dc_metadata(self, record):
-        identifier = record.research_dataset.get('preferred_identifier')
+        identifier = self._get_oaic_dc_value(record.research_dataset.get('preferred_identifier'))
+
+        title = []
+        title_data = record.research_dataset.get('title', {})
+        for key, value in title_data.items():
+            title.append(self._get_oaic_dc_value(value, key))
+
+        creator = []
+        creator_data = record.research_dataset.get('creator', [])
+        for value in creator_data:
+            if 'name' in value:
+                creator.append(self._get_oaic_dc_value(value.get('name')))
+
+        subject = []
+        subject_data = record.research_dataset.get('keyword', [])
+        for value in subject_data:
+            subject.append(self._get_oaic_dc_value(value))
+        subject_data = record.research_dataset.get('field_of_science', [])
+        for value in subject_data:
+            for key, value2 in value.get('pref_label', {}).items():
+                subject.append(self._get_oaic_dc_value(value2, key))
+        subject_data = record.research_dataset.get('theme', [])
+        for value in subject_data:
+            for key, value2 in value.get('pref_label', {}).items():
+                subject.append(self._get_oaic_dc_value(value2, key))
+
+        desc = []
+        desc_data = record.research_dataset.get('description', [])
+        for value in desc_data:
+            for key, value2 in value.items():
+                desc.append(self._get_oaic_dc_value(value2, key))
+
+        publisher = []
+        publisher_data = record.research_dataset.get('publisher', {})
+        for key, value in publisher_data.get('name', {}).items():
+            publisher.append(self._get_oaic_dc_value(value))
+
+        contributor = []
+        contributor_data = record.research_dataset.get('contributor', [])
+        for value in contributor_data:
+            if 'name' in value:
+                contributor.append(self._get_oaic_dc_value(value.get('name')))
+
+        date = self._get_oaic_dc_value(str(record.date_created))
+
+        language = []
+        language_data = record.research_dataset.get('language', [])
+        for value in language_data:
+            for key, value2 in value.items():
+                language.append(self._get_oaic_dc_value(value2))
+
+        relation = []
+        relation_data = record.research_dataset.get('relation', [])
+        for value in relation_data:
+            if 'identifier'in value.get('entity', {}):
+                relation.append(self._get_oaic_dc_value(value['entity']['identifier']))
+
+        coverage = []
+        coverage_data = record.research_dataset.get('spatial', [])
+        for value in coverage_data:
+            if 'geographic_name' in value:
+                coverage.append(self._get_oaic_dc_value(value['geographic_name']))
+
+        rights = []
+        rights_data = record.research_dataset.get('access_rights', {})
+        for value in rights_data.get('description', []):
+            for key, value2 in value.items():
+                rights.append(self._get_oaic_dc_value(value2, key))
+        for value in rights_data.get('license', []):
+            if 'identifier' in value:
+                rights.append(self._get_oaic_dc_value(value['identifier']))
+
+        types = []
+        types.append(self._get_oaic_dc_value('Dataset'))
+
         meta = {
-            'identifier':  [identifier]
+            'identifier':  [identifier],
+            'title': title,
+            'creator': creator,
+            'subject': subject,
+            'description': desc,
+            'publisher': publisher,
+            'contributor': contributor,
+            'date': [date],
+            'type': types,
+            'language': language,
+            'relation': relation,
+            'coverage': coverage,
+            'rights': rights
         }
         return meta
 
