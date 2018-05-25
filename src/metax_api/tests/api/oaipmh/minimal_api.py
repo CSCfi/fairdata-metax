@@ -9,7 +9,6 @@ from metax_api.models import CatalogRecord
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
-
 class OAIPMHReadTests(APITestCase, TestClassUtils):
 
     _namespaces = {'o': 'http://www.openarchives.org/OAI/2.0/',
