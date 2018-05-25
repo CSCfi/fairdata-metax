@@ -128,7 +128,4 @@ class _IdentifyApiCaller():
 class _IdentifyApiCallerDummy(_IdentifyApiCaller):
 
     def _get_api_users(self):
-        return [
-            django_settings.API_METAX_USER,
-            django_settings.API_TEST_USER,
-        ]
+        return django_settings.API_TEST_USERS
