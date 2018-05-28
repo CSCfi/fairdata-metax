@@ -707,7 +707,10 @@
               "fi": "Kuvailutiedot"
             }
           ],
-          "identifier": "external:dataset:identifier"
+          "identifier": "external:dataset:identifier",
+          "type": {
+            "identifier": "physical_object"
+          }
         },
         "relation_type": {
           "identifier": "wasDerivedFrom"
@@ -724,7 +727,10 @@
               "fi": "Kuvailutiedot"
             }
           ],
-          "identifier": "external:thing:identifier"
+          "identifier": "external:thing:identifier",
+          "type": {
+            "identifier": "collection"
+          }
         },
         "relation_type": {
           "identifier": "cites"
@@ -741,7 +747,10 @@
               "fi": "Kuvailutiedot"
             }
           ],
-          "identifier": "external:dataset_2:identifier"
+          "identifier": "external:dataset_2:identifier",
+          "type": {
+            "identifier": "service"
+          }
         },
         "relation_type": {
           "identifier": "isPartOf"
@@ -758,7 +767,10 @@
               "fi": "Kuvailutiedot"
             }
           ],
-          "identifier": "external:thing_2:identifier"
+          "identifier": "external:thing_2:identifier",
+          "type": {
+            "identifier": "ui"
+          }
         },
         "relation_type": {
           "identifier": "hasPreviousVersion"

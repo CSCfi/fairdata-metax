@@ -7324,6 +7324,9 @@
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
                             }
                         },
                         "relation_type": {
@@ -7341,6 +7344,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
                             }
                         },
                         "relation_type": {
@@ -7358,6 +7364,9 @@
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
                             }
                         },
                         "relation_type": {
@@ -7375,6 +7384,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
                             }
                         },
                         "relation_type": {
@@ -8085,6 +8097,9 @@
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
                             }
                         },
                         "relation_type": {
@@ -8102,6 +8117,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
                             }
                         },
                         "relation_type": {
@@ -8119,6 +8137,9 @@
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
                             }
                         },
                         "relation_type": {
@@ -8136,6 +8157,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
                             }
                         },
                         "relation_type": {
@@ -8938,6 +8962,9 @@
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
                             }
                         },
                         "relation_type": {
@@ -8955,6 +8982,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
                             }
                         },
                         "relation_type": {
@@ -8972,6 +9002,9 @@
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
                             }
                         },
                         "relation_type": {
@@ -8989,6 +9022,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
                             }
                         },
                         "relation_type": {
@@ -10508,6 +10544,9 @@
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "physical_object"
                             }
                         },
                         "relation_type": {
@@ -10525,6 +10564,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "collection"
                             }
                         },
                         "relation_type": {
@@ -10542,6 +10584,9 @@
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "service"
                             }
                         },
                         "relation_type": {
@@ -10559,6 +10604,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "ui"
                             }
                         },
                         "relation_type": {
@@ -11292,6 +11340,9 @@
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "physical_object"
                             }
                         },
                         "relation_type": {
@@ -11309,6 +11360,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "collection"
                             }
                         },
                         "relation_type": {
@@ -11326,6 +11380,9 @@
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "service"
                             }
                         },
                         "relation_type": {
@@ -11343,6 +11400,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "ui"
                             }
                         },
                         "relation_type": {
@@ -12076,6 +12136,9 @@
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "physical_object"
                             }
                         },
                         "relation_type": {
@@ -12093,6 +12156,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "collection"
                             }
                         },
                         "relation_type": {
@@ -12110,6 +12176,9 @@
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "service"
                             }
                         },
                         "relation_type": {
@@ -12127,6 +12196,9 @@
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "ui"
                             }
                         },
                         "relation_type": {
