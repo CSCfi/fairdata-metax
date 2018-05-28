@@ -151,6 +151,39 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertEqual('catalog_json' in response.data['data_catalog'], True, response.data['data_catalog'])
         self.assertEqual('contract_json' in response.data['contract'], True, response.data['contract'])
 
+    def test_strip_sensitive_fields(self):
+        """
+        Strip fields not intended for general public
+        """
+        def _check_fields(obj):
+            for sensitive_field in ['email', 'telephone', 'phone']:
+                self.assertEqual(sensitive_field not in obj['research_dataset']['curator'][0], True,
+                    'field %s should have been stripped' % sensitive_field)
+
+        for cr in CatalogRecord.objects.filter(pk__in=(1, 2, 3)):
+            cr.research_dataset['curator'][0].update({
+                'email': 'email@mail.com',
+                'phone': '123124',
+                'telephone': '123124',
+            })
+            cr.force_save()
+
+        self.client._credentials = {}
+
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        _check_fields(response.data)
+
+        response = self.client.get('/rest/datasets')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        for obj in response.data['results']:
+            _check_fields(obj)
+
+        response = self.client.get('/rest/datasets?no_pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        for obj in response.data:
+            _check_fields(obj)
+
     def _create_new_ds(self):
         new_cr = self.client.get('/rest/datasets/2').data
         new_cr.pop('id')
