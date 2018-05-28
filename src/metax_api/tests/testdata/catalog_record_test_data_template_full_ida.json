@@ -659,7 +659,10 @@
               "fi": "Kuvailutiedot"
             }
           ],
-          "identifier": "external:dataset:identifier"
+          "identifier": "external:dataset:identifier",
+          "type": {
+            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
+          }
         },
         "relation_type": {
           "identifier": "wasDerivedFrom"
@@ -676,7 +679,10 @@
               "fi": "Kuvailutiedot"
             }
           ],
-          "identifier": "external:thing:identifier"
+          "identifier": "external:thing:identifier",
+          "type": {
+            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
+          }
         },
         "relation_type": {
           "identifier": "cites"
@@ -693,7 +699,10 @@
               "fi": "Kuvailutiedot"
             }
           ],
-          "identifier": "external:dataset_2:identifier"
+          "identifier": "external:dataset_2:identifier",
+          "type": {
+            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
+          }
         },
         "relation_type": {
           "identifier": "isPartOf"
@@ -710,7 +719,10 @@
               "fi": "Kuvailutiedot"
             }
           ],
-          "identifier": "external:thing_2:identifier"
+          "identifier": "external:thing_2:identifier",
+          "type": {
+            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
+          }
         },
         "relation_type": {
           "identifier": "hasPreviousVersion"

@@ -524,5 +524,12 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, relation['relation_type'], label_field='pref_label')
 
+            if relation.get('entity', False) and relation.get('entity').get('type', False):
+
+                ref_entry = cls.check_ref_data(refdata['resource_type'], relation['entity']['type']['identifier'],
+                                               'research_dataset.relation.entity.type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, relation['entity']['type'], label_field='pref_label')
+
         if errors:
             raise ValidationError(errors)
