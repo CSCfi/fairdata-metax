@@ -198,6 +198,9 @@ class DatasetViewSet(CommonViewSet):
         Get files associated to this dataset. Can be used to retrieve a list of only
         deleted files by providing the query parameter removed_files=true.
         """
+        if not request.user.username:
+            raise Http403
+
         params = {}
         manager = 'objects'
         # TODO: This applies only to IDA files, not remote resources.
