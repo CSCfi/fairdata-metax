@@ -32,6 +32,25 @@ class DatasetViewSet(CommonViewSet):
         # It is done in the serializer
         super(DatasetViewSet, self).__init__(*args, **kwargs)
 
+    def dispatch(self, request, **kwargs):
+        """
+        In all responses, strip fields from dataset objects that are not meant for the general public
+        """
+        res = super().dispatch(request, **kwargs)
+        if not request.user.username:
+            if isinstance(res.data, dict):
+                if 'results' in res.data:
+                    # list with paging
+                    res.data['results'] = CRS.strip_catalog_record(res.data['results'])
+                else:
+                    # single std get
+                    res.data = CRS.strip_catalog_record(res.data)
+            elif isinstance(res.data, list):
+                # list with paging disabled
+                for i, item in enumerate(res.data):
+                    res.data[i] = CRS.strip_catalog_record(item)
+        return res
+
     def get_object(self):
         try:
             return super(DatasetViewSet, self).get_object()
@@ -64,6 +83,8 @@ class DatasetViewSet(CommonViewSet):
         res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
 
         if 'dataset_format' in request.query_params:
+            if not request.user.username:
+                res.data = CRS.strip_catalog_record(res.data)
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
             request.accepted_renderer = XMLRenderer()
         elif 'file_details' in request.query_params:

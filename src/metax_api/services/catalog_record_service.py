@@ -533,3 +533,29 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         if errors:
             raise ValidationError(errors)
+
+    @classmethod
+    def strip_catalog_record(cls, catalog_record):
+        """
+        Strip the catalog record of any confidential/private information not supposed to be
+        available for the general public.
+
+        Accepts as paramater either a single cr object (dict), or a list of objects.
+
+        :param catalog_record:
+        """
+        return cls._remove_keys(catalog_record, ['email', 'telephone', 'phone'])
+
+    @classmethod
+    def _remove_keys(cls, obj, fields_to_remove):
+        if isinstance(obj, dict):
+            obj = {
+                key: cls._remove_keys(value, fields_to_remove) for key, value in obj.items()
+                if key not in fields_to_remove
+            }
+        elif isinstance(obj, list):
+            obj = [
+                cls._remove_keys(item, fields_to_remove) for item in obj
+                if item not in fields_to_remove
+            ]
+        return obj
