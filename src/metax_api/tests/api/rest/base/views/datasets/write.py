@@ -1376,6 +1376,48 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
     Catalogs 1-2 should have dataset_versioning=True, while the rest should not.
     """
 
+    def test_update_from_0_to_n_files_does_not_create_new_version(self):
+        """
+        The FIRST update from 0 to n files in a dataset should be permitted
+        without creating a new dataset version.
+        """
+        data = self.client.get('/rest/datasets/1', format="json").data
+        data.pop('id')
+        data.pop('identifier')
+        data['research_dataset'].pop('preferred_identifier', None)
+        files = data['research_dataset'].pop('files', None)
+        data['research_dataset'].pop('directories', None)
+        self.assertEqual(isinstance(files, list), True)
+
+        # create test record
+        response = self.client.post('/rest/datasets', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # modify a few times to create metadata versions
+        data = response.data
+        data['research_dataset']['title']['en'] = 'updated'
+        data = self.client.put('/rest/datasets/%d' % data['id'], data, format="json").data
+        data['research_dataset']['title']['en'] = 'updated again'
+        data = self.client.put('/rest/datasets/%d' % data['id'], data, format="json").data
+
+        # add files for the first time - should not create a new dataset version
+        data['research_dataset']['files'] = files
+        response = self.client.put('/rest/datasets/%d' % data['id'], data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('new_version_created' in response.data, False)
+
+        # remove files again... a new version is created normally
+        files = data['research_dataset'].pop('files')
+        response = self.client.put('/rest/datasets/%d' % data['id'], data, format="json")
+        new_version = self.get_next_version(response.data)
+
+        # ...and put the files back. this is another 0->n files update. this time
+        # should normally create new dataset version.
+        new_version['research_dataset']['files'] = files
+        response = self.client.put('/rest/datasets/%d' % new_version['id'], new_version, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('new_version_created' in response.data, True)
+
     def test_update_to_non_versioning_catalog_does_not_create_version(self):
         self._set_cr_to_catalog(pk=self.pk, dc=3)
         response = self._get_and_update_title(self.pk)
