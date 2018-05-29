@@ -292,9 +292,9 @@ class CatalogRecord(Common):
             self._post_create_operations()
             _logger.info(
                 'Created a new <CatalogRecord id: %d, '
-                'metadata_version_identifier: %s, '
+                'identifier: %s, '
                 'preferred_identifier: %s >'
-                % (self.id, self.metadata_version_identifier, self.preferred_identifier)
+                % (self.id, self.identifier, self.preferred_identifier)
             )
         else:
             self._pre_update_operations()
