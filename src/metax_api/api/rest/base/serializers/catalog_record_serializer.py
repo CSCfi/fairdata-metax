@@ -3,7 +3,7 @@ from os import path
 
 from rest_framework.serializers import ValidationError
 
-from metax_api.models import CatalogRecord, DataCatalog, Contract
+from metax_api.models import CatalogRecord, DataCatalog, Contract, Common
 from metax_api.services import CatalogRecordService as CRS, CommonService
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
@@ -90,7 +90,28 @@ class CatalogRecordSerializer(CommonSerializer):
         return super(CatalogRecordSerializer, self).update(instance, validated_data)
 
     def create(self, validated_data):
-        return super(CatalogRecordSerializer, self).create(validated_data)
+        if self._migration_override_requested():
+
+            # any custom stuff before create that my be necessary for migration purposes
+
+            if 'preferred_identifier' in validated_data['research_dataset']:
+                # store pid, since it will be overwritten during create otherwise
+                pid = validated_data['research_dataset']['preferred_identifier']
+
+        res = super().create(validated_data)
+
+        if self._migration_override_requested():
+
+            # any custom stuff after create that my be necessary for migration purposes
+
+            if 'preferred_identifier' in validated_data['research_dataset']:
+                # save original pid provided by the requestor
+                res.research_dataset['preferred_identifier'] = pid
+
+                # save, while bypassing normal save-related procedures in CatalogRecord model
+                super(Common, res).save()
+
+        return res
 
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
@@ -340,6 +361,15 @@ class CatalogRecordSerializer(CommonSerializer):
             ).id
         except DataCatalog.DoesNotExist:
             raise ValidationError({ 'data_catalog': ['identifier %s not found' % str(identifier_value)]})
+
+    def _migration_override_requested(self):
+        """
+        Check presence of query parameter ?migration_override, which enables some specific actions during
+        the request, at this point useful only for migration operations.
+        """
+        if 'request' in self.context:
+            return CommonService.get_boolean_query_param(self.context['request'], 'migration_override')
+        return False
 
     def _set_dataset_schema(self):
         data_catalog = None
