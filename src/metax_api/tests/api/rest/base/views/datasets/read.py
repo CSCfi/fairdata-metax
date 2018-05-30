@@ -519,14 +519,33 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.data['research_dataset']['directories'][1]['details']['file_count'], 20)
 
 
-class CatalogRecordApiReadRemovedFiles(CatalogRecordApiReadCommon):
+class CatalogRecordApiReadFiles(CatalogRecordApiReadCommon):
 
     """
-    Test use of query parameter removed_files=bool in /datasets/pid/files, which should return
-    only deleted files.
+    Test /datasets/pid/files api
     """
+
+    def test_get_files(self):
+        file_count = CatalogRecord.objects.get(pk=1).files.count()
+        response = self.client.get('/rest/datasets/1/files')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), file_count)
+
+    def test_get_files_specified_fields_only(self):
+        """
+        Test use of query parameter ?file_fields=x,y,z
+        """
+        response = self.client.get('/rest/datasets/1/files?file_fields=identifier,file_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data[0].keys()), 2)
+        self.assertEqual('identifier' in response.data[0], True)
+        self.assertEqual('file_path' in response.data[0], True)
 
     def test_removed_query_param(self):
+        """
+        Test use of query parameter removed_files=bool in /datasets/pid/files, which should return
+        only deleted files.
+        """
         response = self.client.get('/rest/datasets/1/files')
         file_ids_before = set([ f['id'] for f in response.data ])
         obj = File.objects.get(pk=1)
