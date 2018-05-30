@@ -236,21 +236,23 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         """
         Ensure some sensitive fields are never present in output of OAI-PMH apis
         """
+        sensitive_field_values = [ 'email@mail.com', '999-123-123', '999-456-456' ]
 
         def _check_fields(content):
             """
-            Verify sensitive fields are not in the content
+            Verify sensitive fields values are not in the content. Checking for field value, instead
+            of field name, since the field names might be different in Datacite etc other formats.
             """
-            for sensitive_field in ['email', 'telephone', 'phone']:
-                self.assertEqual(sensitive_field not in str(content), True,
-                    'field %s should have been stripped' % sensitive_field)
+            for sensitive_field_value in sensitive_field_values:
+                self.assertEqual(sensitive_field_value not in str(content), True,
+                    'field %s should have been stripped' % sensitive_field_value)
 
         # setup some records to have sensitive fields
         for cr in CatalogRecord.objects.filter(pk__in=(1, 2, 3)):
             cr.research_dataset['curator'][0].update({
-                'email': 'email@mail.com',
-                'phone': '123124',
-                'telephone': '123124',
+                'email': sensitive_field_values[0],
+                'phone': sensitive_field_values[1],
+                'telephone': sensitive_field_values[2],
             })
             cr.force_save()
 
