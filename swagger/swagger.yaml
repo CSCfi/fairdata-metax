@@ -1037,6 +1037,11 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - name: file_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for files
+          required: false
+          type: string
         - name: removed_files
           in: query
           description: return only deleted files

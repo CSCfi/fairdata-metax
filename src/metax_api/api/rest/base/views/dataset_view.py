@@ -211,7 +211,14 @@ class DatasetViewSet(CommonViewSet):
             params['removed'] = True
             manager = 'objects_unfiltered'
 
-        files = [ FileSerializer(f).data for f in catalog_record.files(manager=manager).filter(**params) ]
+        file_fields = []
+        if 'file_fields' in request.query_params:
+            file_fields = request.query_params['file_fields'].split(',')
+
+        files = [
+            FileSerializer(f, only_fields=file_fields).data
+            for f in catalog_record.files(manager=manager).filter(**params).only(*file_fields)
+        ]
 
         return Response(data=files, status=status.HTTP_200_OK)
 
