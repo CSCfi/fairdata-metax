@@ -100,7 +100,7 @@ class Command(BaseCommand):
                 except:
                     raise CommandError(response.content)
 
-                if self._error_is_already_exists(errors['catalog_json']):
+                if self._error_is_already_exists(errors.get('catalog_json', {})):
                     self.stdout.write('Catalog %s already exists, updating instead...' %
                         dc['catalog_json']['identifier'])
 
@@ -139,7 +139,7 @@ class Command(BaseCommand):
                     errors = response.json()
                 except:
                     raise CommandError(response.content)
-                if self._error_is_already_exists(errors['file_storage_json']):
+                if self._error_is_already_exists(errors.get('file_storage_json', {})):
                     self.stdout.write('File storage %s already exists, updating instead...' %
                         fs['file_storage_json']['identifier'])
 
