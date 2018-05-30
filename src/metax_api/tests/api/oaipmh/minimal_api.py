@@ -231,3 +231,33 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertTrue('identifier' in md)
         self.assertTrue('title' in md)
         self.assertTrue('lang' in md['title'][0])
+
+    def test_sensitive_fields_are_removed(self):
+        """
+        Ensure some sensitive fields are never present in output of OAI-PMH apis
+        """
+
+        def _check_fields(content):
+            """
+            Verify sensitive fields are not in the content
+            """
+            for sensitive_field in ['email', 'telephone', 'phone']:
+                self.assertEqual(sensitive_field not in str(content), True,
+                    'field %s should have been stripped' % sensitive_field)
+
+        # setup some records to have sensitive fields
+        for cr in CatalogRecord.objects.filter(pk__in=(1, 2, 3)):
+            cr.research_dataset['curator'][0].update({
+                'email': 'email@mail.com',
+                'phone': '123124',
+                'telephone': '123124',
+            })
+            cr.force_save()
+
+        response = self.client.get('/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc' % self.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        _check_fields(response.content)
+
+        response = self.client.get('/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_datacite' % self.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        _check_fields(response.content)

@@ -204,6 +204,12 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def _get_metadata_for_record(self, record, metadata_prefix):
         meta = {}
+
+        # strip sensitive fields from research_dataset. note: the modified research_dataset
+        # is placed back into the record's research_dataset -field. meaning, an accidental call
+        # of record.save() would overwrite the original data
+        # record.research_dataset = CRS.strip_catalog_record(record.research_dataset)
+
         if metadata_prefix == 'oai_dc':
             meta = self._get_oai_dc_metadata(record)
         elif metadata_prefix == 'oai_datacite':
