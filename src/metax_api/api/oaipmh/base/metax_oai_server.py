@@ -199,9 +199,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
-    def _get_oai_datacite_metadata(self, record):
+    def _get_oai_datacite_metadata(self, json):
         datacite_xml = CRS.transform_datasets_to_format(
-            {'research_dataset': record.research_dataset}, 'datacite', False
+            {'research_dataset': json}, 'datacite', False
         )
         meta = {
             'datacentreSymbol': 'Metax',
@@ -212,17 +212,15 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def _get_metadata_for_record(self, record, json, type, metadata_prefix):
         meta = {}
-
-        # strip sensitive fields from research_dataset. note: the modified research_dataset
-        # is placed back into the record's research_dataset -field. meaning, an accidental call
-        # of record.save() would overwrite the original data
-        record.research_dataset = CRS.strip_catalog_record(json)
+        json = CRS.strip_catalog_record(json)
 
         if metadata_prefix == 'oai_dc':
             meta = self._get_oai_dc_metadata(record, json, type)
         elif metadata_prefix == 'oai_datacite':
-            meta = self._get_oai_datacite_metadata(record)
+            meta = self._get_oai_datacite_metadata(json)
         elif metadata_prefix == 'oai_dc_urnresolver':
+            # This is a special case. Only identifier values are retrieved from the record,
+            # so strip_catalog_record is not applicable here.
             meta = self._get_oai_dc_urnresolver_metadata(record)
         return self._fix_metadata(meta)
 
@@ -331,19 +329,16 @@ class MetaxOAIServer(ResumptionOAIPMH):
     def getRecord(self, metadataPrefix, identifier):
         """Implement OAI-PMH verb GetRecord."""
         try:
-            if CatalogRecord.objects.filter(identifier__exact=identifier).exists():
-                record = CatalogRecord.objects.get(identifier__exact=identifier)
-                json = record.research_dataset
-                type = 'Dataset'
-            else:
+            record = CatalogRecord.objects.get(identifier__exact=identifier)
+            json = record.research_dataset
+            type = 'Dataset'
+        except CatalogRecord.DoesNotExist:
+            try:
                 record = DataCatalog.objects.get(catalog_json__identifier__exact=identifier)
                 json = record.catalog_json
                 type = 'Datacatalog'
-
-        except CatalogRecord.DoesNotExist:
-            raise IdDoesNotExistError("No dataset with id %s available through the OAI-PMH interface." % identifier)
-        except DataCatalog.DoesNotExist:
-            raise IdDoesNotExistError("No datacatalog with id %s available through the OAI-PMH interface." % identifier)
+            except DataCatalog.DoesNotExist:
+                raise IdDoesNotExistError("No record with id %s available." % identifier)
 
         metadata = self._get_metadata_for_record(record,  json, type, metadataPrefix)
         return (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
