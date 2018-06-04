@@ -910,7 +910,6 @@
                 }
             },
             "required":[
-                "identifier",
                 "source_organization",
                 "name"
             ]
@@ -957,11 +956,7 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 }
-            },
-            "required":[
-                "description",
-                "title"
-            ]
+            }
         },
         "ResearchAgent":{
             "title":"Agent",

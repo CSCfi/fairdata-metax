@@ -53,6 +53,10 @@ class TestClassUtils():
             if not password:
                 # password can still be passed as a param, to test wrong password
                 password = user['password']
+        elif username == 'api_auth_user':
+            user = django_settings.API_AUTH_TEST_USER
+            username = user['username']
+            password = user['password']
         else:
             if not password:
                 raise Exception('Missing parameter \'password\' for HTTP Authorization header')

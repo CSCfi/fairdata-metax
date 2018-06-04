@@ -1,5 +1,4 @@
 from collections import defaultdict
-import logging
 
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -10,20 +9,19 @@ from metax_api.models import Directory
 from metax_api.services import CommonService, FileService
 from .common_view import CommonViewSet
 
-_logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
-
 
 class DirectoryViewSet(CommonViewSet):
-
-    authentication_classes = ()
-    permission_classes = ()
 
     serializer_class = DirectorySerializer
     object = Directory
     select_related = ['parent_directory']
-
     lookup_field_other = 'identifier'
+
+    def get_api_name(self):
+        """
+        Overrided due to not being able to follow common plural pattern...
+        """
+        return 'directories'
 
     def list(self, request, *args, **kwargs):
         raise Http501()

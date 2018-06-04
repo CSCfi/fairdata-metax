@@ -289,6 +289,18 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/%d' % new['id'], new, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
+    def test_parameter_migration_override_preferred_identifier_when_creating(self):
+        """
+        Normally, when saving to att/ida catalogs, providing a custom preferred_identifier is not
+        permitted. Using the optional query parameter ?migration_override=bool a custom preferred_identifier
+        can be passed.
+        """
+        custom_pid = 'custom-pid-value'
+        self.cr_test_data['research_dataset']['preferred_identifier'] = custom_pid
+        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], custom_pid)
+
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
     """
@@ -879,12 +891,13 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['is_output_of'][0]['funder_type']['identifier'] = 'nonexisting'
         rd_ida['directories'][0]['use_category']['identifier'] = 'nonexisting'
         rd_ida['relation'][0]['relation_type']['identifier'] = 'nonexisting'
+        rd_ida['relation'][0]['entity']['type']['identifier'] = 'nonexisting'
         rd_ida['provenance'][0]['lifecycle_event']['identifier'] = 'nonexisting'
         rd_ida['provenance'][1]['preservation_event']['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 16)
+        self.assertEqual(len(response.data['research_dataset']), 17)
 
         rd_att = self.cr_full_att_test_data['research_dataset']
         rd_att['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
@@ -971,6 +984,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['creator'][0]['contributor_role'] = {'identifier': refs['contributor_role']['code']}
         rd_ida['is_output_of'][0]['funder_type'] = {'identifier': refs['funder_type']['code']}
         rd_ida['relation'][0]['relation_type'] = {'identifier': refs['relation_type']['code']}
+        rd_ida['relation'][0]['entity']['type'] = {'identifier': refs['resource_type']['code']}
         rd_ida['provenance'][0]['lifecycle_event'] = {'identifier': refs['lifecycle_event']['code']}
         rd_ida['provenance'][1]['preservation_event'] = {'identifier': refs['preservation_event']['code']}
 
@@ -1056,6 +1070,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role']['identifier'])
         self.assertEqual(refs['funder_type']['uri'], new_rd['is_output_of'][0]['funder_type']['identifier'])
         self.assertEqual(refs['relation_type']['uri'], new_rd['relation'][0]['relation_type']['identifier'])
+        self.assertEqual(refs['resource_type']['uri'], new_rd['relation'][0]['entity']['type']['identifier'])
         self.assertEqual(refs['lifecycle_event']['uri'], new_rd['provenance'][0]['lifecycle_event']['identifier'])
         self.assertEqual(refs['preservation_event']['uri'], new_rd['provenance'][1]['preservation_event']['identifier'])
 
@@ -1078,6 +1093,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
                          new_rd['creator'][0]['contributor_role'].get('pref_label', None))
         self.assertEqual(refs['funder_type']['label'], new_rd['is_output_of'][0]['funder_type'].get('pref_label', None))
         self.assertEqual(refs['relation_type']['label'], new_rd['relation'][0]['relation_type'].get('pref_label', None))
+        self.assertEqual(refs['resource_type']['label'],
+                         new_rd['relation'][0]['entity']['type'].get('pref_label', None))
         self.assertEqual(refs['lifecycle_event']['label'],
                          new_rd['provenance'][0]['lifecycle_event'].get('pref_label', None))
         self.assertEqual(refs['preservation_event']['label'],
@@ -1370,6 +1387,48 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
 
     Catalogs 1-2 should have dataset_versioning=True, while the rest should not.
     """
+
+    def test_update_from_0_to_n_files_does_not_create_new_version(self):
+        """
+        The FIRST update from 0 to n files in a dataset should be permitted
+        without creating a new dataset version.
+        """
+        data = self.client.get('/rest/datasets/1', format="json").data
+        data.pop('id')
+        data.pop('identifier')
+        data['research_dataset'].pop('preferred_identifier', None)
+        files = data['research_dataset'].pop('files', None)
+        data['research_dataset'].pop('directories', None)
+        self.assertEqual(isinstance(files, list), True)
+
+        # create test record
+        response = self.client.post('/rest/datasets', data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # modify a few times to create metadata versions
+        data = response.data
+        data['research_dataset']['title']['en'] = 'updated'
+        data = self.client.put('/rest/datasets/%d' % data['id'], data, format="json").data
+        data['research_dataset']['title']['en'] = 'updated again'
+        data = self.client.put('/rest/datasets/%d' % data['id'], data, format="json").data
+
+        # add files for the first time - should not create a new dataset version
+        data['research_dataset']['files'] = files
+        response = self.client.put('/rest/datasets/%d' % data['id'], data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('new_version_created' in response.data, False)
+
+        # remove files again... a new version is created normally
+        files = data['research_dataset'].pop('files')
+        response = self.client.put('/rest/datasets/%d' % data['id'], data, format="json")
+        new_version = self.get_next_version(response.data)
+
+        # ...and put the files back. this is another 0->n files update. this time
+        # should normally create new dataset version.
+        new_version['research_dataset']['files'] = files
+        response = self.client.put('/rest/datasets/%d' % new_version['id'], new_version, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('new_version_created' in response.data, True)
 
     def test_update_to_non_versioning_catalog_does_not_create_version(self):
         self._set_cr_to_catalog(pk=self.pk, dc=3)

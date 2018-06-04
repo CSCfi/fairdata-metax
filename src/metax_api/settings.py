@@ -26,7 +26,6 @@ if not executing_in_travis:
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -46,12 +45,35 @@ if executing_test_case() or executing_in_travis:
         'username': 'metax',
         'password': 'metaxpassword'
     }
+    API_AUTH_TEST_USER = {
+        'username': 'api_auth_user',
+        'password': 'assword'
+    }
 
+    API_TEST_USERS = [
+        API_TEST_USER,
+        API_METAX_USER,
+        API_AUTH_TEST_USER,
+    ]
+
+    API_ACCESS = {
+        "apierrors":    { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
+        "contracts":    { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
+        "datacatalogs": { "read":  ["all"], "write": ["testuser", "metax"] },
+        "datasets":     { "read":  ["all"], "write": ["testuser", "metax", "api_auth_user"] },
+        "directories":  { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
+        "files":        { "read":  ["testuser", "metax", "api_auth_user"], "write": ["testuser", "metax"] },
+        "filestorages": { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
+        "schemas":      { "read":  ["all"], "write": ["testuser", "metax"] }
+    }
+else:
+    API_ACCESS = app_config_dict['API_ACCESS']
+
+if executing_test_case() or executing_in_travis:
     ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
 else:
     # location to store information about exceptions occurred during api requests
     ERROR_FILES_PATH = '/var/log/metax-api/errors'
-
 
 # Consider enabling these
 #CSRF_COOKIE_SECURE = True

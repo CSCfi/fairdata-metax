@@ -18,10 +18,9 @@
         <creator>
             <creatorName>{ $creator/mrd:name/text() }</creatorName>
             <nameIdentifier>{$creator/mrd:identifier/text()}</nameIdentifier>
-            <affiliation>{$creator/mrd:member_of/mrd:identifier/text()}</affiliation>
             {
               for $label in $creator/mrd:member_of/mrd:name/* return
-                <affliation xml:lang="{$label/name()}">{$label/text()}</affliation>
+                <affiliation identifier="{$creator/mrd:member_of/mrd:identifier/text()}" xml:lang="{$label/name()}">{$label/text()}</affiliation>
             }
         </creator>
     }
@@ -37,26 +36,19 @@
           for $keyword in mrd:researchdataset/mrd:keyword/* return
             <subject>{$keyword/text()}</subject>
       }
-      {
-          for $fs in mrd:researchdataset/mrd:field_of_science/mrd:item return
-            <subject schemeURI="{$fs/mrd:in_scheme/mrd:item[1]/mrd:identifier/text()}"
-                     subjectScheme="{$fs/mrd:in_scheme/mrd:item[1]/mrd:pref_label/mrd:en/text()}">{$fs/mrd:identifier/text()}</subject>
-      }
+
       {
           for $fs in mrd:researchdataset/mrd:field_of_science/mrd:item/mrd:pref_label/* return
             <subject schemeURI="{$fs/../../mrd:in_scheme/mrd:item[1]/mrd:identifier/text()}"
                      subjectScheme="{$fs/../../mrd:in_scheme/mrd:item[1]/mrd:pref_label/mrd:en/text()}" xml:lang="{$fs/name()}"
+                     identifier="{$fs/../../mrd:identifier/text()}"
                      >{$fs/text()}</subject>
-      }
-      {
-          for $fs in mrd:researchdataset/mrd:theme/mrd:item return
-            <subject schemeURI="{$fs/mrd:in_scheme/mrd:item[1]/mrd:identifier/text()}"
-                     subjectScheme="{$fs/mrd:in_scheme/mrd:item[1]/mrd:pref_label/mrd:en/text()}">{$fs/mrd:identifier/text()}</subject>
       }
       {
           for $fs in mrd:researchdataset/mrd:theme/mrd:item/mrd:pref_label/* return
             <subject schemeURI="{$fs/../../mrd:in_scheme/mrd:item[1]/mrd:identifier/text()}"
                      subjectScheme="{$fs/../../mrd:in_scheme/mrd:item[1]/mrd:pref_label/mrd:en/text()}" xml:lang="{$fs/name()}"
+                     identifier="{$fs/../../mrd:identifier/text()}"
                      >{$fs/text()}</subject>
       }
     </subjects>
@@ -82,17 +74,17 @@
             <contributor contributorType="{$c/mrd:contributor_role/mrd:identifier/text()}">
                 <contributorName>{$c/mrd:name/text()}</contributorName>
                 <nameIdentifier>{$c/mrd:identifier/text()}</nameIdentifier>
-                <affiliation>{$c/mrd:member_of/mrd:identifier/text()}</affiliation>
+
                 {
                   for $label in $c/mrd:member_of/mrd:name/* return
-                    <affliation xml:lang="{$label/name()}">{$label/text()}</affliation>
+                    <affiliation identifier="{$c/mrd:member_of/mrd:identifier/text()}" xml:lang="{$label/name()}">{$label/text()}</affiliation>
                 }
 
             </contributor>
       }
 
     </contributors>
-    <language>{mrd:researchdataset/mrd:language[1]/mrd:item/mrd:identifier/text()}</language>
+    <language>{substring-after(mrd:researchdataset/mrd:language[1]/mrd:item/mrd:identifier/text(), 'http://lexvo.org/id/iso639-3/')}</language>
     <contributor contributorType="RightsHolder">
       {
         for $label in mrd:researchdataset/mrd:rights_holder/mrd:name/* return
@@ -105,9 +97,8 @@
     </contributor>
     {
       for $pub in mrd:researchdataset/mrd:publisher/mrd:name/* return
-        <publisher xml:lang="{$pub/name()}">{$pub/text()}</publisher>
+        <publisher identifier="{$pub/../../mrd:identifier/text()}" xml:lang="{$pub/name()}">{$pub/text()}</publisher>
     }
-    <publisher>{mrd:researchdataset/mrd:publisher/mrd:identifier/text()}</publisher>
     <geoLocations>
     {
       for $geo in mrd:researchdataset/mrd:spatial/mrd:item return

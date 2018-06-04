@@ -3,12 +3,13 @@ import logging
 
 from django.http import Http404
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied, MethodNotAllowed
 from rest_framework.generics import get_object_or_404
-from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from metax_api.exceptions import Http403
+from metax_api.permissions import ServicePermissions
 from metax_api.services import CommonService as CS, ApiErrorService
 from metax_api.utils import RedisSentinelCache
 
@@ -22,6 +23,9 @@ class CommonViewSet(ModelViewSet):
     Using this viewset assumes its model has been inherited from the Common model,
     which include fields like modified and created timestamps, uuid, active flags etc.
     """
+
+    authentication_classes = ()
+    permission_classes = (ServicePermissions,)
 
     lookup_field_internal = None
     cache = RedisSentinelCache()
@@ -50,7 +54,7 @@ class CommonViewSet(ModelViewSet):
         Store request and response data to disk for later inspection
         """
         response = super(CommonViewSet, self).handle_exception(exc)
-        if type(exc) not in (Http403, Http404):
+        if type(exc) not in (Http403, Http404, PermissionDenied, MethodNotAllowed):
             ApiErrorService.store_error_details(self.request, response, exc)
         return response
 
@@ -199,22 +203,10 @@ class CommonViewSet(ModelViewSet):
         Overrided from rest_framework to preserve the username set during
         identifyapicaller middleware.
         """
-        username = request.user.username
-
-        # original ->
-        parser_context = self.get_parser_context(request)
-
-        req = Request(
-            request,
-            parsers=self.get_parsers(),
-            authenticators=self.get_authenticators(),
-            negotiator=self.get_content_negotiator(),
-            parser_context=parser_context
-        )
-        # ^ original
-
-        req.user.username = username
-        return req
+        username = request.user.username if hasattr(request.user, 'username') else None
+        drf_req = super(CommonViewSet, self).initialize_request(request, *args, **kwargs)
+        drf_req.user.username = username
+        return drf_req
 
     def set_json_schema(self, view_file):
         """
@@ -238,3 +230,12 @@ class CommonViewSet(ModelViewSet):
         """
         if 'failed' in response.data and len(response.data['failed']):
             ApiErrorService.store_error_details(request, response, other={ 'bulk_request': True })
+
+    def get_api_name(self):
+        """
+        Return api name, example: DatasetViewSet -> datasets.
+        Some views where the below formula does not produce a sensible result
+        (for example, directories-api), will inherit this and return a customized
+        result.
+        """
+        return '%ss' % self.__class__.__name__.split('ViewSet')[0].lower()

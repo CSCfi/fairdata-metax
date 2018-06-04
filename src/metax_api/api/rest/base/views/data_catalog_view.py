@@ -1,23 +1,14 @@
-import logging
-
 from django.http import Http404
 
 from metax_api.models import DataCatalog
 from .common_view import CommonViewSet
 from ..serializers import DataCatalogSerializer
 
-_logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
-
 
 class DataCatalogViewSet(CommonViewSet):
 
-    authentication_classes = ()
-    permission_classes = ()
-
     serializer_class = DataCatalogSerializer
     object = DataCatalog
-
     lookup_field = 'pk'
 
     def __init__(self, *args, **kwargs):
