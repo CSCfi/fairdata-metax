@@ -142,7 +142,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         publisher = []
         publisher_data = json.get('publisher', {})
         for key, value in publisher_data.get('name', {}).items():
-            publisher.append(self._get_oaic_dc_value(value))
+            publisher.append(self._get_oaic_dc_value(value, key))
 
         contributor = []
         contributor_data = json.get('contributor', [])
@@ -155,8 +155,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
         language = []
         language_data = json.get('language', [])
         for value in language_data:
-            for key, value2 in value.items():
-                language.append(self._get_oaic_dc_value(value2))
+            if 'identifier' in value:
+                language.append(self._get_oaic_dc_value(value['identifier']))
 
         relation = []
         relation_data = json.get('relation', [])

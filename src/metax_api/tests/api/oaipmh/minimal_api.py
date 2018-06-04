@@ -19,6 +19,138 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                    'dct': "http://purl.org/dc/terms/",
                    'datacite': 'http://schema.datacite.org/oai/oai-1.0/'}
 
+    _datacatalog_record = {
+        "id": 2,
+        "catalog_json": {
+            "title": {
+                "en": "Test data catalog name",
+                "fi": "Testidatakatalogin nimi"
+            },
+            "issued": "2014-02-27T08:19:58Z",
+            "homepage": [
+                {
+                    "title": {
+                        "en": "Test website",
+                        "fi": "Testi-verkkopalvelu"
+                    },
+                    "identifier": "http://testing.com"
+                },
+                {
+                    "title": {
+                        "en": "Another website",
+                        "fi": "Toinen verkkopalvelu"
+                    },
+                    "identifier": "http://www.testing.fi"
+                }
+            ],
+            "language": [
+                {
+                    "title": {
+                        "en": "Finnish language",
+                        "fi": "Suomen kieli",
+                        "sv": "finska",
+                        "und": "Suomen kieli"
+                    },
+                    "identifier": "http://lexvo.org/id/iso639-3/fin"
+                },
+                {
+                    "title": {
+                        "en": "English language",
+                        "fi": "Englannin kieli",
+                        "sv": "engelska",
+                        "und": "Englannin kieli"
+                    },
+                    "identifier": "http://lexvo.org/id/iso639-3/eng"
+                }
+            ],
+            "modified": "2014-01-17T08:19:58Z",
+            "harvested": False,
+            "publisher": {
+                "name": {
+                    "en": "Data catalog publisher organization",
+                    "fi": "Datakatalogin julkaisijaorganisaatio"
+                },
+                "homepage": [
+                    {
+                        "title": {
+                            "en": "Publisher organization website",
+                            "fi": "Julkaisijaorganisaation kotisivu"
+                        },
+                        "identifier": "http://www.publisher.fi/"
+                    }
+                ],
+                "identifier": "http://isni.org/isni/0000000405129137"
+            },
+            "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d2",
+            "access_rights": {
+                "license": [
+                    {
+                        "title": {
+                            "en": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+                            "fi": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)",
+                            "und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
+                        },
+                        "license": "https://creativecommons.org/licenses/by/4.0/",
+                        "identifier": "https://creativecommons.org/licenses/by/4.0/"
+                    }
+                ],
+                "access_type": [
+                    {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "pref_label": {
+                            "en": "Open",
+                            "fi": "Avoin",
+                            "und": "Avoin"
+                        }
+                    }
+                ],
+                "description": [
+                    {
+                        "fi": "Käyttöehtojen kuvaus"
+                    }
+                ],
+                "has_rights_related_agent": [
+                    {
+                        "name": {
+                            "en": "A rights related organization",
+                            "fi": "Oikeuksiin liittyvä organisaatio"
+                        },
+                        "identifier": "org_id"
+                    },
+                    {
+                        "name": {
+                            "und": "Aalto yliopisto"
+                        },
+                        "email": "wahatever@madeupdomain.com",
+                        "telephone": [
+                            "+12353495823424"
+                        ],
+                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076"
+                    }
+                ]
+            },
+            "field_of_science": [
+                {
+                    "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                    "pref_label": {
+                        "en": "Environmental sciences",
+                        "fi": "Ympäristötiede",
+                        "sv": "Miljövetenskap",
+                        "und": "Ympäristötiede"
+                    }
+                }
+            ],
+            "dataset_versioning": True,
+            "research_dataset_schema": "ida"
+        },
+        "catalog_record_group_edit": "default-record-edit-group",
+        "catalog_record_group_create": "default-record-create-group",
+        "date_modified": "2018-06-01T16:54:32+03:00",
+        "date_created": "2017-05-15T13:07:22+03:00",
+        "service_modified": "metax",
+        "service_created": "metax"
+    }
+
     @classmethod
     def setUpClass(cls):
         """
@@ -254,11 +386,20 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertTrue('<dc:title xml:lang="fi">title2</dc:title>' in result)
         self.assertTrue('<dc:description>value</dc:description>' in result)
 
-    def test_get_oai_dc_metadata(self):
+    def test_get_oai_dc_metadata_dataset(self):
         cr = CatalogRecord.objects.get(pk=11)
         from metax_api.api.oaipmh.base.metax_oai_server import MetaxOAIServer
         s = MetaxOAIServer()
         md = s._get_oai_dc_metadata(cr, cr.research_dataset, 'Dataset')
+        self.assertTrue('identifier' in md)
+        self.assertTrue('title' in md)
+        self.assertTrue('lang' in md['title'][0])
+
+    def test_get_oai_dc_metadata_datacatalog(self):
+        cr = DataCatalog.objects.get(pk=1)
+        from metax_api.api.oaipmh.base.metax_oai_server import MetaxOAIServer
+        s = MetaxOAIServer()
+        md = s._get_oai_dc_metadata(cr, self._datacatalog_record['catalog_json'], 'Datacatalog')
         self.assertTrue('identifier' in md)
         self.assertTrue('title' in md)
         self.assertTrue('lang' in md['title'][0])
