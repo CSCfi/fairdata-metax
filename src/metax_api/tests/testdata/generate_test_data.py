@@ -566,11 +566,9 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "description": "file description 6",
                         "file_type": {
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "in_scheme": [
                                 {
                                     "pref_label": {
@@ -590,11 +588,9 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "description": "file description 10",
                         "file_type": {
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "in_scheme": [
                                 {
                                     "pref_label": {
