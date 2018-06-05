@@ -211,6 +211,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return meta
 
     def _get_metadata_for_record(self, record, json, type, metadata_prefix):
+        if type == 'Datacatalog' and metadata_prefix != 'oai_dc':
+            raise BadArgumentError('Invalid set value. DataCatalogs can only be harvested using oai_dc format.')
+
         meta = {}
         json = CRS.strip_catalog_record(json)
 

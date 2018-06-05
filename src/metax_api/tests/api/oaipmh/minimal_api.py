@@ -460,3 +460,21 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                                         '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' %
                                         dc_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
+
+    def test_get_datacatalog_record_unsupported_format_datacite(self):
+        dc = DataCatalog.objects.get(pk=1)
+        dc_identifier = dc.catalog_json['identifier']
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_datacite' % dc_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        errors = self._get_results(response.content, '//o:error[@code="badArgument"]')
+        self.assertTrue(len(errors) == 1, response.content)
+
+    def test_get_datacatalog_record_unsupported_format_urnresolver(self):
+        dc = DataCatalog.objects.get(pk=1)
+        dc_identifier = dc.catalog_json['identifier']
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % dc_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        errors = self._get_results(response.content, '//o:error[@code="badArgument"]')
+        self.assertTrue(len(errors) == 1, response.content)
