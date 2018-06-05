@@ -72,6 +72,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('editor', False):
             queryset_search_params['editor__contains'] = { 'identifier': request.query_params['editor'] }
 
+        if request.query_params.get('metadata_owner_org', False):
+            queryset_search_params['metadata_owner_org'] = request.query_params['metadata_owner_org']
+
         if request.query_params.get('contract_org_identifier', False):
             if request.user.username not in ('metax', 'tpas'):
                 raise Http403({ 'detail': ['query parameter pas_filter is restricted']})
@@ -524,5 +527,38 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, relation['relation_type'], label_field='pref_label')
 
+            if relation.get('entity', False) and relation.get('entity').get('type', False):
+
+                ref_entry = cls.check_ref_data(refdata['resource_type'], relation['entity']['type']['identifier'],
+                                               'research_dataset.relation.entity.type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, relation['entity']['type'], label_field='pref_label')
+
         if errors:
             raise ValidationError(errors)
+
+    @classmethod
+    def strip_catalog_record(cls, catalog_record):
+        """
+        Strip the catalog record of any confidential/private information not supposed to be
+        available for the general public.
+
+        Accepts as paramater either a single cr object (dict), or a list of objects.
+
+        :param catalog_record:
+        """
+        return cls._remove_keys(catalog_record, ['email', 'telephone', 'phone'])
+
+    @classmethod
+    def _remove_keys(cls, obj, fields_to_remove):
+        if isinstance(obj, dict):
+            obj = {
+                key: cls._remove_keys(value, fields_to_remove) for key, value in obj.items()
+                if key not in fields_to_remove
+            }
+        elif isinstance(obj, list):
+            obj = [
+                cls._remove_keys(item, fields_to_remove) for item in obj
+                if item not in fields_to_remove
+            ]
+        return obj

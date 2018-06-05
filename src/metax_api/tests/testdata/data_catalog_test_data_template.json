@@ -50,11 +50,9 @@
       ]
     },
     "access_rights": {
-      "description": [
-        {
-          "fi": "Käyttöehtojen kuvaus"
-        }
-      ],
+      "description": {
+        "fi": "Käyttöehtojen kuvaus"
+      },
       "has_rights_related_agent": [
         {
           "identifier": "org_id",

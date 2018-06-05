@@ -20,15 +20,11 @@
       "keyword2",
       "keyword3"
     ],
-    "description": [
-      {
-        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-      }
-    ],
+    "description": {
+      "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+    },
     "bibliographic_citation": "whot",
-    "value": [
-      0.111
-    ],
+    "value": 0.111,
     "language": [
       {
         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -67,22 +63,18 @@
       }
     ],
     "access_rights": {
-      "description": [
-        {
-          "en": "Free account of the rights"
-        }
-      ],
+      "description": {
+        "en": "Free account of the rights"
+      },
       "available": "2014-01-15T08:19:58Z",
       "access_type": {
         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
         "pref_label": {
           "en": "pref label for this type"
         },
-        "definition": [
-          {
-            "en": "A statement or formal explanation of the meaning of a concept."
-          }
-        ],
+        "definition": {
+          "en": "A statement or formal explanation of the meaning of a concept."
+        },
         "in_scheme": [
           {
             "pref_label": {
@@ -101,11 +93,9 @@
           "title": {
             "en": "A name given to the resource"
           },
-          "description": [
-            {
-              "en": "Free account of the rights"
-            }
-          ],
+          "description": {
+            "en": "Free account of the rights"
+          },
           "license": "https://url.of.license.which.applies.here.org"
         }
       ],
@@ -140,11 +130,9 @@
           "pref_label": {
             "en": "pref label"
           },
-          "definition": [
-            {
-              "en": "A statement or formal explanation of the meaning of a concept."
-            }
-          ],
+          "definition": {
+            "en": "A statement or formal explanation of the meaning of a concept."
+          },
           "in_scheme": [
             {
               "pref_label": {
@@ -175,11 +163,9 @@
           "pref_label": {
             "en": "pref label for y"
           },
-          "definition": [
-            {
-              "en": "A statement or formal explanation of the meaning of a concept."
-            }
-          ],
+          "definition": {
+            "en": "A statement or formal explanation of the meaning of a concept."
+          },
           "in_scheme": [
             {
               "pref_label": {
@@ -197,11 +183,9 @@
         "pref_label": {
           "en": "pref label for this type"
         },
-        "definition": [
-          {
-            "en": "A statement or formal explanation of the meaning of a concept."
-          }
-        ],
+        "definition": {
+          "en": "A statement or formal explanation of the meaning of a concept."
+        },
         "in_scheme": [
           {
             "pref_label": {
@@ -218,11 +202,9 @@
         "pref_label": {
           "en": "pref label for theme"
         },
-        "definition": [
-          {
-            "en": "A statement or formal explanation of the meaning of a concept."
-          }
-        ],
+        "definition": {
+          "en": "A statement or formal explanation of the meaning of a concept."
+        },
         "in_scheme": [
           {
             "pref_label": {
@@ -255,11 +237,9 @@
         },
         "lifecycle_event": {
           "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
-          "definition": [
-            {
-              "en": "A statement or formal explanation of the meaning of a concept."
-            }
-          ],
+          "definition": {
+            "en": "A statement or formal explanation of the meaning of a concept."
+          },
           "in_scheme": [
             {
               "pref_label": {
@@ -274,22 +254,18 @@
             "title": {
               "en": "Title"
             },
-            "description": [
-              {
-                "en": "Description"
-              }
-            ],
+            "description": {
+              "en": "Description"
+            },
             "identifier": "someidhereagain",
             "type": {
               "identifier": "thisisnotenoughconcepts",
               "pref_label": {
                 "en": "pref label for this type"
               },
-              "definition": [
-                {
-                  "en": "A statement or formal explanation of the meaning of a concept."
-                }
-              ],
+              "definition": {
+                "en": "A statement or formal explanation of the meaning of a concept."
+              },
               "in_scheme": [
                 {
                   "pref_label": {
@@ -320,21 +296,17 @@
             "pref_label": {
               "en": "Preferred label"
             },
-            "description": [
-              {
-                "en": "Description"
-              }
-            ],
+            "description": {
+              "en": "Description"
+            },
             "concept": {
               "identifier": "variableconceptidentifier",
               "pref_label": {
                 "en": "pref label"
               },
-              "definition": [
-                {
-                  "en": "A statement or formal explanation of the meaning of a concept."
-                }
-              ],
+              "definition": {
+                "en": "A statement or formal explanation of the meaning of a concept."
+              },
               "in_scheme": [
                 {
                   "pref_label": {
@@ -349,11 +321,9 @@
               "pref_label": {
                 "en": "pref label"
               },
-              "definition": [
-                {
-                  "en": "A statement or formal explanation of the meaning of a concept."
-                }
-              ],
+              "definition": {
+                "en": "A statement or formal explanation of the meaning of a concept."
+              },
               "in_scheme": [
                 {
                   "pref_label": {
@@ -605,21 +575,17 @@
             "title": {
               "en": "A name given to the resource"
             },
-            "description": [
-              {
-                "en": "Free account of the rights"
-              }
-            ],
+            "description": {
+              "en": "Free account of the rights"
+            },
             "license": "https://url.of.license.which.applies.org"
           }
         ],
         "file_type": {
           "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
-          "definition": [
-            {
-              "en": "A statement or formal explanation of the meaning of a concept."
-            }
-          ],
+          "definition": {
+            "en": "A statement or formal explanation of the meaning of a concept."
+          },
           "in_scheme": [
             {
               "pref_label": {
@@ -665,21 +631,17 @@
             "title": {
               "en": "A name given to the resource"
             },
-            "description": [
-              {
-                "en": "Free account of the rights"
-              }
-            ],
+            "description": {
+              "en": "Free account of the rights"
+            },
             "license": "https://url.of.license.which.applies.org"
           }
         ],
         "resource_type": {
           "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
-          "definition": [
-            {
-              "en": "A statement or formal explanation of the meaning of a concept."
-            }
-          ],
+          "definition": {
+            "en": "A statement or formal explanation of the meaning of a concept."
+          },
           "in_scheme": [
             {
               "pref_label": {
@@ -702,12 +664,13 @@
             "fi": "Ulkopuolinen aineisto 1",
             "en": "External dataset 1"
           },
-          "description": [
-            {
-              "fi": "Kuvailutiedot"
-            }
-          ],
-          "identifier": "external:dataset:identifier"
+          "description": {
+            "fi": "Kuvailutiedot"
+          },
+          "identifier": "external:dataset:identifier",
+          "type": {
+            "identifier": "physical_object"
+          }
         },
         "relation_type": {
           "identifier": "wasDerivedFrom"
@@ -719,12 +682,13 @@
             "fi": "Ulkopuolinen asia 2",
             "en": "External thing 2"
           },
-          "description": [
-            {
-              "fi": "Kuvailutiedot"
-            }
-          ],
-          "identifier": "external:thing:identifier"
+          "description": {
+            "fi": "Kuvailutiedot"
+          },
+          "identifier": "external:thing:identifier",
+          "type": {
+            "identifier": "collection"
+          }
         },
         "relation_type": {
           "identifier": "cites"
@@ -736,12 +700,13 @@
             "fi": "Ulkopuolinen aineisto 2",
             "en": "External dataset 2"
           },
-          "description": [
-            {
-              "fi": "Kuvailutiedot"
-            }
-          ],
-          "identifier": "external:dataset_2:identifier"
+          "description": {
+            "fi": "Kuvailutiedot"
+          },
+          "identifier": "external:dataset_2:identifier",
+          "type": {
+            "identifier": "service"
+          }
         },
         "relation_type": {
           "identifier": "isPartOf"
@@ -753,12 +718,13 @@
             "fi": "Ulkopuolinen asia 2",
             "en": "External thing 2"
           },
-          "description": [
-            {
-              "fi": "Kuvailutiedot"
-            }
-          ],
-          "identifier": "external:thing_2:identifier"
+          "description": {
+            "fi": "Kuvailutiedot"
+          },
+          "identifier": "external:thing_2:identifier",
+          "type": {
+            "identifier": "ui"
+          }
         },
         "relation_type": {
           "identifier": "hasPreviousVersion"

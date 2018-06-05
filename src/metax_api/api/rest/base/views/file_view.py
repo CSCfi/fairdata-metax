@@ -18,15 +18,11 @@ from .common_view import CommonViewSet
 from ..serializers import FileSerializer, XmlMetadataSerializer
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
 
 
 # none of the methods in this class use atomic requests by default! see method dispatch()
 @transaction.non_atomic_requests
 class FileViewSet(CommonViewSet):
-
-    authentication_classes = ()
-    permission_classes = ()
 
     serializer_class = FileSerializer
     object = File

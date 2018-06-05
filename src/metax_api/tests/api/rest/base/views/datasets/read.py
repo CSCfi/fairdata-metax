@@ -27,6 +27,7 @@ class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
         self.metadata_version_identifier = self.cr_from_test_data['research_dataset']['metadata_version_identifier']
         self.preferred_identifier = self.cr_from_test_data['research_dataset']['preferred_identifier']
         self.identifier = self.cr_from_test_data['identifier']
+        self._use_http_authorization()
 
 
 class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
@@ -149,6 +150,39 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('catalog_json' in response.data['data_catalog'], True, response.data['data_catalog'])
         self.assertEqual('contract_json' in response.data['contract'], True, response.data['contract'])
+
+    def test_strip_sensitive_fields(self):
+        """
+        Strip fields not intended for general public
+        """
+        def _check_fields(obj):
+            for sensitive_field in ['email', 'telephone', 'phone']:
+                self.assertEqual(sensitive_field not in obj['research_dataset']['curator'][0], True,
+                    'field %s should have been stripped' % sensitive_field)
+
+        for cr in CatalogRecord.objects.filter(pk__in=(1, 2, 3)):
+            cr.research_dataset['curator'][0].update({
+                'email': 'email@mail.com',
+                'phone': '123124',
+                'telephone': '123124',
+            })
+            cr.force_save()
+
+        self.client._credentials = {}
+
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        _check_fields(response.data)
+
+        response = self.client.get('/rest/datasets')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        for obj in response.data['results']:
+            _check_fields(obj)
+
+        response = self.client.get('/rest/datasets?no_pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        for obj in response.data:
+            _check_fields(obj)
 
     def _create_new_ds(self):
         new_cr = self.client.get('/rest/datasets/2').data
@@ -350,6 +384,15 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets')
         self.assertNotEqual(response.data['count'], qvain_records_count, 'looks like filtering had no effect')
 
+    def test_read_catalog_record_search_by_metadata_owner_org(self):
+        metadata_owner_org = 'org_id'
+        for cr in CatalogRecord.objects.filter(pk__in=[1, 2, 3]):
+            cr.metadata_owner_org = metadata_owner_org
+            cr.force_save()
+        response = self.client.get('/rest/datasets?metadata_owner_org=%s' % metadata_owner_org)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 3)
+
     def test_filter_by_contract_org_identifier(self):
         """
         Test filtering by contract_org_identifier, which matches using iregex
@@ -476,14 +519,33 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.data['research_dataset']['directories'][1]['details']['file_count'], 20)
 
 
-class CatalogRecordApiReadRemovedFiles(CatalogRecordApiReadCommon):
+class CatalogRecordApiReadFiles(CatalogRecordApiReadCommon):
 
     """
-    Test use of query parameter removed_files=bool in /datasets/pid/files, which should return
-    only deleted files.
+    Test /datasets/pid/files api
     """
+
+    def test_get_files(self):
+        file_count = CatalogRecord.objects.get(pk=1).files.count()
+        response = self.client.get('/rest/datasets/1/files')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), file_count)
+
+    def test_get_files_specified_fields_only(self):
+        """
+        Test use of query parameter ?file_fields=x,y,z
+        """
+        response = self.client.get('/rest/datasets/1/files?file_fields=identifier,file_path')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data[0].keys()), 2)
+        self.assertEqual('identifier' in response.data[0], True)
+        self.assertEqual('file_path' in response.data[0], True)
 
     def test_removed_query_param(self):
+        """
+        Test use of query parameter removed_files=bool in /datasets/pid/files, which should return
+        only deleted files.
+        """
         response = self.client.get('/rest/datasets/1/files')
         file_ids_before = set([ f['id'] for f in response.data ])
         obj = File.objects.get(pk=1)

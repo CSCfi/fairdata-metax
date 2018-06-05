@@ -292,9 +292,9 @@ class CatalogRecord(Common):
             self._post_create_operations()
             _logger.info(
                 'Created a new <CatalogRecord id: %d, '
-                'metadata_version_identifier: %s, '
+                'identifier: %s, '
                 'preferred_identifier: %s >'
-                % (self.id, self.metadata_version_identifier, self.preferred_identifier)
+                % (self.id, self.identifier, self.preferred_identifier)
             )
         else:
             self._pre_update_operations()
@@ -788,7 +788,14 @@ class CatalogRecord(Common):
                         'back to 0.' % self.preservation_state
                     ]})
 
-                self._create_new_dataset_version()
+                if self._files_added_for_first_time():
+                    # first update from 0 to n files should not create a dataset version. all later updates
+                    # will create new dataset versions normally.
+                    self.files.add(*self._get_dataset_selected_file_ids())
+                    self._calculate_total_ida_byte_size()
+                    self._handle_metadata_versioning()
+                else:
+                    self._create_new_dataset_version()
 
             else:
                 if self.preservation_state in (
@@ -821,6 +828,29 @@ class CatalogRecord(Common):
 
             if self.catalog_is_harvested() and self.field_changed('research_dataset.preferred_identifier'):
                 self._handle_preferred_identifier_changed()
+
+    def _files_added_for_first_time(self):
+        """
+        Find out if this update is the first time files are being added/changed since the dataset's creation.
+        """
+        if self.files.exists():
+            # current version already has files
+            return False
+
+        if self.dataset_version_set.records.count() > 1:
+            # for versioned catalogs, when a record is first created, the record is appended
+            # to dataset_version_set. more than one dataset versions existing implies files
+            # have changed already in the past.
+            return False
+
+        metadata_versions_with_files_exist = ResearchDatasetVersion.objects.filter(
+            Q(Q(research_dataset__files__isnull=False) | Q(research_dataset__directories__isnull=False)),
+            catalog_record_id=self.id) \
+            .exists()
+
+        # metadata_versions_with_files_exist == True implies this "0 to n" update without
+        # creating a new dataset version already occurred once
+        return not metadata_versions_with_files_exist
 
     def _calculate_total_ida_byte_size(self):
         rd = self.research_dataset
@@ -964,6 +994,7 @@ class CatalogRecord(Common):
                 temp_record.id = None
                 temp_record.next_dataset_version = None
                 temp_record.previous_dataset_version = None
+                temp_record.dataset_version_set = None
                 temp_record.identifier = generate_identifier()
                 temp_record.research_dataset['metadata_version_identifier'] = generate_identifier()
                 super(Common, temp_record).save()
@@ -1035,7 +1066,7 @@ class CatalogRecord(Common):
         new_version.service_created = old_version.service_modified or old_version.service_created
         new_version.service_modified = None
         new_version.alternate_record_set = None
-        new_version.dataset_version_set.records.add(new_version)
+        old_version.dataset_version_set.records.add(new_version)
 
         # note: copying research_dataset from the currently open instance 'old_version',
         # contains the new field data from the request. this effectively transfers

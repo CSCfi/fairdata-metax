@@ -4550,11 +4550,9 @@
                             }
                         }
                     ],
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
                     "has_rights_related_agent": [
                         {
                             "identifier": "org_id",
@@ -4667,11 +4665,9 @@
                             }
                         }
                     ],
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
                     "has_rights_related_agent": [
                         {
                             "identifier": "org_id",
@@ -4784,11 +4780,9 @@
                             }
                         }
                     ],
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
                     "has_rights_related_agent": [
                         {
                             "identifier": "org_id",
@@ -4901,11 +4895,9 @@
                             }
                         }
                     ],
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
                     "has_rights_related_agent": [
                         {
                             "identifier": "org_id",
@@ -5018,11 +5010,9 @@
                             }
                         }
                     ],
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
                     "has_rights_related_agent": [
                         {
                             "identifier": "org_id",
@@ -5135,11 +5125,9 @@
                             }
                         }
                     ],
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
                     "has_rights_related_agent": [
                         {
                             "identifier": "org_id",
@@ -5252,11 +5240,9 @@
                             }
                         }
                     ],
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
                     "has_rights_related_agent": [
                         {
                             "identifier": "org_id",
@@ -5369,11 +5355,9 @@
                             }
                         }
                     ],
-                    "description": [
-                        {
-                            "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
-                        }
-                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
                     "has_rights_related_agent": [
                         {
                             "identifier": "org_id",
@@ -5783,11 +5767,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "file_type": {
@@ -5882,11 +5864,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "file_type": {
@@ -5981,11 +5961,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "file_type": {
@@ -6080,11 +6058,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "file_type": {
@@ -6179,11 +6155,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "file_type": {
@@ -6278,11 +6252,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "file_type": {
@@ -6377,11 +6349,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "file_type": {
@@ -6476,11 +6446,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "file_type": {
@@ -6572,11 +6540,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "identifier": "pid:urn:17",
@@ -6666,11 +6632,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "identifier": "pid:urn:19",
@@ -6749,11 +6713,9 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                         "in_scheme": [
                             {
@@ -6777,18 +6739,14 @@
                         }
                     },
                     "available": "2014-01-15T08:19:58Z",
-                    "description": [
-                        {
-                            "en": "Free account of the rights"
-                        }
-                    ],
+                    "description": {
+                        "en": "Free account of the rights"
+                    },
                     "license": [
                         {
-                            "description": [
-                                {
-                                    "en": "Free account of the rights"
-                                }
-                            ],
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
@@ -6886,11 +6844,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "directories": [
                     {
                         "description": "What is in this directory",
@@ -6911,11 +6867,9 @@
                 ],
                 "field_of_science": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
                         "in_scheme": [
                             {
@@ -6934,11 +6888,9 @@
                     {
                         "description": "file description",
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
                             "in_scheme": [
                                 {
@@ -6958,11 +6910,9 @@
                     {
                         "description": "file description",
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
                             "in_scheme": [
                                 {
@@ -7055,11 +7005,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "doi",
                             "in_scheme": [
                                 {
@@ -7090,11 +7038,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
                             "in_scheme": [
                                 {
@@ -7117,11 +7063,9 @@
                             "en": "Description of provenance activity"
                         },
                         "lifecycle_event": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
@@ -7149,21 +7093,17 @@
                         },
                         "used_entity": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "identifier": "someidhereagain",
                                 "title": {
                                     "en": "Title"
                                 },
                                 "type": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "thisisnotenoughconcepts",
                                     "in_scheme": [
                                         {
@@ -7182,11 +7122,9 @@
                         "variable": [
                             {
                                 "concept": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "variableconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -7200,11 +7138,9 @@
                                         "en": "pref label"
                                     }
                                 },
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
@@ -7215,11 +7151,9 @@
                                     }
                                 },
                                 "universe": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "universeconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -7315,15 +7249,16 @@
                 "relation": [
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset:identifier",
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
                             }
                         },
                         "relation_type": {
@@ -7332,15 +7267,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
                             }
                         },
                         "relation_type": {
@@ -7349,15 +7285,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset_2:identifier",
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
                             }
                         },
                         "relation_type": {
@@ -7366,15 +7303,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing_2:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
                             }
                         },
                         "relation_type": {
@@ -7433,11 +7371,9 @@
                 ],
                 "theme": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/yso/p20518",
                         "in_scheme": [
                             {
@@ -7456,9 +7392,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 19000,
-                "value": [
-                    0.111
-                ],
+                "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -7510,11 +7444,9 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                         "in_scheme": [
                             {
@@ -7538,18 +7470,14 @@
                         }
                     },
                     "available": "2014-01-15T08:19:58Z",
-                    "description": [
-                        {
-                            "en": "Free account of the rights"
-                        }
-                    ],
+                    "description": {
+                        "en": "Free account of the rights"
+                    },
                     "license": [
                         {
-                            "description": [
-                                {
-                                    "en": "Free account of the rights"
-                                }
-                            ],
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
@@ -7647,11 +7575,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "directories": [
                     {
                         "description": "What is in this directory",
@@ -7672,11 +7598,9 @@
                 ],
                 "field_of_science": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
                         "in_scheme": [
                             {
@@ -7695,11 +7619,9 @@
                     {
                         "description": "file description",
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
                             "in_scheme": [
                                 {
@@ -7719,11 +7641,9 @@
                     {
                         "description": "file description",
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
                             "in_scheme": [
                                 {
@@ -7816,11 +7736,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "doi",
                             "in_scheme": [
                                 {
@@ -7851,11 +7769,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
                             "in_scheme": [
                                 {
@@ -7878,11 +7794,9 @@
                             "en": "Description of provenance activity"
                         },
                         "lifecycle_event": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
@@ -7910,21 +7824,17 @@
                         },
                         "used_entity": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "identifier": "someidhereagain",
                                 "title": {
                                     "en": "Title"
                                 },
                                 "type": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "thisisnotenoughconcepts",
                                     "in_scheme": [
                                         {
@@ -7943,11 +7853,9 @@
                         "variable": [
                             {
                                 "concept": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "variableconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -7961,11 +7869,9 @@
                                         "en": "pref label"
                                     }
                                 },
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
@@ -7976,11 +7882,9 @@
                                     }
                                 },
                                 "universe": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "universeconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -8076,15 +7980,16 @@
                 "relation": [
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset:identifier",
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
                             }
                         },
                         "relation_type": {
@@ -8093,15 +7998,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
                             }
                         },
                         "relation_type": {
@@ -8110,15 +8016,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset_2:identifier",
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
                             }
                         },
                         "relation_type": {
@@ -8127,15 +8034,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing_2:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
                             }
                         },
                         "relation_type": {
@@ -8194,11 +8102,9 @@
                 ],
                 "theme": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/yso/p20518",
                         "in_scheme": [
                             {
@@ -8217,9 +8123,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 19000,
-                "value": [
-                    0.111
-                ],
+                "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -8339,11 +8243,9 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                         "in_scheme": [
                             {
@@ -8367,18 +8269,14 @@
                         }
                     },
                     "available": "2014-01-15T08:19:58Z",
-                    "description": [
-                        {
-                            "en": "Free account of the rights"
-                        }
-                    ],
+                    "description": {
+                        "en": "Free account of the rights"
+                    },
                     "license": [
                         {
-                            "description": [
-                                {
-                                    "en": "Free account of the rights"
-                                }
-                            ],
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
@@ -8476,11 +8374,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "directories": [
                     {
                         "description": "Description of the directory",
@@ -8525,11 +8421,9 @@
                 ],
                 "field_of_science": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
                         "in_scheme": [
                             {
@@ -8548,11 +8442,9 @@
                     {
                         "description": "file description 6",
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
                             "in_scheme": [
                                 {
@@ -8572,11 +8464,9 @@
                     {
                         "description": "file description 10",
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
                             "in_scheme": [
                                 {
@@ -8669,11 +8559,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "doi",
                             "in_scheme": [
                                 {
@@ -8704,11 +8592,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
                             "in_scheme": [
                                 {
@@ -8731,11 +8617,9 @@
                             "en": "Description of provenance activity"
                         },
                         "lifecycle_event": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
@@ -8763,21 +8647,17 @@
                         },
                         "used_entity": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "identifier": "someidhereagain",
                                 "title": {
                                     "en": "Title"
                                 },
                                 "type": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "thisisnotenoughconcepts",
                                     "in_scheme": [
                                         {
@@ -8796,11 +8676,9 @@
                         "variable": [
                             {
                                 "concept": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "variableconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -8814,11 +8692,9 @@
                                         "en": "pref label"
                                     }
                                 },
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
@@ -8829,11 +8705,9 @@
                                     }
                                 },
                                 "universe": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "universeconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -8929,15 +8803,16 @@
                 "relation": [
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset:identifier",
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
                             }
                         },
                         "relation_type": {
@@ -8946,15 +8821,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
                             }
                         },
                         "relation_type": {
@@ -8963,15 +8839,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset_2:identifier",
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
                             }
                         },
                         "relation_type": {
@@ -8980,15 +8857,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing_2:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
                             }
                         },
                         "relation_type": {
@@ -9047,11 +8925,9 @@
                 ],
                 "theme": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/yso/p20518",
                         "in_scheme": [
                             {
@@ -9070,9 +8946,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_ida_byte_size": 640100,
-                "value": [
-                    0.111
-                ],
+                "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -9120,11 +8994,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9209,11 +9081,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9298,11 +9168,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9387,11 +9255,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9476,11 +9342,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9565,11 +9429,9 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9657,11 +9519,9 @@
                         "name": "Jarski"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9749,11 +9609,9 @@
                         "name": "Jarski"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9841,11 +9699,9 @@
                         "name": "Jarski"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9933,11 +9789,9 @@
                         "name": "Jarski"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -10001,11 +9855,9 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                         "in_scheme": [
                             {
@@ -10029,18 +9881,14 @@
                         }
                     },
                     "available": "2014-01-15T08:19:58Z",
-                    "description": [
-                        {
-                            "en": "Free account of the rights"
-                        }
-                    ],
+                    "description": {
+                        "en": "Free account of the rights"
+                    },
                     "license": [
                         {
-                            "description": [
-                                {
-                                    "en": "Free account of the rights"
-                                }
-                            ],
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
@@ -10138,18 +9986,14 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "field_of_science": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
                         "in_scheme": [
                             {
@@ -10239,11 +10083,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "doi",
                             "in_scheme": [
                                 {
@@ -10274,11 +10116,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
                             "in_scheme": [
                                 {
@@ -10301,11 +10141,9 @@
                             "en": "Description of provenance activity"
                         },
                         "lifecycle_event": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
@@ -10333,21 +10171,17 @@
                         },
                         "used_entity": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "identifier": "someidhereagain",
                                 "title": {
                                     "en": "Title"
                                 },
                                 "type": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "thisisnotenoughconcepts",
                                     "in_scheme": [
                                         {
@@ -10366,11 +10200,9 @@
                         "variable": [
                             {
                                 "concept": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "variableconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -10384,11 +10216,9 @@
                                         "en": "pref label"
                                     }
                                 },
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
@@ -10399,11 +10229,9 @@
                                     }
                                 },
                                 "universe": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "universeconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -10499,15 +10327,16 @@
                 "relation": [
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset:identifier",
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "physical_object"
                             }
                         },
                         "relation_type": {
@@ -10516,15 +10345,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "collection"
                             }
                         },
                         "relation_type": {
@@ -10533,15 +10363,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset_2:identifier",
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "service"
                             }
                         },
                         "relation_type": {
@@ -10550,15 +10381,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing_2:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "ui"
                             }
                         },
                         "relation_type": {
@@ -10584,11 +10416,9 @@
                             }
                         },
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
                             "in_scheme": [
                                 {
@@ -10608,11 +10438,9 @@
                         "identifier": "identifierofresource",
                         "license": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Free account of the rights"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Free account of the rights"
+                                },
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
@@ -10646,11 +10474,9 @@
                         "identifier": "identifierofresource_2",
                         "license": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Free account of the rights"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Free account of the rights"
+                                },
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
@@ -10661,11 +10487,9 @@
                         "mediatype": "image/gif",
                         "modified": "2013-01-17T08:19:58Z",
                         "resource_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
                             "in_scheme": [
                                 {
@@ -10733,11 +10557,9 @@
                 ],
                 "theme": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/yso/p20518",
                         "in_scheme": [
                             {
@@ -10756,9 +10578,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 6144,
-                "value": [
-                    0.111
-                ],
+                "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -10785,11 +10605,9 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                         "in_scheme": [
                             {
@@ -10813,18 +10631,14 @@
                         }
                     },
                     "available": "2014-01-15T08:19:58Z",
-                    "description": [
-                        {
-                            "en": "Free account of the rights"
-                        }
-                    ],
+                    "description": {
+                        "en": "Free account of the rights"
+                    },
                     "license": [
                         {
-                            "description": [
-                                {
-                                    "en": "Free account of the rights"
-                                }
-                            ],
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
@@ -10922,18 +10736,14 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "field_of_science": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
                         "in_scheme": [
                             {
@@ -11023,11 +10833,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "doi",
                             "in_scheme": [
                                 {
@@ -11058,11 +10866,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
                             "in_scheme": [
                                 {
@@ -11085,11 +10891,9 @@
                             "en": "Description of provenance activity"
                         },
                         "lifecycle_event": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
@@ -11117,21 +10921,17 @@
                         },
                         "used_entity": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "identifier": "someidhereagain",
                                 "title": {
                                     "en": "Title"
                                 },
                                 "type": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "thisisnotenoughconcepts",
                                     "in_scheme": [
                                         {
@@ -11150,11 +10950,9 @@
                         "variable": [
                             {
                                 "concept": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "variableconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -11168,11 +10966,9 @@
                                         "en": "pref label"
                                     }
                                 },
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
@@ -11183,11 +10979,9 @@
                                     }
                                 },
                                 "universe": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "universeconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -11283,15 +11077,16 @@
                 "relation": [
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset:identifier",
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "physical_object"
                             }
                         },
                         "relation_type": {
@@ -11300,15 +11095,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "collection"
                             }
                         },
                         "relation_type": {
@@ -11317,15 +11113,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset_2:identifier",
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "service"
                             }
                         },
                         "relation_type": {
@@ -11334,15 +11131,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing_2:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "ui"
                             }
                         },
                         "relation_type": {
@@ -11368,11 +11166,9 @@
                             }
                         },
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
                             "in_scheme": [
                                 {
@@ -11392,11 +11188,9 @@
                         "identifier": "identifierofresource",
                         "license": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Free account of the rights"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Free account of the rights"
+                                },
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
@@ -11430,11 +11224,9 @@
                         "identifier": "identifierofresource_2",
                         "license": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Free account of the rights"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Free account of the rights"
+                                },
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
@@ -11445,11 +11237,9 @@
                         "mediatype": "image/gif",
                         "modified": "2013-01-17T08:19:58Z",
                         "resource_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
                             "in_scheme": [
                                 {
@@ -11517,11 +11307,9 @@
                 ],
                 "theme": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/yso/p20518",
                         "in_scheme": [
                             {
@@ -11540,9 +11328,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 6144,
-                "value": [
-                    0.111
-                ],
+                "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -11569,11 +11355,9 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
                         "in_scheme": [
                             {
@@ -11597,18 +11381,14 @@
                         }
                     },
                     "available": "2014-01-15T08:19:58Z",
-                    "description": [
-                        {
-                            "en": "Free account of the rights"
-                        }
-                    ],
+                    "description": {
+                        "en": "Free account of the rights"
+                    },
                     "license": [
                         {
-                            "description": [
-                                {
-                                    "en": "Free account of the rights"
-                                }
-                            ],
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
                             "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
@@ -11706,18 +11486,14 @@
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "field_of_science": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
                         "in_scheme": [
                             {
@@ -11807,11 +11583,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "doi",
                             "in_scheme": [
                                 {
@@ -11842,11 +11616,9 @@
                             ]
                         },
                         "type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
                             "in_scheme": [
                                 {
@@ -11869,11 +11641,9 @@
                             "en": "Description of provenance activity"
                         },
                         "lifecycle_event": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": [
                                 {
@@ -11901,21 +11671,17 @@
                         },
                         "used_entity": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "identifier": "someidhereagain",
                                 "title": {
                                     "en": "Title"
                                 },
                                 "type": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "thisisnotenoughconcepts",
                                     "in_scheme": [
                                         {
@@ -11934,11 +11700,9 @@
                         "variable": [
                             {
                                 "concept": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "variableconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -11952,11 +11716,9 @@
                                         "en": "pref label"
                                     }
                                 },
-                                "description": [
-                                    {
-                                        "en": "Description"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Description"
+                                },
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
@@ -11967,11 +11729,9 @@
                                     }
                                 },
                                 "universe": {
-                                    "definition": [
-                                        {
-                                            "en": "A statement or formal explanation of the meaning of a concept."
-                                        }
-                                    ],
+                                    "definition": {
+                                        "en": "A statement or formal explanation of the meaning of a concept."
+                                    },
                                     "identifier": "universeconceptidentifier",
                                     "in_scheme": [
                                         {
@@ -12067,15 +11827,16 @@
                 "relation": [
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset:identifier",
                             "title": {
                                 "en": "External dataset 1",
                                 "fi": "Ulkopuolinen aineisto 1"
+                            },
+                            "type": {
+                                "identifier": "physical_object"
                             }
                         },
                         "relation_type": {
@@ -12084,15 +11845,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "collection"
                             }
                         },
                         "relation_type": {
@@ -12101,15 +11863,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:dataset_2:identifier",
                             "title": {
                                 "en": "External dataset 2",
                                 "fi": "Ulkopuolinen aineisto 2"
+                            },
+                            "type": {
+                                "identifier": "service"
                             }
                         },
                         "relation_type": {
@@ -12118,15 +11881,16 @@
                     },
                     {
                         "entity": {
-                            "description": [
-                                {
-                                    "fi": "Kuvailutiedot"
-                                }
-                            ],
+                            "description": {
+                                "fi": "Kuvailutiedot"
+                            },
                             "identifier": "external:thing_2:identifier",
                             "title": {
                                 "en": "External thing 2",
                                 "fi": "Ulkopuolinen asia 2"
+                            },
+                            "type": {
+                                "identifier": "ui"
                             }
                         },
                         "relation_type": {
@@ -12152,11 +11916,9 @@
                             }
                         },
                         "file_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
                             "in_scheme": [
                                 {
@@ -12176,11 +11938,9 @@
                         "identifier": "identifierofresource",
                         "license": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Free account of the rights"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Free account of the rights"
+                                },
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
@@ -12214,11 +11974,9 @@
                         "identifier": "identifierofresource_2",
                         "license": [
                             {
-                                "description": [
-                                    {
-                                        "en": "Free account of the rights"
-                                    }
-                                ],
+                                "description": {
+                                    "en": "Free account of the rights"
+                                },
                                 "identifier": "http://www.opensource.org/licenses/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
@@ -12229,11 +11987,9 @@
                         "mediatype": "image/gif",
                         "modified": "2013-01-17T08:19:58Z",
                         "resource_type": {
-                            "definition": [
-                                {
-                                    "en": "A statement or formal explanation of the meaning of a concept."
-                                }
-                            ],
+                            "definition": {
+                                "en": "A statement or formal explanation of the meaning of a concept."
+                            },
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
                             "in_scheme": [
                                 {
@@ -12301,11 +12057,9 @@
                 ],
                 "theme": [
                     {
-                        "definition": [
-                            {
-                                "en": "A statement or formal explanation of the meaning of a concept."
-                            }
-                        ],
+                        "definition": {
+                            "en": "A statement or formal explanation of the meaning of a concept."
+                        },
                         "identifier": "http://www.yso.fi/onto/yso/p20518",
                         "in_scheme": [
                             {
@@ -12324,9 +12078,7 @@
                     "en": "Wonderful Title"
                 },
                 "total_remote_resources_byte_size": 6144,
-                "value": [
-                    0.111
-                ],
+                "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
                     "This version contains changes to x and y."
@@ -12389,11 +12141,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "identifier": "pid:urn:19",
@@ -12477,11 +12227,9 @@
                         "name": "Rahikainen"
                     }
                 ],
-                "description": [
-                    {
-                        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-                    }
-                ],
+                "description": {
+                    "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+                },
                 "files": [
                     {
                         "identifier": "pid:urn:19",

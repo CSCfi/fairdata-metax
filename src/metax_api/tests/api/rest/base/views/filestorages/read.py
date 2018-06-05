@@ -16,6 +16,9 @@ class FileStorageApiReadBasicTests(APITestCase, TestClassUtils):
         call_command('loaddata', test_data_file_path, verbosity=0)
         super(FileStorageApiReadBasicTests, cls).setUpClass()
 
+    def setUp(self):
+        self._use_http_authorization()
+
     def test_basic_get(self):
         fs = FileStorage.objects.get(pk=1)
         response = self.client.get('/rest/filestorages/%d' % fs.id)
