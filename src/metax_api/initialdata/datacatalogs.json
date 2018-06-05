@@ -54,12 +54,10 @@
                     }
                 }
             ],
-            "description": [
-                {
-                    "en": "Datasets stored in the IDA service",
-                    "fi": "IDA-palvelussa säilytettävät aineistot"
-                }
-            ]
+            "description": {
+                "en": "Datasets stored in the IDA service",
+                "fi": "IDA-palvelussa säilytettävät aineistot"
+            }
         },
         "dataset_versioning": true,
         "research_dataset_schema": "ida"
@@ -121,12 +119,10 @@
                     }
                 }
             ],
-            "description": [
-                {
-                    "en": "Contains datasets that are not stored in the Finnish Fairdata services.",
-                    "fi": "Sisältää esimerkiksi verkkoaineistot, rajapinnat ja muut muualla kuin fairdata-palveluissa säilytettävät aineistot."
-                }
-            ]
+            "description": {
+                "en": "Contains datasets that are not stored in the Finnish Fairdata services.",
+                "fi": "Sisältää esimerkiksi verkkoaineistot, rajapinnat ja muut muualla kuin fairdata-palveluissa säilytettävät aineistot."
+            }
         },
         "dataset_versioning": false,
         "research_dataset_schema": "att"

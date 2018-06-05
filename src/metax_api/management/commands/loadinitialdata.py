@@ -113,7 +113,7 @@ class Command(BaseCommand):
                         continue
 
                 # create or update ended in error
-                self.stdout.write('Failed to process catalog: %s. Reason: %s' %
+                raise CommandError('Failed to process catalog: %s. Reason: %s' %
                     (dc['catalog_json']['identifier'], errors))
 
     def _load_file_storages(self):
@@ -152,5 +152,5 @@ class Command(BaseCommand):
                         continue
 
                 # create or update ended in error
-                self.stdout.write('Failed to process storage: %s. Reason: %s' %
+                raise CommandError('Failed to process storage: %s. Reason: %s' %
                     (fs['file_storage_json']['identifier'], errors))
