@@ -2,7 +2,7 @@
 {
     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#",
     "title":"Metax Research Datasets",
-    "modified":"Thu, 08 Mar 2018 11:47:54 GMT",
+    "modified":"Wed, 30 May 2018 12:05:20 GMT",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "allOf":[
@@ -279,7 +279,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"This is the IRI identifier for the concept",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri"
                 },
@@ -296,11 +296,8 @@
                     "title":"Definition",
                     "description":"A statement or formal explanation of the meaning of a concept.",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "in_scheme":{
                     "@id":"http://www.w3.org/2004/02/skos/core#inScheme",
@@ -336,7 +333,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"URI of the Concept Scheme",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri"
                 }
@@ -355,7 +352,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Unique identifier for the distribution",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri",
                     "example":[
@@ -552,7 +549,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Unique identifier for the distribution",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri",
                     "example":[
@@ -692,7 +689,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri",
                     "example":[
@@ -782,7 +779,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri",
                     "example":[
@@ -933,18 +930,14 @@
                     "title":"Description",
                     "description":"An account of the resource.",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "minItems":1,
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Recommended best practice is to identify the resource by means of a string conforming to a formal identification system.  An unambiguous reference to the resource within a given context.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri"
                 },
@@ -983,7 +976,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri",
                     "example":[
@@ -1031,7 +1024,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"License identifier from the reference data.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri"
                 },
@@ -1048,11 +1041,8 @@
                     "title":"Description",
                     "description":"Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource. An account of the resource.",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "license":{
                     "@id":"http://schema.org/license",
@@ -1085,7 +1075,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Preferred identifier",
                     "description":"Unique identifier for the dataset. URN or URI.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri"
                 },
@@ -1150,15 +1140,11 @@
                     "title":"Description",
                     "description":"Free-form description of the dataset",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "minItems":1,
-                    "type":"array",
+                    "type":"object",
+                    "$ref":"#/definitions/langString",
                     "example":[
                         "Tämä aineisto on osaa FMI ClimGrid aineistoa, joka on päivittäinen ilmastohila-aineisto Suomelle ..."
-                    ],
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    ]
                 },
                 "bibliographic_citation":{
                     "@id":"http://purl.org/dc/terms/bibliographicCitation",
@@ -1333,10 +1319,7 @@
                     "title":"Metadata quality value",
                     "description":"Metadata quality value calculated in some manner.",
                     "@type":"http://www.w3.org/2001/XMLSchema#decimal",
-                    "type":"array",
-                    "items":{
-                        "type":"number"
-                    }
+                    "type":"number"
                 },
                 "files":{
                     "@id":"http://www.w3.org/ns/dcat#distribution",
@@ -1414,11 +1397,8 @@
                     "title":"Description",
                     "description":"Free account of the rights",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "available":{
                     "@id":"http://purl.org/dc/terms/available",
@@ -1536,11 +1516,8 @@
                     "title":"Description",
                     "description":"An account of the resource.",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/langString"
-                    }
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
                 },
                 "concept":{
                     "@id":"http://rdf-vocabulary.ddialliance.org/discovery#concept",
@@ -1581,7 +1558,7 @@
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Unique identifier for the distribution from file: scheme",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
                     "type":"string",
                     "format":"uri",
                     "example":[

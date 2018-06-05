@@ -104,11 +104,9 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                         }
                     }
                 ],
-                "description": [
-                    {
-                        "fi": "Käyttöehtojen kuvaus"
-                    }
-                ],
+                "description": {
+                    "fi": "Käyttöehtojen kuvaus"
+                },
                 "has_rights_related_agent": [
                     {
                         "name": {
