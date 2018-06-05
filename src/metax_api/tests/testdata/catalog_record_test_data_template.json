@@ -17,11 +17,9 @@
     "title": {
       "en": "Wonderful Title"
     },
-    "description": [
-      {
-        "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-      }
-    ],
+    "description": {
+      "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+    },
     "creator": [
       {
         "@type": "Person",

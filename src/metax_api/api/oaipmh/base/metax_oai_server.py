@@ -134,10 +134,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 subject.append(self._get_oaic_dc_value(value2, key))
 
         desc = []
-        desc_data = json.get('description', [])
-        for value in desc_data:
-            for key, value2 in value.items():
-                desc.append(self._get_oaic_dc_value(value2, key))
+        desc_data = json.get('description', {}).get('name', {})
+        for key, value in desc_data.items():
+                desc.append(self._get_oaic_dc_value(value, key))
 
         publisher = []
         publisher_data = json.get('publisher', {})
@@ -172,9 +171,10 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
         rights = []
         rights_data = json.get('access_rights', {})
-        for value in rights_data.get('description', []):
-            for key, value2 in value.items():
-                rights.append(self._get_oaic_dc_value(value2, key))
+        rights_desc = rights_data.get('description', {}).get('name', {})
+        for key, value in rights_desc.items():
+            rights.append(self._get_oaic_dc_value(value, key))
+
         for value in rights_data.get('license', []):
             if 'identifier' in value:
                 rights.append(self._get_oaic_dc_value(value['identifier']))
@@ -211,6 +211,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return meta
 
     def _get_metadata_for_record(self, record, json, type, metadata_prefix):
+        if type == 'Datacatalog' and metadata_prefix != 'oai_dc':
+            raise BadArgumentError('Invalid set value. DataCatalogs can only be harvested using oai_dc format.')
+
         meta = {}
         json = CRS.strip_catalog_record(json)
 
