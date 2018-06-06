@@ -115,8 +115,19 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         # second should give error
         response = self.client.post('/rest/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('identifier' in response.data.keys(), True,
-                         'The error should be about an already existing identifier')
+        self.assertEqual('identifier' in response.data.keys(), True)
+        self.assertEqual('already exists' in response.data['identifier'][0], True)
+
+    def test_allow_creating_previously_deleted_file(self):
+        """
+        It should be possible to delete a file, and then create the exact same file again
+        without letting the removed file conflict.
+        """
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.delete('/rest/files/%d' % response.data['id'], format="json")
+
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_file_error_json_validation(self):
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
