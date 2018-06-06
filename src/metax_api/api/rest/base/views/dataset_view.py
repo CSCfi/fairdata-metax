@@ -300,6 +300,8 @@ class DatasetViewSet(CommonViewSet):
 
     @detail_route(methods=['get'], url_path="redis")
     def redis_test(self, request, pk=None): # pragma: no cover
+        if request.user.username != 'metax':
+            raise Http403()
         try:
             cached = self.cache.get('cr-1211%s' % pk)
         except:
@@ -323,6 +325,8 @@ class DatasetViewSet(CommonViewSet):
 
     @detail_route(methods=['get'], url_path="rabbitmq")
     def rabbitmq_test(self, request, pk=None): # pragma: no cover
+        if request.user.username != 'metax':
+            raise Http403()
         rabbitmq = RabbitMQ()
         rabbitmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
         rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
@@ -336,6 +340,8 @@ class DatasetViewSet(CommonViewSet):
         :param request:
         :return:
         """
+        if request.user.username != 'metax':
+            raise Http403()
         # Get all IDs for ida data catalogs
         ida_catalog_ids = []
         for dc in DataCatalog.objects.filter(catalog_json__contains={'research_dataset_schema': 'ida'}):
@@ -347,6 +353,38 @@ class DatasetViewSet(CommonViewSet):
             cr.research_dataset['total_ida_byte_size'] = sum(f.byte_size for f in cr.files.all())
             cr.preserve_version = True
             super(Common, cr).save()
+
+        return Response(data={}, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], url_path="update_cr_directory_browsing_data")  # pragma: no cover
+    def update_cr_directory_browsing_data(self, request):
+        """
+        Meant only for updating test data: Updates cr field _directory_data with cr specific
+        directory data used during file browsing.
+
+        :param request:
+        :return:
+        """
+        if request.user.username != 'metax':
+            raise Http403()
+
+        if 'id' in request.query_params:
+            # in order to update one record only, use query param ?id=integer. useful for testcases
+            records = CatalogRecord.objects.filter(pk=request.query_params['id']).only('id')
+        else:
+            records = CatalogRecord.objects.filter(data_catalog__catalog_json__research_dataset_schema='ida') \
+                .only('id')
+
+        from time import time
+
+        for cr in records:
+            start = time()
+            cr.calculate_directory_byte_sizes_and_file_counts()
+            end = time()
+            file_count = cr.files.all().count()
+            dir_count = cr.files.all().distinct('parent_directory_id').count()
+            _logger.info('record %d took %.2f seconds. record has %d files in approximately %d directories.' %
+                (cr.id, end - start, file_count, dir_count))
 
         return Response(data={}, status=status.HTTP_200_OK)
 
