@@ -300,6 +300,8 @@ class DatasetViewSet(CommonViewSet):
 
     @detail_route(methods=['get'], url_path="redis")
     def redis_test(self, request, pk=None): # pragma: no cover
+        if request.user.username != 'metax':
+            raise Http403()
         try:
             cached = self.cache.get('cr-1211%s' % pk)
         except:
@@ -323,6 +325,8 @@ class DatasetViewSet(CommonViewSet):
 
     @detail_route(methods=['get'], url_path="rabbitmq")
     def rabbitmq_test(self, request, pk=None): # pragma: no cover
+        if request.user.username != 'metax':
+            raise Http403()
         rabbitmq = RabbitMQ()
         rabbitmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
         rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
@@ -336,6 +340,8 @@ class DatasetViewSet(CommonViewSet):
         :param request:
         :return:
         """
+        if request.user.username != 'metax':
+            raise Http403()
         # Get all IDs for ida data catalogs
         ida_catalog_ids = []
         for dc in DataCatalog.objects.filter(catalog_json__contains={'research_dataset_schema': 'ida'}):
