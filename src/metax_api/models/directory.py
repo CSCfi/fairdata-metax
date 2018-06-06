@@ -1,8 +1,10 @@
 import logging
 
 from django.db import connection, models
+from django.db.models import Prefetch
 
 from .common import Common
+from .file import File
 
 
 _logger = logging.getLogger(__name__)
@@ -36,51 +38,67 @@ class Directory(Common):
         # actual delete
         super(Common, self).delete()
 
-    def calculate_byte_size_and_file_count(self, cursor=None):
+    def calculate_byte_size_and_file_count(self):
         """
-        Recursively traverse the entire directory tree and update total byte size and file count
+        Traverse the entire directory tree and update total byte size and file count
         for each directory. Intended to be called for the root directory of a project, since it
         doesnt make sense to update those numbers up to some middlepoint only.
         """
-        if cursor is None:
-            if self.parent_directory_id:
-                raise Exception(
-                    'while this is a recursive method, it is intended to be initially called by '
-                    'project root directories only.'
-                )
+        if self.parent_directory_id:
+            raise Exception(
+                'while this is a recursive method, it is intended to be initially called by '
+                'project root directories only.'
+            )
 
-            _logger.info('Calculating directory byte sizes and file counts for project %s...' % self.project_identifier)
+        _logger.info('Calculating directory byte sizes and file counts for project %s...' % self.project_identifier)
 
-            with connection.cursor() as cursor:
-                self.calculate_byte_size_and_file_count(cursor)
+        update_statements = []
 
-        else:
+        self._calculate_byte_size_and_file_count(update_statements)
 
-            self.byte_size = 0
-            self.file_count = 0
+        sql_update_all_directories = '''
+            update metax_api_directory as d set
+                byte_size = results.byte_size,
+                file_count = results.file_count
+            from (values
+                %s
+            ) as results(byte_size, file_count, id)
+            where results.id = d.id;
+            ''' % ','.join(update_statements)
 
-            sub_dirs = self.child_directories.all()
-            if sub_dirs:
-                for sub_dir in sub_dirs:
-                    sub_dir.calculate_byte_size_and_file_count(cursor)
+        with connection.cursor() as cursor:
+            cursor.execute(sql_update_all_directories)
 
-                # sub dir numbers
-                self.byte_size = sum(d.byte_size for d in sub_dirs)
-                self.file_count = sum(d.file_count for d in sub_dirs)
+    def _calculate_byte_size_and_file_count(self, update_statements):
+        """
+        Recursively traverse the entire directory tree and update total byte size and file count
+        for each directory. Accumulates a list of triplets for a big sql-update statement.
+        """
+        self.byte_size = 0
+        self.file_count = 0
 
-            sql_calculate_byte_size_and_file_count = """
-                select sum(f.byte_size) as byte_size, count(f.id) as file_count
-                from metax_api_file f
-                where f.parent_directory_id = %s
-                and f.removed = false
-                and f.active = true
-                """
+        # fields id, parent_directory_id must be specified for joining for Prefetch-object to work properly
+        sub_dirs = self.child_directories.all() \
+            .only('byte_size', 'parent_directory_id') \
+            .prefetch_related(
+                Prefetch('files', queryset=File.objects.only('id', 'byte_size', 'parent_directory_id')))
 
-            cursor.execute(sql_calculate_byte_size_and_file_count, [self.id])
-            bs, fc = cursor.fetchall()[0]
-            self.byte_size += bs or 0
-            self.file_count += fc or 0
-            self.save()
+        if sub_dirs:
+            for sub_dir in sub_dirs:
+                sub_dir._calculate_byte_size_and_file_count(update_statements)
+
+            # sub dir numbers
+            self.byte_size = sum(d.byte_size for d in sub_dirs)
+            self.file_count = sum(d.file_count for d in sub_dirs)
+
+        # note: never actually saved using .save()
+        self.byte_size += sum(f.byte_size for f in self.files.all()) or 0
+        self.file_count += len(self.files.all()) or 0
+
+        update_statements.append(
+            '(%d, %d, %d)'
+            % (self.byte_size, self.file_count, self.id)
+        )
 
     def __repr__(self):
         return '<%s: %d, removed: %s, project_identifier: %s, identifier: %s, directory_path: %s >' % (
