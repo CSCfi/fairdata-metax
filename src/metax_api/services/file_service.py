@@ -6,6 +6,7 @@ from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
 from django.conf import settings
 from django.db import connection
+from django.db.models.fields import FieldDoesNotExist
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -464,12 +465,19 @@ class FileService(CommonService):
             else:
                 files = File.objects.filter(parent_directory_id=directory_id).only(*file_fields)
 
-        contents = { 'directories': [ DirectorySerializer(n, only_fields=directory_fields).data for n in dirs ] }
+        try:
+            contents = { 'directories': [ DirectorySerializer(n, only_fields=directory_fields).data for n in dirs ] }
+        except FieldDoesNotExist as e:
+            raise Http400({ 'detail': [str(e)]})
 
-        if files or not dirs_only:
-            # for normal file browsing (not with 'dirs_only'), the files-key should be present,
-            # even if empty.
-            contents['files'] = [ FileSerializer(n, only_fields=file_fields).data for n in files ]
+        try:
+            # note: the below statement already executes the queryset, hence this block inside try-except
+            if files or not dirs_only:
+                # for normal file browsing (not with 'dirs_only'), the files-key should be present,
+                # even if empty.
+                contents['files'] = [ FileSerializer(n, only_fields=file_fields).data for n in files ]
+        except FieldDoesNotExist as e:
+            raise Http400({ 'detail': [str(e)]})
 
         if recursive:
             for directory in contents['directories']:
