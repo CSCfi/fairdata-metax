@@ -356,6 +356,38 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data={}, status=status.HTTP_200_OK)
 
+    @list_route(methods=['get'], url_path="update_cr_directory_browsing_data")  # pragma: no cover
+    def update_cr_directory_browsing_data(self, request):
+        """
+        Meant only for updating test data: Updates cr field _directory_data with cr specific
+        directory data used during file browsing.
+
+        :param request:
+        :return:
+        """
+        if request.user.username != 'metax':
+            raise Http403()
+
+        if 'id' in request.query_params:
+            # in order to update one record only, use query param ?id=integer. useful for testcases
+            records = CatalogRecord.objects.filter(pk=request.query_params['id']).only('id')
+        else:
+            records = CatalogRecord.objects.filter(data_catalog__catalog_json__research_dataset_schema='ida') \
+                .only('id')
+
+        from time import time
+
+        for cr in records:
+            start = time()
+            cr.calculate_directory_byte_sizes_and_file_counts()
+            end = time()
+            file_count = cr.files.all().count()
+            dir_count = cr.files.all().distinct('parent_directory_id').count()
+            _logger.info('record %d took %.2f seconds. record has %d files in approximately %d directories.' %
+                (cr.id, end - start, file_count, dir_count))
+
+        return Response(data={}, status=status.HTTP_200_OK)
+
     @list_route(methods=['post'], url_path="flush_password")
     def flush_password(self, request): # pragma: no cover
         """
