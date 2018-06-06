@@ -170,7 +170,7 @@ class Migration(migrations.Migration):
                 ('file_name', models.CharField(max_length=200)),
                 ('file_path', models.TextField()),
                 ('file_uploaded', models.DateTimeField()),
-                ('identifier', models.CharField(max_length=200, unique=True)),
+                ('identifier', models.CharField(max_length=200)),
                 ('open_access', models.BooleanField(default=False)),
                 ('project_identifier', models.CharField(max_length=200)),
                 ('replication_path', models.CharField(blank=True, max_length=200, null=True)),
