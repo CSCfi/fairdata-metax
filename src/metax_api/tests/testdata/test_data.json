@@ -12095,7 +12095,6 @@
             "contract": 1,
             "data_catalog": 2,
             "dataset_group_edit": "default-dataset-edit-group",
-            "dataset_version_set": 10,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
             "editor": {
@@ -12187,7 +12186,6 @@
             "contract": 1,
             "data_catalog": 3,
             "dataset_group_edit": "default-dataset-edit-group",
-            "dataset_version_set": 10,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
             "files": [
