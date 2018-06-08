@@ -3,8 +3,6 @@ from django.db import models
 from rest_framework.serializers import ValidationError
 
 from .common import Common, CommonManager
-from .directory import Directory
-from .file_storage import FileStorage
 
 
 class FileManager(CommonManager):
@@ -43,11 +41,12 @@ class File(Common):
     file_modified = models.DateTimeField(auto_now=True)
     file_name = models.CharField(max_length=200)
     file_path = models.TextField()
-    file_storage = models.ForeignKey(FileStorage, on_delete=models.DO_NOTHING)
+    file_storage = models.ForeignKey('metax_api.FileStorage', on_delete=models.DO_NOTHING)
     file_uploaded = models.DateTimeField()
-    identifier = models.CharField(max_length=200, unique=True)
+    identifier = models.CharField(max_length=200)
     open_access = models.BooleanField(default=False)
-    parent_directory = models.ForeignKey(Directory, on_delete=models.SET_NULL, null=True, related_name='files')
+    parent_directory = models.ForeignKey('metax_api.Directory', on_delete=models.SET_NULL, null=True,
+        related_name='files')
     project_identifier = models.CharField(max_length=200)
     replication_path = models.CharField(max_length=200, blank=True, null=True)
 

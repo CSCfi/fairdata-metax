@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.models import Directory, File
+from metax_api.models import CatalogRecord, Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 from .file_service import FileService
@@ -141,8 +141,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         rd = catalog_record['research_dataset']
         file_identifiers = [ f['identifier'] for f in rd.get('files', [])]
 
-        directory_fields, file_fields, discard_fields = \
-            FileService._get_requested_file_browsing_fields(request, catalog_record['id'])
+        directory_fields, file_fields = FileService._get_requested_file_browsing_fields(request, catalog_record['id'])
 
         for file in File.objects.filter(identifier__in=file_identifiers).only(*file_fields):
             for f in rd['files']:
@@ -162,12 +161,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             return
 
         if not directory_fields or ('byte_size' in directory_fields or 'file_count' in directory_fields):
-            # no specific fields requested -> calculate,
-            # OR byte_size or file_count among requested fields -> calculate
+            # no specific fields requested -> retrieve,
+            # OR byte_size or file_count among requested fields -> retrieve
+
+            _directory_data = CatalogRecord.objects.values_list('_directory_data', flat=True) \
+                .get(pk=catalog_record['id'])
+
             for dr in rd['directories']:
-                FileService.calculate_directory_byte_sizes_and_file_counts_for_cr(
-                    dr['details'], catalog_record['id'], directory_fields=directory_fields,
-                    discard_fields=discard_fields)
+                FileService.retrieve_directory_byte_sizes_and_file_counts_for_cr(dr['details'],
+                    catalog_record['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
 
     @classmethod
     def publish_updated_datasets(cls, response):

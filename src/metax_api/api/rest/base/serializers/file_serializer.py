@@ -2,6 +2,7 @@ import logging
 
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
+from rest_framework.validators import UniqueValidator
 
 from metax_api.models import Directory, File, FileStorage
 from .common_serializer import CommonSerializer
@@ -19,6 +20,14 @@ class FileSerializer(CommonSerializer):
 
     # has to be present to not break rest_framework browsabale api
     checksum = serializers.CharField(source='checksum_value', read_only=True)
+
+    # identifier is not set as unique in the db due to having to allow removed files exist.
+    # use the same validator that would otherwise automatically be used, to verify uniqueness
+    # among non-removed files.
+    identifier = serializers.CharField(validators=[UniqueValidator(
+        queryset=File.objects.all(),
+        message='a file with given identifier already exists'
+    )])
 
     class Meta:
         model = File

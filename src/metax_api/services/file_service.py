@@ -6,6 +6,7 @@ from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
 from django.conf import settings
 from django.db import connection
+from django.db.models.fields import FieldDoesNotExist
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -334,22 +335,24 @@ class FileService(CommonService):
 
         if cr_identifier:
             if cr_identifier.isdigit():
-                cr_id = cr_identifier
+                cr = CatalogRecord.objects.values('id', '_directory_data').get(pk=cr_identifier)
             else:
                 try:
-                    cr = CatalogRecord.objects.values('id').get(identifier=cr_identifier)
+                    cr = CatalogRecord.objects.values('id', '_directory_data').get(identifier=cr_identifier)
                 except CatalogRecord.DoesNotExist:
                     # raise 400 instead of 404, to distinguish from the error
                     # 'directory not found', which raises a 404
                     raise ValidationError({
                         'detail': [ 'CatalogRecord with identifier %s does not exist' % cr_identifier ]
                     })
-                cr_id = cr['id']
+            cr_id = cr['id']
+            cr_directory_data = cr['_directory_data'] or {}
         else:
             cr_id = None
+            cr_directory_data = {}
 
         # note: by default all fields are retrieved
-        directory_fields, file_fields, discard_fields = cls._get_requested_file_browsing_fields(request, cr_id)
+        directory_fields, file_fields = cls._get_requested_file_browsing_fields(request, cr_id)
 
         contents = cls._get_directory_contents(
             directory_id,
@@ -377,8 +380,8 @@ class FileService(CommonService):
             contents.update(DirectorySerializer(directory, only_fields=directory_fields).data)
 
         if cls._include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
-            cls.calculate_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id, dirs_only,
-                directory_fields, discard_fields)
+            cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id,
+                directory_fields, cr_directory_data)
 
         return contents
 
@@ -390,28 +393,21 @@ class FileService(CommonService):
         """
         directory_fields = []
         file_fields = []
-        discard_fields = []
 
         if request.query_params.get('directory_fields', False):
             directory_fields = request.query_params['directory_fields'].split(',')
-            if cls._include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
-                # since we know byte sizes and file counts need to be calculated later,
-                # must retrieve the following additional fields also in order to calculate them.
-                # later these fields are discarded, if they were not actually requested.
-                for field in ('id', 'project_identifier', 'directory_path'):
-                    if field not in directory_fields:
-                        directory_fields.append(field)
-                        discard_fields.append(field)
 
         if request.query_params.get('file_fields', False):
             file_fields = request.query_params['file_fields'].split(',')
 
-        return directory_fields, file_fields, discard_fields
+        return directory_fields, file_fields
 
     @staticmethod
     def _include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
         if not cr_id:
-            # totals are counted only when browsing files for a specific record
+            # totals are counted only when browsing files for a specific record.
+            # for non-cr file browsing, those numbers have been counted when the
+            # files were first created.
             return False
         if not directory_fields:
             # specific fields not specified -> all fields are returned
@@ -464,12 +460,19 @@ class FileService(CommonService):
             else:
                 files = File.objects.filter(parent_directory_id=directory_id).only(*file_fields)
 
-        contents = { 'directories': [ DirectorySerializer(n, only_fields=directory_fields).data for n in dirs ] }
+        try:
+            contents = { 'directories': [ DirectorySerializer(n, only_fields=directory_fields).data for n in dirs ] }
+        except FieldDoesNotExist as e:
+            raise Http400({ 'detail': [str(e)]})
 
-        if files or not dirs_only:
-            # for normal file browsing (not with 'dirs_only'), the files-key should be present,
-            # even if empty.
-            contents['files'] = [ FileSerializer(n, only_fields=file_fields).data for n in files ]
+        try:
+            # note: the below statement already executes the queryset, hence this block inside try-except
+            if files or not dirs_only:
+                # for normal file browsing (not with 'dirs_only'), the files-key should be present,
+                # even if empty.
+                contents['files'] = [ FileSerializer(n, only_fields=file_fields).data for n in files ]
+        except FieldDoesNotExist as e:
+            raise Http400({ 'detail': [str(e)]})
 
         if recursive:
             for directory in contents['directories']:
@@ -555,90 +558,46 @@ class FileService(CommonService):
         return dirs, files
 
     @classmethod
-    def calculate_directory_byte_sizes_and_file_counts_for_cr(cls, directory, cr_id, dirs_only=False,
-            directory_fields=[], discard_fields=[]):
+    def retrieve_directory_byte_sizes_and_file_counts_for_cr(cls, directory, cr_id,
+            directory_fields=[], cr_directory_data={}):
         """
-        Calculate total byte size and file counts of a directory, sub-directories included,
+        Retrieve total byte size and file counts of a directory, sub-directories included,
         in the context of a specific catalog record.
         Note: Called recursively.
         """
+        if not directory_fields:
+            BYTE_SIZE = FILE_COUNT = True
+        else:
+            BYTE_SIZE = 'byte_size' in directory_fields
+            FILE_COUNT = 'file_count' in directory_fields
+
         if len(directory.get('directories', [])):
             for sub_dir in directory.get('directories', []):
-                cls.calculate_directory_byte_sizes_and_file_counts_for_cr(sub_dir, cr_id, dirs_only)
+                cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(sub_dir, cr_id,
+                    directory_fields, cr_directory_data)
 
             # this block is not executed for the top-level directory, unless query param
             # include_parent is used.
             if 'id' in directory:
 
-                # sub dir numbers
-                byte_size = sum(d['byte_size'] for d in directory.get('directories', []))
-                file_count = sum(d['file_count'] for d in directory.get('directories', []))
+                current_dir = cr_directory_data.get(str(directory['id']), [0, 0])
 
-                # add current dir numbers from already retrieved files
-                byte_size += sum(f['byte_size'] for f in directory.get('files', []))
-                file_count += len(directory.get('files', []))
+                if BYTE_SIZE:
+                    directory['byte_size'] = current_dir[0]
 
-                directory['byte_size'] = byte_size
-                directory['file_count'] = file_count
+                if FILE_COUNT:
+                    directory['file_count'] = current_dir[1]
 
         elif 'id' in directory:
-            # bottom dir - retrieve total byte_size and file_count from db for this cr,
-            # and replace the original byte_size and file_count of the directory
 
-            sql_calculate_byte_size_and_file_count = """
-                select sum(f.byte_size) as byte_size, count(f.id) as file_count
-                from metax_api_file f
-                inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
-                where cr_f.catalogrecord_id = %s
-                and f.project_identifier = %s
-                and f.file_path like (%s || '/%%')
-                and f.removed = false
-                and f.active = true
-                """
+            # bottom dir - retrieve total byte_size and file_count for this cr
+            current_dir = cr_directory_data.get(str(directory['id']), [0, 0])
 
-            with connection.cursor() as cr:
-                cr.execute(
-                    sql_calculate_byte_size_and_file_count,
-                    [
-                        cr_id,
-                        directory['project_identifier'],
-                        directory['directory_path']
-                    ]
-                )
+            if BYTE_SIZE:
+                directory['byte_size'] = current_dir[0]
 
-                bs, fc = cr.fetchall()[0]
-                directory['byte_size'] = bs or 0
-                directory['file_count'] = fc or 0
-        else:
-            # called without include_parent on a directory which has files, but no directories - do nothing
-            pass
-
-        if discard_fields:
-            cls._cleanup_directory_contents(directory, directory_fields, discard_fields)
-
-    @staticmethod
-    def _cleanup_directory_contents(directory, directory_fields, discard_fields):
-        """
-        Cleanup in case specific fields were requested. Some fields were additionally retrieved from
-        the db since they are necessary to calculate byte sizes and file counts. However, it's
-        possible those fields were not among the actual requested fields. Ditch them if so.
-        """
-        if not discard_fields:
-            return
-
-        def cleanup(directory):
-            for field in discard_fields:
-                directory.pop(field, None)
-            if 'byte_size' not in directory_fields:
-                directory.pop('byte_size', None)
-            if 'file_count' not in directory_fields:
-                directory.pop('file_count', None)
-
-        # in case 'include_parent' was used
-        cleanup(directory)
-
-        for dr in directory.get('directories', []):
-            cleanup(dr)
+            if FILE_COUNT:
+                directory['file_count'] = current_dir[1]
 
     @classmethod
     def get_project_root_directory(cls, project_identifier):
@@ -692,6 +651,7 @@ class FileService(CommonService):
         file_list_with_dirs = cls._create_directories_from_file_list(common_info, initial_data_list, **kwargs)
 
         _logger.info('Creating files...')
+
         cls._create_files(
             common_info, file_list_with_dirs, results, serializer_class, **kwargs)
 

@@ -694,6 +694,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1, urn=False)
     alt_rec['fields']['data_catalog'] = 2
     alt_rec['fields']['alternate_record_set'] = 1
+    alt_rec['fields'].pop('dataset_version_set', None)
     test_data_list.append(alt_rec)
 
     # create second other record
@@ -705,6 +706,7 @@ def generate_alt_catalog_records(test_data_list):
     alt_rec['fields']['identifier'] = generate_test_identifier('cr', len(test_data_list) + 1, urn=False)
     alt_rec['fields']['data_catalog'] = 3
     alt_rec['fields']['alternate_record_set'] = 1
+    alt_rec['fields'].pop('dataset_version_set', None)
     test_data_list.append(alt_rec)
 
     # alternate record set must exist before importing catalog records, so prepend it

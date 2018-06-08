@@ -194,6 +194,8 @@ class CatalogRecord(Common):
     deprecated = models.BooleanField(
         default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
 
+    _directory_data = JSONField(null=True, help_text='Stores directory data related to browsing files and directories')
+
     files = models.ManyToManyField(File)
 
     identifier = models.CharField(max_length=200, unique=True, null=False)
@@ -719,7 +721,8 @@ class CatalogRecord(Common):
             # to insert into a many2many relation.
             self.files.add(*self._get_dataset_selected_file_ids())
             self._calculate_total_ida_byte_size()
-            super(CatalogRecord, self).save() # save byte size calculation
+            super().save(update_fields=['research_dataset']) # save byte size calculation
+            self.calculate_directory_byte_sizes_and_file_counts()
 
         other_record = self._check_alternate_records()
         if other_record:
@@ -794,6 +797,7 @@ class CatalogRecord(Common):
                     self.files.add(*self._get_dataset_selected_file_ids())
                     self._calculate_total_ida_byte_size()
                     self._handle_metadata_versioning()
+                    self.calculate_directory_byte_sizes_and_file_counts()
                 else:
                     self._create_new_dataset_version()
 
@@ -1100,6 +1104,8 @@ class CatalogRecord(Common):
 
         super(Common, new_version).save()
 
+        new_version.calculate_directory_byte_sizes_and_file_counts()
+
         _logger.info('New dataset version %s created' % new_version.preferred_identifier)
         old_version.new_dataset_version_created_in_current_request = True
 
@@ -1136,6 +1142,30 @@ class CatalogRecord(Common):
         }
 
         return changes
+
+    def calculate_directory_byte_sizes_and_file_counts(self):
+        """
+        Calculate directory byte_sizes and file_counts for all dirs selected for this cr.
+        Since file changes will create a new dataset version, these values will never change.
+        """
+        if not self.research_dataset.get('directories', None):
+            return
+
+        _logger.info('Calculating directory byte_sizes and file_counts...')
+
+        dir_identifiers = [ d['identifier'] for d in self.research_dataset['directories'] ]
+
+        highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
+
+        directory_data = {}
+
+        for project_identifier, dir_paths in highest_level_dirs_by_project.items():
+            dirs = Directory.objects.filter(project_identifier=project_identifier, directory_path__in=dir_paths)
+            for dr in dirs:
+                dr.calculate_byte_size_and_file_count_for_cr(self.id, directory_data)
+
+        self._directory_data = directory_data
+        super(Common, self).save(update_fields=['_directory_data'])
 
     def _handle_preferred_identifier_changed(self):
         if self.has_alternate_records():
