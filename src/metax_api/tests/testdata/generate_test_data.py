@@ -569,14 +569,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "in_scheme": [
-                                {
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    },
-                                    "identifier": "http://uri.of.filetype.concept/scheme"
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "use_category": {
                             "identifier": "configuration"
@@ -591,14 +584,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "in_scheme": [
-                                {
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    },
-                                    "identifier": "http://uri.of.filetype.concept/scheme"
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "use_category": {
                             "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
