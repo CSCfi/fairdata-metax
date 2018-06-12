@@ -198,7 +198,24 @@
     ],
     "theme": [
       {
-        "identifier": "http://www.yso.fi/onto/yso/p20518",
+        "identifier": "http://www.yso.fi/onto/koko/p32202",
+        "pref_label": {
+          "en": "pref label for theme"
+        },
+        "definition": {
+          "en": "A statement or formal explanation of the meaning of a concept."
+        },
+        "in_scheme": [
+          {
+            "pref_label": {
+              "en": "The preferred lexical label for a resource"
+            },
+            "identifier": "http://uri.of.concept/scheme"
+          }
+        ]
+      },
+      {
+        "identifier": "http://www.yso.fi/onto/koko/p76312",
         "pref_label": {
           "en": "pref label for theme"
         },

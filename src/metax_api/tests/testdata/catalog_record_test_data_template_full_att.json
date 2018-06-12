@@ -198,7 +198,7 @@
     ],
     "theme": [
       {
-        "identifier": "http://www.yso.fi/onto/yso/p20518",
+        "identifier": "http://www.yso.fi/onto/koko/p18199",
         "pref_label": {
           "en": "pref label for theme"
         },
