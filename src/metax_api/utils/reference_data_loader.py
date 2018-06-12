@@ -99,10 +99,14 @@ class ReferenceDataLoader():
                             index_name, type_name, row))
 
                     label = row['_source'].get('label', None)
+                    scheme = row['_source'].get('scheme', None)
 
                     # dont want empty dicts loitering in the cache
                     if label:
                         entry['label'] = label
+
+                    if scheme:
+                        entry['scheme'] = scheme
 
                     if type_name == 'location':
                         entry['wkt'] = row['_source'].get('wkt', None)

@@ -88,6 +88,8 @@ class ReferenceDataMixin():
         obj[uri_field] = ref_entry['uri']
         if label_field and 'label' in ref_entry:
             obj[label_field] = ref_entry['label']
+        if 'scheme' in ref_entry:
+            obj['in_scheme'] = ref_entry['scheme']
 
     def _raise_reference_data_reload_error(error):
         """
