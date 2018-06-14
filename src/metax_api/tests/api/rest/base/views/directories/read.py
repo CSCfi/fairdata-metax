@@ -4,7 +4,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord, Directory
-from metax_api.services import FileService
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -318,43 +317,62 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         Test byte size and file count are calculated correctly for directories when browsing files
         in the context of a single record.
         """
-        dr = Directory.objects.get(pk=2)
-        cr = CatalogRecord.objects.get(pk=1)
+        def _assert_dir_calculations(cr, dr):
+            """
+            Assert directory numbers received from browsing-api matches what exists in the db when
+            making a reasonably fool-proof query of files by directory path
+            """
+            self.assertEqual('byte_size' in dr, True)
+            self.assertEqual('file_count' in dr, True)
 
-        # calculate all directory byte sizes and file counts to real values, from their default 0 values
-        FileService.calculate_project_directory_byte_sizes_and_file_counts(dr.project_identifier)
+            byte_size = cr.files.filter(file_path__startswith='%s/' % dr['directory_path']) \
+                .aggregate(Sum('byte_size'))['byte_size__sum']
 
-        byte_size = cr.files.filter(file_path__startswith='%s/' % dr.directory_path) \
-            .aggregate(Sum('byte_size'))['byte_size__sum']
-        file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
+            file_count = cr.files.filter(file_path__startswith='%s/' % dr['directory_path']).count()
 
-        response = self.client.get(
-            '/rest/directories/%d/files?cr_identifier=%s' % (dr.id, cr.identifier))
+            self.assertEqual(dr['byte_size'], byte_size, 'path: %s' % dr['directory_path'])
+            self.assertEqual(dr['file_count'], file_count, 'path: %s' % dr['directory_path'])
+
+        # prepare a new test dataset which contains a directory from testdata, which contains a decent
+        # qty of files and complexity
+        dr = Directory.objects.get(directory_path='/prj_112_root')
+        cr_with_dirs = CatalogRecord.objects.get(pk=13)
+        cr_data = response = self.client.get('/rest/datasets/1').data
+        cr_data.pop('id')
+        cr_data.pop('identifier')
+        cr_data['research_dataset'].pop('preferred_identifier')
+        cr_data['research_dataset']['directories'] = [{
+            'identifier': dr.identifier,
+            'title': 'test dir',
+            'use_category': {
+                'identifier': cr_with_dirs.research_dataset['directories'][0]['use_category']['identifier']
+            }
+        }]
+        self._use_http_authorization(username='metax')
+        cr_data = response = self.client.post('/rest/datasets', cr_data, format='json').data
+        cr = CatalogRecord.objects.get(pk=cr_data['id'])
+
+        # begin tests
+
+        # test: browse the file api, and receive a list of sub-directories
+        response = self.client.get('/rest/directories/%d/files?cr_identifier=%s' % (dr.id, cr.identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual('directories' in response.data, True)
-        self.assertEqual('byte_size' in response.data['directories'][0], True)
-        self.assertEqual('file_count' in response.data['directories'][0], True)
-        self.assertEqual(response.data['directories'][0]['byte_size'], byte_size)
-        self.assertEqual(response.data['directories'][0]['file_count'], file_count)
 
-        # browse the sub dir, with ?include_parent=true for added verification
-        dr = Directory.objects.get(pk=response.data['directories'][0]['id'])
+        for directory in response.data['directories']:
+            _assert_dir_calculations(cr, directory)
 
-        byte_size = cr.files.filter(file_path__startswith='%s/' % dr.directory_path) \
-            .aggregate(Sum('byte_size'))['byte_size__sum']
-        file_count = cr.files.filter(file_path__startswith='%s/' % dr.directory_path).count()
-
-        response = self.client.get(
-            '/rest/directories/%d/files?cr_identifier=%s&include_parent'
+        # test: browse with ?include_parent=true to get the dir directly that was added to the dataset
+        response = self.client.get('/rest/directories/%d/files?cr_identifier=%s&include_parent'
             % (dr.id, cr.identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual('byte_size' in response.data, True)
-        self.assertEqual('file_count' in response.data, True)
-        self.assertEqual(response.data['byte_size'], byte_size)
-        self.assertEqual(response.data['file_count'], file_count)
+        _assert_dir_calculations(cr, response.data)
 
 
 class DirectoryApiReadCatalogRecordFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
+
+    def setUp(self):
+        super().setUp()
+        CatalogRecord.objects.get(pk=12).calculate_directory_byte_sizes_and_file_counts()
 
     def test_retrieve_requested_directory_fields_only(self):
         response = self.client.get('/rest/datasets/12?file_details&directory_fields=identifier,directory_path')

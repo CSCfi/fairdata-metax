@@ -35,7 +35,7 @@ before_script:
 - sudo chown -R $USER:$USER /var/log/metax-api
 
 script:
-- cd src && flake8 . && python manage.py makemigrations metax_api && python manage.py migrate metax_api && coverage run --source="." manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
+- cd src && flake8 . && python manage.py migrate metax_api && coverage run --source="." manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
 
 notifications:
   flowdock:

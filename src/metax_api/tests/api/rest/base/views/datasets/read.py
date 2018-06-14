@@ -503,6 +503,8 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
     def test_directory_details_populated(self):
         # id 11 is one of the example datasets with full details. they should have a couple
         # of directories attached.
+        CatalogRecord.objects.get(pk=11).calculate_directory_byte_sizes_and_file_counts()
+
         response = self.client.get('/rest/datasets/11?file_details')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

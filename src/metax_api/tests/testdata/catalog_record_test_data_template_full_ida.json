@@ -75,14 +75,7 @@
         "definition": {
           "en": "A statement or formal explanation of the meaning of a concept."
         },
-        "in_scheme": [
-          {
-            "pref_label": {
-              "en": "The preferred lexical label for a resource"
-            },
-            "identifier": "http://uri.of.accessrights.concept/scheme"
-          }
-        ]
+        "in_scheme": "http://uri.of.filetype.concept/scheme"
       },
       "restriction_grounds": {
         "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
@@ -133,14 +126,7 @@
           "definition":{
             "en": "A statement or formal explanation of the meaning of a concept."
           },
-          "in_scheme": [
-            {
-              "pref_label": {
-                "en": "The preferred lexical label for a resource"
-              },
-              "identifier": "http://uri.of.some.concept/scheme"
-            }
-          ]
+          "in_scheme": "http://uri.of.filetype.concept/scheme"
         }
       },
       {
@@ -166,14 +152,7 @@
           "definition": {
             "en": "A statement or formal explanation of the meaning of a concept."
           },
-          "in_scheme": [
-            {
-              "pref_label": {
-                "en": "The preferred lexical label for a resource"
-              },
-              "identifier": "http://uri.of.other.concept/scheme"
-            }
-          ]
+          "in_scheme": "http://uri.of.filetype.concept/scheme"
         }
       }
     ],
@@ -186,33 +165,29 @@
         "definition": {
           "en": "A statement or formal explanation of the meaning of a concept."
         },
-        "in_scheme": [
-          {
-            "pref_label": {
-              "en": "The preferred lexical label for a resource"
-            },
-            "identifier": "http://uri.of.that.concept/scheme"
-          }
-        ]
+        "in_scheme": "http://uri.of.filetype.concept/scheme"
       }
     ],
     "theme": [
       {
-        "identifier": "http://www.yso.fi/onto/yso/p20518",
+        "identifier": "http://www.yso.fi/onto/koko/p32202",
         "pref_label": {
           "en": "pref label for theme"
         },
         "definition": {
           "en": "A statement or formal explanation of the meaning of a concept."
         },
-        "in_scheme": [
-          {
-            "pref_label": {
-              "en": "The preferred lexical label for a resource"
-            },
-            "identifier": "http://uri.of.concept/scheme"
-          }
-        ]
+        "in_scheme": "http://uri.of.filetype.concept/scheme"
+      },
+      {
+        "identifier": "http://www.yso.fi/onto/koko/p76312",
+        "pref_label": {
+          "en": "pref label for theme"
+        },
+        "definition": {
+          "en": "A statement or formal explanation of the meaning of a concept."
+        },
+        "in_scheme": "http://uri.of.filetype.concept/scheme"
       }
     ],
     "provenance": [
@@ -240,14 +215,7 @@
           "definition": {
             "en": "A statement or formal explanation of the meaning of a concept."
           },
-          "in_scheme": [
-            {
-              "pref_label": {
-                "en": "The preferred lexical label for a resource"
-              },
-              "identifier": "http://uri.of.provenance.concept/scheme"
-            }
-          ]
+          "in_scheme": "http://uri.of.filetype.concept/scheme"
         },
         "used_entity": [
           {
@@ -266,14 +234,7 @@
               "definition": {
                 "en": "A statement or formal explanation of the meaning of a concept."
               },
-              "in_scheme": [
-                {
-                  "pref_label": {
-                    "en": "The preferred lexical label for a resource"
-                  },
-                  "identifier": "http://uri.of.used.concept/scheme"
-                }
-              ]
+              "in_scheme": "http://uri.of.filetype.concept/scheme"
             }
           }
         ],
@@ -307,14 +268,7 @@
               "definition": {
                 "en": "A statement or formal explanation of the meaning of a concept."
               },
-              "in_scheme": [
-                {
-                  "pref_label": {
-                    "en": "The preferred lexical label for a resource"
-                  },
-                  "identifier": "http://uri.of.variable.concept/scheme"
-                }
-              ]
+              "in_scheme": "http://uri.of.filetype.concept/scheme"
             },
             "universe": {
               "identifier": "universeconceptidentifier",
@@ -324,21 +278,9 @@
               "definition": {
                 "en": "A statement or formal explanation of the meaning of a concept."
               },
-              "in_scheme": [
-                {
-                  "pref_label": {
-                    "en": "The preferred lexical label for a resource"
-                  },
-                  "identifier": "http://uri.of.universe.concept/scheme"
-                }
-              ]
+              "in_scheme": "http://uri.of.filetype.concept/scheme"
             },
-            "representation": {
-              "pref_label": {
-                "en": "Preferred label"
-              },
-              "identifier": "identifierheretoo"
-            }
+            "representation": "http://uri.of.filetype.concept/scheme"
           }
         ]
       },
@@ -577,14 +519,7 @@
           "definition": {
             "en": "A statement or formal explanation of the meaning of a concept."
           },
-          "in_scheme": [
-            {
-              "pref_label": {
-                "en": "The preferred lexical label for a resource"
-              },
-              "identifier": "http://uri.of.filetype.concept/scheme"
-            }
-          ]
+          "in_scheme": "http://uri.of.filetype.concept/scheme"
         },
         "use_category": {
           "identifier": "configuration"
@@ -599,14 +534,7 @@
           "definition": {
             "en": "A statement or formal explanation of the meaning of a concept."
           },
-          "in_scheme": [
-            {
-              "pref_label": {
-                "en": "The preferred lexical label for a resource"
-              },
-              "identifier": "http://uri.of.filetype.concept/scheme"
-            }
-          ]
+          "in_scheme": "http://uri.of.filetype.concept/scheme"
         },
         "use_category": {
           "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
