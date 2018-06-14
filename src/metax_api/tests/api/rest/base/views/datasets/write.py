@@ -956,13 +956,14 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
                 'code': entry['code'],
                 'uri': entry['uri'],
                 'label': entry.get('label', None),
-                'wkt': entry.get('wkt', None)
+                'wkt': entry.get('wkt', None),
+                'scheme': entry.get('scheme', None)
             }
 
         refs['organization'] = {
             'uri': orgdata['organization'][0]['uri'],
             'code': orgdata['organization'][0]['code'],
-            'label': orgdata['organization'][0]['label'],
+            'label': orgdata['organization'][0]['label']
         }
 
         # replace the relations with objects that have only the identifier set with code as value,
@@ -1073,6 +1074,29 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['resource_type']['uri'], new_rd['relation'][0]['entity']['type']['identifier'])
         self.assertEqual(refs['lifecycle_event']['uri'], new_rd['provenance'][0]['lifecycle_event']['identifier'])
         self.assertEqual(refs['preservation_event']['uri'], new_rd['provenance'][1]['preservation_event']['identifier'])
+
+    def _assert_scheme_copied_to_in_scheme(self, refs, new_rd):
+        self.assertEqual(refs['keyword']['scheme'], new_rd['theme'][0]['in_scheme'])
+        self.assertEqual(refs['field_of_science']['scheme'], new_rd['field_of_science'][0]['in_scheme'])
+        self.assertEqual(refs['language']['scheme'], new_rd['language'][0]['in_scheme'])
+        self.assertEqual(refs['access_type']['scheme'], new_rd['access_rights']['access_type']['in_scheme'])
+        self.assertEqual(refs['restriction_grounds']['scheme'],
+                         new_rd['access_rights']['restriction_grounds']['in_scheme'])
+        self.assertEqual(refs['license']['scheme'], new_rd['access_rights']['license'][0]['in_scheme'])
+        self.assertEqual(refs['identifier_type']['scheme'], new_rd['other_identifier'][0]['type']['in_scheme'])
+        self.assertEqual(refs['location']['scheme'], new_rd['spatial'][0]['place_uri']['in_scheme'])
+        self.assertEqual(refs['file_type']['scheme'], new_rd['files'][0]['file_type']['in_scheme'])
+        self.assertEqual(refs['use_category']['scheme'], new_rd['files'][0]['use_category']['in_scheme'])
+
+        self.assertEqual(refs['use_category']['scheme'], new_rd['directories'][0]['use_category']['in_scheme'])
+        self.assertEqual(refs['research_infra']['scheme'], new_rd['infrastructure'][0]['in_scheme'])
+        self.assertEqual(refs['contributor_role']['scheme'], new_rd['creator'][0]['contributor_role']['in_scheme'])
+        self.assertEqual(refs['funder_type']['scheme'], new_rd['is_output_of'][0]['funder_type']['in_scheme'])
+        self.assertEqual(refs['relation_type']['scheme'], new_rd['relation'][0]['relation_type']['in_scheme'])
+        self.assertEqual(refs['resource_type']['scheme'], new_rd['relation'][0]['entity']['type']['in_scheme'])
+        self.assertEqual(refs['lifecycle_event']['scheme'], new_rd['provenance'][0]['lifecycle_event']['in_scheme'])
+        self.assertEqual(refs['preservation_event']['scheme'],
+                         new_rd['provenance'][1]['preservation_event']['in_scheme'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_rd):
         self.assertEqual(refs['keyword']['label'], new_rd['theme'][0].get('pref_label', None))
