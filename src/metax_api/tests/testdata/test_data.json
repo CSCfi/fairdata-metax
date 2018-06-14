@@ -6717,14 +6717,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.accessrights.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -6871,14 +6864,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.that.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -6892,14 +6878,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:1",
                         "title": "file title",
@@ -6914,14 +6893,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:2",
                         "title": "file title",
@@ -7009,14 +6981,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "doi",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.some.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label"
                             }
@@ -7042,14 +7007,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.other.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
                             }
@@ -7067,14 +7025,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.provenance.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -7105,14 +7056,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "thisisnotenoughconcepts",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.used.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label for this type"
                                     }
@@ -7126,14 +7070,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "variableconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.variable.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -7144,25 +7081,13 @@
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
-                                "representation": {
-                                    "identifier": "identifierheretoo",
-                                    "pref_label": {
-                                        "en": "Preferred label"
-                                    }
-                                },
+                                "representation": "http://uri.of.filetype.concept/scheme",
                                 "universe": {
                                     "definition": {
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "universeconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.universe.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -7375,14 +7300,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p32202",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }
@@ -7392,14 +7310,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p76312",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }
@@ -7465,14 +7376,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.accessrights.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -7619,14 +7523,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.that.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -7640,14 +7537,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:1",
                         "title": "file title",
@@ -7662,14 +7552,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:2",
                         "title": "file title",
@@ -7757,14 +7640,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "doi",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.some.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label"
                             }
@@ -7790,14 +7666,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.other.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
                             }
@@ -7815,14 +7684,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.provenance.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -7853,14 +7715,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "thisisnotenoughconcepts",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.used.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label for this type"
                                     }
@@ -7874,14 +7729,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "variableconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.variable.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -7892,25 +7740,13 @@
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
-                                "representation": {
-                                    "identifier": "identifierheretoo",
-                                    "pref_label": {
-                                        "en": "Preferred label"
-                                    }
-                                },
+                                "representation": "http://uri.of.filetype.concept/scheme",
                                 "universe": {
                                     "definition": {
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "universeconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.universe.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -8123,14 +7959,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p32202",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }
@@ -8140,14 +7969,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p76312",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }
@@ -8281,14 +8103,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.accessrights.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -8459,14 +8274,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.that.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -8480,14 +8288,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:6",
                         "title": "file title 6",
@@ -8502,14 +8303,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.filetype.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:10",
                         "title": "file title 10",
@@ -8597,14 +8391,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "doi",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.some.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label"
                             }
@@ -8630,14 +8417,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.other.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
                             }
@@ -8655,14 +8435,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.provenance.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -8693,14 +8466,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "thisisnotenoughconcepts",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.used.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label for this type"
                                     }
@@ -8714,14 +8480,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "variableconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.variable.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -8732,25 +8491,13 @@
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
-                                "representation": {
-                                    "identifier": "identifierheretoo",
-                                    "pref_label": {
-                                        "en": "Preferred label"
-                                    }
-                                },
+                                "representation": "http://uri.of.filetype.concept/scheme",
                                 "universe": {
                                     "definition": {
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "universeconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.universe.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -8963,14 +8710,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p32202",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }
@@ -8980,14 +8720,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p76312",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }
@@ -9910,14 +9643,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.accessrights.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -10046,14 +9772,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.that.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -10138,14 +9857,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "doi",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.some.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label"
                             }
@@ -10171,14 +9883,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.other.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
                             }
@@ -10196,14 +9901,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.provenance.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -10234,14 +9932,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "thisisnotenoughconcepts",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.used.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label for this type"
                                     }
@@ -10255,14 +9946,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "variableconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.variable.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -10273,25 +9957,13 @@
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
-                                "representation": {
-                                    "identifier": "identifierheretoo",
-                                    "pref_label": {
-                                        "en": "Preferred label"
-                                    }
-                                },
+                                "representation": "http://uri.of.filetype.concept/scheme",
                                 "universe": {
                                     "definition": {
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "universeconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.universe.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -10471,14 +10143,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
                             "description": "Description of file type",
@@ -10542,14 +10207,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "title": "A name given to the second distribution",
                         "use_category": {
@@ -10612,14 +10270,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p18199",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }
@@ -10660,14 +10311,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.accessrights.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -10796,14 +10440,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.that.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -10888,14 +10525,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "doi",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.some.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label"
                             }
@@ -10921,14 +10551,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.other.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
                             }
@@ -10946,14 +10569,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.provenance.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -10984,14 +10600,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "thisisnotenoughconcepts",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.used.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label for this type"
                                     }
@@ -11005,14 +10614,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "variableconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.variable.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -11023,25 +10625,13 @@
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
-                                "representation": {
-                                    "identifier": "identifierheretoo",
-                                    "pref_label": {
-                                        "en": "Preferred label"
-                                    }
-                                },
+                                "representation": "http://uri.of.filetype.concept/scheme",
                                 "universe": {
                                     "definition": {
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "universeconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.universe.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -11221,14 +10811,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
                             "description": "Description of file type",
@@ -11292,14 +10875,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "title": "A name given to the second distribution",
                         "use_category": {
@@ -11362,14 +10938,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p18199",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }
@@ -11410,14 +10979,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.accessrights.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -11546,14 +11108,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta414",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.that.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
                         }
@@ -11638,14 +11193,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "doi",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.some.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label"
                             }
@@ -11671,14 +11219,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.other.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ],
+                            "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
                             }
@@ -11696,14 +11237,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.provenance.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -11734,14 +11268,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "thisisnotenoughconcepts",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.used.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label for this type"
                                     }
@@ -11755,14 +11282,7 @@
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "variableconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.variable.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -11773,25 +11293,13 @@
                                 "pref_label": {
                                     "en": "Preferred label"
                                 },
-                                "representation": {
-                                    "identifier": "identifierheretoo",
-                                    "pref_label": {
-                                        "en": "Preferred label"
-                                    }
-                                },
+                                "representation": "http://uri.of.filetype.concept/scheme",
                                 "universe": {
                                     "definition": {
                                         "en": "A statement or formal explanation of the meaning of a concept."
                                     },
                                     "identifier": "universeconceptidentifier",
-                                    "in_scheme": [
-                                        {
-                                            "identifier": "http://uri.of.universe.concept/scheme",
-                                            "pref_label": {
-                                                "en": "The preferred lexical label for a resource"
-                                            }
-                                        }
-                                    ],
+                                    "in_scheme": "http://uri.of.filetype.concept/scheme",
                                     "pref_label": {
                                         "en": "pref label"
                                     }
@@ -11971,14 +11479,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
                             "description": "Description of file type",
@@ -12042,14 +11543,7 @@
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
-                            "in_scheme": [
-                                {
-                                    "identifier": "http://uri.of.resource.concept/scheme",
-                                    "pref_label": {
-                                        "en": "The preferred lexical label for a resource"
-                                    }
-                                }
-                            ]
+                            "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "title": "A name given to the second distribution",
                         "use_category": {
@@ -12112,14 +11606,7 @@
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
                         "identifier": "http://www.yso.fi/onto/koko/p18199",
-                        "in_scheme": [
-                            {
-                                "identifier": "http://uri.of.concept/scheme",
-                                "pref_label": {
-                                    "en": "The preferred lexical label for a resource"
-                                }
-                            }
-                        ],
+                        "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for theme"
                         }

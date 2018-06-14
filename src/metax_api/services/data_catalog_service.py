@@ -44,7 +44,7 @@ class DataCatalogService(ReferenceDataMixin):
         if access_rights:
             for rights_statement_type in access_rights.get('access_type', []):
                 ref_entry = cls.check_ref_data(refdata['access_type'], rights_statement_type['identifier'],
-                                               'data_catalog_json.rights.access_type.identifier', errors)
+                                               'data_catalog_json.access_rights.access_type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, rights_statement_type, label_field='pref_label')
 
@@ -52,7 +52,7 @@ class DataCatalogService(ReferenceDataMixin):
                 license_url = license.get('license', None)
 
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
-                                               'data_catalog_json.rights.license.identifier', errors)
+                                               'data_catalog_json.access_rights.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title')
 
@@ -67,7 +67,7 @@ class DataCatalogService(ReferenceDataMixin):
             if 'has_rights_related_agent' in access_rights:
                 for agent in access_rights.get('has_rights_related_agent', []):
                     cls.process_org_obj_against_ref_data(orgdata['organization'], agent,
-                                                         'data_catalog_json.rights.has_rights_related_agent')
+                                                         'data_catalog_json.access_rights.has_rights_related_agent')
 
         publisher = data_catalog.get('publisher', None)
         if publisher:
