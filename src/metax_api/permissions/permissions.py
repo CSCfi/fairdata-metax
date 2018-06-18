@@ -59,6 +59,8 @@ class ServicePermissions(BasePermission):
             return request.user.username in self.perms[api_name]['read']
 
         elif request.method in WRITE_METHODS:
+            if 'all' in self.perms[api_name]['write']:
+                return True
             return request.user.username in self.perms[api_name]['write']
 
         else:
