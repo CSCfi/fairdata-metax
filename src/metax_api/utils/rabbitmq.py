@@ -42,7 +42,6 @@ class _RabbitMQ():
 
         self._channel = self._connection.channel()
         self._settings = settings
-        self._init_exchanges()
 
     def publish(self, body, routing_key='', exchange=None, persistent=True):
         """
@@ -78,7 +77,7 @@ class _RabbitMQ():
     def get_channel(self):
         return self._channel
 
-    def _init_exchanges(self):
+    def init_exchanges(self):
         """
         Declare the exchanges specified in settings. Re-declaring existing exchanges does no harm, but
         an error will occur if an exchange existed, and it is being re-declared with different settings.
