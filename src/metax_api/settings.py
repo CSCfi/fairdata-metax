@@ -23,10 +23,10 @@ if not executing_in_travis:
     with open('/home/metax-user/app_config') as app_config:
         app_config_dict = yaml.load(app_config)
 
-if 'METAX_ENV' in app_config_dict:
-    METAX_ENV = app_config_dict['METAX_ENV']
-else:
-    raise Exception('METAX_ENV missing from app_config')
+    if 'METAX_ENV' in app_config_dict:
+        METAX_ENV = app_config_dict['METAX_ENV']
+    else:
+        raise Exception('METAX_ENV missing from app_config')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
