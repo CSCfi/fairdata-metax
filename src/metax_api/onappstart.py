@@ -7,7 +7,7 @@ from time import sleep
 from django.apps import AppConfig
 from django.conf import settings
 
-from metax_api.utils import RedisSentinelCache, executing_test_case, ReferenceDataLoader
+from metax_api.utils import RedisSentinelCache, executing_test_case, RabbitMQ, ReferenceDataLoader
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -69,5 +69,11 @@ class OnAppStart(AppConfig):
             makedirs(settings.ERROR_FILES_PATH)
         except FileExistsError:
             pass
+
+        try:
+            rabbitmq = RabbitMQ()
+            rabbitmq.init_exchanges()
+        except:
+            _logger.error("Unable to initialize RabbitMQ exchanges")
 
         _logger.info('Metax API startup tasks finished')
