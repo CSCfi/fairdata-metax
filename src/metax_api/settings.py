@@ -23,6 +23,11 @@ if not executing_in_travis:
     with open('/home/metax-user/app_config') as app_config:
         app_config_dict = yaml.load(app_config)
 
+if 'METAX_ENV' in app_config_dict:
+    METAX_ENV = app_config_dict['METAX_ENV']
+else:
+    raise Exception('METAX_ENV missing from app_config')
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -66,7 +71,18 @@ if executing_test_case() or executing_in_travis:
         "filestorages": { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
         "schemas":      { "read":  ["all"], "write": ["testuser", "metax"] }
     }
+elif METAX_ENV == 'test':
+    # in test-env, modify API_ACCESS to give read and write perms to all (public). note that
+    # this affects only per-api access; nginx permissions still limits general write requests
+    API_ACCESS = app_config_dict['API_ACCESS']
+
+    for api, perms in API_ACCESS.items():
+        if 'all' not in perms['read']:
+            perms['read'].append('all')
+        if 'all' not in perms['write']:
+            perms['write'].append('all')
 else:
+    # localdev, stable, production
     API_ACCESS = app_config_dict['API_ACCESS']
 
 if executing_test_case() or executing_in_travis:
