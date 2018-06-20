@@ -63,6 +63,10 @@ class FileViewSet(CommonViewSet):
         with transaction.atomic():
             return super().dispatch(request, **kwargs)
 
+    def list(self, request, *args, **kwargs):
+        self.queryset_search_params = FileService.get_queryset_search_params(request)
+        return super().list(request, *args, **kwargs)
+
     @list_route(methods=['post'], url_path="datasets")
     def datasets(self, request):
         """

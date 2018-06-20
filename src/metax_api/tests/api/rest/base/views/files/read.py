@@ -29,6 +29,13 @@ class FileApiReadBasicTests(FileApiReadCommon):
         response = self.client.get('/rest/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_read_file_list_filter_by_project(self):
+        proj = File.objects.get(pk=1).project_identifier
+        file_count = File.objects.filter(project_identifier=proj).count()
+        response = self.client.get('/rest/files?project_identifier=%s' % proj)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], file_count)
+
     def test_read_file_details_by_pk(self):
         response = self.client.get('/rest/files/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
