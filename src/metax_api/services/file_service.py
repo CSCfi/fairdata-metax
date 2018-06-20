@@ -55,6 +55,22 @@ class MaxRecursionDepthExceeded(Exception):
 class FileService(CommonService):
 
     @classmethod
+    def get_queryset_search_params(cls, request):
+        """
+        Get and validate parameters from request.query_params that will be used for filtering
+        in view.get_queryset()
+        """
+        if not request.query_params:
+            return {}
+
+        queryset_search_params = {}
+
+        if request.query_params.get('project_identifier', False):
+            queryset_search_params['project_identifier'] = request.query_params['project_identifier']
+
+        return queryset_search_params
+
+    @classmethod
     def get_datasets_where_file_belongs_to(cls, file_identifiers):
         """
         Find out which (non-deprecated) datasets a list of files belongs to, and return

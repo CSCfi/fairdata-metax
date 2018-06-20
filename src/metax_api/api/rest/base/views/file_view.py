@@ -63,6 +63,10 @@ class FileViewSet(CommonViewSet):
         with transaction.atomic():
             return super().dispatch(request, **kwargs)
 
+    def list(self, request, *args, **kwargs):
+        self.queryset_search_params = FileService.get_queryset_search_params(request)
+        return super().list(request, *args, **kwargs)
+
     @list_route(methods=['post'], url_path="datasets")
     def datasets(self, request):
         """
@@ -189,8 +193,8 @@ class FileViewSet(CommonViewSet):
             for host in app_config_dict['ALLOWED_HOSTS']:
                 if 'metax.csc.local' in host or 'metax-test' in host or 'metax-stable' in host:
                     break
-            else:
-                raise ValidationError('API currently allowed only in test environments')
+            # else:
+            #     raise ValidationError('API currently allowed only in test environments')
 
         if 'project' not in request.query_params:
             raise ValidationError('project is a required query parameter')
