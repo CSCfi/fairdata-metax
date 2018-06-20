@@ -64,7 +64,23 @@ class CommonViewSet(ModelViewSet):
         return super(CommonViewSet, self).paginate_queryset(queryset)
 
     def get_queryset(self):
+        """
+        Apply parameters received in the request to the queryset, and return it.
+
+        Inheriting methods can still further filter and modify the queryset, since it is
+        not immediately evaluated.
+        """
         additional_filters = {}
+        q_filters = []
+
+        CS.set_if_modified_since_filter(self.request, additional_filters)
+
+        if hasattr(self, 'queryset_search_params'):
+            additional_filters.update(**self.queryset_search_params)
+
+        if 'q_filters' in additional_filters:
+            # Q-filter objects, which can contain more complex filter options such as OR-clauses
+            q_filters = additional_filters.pop('q_filters')
 
         if CS.get_boolean_query_param(self.request, 'removed'):
             additional_filters.update({'removed': True})
@@ -84,7 +100,7 @@ class CommonViewSet(ModelViewSet):
 
         return super(CommonViewSet, self).get_queryset() \
             .select_related(*self.select_related) \
-            .filter(**additional_filters)
+            .filter(*q_filters, **additional_filters)
 
     def get_object(self, search_params=None):
         """
