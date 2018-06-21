@@ -850,6 +850,33 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
                          'files should be retrievable from removed=True scope')
 
 
+class FileApiWriteRestoreTests(FileApiWriteCommon):
+
+    def test_restore_files_ok(self):
+        response = self.client.delete('/rest/files/1')
+        response = self.client.delete('/rest/files/2')
+        response = self.client.delete('/rest/files/3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        file_identifiers = File.objects_unfiltered.filter(pk__in=[1, 2, 3]).values_list('identifier', flat=True)
+        response = self.client.post('/rest/files/restore', [pid for pid in file_identifiers], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('restored_files_count' in response.data, True, response.data)
+        self.assertEqual(response.data['restored_files_count'], 3, response.data)
+
+    def test_check_parameter_is_string_list(self):
+        response = self.client.post('/rest/files/restore', ['a', 'b', 1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_check_files_belong_to_one_project(self):
+        f1 = File.objects_unfiltered.get(pk=1)
+        f2 = File.objects_unfiltered.filter().exclude(project_identifier=f1.project_identifier).first()
+        response = self.client.delete('/rest/files/%d' % f1.id)
+        response = self.client.delete('/rest/files/%d' % f2.id)
+        response = self.client.post('/rest/files/restore', [ f1.identifier, f2.identifier ], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 class FileApiWriteXmlTests(FileApiWriteCommon):
     """
     /files/pid/xml related tests

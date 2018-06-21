@@ -79,6 +79,13 @@ class FileViewSet(CommonViewSet):
         """
         return FileService.get_datasets_where_file_belongs_to(request.data)
 
+    @list_route(methods=['post'], url_path="restore")
+    def restore_files(self, request):
+        """
+        Restore removed files.
+        """
+        return FileService.restore_files(request, request.data)
+
     def destroy(self, request, pk, **kwargs):
         return FileService.destroy_single(self.get_object())
 

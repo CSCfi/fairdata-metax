@@ -71,6 +71,71 @@ class FileService(CommonService):
         return queryset_search_params
 
     @classmethod
+    def restore_files(cls, request, file_identifier_list):
+        """
+        Restore deleted files. If a file already has removed=false, does nothing.
+
+        Only restores the files; does not touch datasets that might have been previously deprecated
+        when a particular file was marked as removed.
+        """
+        _logger.info('Restoring files')
+
+        if not file_identifier_list:
+            _logger.info('Received file identifier list is empty - doing nothing')
+            return Response({ 'files_restored_count': 0 }, status=status.HTTP_200_OK)
+
+        for id in file_identifier_list:
+            if not isinstance(id, str):
+                raise Http400({
+                    'detail': [
+                        'identifier values must be strings. found value \'%s\', which is of type %s'
+                        % (id, type(id))
+                    ]
+                })
+
+        _logger.info('Validating restore is targeting only one project...')
+
+        check_project_sql = """
+            select distinct(project_identifier)
+            from metax_api_file
+            where identifier in %s
+            and active = true
+            """
+
+        with connection.cursor() as cr:
+            cr.execute(check_project_sql, [tuple(file_identifier_list)])
+            projects = cr.fetchall()
+
+        if len(projects) > 1:
+            raise Http400({
+                'detail': [
+                    'restore operation should target one project at a time. the following projects were found: %s'
+                    % ', '.join([ p[0] for p in projects])
+                ]
+            })
+
+        project_identifier = projects[0][0]
+
+        _logger.info('Restoring %d files in project %s...' % (len(file_identifier_list), project_identifier))
+
+        restore_files_sql = """
+            update metax_api_file
+            set removed = false, date_modified = NOW(), user_modified = NULL, service_modified = %s
+            where identifier in %s
+            and active = true and removed = true
+            """
+
+        with connection.cursor() as cr:
+            cr.execute(restore_files_sql, [request.user.username, tuple(file_identifier_list)])
+            affected_rows = cr.rowcount
+
+        _logger.info('Restored %d files in project %s' % (affected_rows, project_identifier))
+
+        cls.calculate_project_directory_byte_sizes_and_file_counts(project_identifier)
+
+        return Response({ 'restored_files_count': affected_rows }, status=status.HTTP_200_OK)
+
+    @classmethod
     def get_datasets_where_file_belongs_to(cls, file_identifiers):
         """
         Find out which (non-deprecated) datasets a list of files belongs to, and return
