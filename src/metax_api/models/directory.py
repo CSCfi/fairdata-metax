@@ -69,6 +69,17 @@ class Directory(Common):
         with connection.cursor() as cursor:
             cursor.execute(sql_update_all_directories)
 
+        _logger.info(
+            'Project %s directory tree calculations complete. Total byte_size: '
+            '%d bytes (%.3f GB), total file_count: %d files'
+            % (
+                self.project_identifier,
+                self.byte_size,
+                self.byte_size / 1024 / 1024.0,
+                self.file_count
+            )
+        )
+
     def _calculate_byte_size_and_file_count(self, update_statements):
         """
         Recursively traverse the entire directory tree and update total byte size and file count
