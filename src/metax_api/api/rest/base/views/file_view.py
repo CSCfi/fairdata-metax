@@ -1,4 +1,5 @@
 import logging
+import re
 
 from django.db import transaction
 from django.http import Http404
@@ -17,7 +18,12 @@ from metax_api.services import CommonService, FileService
 from .common_view import CommonViewSet
 from ..serializers import FileSerializer, XmlMetadataSerializer
 
+
 _logger = logging.getLogger(__name__)
+
+# i.e. /rest/v6/files, but must NOT end in /
+# or: /rest/files, but must NOT end in /
+RE_PATTERN_FILES_CREATE = re.compile('^/rest/(v\d/)?files(?!/)')
 
 
 # none of the methods in this class use atomic requests by default! see method dispatch()
@@ -56,11 +62,12 @@ class FileViewSet(CommonViewSet):
         https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.non_atomic_requests
         """
         # todo add checking of ?atomic parameter to skip this ?
-        if request.method == 'POST' and any(url in request.META['PATH_INFO']
-                                            for url in ('/rest/files', '/rest/v1/files')):
-            # for POST /files only, do not use a transaction !
+        if request.method == 'POST' and RE_PATTERN_FILES_CREATE.match(request.META['PATH_INFO']):
+            # for POST /files only (creating), do not use a transaction !
+            _logger.debug('Note: Request not in transaction')
             return super().dispatch(request, **kwargs)
         with transaction.atomic():
+            _logger.debug('Note: Request in transaction')
             return super().dispatch(request, **kwargs)
 
     def list(self, request, *args, **kwargs):
