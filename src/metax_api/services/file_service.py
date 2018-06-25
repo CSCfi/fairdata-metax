@@ -93,40 +93,95 @@ class FileService(CommonService):
                     ]
                 })
 
+        _logger.info('Retrieving file details...')
+
+        file_details_list = File.objects_unfiltered \
+            .filter(active=True, removed=True, identifier__in=file_identifier_list) \
+            .values('id', 'identifier', 'file_path', 'project_identifier')
+
+        if not len(file_details_list):
+            _logger.info('None of the requested files were found')
+            raise Http404
+
+        elif len(file_details_list) < len(file_identifier_list):
+            _logger.info('Some of the requested files were not found. Aborting')
+
+            found_pids = { f['identifier'] for f in file_details_list }
+            missing_identifiers = [ pid for pid in file_identifier_list if pid not in found_pids ]
+
+            raise Http400({
+                'detail': [
+                    'not all requested file identifiers could be found. list of missing identifiers: %s'
+                    % '\n'.join(missing_identifiers)
+                ]
+            })
+        elif len(file_details_list) > len(file_identifier_list):
+            raise Http400({
+                'detail': [
+                    '''
+                    Found more files than were requested to be restored! Looks like there are some duplicates
+                    within the removed files (same identifier exists more than once).
+
+                    This should be a reasonably rare case that could only happen if uploading and deleting
+                    the same files multiple times without regenerating identifiers inbetween, and then
+                    attempting to restore. At this point, it is unclear which particular file of the many
+                    available ones should be restored. If feasible, in this situation it may be best to properly
+                    re-freeze those files entirely (so that new identifiers are generated).
+                    '''
+                ]
+            })
+        else:
+            # good case
+            pass
+
         _logger.info('Validating restore is targeting only one project...')
 
-        check_project_sql = """
-            select distinct(project_identifier)
-            from metax_api_file
-            where identifier in %s
-            and active = true
-            """
-
-        with connection.cursor() as cr:
-            cr.execute(check_project_sql, [tuple(file_identifier_list)])
-            projects = cr.fetchall()
+        projects = { f['project_identifier'] for f in file_details_list }
 
         if len(projects) > 1:
             raise Http400({
                 'detail': [
                     'restore operation should target one project at a time. the following projects were found: %s'
-                    % ', '.join([ p[0] for p in projects])
+                    % ', '.join([ p for p in projects])
                 ]
             })
 
-        project_identifier = projects[0][0]
+        # note: sets do not support indexing. getting the first (only) item here
+        project_identifier = next(iter(projects))
 
-        _logger.info('Restoring %d files in project %s...' % (len(file_identifier_list), project_identifier))
+        _logger.info('Restoring files in project %s. Files to restore: %d'
+            % (project_identifier, len(file_identifier_list)))
 
-        restore_files_sql = """
-            update metax_api_file
-            set removed = false, date_modified = NOW(), user_modified = NULL, service_modified = %s
-            where identifier in %s
-            and active = true and removed = true
-            """
+        # when files were deleted, any empty directories were deleted as well. check
+        # and re-create directories, and assign new parent_directory_id to files being
+        # restored as necessary.
+        common_info = cls.update_common_info(request, return_only=True)
+        file_details_with_dirs = cls._create_directories_from_file_list(common_info, file_details_list)
+
+        # note, the purpose of %%s: request.user.username is inserted into the query in cr.execute() as
+        # a separate parameter, in order to properly escape it.
+        update_statements = [
+            '(%d, %%s, %d)'
+            % (f['id'], f['parent_directory'])
+            for f in file_details_with_dirs
+        ]
+
+        sql_restore_files = '''
+            update metax_api_file as file set
+                service_modified = results.service_modified,
+                parent_directory_id = results.parent_directory_id,
+                removed = false,
+                file_deleted = NULL,
+                date_modified = CURRENT_TIMESTAMP,
+                user_modified = NULL
+            from (values
+                %s
+            ) as results(id, service_modified, parent_directory_id)
+            where results.id = file.id;
+            ''' % ','.join(update_statements)
 
         with connection.cursor() as cr:
-            cr.execute(restore_files_sql, [request.user.username, tuple(file_identifier_list)])
+            cr.execute(sql_restore_files, [request.user.username for i in range(len(file_details_list))])
             affected_rows = cr.rowcount
 
         _logger.info('Restored %d files in project %s' % (affected_rows, project_identifier))
