@@ -245,7 +245,7 @@ class FileService(CommonService):
 
         sql_delete_files = '''
             update metax_api_file
-            set removed = true, file_deleted = CURRENT_TIMESTAMP
+            set removed = true, file_deleted = CURRENT_TIMESTAMP, date_modified = CURRENT_TIMESTAMP
             where active = true and removed = false
             and id in %s'''
 
@@ -351,7 +351,11 @@ class FileService(CommonService):
             cr.save()
             deprecated_records.append(CatalogRecordSerializer(cr).data)
 
-        _logger.info('Publishing deprecated datasets to rabbitmq update queues...')
+        if not deprecated_records:
+            _logger.info('Files were not associated with any datasets.')
+            return
+
+        _logger.info('Publishing %d deprecated datasets to rabbitmq update queues...' % len(deprecated_records))
         rabbitmq = RabbitMQ()
         rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
 
@@ -904,7 +908,7 @@ class FileService(CommonService):
         as separate entities in the request, so they have to be created based on the
         paths in the list of files.
         """
-        _logger.info('Creating and checking file hierarchy...')
+        _logger.info('Checking and creating file hierarchy...')
 
         project_identifier = initial_data_list[0]['project_identifier']
         sorted_data = sorted(initial_data_list, key=lambda row: row['file_path'])
