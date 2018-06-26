@@ -126,6 +126,7 @@ if DEBUG:
     INSTALLED_APPS.append('django.contrib.staticfiles')
 
 MIDDLEWARE = [
+    'metax_api.middleware.RequestLogging',
     # note: not strictly necessary if running in a private network
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#module-django.middleware.security
     'django.middleware.security.SecurityMiddleware',
