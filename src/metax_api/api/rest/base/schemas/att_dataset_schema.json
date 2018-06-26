@@ -1209,6 +1209,7 @@
             "required":[
                 "creator",
                 "description",
+                "access_rights",
                 "preferred_identifier",
                 "title"
             ]
