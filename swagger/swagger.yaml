@@ -407,6 +407,25 @@ paths:
           description: files given in the list not found
       tags:
         - File API
+  /files/restore:
+    post:
+      summary: restore removed files back to "not removed" state.
+      description: note: does not restore possible deprecated datasets (due to files having been removed) to back to non-deprecated state!
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: a list of file identifiers of files to restore.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: numbers of files restored.
+        '400':
+          description: request ended in an error, response contains details.
+      tags:
+        - File API
   /directories/{PID}:
     get:
       summary: get details of a directory
