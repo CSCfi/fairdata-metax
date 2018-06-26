@@ -72,7 +72,7 @@ class ApiErrorService():
             for date_field in ('date_modified', 'date_created'):
                 if isinstance(request_data, list):
                     for item in request_data:
-                        if date_field in item:
+                        if isinstance(item, dict) and date_field in item:
                             item[date_field] = str(item[date_field])
                 elif isinstance(request_data, dict) and date_field in request_data:
                     request_data[date_field] = str(request_data[date_field])

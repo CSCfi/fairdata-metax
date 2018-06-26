@@ -850,6 +850,73 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
                          'files should be retrievable from removed=True scope')
 
 
+class FileApiWriteRestoreTests(FileApiWriteCommon):
+
+    def test_restore_files_ok(self):
+        """
+        Restore a few deleted files from directories, that still contain other files.
+        Restored files should be appended to previously existing files.
+        """
+        response = self.client.delete('/rest/files/1')
+        response = self.client.delete('/rest/files/2')
+        response = self.client.delete('/rest/files/3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        deleted_files = File.objects_unfiltered.filter(pk__in=[1, 2, 3]) \
+            .values('identifier', 'parent_directory_id')
+
+        response = self.client.post('/rest/files/restore', [f['identifier'] for f in deleted_files], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('restored_files_count' in response.data, True, response.data)
+        self.assertEqual(response.data['restored_files_count'], 3, response.data)
+
+        # ensure restored files are using previously existing directories
+        old_parent_dirs = { f['parent_directory_id'] for f in deleted_files }
+        files = File.objects.filter(pk__in=[1, 2, 3])
+        for f in files:
+            self.assertEqual(f.file_deleted, None)
+            self.assertEqual(f.user_modified, None)
+            self.assertEqual(f.parent_directory_id in old_parent_dirs, True)
+
+    def test_restore_files_recreate_missing_directories(self):
+        """
+        Restore an entire project. Files should have new directories.
+        """
+        proj = File.objects.get(pk=1).project_identifier
+
+        response = self.client.get('/rest/files?project_identifier=%s&fields=identifier&no_pagination=true'
+            % proj, format='json')
+        file_identifiers = [ f['identifier'] for f in response.data ]
+
+        self.client.delete('/rest/files', file_identifiers, format='json')
+
+        deleted_directory_ids = File.objects_unfiltered.filter(identifier__in=file_identifiers) \
+            .values_list('parent_directory_id', flat=True)
+        old_parent_dirs = { id for id in deleted_directory_ids }
+
+        response = self.client.post('/rest/files/restore', file_identifiers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('restored_files_count' in response.data, True, response.data)
+        self.assertEqual(response.data['restored_files_count'], len(file_identifiers), response.data)
+
+        # ensure restored files are using new directories
+        files = File.objects.filter(identifier__in=file_identifiers)
+        for f in files:
+            self.assertEqual(f.parent_directory_id in old_parent_dirs, False)
+
+    def test_check_parameter_is_string_list(self):
+        response = self.client.post('/rest/files/restore', ['a', 'b', 1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_check_files_belong_to_one_project(self):
+        f1 = File.objects_unfiltered.get(pk=1)
+        f2 = File.objects_unfiltered.filter().exclude(project_identifier=f1.project_identifier).first()
+        response = self.client.delete('/rest/files/%d' % f1.id)
+        response = self.client.delete('/rest/files/%d' % f2.id)
+        response = self.client.post('/rest/files/restore', [ f1.identifier, f2.identifier ], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 class FileApiWriteXmlTests(FileApiWriteCommon):
     """
     /files/pid/xml related tests
