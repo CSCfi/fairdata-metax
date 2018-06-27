@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: METAX REST API
   version: v1
-host: metax.example.org
+host: metax.fairdata.fi
 schemes:
   - https
 basePath: /rest/v1/
