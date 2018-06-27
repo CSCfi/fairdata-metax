@@ -5742,6 +5742,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -5839,6 +5847,14 @@
             "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -5936,6 +5952,14 @@
             "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6033,6 +6057,14 @@
             "preservation_state": 40,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6130,6 +6162,14 @@
             "preservation_state": 50,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6227,6 +6267,14 @@
             "preservation_state": 70,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6324,6 +6372,14 @@
             "preservation_state": 70,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6421,6 +6477,14 @@
             "preservation_state": 90,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6515,6 +6579,14 @@
             "preservation_state": 130,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6607,6 +6679,14 @@
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -8756,6 +8836,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -8843,6 +8931,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -8930,6 +9026,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9017,6 +9121,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9104,6 +9216,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9191,6 +9311,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9278,6 +9406,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9368,6 +9504,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9458,6 +9602,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9548,6 +9700,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -11653,6 +11813,14 @@
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -11738,6 +11906,14 @@
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
