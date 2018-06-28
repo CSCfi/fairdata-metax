@@ -28,6 +28,12 @@ class FileSerializer(CommonSerializer):
     # has to be present to not break rest_framework browsabale api
     checksum = serializers.CharField(source='checksum_value', read_only=True)
 
+    # file paths must preserve any leading or trailing whitespace, as those
+    # are valid characters in a filename. note: file_path is actually a
+    # TextField, but it does not have a separate serializer field.
+    file_name = serializers.CharField(max_length=None, trim_whitespace=False)
+    file_path = serializers.CharField(max_length=None, trim_whitespace=False)
+
     # identifier is not set as unique in the db due to having to allow removed files exist.
     # use the same validator that would otherwise automatically be used, to verify uniqueness
     # among non-removed files.
