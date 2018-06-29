@@ -106,7 +106,8 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
     #
 
     def test_create_file(self):
-        newly_created_file_name = 'newly_created_file_name'
+        # note: leading and trailing whitespace must be preserved.
+        newly_created_file_name = '   newly_created _file_name   '
         self.test_new_data['file_name'] = newly_created_file_name
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
@@ -459,20 +460,20 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
 
     def _form_complex_list_from_test_file(self):
         """
-        "complex" list
+        "complex" list. Notice the leading and trailing whitespace in directories Group_1 and Group_3.
         """
         dir_data = [
             {
                 "file_name": "uudehdko.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/uudehdko.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1    /Results/uudehdko.png",
             },
             {
                 "file_name": "uusi.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/uusi.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1    /Results/uusi.png",
             },
             {
                 "file_name": "path.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/path.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1    /path.png",
             },
             {
                 "file_name": "b_path.png",
@@ -488,7 +489,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
             {
                 "file_name": "kansio.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/Important/kansio.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1    /Results/Important/kansio.png",
             },
             {
                 "file_name": "some.png",
@@ -504,7 +505,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
             {
                 "file_name": "kissa.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_3/2017/01/kissa.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/   Group_3/2017/01/kissa.png",
             },
             {
                 "file_name": "ekaa.png",
