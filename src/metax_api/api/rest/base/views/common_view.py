@@ -58,11 +58,22 @@ class CommonViewSet(ModelViewSet):
 
     def handle_exception(self, exc):
         """
-        Store request and response data to disk for later inspection
+        Catch all unhandled exceptions and convert them to 500's, in a way that
+        stores error data. Since 500 error's are usually bugs or similar, well,
+        "unhandled" errors, the response should not include too detailed information
+        to the end user, in risk of exposing something sensitive.
+
+        Catch and log all raised errors, store request and response data to disk
+        for later inspection.
         """
-        response = super(CommonViewSet, self).handle_exception(exc)
+        try:
+            response = super(CommonViewSet, self).handle_exception(exc)
+        except:
+            response = Response({ 'detail': ['Internal Server Error'] }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         if type(exc) not in (Http403, Http404, PermissionDenied, MethodNotAllowed):
             ApiErrorService.store_error_details(self.request, response, exc)
+
         return response
 
     def paginate_queryset(self, queryset):
