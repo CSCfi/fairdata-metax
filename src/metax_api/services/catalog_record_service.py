@@ -4,7 +4,6 @@
 #
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
-
 import logging
 import urllib.parse
 from collections import defaultdict
@@ -20,6 +19,7 @@ from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
+from .datacite_service import DataciteService
 from .file_service import FileService
 from .reference_data_mixin import ReferenceDataMixin
 
@@ -230,12 +230,19 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         cr.pop('__actions')
         return data
 
-    @staticmethod
-    def transform_datasets_to_format(catalog_records, target_format, include_xml_declaration=True):
+    @classmethod
+    def transform_datasets_to_format(cls, catalog_records, target_format, include_xml_declaration=True):
         """
         params:
         catalog_records: a list of catalog record dicts, or a single dict
         """
+
+        if target_format == 'datacite':
+            xml = DataciteService.to_datacite_xml(catalog_records)
+            if not include_xml_declaration:
+                # the +1 is linebreak character
+                return xml[len("<?xml version='1.0' encoding='utf-8'?>") + 1:]
+            return xml
 
         def item_func(parent_name):
             """
