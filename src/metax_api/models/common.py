@@ -82,7 +82,7 @@ class Common(models.Model):
         Mark record as removed, never delete from db.
         """
         self.removed = True
-        self.save()
+        super().save(update_fields=['removed'])
 
     def modified_since(self, timestamp):
         """
