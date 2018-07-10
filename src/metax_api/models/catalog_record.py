@@ -725,6 +725,9 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
+        if self._dataset_is_access_restricted():
+            self.add_post_request_callable(REMSUpdate(self), 'create')
+
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
         _logger.info(
@@ -781,6 +784,10 @@ class CatalogRecord(Common):
         if self.field_changed('metadata_provider_user'):
             # read-only after creating
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
+
+        if self._dataset_restricted_access_changed():
+            # todo check if restriction_grounds and access_type changed
+            pass
 
         if self.catalog_versions_datasets() and not self.preserve_version:
 
@@ -864,6 +871,18 @@ class CatalogRecord(Common):
         # metadata_versions_with_files_exist == True implies this "0 to n" update without
         # creating a new dataset version already occurred once
         return not metadata_versions_with_files_exist
+
+    def _dataset_is_access_restricted(self):
+        """
+        Check using logic x and y if dataset uses REMS for managing access.
+        """
+        return False
+
+    def _dataset_restricted_access_changed(self):
+        """
+        Check using logic x and y if dataset uses REMS for managing access.
+        """
+        return False
 
     def _calculate_total_ida_byte_size(self):
         rd = self.research_dataset
@@ -1302,3 +1321,35 @@ class RabbitMQPublishRecord():
     def _to_json(self):
         from metax_api.api.rest.base.serializers import CatalogRecordSerializer
         return CatalogRecordSerializer(self.cr).data
+
+
+class REMSUpdate():
+
+    """
+    Callable object to be passed to CommonService.add_post_request_callable(callable).
+
+    Handles managing REMS resources when creating, updating and deleting datasets.
+    """
+
+    def __init__(self, cr, action):
+        assert action in ('create', 'update', 'delete'), 'invalid value for action'
+        self.cr = cr
+        self.action = action
+
+    def __call__(self):
+        """
+        The actual code that gets executed during CommonService.run_post_request_callables().
+        """
+        _logger.info(
+            'Publishing CatalogRecord %s update to REMS... action: %s'
+            % (self.cr.identifier, self.action)
+        )
+
+        try:
+            # todo do_stuff()
+            pass
+        except:
+            _logger.exception('REMS interaction failed')
+            raise Http503({ 'detail': [
+                'failed to publish updates to rems. request is aborted.'
+            ]})
