@@ -36,6 +36,10 @@ class Http412(APIException):
     # precondition failed
     status_code = 412
 
+class Http500(APIException):
+    # internal server error
+    status_code = 500
+
 class Http501(APIException):
     # not implemented
     status_code = 501
