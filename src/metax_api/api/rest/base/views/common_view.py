@@ -22,7 +22,8 @@ from metax_api.services import CommonService as CS, ApiErrorService
 from metax_api.utils import RedisSentinelCache
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
+
+RESPONSE_SUCCESS_CODES = (200, 201, 204)
 
 
 class CommonViewSet(ModelViewSet):
@@ -56,6 +57,15 @@ class CommonViewSet(ModelViewSet):
             # avoids having to specify queryset in each ViewSet separately.
             self.queryset = self.object.objects.all()
             self.queryset_unfiltered = self.object.objects_unfiltered.all()
+
+    def dispatch(self, request, **kwargs):
+        res = super().dispatch(request, **kwargs)
+        if res.status_code in RESPONSE_SUCCESS_CODES:
+            try:
+                CS.run_post_request_callables()
+            except Exception as e:
+                return self.handle_exception(e)
+        return res
 
     def handle_exception(self, exc):
         """
