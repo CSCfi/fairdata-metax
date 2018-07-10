@@ -32,7 +32,7 @@ class RequestLogging():
                     request.environ['REQUEST_METHOD'],
                     request.get_full_path(),
                     request.environ['SERVER_PROTOCOL'],
-                    request.environ['HTTP_USER_AGENT']
+                    request.environ.get('HTTP_USER_AGENT', '(no useragent)')
                 )
             )
         except:
