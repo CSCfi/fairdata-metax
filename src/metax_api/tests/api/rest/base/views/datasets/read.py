@@ -432,7 +432,7 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         self._check_dataset_xml_format_response(response, '<researchdataset')
 
     def test_read_dataset_xml_format_datacite(self):
-        for id in CatalogRecord.objects.filter(research_dataset__publisher__isnull=False).values_list('id', flat=True):
+        for id in CatalogRecord.objects.all().values_list('id', flat=True):
             response = self.client.get('/rest/datasets/%d?dataset_format=datacite' % id)
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self._check_dataset_xml_format_response(response, '<resource')
