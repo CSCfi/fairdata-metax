@@ -8,14 +8,15 @@
 from os import path
 import logging
 
-from django.http import Http404
+from django.http import HttpResponse, Http404
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied, MethodNotAllowed
+from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, APIException
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.views import set_rollback
 from rest_framework.viewsets import ModelViewSet
 
-from metax_api.exceptions import Http403
+from metax_api.exceptions import Http403, Http500
 from metax_api.permissions import ServicePermissions
 from metax_api.services import CommonService as CS, ApiErrorService
 from metax_api.utils import RedisSentinelCache
@@ -58,6 +59,8 @@ class CommonViewSet(ModelViewSet):
 
     def handle_exception(self, exc):
         """
+        Every error returned from the api goes through here.
+
         Catch all unhandled exceptions and convert them to 500's, in a way that
         stores error data. Since 500 error's are usually bugs or similar, well,
         "unhandled" errors, the response should not include too detailed information
@@ -66,9 +69,26 @@ class CommonViewSet(ModelViewSet):
         Catch and log all raised errors, store request and response data to disk
         for later inspection.
         """
+
+        # APIException base of DRF exceptions
+        # HttpResponse base of django http responses / exceptions
+        # Http404 a django 404 error that for whatever reason inherits from just Exception...
+        if not issubclass(exc.__class__, (APIException, HttpResponse, Http404)):
+            # must convert any standard python exceptions to framework-recognized
+            # exceptions, so that the following handle_exception() goes the expected
+            # path, and prepares for db dollback, sets some headers etc.
+            _logger.exception('Internal Server Error')
+            exc = Http500({ 'detail': ['Internal Server Error'] })
+
         try:
+            # fyi: when an error occurs during a request, and ATOMIC_REQUESTS=True,
+            # set_rollback() is normally called inside below method. the actual
+            # rollback does not take place immediately, only the NEED for it is signaled.
             response = super(CommonViewSet, self).handle_exception(exc)
         except:
+            # for when absolutely everything has gone wrong...
+            _logger.exception('Exception while trying to handle original exception: %s' % str(exc))
+            set_rollback()
             response = Response({ 'detail': ['Internal Server Error'] }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if type(exc) not in (Http403, Http404, PermissionDenied, MethodNotAllowed):
