@@ -50,11 +50,7 @@ class DataciteService(CommonService):
         try:
             publisher = cls._main_lang_or_default(rd['publisher']['name'], main_lang)
         except:
-            raise Http400({
-                'detail': [
-                    'Unable to create datacite: Requested dataset is missing a datacite-required field: publisher'
-                ]
-            })
+            publisher = cls._main_lang_or_default(rd['creator'][0]['name'], main_lang)
 
         """
         here contains required fields only, as specified by datacite:
