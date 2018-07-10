@@ -16,8 +16,8 @@ from django.db.models import Q, Sum
 from django.http import Http404
 from rest_framework.serializers import ValidationError
 
-from metax_api.exceptions import Http400
-from metax_api.utils import get_tz_aware_now_without_micros
+from metax_api.exceptions import Http400, Http503
+from metax_api.utils import get_tz_aware_now_without_micros, RabbitMQ
 from metax_api.utils.utils import generate_identifier
 from .common import Common, CommonManager
 from .contract import Contract
@@ -253,15 +253,9 @@ class CatalogRecord(Common):
     preserve_version = False
 
     """
-    Used to signal to the serializer (or other interested parties), that the object
-    being serialized had a new version created in the current request save operation.
-    The serializer then places a 'publish in rabbitmq' key in the dict-representation,
-    so that the view knows to publish it just before returning. The publishing needs to be done
-    as late as possible (= not here in the model right after the new version object
-    was created), because if the request is interrupted for whatever reason after publishing,
-    the new version will not get created after all, but the publish message already left.
+    Signals to the serializer the need to populate field 'new_version_created'.
     """
-    new_dataset_version_created_in_current_request = False
+    new_dataset_version_created = False
 
     objects = CatalogRecordManager()
 
@@ -299,15 +293,10 @@ class CatalogRecord(Common):
             self._pre_create_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_create_operations()
-            _logger.info(
-                'Created a new <CatalogRecord id: %d, '
-                'identifier: %s, '
-                'preferred_identifier: %s >'
-                % (self.id, self.identifier, self.preferred_identifier)
-            )
         else:
             self._pre_update_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
+            self._post_update_operations()
 
     def _process_file_changes(self, file_changes, new_record_id, old_record_id):
         """
@@ -658,6 +647,7 @@ class CatalogRecord(Common):
     def delete(self, *args, **kwargs):
         if self.has_alternate_records():
             self._remove_from_alternate_record_set()
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
         super(CatalogRecord, self).delete(*args, **kwargs)
 
     @property
@@ -734,6 +724,15 @@ class CatalogRecord(Common):
         other_record = self._check_alternate_records()
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
+
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+
+        _logger.info(
+            'Created a new <CatalogRecord id: %d, '
+            'identifier: %s, '
+            'preferred_identifier: %s >'
+            % (self.id, self.identifier, self.preferred_identifier)
+        )
 
     def _pre_update_operations(self):
         if self.field_changed('identifier'):
@@ -839,6 +838,9 @@ class CatalogRecord(Common):
 
             if self.catalog_is_harvested() and self.field_changed('research_dataset.preferred_identifier'):
                 self._handle_preferred_identifier_changed()
+
+    def _post_update_operations(self):
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
     def _files_added_for_first_time(self):
         """
@@ -1072,7 +1074,7 @@ class CatalogRecord(Common):
         new_version.preservation_description = None
         new_version.preservation_state = 0
         new_version.preservation_state_modified = None
-        new_version.previous_dataset_version_id = old_version.id
+        new_version.previous_dataset_version = old_version
         new_version.next_dataset_version_id = None
         new_version.service_created = old_version.service_modified or old_version.service_created
         new_version.service_modified = None
@@ -1113,8 +1115,11 @@ class CatalogRecord(Common):
 
         new_version.calculate_directory_byte_sizes_and_file_counts()
 
+        new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
+
+        old_version.new_dataset_version_created = True
+
         _logger.info('New dataset version %s created' % new_version.preferred_identifier)
-        old_version.new_dataset_version_created_in_current_request = True
 
     def _get_metadata_file_changes(self):
         """
@@ -1235,6 +1240,13 @@ class CatalogRecord(Common):
         # note: save to db occurs in delete()
         self.alternate_record_set = None
 
+    def add_post_request_callable(self, *args, **kwargs):
+        """
+        Wrapper in order to import CommonService in one place only...
+        """
+        from metax_api.services import CommonService
+        CommonService.add_post_request_callable(*args, **kwargs)
+
     def __repr__(self):
         return '<%s: %d, removed: %s, data_catalog: %s, metadata_version_identifier: %s, ' \
             'preferred_identifier: %s, file_count: %d >' \
@@ -1247,3 +1259,46 @@ class CatalogRecord(Common):
                 self.preferred_identifier,
                 self.files.count(),
             )
+
+
+class RabbitMQPublishRecord():
+
+    """
+    Callable object to be passed to CommonService.add_post_request_callable(callable).
+
+    Handles rabbitmq publishing.
+    """
+
+    def __init__(self, cr, routing_key):
+        assert routing_key in ('create', 'update', 'delete'), 'invalid value for routing_key'
+        self.cr = cr
+        self.routing_key = routing_key
+
+    def __call__(self):
+        """
+        The actual code that gets executed during CommonService.run_post_request_callables().
+        """
+        _logger.info(
+            'Publishing CatalogRecord %s to RabbitMQ... routing_key: %s'
+            % (self.cr.identifier, self.routing_key)
+        )
+
+        if self.routing_key == 'delete':
+            cr_json = { 'identifier': self.cr.identifier }
+        else:
+            cr_json = self._to_json()
+
+        try:
+            rabbitmq = RabbitMQ()
+            rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange='datasets')
+        except:
+            # note: if we'd like to let the request be a success even if this operation fails,
+            # we could simply not raise an exception here.
+            _logger.exception('Publishing rabbitmq message failed')
+            raise Http503({ 'detail': [
+                'failed to publish updates to rabbitmq. request is aborted.'
+            ]})
+
+    def _to_json(self):
+        from metax_api.api.rest.base.serializers import CatalogRecordSerializer
+        return CatalogRecordSerializer(self.cr).data

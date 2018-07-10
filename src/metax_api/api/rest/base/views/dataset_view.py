@@ -23,7 +23,6 @@ from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
 _logger = logging.getLogger(__name__)
-d = _logger.debug
 
 
 class DatasetViewSet(CommonViewSet):
@@ -106,49 +105,6 @@ class DatasetViewSet(CommonViewSet):
             return self._metadata_version_get(request, *args, **kwargs)
 
         return super(DatasetViewSet, self).list(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        res = super(DatasetViewSet, self).update(request, *args, **kwargs)
-        CRS.publish_updated_datasets(res)
-        return res
-
-    def update_bulk(self, request, *args, **kwargs):
-        res = super(DatasetViewSet, self).update_bulk(request, *args, **kwargs)
-        CRS.publish_updated_datasets(res)
-        return res
-
-    def partial_update(self, request, *args, **kwargs):
-        res = super(DatasetViewSet, self).partial_update(request, *args, **kwargs)
-        CRS.publish_updated_datasets(res)
-        return res
-
-    def partial_update_bulk(self, request, *args, **kwargs):
-        res = super(DatasetViewSet, self).partial_update_bulk(request, *args, **kwargs)
-        CRS.publish_updated_datasets(res)
-        return res
-
-    def destroy(self, request, *args, **kwargs):
-        res = super(DatasetViewSet, self).destroy(request, *args, **kwargs)
-        if res.status_code == status.HTTP_204_NO_CONTENT:
-            removed_object = self._get_removed_dataset()
-            rabbitmq = RabbitMQ()
-            rabbitmq.publish({ 'identifier': removed_object.identifier },
-                routing_key='delete', exchange='datasets')
-        return res
-
-    def create(self, request, *args, **kwargs):
-        res = super(DatasetViewSet, self).create(request, *args, **kwargs)
-
-        if res.status_code == status.HTTP_201_CREATED:
-            if 'success' in res.data:
-                # was bulk create
-                message = [ r['object'] for r in res.data['success'] ]
-            else:
-                message = res.data
-            rabbitmq = RabbitMQ()
-            rabbitmq.publish(message, routing_key='create', exchange='datasets')
-
-        return res
 
     def _metadata_version_get(self, request, *args, **kwargs):
         """
@@ -270,26 +226,6 @@ class DatasetViewSet(CommonViewSet):
 
         return super(DatasetViewSet, self).get_object(search_params={ 'identifier': lookup_value })
 
-    def _get_removed_dataset(self):
-        """
-        Get dataset from self.object.objects_unfiltered so that removed objects can be found
-        """
-        lookup_value = self.kwargs.get('pk')
-        different_fields = [
-            {},
-            { 'search_params': { 'identifier': lookup_value } },
-            { 'search_params': { 'research_dataset__contains': {'metadata_version_identifier': lookup_value }} },
-            { 'search_params': { 'research_dataset__contains': {'preferred_identifier': lookup_value }} },
-            { 'search_params': { 'research_dataset__contains':
-                                {'other_identifier': [{'local_identifier': lookup_value }]}}},
-        ]
-        for params in different_fields:
-            try:
-                return self.get_removed_object(**params)
-            except Http404:
-                pass
-        raise Http404
-
     @detail_route(methods=['get'], url_path="redis")
     def redis_test(self, request, pk=None): # pragma: no cover
         if request.user.username != 'metax':
@@ -297,12 +233,12 @@ class DatasetViewSet(CommonViewSet):
         try:
             cached = self.cache.get('cr-1211%s' % pk)
         except:
-            d('redis: could not connect during read')
+            _logger.debug('redis: could not connect during read')
             cached = None
             raise
 
         if cached:
-            d('found in cache, returning')
+            _logger.debug('found in cache, returning')
             return Response(data=cached, status=status.HTTP_200_OK)
 
         data = self.get_serializer(CatalogRecord.objects.get(pk=1)).data
@@ -310,7 +246,7 @@ class DatasetViewSet(CommonViewSet):
         try:
             self.cache.set('cr-1211%s' % pk, data)
         except:
-            d('redis: could not connect during write')
+            _logger.debug('redis: could not connect during write')
             raise
 
         return Response(data=data, status=status.HTTP_200_OK)

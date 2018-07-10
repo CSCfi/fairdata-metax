@@ -163,19 +163,7 @@ class CatalogRecordSerializer(CommonSerializer):
                 'preferred_identifier': instance.previous_dataset_version.preferred_identifier,
             }
 
-        if instance.new_dataset_version_created_in_current_request:
-            # when a new version is created:
-            # 1) inform the view that new versions should be published as a new record.
-            #    the view should also remove the key __actions once it is done.
-            # 2) set a field which indicates to the requestor that a new version was
-            #    created.
-            res['__actions'] = {}
-
-            res['__actions']['publish_new_version'] = {
-                'dataset': self.to_representation(instance.next_dataset_version)
-            }
-            # note: returning metadata_version_identifier even if the new version creatd
-            # is of type 'dataset', to be explicit about the specific record that was created.
+        if instance.new_dataset_version_created:
             res['new_version_created'] = {
                 'id': instance.next_dataset_version.id,
                 'identifier': instance.next_dataset_version.identifier,
