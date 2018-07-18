@@ -916,6 +916,43 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(len(response.data['research_dataset']), 4)
 
+    def test_create_catalog_record_with_dependent_reference_datas(self):
+        # Unallowed combinations
+
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['access_type']['identifier'] = 'open_access'
+        rd_ida['access_rights']['restriction_grounds']['identifier'] = '3'
+
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True)
+        self.assertEqual(len(response.data['research_dataset']), 1)
+
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['access_type']['identifier'] = 'restricted_access_permit_fairdata'
+        rd_ida['access_rights']['restriction_grounds']['identifier'] = '1'
+
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True)
+        self.assertEqual(len(response.data['research_dataset']), 1)
+
+        # Allowed combinations
+
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['access_type']['identifier'] = 'open_access'
+        rd_ida['access_rights']['restriction_grounds']['identifier'] = '1'
+
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['access_type']['identifier'] = 'restricted_access_permit_fairdata'
+        rd_ida['access_rights']['restriction_grounds']['identifier'] = '3'
+
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
         1) Insert codes from cached reference data to dataset identifier fields
@@ -958,7 +995,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
                 entry = next((obj for obj in refdata[dtype] if obj.get('wkt', False)), None)
                 self.assertTrue(entry is not None)
             else:
-                entry = refdata[dtype][0]
+                entry = refdata[dtype][1]
             refs[dtype] = {
                 'code': entry['code'],
                 'uri': entry['uri'],
