@@ -378,11 +378,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
+            access_type_valid = False
+            restriction_grounds_valid = False
+
             if 'access_type' in access_rights:
                 ref_entry = cls.check_ref_data(refdata['access_type'], access_rights['access_type']['identifier'],
                                                'research_dataset.access_rights.access_type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, access_rights['access_type'], label_field='pref_label')
+                    access_type_valid = True
 
             if 'restriction_grounds' in access_rights:
                 ref_entry = cls.check_ref_data(refdata['restriction_grounds'],
@@ -391,6 +395,29 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, access_rights['restriction_grounds'],
                                                label_field='pref_label')
+                    restriction_grounds_valid = True
+
+            # If restriction grounds are not of open type (codes 1 and 2), then access type code must not be open_access
+            # OR
+            # If restriction grounds are of open type, then access type code must be open_access
+            # access_type open_access: http://purl.org/att/es/reference_data/access_type/access_type_open_access
+            # restriction_grounds 1: http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1
+            # restriction_grounds 2: http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2
+            if access_type_valid and restriction_grounds_valid:
+                ar_id = access_rights['access_type']['identifier']
+                rg_id = access_rights['restriction_grounds']['identifier']
+
+                if rg_id not in ['http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1',
+                                 'http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2'] \
+                        and ar_id == 'http://purl.org/att/es/reference_data/access_type/access_type_open_access':
+
+                    errors['access_type'].append('Access type cannot be open if restriction grounds are not open')
+
+                if rg_id in ['http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1',
+                             'http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2'] \
+                        and ar_id != 'http://purl.org/att/es/reference_data/access_type/access_type_open_access':
+
+                    errors['access_type'].append('Access type must be open if restriction grounds are open')
 
             for license in access_rights.get('license', []):
                 license_url = license.get('license', None)
