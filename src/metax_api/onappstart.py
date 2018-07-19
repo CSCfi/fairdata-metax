@@ -80,7 +80,8 @@ class OnAppStart(AppConfig):
         try:
             rabbitmq = RabbitMQ()
             rabbitmq.init_exchanges()
-        except:
+        except Exception as e:
+            _logger.error(e)
             _logger.error("Unable to initialize RabbitMQ exchanges")
 
         _logger.info('Metax API startup tasks finished')
