@@ -1424,7 +1424,10 @@
                     "type":"object",
                     "$ref":"#/definitions/Document"
                 }
-            }
+            },
+            "required":[
+                "access_type"
+            ]
         },
         "StructuredIdentifier":{
             "title":"Identifier",
