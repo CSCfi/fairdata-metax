@@ -87,7 +87,7 @@ class ReferenceDataMixin():
                     ' since key reference_data is still missing'
                 )
 
-    def populate_from_ref_data(ref_entry, obj, uri_field='identifier', label_field=None):
+    def populate_from_ref_data(ref_entry, obj, uri_field='identifier', label_field=None, add_in_scheme=True):
         """
         Always populate at least uri field (even if it was alread there, no big deal).
         Label field population is necessary for some ref data types only.
@@ -95,7 +95,7 @@ class ReferenceDataMixin():
         obj[uri_field] = ref_entry['uri']
         if label_field and 'label' in ref_entry:
             obj[label_field] = ref_entry['label']
-        if 'scheme' in ref_entry:
+        if add_in_scheme and 'scheme' in ref_entry:
             obj['in_scheme'] = ref_entry['scheme']
 
     def _raise_reference_data_reload_error(error):

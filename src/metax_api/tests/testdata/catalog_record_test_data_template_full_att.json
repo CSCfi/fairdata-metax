@@ -195,7 +195,7 @@
         "spatial": {
           "geographic_name": "Geographic name",
           "alt": "11.111",
-          "fullAddress": "The complete address written as a string, with or without formatting",
+          "full_address": "The complete address written as a string, with or without formatting",
           "place_uri": {
             "identifier": "http://www.yso.fi/onto/yso/p107966"
           }
@@ -288,7 +288,7 @@
         "spatial": {
           "geographic_name": "Geographic name",
           "alt": "11.111",
-          "fullAddress": "The complete address written as a string, with or without formatting",
+          "full_address": "The complete address written as a string, with or without formatting",
           "place_uri": {
             "identifier": "http://www.yso.fi/onto/yso/p105917"
           }
@@ -523,7 +523,7 @@
         "has_object_characteristics": {
           "title": "File type name",
           "description": "Description of file type",
-          "has_creating_application_name": "Creating application name",
+          "application_name": "Creating application name",
           "encoding": "utf-8"
         },
         "mediatype": "image/jpeg",
