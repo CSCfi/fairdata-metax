@@ -18,14 +18,14 @@
             "@id":"http://spdx.org/rdf/terms#Checksum",
             "description":"Checksum of the file",
             "properties":{
-                "checksum_value":{
+                "value":{
                     "@id":"http://spdx.org/rdf/terms#checksumValue",
                     "title":"Checksum value",
                     "description":"Value of the checksum. xsd:hexBinary",
                     "@type":"http://www.w3.org/2001/XMLSchema#hexBinary",
                     "type":"string"
                 },
-                "checksum_algorithm":{
+                "algorithm":{
                     "@id":"http://spdx.org/rdf/terms#algorithm",
                     "title":"Checksum algorithm",
                     "description":"Used checksum algortihm",
@@ -36,7 +36,7 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
                 },
-                "checksum_checked":{
+                "checked":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#checksumchecked",
                     "title":"Checksum checked",
                     "description":"Last time the file checksum is validated",
@@ -46,9 +46,9 @@
                 }
             },
             "required":[
-                "checksum_value",
-                "checksum_algorithm",
-                "checksum_checked"
+                "value",
+                "algorithm",
+                "checked"
             ],
             "additionalProperties": false
         },
@@ -182,7 +182,7 @@
                 "directory_name",
                 "project_identifier"
             ],
-            "additionalProperties": false
+            "additionalProperties": true
         },
         "File":{
             "title":"File",
@@ -325,7 +325,7 @@
                 "project_identifier",
                 "file_frozen"
             ],
-            "additionalProperties": false
+            "additionalProperties": true
         },
         "FileCharacteristics":{
             "title":"File Characteristics",
@@ -469,7 +469,7 @@
                 "identifier",
                 "title"
             ],
-            "additionalProperties": false
+            "additionalProperties": true
         },
         "langString":{
             "type":"object",

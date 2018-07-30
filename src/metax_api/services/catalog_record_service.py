@@ -340,7 +340,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.remote_resources.license.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, license, label_field='title')
+                    cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
 
                     # Populate license field from reference data only if it is empty, i.e. not provided by the user
                     # and when the reference data uri does not contain purl.org/att
@@ -373,7 +373,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                                            'research_dataset.language.identifier', errors)
             if ref_entry:
                 label_field = 'title'
-                cls.populate_from_ref_data(ref_entry, language, label_field=label_field)
+                cls.populate_from_ref_data(ref_entry, language, label_field=label_field, add_in_scheme=False)
                 cls.remove_language_obj_irrelevant_titles(language, label_field)
 
         access_rights = research_dataset.get('access_rights', None)
@@ -425,7 +425,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.access_rights.license.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, license, label_field='title')
+                    cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
 
                     # Populate license field from reference data only if it is empty, i.e. not provided by the user
                     # and when the reference data uri does not contain purl.org/att

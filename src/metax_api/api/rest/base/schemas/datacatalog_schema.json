@@ -146,7 +146,7 @@
                 "harvested",
                 "dataset_versioning"
             ],
-            "additionalProperties": false
+            "additionalProperties": true
         },
         "Concept":{
             "title":"Concept",

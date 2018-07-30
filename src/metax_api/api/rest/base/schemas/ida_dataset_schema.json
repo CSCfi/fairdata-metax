@@ -242,7 +242,8 @@
                 "identifier",
                 "data_catalog",
                 "research_dataset"
-            ]
+            ],
+            "additionalProperties": true
         },
         "Concept":{
             "title":"Concept",
@@ -416,7 +417,8 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
                 }
-            }
+            },
+            "additionalProperties": true
         },
         "EntityRelation":{
             "title":"Entity relation",

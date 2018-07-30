@@ -134,7 +134,7 @@ class ReferenceDataMixin():
             ref_entry = cls.check_ref_data(org_ref_data, org_obj['identifier'],
                                            org_obj_relation_name + '.identifier', value_not_found_is_error=False)
             if ref_entry:
-                cls.populate_from_ref_data(ref_entry, org_obj, 'identifier', 'name')
+                cls.populate_from_ref_data(ref_entry, org_obj, 'identifier', 'name', add_in_scheme=False)
 
     @classmethod
     def process_research_agent_obj_with_type(cls, orgdata, refdata, errors, agent_obj, agent_obj_relation_name):

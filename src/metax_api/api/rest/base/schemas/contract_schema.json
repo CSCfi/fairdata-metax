@@ -164,7 +164,7 @@
                 "modified",
                 "related_service"
             ],
-            "additionalProperties": false
+            "additionalProperties": true
         },
         "ResearchOrganization":{
 			"type":"object",
