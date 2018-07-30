@@ -37,6 +37,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         slightly as approriate for different purposes
         """
         self.cr_test_data = self._get_new_test_cr_data()
+        self.cr_att_test_data = self._get_new_test_cr_data(cr_index=14, dc_index=5)
         self.cr_test_data_new_identifier = self._get_new_test_cr_data_with_updated_identifier()
         self.cr_full_ida_test_data = self._get_new_full_test_ida_cr_data()
         self.cr_full_att_test_data = self._get_new_full_test_att_cr_data()
@@ -70,7 +71,8 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
                       "schema and the requested catalog record is having remote resources, which is not allowed")
 
         if dc['catalog_json']['research_dataset_schema'] == 'att' and \
-                ['files', 'directories'] in catalog_record_from_test_data['research_dataset']:
+                ('files' in catalog_record_from_test_data['research_dataset'] or \
+                'directories' in catalog_record_from_test_data['research_dataset']):
             self.fail("Cannot generate the requested test catalog record since requested data catalog is indicates att "
                       "schema and the requested catalog record is having files or directories, which is not allowed")
 
@@ -121,7 +123,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         Returns one of the fuller generated test datasets
         """
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=23)
-        data_catalog_from_test_data = self._get_object_from_test_data('datacatalog', requested_index=1)
+        data_catalog_from_test_data = self._get_object_from_test_data('datacatalog', requested_index=5)
         return self._get_new_full_test_cr_data(catalog_record_from_test_data, data_catalog_from_test_data)
 
     def _get_new_full_test_cr_data(self, cr_from_test_data, dc_from_test_data):
@@ -2229,8 +2231,8 @@ class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
         cr_with_rr = self._get_object_from_test_data('catalogrecord', requested_index=14)
         rr = cr_with_rr['research_dataset']['remote_resources']
         total_remote_resources_byte_size = sum(res['byte_size'] for res in rr)
-        self.cr_test_data['research_dataset']['remote_resources'] = rr
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.cr_att_test_data['research_dataset']['remote_resources'] = rr
+        response = self.client.post('/rest/datasets', self.cr_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('total_remote_resources_byte_size' in response.data['research_dataset'], True)
         self.assertEqual(response.data['research_dataset']['total_remote_resources_byte_size'],
