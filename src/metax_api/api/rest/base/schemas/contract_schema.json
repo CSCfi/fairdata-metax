@@ -48,7 +48,8 @@
                 "name",
                 "phone",
                 "email"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Contract":{
 			"type":"object",
@@ -162,7 +163,8 @@
                 "created",
                 "modified",
                 "related_service"
-            ]
+            ],
+            "additionalProperties": true
         },
         "ResearchOrganization":{
 			"type":"object",
@@ -188,7 +190,8 @@
             },
             "required":[
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Service":{
 			"type":"object",
@@ -218,7 +221,8 @@
             "required":[
                 "identifier",
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Validity":{
 			"type":"object",
@@ -245,7 +249,8 @@
             },
             "required":[
                 "start_date"
-            ]
+            ],
+            "additionalProperties": false
         },
         "langString":{
             "type":"object",

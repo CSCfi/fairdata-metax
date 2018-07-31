@@ -7109,7 +7109,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -7198,7 +7198,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -7768,7 +7768,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -7857,7 +7857,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -8519,7 +8519,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -8608,7 +8608,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -10065,7 +10065,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -10154,7 +10154,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -10306,9 +10306,9 @@
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
+                            "application_name": "Creating application name",
                             "description": "Description of file type",
                             "encoding": "utf-8",
-                            "has_creating_application_name": "Creating application name",
                             "title": "File type name"
                         },
                         "identifier": "identifierofresource",
@@ -10733,7 +10733,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -10822,7 +10822,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -10974,9 +10974,9 @@
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
+                            "application_name": "Creating application name",
                             "description": "Description of file type",
                             "encoding": "utf-8",
-                            "has_creating_application_name": "Creating application name",
                             "title": "File type name"
                         },
                         "identifier": "identifierofresource",
@@ -11401,7 +11401,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -11490,7 +11490,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -11642,9 +11642,9 @@
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
+                            "application_name": "Creating application name",
                             "description": "Description of file type",
                             "encoding": "utf-8",
-                            "has_creating_application_name": "Creating application name",
                             "title": "File type name"
                         },
                         "identifier": "identifierofresource",
