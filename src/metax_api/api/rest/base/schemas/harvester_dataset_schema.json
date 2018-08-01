@@ -1445,6 +1445,9 @@
                     "$ref":"#/definitions/Document"
                 }
             },
+            "required":[
+                "access_type"
+            ],
             "additionalProperties": false
         },
         "StructuredIdentifier":{

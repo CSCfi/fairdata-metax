@@ -337,11 +337,8 @@ STATIC_URL = '/static/'
 
 if not executing_in_travis:
     # settings for custom redis-py cache helper in utils/redis.py
-    REDIS_SENTINEL = {
-        # at least three are required
-        'HOSTS':    app_config_dict['REDIS']['HOSTS'],
+    REDIS = {
         'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
-        'SERVICE':  app_config_dict['REDIS']['SERVICE'],
         'LOCALHOST_PORT': app_config_dict['REDIS']['LOCALHOST_PORT'],
 
         # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
@@ -352,6 +349,11 @@ if not executing_in_travis:
 
         # enables extra logging to console during cache usage
         'DEBUG': False,
+
+        'SENTINEL': {
+            'HOSTS': app_config_dict['REDIS']['SENTINEL']['HOSTS'],
+            'SERVICE': app_config_dict['REDIS']['SENTINEL']['SERVICE']
+        }
     }
 
 if executing_in_travis:
