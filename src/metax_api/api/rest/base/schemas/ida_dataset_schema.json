@@ -97,7 +97,8 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "CatalogRecord":{
             "title":"Catalog Record",
@@ -241,7 +242,8 @@
                 "identifier",
                 "data_catalog",
                 "research_dataset"
-            ]
+            ],
+            "additionalProperties": true
         },
         "Concept":{
             "title":"Concept",
@@ -284,7 +286,8 @@
             },
             "required":[
                 "identifier"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Directory":{
             "title":"Directory in IDA",
@@ -338,7 +341,8 @@
                 "identifier",
                 "use_category",
                 "title"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Document":{
             "title":"Documented link",
@@ -373,7 +377,8 @@
             },
             "required":[
                 "identifier"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Editor":{
             "title":"Editor",
@@ -412,7 +417,8 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
                 }
-            }
+            },
+            "additionalProperties": true
         },
         "EntityRelation":{
             "title":"Entity relation",
@@ -439,7 +445,8 @@
             "required":[
                 "relation_type",
                 "entity"
-            ]
+            ],
+            "additionalProperties": false
         },
         "File":{
             "title":"File in IDA",
@@ -501,7 +508,8 @@
                 "identifier",
                 "use_category",
                 "title"
-            ]
+            ],
+            "additionalProperties": false
         },
         "LinguisticSystem":{
             "title":"Linguistic System",
@@ -525,7 +533,8 @@
                     "type":"string",
                     "format":"uri"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "Location":{
             "title":"Location",
@@ -575,7 +584,8 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "Organization":{
             "title":"Organization",
@@ -643,7 +653,8 @@
             "required":[
                 "@type",
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "PeriodOfTime":{
             "title":"Period of Time",
@@ -665,7 +676,8 @@
                     "type":"string",
                     "format":"date-time"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "Person":{
             "title":"Person",
@@ -741,7 +753,8 @@
                 "@type",
                 "name",
                 "member_of"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Project":{
             "title":"Project",
@@ -812,7 +825,8 @@
             "required":[
                 "source_organization",
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "RelatedEntity":{
             "title":"Related Entity",
@@ -852,7 +866,8 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "ResearchAgent":{
             "title":"Agent",
@@ -915,7 +930,8 @@
             "required":[
 			    "@type",
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "ResearchDataLicenseDocument":{
             "title":"License Document",
@@ -958,7 +974,8 @@
             },
             "required":[
                 "identifier"
-            ]
+            ],
+            "additionalProperties": false
         },
         "ResearchDataset":{
             "title":"Research Dataset",
@@ -1271,7 +1288,8 @@
                 "access_rights",
                 "preferred_identifier",
                 "title"
-            ]
+            ],
+            "additionalProperties": false
         },
         "RightsStatement":{
             "title":"Rights Statement",
@@ -1345,7 +1363,8 @@
             "required":[
                 "access_type",
                 "restriction_grounds"
-            ]
+            ],
+            "additionalProperties": false
         },
         "StructuredIdentifier":{
             "title":"Identifier",
@@ -1386,7 +1405,8 @@
             },
             "required":[
                 "notation"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Variable":{
             "title":"Variable",
@@ -1437,7 +1457,8 @@
             },
             "required":[
                 "pref_label"
-            ]
+            ],
+            "additionalProperties": false
         },
         "langString":{
             "type":"object",
