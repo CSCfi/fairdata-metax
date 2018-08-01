@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 """
 Django settings for metax_api project.
 
@@ -126,6 +133,7 @@ if DEBUG:
     INSTALLED_APPS.append('django.contrib.staticfiles')
 
 MIDDLEWARE = [
+    'metax_api.middleware.RequestLogging',
     # note: not strictly necessary if running in a private network
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#module-django.middleware.security
     'django.middleware.security.SecurityMiddleware',
@@ -329,11 +337,8 @@ STATIC_URL = '/static/'
 
 if not executing_in_travis:
     # settings for custom redis-py cache helper in utils/redis.py
-    REDIS_SENTINEL = {
-        # at least three are required
-        'HOSTS':    app_config_dict['REDIS']['HOSTS'],
+    REDIS = {
         'PASSWORD': app_config_dict['REDIS']['PASSWORD'],
-        'SERVICE':  app_config_dict['REDIS']['SERVICE'],
         'LOCALHOST_PORT': app_config_dict['REDIS']['LOCALHOST_PORT'],
 
         # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
@@ -344,6 +349,11 @@ if not executing_in_travis:
 
         # enables extra logging to console during cache usage
         'DEBUG': False,
+
+        'SENTINEL': {
+            'HOSTS': app_config_dict['REDIS']['SENTINEL']['HOSTS'],
+            'SERVICE': app_config_dict['REDIS']['SENTINEL']['SERVICE']
+        }
     }
 
 if executing_in_travis:

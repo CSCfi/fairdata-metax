@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 from copy import deepcopy
 
 from dateutil import parser
@@ -75,7 +82,7 @@ class Common(models.Model):
         Mark record as removed, never delete from db.
         """
         self.removed = True
-        self.save()
+        super().save(update_fields=['removed'])
 
     def modified_since(self, timestamp):
         """

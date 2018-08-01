@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: METAX REST API
   version: v1
-host: metax.example.org
+host: metax.fairdata.fi
 schemes:
   - https
 basePath: /rest/v1/
@@ -405,6 +405,25 @@ paths:
           description: a list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
         '404':
           description: files given in the list not found
+      tags:
+        - File API
+  /files/restore:
+    post:
+      summary: restore removed files back to "not removed" state.
+      description: note: does not restore possible deprecated datasets (due to files having been removed) to back to non-deprecated state!
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: a list of file identifiers of files to restore.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: numbers of files restored.
+        '400':
+          description: request ended in an error, response contains details.
       tags:
         - File API
   /directories/{PID}:

@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 import datetime
 
 from django.utils import timezone
@@ -52,7 +59,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
                     data_catalog__catalog_json__identifier__in=settings.OAI['SET_MAPPINGS'][set])
         else:
             query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
-        return query_set[cursor:batch_size]
+        cursor_end = cursor + batch_size if cursor + batch_size < len(query_set) else len(query_set)
+        return query_set[cursor:cursor_end]
 
     def _handle_syke_urnresolver_metadata(self, record):
         identifiers = []

@@ -1,3 +1,9 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
 import logging
 import urllib.parse
 from collections import defaultdict
@@ -13,6 +19,7 @@ from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.utils import RabbitMQ
 from .common_service import CommonService
+from .datacite_service import DataciteService
 from .file_service import FileService
 from .reference_data_mixin import ReferenceDataMixin
 
@@ -223,12 +230,19 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         cr.pop('__actions')
         return data
 
-    @staticmethod
-    def transform_datasets_to_format(catalog_records, target_format, include_xml_declaration=True):
+    @classmethod
+    def transform_datasets_to_format(cls, catalog_records, target_format, include_xml_declaration=True):
         """
         params:
         catalog_records: a list of catalog record dicts, or a single dict
         """
+
+        if target_format == 'datacite':
+            xml = DataciteService.to_datacite_xml(catalog_records)
+            if not include_xml_declaration:
+                # the +1 is linebreak character
+                return xml[len("<?xml version='1.0' encoding='utf-8'?>") + 1:]
+            return xml
 
         def item_func(parent_name):
             """
@@ -326,7 +340,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.remote_resources.license.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, license, label_field='title')
+                    cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
 
                     # Populate license field from reference data only if it is empty, i.e. not provided by the user
                     # and when the reference data uri does not contain purl.org/att
@@ -359,16 +373,20 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                                            'research_dataset.language.identifier', errors)
             if ref_entry:
                 label_field = 'title'
-                cls.populate_from_ref_data(ref_entry, language, label_field=label_field)
+                cls.populate_from_ref_data(ref_entry, language, label_field=label_field, add_in_scheme=False)
                 cls.remove_language_obj_irrelevant_titles(language, label_field)
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
+            access_type_valid = False
+            restriction_grounds_valid = False
+
             if 'access_type' in access_rights:
                 ref_entry = cls.check_ref_data(refdata['access_type'], access_rights['access_type']['identifier'],
                                                'research_dataset.access_rights.access_type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, access_rights['access_type'], label_field='pref_label')
+                    access_type_valid = True
 
             if 'restriction_grounds' in access_rights:
                 ref_entry = cls.check_ref_data(refdata['restriction_grounds'],
@@ -377,6 +395,29 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, access_rights['restriction_grounds'],
                                                label_field='pref_label')
+                    restriction_grounds_valid = True
+
+            # If restriction grounds are not of open type (codes 1 and 2), then access type code must not be open_access
+            # OR
+            # If restriction grounds are of open type, then access type code must be open_access
+            # access_type open_access: http://purl.org/att/es/reference_data/access_type/access_type_open_access
+            # restriction_grounds 1: http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1
+            # restriction_grounds 2: http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2
+            if access_type_valid and restriction_grounds_valid:
+                ar_id = access_rights['access_type']['identifier']
+                rg_id = access_rights['restriction_grounds']['identifier']
+
+                if rg_id not in ['http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1',
+                                 'http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2'] \
+                        and ar_id == 'http://purl.org/att/es/reference_data/access_type/access_type_open_access':
+
+                    errors['access_type'].append('Access type cannot be open if restriction grounds are not open')
+
+                if rg_id in ['http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1',
+                             'http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2'] \
+                        and ar_id != 'http://purl.org/att/es/reference_data/access_type/access_type_open_access':
+
+                    errors['access_type'].append('Access type must be open if restriction grounds are open')
 
             for license in access_rights.get('license', []):
                 license_url = license.get('license', None)
@@ -384,7 +425,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.access_rights.license.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, license, label_field='title')
+                    cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
 
                     # Populate license field from reference data only if it is empty, i.e. not provided by the user
                     # and when the reference data uri does not contain purl.org/att

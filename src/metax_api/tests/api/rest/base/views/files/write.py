@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 from copy import deepcopy
 from os.path import dirname
 
@@ -99,7 +106,8 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
     #
 
     def test_create_file(self):
-        newly_created_file_name = 'newly_created_file_name'
+        # note: leading and trailing whitespace must be preserved.
+        newly_created_file_name = '   newly_created _file_name   '
         self.test_new_data['file_name'] = newly_created_file_name
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
@@ -452,20 +460,20 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
 
     def _form_complex_list_from_test_file(self):
         """
-        "complex" list
+        "complex" list. Notice the leading and trailing whitespace in directories Group_1 and Group_3.
         """
         dir_data = [
             {
                 "file_name": "uudehdko.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/uudehdko.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1    /Results/uudehdko.png",
             },
             {
                 "file_name": "uusi.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/uusi.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1    /Results/uusi.png",
             },
             {
                 "file_name": "path.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/path.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1    /path.png",
             },
             {
                 "file_name": "b_path.png",
@@ -481,7 +489,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
             {
                 "file_name": "kansio.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_1/Results/Important/kansio.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/Group_1    /Results/Important/kansio.png",
             },
             {
                 "file_name": "some.png",
@@ -497,7 +505,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             },
             {
                 "file_name": "kissa.png",
-                "file_path": "/project_y_FROZEN/Experiment_1/Group_3/2017/01/kissa.png",
+                "file_path": "/project_y_FROZEN/Experiment_1/   Group_3/2017/01/kissa.png",
             },
             {
                 "file_name": "ekaa.png",
@@ -848,6 +856,73 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self.assertEqual(File.objects_unfiltered.filter(project_identifier=project_identifier, removed=True).count(),
                          removed,
                          'files should be retrievable from removed=True scope')
+
+
+class FileApiWriteRestoreTests(FileApiWriteCommon):
+
+    def test_restore_files_ok(self):
+        """
+        Restore a few deleted files from directories, that still contain other files.
+        Restored files should be appended to previously existing files.
+        """
+        response = self.client.delete('/rest/files/1')
+        response = self.client.delete('/rest/files/2')
+        response = self.client.delete('/rest/files/3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        deleted_files = File.objects_unfiltered.filter(pk__in=[1, 2, 3]) \
+            .values('identifier', 'parent_directory_id')
+
+        response = self.client.post('/rest/files/restore', [f['identifier'] for f in deleted_files], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('restored_files_count' in response.data, True, response.data)
+        self.assertEqual(response.data['restored_files_count'], 3, response.data)
+
+        # ensure restored files are using previously existing directories
+        old_parent_dirs = { f['parent_directory_id'] for f in deleted_files }
+        files = File.objects.filter(pk__in=[1, 2, 3])
+        for f in files:
+            self.assertEqual(f.file_deleted, None)
+            self.assertEqual(f.user_modified, None)
+            self.assertEqual(f.parent_directory_id in old_parent_dirs, True)
+
+    def test_restore_files_recreate_missing_directories(self):
+        """
+        Restore an entire project. Files should have new directories.
+        """
+        proj = File.objects.get(pk=1).project_identifier
+
+        response = self.client.get('/rest/files?project_identifier=%s&fields=identifier&no_pagination=true'
+            % proj, format='json')
+        file_identifiers = [ f['identifier'] for f in response.data ]
+
+        self.client.delete('/rest/files', file_identifiers, format='json')
+
+        deleted_directory_ids = File.objects_unfiltered.filter(identifier__in=file_identifiers) \
+            .values_list('parent_directory_id', flat=True)
+        old_parent_dirs = { id for id in deleted_directory_ids }
+
+        response = self.client.post('/rest/files/restore', file_identifiers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual('restored_files_count' in response.data, True, response.data)
+        self.assertEqual(response.data['restored_files_count'], len(file_identifiers), response.data)
+
+        # ensure restored files are using new directories
+        files = File.objects.filter(identifier__in=file_identifiers)
+        for f in files:
+            self.assertEqual(f.parent_directory_id in old_parent_dirs, False)
+
+    def test_check_parameter_is_string_list(self):
+        response = self.client.post('/rest/files/restore', ['a', 'b', 1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_check_files_belong_to_one_project(self):
+        f1 = File.objects_unfiltered.get(pk=1)
+        f2 = File.objects_unfiltered.filter().exclude(project_identifier=f1.project_identifier).first()
+        response = self.client.delete('/rest/files/%d' % f1.id)
+        response = self.client.delete('/rest/files/%d' % f2.id)
+        response = self.client.post('/rest/files/restore', [ f1.identifier, f2.identifier ], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class FileApiWriteXmlTests(FileApiWriteCommon):

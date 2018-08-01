@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 from collections import defaultdict
 
 from rest_framework.serializers import ValidationError
@@ -31,22 +38,22 @@ class DataCatalogService(ReferenceDataMixin):
                                            'data_catalog_json.language.identifier', errors)
             if ref_entry:
                 label_field = 'title'
-                cls.populate_from_ref_data(ref_entry, language, label_field=label_field)
+                cls.populate_from_ref_data(ref_entry, language, label_field=label_field, add_in_scheme=False)
                 cls.remove_language_obj_irrelevant_titles(language, label_field)
 
         for fos in data_catalog.get('field_of_science', []):
             ref_entry = cls.check_ref_data(refdata['field_of_science'], fos['identifier'],
                                            'data_catalog_json.field_of_science.identifier', errors)
             if ref_entry:
-                cls.populate_from_ref_data(ref_entry, fos, label_field='pref_label')
+                cls.populate_from_ref_data(ref_entry, fos, label_field='pref_label', add_in_scheme=False)
 
         access_rights = data_catalog.get('access_rights', None)
         if access_rights:
-            for rights_statement_type in access_rights.get('access_type', []):
-                ref_entry = cls.check_ref_data(refdata['access_type'], rights_statement_type['identifier'],
+            for access_type in access_rights.get('access_type', []):
+                ref_entry = cls.check_ref_data(refdata['access_type'], access_type['identifier'],
                                                'data_catalog_json.access_rights.access_type.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, rights_statement_type, label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, access_type, label_field='pref_label', add_in_scheme=False)
 
             for license in access_rights.get('license', []):
                 license_url = license.get('license', None)
@@ -54,7 +61,7 @@ class DataCatalogService(ReferenceDataMixin):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'data_catalog_json.access_rights.license.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, license, label_field='title')
+                    cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
 
                     # Populate license field from reference data only if it is empty, i.e. not provided by the user
                     # and when the reference data uri does not contain purl.org/att

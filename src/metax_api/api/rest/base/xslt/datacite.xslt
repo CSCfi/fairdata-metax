@@ -1,4 +1,4 @@
-<resource xsi:schemaLocation="http://datacite.org/schema/kernel-4.1 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd" xmlns="http://datacite.org/schema/kernel-4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mrd="http://uri.suomi.fi/datamodel/ns/mrd#">
+<resource xsi:schemaLocation="http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd" xmlns="http://datacite.org/schema/kernel-4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mrd="http://uri.suomi.fi/datamodel/ns/mrd#">
     <identifier>{ mrd:researchdataset/mrd:preferred_identifier/text() }</identifier>
     <alternateIdentifier alternateIdentifierType="URN">
         { mrd:researchdataset/mrd:metadata_version_identifier/text() }
@@ -82,19 +82,23 @@
 
             </contributor>
       }
-
-    </contributors>
-    <language>{substring-after(mrd:researchdataset/mrd:language[1]/mrd:item/mrd:identifier/text(), 'http://lexvo.org/id/iso639-3/')}</language>
-    <contributor contributorType="RightsHolder">
       {
-        for $label in mrd:researchdataset/mrd:rights_holder/mrd:name/* return
-          <contributorName xml:lang="{$label/name()}">{$label/text()}</contributorName>
+        for $c in mrd:researchdataset/mrd:rights_holder/mrd:item return
+          <contributor contributorType="RightsHolder">
+            {
+              for $label in $c/mrd:name/* return
+                <contributorName xml:lang="{$label/name()}">{$label/text()}</contributorName>
+
+            }
+            <nameIdentifier nameIdentifierScheme="URI">
+               {$c/mrd:identifier/text()}
+            </nameIdentifier>
+          </contributor>
 
       }
-      <nameIdentifier nameIdentifierScheme="URI">
-         {mrd:researchdataset/mrd:rights_holder/mrd:identifier}
-      </nameIdentifier>
-    </contributor>
+    </contributors>
+    <language>{substring-after(mrd:researchdataset/mrd:language[1]/mrd:item/mrd:identifier/text(), 'http://lexvo.org/id/iso639-3/')}</language>
+
     {
       for $pub in mrd:researchdataset/mrd:publisher/mrd:name/* return
         <publisher identifier="{$pub/../../mrd:identifier/text()}" xml:lang="{$pub/name()}">{$pub/text()}</publisher>
