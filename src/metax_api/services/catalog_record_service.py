@@ -557,6 +557,13 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, activity['preservation_event'], label_field='pref_label')
 
+            if activity.get('event_outcome', False):
+                ref_entry = cls.check_ref_data(refdata['event_outcome'],
+                                               activity['event_outcome']['identifier'],
+                                               'research_dataset.provenance.event_outcome.identifier', errors)
+
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, activity['event_outcome'], label_field='pref_label')
         for infra in research_dataset.get('infrastructure', []):
             ref_entry = cls.check_ref_data(refdata['research_infra'], infra['identifier'],
                                            'research_dataset.infrastructure.identifier', errors)

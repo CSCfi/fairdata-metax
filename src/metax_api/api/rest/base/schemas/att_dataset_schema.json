@@ -57,6 +57,14 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 },
+                "event_outcome":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#eventOutcome",
+                    "title":"Event outcome",
+                    "description":"Outcome of the event",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
+                },
                 "used_entity":{
                     "@id":"http://www.w3.org/ns/prov#used",
                     "title":"Used entity",

@@ -272,7 +272,10 @@
             },
             "representation": "http://uri.of.filetype.concept/scheme"
           }
-        ]
+        ],
+        "event_outcome": {
+          "identifier": "Success"
+        }
       },
       {
         "title": {
@@ -295,6 +298,9 @@
         },
         "preservation_event": {
           "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+        },
+        "event_outcome": {
+          "identifier": "Failure"
         }
       }
     ],
