@@ -933,6 +933,13 @@
                     "items":{
                         "type":"string"
                     }
+                },
+                "homepage":{
+                    "@id":"http://xmlns.com/foaf/0.1/homepage",
+                    "title":"Homepage",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Document"
                 }
             },
             "required":[
