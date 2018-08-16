@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 from base64 import b64encode
 from json import dumps
 import requests
@@ -37,7 +44,7 @@ def retrieve_and_update_all_datasets_in_db(headers):
     print('-- begin retrieving and updating all datasets in the db --')
 
     print('retrieving all metadata_version_identifiers...')
-    response = requests.get('https://localhost/rest/datasets/metadata_version_identifiers',
+    response = requests.get('https://localhost/rest/datasets/identifiers',
         headers=headers, verify=False)
     if response.status_code != 200:
         raise Exception(response.content)

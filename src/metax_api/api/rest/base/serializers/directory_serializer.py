@@ -1,6 +1,14 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 import logging
 
 from rest_framework.serializers import ValidationError
+from rest_framework import serializers
 
 from metax_api.models import Directory
 from .common_serializer import CommonSerializer
@@ -10,6 +18,12 @@ d = _logger.debug
 
 
 class DirectorySerializer(CommonSerializer):
+
+    # directory paths must preserve any leading or trailing whitespace, as those
+    # are valid characters in a filename. note: directory_path is actually a
+    # TextField, but it does not have a separate serializer field.
+    directory_name = serializers.CharField(max_length=None, trim_whitespace=False)
+    directory_path = serializers.CharField(max_length=None, trim_whitespace=False)
 
     class Meta:
         model = Directory

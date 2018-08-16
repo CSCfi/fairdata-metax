@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 from django.conf import settings
 from django.core.management import call_command
 import lxml.etree
@@ -158,8 +165,6 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         super(OAIPMHReadTests, cls).setUpClass()
 
     def setUp(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=0)
-
         cr = CatalogRecord.objects.get(pk=1)
         cr.data_catalog.catalog_json['identifier'] = "urn:nbn:fi:att:data-catalog-att"
         cr.data_catalog.force_save()
@@ -168,8 +173,10 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         cr.data_catalog.catalog_json['identifier'] = "urn:nbn:fi:att:data-catalog-ida"
         cr.data_catalog.force_save()
 
-        self.identifier = catalog_record_from_test_data['identifier']
-        self.preferred_identifier = catalog_record_from_test_data['research_dataset']['preferred_identifier']
+        # some cr that has publisher set...
+        cr = CatalogRecord.objects.filter(research_dataset__publisher__isnull=False).first()
+        self.identifier = cr.identifier
+        self.preferred_identifier = cr.preferred_identifier
         self._use_http_authorization()
 
     def _get_new_test_cr_data(self, cr_index=0, dc_index=0, c_index=0):
@@ -417,8 +424,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                 self.assertEqual(sensitive_field_value not in str(content), True,
                     'field %s should have been stripped' % sensitive_field_value)
 
-        # setup some records to have sensitive fields
-        for cr in CatalogRecord.objects.filter(pk__in=(1, 2, 3)):
+        for cr in CatalogRecord.objects.filter(identifier=self.identifier):
             cr.research_dataset['curator'][0].update({
                 'email': sensitive_field_values[0],
                 'phone': sensitive_field_values[1],

@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 import logging
 import sys
 from os import makedirs
@@ -73,7 +80,8 @@ class OnAppStart(AppConfig):
         try:
             rabbitmq = RabbitMQ()
             rabbitmq.init_exchanges()
-        except:
+        except Exception as e:
+            _logger.error(e)
             _logger.error("Unable to initialize RabbitMQ exchanges")
 
         _logger.info('Metax API startup tasks finished')

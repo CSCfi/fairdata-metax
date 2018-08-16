@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 from datetime import timedelta
 import urllib.parse
 
@@ -425,9 +432,10 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         self._check_dataset_xml_format_response(response, '<researchdataset')
 
     def test_read_dataset_xml_format_datacite(self):
-        response = self.client.get('/rest/datasets/1?dataset_format=datacite')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self._check_dataset_xml_format_response(response, '<resource')
+        for id in CatalogRecord.objects.all().values_list('id', flat=True):
+            response = self.client.get('/rest/datasets/%d?dataset_format=datacite' % id)
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self._check_dataset_xml_format_response(response, '<resource')
 
     def test_read_dataset_xml_format_error_unknown_format(self):
         response = self.client.get('/rest/datasets/1?dataset_format=doesnotexist')

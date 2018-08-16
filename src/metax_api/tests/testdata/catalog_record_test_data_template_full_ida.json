@@ -205,7 +205,7 @@
         "spatial": {
           "geographic_name": "Geographic name",
           "alt": "11.111",
-          "fullAddress": "The complete address written as a string, with or without formatting",
+          "full_address": "The complete address written as a string, with or without formatting",
           "place_uri": {
             "identifier": "http://www.yso.fi/onto/yso/p107966"
           }
@@ -282,7 +282,10 @@
             },
             "representation": "http://uri.of.filetype.concept/scheme"
           }
-        ]
+        ],
+        "event_outcome": {
+          "identifier": "Success"
+        }
       },
       {
         "title": {
@@ -298,13 +301,16 @@
         "spatial": {
           "geographic_name": "Geographic name",
           "alt": "11.111",
-          "fullAddress": "The complete address written as a string, with or without formatting",
+          "full_address": "The complete address written as a string, with or without formatting",
           "place_uri": {
             "identifier": "http://www.yso.fi/onto/yso/p105917"
           }
         },
         "preservation_event": {
           "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+        },
+        "event_outcome": {
+          "identifier": "Failure"
         }
       }
     ],

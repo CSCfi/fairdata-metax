@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 from copy import deepcopy
 from datetime import datetime, timedelta
 
@@ -30,6 +37,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         slightly as approriate for different purposes
         """
         self.cr_test_data = self._get_new_test_cr_data()
+        self.cr_att_test_data = self._get_new_test_cr_data(cr_index=14, dc_index=5)
         self.cr_test_data_new_identifier = self._get_new_test_cr_data_with_updated_identifier()
         self.cr_full_ida_test_data = self._get_new_full_test_ida_cr_data()
         self.cr_full_att_test_data = self._get_new_full_test_att_cr_data()
@@ -63,7 +71,8 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
                       "schema and the requested catalog record is having remote resources, which is not allowed")
 
         if dc['catalog_json']['research_dataset_schema'] == 'att' and \
-                ['files', 'directories'] in catalog_record_from_test_data['research_dataset']:
+                ('files' in catalog_record_from_test_data['research_dataset'] or
+                'directories' in catalog_record_from_test_data['research_dataset']):
             self.fail("Cannot generate the requested test catalog record since requested data catalog is indicates att "
                       "schema and the requested catalog record is having files or directories, which is not allowed")
 
@@ -114,7 +123,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         Returns one of the fuller generated test datasets
         """
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=23)
-        data_catalog_from_test_data = self._get_object_from_test_data('datacatalog', requested_index=1)
+        data_catalog_from_test_data = self._get_object_from_test_data('datacatalog', requested_index=5)
         return self._get_new_full_test_cr_data(catalog_record_from_test_data, data_catalog_from_test_data)
 
     def _get_new_full_test_cr_data(self, cr_from_test_data, dc_from_test_data):
@@ -894,10 +903,11 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['relation'][0]['entity']['type']['identifier'] = 'nonexisting'
         rd_ida['provenance'][0]['lifecycle_event']['identifier'] = 'nonexisting'
         rd_ida['provenance'][1]['preservation_event']['identifier'] = 'nonexisting'
+        rd_ida['provenance'][0]['event_outcome']['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 17)
+        self.assertEqual(len(response.data['research_dataset']), 18)
 
         rd_att = self.cr_full_att_test_data['research_dataset']
         rd_att['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
@@ -908,6 +918,43 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(len(response.data['research_dataset']), 4)
+
+    def test_create_catalog_record_with_dependent_reference_datas(self):
+        # Unallowed combinations
+
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['access_type']['identifier'] = 'open_access'
+        rd_ida['access_rights']['restriction_grounds']['identifier'] = '3'
+
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True)
+        self.assertEqual(len(response.data['research_dataset']), 1)
+
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['access_type']['identifier'] = 'restricted_access_permit_fairdata'
+        rd_ida['access_rights']['restriction_grounds']['identifier'] = '1'
+
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('research_dataset' in response.data.keys(), True)
+        self.assertEqual(len(response.data['research_dataset']), 1)
+
+        # Allowed combinations
+
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['access_type']['identifier'] = 'open_access'
+        rd_ida['access_rights']['restriction_grounds']['identifier'] = '1'
+
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['access_type']['identifier'] = 'restricted_access_permit_fairdata'
+        rd_ida['access_rights']['restriction_grounds']['identifier'] = '3'
+
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
@@ -942,7 +989,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
             'funder_type',
             'relation_type',
             'lifecycle_event',
-            'preservation_event'
+            'preservation_event',
+            'event_outcome'
         ]
 
         # the values in these selected entries will be used throghout the rest of the test case
@@ -951,7 +999,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
                 entry = next((obj for obj in refdata[dtype] if obj.get('wkt', False)), None)
                 self.assertTrue(entry is not None)
             else:
-                entry = refdata[dtype][0]
+                entry = refdata[dtype][1]
             refs[dtype] = {
                 'code': entry['code'],
                 'uri': entry['uri'],
@@ -988,6 +1036,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['relation'][0]['entity']['type'] = {'identifier': refs['resource_type']['code']}
         rd_ida['provenance'][0]['lifecycle_event'] = {'identifier': refs['lifecycle_event']['code']}
         rd_ida['provenance'][1]['preservation_event'] = {'identifier': refs['preservation_event']['code']}
+        rd_ida['provenance'][0]['event_outcome'] = {'identifier': refs['event_outcome']['code']}
 
         # these have other required fields, so only update the identifier with code
         rd_ida['is_output_of'][0]['source_organization'][0]['identifier'] = refs['organization']['code']
@@ -1074,6 +1123,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['resource_type']['uri'], new_rd['relation'][0]['entity']['type']['identifier'])
         self.assertEqual(refs['lifecycle_event']['uri'], new_rd['provenance'][0]['lifecycle_event']['identifier'])
         self.assertEqual(refs['preservation_event']['uri'], new_rd['provenance'][1]['preservation_event']['identifier'])
+        self.assertEqual(refs['event_outcome']['uri'], new_rd['provenance'][0]['event_outcome']['identifier'])
 
     def _assert_scheme_copied_to_in_scheme(self, refs, new_rd):
         self.assertEqual(refs['keyword']['scheme'], new_rd['theme'][0]['in_scheme'])
@@ -1097,6 +1147,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['lifecycle_event']['scheme'], new_rd['provenance'][0]['lifecycle_event']['in_scheme'])
         self.assertEqual(refs['preservation_event']['scheme'],
                          new_rd['provenance'][1]['preservation_event']['in_scheme'])
+        self.assertEqual(refs['event_outcome']['scheme'], new_rd['provenance'][0]['event_outcome']['in_scheme'])
 
     def _assert_label_copied_to_pref_label(self, refs, new_rd):
         self.assertEqual(refs['keyword']['label'], new_rd['theme'][0].get('pref_label', None))
@@ -1123,6 +1174,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
                          new_rd['provenance'][0]['lifecycle_event'].get('pref_label', None))
         self.assertEqual(refs['preservation_event']['label'],
                          new_rd['provenance'][1]['preservation_event'].get('pref_label', None))
+        self.assertEqual(refs['event_outcome']['label'],
+                         new_rd['provenance'][0]['event_outcome'].get('pref_label', None))
 
     def _assert_label_copied_to_title(self, refs, new_rd):
         required_langs = dict((lang, val) for lang, val in refs['language']['label'].items()
@@ -2185,8 +2238,8 @@ class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
         cr_with_rr = self._get_object_from_test_data('catalogrecord', requested_index=14)
         rr = cr_with_rr['research_dataset']['remote_resources']
         total_remote_resources_byte_size = sum(res['byte_size'] for res in rr)
-        self.cr_test_data['research_dataset']['remote_resources'] = rr
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.cr_att_test_data['research_dataset']['remote_resources'] = rr
+        response = self.client.post('/rest/datasets', self.cr_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('total_remote_resources_byte_size' in response.data['research_dataset'], True)
         self.assertEqual(response.data['research_dataset']['total_remote_resources_byte_size'],

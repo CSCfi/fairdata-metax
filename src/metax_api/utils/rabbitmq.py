@@ -1,5 +1,14 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 import logging
 from json import dumps as json_dumps
+import random
+from time import sleep
 
 import pika
 from django.conf import settings as django_settings
@@ -8,6 +17,7 @@ from .utils import executing_test_case, executing_travis
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
+
 
 def RabbitMQ(*args, **kwargs):
     """
@@ -33,15 +43,32 @@ class _RabbitMQ():
             settings = settings.RABBITMQ
 
         credentials = pika.PlainCredentials(settings['USER'], settings['PASSWORD'])
+        hosts = settings['HOSTS']
 
-        self._connection = pika.BlockingConnection(pika.ConnectionParameters(
-            settings['HOSTS'],
-            settings['PORT'],
-            settings['VHOST'],
-            credentials))
+        # Connection retries are needed as long as there is no load balancer in front of rabbitmq-server VMs
+        sleep_time = 2
+        num_conn_retries = 15
 
-        self._channel = self._connection.channel()
-        self._settings = settings
+        for x in range(0, num_conn_retries):
+            # Choose host randomly so that different hosts are tried out in case of connection problems
+            try:
+                self._connection = pika.BlockingConnection(pika.ConnectionParameters(
+                    random.choice(hosts),
+                    settings['PORT'],
+                    settings['VHOST'],
+                    credentials))
+
+                self._channel = self._connection.channel()
+                self._settings = settings
+                str_error = None
+            except Exception as e:
+                _logger.error("Problem connecting to RabbitMQ server, trying to reconnect...")
+                str_error = e
+
+            if str_error:
+                sleep(sleep_time)  # wait before trying to connect again
+            else:
+                break
 
     def publish(self, body, routing_key='', exchange=None, persistent=True):
         """
@@ -57,6 +84,10 @@ class _RabbitMQ():
                     otherwise messages not retrieved by clients before restart will be lost.
                     (still is not 100 % guaranteed to persist!)
         """
+        if not self.connection_ok():
+            _logger.error("Unable to publish message to RabbitMQ due to connection error")
+            return
+
         self._validate_publish_params(routing_key, exchange)
 
         additional_args = {}
@@ -72,10 +103,17 @@ class _RabbitMQ():
             if isinstance(message, dict):
                 message = json_dumps(message)
 
-            self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
+            try:
+                self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
+            except Exception as e:
+                _logger.error(e)
+                _logger.error("Unable to publish message to RabbitMQ")
 
     def get_channel(self):
         return self._channel
+
+    def connection_ok(self):
+        return hasattr(self, "_connection") and self._connection.is_open
 
     def init_exchanges(self):
         """
@@ -83,6 +121,10 @@ class _RabbitMQ():
         an error will occur if an exchange existed, and it is being re-declared with different settings.
         In that case the exchange has to be manually removed first, which can result in lost messages.
         """
+        if not self.connection_ok():
+            _logger.error("Unable to init exchanges in RabbitMQ due to connection error")
+            return
+
         for exchange in self._settings['EXCHANGES']:
             self._channel.exchange_declare(
                 exchange['NAME'], exchange_type=exchange['TYPE'], durable=exchange.get('DURABLE', True))

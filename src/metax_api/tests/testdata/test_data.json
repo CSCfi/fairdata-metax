@@ -5742,6 +5742,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -5839,6 +5847,14 @@
             "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -5936,6 +5952,14 @@
             "preservation_state": 10,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6033,6 +6057,14 @@
             "preservation_state": 40,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6130,6 +6162,14 @@
             "preservation_state": 50,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6227,6 +6267,14 @@
             "preservation_state": 70,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6324,6 +6372,14 @@
             "preservation_state": 70,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6421,6 +6477,14 @@
             "preservation_state": 90,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6515,6 +6579,14 @@
             "preservation_state": 130,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -6607,6 +6679,14 @@
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -7020,6 +7100,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -7029,7 +7112,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -7113,12 +7196,15 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Failure"
+                        },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -7679,6 +7765,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -7688,7 +7777,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -7772,12 +7861,15 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Failure"
+                        },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -8430,6 +8522,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -8439,7 +8534,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -8523,12 +8618,15 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Failure"
+                        },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -8756,6 +8854,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -8843,6 +8949,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -8930,6 +9044,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9017,6 +9139,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9104,6 +9234,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9191,6 +9329,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9278,6 +9424,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9368,6 +9522,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9458,6 +9620,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9548,6 +9718,14 @@
             "preservation_state": 0,
             "preservation_state_modified": null,
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -9896,6 +10074,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -9905,7 +10086,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -9989,12 +10170,15 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Failure"
+                        },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -10146,9 +10330,9 @@
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
+                            "application_name": "Creating application name",
                             "description": "Description of file type",
                             "encoding": "utf-8",
-                            "has_creating_application_name": "Creating application name",
                             "title": "File type name"
                         },
                         "identifier": "identifierofresource",
@@ -10564,6 +10748,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -10573,7 +10760,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -10657,12 +10844,15 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Failure"
+                        },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -10814,9 +11004,9 @@
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
+                            "application_name": "Creating application name",
                             "description": "Description of file type",
                             "encoding": "utf-8",
-                            "has_creating_application_name": "Creating application name",
                             "title": "File type name"
                         },
                         "identifier": "identifierofresource",
@@ -11232,6 +11422,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -11241,7 +11434,7 @@
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p107966"
@@ -11325,12 +11518,15 @@
                         "description": {
                             "en": "Description of other provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Failure"
+                        },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
                         },
                         "spatial": {
                             "alt": "11.111",
-                            "fullAddress": "The complete address written as a string, with or without formatting",
+                            "full_address": "The complete address written as a string, with or without formatting",
                             "geographic_name": "Geographic name",
                             "place_uri": {
                                 "identifier": "http://www.yso.fi/onto/yso/p105917"
@@ -11482,9 +11678,9 @@
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
+                            "application_name": "Creating application name",
                             "description": "Description of file type",
                             "encoding": "utf-8",
-                            "has_creating_application_name": "Creating application name",
                             "title": "File type name"
                         },
                         "identifier": "identifierofresource",
@@ -11653,6 +11849,14 @@
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",
@@ -11738,6 +11942,14 @@
             "preservation_state": 140,
             "preservation_state_modified": "2017-05-23T10:07:22.559656Z",
             "research_dataset": {
+                "access_rights": {
+                    "access_type": {
+                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    },
+                    "restriction_grounds": {
+                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    }
+                },
                 "creator": [
                     {
                         "@type": "Person",

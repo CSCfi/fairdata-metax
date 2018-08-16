@@ -57,6 +57,14 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 },
+                "event_outcome":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#eventOutcome",
+                    "title":"Event outcome",
+                    "description":"Outcome of the event",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Concept"
+                },
                 "used_entity":{
                     "@id":"http://www.w3.org/ns/prov#used",
                     "title":"Used entity",
@@ -97,7 +105,8 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "CatalogRecord":{
             "title":"Catalog Record",
@@ -241,7 +250,8 @@
                 "identifier",
                 "data_catalog",
                 "research_dataset"
-            ]
+            ],
+            "additionalProperties": true
         },
         "Checksum":{
             "title":"Checksum",
@@ -267,7 +277,8 @@
             "required":[
                 "checksum_value",
                 "algorithm"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Concept":{
             "title":"Concept",
@@ -310,7 +321,8 @@
             },
             "required":[
                 "identifier"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Directory":{
             "title":"Directory in IDA",
@@ -364,7 +376,8 @@
                 "identifier",
                 "use_category",
                 "title"
-            ]
+            ],
+            "additionalProperties": false
         },
         "DistributionCharacteristics":{
             "title":"File characteristics",
@@ -406,7 +419,8 @@
             },
             "required":[
                 "title"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Document":{
             "title":"Documented link",
@@ -441,7 +455,8 @@
             },
             "required":[
                 "identifier"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Editor":{
             "title":"Editor",
@@ -480,7 +495,8 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
                 }
-            }
+            },
+            "additionalProperties": true
         },
         "EntityRelation":{
             "title":"Entity relation",
@@ -507,7 +523,8 @@
             "required":[
                 "relation_type",
                 "entity"
-            ]
+            ],
+            "additionalProperties": false
         },
         "File":{
             "title":"File in IDA",
@@ -569,7 +586,8 @@
                 "identifier",
                 "use_category",
                 "title"
-            ]
+            ],
+            "additionalProperties": false
         },
         "LinguisticSystem":{
             "title":"Linguistic System",
@@ -593,7 +611,8 @@
                     "type":"string",
                     "format":"uri"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "Location":{
             "title":"Location",
@@ -643,7 +662,8 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "Organization":{
             "title":"Organization",
@@ -711,7 +731,8 @@
             "required":[
                 "@type",
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "PeriodOfTime":{
             "title":"Period of Time",
@@ -733,7 +754,8 @@
                     "type":"string",
                     "format":"date-time"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "Person":{
             "title":"Person",
@@ -808,7 +830,8 @@
             "required":[
                 "@type",
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Project":{
             "title":"Project",
@@ -879,7 +902,8 @@
             "required":[
                 "source_organization",
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "RelatedEntity":{
             "title":"Related Entity",
@@ -919,7 +943,8 @@
                     "type":"object",
                     "$ref":"#/definitions/Concept"
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "ResearchAgent":{
             "title":"Agent",
@@ -977,12 +1002,20 @@
                     "items":{
                         "type":"string"
                     }
+                },
+                "homepage":{
+                    "@id":"http://xmlns.com/foaf/0.1/homepage",
+                    "title":"Homepage",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/Document"
                 }
             },
             "required":[
 			    "@type",
                 "name"
-            ]
+            ],
+            "additionalProperties": false
         },
         "ResearchDataLicenseDocument":{
             "title":"License Document",
@@ -1025,7 +1058,8 @@
             },
             "required":[
                 "identifier"
-            ]
+            ],
+            "additionalProperties": false
         },
         "ResearchDataset":{
             "title":"Research Dataset",
@@ -1354,7 +1388,8 @@
                 "description",
                 "preferred_identifier",
                 "title"
-            ]
+            ],
+            "additionalProperties": false
         },
         "RightsStatement":{
             "title":"Rights Statement",
@@ -1424,7 +1459,11 @@
                     "type":"object",
                     "$ref":"#/definitions/Document"
                 }
-            }
+            },
+            "required":[
+                "access_type"
+            ],
+            "additionalProperties": false
         },
         "StructuredIdentifier":{
             "title":"Identifier",
@@ -1465,7 +1504,8 @@
             },
             "required":[
                 "notation"
-            ]
+            ],
+            "additionalProperties": false
         },
         "Variable":{
             "title":"Variable",
@@ -1516,7 +1556,8 @@
             },
             "required":[
                 "pref_label"
-            ]
+            ],
+            "additionalProperties": false
         },
         "WebResource":{
             "title":"Remote Web Resource",
@@ -1641,7 +1682,8 @@
             },
             "required":[
                 "title"
-            ]
+            ],
+            "additionalProperties": false
         },
         "langString":{
             "type":"object",

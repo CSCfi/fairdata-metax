@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 import logging
 from json import dump as dump_json, load as load_json
 from pickle import dumps as pickle_dumps, loads as pickle_loads
@@ -37,19 +44,21 @@ class _RedisSentinelCache():
         settings: override redis settings in settings.py. easier to use class from outside context of django (i.e. cron)
         """
         if not isinstance(settings, dict):
-            if hasattr(settings, 'REDIS_SENTINEL'):
-                settings = settings.REDIS_SENTINEL
+            if hasattr(settings, 'REDIS'):
+                settings = settings.REDIS
             else:
-                raise Exception('Missing configuration from settings.py: REDIS_SENTINEL')
+                raise Exception('Missing configuration from settings.py: REDIS')
 
-        if not settings.get('HOSTS', None):
-            raise Exception('Missing configuration from settings for REDIS_SENTINEL: HOSTS')
-        if not settings.get('SERVICE', None):
-            raise Exception('Missing configuration from settings for REDIS_SENTINEL: SERVICE')
+        if not settings.get('SENTINEL', None):
+            raise Exception('Missing configuration from settings for REDIS: SENTINEL')
+        if not settings['SENTINEL'].get('HOSTS', None):
+            raise Exception('Missing configuration from settings for REDIS.SENTINEL: HOSTS')
+        if not settings['SENTINEL'].get('SERVICE', None):
+            raise Exception('Missing configuration from settings for REDIS.SENTINEL: SERVICE')
         if not settings.get('TEST_DB', None):
-            raise Exception('Missing configuration from settings for REDIS_SENTINEL: TEST_DB')
-        if len(settings['HOSTS']) < 3:
-            raise Exception('Invalid configuration in settings for REDIS_SENTINEL: HOSTS minimum number of hosts is 3')
+            raise Exception('Missing configuration from settings for REDIS: TEST_DB')
+        if len(settings['SENTINEL']['HOSTS']) < 3:
+            raise Exception('Invalid configuration in settings for REDIS.SENTINEL: HOSTS minimum number of hosts is 3')
 
         if executing_test_case():
             db = settings['TEST_DB']
@@ -65,13 +74,13 @@ class _RedisSentinelCache():
         )
 
         self._sentinel = Sentinel(
-            settings['HOSTS'],
+            settings['SENTINEL']['HOSTS'],
             password=settings['PASSWORD'],
             socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1),
             db=db
         )
 
-        self._service_name = settings['SERVICE']
+        self._service_name = settings['SENTINEL']['SERVICE']
         self._DEBUG = settings.get('DEBUG', False)
         self._read_from_master_only = master_only
         self._node_count = self._count_nodes()

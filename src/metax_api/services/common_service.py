@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 import logging
 from json import load as json_load
 
@@ -7,12 +14,12 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http412
 from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime, get_tz_aware_now_without_micros
+from .callable_service import CallableService
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
 
 
-class CommonService():
+class CommonService(CallableService):
 
     @staticmethod
     def is_primary_key(received_lookup_value):

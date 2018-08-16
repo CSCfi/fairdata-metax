@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 import logging
 from os import getpid
 from os.path import dirname, basename
@@ -69,6 +76,126 @@ class FileService(CommonService):
             queryset_search_params['project_identifier'] = request.query_params['project_identifier']
 
         return queryset_search_params
+
+    @classmethod
+    def restore_files(cls, request, file_identifier_list):
+        """
+        Restore deleted files. If a file already has removed=false, does nothing.
+
+        Only restores the files; does not touch datasets that might have been previously deprecated
+        when a particular file was marked as removed.
+        """
+        _logger.info('Restoring files')
+
+        if not file_identifier_list:
+            _logger.info('Received file identifier list is empty - doing nothing')
+            return Response({ 'files_restored_count': 0 }, status=status.HTTP_200_OK)
+
+        for id in file_identifier_list:
+            if not isinstance(id, str):
+                raise Http400({
+                    'detail': [
+                        'identifier values must be strings. found value \'%s\', which is of type %s'
+                        % (id, type(id))
+                    ]
+                })
+
+        _logger.info('Retrieving file details...')
+
+        file_details_list = File.objects_unfiltered \
+            .filter(active=True, removed=True, identifier__in=file_identifier_list) \
+            .values('id', 'identifier', 'file_path', 'project_identifier')
+
+        if not len(file_details_list):
+            _logger.info('None of the requested files were found')
+            raise Http404
+
+        elif len(file_details_list) < len(file_identifier_list):
+            _logger.info('Some of the requested files were not found. Aborting')
+
+            found_pids = { f['identifier'] for f in file_details_list }
+            missing_identifiers = [ pid for pid in file_identifier_list if pid not in found_pids ]
+
+            raise Http400({
+                'detail': [
+                    'not all requested file identifiers could be found. list of missing identifiers: %s'
+                    % '\n'.join(missing_identifiers)
+                ]
+            })
+        elif len(file_details_list) > len(file_identifier_list):
+            raise Http400({
+                'detail': [
+                    '''
+                    Found more files than were requested to be restored! Looks like there are some duplicates
+                    within the removed files (same identifier exists more than once).
+
+                    This should be a reasonably rare case that could only happen if uploading and deleting
+                    the same files multiple times without regenerating identifiers inbetween, and then
+                    attempting to restore. At this point, it is unclear which particular file of the many
+                    available ones should be restored. If feasible, in this situation it may be best to properly
+                    re-freeze those files entirely (so that new identifiers are generated).
+                    '''
+                ]
+            })
+        else:
+            # good case
+            pass
+
+        _logger.info('Validating restore is targeting only one project...')
+
+        projects = { f['project_identifier'] for f in file_details_list }
+
+        if len(projects) > 1:
+            raise Http400({
+                'detail': [
+                    'restore operation should target one project at a time. the following projects were found: %s'
+                    % ', '.join([ p for p in projects])
+                ]
+            })
+
+        # note: sets do not support indexing. getting the first (only) item here
+        project_identifier = next(iter(projects))
+
+        _logger.info('Restoring files in project %s. Files to restore: %d'
+            % (project_identifier, len(file_identifier_list)))
+
+        # when files were deleted, any empty directories were deleted as well. check
+        # and re-create directories, and assign new parent_directory_id to files being
+        # restored as necessary.
+        common_info = cls.update_common_info(request, return_only=True)
+        file_details_with_dirs = cls._create_directories_from_file_list(common_info, file_details_list)
+
+        # note, the purpose of %%s: request.user.username is inserted into the query in cr.execute() as
+        # a separate parameter, in order to properly escape it.
+        update_statements = [
+            '(%d, %%s, %d)'
+            % (f['id'], f['parent_directory'])
+            for f in file_details_with_dirs
+        ]
+
+        sql_restore_files = '''
+            update metax_api_file as file set
+                service_modified = results.service_modified,
+                parent_directory_id = results.parent_directory_id,
+                removed = false,
+                file_deleted = NULL,
+                date_modified = CURRENT_TIMESTAMP,
+                user_modified = NULL
+            from (values
+                %s
+            ) as results(id, service_modified, parent_directory_id)
+            where results.id = file.id;
+            ''' % ','.join(update_statements)
+
+        with connection.cursor() as cr:
+            cr.execute(sql_restore_files, [request.user.username for i in range(len(file_details_list))])
+            affected_rows = cr.rowcount
+
+        _logger.info('Restored %d files in project %s' % (affected_rows, project_identifier))
+
+        cls.calculate_project_directory_byte_sizes_and_file_counts(project_identifier)
+
+        return Response({ 'restored_files_count': affected_rows }, status=status.HTTP_200_OK)
 
     @classmethod
     def get_datasets_where_file_belongs_to(cls, file_identifiers):
@@ -180,7 +307,7 @@ class FileService(CommonService):
 
         sql_delete_files = '''
             update metax_api_file
-            set removed = true, file_deleted = CURRENT_TIMESTAMP
+            set removed = true, file_deleted = CURRENT_TIMESTAMP, date_modified = CURRENT_TIMESTAMP
             where active = true and removed = false
             and id in %s'''
 
@@ -286,7 +413,11 @@ class FileService(CommonService):
             cr.save()
             deprecated_records.append(CatalogRecordSerializer(cr).data)
 
-        _logger.info('Publishing deprecated datasets to rabbitmq update queues...')
+        if not deprecated_records:
+            _logger.info('Files were not associated with any datasets.')
+            return
+
+        _logger.info('Publishing %d deprecated datasets to rabbitmq update queues...' % len(deprecated_records))
         rabbitmq = RabbitMQ()
         rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
 
@@ -839,7 +970,7 @@ class FileService(CommonService):
         as separate entities in the request, so they have to be created based on the
         paths in the list of files.
         """
-        _logger.info('Creating and checking file hierarchy...')
+        _logger.info('Checking and creating file hierarchy...')
 
         project_identifier = initial_data_list[0]['project_identifier']
         sorted_data = sorted(initial_data_list, key=lambda row: row['file_path'])
