@@ -7100,6 +7100,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -7192,6 +7195,9 @@
                     {
                         "description": {
                             "en": "Description of other provenance activity"
+                        },
+                        "event_outcome": {
+                            "identifier": "Failure"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -7759,6 +7765,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -7851,6 +7860,9 @@
                     {
                         "description": {
                             "en": "Description of other provenance activity"
+                        },
+                        "event_outcome": {
+                            "identifier": "Failure"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -8510,6 +8522,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -8602,6 +8617,9 @@
                     {
                         "description": {
                             "en": "Description of other provenance activity"
+                        },
+                        "event_outcome": {
+                            "identifier": "Failure"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -10056,6 +10074,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -10148,6 +10169,9 @@
                     {
                         "description": {
                             "en": "Description of other provenance activity"
+                        },
+                        "event_outcome": {
+                            "identifier": "Failure"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -10724,6 +10748,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -10816,6 +10843,9 @@
                     {
                         "description": {
                             "en": "Description of other provenance activity"
+                        },
+                        "event_outcome": {
+                            "identifier": "Failure"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -11392,6 +11422,9 @@
                         "description": {
                             "en": "Description of provenance activity"
                         },
+                        "event_outcome": {
+                            "identifier": "Success"
+                        },
                         "lifecycle_event": {
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
@@ -11484,6 +11517,9 @@
                     {
                         "description": {
                             "en": "Description of other provenance activity"
+                        },
+                        "event_outcome": {
+                            "identifier": "Failure"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
