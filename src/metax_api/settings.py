@@ -25,6 +25,7 @@ import yaml
 from metax_api.utils import executing_test_case, executing_travis
 
 executing_in_travis = executing_travis()
+executing_in_test_case = executing_test_case()
 
 if not executing_in_travis:
     with open('/home/metax-user/app_config') as app_config:
@@ -47,7 +48,7 @@ if executing_in_travis:
 else:
     SECRET_KEY = app_config_dict['DJANGO_SECRET_KEY']
 
-if executing_test_case() or executing_in_travis:
+if executing_in_test_case or executing_in_travis:
     # used by test cases and travis during test case execution to authenticate with certain api's
     API_TEST_USER = {
         'username': 'testuser',
@@ -92,13 +93,16 @@ else:
     # localdev, stable, production
     API_ACCESS = app_config_dict['API_ACCESS']
 
-# Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
-ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
+if executing_in_travis:
+    ALLOWED_AUTH_METHODS = ['Basic', 'Bearer']
+else:
+    # Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
+    ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
 
 # endpoint in localhost where bearer tokens should be sent for validation
 VALIDATE_TOKEN_URL = 'https://127.0.0.1/secure/validate_token'
 
-if executing_test_case() or executing_in_travis:
+if executing_in_test_case or executing_in_travis:
     ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
 else:
     # location to store information about exceptions occurred during api requests
@@ -156,7 +160,7 @@ MIDDLEWARE = [
     'metax_api.middleware.StreamHttpResponse',
 ]
 
-if not (executing_test_case() or executing_in_travis):
+if not (executing_in_test_case or executing_in_travis):
     # security settings
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
