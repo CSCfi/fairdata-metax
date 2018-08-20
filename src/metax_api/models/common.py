@@ -84,6 +84,13 @@ class Common(models.Model):
         self.removed = True
         super().save(update_fields=['removed'])
 
+    def user_has_access(self, request):
+        """
+        Inheriting objects should override to check permission by checking project affiliation,
+        group membership, etc...
+        """
+        return False
+
     def modified_since(self, timestamp):
         """
         Return True if object has been modified since the given timestamp. Currently this method is used for validating

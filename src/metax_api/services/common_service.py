@@ -63,6 +63,7 @@ class CommonService(CallableService):
         serializer_class: does the actual saving, knows what kind of object is in question
         """
         common_info = cls.update_common_info(request, return_only=True)
+        kwargs['context']['request'] = request
 
         results = None
 
