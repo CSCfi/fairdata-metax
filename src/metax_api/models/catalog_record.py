@@ -25,6 +25,8 @@ from .data_catalog import DataCatalog
 from .directory import Directory
 from .file import File
 
+
+READ_METHODS = ('GET', 'HEAD', 'OPTIONS')
 DEBUG = settings.DEBUG
 _logger = logging.getLogger(__name__)
 
@@ -287,6 +289,21 @@ class CatalogRecord(Common):
     def print_files(self): # pragma: no cover
         for f in self.files.all():
             print(f)
+
+    def user_has_access(self, request):
+        """
+        In the future, will probably be more involved checking...
+        """
+        if request.user.is_service:
+            return True
+
+        elif request.method in READ_METHODS:
+            return True
+
+        elif self.editor and 'owner_id' in self.editor:
+            return request.user.username == self.editor['owner_id']
+
+        return request.user.username == self.user_created
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():

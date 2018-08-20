@@ -64,6 +64,11 @@ class CatalogRecordSerializer(CommonSerializer):
         extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
 
     def is_valid(self, raise_exception=False):
+        if not self.context['request'].user.is_service:
+            # for end users, automatically set record creator to whoever the
+            # authentication token belonged to.
+            self.initial_data['user_created'] = self.context['request'].user.username
+
         if self.initial_data.get('data_catalog', False):
             self.initial_data['data_catalog'] = self._get_id_from_related_object(
                 'data_catalog', self._get_data_catalog_relation)

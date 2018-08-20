@@ -42,6 +42,8 @@ class DatasetViewSet(CommonViewSet):
         """
         In all responses, strip fields from dataset objects that are not meant for the general public
         """
+        # todo check if user is owner or not.
+        # currently end users also do not get sensitive fields, even if they are the owner
         res = super().dispatch(request, **kwargs)
         if not request.user.username:
             if isinstance(res.data, dict):
@@ -213,6 +215,7 @@ class DatasetViewSet(CommonViewSet):
             obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
                 .order_by('data_catalog_id', 'date_created').first()
             if obj:
+                self.check_object_permissions(self.request, obj)
                 return obj
             raise Http404
 
