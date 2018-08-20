@@ -28,8 +28,14 @@ class Http400(APIException):
     # bad request
     status_code = 400
 
+class Http401(APIException):
+    # unauthorized
+    # note: request is missing authentication information, or it was wrong
+    status_code = 401
+
 class Http403(APIException):
     # forbidden
+    # note: request user is correctly authenticated, but has no permission
     status_code = 403
 
 class Http412(APIException):

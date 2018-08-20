@@ -92,6 +92,12 @@ else:
     # localdev, stable, production
     API_ACCESS = app_config_dict['API_ACCESS']
 
+# Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
+ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
+
+# endpoint in localhost where bearer tokens should be sent for validation
+VALIDATE_TOKEN_URL = 'https://127.0.0.1/secure/validate_token'
+
 if executing_test_case() or executing_in_travis:
     ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
 else:
@@ -116,6 +122,9 @@ if executing_in_travis:
     DEBUG = True
 else:
     DEBUG = app_config_dict['DEBUG']
+
+# when using the requests-library or similar, should be used to decide when to verify self-signed certs
+TLS_VERIFY = False if DEBUG else True
 
 # Application definition
 
@@ -185,22 +194,21 @@ ROOT_URLCONF = 'metax_api.urls'
 
 APPEND_SLASH = False
 
-if DEBUG:
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [],
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.request',
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.messages.context_processors.messages',
-                ],
-            },
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
         },
-    ]
+    },
+]
 
 WSGI_APPLICATION = 'metax_api.wsgi.application'
 

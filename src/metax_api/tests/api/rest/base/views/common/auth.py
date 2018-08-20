@@ -10,14 +10,14 @@ from rest_framework import status
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 
 
-class ApiAccessAuthorization(CatalogRecordApiWriteCommon):
+class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
 
     """
-    Test API-wide access restriction rules
+    Test API-wide service access restriction rules
     """
 
     def setUp(self):
-        super(ApiAccessAuthorization, self).setUp()
+        super().setUp()
         # test user api_auth_user has some custom api permissions set in settings.py
         self._use_http_authorization(username='api_auth_user')
 
@@ -52,3 +52,41 @@ class ApiAccessAuthorization(CatalogRecordApiWriteCommon):
         self.client._credentials = {}
         response = self.client.get('/rest/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
+
+    """
+    Test End User authentication and authorization.
+
+    Since the End User authnz utilizes OIDC, and there is no legit local OIDC OP,
+    responses from /secure/validate_token are mocked.
+    """
+
+    def setUp(self):
+        super().setUp()
+        # self._use_http_authorization(username='api_auth_user')
+
+    def test_end_user_has_api_access(self):
+        """
+        Not all apis are open for end users. Ensure api access permissions work for enabling end users.
+        """
+        pass
+
+    def test_user_identified(self):
+        """
+        Test api authentication with a valid token. Should return successfully.
+        """
+        pass
+
+    def test_invalid_token(self):
+        """
+        Test api authentication with an valid token. Should return 403.
+        """
+        pass
+
+    def test_token_expired(self):
+        """
+        Test api authentication with a valid, but an expired token. Should return 403.
+        """
+        pass
