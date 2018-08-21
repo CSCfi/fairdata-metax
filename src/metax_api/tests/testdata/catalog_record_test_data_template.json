@@ -29,7 +29,10 @@
           "name": {
             "fi": "Mysteeriorganisaatio"
           }
-        }
+        },
+        "contributor_role": [{
+          "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+        }]
       }
     ],
     "curator": [
@@ -39,7 +42,10 @@
         "name": {
           "en": "Org in ref data",
           "fi": "Organisaatio"
-        }
+        },
+        "contributor_type": [{
+          "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+        }]
       }
     ],
     "language": [

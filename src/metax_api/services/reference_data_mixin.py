@@ -113,7 +113,7 @@ class ReferenceDataMixin():
         raise Http503(error_msg)
 
     @classmethod
-    def process_org_obj_against_ref_data(cls, org_ref_data, org_obj, org_obj_relation_name):
+    def process_org_obj_against_ref_data(cls, orgdata, org_obj, org_obj_relation_name, refdata=None, errors={}):
         """
         First check if org object contains is_part_of relation, in which case recursively call this method
         until there is no is_part_of relation. After this, check whether org object has a value in identifier field.
@@ -122,36 +122,50 @@ class ReferenceDataMixin():
 
         If identifier value is not found from reference data, never mind
         """
-        if not org_ref_data or not org_obj:
+        if not orgdata or not org_obj:
             return
 
         if org_obj.get('is_part_of', False):
             nested_obj = org_obj.get('is_part_of')
-            cls.process_org_obj_against_ref_data(org_ref_data, nested_obj,
-                                                 org_obj_relation_name + '.is_part_of')
+            cls.process_org_obj_against_ref_data(orgdata, nested_obj,
+                                                 org_obj_relation_name + '.is_part_of', refdata=refdata, errors=errors)
 
         if org_obj.get('identifier', False):
-            ref_entry = cls.check_ref_data(org_ref_data, org_obj['identifier'],
+            ref_entry = cls.check_ref_data(orgdata, org_obj['identifier'],
                                            org_obj_relation_name + '.identifier', value_not_found_is_error=False)
             if ref_entry:
                 cls.populate_from_ref_data(ref_entry, org_obj, 'identifier', 'name', add_in_scheme=False)
+
+        if refdata and 'contributor_type' in refdata:
+            for contributor_type in org_obj.get('contributor_type', []):
+                ref_entry = cls.check_ref_data(refdata['contributor_type'], contributor_type['identifier'],
+                                               org_obj_relation_name + '.contributor_type.identifier', errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, contributor_type, label_field='pref_label')
 
     @classmethod
     def process_research_agent_obj_with_type(cls, orgdata, refdata, errors, agent_obj, agent_obj_relation_name):
         if agent_obj.get('@type') == 'Person':
             member_of = agent_obj.get('member_of', None)
             if member_of:
-                cls.process_org_obj_against_ref_data(orgdata, member_of, agent_obj_relation_name + '.member_of')
+                cls.process_org_obj_against_ref_data(orgdata, member_of, agent_obj_relation_name + '.member_of',
+                                                     refdata=refdata, errors=errors)
 
-            contributor_role = agent_obj.get('contributor_role', None)
-            if contributor_role:
+            for contributor_role in agent_obj.get('contributor_role', []):
                 ref_entry = cls.check_ref_data(refdata['contributor_role'], contributor_role['identifier'],
-                                               agent_obj_relation_name + '.contributor_role.identifier', errors)
+                                               agent_obj_relation_name + '.contributor_role.identifier', errors=errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, contributor_role, label_field='pref_label')
 
+            for contributor_type in agent_obj.get('contributor_type', []):
+                ref_entry = cls.check_ref_data(refdata['contributor_type'], contributor_type['identifier'],
+                                               agent_obj_relation_name + '.contributor_type.identifier', errors=errors)
+                if ref_entry:
+                    cls.populate_from_ref_data(ref_entry, contributor_type, label_field='pref_label')
+
         elif agent_obj.get('@type') == 'Organization':
-            cls.process_org_obj_against_ref_data(orgdata, agent_obj, agent_obj_relation_name)
+            cls.process_org_obj_against_ref_data(orgdata, agent_obj, agent_obj_relation_name, refdata=refdata,
+                                                 errors=errors)
 
     @classmethod
     def remove_language_obj_irrelevant_titles(cls, lang_obj, title_label_field):

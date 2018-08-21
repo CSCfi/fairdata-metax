@@ -116,14 +116,18 @@ class DataciteService(CommonService):
         if 'language' in rd:
             datacite_json['language'] = rd['language'][0]['identifier'].split('http://lexvo.org/id/iso639-3/')[1]
 
-        if 'contributor' in rd or 'rights_holder' in rd:
+        if 'curator' in rd or 'contributor' in rd or 'creator' in rd or 'rights_holder' in rd or 'publisher' in rd:
             datacite_json['contributors'] = []
+            if 'curator' in rd:
+                datacite_json['contributors'].extend(cls._contributors(rd['curator'], main_lang=main_lang))
             if 'contributor' in rd:
                 datacite_json['contributors'].extend(cls._contributors(rd['contributor'], main_lang=main_lang))
+            if 'creator' in rd:
+                datacite_json['contributors'].extend(cls._contributors(rd['creator'], main_lang=main_lang))
             if 'rights_holder' in rd:
-                datacite_json['contributors'].extend(cls._contributors(rd['rights_holder'],
-                    contributor_type='RightsHolder', main_lang=main_lang))
-
+                datacite_json['contributors'].extend(cls._contributors(rd['rights_holder'], main_lang=main_lang))
+            if 'publisher' in rd:
+                datacite_json['contributors'].extend(cls._contributors(rd['publisher'], main_lang=main_lang))
         if 'spatial' in rd:
             datacite_json['geoLocations'] = cls._spatials(rd['spatial'])
 
@@ -137,6 +141,7 @@ class DataciteService(CommonService):
             raise
 
         # generate and return datacite xml
+
         return datacite_schema41.tostring(datacite_json)
 
     @staticmethod
@@ -181,23 +186,30 @@ class DataciteService(CommonService):
         return creators
 
     @classmethod
-    def _contributors(cls, research_agents, contributor_type=None, main_lang=None):
+    def _contributors(cls, research_agents, main_lang=None):
+        if isinstance(research_agents, dict):
+            research_agents = [research_agents]
+
         contributors = []
         for ra in research_agents:
-            cr = { 'contributorName': cls._main_lang_or_default(ra['name'], main_lang=main_lang) }
+            if 'contributor_type' not in ra:
+                continue
 
-            if contributor_type:
-                cr['contributorType'] = contributor_type
-            elif 'contributor_role' in ra:
-                cr['contributorType'] = cls._dc_contributor_type(ra['contributor_role']['identifier'])
+            cr_base = {'contributorName': cls._main_lang_or_default(ra['name'], main_lang=main_lang)}
 
             if 'identifier' in ra:
-                cr['nameIdentifiers'] = [{ 'nameIdentifier': ra['identifier'], 'nameIdentifierScheme': 'URI' }]
+                cr_base['nameIdentifiers'] = [{'nameIdentifier': ra['identifier'], 'nameIdentifierScheme': 'URI'}]
 
             if 'member_of' in ra:
-                cr['affiliations'] = cls._person_affiliations(ra, main_lang)
+                cr_base['affiliations'] = cls._person_affiliations(ra, main_lang)
 
-            contributors.append(cr)
+            for ct in ra.get('contributor_type', []):
+                ct_id = ct['identifier']
+                ct = ct_id[ct_id.rfind('/'):]
+                ct = ct[len('contributor_type_') + 1:]
+                cr = dict(cr_base)
+                cr['contributorType'] = ct
+                contributors.append(cr)
 
         return contributors
 
@@ -214,13 +226,6 @@ class DataciteService(CommonService):
             for lang, name_translation in person['member_of']['name'].items():
                 affs.append(name_translation)
         return affs
-
-    @staticmethod
-    def _dc_contributor_type(metax_contributor_role):
-        """
-        Probably needs to be some kind of mapping from metax types to dc types...
-        """
-        return 'Other'
 
     @staticmethod
     def _subjects(concept):
