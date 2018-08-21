@@ -294,7 +294,8 @@
         ],
         "event_outcome": {
           "identifier": "Success"
-        }
+        },
+        "outcome_description": {"fi": "Onnistui hyvin", "en": "A grand success"}
       },
       {
         "title": {
@@ -320,7 +321,8 @@
         },
         "event_outcome": {
           "identifier": "Failure"
-        }
+        },
+        "outcome_description": {"fi": "Epäonnistui", "en": "A grand failure"}
       }
     ],
     "rights_holder": [{

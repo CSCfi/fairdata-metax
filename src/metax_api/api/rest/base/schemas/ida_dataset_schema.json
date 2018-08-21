@@ -33,6 +33,14 @@
                     "type":"object",
                     "$ref":"#/definitions/langString"
                 },
+                "outcome_description":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#outcomeDescription",
+                    "title":"Outcome description",
+                    "description":"Description of the event outcome",
+                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
+                },
                 "temporal":{
                     "@id":"http://purl.org/dc/terms/temporal",
                     "title":"Temporal Coverage",
