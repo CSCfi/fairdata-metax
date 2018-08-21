@@ -896,7 +896,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['files'][0]['file_type']['identifier'] = 'nonexisting'
         rd_ida['files'][0]['use_category']['identifier'] = 'nonexisting'
         rd_ida['infrastructure'][0]['identifier'] = 'nonexisting'
-        rd_ida['creator'][0]['contributor_role']['identifier'] = 'nonexisting'
+        rd_ida['creator'][0]['contributor_role'][0]['identifier'] = 'nonexisting'
+        rd_ida['curator'][0]['contributor_type'][0]['identifier'] = 'nonexisting'
         rd_ida['is_output_of'][0]['funder_type']['identifier'] = 'nonexisting'
         rd_ida['directories'][0]['use_category']['identifier'] = 'nonexisting'
         rd_ida['relation'][0]['relation_type']['identifier'] = 'nonexisting'
@@ -907,7 +908,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 18)
+        self.assertEqual(len(response.data['research_dataset']), 19)
 
         rd_att = self.cr_full_att_test_data['research_dataset']
         rd_att['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
@@ -986,6 +987,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
             'use_category',
             'research_infra',
             'contributor_role',
+            'contributor_type',
             'funder_type',
             'relation_type',
             'lifecycle_event',
@@ -1030,7 +1032,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['files'][0]['use_category'] = {'identifier': refs['use_category']['code']}
         rd_ida['directories'][0]['use_category'] = {'identifier': refs['use_category']['code']}
         rd_ida['infrastructure'][0] = {'identifier': refs['research_infra']['code']}
-        rd_ida['creator'][0]['contributor_role'] = {'identifier': refs['contributor_role']['code']}
+        rd_ida['creator'][0]['contributor_role'][0] = {'identifier': refs['contributor_role']['code']}
+        rd_ida['curator'][0]['contributor_type'][0] = {'identifier': refs['contributor_type']['code']}
         rd_ida['is_output_of'][0]['funder_type'] = {'identifier': refs['funder_type']['code']}
         rd_ida['relation'][0]['relation_type'] = {'identifier': refs['relation_type']['code']}
         rd_ida['relation'][0]['entity']['type'] = {'identifier': refs['resource_type']['code']}
@@ -1117,7 +1120,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['organization']['uri'], new_rd['publisher']['is_part_of']['identifier'])
         self.assertEqual(refs['organization']['uri'], new_rd['rights_holder'][0]['is_part_of']['identifier'])
         self.assertEqual(refs['research_infra']['uri'], new_rd['infrastructure'][0]['identifier'])
-        self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role']['identifier'])
+        self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role'][0]['identifier'])
+        self.assertEqual(refs['contributor_type']['uri'], new_rd['curator'][0]['contributor_type'][0]['identifier'])
         self.assertEqual(refs['funder_type']['uri'], new_rd['is_output_of'][0]['funder_type']['identifier'])
         self.assertEqual(refs['relation_type']['uri'], new_rd['relation'][0]['relation_type']['identifier'])
         self.assertEqual(refs['resource_type']['uri'], new_rd['relation'][0]['entity']['type']['identifier'])
@@ -1141,6 +1145,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['use_category']['scheme'], new_rd['directories'][0]['use_category']['in_scheme'])
         self.assertEqual(refs['research_infra']['scheme'], new_rd['infrastructure'][0]['in_scheme'])
         self.assertEqual(refs['contributor_role']['scheme'], new_rd['creator'][0]['contributor_role']['in_scheme'])
+        self.assertEqual(refs['contributor_type']['scheme'], new_rd['curator'][0]['contributor_type']['in_scheme'])
         self.assertEqual(refs['funder_type']['scheme'], new_rd['is_output_of'][0]['funder_type']['in_scheme'])
         self.assertEqual(refs['relation_type']['scheme'], new_rd['relation'][0]['relation_type']['in_scheme'])
         self.assertEqual(refs['resource_type']['scheme'], new_rd['relation'][0]['entity']['type']['in_scheme'])
@@ -1165,7 +1170,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
 
         self.assertEqual(refs['research_infra']['label'], new_rd['infrastructure'][0].get('pref_label', None))
         self.assertEqual(refs['contributor_role']['label'],
-                         new_rd['creator'][0]['contributor_role'].get('pref_label', None))
+                         new_rd['creator'][0]['contributor_role'][0].get('pref_label', None))
+        self.assertEqual(refs['contributor_type']['label'],
+                         new_rd['curator'][0]['contributor_type'][0].get('pref_label', None))
         self.assertEqual(refs['funder_type']['label'], new_rd['is_output_of'][0]['funder_type'].get('pref_label', None))
         self.assertEqual(refs['relation_type']['label'], new_rd['relation'][0]['relation_type'].get('pref_label', None))
         self.assertEqual(refs['resource_type']['label'],
