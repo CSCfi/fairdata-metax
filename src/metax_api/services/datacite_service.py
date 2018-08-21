@@ -204,11 +204,11 @@ class DataciteService(CommonService):
                 cr_base['affiliations'] = cls._person_affiliations(ra, main_lang)
 
             for ct in ra.get('contributor_type', []):
-                ct_id = ct['identifier']
-                ct = ct_id[ct_id.rfind('/'):]
-                ct = ct[len('contributor_type_') + 1:]
+                # for example, extracts from initial value:
+                # http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor
+                # and produces value: Distributor
                 cr = dict(cr_base)
-                cr['contributorType'] = ct
+                cr['contributorType'] = ct['identifier'].split('/contributor_type_')[-1]
                 contributors.append(cr)
 
         return contributors
