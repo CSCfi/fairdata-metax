@@ -438,11 +438,13 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         for project in research_dataset.get('is_output_of', []):
             for org_obj in project.get('source_organization', []):
                 cls.process_org_obj_against_ref_data(orgdata, org_obj,
-                                                     'research_dataset.is_output_of.source_organization')
+                                                     'research_dataset.is_output_of.source_organization',
+                                                     refdata=refdata, errors=errors)
 
             for org_obj in project.get('has_funding_agency', []):
                 cls.process_org_obj_against_ref_data(orgdata, org_obj,
-                                                     'research_dataset.is_output_of.has_funding_agency')
+                                                     'research_dataset.is_output_of.has_funding_agency',
+                                                     refdata=refdata, errors=errors)
 
             if project.get('funder_type', False):
                 ref_entry = cls.check_ref_data(refdata['funder_type'], project['funder_type']['identifier'],
@@ -459,7 +461,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
             if other_identifier.get('provider', False):
                 cls.process_org_obj_against_ref_data(orgdata, other_identifier['provider'],
-                                                     'research_dataset.other_identifier.provider')
+                                                     'research_dataset.other_identifier.provider', refdata=refdata,
+                                                     errors=errors)
 
         for spatial in research_dataset.get('spatial', []):
             as_wkt = spatial.get('as_wkt', [])

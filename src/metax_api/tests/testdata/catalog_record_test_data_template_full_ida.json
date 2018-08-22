@@ -116,7 +116,10 @@
           "email": "info@csc.fi",
           "telephone": [
             "+358501231235"
-          ]
+          ],
+          "contributor_type": [{
+            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+          }]
         },
         "type": {
           "identifier": "doi",
@@ -142,7 +145,10 @@
           "email": "info@csc.fi",
           "telephone": [
             "+358501231235"
-          ]
+          ],
+          "contributor_type": [{
+            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+          }]
         },
         "type": {
           "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
@@ -249,7 +255,10 @@
             "email": "info@csc.fi",
             "telephone": [
               "+358501231235"
-            ]
+            ],
+            "contributor_type": [{
+              "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+            }]
           }
         ],
         "variable": [
@@ -285,7 +294,8 @@
         ],
         "event_outcome": {
           "identifier": "Success"
-        }
+        },
+        "outcome_description": {"fi": "Onnistui hyvin", "en": "A grand success"}
       },
       {
         "title": {
@@ -311,7 +321,8 @@
         },
         "event_outcome": {
           "identifier": "Failure"
-        }
+        },
+        "outcome_description": {"fi": "Epäonnistui", "en": "A grand failure"}
       }
     ],
     "rights_holder": [{
@@ -332,7 +343,10 @@
           "en": "Parent Mysterious Organization",
           "fi": "Organisaatio"
         }
-      }
+      },
+      "contributor_type": [{
+        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+      }]
     }],
     "creator": [
       {
@@ -346,9 +360,9 @@
             "fi": "Organisaatio"
           }
         },
-        "contributor_role": {
-          "identifier": "data_curation"
-        }
+        "contributor_role": [{
+          "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+        }]
       }
     ],
     "curator": [
@@ -366,7 +380,15 @@
             "en": "Parent Mysterious Organization",
             "fi": "Organisaatio"
           }
-        }
+        },
+        "contributor_type": [
+          {
+          "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+          },
+          {
+          "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Sponsor"
+          }
+        ]
       }
     ],
     "publisher": {
@@ -405,7 +427,10 @@
             "fi": "Julkaisijan yläorganisaation kotisivu"
           }
         }
-      }
+      },
+      "contributor_type": [{
+        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+      }]
     },
     "contributor": [
       {
@@ -428,9 +453,9 @@
             "+358501231235"
           ]
         },
-        "contributor_role": {
+        "contributor_role": [{
           "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
-        }
+        }]
       },
       {
         "@type": "Person",
@@ -452,9 +477,9 @@
             "+23423423"
           ]
         },
-        "contributor_role": {
-          "identifier": "project_administration"
-        }
+        "contributor_type": [{
+          "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+        }]
       }
     ],
     "is_output_of": [
@@ -475,7 +500,10 @@
             "email": "rahoitus@rahaorg.fi",
             "telephone": [
               "+358501232233"
-            ]
+            ],
+            "contributor_type": [{
+              "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+            }]
           }
         ],
         "source_organization": [
@@ -489,7 +517,10 @@
             "email": "info@csc.fi",
             "telephone": [
               "+358501231235"
-            ]
+            ],
+            "contributor_type": [{
+              "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+            }]
           }
         ],
         "funder_type": {

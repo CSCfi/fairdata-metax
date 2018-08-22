@@ -2,7 +2,7 @@
 {
     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#",
     "title":"Metax Research Datasets",
-    "modified":"Mon, 11 Jun 2018 10:12:12 GMT",
+    "modified":"Fri, 17 Aug 2018 11:50:11 GMT",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "allOf":[
@@ -29,6 +29,14 @@
                     "@id":"http://purl.org/dc/terms/description",
                     "title":"Description",
                     "description":"The description of the activity",
+                    "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+                    "type":"object",
+                    "$ref":"#/definitions/langString"
+                },
+                "outcome_description":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#outcomeDescription",
+                    "title":"Outcome description",
+                    "description":"Description of the event outcome",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "type":"object",
                     "$ref":"#/definitions/langString"
@@ -78,7 +86,7 @@
                 },
                 "was_associated_with":{
                     "@id":"http://www.w3.org/ns/prov#wasAssociatedWith",
-                    "title":"wasAssociatedWith",
+                    "title":"Was associated with",
                     "description":"An activity association is an assignment of responsibility to an agent for an activity, indicating that the agent had a role in the activity.",
                     "@type":"@id",
                     "type":"array",
@@ -432,7 +440,7 @@
             "title":"Entity relation",
             "type":"object",
             "@id":"http://www.w3.org/ns/prov#EntityInfluence",
-            "description":"Description of a the dataset influence upon any other kind of entity.",
+            "description":"Description of a the dataset influence upon any other kind of entity. In Metax RelationType is used from reference data: https://wiki.eduuni.fi/pages/viewpage.action?spaceKey=CSCMETAX&title=Reference+Data",
             "properties":{
                 "entity":{
                     "@id":"http://www.w3.org/ns/prov#entity",
@@ -656,6 +664,17 @@
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Organization"
+                },
+                "contributor_type":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#contributorType",
+                    "title":"Contributor type",
+                    "description":"Contributor type of the Organization. Based on the subset of the DataCite reference data.",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 }
             },
             "required":[
@@ -749,12 +768,26 @@
                     "$ref":"#/definitions/Organization"
                 },
                 "contributor_role":{
-                    "@id":"http://purl.org/dc/terms/type",
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#contributorRole",
                     "title":"Contributor role",
-                    "description":"Contributor role from reference data",
+                    "description":"Contribution role from CASRAI. This relates person with the contribution domain.",
                     "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Concept"
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
+                },
+                "contributor_type":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#contributorType",
+                    "title":"Contributor type",
+                    "description":"Contributor type of the Agent. Reference data from DataCite.",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 }
             },
             "required":[
@@ -940,6 +973,28 @@
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Document"
+                },
+                "contributor_role":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#contributorRole",
+                    "title":"Contributor role",
+                    "description":"Contribution role from CASRAI. This relates person with the contribution domain.",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
+                },
+                "contributor_type":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#contributorType",
+                    "title":"Contributor type",
+                    "description":"Contributor type of the Agent. Reference data from DataCite.",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 }
             },
             "required":[
