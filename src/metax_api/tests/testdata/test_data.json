@@ -7194,6 +7194,10 @@
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "full_address": "The complete address written as a string, with or without formatting",
@@ -7287,6 +7291,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -7908,6 +7916,10 @@
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "full_address": "The complete address written as a string, with or without formatting",
@@ -8001,6 +8013,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -8714,6 +8730,10 @@
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "full_address": "The complete address written as a string, with or without formatting",
@@ -8807,6 +8827,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -10392,6 +10416,10 @@
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "full_address": "The complete address written as a string, with or without formatting",
@@ -10485,6 +10513,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -11112,6 +11144,10 @@
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "full_address": "The complete address written as a string, with or without formatting",
@@ -11205,6 +11241,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -11832,6 +11872,10 @@
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
+                        },
                         "spatial": {
                             "alt": "11.111",
                             "full_address": "The complete address written as a string, with or without formatting",
@@ -11925,6 +11969,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
