@@ -661,15 +661,25 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 1)
         self.assertEqual(len(response.data['failed']), 1)
 
-    def test_catalog_record_deprecated_from_true_to_false_not_allowed(self):
-        # Test catalog record's deprecated field cannot be changed from true to false value
-        response = self.client.patch('/rest/datasets/1', { 'deprecated': True }, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['deprecated'], True)
+    def test_catalog_record_deprecated_cannot_be_set(self):
+        # Test catalog record's deprecated field cannot be set with POST, PUT or PATCH
 
-        response = self.client.patch('/rest/datasets/1', { 'deprecated': False }, format="json")
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST,
-            "Changing deprecated from true to false should result in 400 bad request")
+        initial_deprecated = True
+        self.cr_test_data['deprecated'] = initial_deprecated
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.data['deprecated'], False)
+
+        response_json = self.client.get('/rest/datasets/1').data
+        initial_deprecated = response_json['deprecated']
+        response_json['deprecated'] = not initial_deprecated
+        response = self.client.put('/rest/datasets/1', response_json, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['deprecated'], initial_deprecated)
+
+        initial_deprecated = self.client.get('/rest/datasets/1').data['deprecated']
+        response = self.client.patch('/rest/datasets/1', { 'deprecated': not initial_deprecated }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['deprecated'], initial_deprecated)
 
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):

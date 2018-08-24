@@ -75,6 +75,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('next_dataset_version', None)
         self.initial_data.pop('previous_dataset_version', None)
         self.initial_data.pop('removed', None)
+        self.initial_data.pop('deprecated', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
