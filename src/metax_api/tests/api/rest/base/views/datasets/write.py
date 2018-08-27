@@ -310,6 +310,22 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], custom_pid)
 
+    def test_parameter_migration_override_no_preferred_identifier_when_creating(self):
+        """
+        Normally, when saving to att/ida catalogs, providing a custom preferred_identifier is not
+        permitted. Using the optional query parameter ?migration_override=bool a custom preferred_identifier
+        can be passed.
+        """
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
+
+        self.cr_test_data['research_dataset'].pop('preferred_identifier', None)
+        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
+
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
     """
