@@ -101,8 +101,8 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._migration_override_requested():
 
             # any custom stuff before create that my be necessary for migration purposes
-
-            if 'preferred_identifier' in validated_data['research_dataset']:
+            pid = ''
+            if validated_data['research_dataset'].get('preferred_identifier', False):
                 # store pid, since it will be overwritten during create otherwise
                 pid = validated_data['research_dataset']['preferred_identifier']
 
@@ -112,7 +112,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
             # any custom stuff after create that my be necessary for migration purposes
 
-            if 'preferred_identifier' in validated_data['research_dataset']:
+            if pid:
                 # save original pid provided by the requestor
                 res.research_dataset['preferred_identifier'] = pid
 
