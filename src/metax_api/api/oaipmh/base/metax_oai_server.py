@@ -42,7 +42,14 @@ class MetaxOAIServer(ResumptionOAIPMH):
         if set == 'datacatalogs':
             proxy = DataCatalog
 
-        query_set = proxy.objects.all()
+        if set == 'urnresolver':
+            # Use unfiltered objects for fetching catalog records for urn resolver, since otherwise deleted objects
+            # won't appear in the result. Get only active objects.
+            query_set = proxy.objects_unfiltered.filter(active=True)
+        else:
+            # For NON urn resolver, only get non-deleted active objects
+            query_set = proxy.objects.all()
+
         if from_ and until:
             query_set = proxy.objects.filter(date_modified__gte=from_, date_modified__lte=until)
         elif from_:
