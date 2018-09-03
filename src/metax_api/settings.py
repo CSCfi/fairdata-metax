@@ -74,8 +74,8 @@ if executing_in_test_case or executing_in_travis:
         "contracts":    { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
         "datacatalogs": { "read":  ["all"], "write": ["testuser", "metax"] },
         "datasets":     { "read":  ["all"], "write": ["testuser", "metax", "api_auth_user", "endusers"] },
-        "directories":  { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
-        "files":        { "read":  ["testuser", "metax", "api_auth_user"], "write": ["testuser", "metax"] },
+        "directories":  { "read":  ["testuser", "metax", "endusers"], "write": ["testuser", "metax"] },
+        "files":        { "read":  ["testuser", "metax", "api_auth_user", "endusers"], "write": ["testuser", "metax"] },
         "filestorages": { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
         "schemas":      { "read":  ["all"], "write": ["testuser", "metax"] }
     }

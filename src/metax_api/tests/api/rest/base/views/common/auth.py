@@ -6,14 +6,10 @@
 # :license: MIT
 
 import responses
-from django.conf import settings as django_settings
 from rest_framework import status
 
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import get_test_oidc_token
-
-
-VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 
 
 class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
@@ -74,19 +70,13 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         super().setUp()
         self._use_http_authorization(method='bearer', token=get_test_oidc_token())
 
-    def mock_token_validation_succeeds(self):
-        responses.add(responses.GET, VALIDATE_TOKEN_URL, status=200)
-
-    def mock_token_validation_fails(self):
-        responses.add(responses.GET, VALIDATE_TOKEN_URL, status=403)
-
     @responses.activate
     def test_valid_token(self):
         """
         Test api authentication with a valid token. Validation is mocked, ensures code following
         valid authentication works. Should return successfully.
         """
-        self.mock_token_validation_succeeds()
+        self._mock_token_validation_succeeds()
         response = self.client.get('/rest/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -108,7 +98,7 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
 
         In all cases, metax code execution stops at the middleware where authentication failed.
         """
-        self.mock_token_validation_fails()
+        self._mock_token_validation_fails()
         response = self.client.get('/rest/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -117,7 +107,7 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         """
         Not all apis are open for end users. Ensure end users are recognized in api access permissions.
         """
-        self.mock_token_validation_succeeds()
+        self._mock_token_validation_succeeds()
 
         # datasets-api should be allowed for end users
         response = self.client.get('/rest/datasets/1')

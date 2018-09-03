@@ -11,6 +11,7 @@ from os import path
 
 from django.conf import settings as django_settings
 import jwt
+import responses
 
 
 datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
@@ -122,6 +123,26 @@ class TestClassUtils():
             header_value = 'Bearer %s' % generate_test_token(token)
 
         self.client.credentials(HTTP_AUTHORIZATION=header_value)
+
+    def _mock_token_validation_succeeds(self):
+        '''
+        Since the End User authnz utilizes OIDC, and there is no legit local OIDC OP,
+        responses from /secure/validate_token are mocked. The endpoint only returns
+        200 OK for successful token validation, or 403 for failed validation.
+
+        Use this method to simulate requests where token validation succeeds.
+        '''
+        responses.add(responses.GET, django_settings.VALIDATE_TOKEN_URL, status=200)
+
+    def _mock_token_validation_fails(self):
+        '''
+        Since the End User authnz utilizes OIDC, and there is no legit local OIDC OP,
+        responses from /secure/validate_token are mocked. The endpoint only returns
+        200 OK for successful token validation, or 403 for failed validation.
+
+        Use this method to simulate requests where token validation fails.
+        '''
+        responses.add(responses.GET, django_settings.VALIDATE_TOKEN_URL, status=403)
 
     def _get_object_from_test_data(self, model_name, requested_index=0):
         with open(test_data_file_path) as test_data_file:

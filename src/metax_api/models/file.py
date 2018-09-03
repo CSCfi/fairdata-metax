@@ -69,6 +69,12 @@ class File(Common):
 
     objects = FileManager()
 
+    def user_has_access(self, request):
+        if request.user.is_service:
+            return True
+        from metax_api.services import AuthService
+        return self.project_identifier in AuthService.extract_file_projects_from_token(request.user.token)
+
     def __repr__(self):
         return '<%s: %d, removed: %s, project_identifier: %s, identifier: %s, file_path: %s >' % (
             'File',

@@ -21,7 +21,7 @@ import yaml
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import File, XmlMetadata, Common, Directory
 from metax_api.renderers import XMLRenderer
-from metax_api.services import CommonService, FileService
+from metax_api.services import AuthService, CommonService, FileService
 from .common_view import CommonViewSet
 from ..serializers import FileSerializer, XmlMetadataSerializer
 
@@ -79,6 +79,10 @@ class FileViewSet(CommonViewSet):
 
     def list(self, request, *args, **kwargs):
         self.queryset_search_params = FileService.get_queryset_search_params(request)
+        if not request.user.is_service:
+            # end users can only retrieve their own files
+            user_projects = AuthService.extract_file_projects_from_token(request.user.token)
+            self.queryset_search_params['project_identifier__in'] = user_projects
         return super().list(request, *args, **kwargs)
 
     @list_route(methods=['post'], url_path="datasets")

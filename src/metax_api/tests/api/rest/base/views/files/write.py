@@ -12,11 +12,10 @@ from django.db.models import Sum
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
+import responses
 
 from metax_api.models import Directory, File
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
-
-d = print
+from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
 
 class FileApiWriteCommon(APITestCase, TestClassUtils):
@@ -973,3 +972,39 @@ class FileApiWriteXmlTests(FileApiWriteCommon):
         # get list
         response = self.client.get('/rest/files/1/xml', content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
+
+
+class FileApiWriteEndUserAccess(FileApiWriteCommon):
+
+    def setUp(self):
+        super().setUp()
+        self.token = get_test_oidc_token()
+        self._mock_token_validation_succeeds()
+
+    @responses.activate
+    def test_user_cant_create_files(self):
+        '''
+        Ensure users are unable to create new files.
+        '''
+
+        # ensure user belongs to same project
+        self.token['group_names'].append('fairdata:IDA01:%s' % self.test_new_data['project_identifier'])
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @responses.activate
+    def test_user_cant_update_files(self):
+        '''
+        Ensure users are unable to modify existing files.
+        '''
+
+        # ensure user belongs to same project
+        proj = File.objects.get(pk=1).project_identifier
+        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.get('/rest/files/1', format="json")
+        response = self.client.put('/rest/files/1', response.data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)

@@ -2369,9 +2369,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         # authentication stops the request from proceeding anywhere
         self._mock_token_validation_succeeds()
 
-    def _mock_token_validation_succeeds(self):
-        responses.add(responses.GET, VALIDATE_TOKEN_URL, status=200)
-
     def _set_cr_owner_to_token_user(self, cr_id):
         cr = CatalogRecord.objects.get(pk=cr_id)
         cr.user_created = self.token['sub']
