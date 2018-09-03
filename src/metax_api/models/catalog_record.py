@@ -16,9 +16,8 @@ from django.db.models import Q, Sum
 from django.http import Http404
 from rest_framework.serializers import ValidationError
 
-from metax_api.exceptions import Http400, Http503
-from metax_api.utils import get_tz_aware_now_without_micros, RabbitMQ
-from metax_api.utils.utils import generate_identifier
+from metax_api.exceptions import Http400, Http403, Http503
+from metax_api.utils import RabbitMQ, get_tz_aware_now_without_micros, generate_identifier, executing_test_case
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -300,9 +299,15 @@ class CatalogRecord(Common):
         elif request.method in READ_METHODS:
             return True
 
-        elif self.editor and 'owner_id' in self.editor:
+        # write operation
+        return self.user_is_owner(request)
+
+    def user_is_owner(self, request):
+        if self.editor and 'owner_id' in self.editor:
             return request.user.username == self.editor['owner_id']
 
+        # note: once access control plans evolve, user_created may not be a legit field ever
+        # to check access from. but until then ...
         return request.user.username == self.user_created
 
     def save(self, *args, **kwargs):
@@ -327,12 +332,12 @@ class CatalogRecord(Common):
         """
         actual_files_changed = False
 
-        (files_to_add,
-            files_to_remove,
-            files_to_keep,
-            dirs_to_add_by_project,
-            dirs_to_remove_by_project,
-            dirs_to_keep_by_project) = file_changes
+        files_to_add              = file_changes['files_to_add']
+        files_to_remove           = file_changes['files_to_remove']
+        files_to_keep             = file_changes['files_to_keep']
+        dirs_to_add_by_project    = file_changes['dirs_to_add_by_project']
+        dirs_to_remove_by_project = file_changes['dirs_to_remove_by_project']
+        dirs_to_keep_by_project   = file_changes['dirs_to_keep_by_project']
 
         if files_to_add or files_to_remove or dirs_to_add_by_project or dirs_to_remove_by_project:
 
@@ -547,6 +552,10 @@ class CatalogRecord(Common):
         files_to_keep = []
         dirs_to_keep_by_project = defaultdict(list)
 
+        # list of projects involved in current changes. handy later when checking user
+        # permissions for changed files: no need to retrieve related project identifiers again
+        changed_projects = defaultdict(set)
+
         self._find_new_dirs_to_add(file_description_changes,
                                    dirs_to_add_by_project,
                                    dirs_to_remove_by_project,
@@ -555,16 +564,27 @@ class CatalogRecord(Common):
         self._find_new_files_to_add(file_description_changes,
                                     files_to_add,
                                     files_to_remove,
-                                    files_to_keep)
+                                    files_to_keep,
+                                    changed_projects)
 
-        return (
-            files_to_add,
-            files_to_remove,
-            files_to_keep,
-            dirs_to_add_by_project,
-            dirs_to_remove_by_project,
-            dirs_to_keep_by_project
-        )
+        # involved projects from single files (research_dataset.files) were accumulated
+        # in the previous method, but for dirs, its just handy to get the keys from below
+        # variables...
+        for project_identifier in dirs_to_add_by_project.keys():
+            changed_projects['files_added'].add(project_identifier)
+
+        for project_identifier in dirs_to_remove_by_project.keys():
+            changed_projects['files_removed'].add(project_identifier)
+
+        return {
+            'files_to_add': files_to_add,
+            'files_to_remove': files_to_remove,
+            'files_to_keep': files_to_keep,
+            'dirs_to_add_by_project': dirs_to_add_by_project,
+            'dirs_to_remove_by_project': dirs_to_remove_by_project,
+            'dirs_to_keep_by_project': dirs_to_keep_by_project,
+            'changed_projects': changed_projects,
+        }
 
     def _find_new_dirs_to_add(self, file_description_changes, dirs_to_add_by_project, dirs_to_remove_by_project,
             dirs_to_keep_by_project):
@@ -593,6 +613,7 @@ class CatalogRecord(Common):
                 # or to search an already existing directory for new files (and sub dirs).
                 # as a result the actual set of files may or may not change.
                 dirs_to_add_by_project[dr['project_identifier']].append(dr['directory_path'])
+
             elif dr['identifier'] in file_description_changes['directories']['removed']:
                 if not self._path_included_in_previous_metadata_version(dr['project_identifier'], dr['directory_path']):
                     # only remove dirs that are not included by other directory paths.
@@ -607,7 +628,8 @@ class CatalogRecord(Common):
         for project, dirs in top_dirs_by_project.items():
             dirs_to_keep_by_project[project] = dirs
 
-    def _find_new_files_to_add(self, file_description_changes, files_to_add, files_to_remove, files_to_keep):
+    def _find_new_files_to_add(self, file_description_changes, files_to_add, files_to_remove, files_to_keep,
+            changed_projects):
         """
         Based on changes in research_metadata.files (parameter file_description_changes), find out which
         files should be kept when copying files from the previous version to the new version,
@@ -634,6 +656,7 @@ class CatalogRecord(Common):
                 # to check later that it is not a file that was created later.
                 # as a result the actual set of files may or may not change.
                 files_to_add.append(f['id'])
+                changed_projects['files_added'].add(f['project_identifier'])
             elif f['identifier'] in file_description_changes['files']['removed']:
                 if not self._path_included_in_previous_metadata_version(f['project_identifier'], f['file_path']):
                     # file is being removed.
@@ -641,6 +664,7 @@ class CatalogRecord(Common):
                     # which means the actual set of files may change, if the path is not included
                     # in the new directory additions
                     files_to_remove.append(f['id'])
+                    changed_projects['files_removed'].add(f['project_identifier'])
             elif f['identifier'] in file_description_changes['files']['keep']:
                 files_to_keep.append(f['id'])
 
@@ -923,29 +947,36 @@ class CatalogRecord(Common):
         of all unique individual files currently in the db.
         """
         file_ids = []
+        file_changes = { 'changed_projects': defaultdict(set) }
 
         if 'files' in self.research_dataset:
-            file_ids.extend(self._get_file_ids_from_file_list(self.research_dataset['files']))
+            file_ids.extend(self._get_file_ids_from_file_list(self.research_dataset['files'], file_changes))
 
         if 'directories' in self.research_dataset:
             file_ids.extend(self._get_file_ids_from_dir_list(self.research_dataset['directories'],
-                ignore_files=file_ids))
+                file_ids, file_changes))
+
+        self._check_changed_files_permissions(file_changes)
 
         # note: possibly might wanto to use set() to remove duplicates instead of using ignore_files=list
         # to ignore already included files in _get_file_ids_from_dir_list()
         return file_ids
 
-    def _get_file_ids_from_file_list(self, file_list):
+    def _get_file_ids_from_file_list(self, file_list, file_changes):
         """
-        Simply retrieve db ids of files in research_dataset.files
+        Simply retrieve db ids of files in research_dataset.files. Update file_changes dict with
+        affected projects for permissions checking.
         """
         if not file_list:
             return []
 
         file_pids = [ f['identifier'] for f in file_list ]
 
-        files = File.objects.filter(identifier__in=file_pids).values('id', 'identifier')
-        file_ids = [ f['id'] for f in files ]
+        files = File.objects.filter(identifier__in=file_pids).values('id', 'identifier', 'project_identifier')
+        file_ids = []
+        for f in files:
+            file_ids.append(f['id'])
+            file_changes['changed_projects']['files_added'].add(f['project_identifier'])
 
         if len(file_ids) != len(file_pids):
             missing_identifiers = [ pid for pid in file_pids if pid not in set(f['identifier'] for f in files)]
@@ -956,12 +987,14 @@ class CatalogRecord(Common):
 
         return file_ids
 
-    def _get_file_ids_from_dir_list(self, dirs_list, ignore_files=[]):
+    def _get_file_ids_from_dir_list(self, dirs_list, ignore_files, file_changes):
         """
         The field research_dataset.directories can contain directories from multiple
         projects. Find the top-most dirs in each project used, and put their files -
         excluding those files already added from the field research_dataset.files - into
         the db relation dataset_files.
+
+        Also update file_changes dict with affected projects for permissions checking.
         """
         if not dirs_list:
             return []
@@ -979,6 +1012,7 @@ class CatalogRecord(Common):
                     project_identifier=project_identifier,
                     file_path__startswith='%s/' % dir_path
                 )
+            file_changes['changed_projects']['files_added'].add(project_identifier)
 
         return files.exclude(id__in=ignore_files).values_list('id', flat=True)
 
@@ -1031,14 +1065,21 @@ class CatalogRecord(Common):
 
     def _files_changed(self):
         file_changes = self._find_file_changes()
-        if False:
-            # can also check presence of added, removed etc and return false immediately
-            pass
+
+        if not file_changes['changed_projects']:
+            return False
+
+        self._check_changed_files_permissions(file_changes)
 
         try:
             with transaction.atomic():
                 # create temporary record to perform the file changes on, to see if there were real file changes.
                 # if no, discard it. if yes, the temp_record will be transformed into the new dataset version record.
+
+                # note: when this code is executed, at this point it should be reasonably certain that associated
+                # files did in fact change, and the following operation is necessary. consider the exception
+                # raising and rollback at the end as an extra safety measure.
+
                 temp_record = CatalogRecord.objects.get(pk=self.id)
                 temp_record.id = None
                 temp_record.next_dataset_version = None
@@ -1059,6 +1100,63 @@ class CatalogRecord(Common):
             # rolled back
             pass
         return False
+
+    def _check_changed_files_permissions(self, file_changes):
+        '''
+        Ensure user belongs to projects of all changed files and dirs.
+
+        Raises 403 on error.
+
+        The user's token (self.request.user.token), when the user has access to some
+        ida projects, is expected to contain a claim that looks like the following:
+
+        "group_names": [
+            "fairdata:IDA01",
+            "fairdata:TAITO01",
+            "fairdata:TAITO01:1234567",
+            "fairdata:IDA01:2001036"
+        ]
+
+        Of these, only the groups that look like the last line are interesting:
+        - Consists of three parts, separated by a ':' character
+        - Middle part (some sort of namespace) is 'IDA01' (it may be interesting
+          to parameterize this part in settings.py in the future)
+        - Third part is the actual project identifier, as it appears in file metadata
+          field 'project_identifier'.
+        '''
+        if not self.request:
+            # when files associated with a dataset have been changed, the user should be
+            # always known, i.e. the http request object is present. if its not, the code
+            # is not being executed as a result of a api request. in that case, only allow
+            # proceeding when the code is executed for testing: the code is being called directly
+            # from a test case, to set up test conditions etc.
+            assert executing_test_case(), 'only permitted when setting up testing conditions'
+            return
+
+        if self.request.user.is_service:
+            # assumed the service knows what it is doing
+            return
+
+        projects_added = file_changes['changed_projects'].get('files_added', set())
+        projects_removed = file_changes['changed_projects'].get('files_removed', set())
+        project_changes = projects_added.union(projects_removed)
+
+        # extract user's project identifiers from token claims
+        user_projects = set()
+        for group in self.request.user.token.get('group_names', []):
+            group_name_parts = group.split(':')
+            if len(group_name_parts) == 3 and group_name_parts[0] == 'fairdata' and group_name_parts[1] == 'IDA01':
+                user_projects.add(group_name_parts[2])
+
+        invalid_project_perms = [ proj for proj in project_changes if proj not in user_projects ]
+
+        if invalid_project_perms:
+            raise Http403({
+                'detail': [
+                    'Unable to add files to dataset. You are lacking project membership in the following projects: %s'
+                    % ', '.join(invalid_project_perms)
+                ]
+            })
 
     def _handle_metadata_versioning(self):
         if not self.research_dataset_versions.exists():

@@ -8,6 +8,8 @@
 from copy import deepcopy
 from datetime import datetime, timedelta
 
+import responses
+from django.conf import settings as django_settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -15,6 +17,11 @@ from rest_framework.test import APITestCase
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import RedisSentinelCache, get_tz_aware_now_without_micros
+from metax_api.tests.utils import get_test_oidc_token
+
+
+VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
+END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -2301,3 +2308,249 @@ class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['metadata_provider_user'], original)
+
+
+class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
+
+    """
+    End User Access -related permission testing.
+    """
+
+    def setUp(self):
+        super().setUp()
+
+        # create catalogs with end user access permitted
+        dc = DataCatalog.objects.get(pk=1)
+        catalog_json = dc.catalog_json
+        for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+            catalog_json['identifier'] = identifier
+            DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+
+        self.token = get_test_oidc_token()
+
+        # by default, use the unmodified token. to use a different/modified token
+        # for various test scenarions, alter self.token, and call the below method again
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        # no reason to test anything related to failed authentication, since failed
+        # authentication stops the request from proceeding anywhere
+        self._mock_token_validation_succeeds()
+
+    def _mock_token_validation_succeeds(self):
+        responses.add(responses.GET, VALIDATE_TOKEN_URL, status=200)
+
+    def _set_cr_owner_to_token_user(self, cr_id):
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.user_created = self.token['sub']
+        cr.editor = None # pretend the record was created by user directly
+        cr.force_save()
+
+    @responses.activate
+    def test_user_can_create_dataset(self):
+        '''
+        Ensure end user can create a new dataset, and required fields are
+        automatically placed and the user is only able to affect allowed
+        fields
+        '''
+        user_created = self.token['sub']
+        metadata_provider_user = self.token['sub']
+        metadata_provider_org = self.token['schacHomeOrganization']
+        metadata_owner_org = self.token['schacHomeOrganization']
+
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0] # ida
+        self.cr_test_data['contract'] = 1
+        self.cr_test_data['editor'] = { 'nope': 'discarded by metax' }
+        self.cr_test_data['preservation_description'] = 'discarded by metax'
+        self.cr_test_data['preservation_reason_description'] = 'discarded by metax'
+        self.cr_test_data['preservation_state'] = 10
+
+        # test file permission checking in another test
+        self.cr_test_data['research_dataset'].pop('files', None)
+        self.cr_test_data['research_dataset'].pop('directories', None)
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+        self.assertEqual(response.data['user_created'], user_created)
+        self.assertEqual(response.data['metadata_provider_user'], metadata_provider_user)
+        self.assertEqual(response.data['metadata_provider_org'], metadata_provider_org)
+        self.assertEqual(response.data['metadata_owner_org'], metadata_owner_org)
+        self.assertEqual('contract' in response.data, False)
+        self.assertEqual('editor' in response.data, False)
+        self.assertEqual('preservation_description' in response.data, False)
+        self.assertEqual('preservation_reason_description' in response.data, False)
+        self.assertEqual(response.data['preservation_state'], 0)
+
+    @responses.activate
+    def test_user_can_create_datasets_only_to_limited_catalogs(self):
+        '''
+        End users should not be able to create datasets for example to harvested
+        data catalogs.
+        '''
+
+        # test file permission checking in another test
+        self.cr_test_data['research_dataset'].pop('files', None)
+        self.cr_test_data['research_dataset'].pop('directories', None)
+
+        # should not work
+        self.cr_test_data['data_catalog'] = 1
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        # check error has expected error description
+        self.assertEqual('selected data catalog' in response.data['detail'][0], True, response.data)
+
+        # should work
+        for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+            self.cr_test_data['data_catalog'] = identifier
+            response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    @responses.activate
+    def test_owner_can_edit_dataset(self):
+        '''
+        Ensure end users are able to edit datasets owned by them.
+        Ensure end users can only edit permitted fields.
+        Note: File project permissions should not be checked, since files are not changed.
+        '''
+
+        # create test record
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0]
+        self.cr_test_data['research_dataset'].pop('files', None) # test file permission checking in another test
+        self.cr_test_data['research_dataset'].pop('directories', None)
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        modified_data = response.data
+        # research_dataset is the only permitted field to edit
+        modified_data['research_dataset']['value'] = 112233
+        modified_data['contract'] = 1
+        modified_data['editor'] = { 'nope': 'discarded by metax' }
+        modified_data['preservation_description'] = 'discarded by metax'
+        modified_data['preservation_reason_description'] = 'discarded by metax'
+        modified_data['preservation_state'] = 10
+
+        response = self.client.put('/rest/datasets/%d' % modified_data['id'], modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['research_dataset']['value'], 112233) # value we set
+        self.assertEqual(response.data['user_modified'], self.token['sub']) # set by metax
+
+        # none of these should have been affected
+        self.assertEqual('contract' in response.data, False)
+        self.assertEqual('editor' in response.data, False)
+        self.assertEqual('preservation_description' in response.data, False)
+        self.assertEqual('preservation_reason_description' in response.data, False)
+        self.assertEqual(response.data['preservation_state'], 0)
+
+    @responses.activate
+    def test_owner_can_edit_dataset_check_perms_from_editor_field(self):
+        '''
+        Ensure end user perms are also checked from the field 'editor', which may be
+        set by .e.g. qvain.
+        '''
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.user_created = 'editor field is checked before this field, so should be ok'
+        cr.editor = { 'owner_id': self.token['sub'] }
+        cr.force_save()
+
+        response = self.client.get('/rest/datasets/1', format="json")
+        modified_data = response.data
+        modified_data['research_dataset']['value'] = 112233
+        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @responses.activate
+    def test_other_users_cant_edit_dataset(self):
+        '''
+        Ensure end users are unable edit datasets not owned by them.
+        '''
+        response = self.client.get('/rest/datasets/1', format="json")
+        modified_data = response.data
+        modified_data['research_dataset']['value'] = 112233
+        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @responses.activate
+    def test_user_can_delete_dataset(self):
+        self._set_cr_owner_to_token_user(1)
+        response = self.client.delete('/rest/datasets/1', format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+    @responses.activate
+    def test_user_file_permissions_are_checked_during_dataset_create(self):
+        '''
+        Ensure user's association with a project is checked during dataset create when
+        attaching files or directories to a dataset.
+        '''
+
+        # try creating without proper permisisons
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0] # ida
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+        # add project membership to user's token and try again
+        file_identifier = self.cr_test_data['research_dataset']['files'][0]['identifier']
+        project_identifier = File.objects.get(identifier=file_identifier).project_identifier
+        self.token['group_names'].append('fairdata:IDA01:%s' % project_identifier)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+    @responses.activate
+    def test_user_file_permissions_are_checked_during_dataset_update(self):
+        '''
+        Ensure user's association with a project is checked during dataset update when
+        attaching files or directories to a dataset. The permissions should be checked
+        only for changed files (newly added, or removed).
+        '''
+        # get some files to add to another dataset
+        response = self.client.get('/rest/datasets/2', format="json")
+        new_files = response.data['research_dataset']['files']
+
+        # this is the dataset we'll modify
+        self._set_cr_owner_to_token_user(1)
+        response = self.client.get('/rest/datasets/1', format="json")
+        # ensure the files really are new
+        for f in new_files:
+            for existing_f in response.data['research_dataset']['files']:
+                assert f['identifier'] != existing_f['identifier'], 'test preparation failure, files should differ'
+        modified_data = response.data
+        modified_data['research_dataset']['files'].extend(new_files)
+
+        # should fail, since user's token has no permission for the newly added files
+        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+        # add project membership to user's token and try again
+        project_identifier = File.objects.get(identifier=new_files[0]['identifier']).project_identifier
+        self.token['group_names'].append('fairdata:IDA01:%s' % project_identifier)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    @responses.activate
+    def test_owner_receives_unfiltered_dataset_data(self):
+        '''
+        The general public will have some fields filtered out from the dataset,
+        in order to protect sensitive data. The owner of a dataset however should
+        always receive full data.
+        '''
+        self._set_cr_owner_to_token_user(1)
+
+        def _check_fields(obj):
+            for sensitive_field in ['email', 'telephone', 'phone']:
+                self.assertEqual(sensitive_field in obj['research_dataset']['curator'][0], True,
+                    'field %s should be present' % sensitive_field)
+
+        for cr in CatalogRecord.objects.filter(pk=1):
+            cr.research_dataset['curator'][0].update({
+                'email': 'email@mail.com',
+                'phone': '123124',
+                'telephone': '123124',
+            })
+            cr.force_save()
+
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        _check_fields(response.data)

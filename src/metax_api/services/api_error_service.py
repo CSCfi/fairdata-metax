@@ -13,7 +13,7 @@ import traceback
 
 from django.conf import settings
 
-from metax_api.utils import get_tz_aware_now_without_micros
+from metax_api.utils import get_tz_aware_now_without_micros, executing_test_case
 
 _logger = logging.getLogger(__name__)
 
@@ -118,3 +118,5 @@ class ApiErrorService():
             _logger.exception('Failed to save error info...')
         else:
             response.data['error_identifier'] = error_info['identifier']
+            if response.status_code == 500 and executing_test_case():
+                response.data['traceback'] = traceback.format_exc()

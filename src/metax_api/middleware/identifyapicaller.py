@@ -176,6 +176,7 @@ class _IdentifyApiCaller():
 
         request.user.username = token['sub']
         request.user.is_service = False
+        request.user.token = token
 
     def _extract_id_token(self, id_token_string):
         """

@@ -33,10 +33,13 @@ class Common(models.Model):
     user_created = models.CharField(max_length=200, null=True)
     service_modified = models.CharField(max_length=200, null=True,
         help_text='Name of the service who last modified the record')
-    service_created = models.CharField(max_length=200,
+    service_created = models.CharField(max_length=200, null=True,
         help_text='Name of the service who created the record')
 
     # END OF MODEL FIELD DEFINITIONS #
+
+    # may contain a http request object, used for permission checking etc when relevant.
+    request = None
 
     # all queries made using the default 'objects' table are filtered with active=True and removed=False
     objects = CommonManager()
@@ -52,9 +55,14 @@ class Common(models.Model):
         abstract = True
 
     def __init__(self, *args, **kwargs):
+        if '__request' in kwargs:
+            self.request = kwargs.pop('__request')
+
         super(Common, self).__init__(*args, **kwargs)
+
         self._initial_data = {}
         self._tracked_fields = []
+
         self.track_fields(
             'date_created',
             'user_created',

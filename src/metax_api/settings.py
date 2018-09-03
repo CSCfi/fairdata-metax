@@ -73,7 +73,7 @@ if executing_in_test_case or executing_in_travis:
         "apierrors":    { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
         "contracts":    { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
         "datacatalogs": { "read":  ["all"], "write": ["testuser", "metax"] },
-        "datasets":     { "read":  ["all"], "write": ["testuser", "metax", "api_auth_user"] },
+        "datasets":     { "read":  ["all"], "write": ["testuser", "metax", "api_auth_user", "endusers"] },
         "directories":  { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
         "files":        { "read":  ["testuser", "metax", "api_auth_user"], "write": ["testuser", "metax"] },
         "filestorages": { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
@@ -98,6 +98,18 @@ if executing_in_travis:
 else:
     # Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
     ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
+
+if executing_in_test_case:
+    END_USER_ALLOWED_DATA_CATALOGS = [
+        "urn:nbn:fi:att:data-catalog-ida",
+        "urn:nbn:fi:att:data-catalog-att",
+    ]
+else:
+    # allow end users to create catalogrecords only to the following data catalogs
+    END_USER_ALLOWED_DATA_CATALOGS = [
+        app_config_dict['IDA_DATACATALOG_IDENTIFIER'],
+        app_config_dict['ATT_DATACATALOG_IDENTIFIER'],
+    ]
 
 # endpoint in localhost where bearer tokens should be sent for validation
 VALIDATE_TOKEN_URL = 'https://127.0.0.1/secure/validate_token'
