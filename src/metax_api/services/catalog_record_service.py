@@ -12,12 +12,10 @@ from os.path import dirname, join
 import simplexquery as sxq
 from dicttoxml import dicttoxml
 from django.db.models import Q
-from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
-from metax_api.utils import RabbitMQ
 from .common_service import CommonService
 from .datacite_service import DataciteService
 from .file_service import FileService
@@ -177,58 +175,6 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             for dr in rd['directories']:
                 FileService.retrieve_directory_byte_sizes_and_file_counts_for_cr(dr['details'],
                     catalog_record['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
-
-    @classmethod
-    def publish_updated_datasets(cls, response):
-        """
-        Publish updated datasets to RabbitMQ.
-
-        If the update operation resulted in a new dataset version being created,
-        publish those new versions as well.
-        """
-        if response.status_code != status.HTTP_200_OK:
-            return
-
-        new_versions = []
-
-        if 'success' in response.data:
-            # bulk update
-            updated_request_data = [ r['object'] for r in response.data['success'] ]
-            for cr in updated_request_data:
-                if cls._new_version_created(cr):
-                    new_versions.append(cls._extract_new_version_data(cr))
-        else:
-            # single update
-            updated_request_data = response.data
-            if cls._new_version_created(updated_request_data):
-                new_versions.append(cls._extract_new_version_data(updated_request_data))
-
-        count = len(updated_request_data) if isinstance(updated_request_data, list) else 1
-        _logger.info('Publishing updated datasets (%d items)' % count)
-
-        try:
-            rabbitmq = RabbitMQ()
-            rabbitmq.publish(updated_request_data, routing_key='update', exchange='datasets')
-
-            if new_versions:
-                _logger.info('Publishing new versions (%d items)' % len(new_versions))
-                rabbitmq.publish(new_versions, routing_key='create', exchange='datasets')
-        except Exception as e:
-            _logger.exception('Publishing rabbitmq messages failed')
-            raise Http503({ 'detail': [
-                'failed to publish updates to rabbitmq, all updates are aborted. details: %s' % str(e)
-            ]})
-        _logger.info('RabbitMQ dataset messages published')
-
-    @staticmethod
-    def _new_version_created(cr):
-        return '__actions' in cr and 'publish_new_version' in cr['__actions']
-
-    @staticmethod
-    def _extract_new_version_data(cr):
-        data = cr['__actions']['publish_new_version']['dataset']
-        cr.pop('__actions')
-        return data
 
     @classmethod
     def transform_datasets_to_format(cls, catalog_records, target_format, include_xml_declaration=True):
