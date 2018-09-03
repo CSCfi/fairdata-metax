@@ -5753,6 +5753,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -5858,6 +5863,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -5963,6 +5973,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -6068,6 +6083,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -6173,6 +6193,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -6278,6 +6303,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -6383,6 +6413,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -6488,6 +6523,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -6590,6 +6630,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -6690,6 +6735,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -6835,9 +6885,11 @@
                 "contributor": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                            }
+                        ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
                         "member_of": {
@@ -6859,9 +6911,11 @@
                     },
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "project_administration"
-                        },
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                            }
+                        ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
                         "member_of": {
@@ -6885,9 +6939,11 @@
                 "creator": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "data_curation"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -6902,6 +6958,14 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            },
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Sponsor"
+                            }
+                        ],
                         "identifier": "id:of:curator:default",
                         "is_part_of": {
                             "@type": "Organization",
@@ -6996,6 +7060,11 @@
                         "has_funding_agency": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                    }
+                                ],
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
                                 "name": {
@@ -7014,6 +7083,11 @@
                         "source_organization": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -7046,6 +7120,11 @@
                         "notation": "doi:10.12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -7072,6 +7151,11 @@
                         "notation": "urn:nbn:fi-12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -7109,6 +7193,10 @@
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
+                        },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -7180,6 +7268,11 @@
                         "was_associated_with": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -7198,6 +7291,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -7221,6 +7318,11 @@
                 ],
                 "publisher": {
                     "@type": "Organization",
+                    "contributor_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                        }
+                    ],
                     "email": "info@csc.fi",
                     "homepage": {
                         "identifier": "http://www.publisher.fi/",
@@ -7334,6 +7436,11 @@
                 "rights_holder": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                            }
+                        ],
                         "email": "info@csc.fi",
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                         "is_part_of": {
@@ -7500,9 +7607,11 @@
                 "contributor": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                            }
+                        ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
                         "member_of": {
@@ -7524,9 +7633,11 @@
                     },
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "project_administration"
-                        },
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                            }
+                        ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
                         "member_of": {
@@ -7550,9 +7661,11 @@
                 "creator": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "data_curation"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -7567,6 +7680,14 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            },
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Sponsor"
+                            }
+                        ],
                         "identifier": "id:of:curator:default",
                         "is_part_of": {
                             "@type": "Organization",
@@ -7661,6 +7782,11 @@
                         "has_funding_agency": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                    }
+                                ],
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
                                 "name": {
@@ -7679,6 +7805,11 @@
                         "source_organization": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -7711,6 +7842,11 @@
                         "notation": "doi:10.12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -7737,6 +7873,11 @@
                         "notation": "urn:nbn:fi-12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -7774,6 +7915,10 @@
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
+                        },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -7845,6 +7990,11 @@
                         "was_associated_with": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -7863,6 +8013,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -7886,6 +8040,11 @@
                 ],
                 "publisher": {
                     "@type": "Organization",
+                    "contributor_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                        }
+                    ],
                     "email": "info@csc.fi",
                     "homepage": {
                         "identifier": "http://www.publisher.fi/",
@@ -7999,6 +8158,11 @@
                 "rights_holder": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                            }
+                        ],
                         "email": "info@csc.fi",
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                         "is_part_of": {
@@ -8233,9 +8397,11 @@
                 "contributor": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                            }
+                        ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
                         "member_of": {
@@ -8257,9 +8423,11 @@
                     },
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "project_administration"
-                        },
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                            }
+                        ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
                         "member_of": {
@@ -8283,9 +8451,11 @@
                 "creator": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "data_curation"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -8300,6 +8470,14 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            },
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Sponsor"
+                            }
+                        ],
                         "identifier": "id:of:curator:default",
                         "is_part_of": {
                             "@type": "Organization",
@@ -8418,6 +8596,11 @@
                         "has_funding_agency": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                    }
+                                ],
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
                                 "name": {
@@ -8436,6 +8619,11 @@
                         "source_organization": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -8468,6 +8656,11 @@
                         "notation": "doi:10.12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -8494,6 +8687,11 @@
                         "notation": "urn:nbn:fi-12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -8531,6 +8729,10 @@
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
+                        },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -8602,6 +8804,11 @@
                         "was_associated_with": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -8620,6 +8827,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -8643,6 +8854,11 @@
                 ],
                 "publisher": {
                     "@type": "Organization",
+                    "contributor_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                        }
+                    ],
                     "email": "info@csc.fi",
                     "homepage": {
                         "identifier": "http://www.publisher.fi/",
@@ -8756,6 +8972,11 @@
                 "rights_holder": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                            }
+                        ],
                         "email": "info@csc.fi",
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                         "is_part_of": {
@@ -8865,6 +9086,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -8877,6 +9103,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                            }
+                        ],
                         "identifier": "10076-E700",
                         "name": {
                             "en": "Org in ref data",
@@ -8960,6 +9191,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -8972,6 +9208,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                            }
+                        ],
                         "identifier": "10076-E700",
                         "name": {
                             "en": "Org in ref data",
@@ -9055,6 +9296,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -9067,6 +9313,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                            }
+                        ],
                         "identifier": "10076-E700",
                         "name": {
                             "en": "Org in ref data",
@@ -9150,6 +9401,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -9162,6 +9418,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                            }
+                        ],
                         "identifier": "10076-E700",
                         "name": {
                             "en": "Org in ref data",
@@ -9245,6 +9506,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -9257,6 +9523,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                            }
+                        ],
                         "identifier": "10076-E700",
                         "name": {
                             "en": "Org in ref data",
@@ -9340,6 +9611,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -9352,6 +9628,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                            }
+                        ],
                         "identifier": "10076-E700",
                         "name": {
                             "en": "Org in ref data",
@@ -9435,6 +9716,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -9533,6 +9819,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -9631,6 +9922,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -9729,6 +10025,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -9859,9 +10160,11 @@
                 "contributor": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                            }
+                        ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
                         "member_of": {
@@ -9883,9 +10186,11 @@
                     },
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "project_administration"
-                        },
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                            }
+                        ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
                         "member_of": {
@@ -9909,9 +10214,11 @@
                 "creator": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "data_curation"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -9926,6 +10233,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            }
+                        ],
                         "identifier": "id:of:curator:default",
                         "is_part_of": {
                             "@type": "Organization",
@@ -9970,6 +10282,11 @@
                         "has_funding_agency": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                    }
+                                ],
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
                                 "name": {
@@ -9988,6 +10305,11 @@
                         "source_organization": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -10020,6 +10342,11 @@
                         "notation": "doi:10.12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -10046,6 +10373,11 @@
                         "notation": "urn:nbn:fi-12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -10083,6 +10415,10 @@
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
+                        },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -10154,6 +10490,11 @@
                         "was_associated_with": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -10172,6 +10513,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -10195,6 +10540,11 @@
                 ],
                 "publisher": {
                     "@type": "Organization",
+                    "contributor_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                        }
+                    ],
                     "email": "info@csc.fi",
                     "homepage": {
                         "identifier": "http://www.publisher.fi/",
@@ -10402,6 +10752,11 @@
                 "rights_holder": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                            }
+                        ],
                         "email": "info@csc.fi",
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                         "is_part_of": {
@@ -10533,9 +10888,11 @@
                 "contributor": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                            }
+                        ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
                         "member_of": {
@@ -10557,9 +10914,11 @@
                     },
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "project_administration"
-                        },
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                            }
+                        ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
                         "member_of": {
@@ -10583,9 +10942,11 @@
                 "creator": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "data_curation"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -10600,6 +10961,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            }
+                        ],
                         "identifier": "id:of:curator:default",
                         "is_part_of": {
                             "@type": "Organization",
@@ -10644,6 +11010,11 @@
                         "has_funding_agency": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                    }
+                                ],
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
                                 "name": {
@@ -10662,6 +11033,11 @@
                         "source_organization": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -10694,6 +11070,11 @@
                         "notation": "doi:10.12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -10720,6 +11101,11 @@
                         "notation": "urn:nbn:fi-12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -10757,6 +11143,10 @@
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
+                        },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -10828,6 +11218,11 @@
                         "was_associated_with": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -10846,6 +11241,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -10869,6 +11268,11 @@
                 ],
                 "publisher": {
                     "@type": "Organization",
+                    "contributor_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                        }
+                    ],
                     "email": "info@csc.fi",
                     "homepage": {
                         "identifier": "http://www.publisher.fi/",
@@ -11076,6 +11480,11 @@
                 "rights_holder": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                            }
+                        ],
                         "email": "info@csc.fi",
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                         "is_part_of": {
@@ -11207,9 +11616,11 @@
                 "contributor": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                            }
+                        ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid",
                         "member_of": {
@@ -11231,9 +11642,11 @@
                     },
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "project_administration"
-                        },
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                            }
+                        ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
                         "identifier": "contributorid2",
                         "member_of": {
@@ -11257,9 +11670,11 @@
                 "creator": [
                     {
                         "@type": "Person",
-                        "contributor_role": {
-                            "identifier": "data_curation"
-                        },
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -11274,6 +11689,11 @@
                 "curator": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            }
+                        ],
                         "identifier": "id:of:curator:default",
                         "is_part_of": {
                             "@type": "Organization",
@@ -11318,6 +11738,11 @@
                         "has_funding_agency": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                    }
+                                ],
                                 "email": "rahoitus@rahaorg.fi",
                                 "identifier": "fundingagencyidentifier",
                                 "name": {
@@ -11336,6 +11761,11 @@
                         "source_organization": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -11368,6 +11798,11 @@
                         "notation": "doi:10.12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -11394,6 +11829,11 @@
                         "notation": "urn:nbn:fi-12345",
                         "provider": {
                             "@type": "Organization",
+                            "contributor_type": [
+                                {
+                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                }
+                            ],
                             "email": "info@csc.fi",
                             "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                             "name": {
@@ -11431,6 +11871,10 @@
                             },
                             "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
+                        },
+                        "outcome_description": {
+                            "en": "A grand success",
+                            "fi": "Onnistui hyvin"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -11502,6 +11946,11 @@
                         "was_associated_with": [
                             {
                                 "@type": "Organization",
+                                "contributor_type": [
+                                    {
+                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                    }
+                                ],
                                 "email": "info@csc.fi",
                                 "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                                 "name": {
@@ -11520,6 +11969,10 @@
                         },
                         "event_outcome": {
                             "identifier": "Failure"
+                        },
+                        "outcome_description": {
+                            "en": "A grand failure",
+                            "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
                             "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
@@ -11543,6 +11996,11 @@
                 ],
                 "publisher": {
                     "@type": "Organization",
+                    "contributor_type": [
+                        {
+                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                        }
+                    ],
                     "email": "info@csc.fi",
                     "homepage": {
                         "identifier": "http://www.publisher.fi/",
@@ -11750,6 +12208,11 @@
                 "rights_holder": [
                     {
                         "@type": "Organization",
+                        "contributor_type": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                            }
+                        ],
                         "email": "info@csc.fi",
                         "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
                         "is_part_of": {
@@ -11860,6 +12323,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {
@@ -11953,6 +12421,11 @@
                 "creator": [
                     {
                         "@type": "Person",
+                        "contributor_role": [
+                            {
+                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                            }
+                        ],
                         "member_of": {
                             "@type": "Organization",
                             "name": {

@@ -74,11 +74,13 @@ class DataCatalogService(ReferenceDataMixin):
             if 'has_rights_related_agent' in access_rights:
                 for agent in access_rights.get('has_rights_related_agent', []):
                     cls.process_org_obj_against_ref_data(orgdata['organization'], agent,
-                                                         'data_catalog_json.access_rights.has_rights_related_agent')
+                                                         'data_catalog_json.access_rights.has_rights_related_agent',
+                                                         errors=errors)
 
         publisher = data_catalog.get('publisher', None)
         if publisher:
-            cls.process_org_obj_against_ref_data(orgdata['organization'], publisher, 'data_catalog_json.publisher')
+            cls.process_org_obj_against_ref_data(orgdata['organization'], publisher, 'data_catalog_json.publisher',
+                                                 errors=errors)
 
         if errors:
             raise ValidationError(errors)

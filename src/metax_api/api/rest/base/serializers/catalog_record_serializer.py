@@ -100,6 +100,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('next_dataset_version', None)
         self.initial_data.pop('previous_dataset_version', None)
         self.initial_data.pop('removed', None)
+        self.initial_data.pop('deprecated', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
@@ -134,8 +135,8 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._migration_override_requested():
 
             # any custom stuff before create that my be necessary for migration purposes
-
-            if 'preferred_identifier' in validated_data['research_dataset']:
+            pid = ''
+            if validated_data['research_dataset'].get('preferred_identifier', False):
                 # store pid, since it will be overwritten during create otherwise
                 pid = validated_data['research_dataset']['preferred_identifier']
 
@@ -145,7 +146,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
             # any custom stuff after create that my be necessary for migration purposes
 
-            if 'preferred_identifier' in validated_data['research_dataset']:
+            if pid:
                 # save original pid provided by the requestor
                 res.research_dataset['preferred_identifier'] = pid
 

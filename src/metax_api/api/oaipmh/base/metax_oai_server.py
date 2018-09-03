@@ -11,8 +11,7 @@ from django.utils import timezone
 from django.conf import settings
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
-from oaipmh.error import IdDoesNotExistError
-from oaipmh.error import BadArgumentError
+from oaipmh.error import IdDoesNotExistError, BadArgumentError, NoRecordsMatchError
 
 from metax_api.models.catalog_record import CatalogRecord, DataCatalog
 from metax_api.services import CatalogRecordService as CRS
@@ -43,7 +42,14 @@ class MetaxOAIServer(ResumptionOAIPMH):
         if set == 'datacatalogs':
             proxy = DataCatalog
 
-        query_set = proxy.objects.all()
+        if set == 'urnresolver':
+            # Use unfiltered objects for fetching catalog records for urn resolver, since otherwise deleted objects
+            # won't appear in the result. Get only active objects.
+            query_set = proxy.objects_unfiltered.filter(active=True)
+        else:
+            # For NON urn resolver, only get non-deleted active objects
+            query_set = proxy.objects.all()
+
         if from_ and until:
             query_set = proxy.objects.filter(date_modified__gte=from_, date_modified__lte=until)
         elif from_:
@@ -74,29 +80,33 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def _get_oai_dc_urnresolver_metadata(self, record):
         """
-        Preferred identifier is added only for ida and att catalog records
-        other identifiers are added for all.
-
-        Special handling for SYKE catalog.
+        Preferred identifier should be a csc or att urn and is added only for non-harvested catalog records.
+        Other identifiers are checked for all catalog records and identifier is added if it is a kata-identifier.
+        Special handling for SYKE catalog's catalog records.
         """
 
         identifiers = []
-
         data_catalog = record.data_catalog.catalog_json.get('identifier')
+
         if data_catalog == 'urn:nbn:fi:att:data-catalog-harvest-syke':
             identifiers = self._handle_syke_urnresolver_metadata(record)
-
         else:
             identifiers.append(settings.OAI['ETSIN_URL_TEMPLATE'] % record.identifier)
 
-            # assuming ida and att catalogs are not harvested
             if not record.catalog_is_harvested():
                 preferred_identifier = record.research_dataset.get('preferred_identifier')
-                identifiers.append(preferred_identifier)
+                if preferred_identifier.startswith('urn:nbn:fi:att:') or \
+                        preferred_identifier.startswith('urn:nbn:fi:csc'):
+                    identifiers.append(preferred_identifier)
+
             for id_obj in record.research_dataset.get('other_identifier', []):
                 if id_obj.get('notation', '').startswith('urn:nbn:fi:csc-kata'):
                     other_urn = id_obj['notation']
                     identifiers.append(other_urn)
+
+        # If there is only one identifier it probably means there is no identifier that should be resolved
+        if len(identifiers) < 2:
+            return None
 
         meta = {
             'identifier':  identifiers
@@ -233,6 +243,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
             # This is a special case. Only identifier values are retrieved from the record,
             # so strip_catalog_record is not applicable here.
             meta = self._get_oai_dc_urnresolver_metadata(record)
+            # If record did not have any identifiers to be resolved, return None
+            if meta is None:
+                return None
         return self._fix_metadata(meta)
 
     def _get_header_timestamp(self, record):
@@ -245,6 +258,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def _get_oai_item(self, identifier, record, metadata_prefix):
         metadata = self._get_metadata_for_record(record, record.research_dataset, 'Dataset', metadata_prefix)
+        if metadata is None:
+            return None
+
         item = (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
                 common.Metadata('', metadata), None)
         return item
@@ -334,7 +350,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
             if set == 'datacatalogs':
                 data.append(self._get_oai_catalog_item(identifier, record, metadataPrefix))
             else:
-                data.append(self._get_oai_item(identifier, record, metadataPrefix))
+                oai_item = self._get_oai_item(identifier, record, metadataPrefix)
+                if oai_item is not None:
+                    data.append(oai_item)
         return data
 
     def getRecord(self, metadataPrefix, identifier):
@@ -352,5 +370,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 raise IdDoesNotExistError("No record with id %s available." % identifier)
 
         metadata = self._get_metadata_for_record(record,  json, type, metadataPrefix)
+        if metadata is None:
+            raise NoRecordsMatchError
+
         return (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
                 common.Metadata('', metadata), None)

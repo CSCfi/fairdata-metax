@@ -317,6 +317,22 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], custom_pid)
 
+    def test_parameter_migration_override_no_preferred_identifier_when_creating(self):
+        """
+        Normally, when saving to att/ida catalogs, providing a custom preferred_identifier is not
+        permitted. Using the optional query parameter ?migration_override=bool a custom preferred_identifier
+        can be passed.
+        """
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
+
+        self.cr_test_data['research_dataset'].pop('preferred_identifier', None)
+        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
+
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
     """
@@ -668,15 +684,25 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 1)
         self.assertEqual(len(response.data['failed']), 1)
 
-    def test_catalog_record_deprecated_from_true_to_false_not_allowed(self):
-        # Test catalog record's deprecated field cannot be changed from true to false value
-        response = self.client.patch('/rest/datasets/1', { 'deprecated': True }, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['deprecated'], True)
+    def test_catalog_record_deprecated_cannot_be_set(self):
+        # Test catalog record's deprecated field cannot be set with POST, PUT or PATCH
 
-        response = self.client.patch('/rest/datasets/1', { 'deprecated': False }, format="json")
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST,
-            "Changing deprecated from true to false should result in 400 bad request")
+        initial_deprecated = True
+        self.cr_test_data['deprecated'] = initial_deprecated
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.data['deprecated'], False)
+
+        response_json = self.client.get('/rest/datasets/1').data
+        initial_deprecated = response_json['deprecated']
+        response_json['deprecated'] = not initial_deprecated
+        response = self.client.put('/rest/datasets/1', response_json, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['deprecated'], initial_deprecated)
+
+        initial_deprecated = self.client.get('/rest/datasets/1').data['deprecated']
+        response = self.client.patch('/rest/datasets/1', { 'deprecated': not initial_deprecated }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['deprecated'], initial_deprecated)
 
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
@@ -903,7 +929,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['files'][0]['file_type']['identifier'] = 'nonexisting'
         rd_ida['files'][0]['use_category']['identifier'] = 'nonexisting'
         rd_ida['infrastructure'][0]['identifier'] = 'nonexisting'
-        rd_ida['creator'][0]['contributor_role']['identifier'] = 'nonexisting'
+        rd_ida['creator'][0]['contributor_role'][0]['identifier'] = 'nonexisting'
+        rd_ida['curator'][0]['contributor_type'][0]['identifier'] = 'nonexisting'
         rd_ida['is_output_of'][0]['funder_type']['identifier'] = 'nonexisting'
         rd_ida['directories'][0]['use_category']['identifier'] = 'nonexisting'
         rd_ida['relation'][0]['relation_type']['identifier'] = 'nonexisting'
@@ -914,7 +941,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 18)
+        self.assertEqual(len(response.data['research_dataset']), 19)
 
         rd_att = self.cr_full_att_test_data['research_dataset']
         rd_att['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
@@ -993,6 +1020,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
             'use_category',
             'research_infra',
             'contributor_role',
+            'contributor_type',
             'funder_type',
             'relation_type',
             'lifecycle_event',
@@ -1037,7 +1065,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['files'][0]['use_category'] = {'identifier': refs['use_category']['code']}
         rd_ida['directories'][0]['use_category'] = {'identifier': refs['use_category']['code']}
         rd_ida['infrastructure'][0] = {'identifier': refs['research_infra']['code']}
-        rd_ida['creator'][0]['contributor_role'] = {'identifier': refs['contributor_role']['code']}
+        rd_ida['creator'][0]['contributor_role'][0] = {'identifier': refs['contributor_role']['code']}
+        rd_ida['curator'][0]['contributor_type'][0] = {'identifier': refs['contributor_type']['code']}
         rd_ida['is_output_of'][0]['funder_type'] = {'identifier': refs['funder_type']['code']}
         rd_ida['relation'][0]['relation_type'] = {'identifier': refs['relation_type']['code']}
         rd_ida['relation'][0]['entity']['type'] = {'identifier': refs['resource_type']['code']}
@@ -1124,7 +1153,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['organization']['uri'], new_rd['publisher']['is_part_of']['identifier'])
         self.assertEqual(refs['organization']['uri'], new_rd['rights_holder'][0]['is_part_of']['identifier'])
         self.assertEqual(refs['research_infra']['uri'], new_rd['infrastructure'][0]['identifier'])
-        self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role']['identifier'])
+        self.assertEqual(refs['contributor_role']['uri'], new_rd['creator'][0]['contributor_role'][0]['identifier'])
+        self.assertEqual(refs['contributor_type']['uri'], new_rd['curator'][0]['contributor_type'][0]['identifier'])
         self.assertEqual(refs['funder_type']['uri'], new_rd['is_output_of'][0]['funder_type']['identifier'])
         self.assertEqual(refs['relation_type']['uri'], new_rd['relation'][0]['relation_type']['identifier'])
         self.assertEqual(refs['resource_type']['uri'], new_rd['relation'][0]['entity']['type']['identifier'])
@@ -1148,6 +1178,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['use_category']['scheme'], new_rd['directories'][0]['use_category']['in_scheme'])
         self.assertEqual(refs['research_infra']['scheme'], new_rd['infrastructure'][0]['in_scheme'])
         self.assertEqual(refs['contributor_role']['scheme'], new_rd['creator'][0]['contributor_role']['in_scheme'])
+        self.assertEqual(refs['contributor_type']['scheme'], new_rd['curator'][0]['contributor_type']['in_scheme'])
         self.assertEqual(refs['funder_type']['scheme'], new_rd['is_output_of'][0]['funder_type']['in_scheme'])
         self.assertEqual(refs['relation_type']['scheme'], new_rd['relation'][0]['relation_type']['in_scheme'])
         self.assertEqual(refs['resource_type']['scheme'], new_rd['relation'][0]['entity']['type']['in_scheme'])
@@ -1172,7 +1203,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
 
         self.assertEqual(refs['research_infra']['label'], new_rd['infrastructure'][0].get('pref_label', None))
         self.assertEqual(refs['contributor_role']['label'],
-                         new_rd['creator'][0]['contributor_role'].get('pref_label', None))
+                         new_rd['creator'][0]['contributor_role'][0].get('pref_label', None))
+        self.assertEqual(refs['contributor_type']['label'],
+                         new_rd['curator'][0]['contributor_type'][0].get('pref_label', None))
         self.assertEqual(refs['funder_type']['label'], new_rd['is_output_of'][0]['funder_type'].get('pref_label', None))
         self.assertEqual(refs['relation_type']['label'], new_rd['relation'][0]['relation_type'].get('pref_label', None))
         self.assertEqual(refs['resource_type']['label'],
