@@ -271,6 +271,15 @@
                     "@id":"http://spdx.org/rdf/terms#algorithm",
                     "title":"Algorithm",
                     "description":"Used checksum algortihm",
+                    "enum":[
+                        "MD5",
+                        "SHA-1",
+                        "SHA-224",
+                        "SHA-256",
+                        "SHA-384",
+                        "SHA-512",
+                        "OTHER"
+                    ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
                 },
