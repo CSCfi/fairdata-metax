@@ -38,25 +38,6 @@ class DatasetViewSet(CommonViewSet):
         # It is done in the serializer
         super(DatasetViewSet, self).__init__(*args, **kwargs)
 
-    def dispatch(self, request, **kwargs):
-        """
-        In all responses, strip fields from dataset objects that are not meant for the general public
-        """
-        res = super().dispatch(request, **kwargs)
-        if not request.user.username:
-            if isinstance(res.data, dict):
-                if 'results' in res.data:
-                    # list with paging
-                    res.data['results'] = CRS.strip_catalog_record(res.data['results'])
-                else:
-                    # single std get
-                    res.data = CRS.strip_catalog_record(res.data)
-            elif isinstance(res.data, list):
-                # list with paging disabled
-                for i, item in enumerate(res.data):
-                    res.data[i] = CRS.strip_catalog_record(item)
-        return res
-
     def get_object(self):
         try:
             return super(DatasetViewSet, self).get_object()
@@ -128,6 +109,15 @@ class DatasetViewSet(CommonViewSet):
             research_dataset = cr.research_dataset_versions.get(**search_params).research_dataset
         except:
             raise Http404
+
+        if not request.user.is_service and request.user.username != cr.user_created:
+            # normally when retrieving a record and its research_dataset field,
+            # the request goes through the CatalogRecordSerializer, where sensitive
+            # fields are automatically stripped. this is a case where its not
+            # possible to use the serializer, since an older metadata version of a ds
+            # is not stored as part of the cr, but in the table ResearchDatasetVersion.
+            # therefore, perform this checking and stripping separately here.
+            research_dataset = CRS.strip_catalog_record(research_dataset)
 
         return Response(data=research_dataset, status=status.HTTP_200_OK)
 
@@ -213,6 +203,7 @@ class DatasetViewSet(CommonViewSet):
             obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
                 .order_by('data_catalog_id', 'date_created').first()
             if obj:
+                self.check_object_permissions(self.request, obj)
                 return obj
             raise Http404
 

@@ -5,4 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from .permissions import EndUserPermissions, ServicePermissions
+from django.conf.urls import url
+from metax_api.views.secure import secure_view
+
+
+view_urlpatterns = [
+    url(r'^secure/login?', secure_view.SecureLoginView.as_view()),
+]

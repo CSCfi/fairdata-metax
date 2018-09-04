@@ -9,9 +9,10 @@ from django.db.models import Sum
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
+import responses
 
 from metax_api.models import CatalogRecord, Directory
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
 
 class DirectoryApiReadCommon(APITestCase, TestClassUtils):
@@ -419,3 +420,70 @@ class DirectoryApiReadCatalogRecordFileBrowsingRetrieveSpecificFieldsTests(Direc
         self.assertEqual('identifier' in response.data['research_dataset']['files'][0]['details'], True)
         self.assertEqual(len(response.data['research_dataset']['directories'][0]['details'].keys()), 1)
         self.assertEqual('id' in response.data['research_dataset']['directories'][0]['details'], True)
+
+
+class DirectoryApiReadEndUserAccess(DirectoryApiReadCommon):
+
+    '''
+    Test End User Access permissions when browsing files using /rest/directories api.
+
+    Note: In these tests, the token by default does not have correct project groups.
+    Token project groups are only made valid by calling _update_token_with_project_of_directory().
+    '''
+
+    def setUp(self):
+        super().setUp()
+        self.token = get_test_oidc_token()
+        self._mock_token_validation_succeeds()
+
+    def _update_token_with_project_of_directory(self, dir_id):
+        proj = Directory.objects.get(pk=dir_id).project_identifier
+        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+    @responses.activate
+    def test_user_can_browse_files_from_their_projects(self):
+        '''
+        Ensure users can only read files from /rest/directories owned by them.
+        '''
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        # first read files without project access - should fail
+        response = self.client.get('/rest/directories/1')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.get('/rest/directories/1/files')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+        # set user to same project as previous files and try again. should now succeed
+        self._update_token_with_project_of_directory(1)
+
+        response = self.client.get('/rest/directories/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/rest/directories/1/files')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @responses.activate
+    def test_browsing_by_project_and_file_path_is_protected(self):
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        dr = Directory.objects.get(pk=2)
+        response = self.client.get('/rest/directories/files?path=%s&project=%s' %
+            (dr.directory_path, dr.project_identifier))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self._update_token_with_project_of_directory(2)
+
+        response = self.client.get('/rest/directories/files?path=%s&project=%s' %
+            (dr.directory_path, dr.project_identifier))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @responses.activate
+    def test_browsing_in_cr_context_does_not_check_permissions(self):
+        '''
+        Browsing files in a cr context should not check project membership, since
+        those files are then already public.
+        '''
+        self._use_http_authorization(method='bearer', token=self.token)
+        response = self.client.get('/rest/directories/3/files?cr_identifier=%s'
+            % CatalogRecord.objects.get(pk=1).identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

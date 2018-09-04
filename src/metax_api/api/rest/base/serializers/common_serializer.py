@@ -48,6 +48,18 @@ class CommonSerializer(ModelSerializer):
         }
 
     def __init__(self, *args, **kwargs):
+        if self._operation_is_update() and 'request' in kwargs and not kwargs['request'].user.is_service:
+            # its better to consider requests by end users as partial (= all update
+            # requests are considere as PATCH requests), since they may not be
+            # permitted to modify some fields. it is very handy
+            # to be able to just discard non-permitted fields, instead of observing
+            # whether some field value is being changed or not.
+            #
+            # downside: end users may try to intentionally change some field they are actually
+            # not able to change, but then dont get any kind of error message about failing
+            # to do so. solution: read the docs and be aware of it.
+            kwargs['partial'] = True
+
         """
         For most usual GET requests, the fields to retrieve for an object can be
         specified via the query param ?fields=x,y,z. Retrieve those fields from the
@@ -68,7 +80,12 @@ class CommonSerializer(ModelSerializer):
     @transaction.atomic
     def save(self, *args, **kwargs):
         """
-        Inherited to use @transaction.atomic, which creates a "save point" in the larger scope
+        Inherited to:
+
+        1) Pass the http request object to the instance. Note: Update operations only,
+        when the instance exists before saving! i.e.: NOT, when creating.
+
+        2) Use @transaction.atomic, which creates a "save point" in the larger scope
         transaction that lasts during the entire http request, to allow rolling back individual
         serializer.save() operations.
 
@@ -79,7 +96,21 @@ class CommonSerializer(ModelSerializer):
         with metadata_version_identifier generation, file changes handling, alternate_record_set and
         versions handling.
         """
-        super(CommonSerializer, self).save(*args, **kwargs)
+        if hasattr(self, 'instance') and self.instance is not None:
+            # update operation.
+            # request cant be passed as __request inside kwargs (as is done
+            # when creating records), due to some 'known fields only' validations
+            # along the way... this seems to be most convenient.
+            self.instance.request = self.context.get('request', None)
+        super().save(*args, **kwargs)
+
+    def create(self, validated_data):
+        # for create, the instance obviously does not exist before creating it. so
+        # the request object needs to be passed along the general parameters.
+        # luckily, the validate_data is just passed to the Model __init__
+        # as **validated_data, and all our extra kwargs can ride along.
+        validated_data['__request'] = self.context.get('request', None)
+        return super().create(validated_data)
 
     def to_representation(self, instance):
         """
@@ -166,6 +197,12 @@ class CommonSerializer(ModelSerializer):
             _logger.error('is_valid() field validation for relation %s: unexpected type: %s'
                           % (relation_field, type(identifier_value)))
             raise ValidationError('Validation error for relation %s. Data in unexpected format' % relation_field)
+
+    def _request_by_end_user(self):
+        return 'request' in self.context and not self.context['request'].user.is_service
+
+    def _request_by_service(self):
+        return 'request' in self.context and self.context['request'].user.is_service
 
     def _operation_is_create(self):
         return self.context['view'].request.stream.method == 'POST'
