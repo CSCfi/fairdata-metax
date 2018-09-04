@@ -209,7 +209,7 @@ class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
 
         response = self.client.post('/rest/datasets?atomic=true', [cr, cr2, cr3], format="json")
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.content)
         self.assertEqual(len(response.data['success']) == 0, True)
         self.assertEqual(len(response.data['failed']) == 1, True)
         self.assertEqual('detail' in response.data, True)

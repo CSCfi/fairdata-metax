@@ -19,8 +19,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
-from metax_api.exceptions import Http400
+from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Directory, File
+from metax_api.services import AuthService
 from metax_api.utils import RabbitMQ
 from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
@@ -28,7 +29,6 @@ from .common_service import CommonService
 
 DEBUG = settings.DEBUG
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
 
 
 """
@@ -61,6 +61,11 @@ class MaxRecursionDepthExceeded(Exception):
 
 class FileService(CommonService):
 
+    @staticmethod
+    def check_user_belongs_to_project(request, project_identifier):
+        if project_identifier not in AuthService.extract_file_projects_from_token(request.user.token):
+            raise Http403({ 'detail': [ 'You do not have access to this project.' ]})
+
     @classmethod
     def get_queryset_search_params(cls, request):
         """
@@ -73,7 +78,10 @@ class FileService(CommonService):
         queryset_search_params = {}
 
         if request.query_params.get('project_identifier', False):
-            queryset_search_params['project_identifier'] = request.query_params['project_identifier']
+            project = request.query_params['project_identifier']
+            if not request.user.is_service:
+                cls.check_user_belongs_to_project(request, project)
+            queryset_search_params['project_identifier'] = project
 
         return queryset_search_params
 
@@ -478,9 +486,11 @@ class FileService(CommonService):
                 directory = Directory.objects.get(**params)
             except Directory.DoesNotExist:
                 raise Http404
+
             directory_id = directory.id
 
         if cr_identifier:
+            # browsing in the context of a cr
             if cr_identifier.isdigit():
                 cr = CatalogRecord.objects.values('id', '_directory_data').get(pk=cr_identifier)
             else:
@@ -495,6 +505,16 @@ class FileService(CommonService):
             cr_id = cr['id']
             cr_directory_data = cr['_directory_data'] or {}
         else:
+            # generally browsing the directory - NOT in the context of a cr! check user permisisons
+            if not request.user.is_service:
+                if not project_identifier:
+                    try:
+                        project_identifier = directory.project_identifier
+                    except:
+                        project_identifier = Directory.objects.filter(pk=directory_id) \
+                            .values_list('project_identifier', flat=True)[0]
+                FileService.check_user_belongs_to_project(request, project_identifier)
+
             cr_id = None
             cr_directory_data = {}
 

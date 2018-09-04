@@ -9,9 +9,10 @@ from django.core.management import call_command
 from django.db import connection
 from rest_framework import status
 from rest_framework.test import APITestCase
+import responses
 
 from metax_api.models import File
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
 
 class FileApiReadCommon(APITestCase, TestClassUtils):
@@ -116,3 +117,43 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
     def _assert_results_length(self, response, length):
         self.assertEqual(isinstance(response.data, list), True, response.data)
         self.assertEqual(len(response.data), length)
+
+
+class FileApiReadEndUserAccess(FileApiReadCommon):
+
+    def setUp(self):
+        super().setUp()
+        self.token = get_test_oidc_token()
+        self._mock_token_validation_succeeds()
+
+    @responses.activate
+    def test_user_can_read_owned_files(self):
+        '''
+        Ensure users can only read files owned by them from /rest/files api.
+        '''
+
+        # first read files without project access - should fail
+        self._use_http_authorization(method='bearer', token=self.token)
+        proj = File.objects.get(pk=1).project_identifier
+
+        response = self.client.get('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        response = self.client.get('/rest/files?project_identifier=%s' % proj)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        response = self.client.get('/rest/files?no_pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data), 0, 'should return 200 OK, but user projects has no files')
+
+        # set user to same project as previous files and try again. should now succeed
+        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.get('/rest/files')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data) > 0, True, 'user should only see their own files')
+
+        response = self.client.get('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/rest/files?project_identifier=%s' % proj)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
