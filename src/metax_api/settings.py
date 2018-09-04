@@ -99,7 +99,7 @@ else:
     # Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
     ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
 
-if executing_in_test_case:
+if executing_in_test_case or executing_in_travis:
     END_USER_ALLOWED_DATA_CATALOGS = [
         "urn:nbn:fi:att:data-catalog-ida",
         "urn:nbn:fi:att:data-catalog-att",
