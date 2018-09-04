@@ -343,14 +343,6 @@
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Concept"
-                },
-                "access_url":{
-                    "@id":"http://www.w3.org/ns/dcat#accessURL",
-                    "title":"Access URL",
-                    "description":"Could be any kind of URL that gives access to a distribution of the dataset. E.g. landing page download, feed URL, SPARQL endpoint. Use when your catalog does not have information on which it is or when it is definitely not a download.",
-                    "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Document"
                 }
             },
             "required":[
@@ -494,14 +486,6 @@
                     "description":"Free-text account of the file.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
-                },
-                "access_url":{
-                    "@id":"http://www.w3.org/ns/dcat#accessURL",
-                    "title":"Access URL",
-                    "description":"Could be any kind of URL that gives access to a distribution of the dataset. E.g. landing page download, feed URL, SPARQL endpoint. Use when your catalog does not have information on which it is or when it is definitely not a download.",
-                    "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Document"
                 },
                 "file_type":{
                     "@id":"http://purl.org/dc/terms/type",

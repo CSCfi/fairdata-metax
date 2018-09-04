@@ -944,14 +944,13 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['research_dataset']), 19)
 
         rd_att = self.cr_full_att_test_data['research_dataset']
-        rd_att['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
         rd_att['remote_resources'][0]['license'][0]['identifier'] = 'nonexisting'
         rd_att['remote_resources'][1]['resource_type']['identifier'] = 'nonexisting'
         rd_att['remote_resources'][0]['use_category']['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datasets', self.cr_full_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 4)
+        self.assertEqual(len(response.data['research_dataset']), 3)
 
     def test_create_catalog_record_with_dependent_reference_datas(self):
         # Unallowed combinations
@@ -1008,7 +1007,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         data_types = [
             'access_type',
             'restriction_grounds',
-            'checksum_algorithm',
             'field_of_science',
             'identifier_type',
             'keyword',
@@ -1110,7 +1108,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_att['remote_resources'][1]['resource_type'] = {'identifier': refs['resource_type']['code']}
         rd_att['remote_resources'][0]['use_category'] = {'identifier': refs['use_category']['code']}
         rd_att['remote_resources'][0]['license'][0] = {'identifier': refs['license']['code']}
-        rd_att['remote_resources'][0]['checksum']['algorithm'] = refs['checksum_algorithm']['code']
 
         # Assert remote resources related reference datas
         response = self.client.post('/rest/datasets', self.cr_full_att_test_data, format="json")
@@ -1128,7 +1125,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['use_category']['label'],
                          new_rd['remote_resources'][0]['use_category'].get('pref_label', None))
         self.assertEqual(refs['license']['label'], new_rd['remote_resources'][0]['license'][0].get('title', None))
-        self.assertEquals(refs['checksum_algorithm']['code'], new_rd['remote_resources'][0]['checksum']['algorithm'])
 
     def _assert_uri_copied_to_identifier(self, refs, new_rd):
         self.assertEqual(refs['keyword']['uri'], new_rd['theme'][0]['identifier'])

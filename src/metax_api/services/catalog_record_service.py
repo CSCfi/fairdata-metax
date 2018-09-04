@@ -273,13 +273,6 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         for remote_resource in research_dataset.get('remote_resources', []):
 
-            # Since checksum is a plain string field, it should not be changed to a reference data uri in case
-            # it is recognized as one of the checksum_algorithm reference data items.
-            # TODO: Find out whether a non-reference data value for the checksum_algorithm should even throw an error
-            if 'checksum' in remote_resource:
-                cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'],
-                                   'research_dataset.remote_resources.checksum.algorithm', errors)
-
             for license in remote_resource.get('license', []):
                 license_url = license.get('license', None)
 
