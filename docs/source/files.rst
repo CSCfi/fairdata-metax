@@ -41,7 +41,11 @@ Examples
 ---------
 
 
-Payload to create a file in Metax (``POST /files``).
+
+Creating files
+^^^^^^^^^^^^^^^
+
+Example payload to create a file in Metax (``POST /files``).
 
 .. code-block:: python
 
@@ -67,3 +71,12 @@ Payload to create a file in Metax (``POST /files``).
         "user_created": "string",
         "service_created": "string"
     }
+
+
+
+.. _rst-browsing-files:
+
+Browsing files
+^^^^^^^^^^^^^^^
+
+browsing files
