@@ -13,12 +13,14 @@ Metax API Documentation
    :maxdepth: 5
    :caption: Metax API Contents:
 
+   metax_api
    general
    end_users
    list_operations
    datasets
    files
    reference_data
+   oai_pmh
 
 
 

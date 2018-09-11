@@ -7,13 +7,33 @@ Datasets API
 General
 --------
 
-Datasets, like all objects accessible using the different apis in Metax, have an internal identifier field ``identifier``, which uniquely identifies a record withing Metax.
+Datasets, like all objects accessible using the different APIs in Metax, have an internal identifier field ``identifier``, which uniquely identifies a record withing Metax.
 
-The standard way to retrieve a single dataset is by sending a request to the api ``GET /datasets/<pid>``, where ``<pid>`` is the record's internal identifier. Datasets can be listed and browsed using the api ``GET /datasets``. Retrieving a dataset or listing datasets can be augmented in various ways by using additional parameters. For details, see swagger's section about datasets.
+The standard way to retrieve a single dataset is by sending a request to the API ``GET /rest/datasets/<pid>``, where ``<pid>`` is the record's internal identifier. Datasets can be listed and browsed using the API ``GET /rest/datasets``. Retrieving a dataset or listing datasets can be augmented in various ways by using additional parameters. For details, see swagger's section about datasets.
 
-When retrieving a single record using ``GET /datasets/<pid>``, the root level of the returned object contains various fields...
+When retrieving a single record using ``GET /rest/datasets/<pid>``, the root level of the returned object contains various fields...
 
 .. warning:: explain purpose of all fields here ? or somewhere else? make note about the signifigance of field research_dataset, and research_dataset.preferred_identifier.
+
+
+
+Data Catalogs
+^^^^^^^^^^^^^^
+
+..warning:: Stuff about catalogs. Which catalog to use and when.
+
+
+
+Dataset lifecycle in Metax
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1) A dataset is created and published.
+2) A dataset's metadata descriptions may be updated multiple times.
+3) A dataset may be explicitly deleted, or implicitly deprecated as a result of someone deleting a dataset's files in IDA.
+4) A dataset may have new dataset versions created when files are added or removed.
+5) A dataset has been proposed to PAS, and is in a PAS process. Adding or removing files is not possible.
+6) Dataset is stored to PAS inside a mountain.
+
 
 
 Retrieving datasets
@@ -24,7 +44,7 @@ Retrieving datasets
 
 **Retrieve in a different format**
 
-The api ``GET /datasets/<pid>?dataset_format=someformat`` can be used to retrieve just the field ``research_dataset`` in another supported format.
+The API ``GET /rest/datasets/<pid>?dataset_format=someformat`` can be used to retrieve just the field ``research_dataset`` in another supported format.
 
 Currently supported formats are:
 
@@ -35,36 +55,36 @@ Using the value 'metax' will return a plain json → xml transformation of the d
 
 **Retrieve with file metadata populated**
 
-The api parameter ``GET /datasets/<pid>?file_details`` can be used to populate the objects in ``research_dataset.files`` and ``research_dataset.directories`` with their related file- and directory-specific metadata (which you normally would get using the ``GET /files/<pid>`` and ``GET /directories/<pid>`` apis). This is a convenience parameter for those cases when one wants to retrieve the details of described files and directories anyway.
+The API parameter ``GET /rest/datasets/<pid>?file_details`` can be used to populate the objects in ``research_dataset.files`` and ``research_dataset.directories`` with their related file- and directory-specific metadata (which you normally would get using the ``GET /rest/files/<pid>`` and ``GET /rest/directories/<pid>`` APIs). This is a convenience parameter for those cases when one wants to retrieve the details of described files and directories anyway.
 
 
 **Retrieve by preferred_identifier**
 
-API: ``GET /datasets?preferred_identifier=pid``. Searches a dataset by the requested ``preferred_identifier``.
+API: ``GET /rest/datasets?preferred_identifier=pid``. Searches a dataset by the requested ``preferred_identifier``.
 
 
 **Getting a list of all identifiers in Metax**
 
-API: ``GET /datasets/identifiers``. Lists field ``catalogrecord.identifier`` from all records.
+API: ``GET /rest/datasets/identifiers``. Lists field ``catalogrecord.identifier`` from all records.
 
 
 **Getting a list of all unique preferred_identifiers in Metax**
 
-API: ``GET /datasets/unique_preferred_identifiers``. Lists field ``catalogrecord.research_dataset.preferred_identifier`` from all records.
+API: ``GET /rest/datasets/unique_preferred_identifiers``. Lists field ``catalogrecord.research_dataset.preferred_identifier`` from all records.
 
 
 
 If-Modified-Since header in dataset API
 ----------------------------------------
 
-If-Modified-Since header can be used in ``GET /datasets``, ``GET|PUT|PATCH /datasets/<pid>``, or ``GET /datasets/identifiers`` requests. This will return the result(s) only if the resources have been modified after the date specified in the header. In update operations the use of the header works as with other types of resources in Metax API. The format of the header should follow guidelines mentioned in https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since
+If-Modified-Since header can be used in ``GET /rest/datasets``, ``GET|PUT|PATCH /rest/datasets/<pid>``, or ``GET /rest/datasets/identifiers`` requests. This will return the result(s) only if the resources have been modified after the date specified in the header. In update operations the use of the header works as with other types of resources in Metax API. The format of the header should follow guidelines mentioned in https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since
 
 If the requested resource has not been modified after the date specified in the header, the response will be ``304 Not Modified``.
 
 
 
 
-.. _rst-roles-dataset-versioning:
+.. _rst-dataset-versioning:
 
 Dataset versioning
 -------------------
@@ -102,7 +122,7 @@ When updating datasets in versioned catalogs, any change to the contents of the 
 1) The contents of field ``research_dataset`` is modified in any way, except associated files have not changed:
 
     * During the update operation, old contents of the field ``research_dataset`` are archived (versioned) into a separate table. Otherwise, the same record that was updated, keeps existing as is, but a new value is generated for the field ``research_dataset.metadata_version_identifier``. This identifier is useful only for accessing old metadata versions.
-    * After a successful update, old ``research_dataset`` versions can now be listed using the api ``GET /datasets/<pid>/metadata_versions``, and a specific old research_dataset content can be accessed using the api ``GET /datasets/<pid>/metadata_versions/<metadata_version_identifier>``. The api is read-only.
+    * After a successful update, old ``research_dataset`` versions can now be listed using the API ``GET /rest/datasets/<pid>/metadata_versions``, and a specific old research_dataset content can be accessed using the API ``GET /rest/datasets/<pid>/metadata_versions/<metadata_version_identifier>``. The API is read-only.
 
 2) ``research_dataset.files`` or ``research_dataset.directories`` is modified by the user in a way that results in a *different set* of associated files:
 
@@ -135,7 +155,7 @@ Restrictions in old versions
 
 **Old metadata versions**
 
-Modifying metadata of datasets in old metadata versions is not possible. There is a read-only api to view them. Restoring an old research_dataset metadata version can be achieved by accessing it using the api (``GET /datasets/<pid>/metadata_versions``), and using the content of a specific metadata version as an input in a normal update operation.
+Modifying metadata of datasets in old metadata versions is not possible. There is a read-only API to view them. Restoring an old research_dataset metadata version can be achieved by accessing it using the API (``GET /rest/datasets/<pid>/metadata_versions``), and using the content of a specific metadata version as an input in a normal update operation.
 
 
 **Old dataset versions**
@@ -150,7 +170,7 @@ Browsing a dataset's versions
 
 **Browsing metadata versions**
 
-The api ``GET /datasets/<pid>/metadata_versions`` can be used to list metadata versions of a specific dataset. Access details of a specific version using the api ``GET /datasets/<pid>/metadata_versions/<metadata_version_identifier>``.
+The API ``GET /rest/datasets/<pid>/metadata_versions`` can be used to list metadata versions of a specific dataset. Access details of a specific version using the API ``GET /rest/datasets/<pid>/metadata_versions/<metadata_version_identifier>``.
 
 
 **Browsing dataset versions**
@@ -167,7 +187,7 @@ When retrieving a single dataset record, the following version-related fields ar
 | previous_dataset_version | Link to the previous dataset version.                                               |
 +--------------------------+-------------------------------------------------------------------------------------+
 
-Using the identifiers provided by the above fields, it's possible to retrieve information about a specific dataset version using the standard datasets api ``GET /datasets/<pid>``.
+Using the identifiers provided by the above fields, it's possible to retrieve information about a specific dataset version using the standard datasets API ``GET /rest/datasets/<pid>``.
 
 
 
@@ -188,6 +208,30 @@ In non-harvested data catalogs, the uniqueness of a dataset is generally determi
 In harvested data catalogs, the value of ``preferred_identifier`` can be provided by the user (the harvester). The value of ``preferred_identifier`` is unique within its data catalog, so there can co-exist for example three datasets, in three different data catalogs, which have the same ``preferred_identifier`` value. When retrieving details of a single record using the API, information about these "alternate records" is included in the field ``alternate_record_set``, which contains a list of Metax internal identifiers of the other records, and is a read-only field.
 
 If the field ``alternate_record_set`` is missing from a record, it means there are no alternate records sharing the same ``preferred_identifier`` in different data catalogs.
+
+
+
+Describing files vs. adding files
+----------------------------------
+
+A distinction needs to be made between *describing* files in a dataset, and *adding* files to dataset. As explained in the topic :ref:`rst-dataset-versioning`, just editing a dataset's metadata (including the dataset-specific file metadata in fields ``research_dataset.files`` and ``research_dataset.directories``) does not produce new dataset versions, while *adding* new files will produce new dataset versions. Yet, both describing the files and adding files happens by inserting objects inside the fields ``research_dataset.files`` and ``research_dataset.directories``. How to know which is which, and what to expect when updating datasets and dealing with files?
+
+
+**Adding and describing single files**
+
+
+As long as we are dealing with only single files, the distinction between describing and adding files does not matter; they are effectively the same thing. But when starting to add directories to a dataset, the disctintion becomes more necessary.
+
+
+**Adding and describing directories**
+
+
+When we add an entire directory to a dataset (into field ``research_dataset.directories``), all the files inside that directory, and its sub-directories, are added to the dataset. No further action is required. If we additionally want to add descriptions for those added files and directories, remarks about their relevance to the dataset, add titles, and so on, we can still achieve that by inserting additional entries of those files inside field ``research_dataset.files``. This operation no longer counts as "adding files" though, since they have already been included in the dataset when the parent directory of the file (or even the root directory of the entire project) was wadded to ``research_dataset.directories``.
+
+The same logic applies when adding descriptions for sub-directories: Adding more directory-entries to ``research_dataset.directories`` does not count as "adding files", as long as a parent directory has already been added there. When you are publishing a new dataset to Metax, or pushing an update, Metax will find the top-most directory that has been added, and use that as the basis when adding files to the dataset. All the other entries only count as "describing metadata".
+
+It is possible though to for example add multiple directories that should all be considered as "top level" parent directories, in which case all those directories are recognized as such, and files from all those directories are still added to the dataset. Likewise, a directory may be added to the dataset, plus some files separately outside of that directory. Metax will recognize the individual files listed in ``research_dataset.files`` do not belong to any of the listed directories, and they will be added separately.
+
 
 
 
@@ -401,7 +445,7 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
 
 .. note::
 
-    The contents of the field ``research_dataset`` are validated directly against the relevant schema from ``GET /schemas``, so probably either the ``ida`` schema or ``att`` schema, depending on if you are going to include files from IDA in your dataset or not. When schema validation fails, the entire output from the validator is returned. For an untrained eye, it can be difficult to find the relevant parts from the output. For that reason, it is strongly recommended that you:
+    The contents of the field ``research_dataset`` are validated directly against the relevant schema from ``GET /rest/schemas``, so probably either the ``ida`` schema or ``att`` schema, depending on if you are going to include files from IDA in your dataset or not. When schema validation fails, the entire output from the validator is returned. For an untrained eye, it can be difficult to find the relevant parts from the output. For that reason, it is strongly recommended that you:
 
     * Validate the contents of field ``research_dataset`` against the proper schema before you try to upload the dataset to Metax. Whatever JSON schema validator will work, and the error output will probably be easier to inspect compared to the output provided by Metax.
     * Start with a bare minimum working dataset description, and add new fields and descriptions incrementally, validating the contents periodically. This way, it will be a lot easier to backtrack and find any mistakes in the JSON structure.
@@ -495,7 +539,7 @@ Updating datasets
 
 There are two important cases to consider when updating datasets in Metax, and both of them are related to dataset versioning. In the below examples, both cases of updating only dataset metadata, and adding files to a datatset and removing files from a dataset will be covered.
 
-Read more about dataset versioning in :ref:`rst-roles-dataset-versioning`.
+Read more about dataset versioning in :ref:`rst-dataset-versioning`.
 
 
 
@@ -508,10 +552,7 @@ Update an existing dataset using a ``PUT`` request:
 
     import requests
 
-    # first retrieve a dataset that you are the owner of. be sure to authenticate
-    # with the API when retrieving the dataset, since some sensitive fields from
-    # the dataset are filtered out when retrieved by the general public. otherwise
-    # you may accidentally lose some data when you upload the modified dataset!
+    # first retrieve a dataset that you are the owner of
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
     response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
     assert response.status_code == 200, response.content
@@ -525,6 +566,8 @@ Update an existing dataset using a ``PUT`` request:
 
 
 A successful update operation will return response content that looks just as when creating a dataset. A new record is not created as a result of the update, so the content received from the response *is* the latest greatest version.
+
+.. caution:: When updating a dataset, be sure to authenticate with the API when retrieving the dataset, since some sensitive fields from the dataset are filtered out when retrieved without authentication (or by the general public). Otherwise you may accidentally lose some data when you upload the modified dataset!
 
 The exact same result can be achieved using a ``PATCH`` request, which allows you to only update specific fields. In the below example, we are updating only the field ``research_dataset``. While you can always use either ``PUT`` or ``PATCH`` for update, ``PATCH`` is always less risky in the sense that you will not accidentally modify fields you didn't intend to.
 
@@ -554,7 +597,7 @@ The outcome of the update operation should be the same as in the above example.
 Update files
 ~~~~~~~~~~~~~
 
-In the below examples, "adding files", and "adding directories" effectively mean the same things: A bunch of files are being associated with the dataset - either one by one, or the contents of an entire directory at once. So later on in the examples when saying "files have been previously added", or "new files have been added", it basically means that either of the fields``research_dataset.files`` or ``research_dataset.directories`` already may have content inside them, or that new content has been added to either of those fields.
+In the below examples, "adding files", and "adding directories" effectively mean the same things: A bunch of files are being associated with the dataset - either one by one, or the contents of an entire directory at once. So later on in the examples when saying "files have been previously added", or "new files have been added", it basically means that either of the fields ``research_dataset.files`` or ``research_dataset.directories`` already may have content inside them, or that new content has been added to either of those fields.
 
 
 **Add files to a dataset for the first time**
@@ -587,7 +630,7 @@ Add files to a dataset, which didn't have any files associated with it when it w
     assert response.status_code == 200, response.content
 
 
-Since files were added to the dataset for the first time, a new dataset version was not created, and the relevant dataset identifiers have not changed.
+Since files were added to the dataset for the first time, a new dataset version was not created, and the relevant dataset identifiers have not changed. Note: In the above example, the field ``use_category`` contains a rather long url-form value. This field only accepts pre-defined values from a specific reference data. Read more about :doc:`reference_data`.
 
 
 **Add files to a dataset, which already has files**
@@ -719,7 +762,7 @@ Delete an existing dataset using a ``DELETE`` request:
 Browsing a dataset's files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Browsing the files of a dataset works the exact same way as browsing files in general (see :ref:`rst-browsing-files`), except that an additional query parameter ``cr_identifier=<pid>`` should be provided, in order to retrieve only those files and directories, which are present in the specified dataset.
+Browsing the files of a dataset works the same way as browsing files in general (see :ref:`rst-browsing-files`), except that an additional query parameter ``cr_identifier=<dataset_identifer>`` should be provided, in order to retrieve only those files and directories, which are included in the specified dataset.
 
 Note that when browsing the files of a dataset, authentication with the API is not required, since if a dataset is retrievable from the API, it means it has been published, and its files are now public information.
 
@@ -730,18 +773,59 @@ Example:
 
     import requests
 
-    response = requests.delete('https://metax-test.csc.fi/rest/directories/dir123/files?cr_identifier=abc123')
+    response = requests.get('https://metax-test.csc.fi/rest/directories/dir123/files?cr_identifier=abc123')
     assert response.status_code == 200, response.content
 
 
-Browsing a dataset's versions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-stuff
+.. note:: Etsin, a Fairdata service, provides a nice graphical UI for browsing files of published datasets.
 
 
-Dealing with reference data
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+It's also possible to retrieve a flat list of file metadata of all the files included in the dataset. Be advised though: The below API endpoint does not utilize paging! If the number of files is very large, the amount of data being downloaded by default can be very large! Therefore, it is highly recommended to use the query parameter ``file_fields=field_1,field_2,field_3...`` to only retrieve the information you require:
 
-a lot of stuff
 
+.. code-block:: python
+
+    import requests
+
+    # retrieve all file metadata
+    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123/files')
+    assert response.status_code == 200, response.content
+
+    # retrieve only specified fields from file metadata
+    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123/files?file_fields=identifier,file_path')
+    assert response.status_code == 200, response.content
+
+
+Using reference data
+^^^^^^^^^^^^^^^^^^^^^
+
+Modifying field ``research_dataset`` to contain data that depends on reference data. Below example assumes an existing bare minimum dataset, to which a directory of files is being added. The directory-object has a mandatory field called ``use_category``, which requires using a value from reference data in its ``identifier`` field:
+
+
+.. code-block:: python
+
+    import requests
+
+    headers = { 'Authorization': 'Bearer abc.def.ghi' }
+    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    assert response.status_code == 200, response.content
+
+    modified_data = response.json()
+    modified_data['research_dataset']['directories'] = [
+        {
+            "title": "Directory Title",
+            "identifier": "5105ab9839f63a909893183c14f9e113",
+            "description": "What is this directory about",
+            "use_category": {
+                # the value to the below field is from reference data
+                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source",
+            }
+        }
+    ]
+
+    response = requests.put('https://metax-test.csc.fi/rest/datasets/abc123', json=modified_data, headers=headers)
+    assert response.status_code == 200, response.content
+
+When the dataset is updated, some fields inside the field ``use_category`` will have been populated by Metax according to the used reference data. The value used in the example above is the value of ``uri`` field from one of the objects in the following list: https://metax-test.csc.fi/es/reference_data/use_category/_search?pretty.
+
+For more information about reference data, see :doc:`reference_data`.
