@@ -7,7 +7,7 @@ List operations
 GET operations
 ---------------
 
-GET to resource root, such as ``/datasets`` or ``/files``, retrieves a list of objects, as per usual REST convention. By default paging is forced to avoid time-consuming accidents. To disable paging, optional query parameter ``no_pagination=true`` can be passed to instead retrieve all records in a single request.
+GET to resource root, such as ``/rest/datasets`` or ``/rest/files``, retrieves a list of objects, as per usual REST convention. By default paging is forced to avoid time-consuming accidents. To disable paging, optional query parameter ``no_pagination=true`` can be passed to instead retrieve all records in a single request.
 
 
 
@@ -149,7 +149,7 @@ Return values are similar to bulk create, i.e. the response contains the keys su
 Bulk delete
 ------------
 
-Only the API ``/files`` currently supports bulk delete.
+Only the API ``/rest/files`` currently supports bulk delete.
 
 
 
@@ -158,4 +158,4 @@ Atomic Bulk Operations
 
 Bulk create and update operations take an optional boolean parameter ``atomic``, which can be set to ensure that either all operations succeed in the request, or none at all. When using the parameter, if the request fails, there is an extra field ``detail`` in the response result (in addition to the usual fields ``success``, and ``failed``) which reminds that the failure occurred due to the ``atomic`` flag.
 
-Example: Trying to create 10000 files by sending request to ``POST /files``, and 10 file creations fail for whatever reason. By providing ``?atomic=true``, no files at all are created.
+Example: Trying to create 10000 files by sending request to ``POST /rest/files``, and 10 file creations fail for whatever reason. By providing ``?atomic=true``, no files at all are created.
