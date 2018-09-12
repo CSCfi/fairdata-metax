@@ -73,7 +73,6 @@ def generate_doi_identifier(doi_suffix=generate_uuid_identifier()):
     Until a better mechanism for generating DOI suffix is conceived, use UUIDs.
 
     :param doi_suffix:
-    :param prepend_doi:
     :return: DOI identifier suitable for storing to Metax: doi:10.<doi_prefix>/<doi_suffix>
     """
 
@@ -89,7 +88,7 @@ def generate_doi_identifier(doi_suffix=generate_uuid_identifier()):
 
 def extract_doi_from_doi_identifier(doi_identifier):
     """
-    DOI identifier is stored to database in the form 'doi:10.<doi_suffix>/<doi_suffix>'.
+    DOI identifier is stored to database in the form 'doi:10.<doi_prefix>/<doi_suffix>'.
     This method strips away the 'doi':, which does not belong to the actual DOI in e.g. Datacite API.
 
     :param doi_identifier: Must start with doi:10. for this method to work properly

@@ -313,10 +313,9 @@ class CatalogRecord(Common):
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():
-            pref_id_type = self._get_preferred_identifier_type_from_request()
-            self._pre_create_operations(pref_id_type)
+            self._pre_create_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
-            self._post_create_operations(pref_id_type)
+            self._post_create_operations()
         else:
             self._pre_update_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
@@ -731,7 +730,8 @@ class CatalogRecord(Common):
                 entries[-1]['stored_to_pas'] = entry.stored_to_pas
         return entries
 
-    def _pre_create_operations(self, pref_id_type):
+    def _pre_create_operations(self):
+        pref_id_type = self._get_preferred_identifier_type_from_request()
         if self.catalog_is_harvested():
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
             # do not overwrite. note: if the value was left empty, an error would have been
@@ -757,7 +757,7 @@ class CatalogRecord(Common):
         if 'remote_resources' in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
-    def _post_create_operations(self, pref_id_type):
+    def _post_create_operations(self):
         if self.catalog_versions_datasets():
             dvs = DatasetVersionSet()
             dvs.save()
@@ -775,7 +775,7 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if pref_id_type == IdentifierType.DOI:
+        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'create'))
 
         if self._dataset_is_access_restricted():
@@ -842,6 +842,11 @@ class CatalogRecord(Common):
             # todo check if restriction_grounds and access_type changed
             pass
 
+        if self.field_changed('research_dataset'):
+            self.update_datacite = True
+        else:
+            self.update_datacite = False
+
         if self.catalog_versions_datasets() and not self.preserve_version:
 
             if not self.field_changed('research_dataset'):
@@ -900,7 +905,8 @@ class CatalogRecord(Common):
                 self._handle_preferred_identifier_changed()
 
     def _post_update_operations(self):
-        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
+        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI and \
+                self.update_datacite:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'update'))
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
@@ -1263,8 +1269,8 @@ class CatalogRecord(Common):
 
         old_version.new_dataset_version_created = True
 
-        _logger.info('New CatalogRecord with identifier %s created' % new_version.identifier)
-        _logger.debug('New CR preferred identifer: %s' % new_version.preferred_identifier)
+        _logger.info('New dataset version created, identifier %s' % new_version.identifier)
+        _logger.debug('New dataset version preferred identifer %s' % new_version.preferred_identifier)
 
     def _get_metadata_file_changes(self):
         """

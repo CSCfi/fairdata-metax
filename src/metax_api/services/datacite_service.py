@@ -87,7 +87,7 @@ class DataciteService(CommonService):
 
         # add optional fields
 
-        if rd['preferred_identifier'].startswith('urn:'):
+        if get_identifier_type(rd['preferred_identifier']) == IdentifierType.URN:
             datacite_json['alternateIdentifiers'] = [{
                 'alternateIdentifier': rd['preferred_identifier'],
                 'alternateIdentifierType': 'URN'

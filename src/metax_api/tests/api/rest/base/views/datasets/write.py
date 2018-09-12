@@ -17,7 +17,7 @@ from rest_framework.test import APITestCase
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
 from metax_api.services import RedisCacheService
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
-from metax_api.utils import get_tz_aware_now_without_micros
+from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
 from metax_api.tests.utils import get_test_oidc_token
 
 
@@ -1635,13 +1635,15 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         cr_v1['research_dataset']['files'].pop(0)
         cr_v2 = self.client.put('/rest/datasets/{0}?pid_type=doi'.format(cr_v1['identifier']), cr_v1, format="json")
         self.assertEqual('new_version_created' in cr_v2.data, True)
-        self.assertTrue(cr_v2.data['research_dataset']['preferred_identifier'].startswith('urn:'))
+        self.assertTrue(
+            get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.URN)
 
         cr_v1 = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json").data
         cr_v1['research_dataset']['files'].pop(0)
         cr_v2 = self.client.put('/rest/datasets/{0}'.format(cr_v1['identifier']), cr_v1, format="json")
         self.assertEqual('new_version_created' in cr_v2.data, True)
-        self.assertTrue(cr_v2.data['research_dataset']['preferred_identifier'].startswith('doi:10.'))
+        self.assertTrue(
+            get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.DOI)
 
     def _assert_metadata_version_count(self, record, count):
         response = self.client.get('/rest/datasets/%d/metadata_versions' % record['id'], format="json")
