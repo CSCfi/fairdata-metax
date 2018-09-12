@@ -37,6 +37,32 @@ Browsing files in Metax
 This is just a quick overview, below code examples include some use of them, and other details can be found in swagger.
 
 
+
+.. _rst-files-reference-data:
+
+Reference data guide
+---------------------
+
+File metadata only utilizes reference data when describing the field ``file.file_characteristics``, and more specifically, fields ``file_format`` and ``format_version`` inside that field. The related reference data can be browsed here https://metax-test.csc.fi/es/reference_data/file_format_version/_search?pretty=true.
+
+For additional reference, the file schema visualization can be found here https://tietomallit.suomi.fi/model/mfs.
+
+
+**Selecting file_format and format_version from reference data**
+
+
+First choose a value for field ``file.file_characteristics.file_format`` from the list of ``input_file_format`` values in the reference data. Then, select a value for field ``file.file_characteristics.format_version`` from one of the ``output_format_version`` values that matches with the previously selected ``input_file_format``.
+
+Example:
+
+Let's browse the file_format_version reference data at https://metax-test.csc.fi/es/reference_data/file_format_version/_search?pretty=true. Let' pick an entry where the reference data field ``input_file_format`` equals "application/vnd.oasis.opendocument.text". This will be the value for field ``file.file_characteristics.file_format``. In order to pick a version for the selected format, browse the reference data again, but only searching results where ``input_file_format`` is the same as we chose previously. There will be (possibly) multiple results. The reference data query for that is:
+
+``https://metax-test.csc.fi/es/reference_data/file_format_version/_search?pretty=true&q=input_file_format:application\/vnd\.oasis\.opendocument\.text``
+
+Where the relevant addition is ``&q=input_file_format:application\/vnd\.oasis\.opendocument\.text``, where the ``"/"`` and ``"."`` characters have been escaped by a leading ``"\"`` character. Not nearly as many results now! The different version numbers can be seen in the field ``output_format_version``. Pick on that fancies you, and use that as the value for field ``file.file_characteristics.format_version``.
+
+
+
 Examples
 ---------
 
@@ -50,10 +76,10 @@ Example payload to create a file in Metax (``POST /rest/files``).
 .. code-block:: python
 
     {
-        "identifier": "some:unique:identifier:1",
+        "identifier": "abc123",
         "file_name": "file.pdf",
-        "file_path": "/some/file/path",
-        "replication_path": "string",
+        "file_path": "/some/file/path/file.pdf",
+        "replication_path": "/path/of/replication/file.pdf",
         "file_uploaded": "2017-09-27T12:38:18.700Z",
         "file_modified": "2017-09-27T12:38:18.700Z",
         "file_frozen": "2017-09-27T12:38:18.700Z",
@@ -67,7 +93,6 @@ Example payload to create a file in Metax (``POST /rest/files``).
             "checked": "2017-09-27T12:38:18.701Z"
         },
         "open_access": true,
-        "user_modified": "string",
         "user_created": "string",
         "service_created": "string"
     }
