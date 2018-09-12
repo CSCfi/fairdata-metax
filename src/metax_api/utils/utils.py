@@ -7,10 +7,17 @@
 
 import os
 import sys
+from enum import Enum
 from uuid import uuid4
 
 from dateutil import parser
+from django.conf import settings
 from django.utils import timezone
+
+
+class IdentifierType(Enum):
+    URN = 'urn'
+    DOI = 'doi'
 
 
 def executing_test_case():
@@ -55,7 +62,48 @@ def get_tz_aware_now_without_micros():
     return timezone.now().replace(microsecond=0)
 
 
-def generate_identifier(urn=True):
-    if urn:
+def generate_uuid_identifier(urn_prefix=False):
+    if urn_prefix:
         return 'urn:nbn:fi:att:%s' % str(uuid4())
     return str(uuid4())
+
+
+def generate_doi_identifier(doi_suffix=generate_uuid_identifier()):
+    """
+    Until a better mechanism for generating DOI suffix is conceived, use UUIDs.
+
+    :param doi_suffix:
+    :param prepend_doi:
+    :return: DOI identifier suitable for storing to Metax: doi:10.<doi_prefix>/<doi_suffix>
+    """
+
+    doi_prefix = None
+    if hasattr(settings, 'DATACITE'):
+        doi_prefix = settings.DATACITE.get('PREFIX', None)
+    if not doi_prefix:
+        raise Exception("PREFIX must be defined in settings DATACITE dictionary")
+    if not doi_suffix:
+        raise ValueError("DOI suffix must be provided in order to create a DOI identifier")
+    return 'doi:{0}/{1}'.format(doi_prefix, doi_suffix)
+
+
+def extract_doi_from_doi_identifier(doi_identifier):
+    """
+    DOI identifier is stored to database in the form 'doi:10.<doi_suffix>/<doi_suffix>'.
+    This method strips away the 'doi':, which does not belong to the actual DOI in e.g. Datacite API.
+
+    :param doi_identifier: Must start with doi:10. for this method to work properly
+    :return: If the doi_identifier does not start with doi:10., return None. Otherwise return doi starting from 10.
+    """
+    if doi_identifier and doi_identifier.startswith('doi:10.'):
+        return doi_identifier[doi_identifier.index('10.'):]
+    return None
+
+
+def get_identifier_type(identifier):
+    if identifier.startswith('doi:'):
+        return IdentifierType.DOI
+    elif identifier.startswith('urn:'):
+        return IdentifierType.URN
+    else:
+        return None

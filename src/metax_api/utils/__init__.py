@@ -7,5 +7,6 @@
 
 from .rabbitmq import RabbitMQ
 from .redis import _RedisSentinelCache, _RedisSentinelCacheDummy, RedisSentinelCache
+from .datacite_api import DataciteAPI
 from .reference_data_loader import ReferenceDataLoader
 from .utils import *

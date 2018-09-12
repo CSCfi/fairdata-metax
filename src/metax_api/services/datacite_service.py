@@ -12,6 +12,7 @@ import jsonschema
 from datacite import schema41 as datacite_schema41
 
 from metax_api.exceptions import Http400
+from metax_api.utils import extract_doi_from_doi_identifier, get_identifier_type, IdentifierType
 from .common_service import CommonService
 
 
@@ -27,7 +28,7 @@ class DataciteService(CommonService):
     """
 
     @classmethod
-    def to_datacite_xml(cls, catalog_record):
+    def to_datacite_xml(cls, catalog_record, include_xml_declaration):
         """
         Convert dataset from metax dataset datamodel to datacite json datamodel, validate datacite json,
         and convert to and return datacite xml as string.
@@ -38,6 +39,7 @@ class DataciteService(CommonService):
             raise Http400({ 'detail': ['datacite conversion can only be done to individual datasets, not lists.']})
 
         rd = catalog_record['research_dataset']
+        pref_id = rd['preferred_identifier']
 
         if 'language' in rd:
             # used when trying to get most relevant name from langString when only one value is allowed.
@@ -61,10 +63,15 @@ class DataciteService(CommonService):
         publicationYear
         resourceType
         """
+
+        # 10.0/0 is a dummy value for catalog records that do not have a DOI preferred identifier.
+        # This is done so because datacite xml won't validate unless there is some (any) DOI in identifier field
+        is_doi = get_identifier_type(pref_id) == IdentifierType.DOI
+        identifier_value = extract_doi_from_doi_identifier(pref_id) if is_doi else '10.0/0'
         datacite_json = {
             'identifier': {
                 # dummy-value until we start utilizing real DOI identifiers
-                'identifier': '10.0/0',
+                'identifier': identifier_value,
                 'identifierType': 'DOI',
             },
             'publicationYear': rd['modified'][0:4],
@@ -80,10 +87,11 @@ class DataciteService(CommonService):
 
         # add optional fields
 
-        datacite_json['alternateIdentifiers'] = [{
-            'alternateIdentifier': rd['preferred_identifier'],
-            'alternateIdentifierType': 'URN'
-        }]
+        if rd['preferred_identifier'].startswith('urn:'):
+            datacite_json['alternateIdentifiers'] = [{
+                'alternateIdentifier': rd['preferred_identifier'],
+                'alternateIdentifierType': 'URN'
+            }]
 
         if 'issued' in rd or 'modified' in rd:
             datacite_json['dates'] = []
@@ -142,7 +150,11 @@ class DataciteService(CommonService):
 
         # generate and return datacite xml
 
-        return datacite_schema41.tostring(datacite_json)
+        output_xml = datacite_schema41.tostring(datacite_json)
+        if not include_xml_declaration:
+            # the +1 is linebreak character
+            output_xml = output_xml[len("<?xml version='1.0' encoding='utf-8'?>") + 1:]
+        return output_xml
 
     @staticmethod
     def _main_lang_or_default(field, main_lang=None):

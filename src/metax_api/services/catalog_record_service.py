@@ -184,11 +184,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         """
 
         if target_format == 'datacite':
-            xml = DataciteService.to_datacite_xml(catalog_records)
-            if not include_xml_declaration:
-                # the +1 is linebreak character
-                return xml[len("<?xml version='1.0' encoding='utf-8'?>") + 1:]
-            return xml
+            return DataciteService.to_datacite_xml(catalog_records, include_xml_declaration)
 
         def item_func(parent_name):
             """
