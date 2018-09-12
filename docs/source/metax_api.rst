@@ -8,4 +8,6 @@ Metax does not have a graphical UI. Most of the API's provided by Metax API are 
 
 Any Python code examples in the API documentation are written using Python version 3, and most examples utilize the excellent ``requests`` library.
 
-.. warning:: todo overview of all the different APIs and their purposes?
+.. admonition:: todo
+
+    overview of all the different APIs and their purposes?

@@ -108,7 +108,7 @@ The API stores data about errors occurred during requests. The API ``/rest/apier
 
 Whenever the API returns an error, included in the response should be a field called error_identifier, which identifies the stored error details in the system. When asking for support in times of trouble, providing mentioned error_identifier will help greatly.
 
-.. note:: The error data contains the entire uploaded request payload data, as well as the response returned by the API. In monster bulk operations, those can amount to Very Big Files! Be sure to inspect the error first by browsing the list in ``/rest/apierrors``, and see if the error in question is a bulk operation (field ``bulk_request`` is present), and the amount of lines contained (field ``data_row_count``), in order to make a more educated decision on how you want to view the detailed error contents from ``/rest/apierrors/id`` (i.e. web browser vs some other tool...).
+.. caution:: The error data contains the entire uploaded request payload data, as well as the response returned by the API. In monster bulk operations, those can amount to Very Big Files! Be sure to inspect the error first by browsing the list in ``/rest/apierrors``, and see if the error in question is a bulk operation (field ``bulk_request`` is present), and the amount of lines contained (field ``data_row_count``), in order to make a more educated decision on how you want to view the detailed error contents from ``/rest/apierrors/id`` (i.e. web browser vs some other tool...).
 
 
 

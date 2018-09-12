@@ -9,18 +9,35 @@ General
 
 Datasets, like all objects accessible using the different APIs in Metax, have an internal identifier field ``identifier``, which uniquely identifies a record withing Metax.
 
-The standard way to retrieve a single dataset is by sending a request to the API ``GET /rest/datasets/<pid>``, where ``<pid>`` is the record's internal identifier. Datasets can be listed and browsed using the API ``GET /rest/datasets``. Retrieving a dataset or listing datasets can be augmented in various ways by using additional parameters. For details, see swagger's section about datasets.
+The standard way to retrieve a single dataset is by sending a request to the API ``GET /rest/datasets/<pid>``, where ``<pid>`` is the record's internal identifier. The results returned from the API ``GET /rest/datasets`` are also sometimes called "catalog records", or "records", which is the root object that contains various other information about the state of the dataset, such as last-modified timestamps, PAS state, and other data. Inside that record, is also the field is probably of the most interest to end users: The ``research_dataset`` field. ``research_dataset`` contains the actual user-provided metadata descriptions of *The* Dataset.
 
-When retrieving a single record using ``GET /rest/datasets/<pid>``, the root level of the returned object contains various fields...
+Datasets can be listed and browsed using the API ``GET /rest/datasets``. Retrieving a dataset or listing datasets can be augmented in various ways by using additional parameters. For details, see swagger's section about datasets.
 
-.. warning:: explain purpose of all fields here ? or somewhere else? make note about the signifigance of field research_dataset, and research_dataset.preferred_identifier.
+
+.. admonition:: todo
+
+    explain purpose of all fields here ? or somewhere else? make note about the signifigance of field research_dataset, and research_dataset.preferred_identifier.
 
 
 
 Data Catalogs
 ^^^^^^^^^^^^^^
 
-..warning:: Stuff about catalogs. Which catalog to use and when.
+Every dataset belongs in a Data Catalog. Data catalogs house datasets with different origins (harvested vs. Fairdata user provided datasets), slightly different schemas (IDA and ATT catalogs for example), and datasets in some catalogs are automatically versioned. While reading datasets from all catalogs is possibly by anybody (save for some data which might be considered as sensitive, such as personal information), writing to catalogs is restricted to either known services, and some also to end users.
+
+Data catalogs can be browser by using the API ``/rest/datacatalogs``.
+
+The official Fairdata data catalogs with end user write access are:
+
++---------+-----------------------------------------------------------------------------------+---------------------------------+
+| Catalog | Purpose                                                                           | Identifier                      |
++---------+-----------------------------------------------------------------------------------+---------------------------------+
+| IDA     | Store datasets which have files stored in the IDA Fairdata service.               | urn:nbn:fi:att:data-catalog-ida |
++---------+-----------------------------------------------------------------------------------+---------------------------------+
+| ATT     | Store datasets which have data stored elsewhere than in the IDA Fairdata service. | urn:nbn:fi:att:data-catalog-att |
++---------+-----------------------------------------------------------------------------------+---------------------------------+
+
+
 
 
 
@@ -39,7 +56,9 @@ Dataset lifecycle in Metax
 Retrieving datasets
 --------------------
 
-.. warning:: below descriptions should be moved to swagger ?
+.. admonition:: todo
+
+    below descriptions should be moved to swagger ?
 
 
 **Retrieve in a different format**
@@ -131,7 +150,7 @@ When updating datasets in versioned catalogs, any change to the contents of the 
 
 Out of the two cases above, the second case is more significant, since it generates new identifiers, meaning that possible references to your dataset using the old ``preferred_identifier`` are now pointing to the previous version, which has a different files associated with it.
 
-.. note:: Adding new files for the first time to an existing dataset that has 0 files or directories, will not create a new dataset version. This helps with dataset migration issues, and serves the purpose of "reserving" an identifier for a dataset, when a dataset doesn't yet have any files associated with it. In other words, you can publish a dataset, use its identifiers in your publications, and add files to it later, without making your previous references obsolete.
+.. important:: Adding new files for the first time to an existing dataset that has 0 files or directories, will not create a new dataset version. This helps with dataset migration issues, and serves the purpose of "reserving" an identifier for a dataset, when a dataset doesn't yet have any files associated with it. In other words, you can publish a dataset, use its identifiers in your publications, and add files to it later, without making your previous references obsolete.
 
 
 **When I am updating a dataset, how do I know when a new version has been created?**
@@ -145,7 +164,7 @@ New metadata versions are not visible in the returned response in any way, excep
 
 **How do I know beforehand if a new dataset version is going to be created?**
 
-.. warning:: todo describe difference between describing files and selecting files.
+Take a look at the topic :ref:`rst-describing-and-adding-files`.
 
 
 
@@ -211,6 +230,8 @@ If the field ``alternate_record_set`` is missing from a record, it means there a
 
 
 
+.. _rst-describing-and-adding-files:
+
 Describing files vs. adding files
 ----------------------------------
 
@@ -232,6 +253,86 @@ The same logic applies when adding descriptions for sub-directories: Adding more
 
 It is possible though to for example add multiple directories that should all be considered as "top level" parent directories, in which case all those directories are recognized as such, and files from all those directories are still added to the dataset. Likewise, a directory may be added to the dataset, plus some files separately outside of that directory. Metax will recognize the individual files listed in ``research_dataset.files`` do not belong to any of the listed directories, and they will be added separately.
 
+
+
+.. _rst-datasets-reference-data:
+
+Reference data guide
+---------------------
+
+A dataset's metadata descriptions requires the use of reference data in quite many places, and actually even the bare minimum accepted dataset already uses reference data in three different fields.
+
+Below is a table (...python dictionary) that shows which fields, in which relations of the field ``research_dataset``, require or offer the use of reference data. The table is best inspected when holding in the other hand the visualization at https://tietomallit.suomi.fi/model/mrd, which is a visualization of the schema of field ``research_dataset`` (plus the main record object, ``CatalogRecord``, which is actually what the API ``/rest/datasets`` returns).
+
+In the table, on the left hand side is described the relation object which uses reference data (not that one or several of the relations can be an array of objects, instead of a single object), and on the right hand side is "mode", and "url". Mode is either "required" or "optional", where "required" means the relation will only accept values from reference data, and all other values will result in a validation error, while "optional" means reference data can be used if opting to do so, but custom values will also be accepted (such as custom identifiers if you have any). The "url" finally is the url where the reference data can be found in ElasticSearch.
+
+
+**But first about ResearchAgent, Organization, and Person**
+
+
+In the schema visualization at https://tietomallit.suomi.fi/model/mrd, there are various relations leading from the object ``ResearchDataset`` to the object ``ResearchAgent``. The visualization is - at current time - unable to visualize "oneOf"-relations of JSON schemas. If opening one of the actual dataset schema files provided by the API ``/rest/schemas``, such as https://metax-test.csc.fi/rest/schemas/ida_dataset, and searching for the string "oneOf" inside that file, you will see that the object ``ResearchAgent`` is actually an instance of either the ``Person`` or the ``Organization`` object. That means, that for example when setting the ``research_dataset.curator`` relation (which is an array), the contents of the ``curator`` field can be either a person, an organization, or a mix of persons and organizations.
+
+This needs to be taken into account when looking which reference data to use, when dealing with ``Person`` or ``Orgnaization`` objects in the schema. In the below table, the person- and organization-related relations have been separated from the rest of the fields that use reference data, and then split, to make it easier to find out which reference data to use depending on what kind of object is being used.
+
+
+.. code-block:: python
+
+    {
+        "research_dataset.theme.identifier":                                { "mode": "required", "url": "http://purl.org/att/es/reference_data/keyword" },
+        "research_dataset.field_of_science.identifier":                     { "mode": "required", "url": "http://purl.org/att/es/reference_data/field_of_science" },
+        "research_dataset.remote_resources.checksum.algorithm":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/checksum_algorithm" },
+        "research_dataset.remote_resources.license.identifier":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/license" },
+        "research_dataset.remote_resources.resource_type.identifier":       { "mode": "required", "url": "http://purl.org/att/es/reference_data/resource_type" },
+        "research_dataset.remote_resources.file_type.identifier":           { "mode": "required", "url": "http://purl.org/att/es/reference_data/file_type" },
+        "research_dataset.remote_resources.use_category.identifier":        { "mode": "required", "url": "http://purl.org/att/es/reference_data/use_category" },
+        "research_dataset.remote_resources.media_type":                     { "mode": "optional", "url": "http://purl.org/att/es/reference_data/mime_type" },
+        "research_dataset.language.identifier":                             { "mode": "required", "url": "http://purl.org/att/es/reference_data/language" },
+        "research_dataset.access_rights.access_type.identifier":            { "mode": "required", "url": "http://purl.org/att/es/reference_data/access_type" },
+        "research_dataset.access_rights.restriction_grounds.identifier":    { "mode": "required", "url": "http://purl.org/att/es/reference_data/restriction_grounds" },
+        "research_dataset.access_rights.license.identifier":                { "mode": "required", "url": "http://purl.org/att/es/reference_data/license" },
+        "research_dataset.other_identifier.type.identifier":                { "mode": "required", "url": "http://purl.org/att/es/reference_data/identifier_type" },
+        "research_dataset.spatial.place_uri.identifier":                    { "mode": "required", "url": "http://purl.org/att/es/reference_data/location" },
+        "research_dataset.files.file_type.identifier":                      { "mode": "required", "url": "http://purl.org/att/es/reference_data/file_type" },
+        "research_dataset.files.use_category.identifier":                   { "mode": "required", "url": "http://purl.org/att/es/reference_data/use_category" },
+        "research_dataset.directories.use_category.identifier":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/use_category" },
+        "research_dataset.provenance.spatial.place_uri.identifier":         { "mode": "required", "url": "http://purl.org/att/es/reference_data/location" },
+        "research_dataset.provenance.type.identifier":                      { "mode": "required", "url": "http://purl.org/att/es/reference_data/type" },
+        "research_dataset.infrastructure.identifier":                       { "mode": "required", "url": "http://purl.org/att/es/reference_data/research_infra" },
+        "research_dataset.relation.relation_type.identifier":               { "mode": "required", "url": "http://purl.org/att/es/reference_data/relation_type" },
+        "research_dataset.relation.entity.type.identifier":                 { "mode": "required", "url": "http://purl.org/att/es/reference_data/resource_type" },
+
+        # organizations. note! can be recursive through the organization-object's `is_part_of` relation
+        "research_dataset.is_output_of.source_organization.identifier":     { "mode": "required", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.is_output_of.has_funding_agency.identifier":      { "mode": "required", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.is_output_of.funder_type.identifier.identifier":  { "mode": "required", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.other_identifier.provider.identifier":            { "mode": "required", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.contributor.contributor_role.identifier":         { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.publisher.contributor_role.identifier":           { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.curator.contributor_role.identifier":             { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.creator.contributor_role.identifier":             { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.rights_holder.contributor_role.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" }
+
+        # persons
+        "research_dataset.contributor.member_of.identifier":          { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.contributor.contributor_role.identifier":   { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.contributor.contributor_type.identifier":   { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
+        "research_dataset.publisher.member_of.identifier":            { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.publisher.contributor_role.identifier":     { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.publisher.contributor_type.identifier":     { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
+        "research_dataset.curator.member_of.identifier":              { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.curator.contributor_role.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.curator.contributor_type.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
+        "research_dataset.creator.member_of.identifier":              { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.creator.contributor_role.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.creator.contributor_type.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
+        "research_dataset.rights_holder.member_of.identifier":        { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.rights_holder.contributor_role.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.rights_holder.contributor_type.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
+        "research_dataset.provenance.was_associated_with.member_of.identifier":        { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
+        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
+        "research_dataset.provenance.was_associated_with.contributor_type.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" }
+    }
 
 
 
@@ -443,7 +544,7 @@ The error response should look something like this:
 
 Try to create a dataset when JSON schema validation fails for field ``research_dataset``. In the below example, the required field ``title`` is missing from the JSON blob inside field ``research_dataset``.
 
-.. note::
+.. important::
 
     The contents of the field ``research_dataset`` are validated directly against the relevant schema from ``GET /rest/schemas``, so probably either the ``ida`` schema or ``att`` schema, depending on if you are going to include files from IDA in your dataset or not. When schema validation fails, the entire output from the validator is returned. For an untrained eye, it can be difficult to find the relevant parts from the output. For that reason, it is strongly recommended that you:
 
@@ -703,10 +804,6 @@ Add files to a dataset, which already has files associated with it, either from 
 
 Functionally, adding a directory to a dataset works the exact same way as adding a single file. The effect of adding a directory vs. a single file is a lot greater though, since all the files included in that directory, and its sub-directories, are then associated with the dataset.
 
-
-.. warning:: explain somewhere the concepts of addings vs describing files. add link to that page here
-
-
 Below is an example similar to the first example where we added files. The dataset in its initial state does not have any files or directories added to it:
 
 
@@ -777,7 +874,7 @@ Example:
     assert response.status_code == 200, response.content
 
 
-.. note:: Etsin, a Fairdata service, provides a nice graphical UI for browsing files of published datasets.
+.. hint:: Etsin, a Fairdata service, provides a nice graphical UI for browsing files of published datasets.
 
 
 It's also possible to retrieve a flat list of file metadata of all the files included in the dataset. Be advised though: The below API endpoint does not utilize paging! If the number of files is very large, the amount of data being downloaded by default can be very large! Therefore, it is highly recommended to use the query parameter ``file_fields=field_1,field_2,field_3...`` to only retrieve the information you require:
