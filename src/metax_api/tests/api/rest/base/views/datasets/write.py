@@ -15,8 +15,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
+from metax_api.services import RedisCacheService
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
-from metax_api.utils import RedisSentinelCache, get_tz_aware_now_without_micros
+from metax_api.utils import get_tz_aware_now_without_micros
 from metax_api.tests.utils import get_test_oidc_token
 
 
@@ -931,7 +932,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         The API should attempt to reload the reference data if it is missing from
         cache for whatever reason, and successfully finish the request
         """
-        cache = RedisSentinelCache()
+        cache = RedisCacheService()
         cache.delete('reference_data')
         self.assertEqual(cache.get('reference_data', master=True), None,
                          'cache ref data should be missing after cache.delete()')
@@ -1019,9 +1020,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to datasets to their approriate fields
         """
-        from metax_api.utils import RedisSentinelCache
+        from metax_api.services import RedisCacheService
 
-        cache = RedisSentinelCache()
+        cache = RedisCacheService()
         refdata = cache.get('reference_data')['reference_data']
         orgdata = cache.get('reference_data')['organization_data']
         refs = {}

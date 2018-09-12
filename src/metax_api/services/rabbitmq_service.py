@@ -13,25 +13,25 @@ from time import sleep
 import pika
 from django.conf import settings as django_settings
 
-from .utils import executing_test_case, executing_travis
+from metax_api.utils.utils import executing_test_case, executing_travis
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
 
-def RabbitMQ(*args, **kwargs):
+def RabbitMQService(*args, **kwargs):
     """
     A factory for the rabbitmq client.
 
     Returns dummy class when executing inside travis or test cases
     """
     if executing_travis() or executing_test_case() or kwargs.pop('dummy', False):
-        return _RabbitMQDummy(*args, **kwargs)
+        return _RabbitMQServiceDummy(*args, **kwargs)
     else:
-        return _RabbitMQ(*args, **kwargs)
+        return _RabbitMQService(*args, **kwargs)
 
 
-class _RabbitMQ():
+class _RabbitMQService():
 
     def __init__(self, settings=django_settings):
         """
@@ -143,7 +143,7 @@ class _RabbitMQ():
                 raise Exception('Messages without routing_key are discarded when exchange type is \'direct\'')
 
 
-class _RabbitMQDummy():
+class _RabbitMQServiceDummy():
 
     """
     A dummy rabbitmq client that doesn't connect anywhere and doesn't do jack actually.

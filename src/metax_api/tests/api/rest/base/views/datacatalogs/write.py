@@ -86,9 +86,9 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to data catalog to their approriate fields
         """
-        from metax_api.utils import RedisSentinelCache
+        from metax_api.services import RedisCacheService
 
-        cache = RedisSentinelCache()
+        cache = RedisCacheService()
         refdata = cache.get('reference_data')['reference_data']
         orgdata = cache.get('reference_data')['organization_data']
         refs = {}

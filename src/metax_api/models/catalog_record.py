@@ -17,7 +17,7 @@ from django.http import Http404
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.utils import RabbitMQ, DataciteAPI, get_tz_aware_now_without_micros, generate_doi_identifier, \
+from metax_api.utils import DataciteAPI, get_tz_aware_now_without_micros, generate_doi_identifier, \
     generate_uuid_identifier, executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type
 from .common import Common, CommonManager
 from .contract import Contract
@@ -1437,6 +1437,8 @@ class RabbitMQPublishRecord():
         """
         The actual code that gets executed during CommonService.run_post_request_callables().
         """
+        from metax_api.services import RabbitMQService
+
         _logger.info(
             'Publishing CatalogRecord %s to RabbitMQ... routing_key: %s'
             % (self.cr.identifier, self.routing_key)
@@ -1448,7 +1450,7 @@ class RabbitMQPublishRecord():
             cr_json = self._to_json()
 
         try:
-            rabbitmq = RabbitMQ()
+            rabbitmq = RabbitMQService()
             rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange='datasets')
         except:
             # note: if we'd like to let the request be a success even if this operation fails,

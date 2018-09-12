@@ -22,7 +22,6 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services import AuthService
-from metax_api.utils import RabbitMQ
 from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
 
@@ -426,7 +425,8 @@ class FileService(CommonService):
             return
 
         _logger.info('Publishing %d deprecated datasets to rabbitmq update queues...' % len(deprecated_records))
-        rabbitmq = RabbitMQ()
+        from metax_api.services import RabbitMQService
+        rabbitmq = RabbitMQService()
         rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
 
     @classmethod
