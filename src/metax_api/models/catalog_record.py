@@ -1553,24 +1553,14 @@ class DataciteDOIUpdate():
         try:
             dcs = DataciteService()
             if self.action == 'create':
-                datacite_xml = dcs.convert_catalog_record_to_datacite_xml(
-                    {'research_dataset': self.cr.research_dataset}, True)
-                _logger.debug("Datacite XML to be sent to Datacite API: {0}".format(datacite_xml))
-
                 try:
-                    # When the two operations below are successful, it should result in the DOI transitioning to
-                    # "findable" state
-                    dcs.create_doi_metadata(datacite_xml)
-                    dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
+                    self._publish_to_datacite(dcs, doi)
                 except Exception as e:
                     # Try to delete DOI in case the DOI got created but stayed in "draft" state
                     dcs.delete_draft_doi(doi)
                     raise(Exception(e))
             elif self.action == 'update':
-                datacite_xml = dcs.convert_catalog_record_to_datacite_xml(
-                    {'research_dataset': self.cr.research_dataset}, True)
-                dcs.create_doi_metadata(datacite_xml)
-                dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
+                self._publish_to_datacite(dcs, doi)
             elif self.action == 'delete':
                 # If metadata is in "findable" state, the operation below should transition the DOI to "registered"
                 # state
@@ -1581,3 +1571,13 @@ class DataciteDOIUpdate():
             raise Http503({ 'detail': [
                 'failed to publish updates to Datacite API. request is aborted.'
             ]})
+
+    def _publish_to_datacite(self, dcs, doi):
+        datacite_xml = dcs.convert_catalog_record_to_datacite_xml(
+            {'research_dataset': self.cr.research_dataset}, True)
+        _logger.debug("Datacite XML to be sent to Datacite API: {0}".format(datacite_xml))
+
+        # When the two operations below are successful, it should result in the DOI transitioning to
+        # "findable" state
+        dcs.create_doi_metadata(datacite_xml)
+        dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
