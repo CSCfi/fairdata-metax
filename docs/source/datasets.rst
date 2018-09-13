@@ -9,7 +9,7 @@ General
 
 Datasets, like all objects accessible using the different APIs in Metax, have an internal identifier field ``identifier``, which uniquely identifies a record withing Metax.
 
-The standard way to retrieve a single dataset is by sending a request to the API ``GET /rest/datasets/<pid>``, where ``<pid>`` is the record's internal identifier. The results returned from the API ``GET /rest/datasets`` are also sometimes called "catalog records", or "records", which is the root object that contains various other information about the state of the dataset, such as last-modified timestamps, PAS state, and other data. Inside that record, is also the field is probably of the most interest to end users: The ``research_dataset`` field. ``research_dataset`` contains the actual user-provided metadata descriptions of *The* Dataset.
+The standard way to retrieve a single dataset is by sending a request to the API ``GET /rest/datasets/<pid>``, where ``<pid>`` is the record's internal identifier. The results returned from the API ``GET /rest/datasets`` are also sometimes called "catalog records", or "records", which is the root object containing various other information about the state of the dataset, such as last-modified timestamps, PAS state, and other data. Inside that record is also the field probably of the most interest to end users: The ``research_dataset`` field. ``research_dataset`` contains the actual user-provided metadata descriptions of *The* Dataset.
 
 Datasets can be listed and browsed using the API ``GET /rest/datasets``. Retrieving a dataset or listing datasets can be augmented in various ways by using additional parameters. For details, see swagger's section about datasets.
 
@@ -272,7 +272,7 @@ In the table, on the left hand side is described the relation object which uses 
 
 In the schema visualization at https://tietomallit.suomi.fi/model/mrd, there are various relations leading from the object ``ResearchDataset`` to the object ``ResearchAgent``. The visualization is - at current time - unable to visualize "oneOf"-relations of JSON schemas. If opening one of the actual dataset schema files provided by the API ``/rest/schemas``, such as https://metax-test.csc.fi/rest/schemas/ida_dataset, and searching for the string "oneOf" inside that file, you will see that the object ``ResearchAgent`` is actually an instance of either the ``Person`` or the ``Organization`` object. That means, that for example when setting the ``research_dataset.curator`` relation (which is an array), the contents of the ``curator`` field can be either a person, an organization, or a mix of persons and organizations.
 
-This needs to be taken into account when looking which reference data to use, when dealing with ``Person`` or ``Orgnaization`` objects in the schema. In the below table, the person- and organization-related relations have been separated from the rest of the fields that use reference data, and then split, to make it easier to find out which reference data to use depending on what kind of object is being used.
+This needs to be taken into account when looking which reference data to use, when dealing with ``Person`` or ``Organization`` objects in the schema. In the below table, the person- and organization-related relations have been separated from the rest of the fields that use reference data, and then split, to make it easier to find out which reference data to use depending on what kind of object is being used.
 
 
 .. code-block:: python
@@ -280,7 +280,6 @@ This needs to be taken into account when looking which reference data to use, wh
     {
         "research_dataset.theme.identifier":                                { "mode": "required", "url": "http://purl.org/att/es/reference_data/keyword" },
         "research_dataset.field_of_science.identifier":                     { "mode": "required", "url": "http://purl.org/att/es/reference_data/field_of_science" },
-        "research_dataset.remote_resources.checksum.algorithm":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/checksum_algorithm" },
         "research_dataset.remote_resources.license.identifier":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/license" },
         "research_dataset.remote_resources.resource_type.identifier":       { "mode": "required", "url": "http://purl.org/att/es/reference_data/resource_type" },
         "research_dataset.remote_resources.file_type.identifier":           { "mode": "required", "url": "http://purl.org/att/es/reference_data/file_type" },
@@ -297,6 +296,8 @@ This needs to be taken into account when looking which reference data to use, wh
         "research_dataset.directories.use_category.identifier":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/use_category" },
         "research_dataset.provenance.spatial.place_uri.identifier":         { "mode": "required", "url": "http://purl.org/att/es/reference_data/location" },
         "research_dataset.provenance.type.identifier":                      { "mode": "required", "url": "http://purl.org/att/es/reference_data/type" },
+        "research_dataset.provenance.preservation_event.identifier":        { "mode": "required", "url": "http://purl.org/att/es/reference_data/preservation_event" },
+        "research_dataset.provenance.event_outcome.identifier":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/event_outcome" },
         "research_dataset.infrastructure.identifier":                       { "mode": "required", "url": "http://purl.org/att/es/reference_data/research_infra" },
         "research_dataset.relation.relation_type.identifier":               { "mode": "required", "url": "http://purl.org/att/es/reference_data/relation_type" },
         "research_dataset.relation.entity.type.identifier":                 { "mode": "required", "url": "http://purl.org/att/es/reference_data/resource_type" },
