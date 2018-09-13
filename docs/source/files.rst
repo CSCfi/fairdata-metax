@@ -14,6 +14,9 @@ The ``/rest/files`` API supports creating, retrieving, updating, and deleting fi
 * Updating files is currently possible only by utilzing the PAS service.
 * Deleting files is currently possible only by utilizing the IDA service.
 
+The file and directory data model visualization can be found here https://tietomallit.suomi.fi/model/mfs.
+
+
 
 File hierarchy
 ---------------
