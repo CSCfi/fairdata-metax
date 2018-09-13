@@ -25,7 +25,7 @@ Data Catalogs
 
 Every dataset belongs in a Data Catalog. Data catalogs house datasets with different origins (harvested vs. Fairdata user provided datasets), slightly different schemas (IDA and ATT catalogs for example), and datasets in some catalogs are automatically versioned. While reading datasets from all catalogs is possibly by anybody (save for some data which might be considered as sensitive, such as personal information), writing to catalogs is restricted to either known services, and some also to end users.
 
-Data catalogs can be browser by using the API ``/rest/datacatalogs``.
+Data catalogs can be browsed by using the API ``/rest/datacatalogs``. The data catalog data model visualization can be found here https://tietomallit.suomi.fi/model/mdc.
 
 The official Fairdata data catalogs with end user write access are:
 
@@ -36,8 +36,6 @@ The official Fairdata data catalogs with end user write access are:
 +---------+-----------------------------------------------------------------------------------+---------------------------------+
 | ATT     | Store datasets which have data stored elsewhere than in the IDA Fairdata service. | urn:nbn:fi:att:data-catalog-att |
 +---------+-----------------------------------------------------------------------------------+---------------------------------+
-
-
 
 
 
@@ -131,7 +129,7 @@ In short, when a dataset's metadata is changed, the previous metadata version is
 
 **How to enable versioning?**
 
-A data catalog has the setting ``dataset_versioning`` (boolean) which indicates whether or not datasets saved to that catalog should be versioned upon certain changes. In general, versioning is only enabled for ATT catalogs. Versioning cannot be enabled for harvested data catalogs (an error is raised if it is attempted, to prevent accidents). In versioned catalogs, preferred_identifiers can not be set by the user.
+A data catalog has the setting ``dataset_versioning`` (boolean) which indicates whether or not datasets saved to that catalog should be versioned upon certain changes. In general, versioning is only enabled for IDA catalogs. Versioning cannot be enabled for harvested data catalogs (an error is raised if it is attempted, to prevent accidents). In versioned catalogs, preferred_identifiers can not be set by the user.
 
 
 **What triggers a version change?**
@@ -224,7 +222,9 @@ In non-harvested data catalogs, the uniqueness of a dataset is generally determi
 
 **Harvested data catalogs**
 
-In harvested data catalogs, the value of ``preferred_identifier`` can be provided by the user (the harvester). The value of ``preferred_identifier`` is unique within its data catalog, so there can co-exist for example three datasets, in three different data catalogs, which have the same ``preferred_identifier`` value. When retrieving details of a single record using the API, information about these "alternate records" is included in the field ``alternate_record_set``, which contains a list of Metax internal identifiers of the other records, and is a read-only field.
+In harvested data, the value of preferred_identifier can and should be extracted from the harvested dataset’s source data. The harvester is allowed to set the preferred_identifier for the datasets it creates in Metax, so harvest source organization should indicate which field they would like to use as the preferred_identifier.
+
+The value of ``preferred_identifier`` is unique within its data catalog, so there can co-exist for example three datasets, in three different data catalogs, which have the same ``preferred_identifier`` value. When retrieving details of a single record using the API, information about these "alternate records" is included in the field ``alternate_record_set``, which contains a list of Metax internal identifiers of the other records, and is a read-only field.
 
 If the field ``alternate_record_set`` is missing from a record, it means there are no alternate records sharing the same ``preferred_identifier`` in different data catalogs.
 
@@ -232,16 +232,16 @@ If the field ``alternate_record_set`` is missing from a record, it means there a
 
 .. _rst-describing-and-adding-files:
 
-Describing files vs. adding files
-----------------------------------
+Describing files vs. adding and removing files
+-----------------------------------------------
 
-A distinction needs to be made between *describing* files in a dataset, and *adding* files to dataset. As explained in the topic :ref:`rst-dataset-versioning`, just editing a dataset's metadata (including the dataset-specific file metadata in fields ``research_dataset.files`` and ``research_dataset.directories``) does not produce new dataset versions, while *adding* new files will produce new dataset versions. Yet, both describing the files and adding files happens by inserting objects inside the fields ``research_dataset.files`` and ``research_dataset.directories``. How to know which is which, and what to expect when updating datasets and dealing with files?
+A distinction needs to be made between *describing* files in a dataset, and *adding or removing* files. As explained in the topic :ref:`rst-dataset-versioning`, just editing a dataset's metadata (including the dataset-specific file metadata in fields ``research_dataset.files`` and ``research_dataset.directories``) does not produce new dataset versions, while *adding* new files will produce new dataset versions, as will *removing* files. Yet, both describing the files, and adding or removing files, happens by inserting objects inside the fields ``research_dataset.files`` and ``research_dataset.directories``, or by removing the same objects when wishing to remove files from a dataset. How to know which is which, and what to expect when updating datasets and dealing with files?
 
 
 **Adding and describing single files**
 
 
-As long as we are dealing with only single files, the distinction between describing and adding files does not matter; they are effectively the same thing. But when starting to add directories to a dataset, the disctintion becomes more necessary.
+As long as we are dealing with only single files, the distinction between describing and adding files does not matter; they are effectively the same thing. Same goes for removing. Either the file is listed in ``research_dataset.files``, or it isn't. But when starting to add or remove directories, the disctintion becomes more necessary.
 
 
 **Adding and describing directories**
@@ -254,6 +254,15 @@ The same logic applies when adding descriptions for sub-directories: Adding more
 It is possible though to for example add multiple directories that should all be considered as "top level" parent directories, in which case all those directories are recognized as such, and files from all those directories are still added to the dataset. Likewise, a directory may be added to the dataset, plus some files separately outside of that directory. Metax will recognize the individual files listed in ``research_dataset.files`` do not belong to any of the listed directories, and they will be added separately.
 
 
+**Removing directories**
+
+As can probably be guessed from the previous paragraphs, removing an entry from ``research_dataset.directories`` does not necessarily count as "removing" files, if there still exists an attached parent directory. In that case, removing the directory would only count as editing metadata descriptions.
+
+
+**How to exclude files or directories?**
+
+When a directory has been added, excluding files or sub-directories from that directory is not yet supported.
+
 
 .. _rst-datasets-reference-data:
 
@@ -262,7 +271,7 @@ Reference data guide
 
 A dataset's metadata descriptions requires the use of reference data in quite many places, and actually even the bare minimum accepted dataset already uses reference data in three different fields.
 
-Below is a table (...python dictionary) that shows which fields, in which relations of the field ``research_dataset``, require or offer the use of reference data. The table is best inspected when holding in the other hand the visualization at https://tietomallit.suomi.fi/model/mrd, which is a visualization of the schema of field ``research_dataset`` (plus the main record object, ``CatalogRecord``, which is actually what the API ``/rest/datasets`` returns).
+Below is a table (...python dictionary) that shows which relations and fields of the field ``research_dataset`` require or offer the option to use reference data. For example, ``research_dataset.language`` is a relation, while ``research_dataset.language.identifier`` is a field of that relation. The table is best inspected when holding in the other hand the visualization at https://tietomallit.suomi.fi/model/mrd, which is a visualization of the schema of field ``research_dataset`` (plus the main record object, ``CatalogRecord``, which is actually what the API ``/rest/datasets`` returns).
 
 In the table, on the left hand side is described the relation object which uses reference data (not that one or several of the relations can be an array of objects, instead of a single object), and on the right hand side is "mode", and "url". Mode is either "required" or "optional", where "required" means the relation will only accept values from reference data, and all other values will result in a validation error, while "optional" means reference data can be used if opting to do so, but custom values will also be accepted (such as custom identifiers if you have any). The "url" finally is the url where the reference data can be found in ElasticSearch.
 
@@ -453,7 +462,7 @@ Explanation of all the fields in the received response/newly created dataset:
 * ``id`` An internal database identifier in Metax.
 * ``identifier`` The unique identifier of the created record in Metax. This is the identifier to use when interacting with the dataset in Metax in any subsequent requests, such as when retrievng, updating, or deleting the dataset.
 * ``dataset_version_set`` List of dataset versions associated with this record. Having just created a new record, there is obviously only one record listed.
-* ``deprecated`` When files are deleted from IDA, any datasets containing those files are marked as "deprecated", and the value of this field will be set to ``True``. The value of this field may have an effect in other services, when displaying the dataset contents.
+* ``deprecated`` When files are deleted or unfrozen from IDA, any datasets containing those files are marked as "deprecated", and the value of this field will be set to ``True``. The value of this field may have an effect in other services, when displaying the dataset contents.
 * ``metadata_owner_org``, ``metadata_provider_org``, ``metadata_provider_user`` Information about the creator of the metadata, and the associated organization. These are automatically placed according to the information available from the authentication token.
 * ``research_dataset`` Now has two new fields generated by Metax:
 
@@ -860,9 +869,25 @@ Delete an existing dataset using a ``DELETE`` request:
 Browsing a dataset's files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Browsing the files of a dataset works the same way as browsing files in general (see :ref:`rst-browsing-files`), except that an additional query parameter ``cr_identifier=<dataset_identifer>`` should be provided, in order to retrieve only those files and directories, which are included in the specified dataset.
+File metadata of a dataset can be browsed in two ways.
 
-Note that when browsing the files of a dataset, authentication with the API is not required, since if a dataset is retrievable from the API, it means it has been published, and its files are now public information.
+First way is to retrieve a flat list of file metadata of all the files included in the dataset. Be advised though: The below API endpoint does not utilize paging! If the number of files is very large, the amount of data being downloaded by default can be very large! Therefore, it is highly recommended to use the query parameter ``file_fields=field_1,field_2,field_3...`` to only retrieve the information you are interested in:
+
+
+.. code-block:: python
+
+    import requests
+
+    # retrieve all file metadata
+    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123/files')
+    assert response.status_code == 200, response.content
+
+    # retrieve only specified fields from file metadata
+    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123/files?file_fields=identifier,file_path')
+    assert response.status_code == 200, response.content
+
+
+The second way is by using the same API as is used to generally browse the files of a project (see :ref:`rst-browsing-files`). Browsing the files of a dataset works the same way, except that an additional query parameter ``cr_identifier=<dataset_identifer>`` should be provided, in order to retrieve only those files and directories, which are included in the specified dataset.
 
 Example:
 
@@ -878,20 +903,7 @@ Example:
 .. hint:: Etsin, a Fairdata service, provides a nice graphical UI for browsing files of published datasets.
 
 
-It's also possible to retrieve a flat list of file metadata of all the files included in the dataset. Be advised though: The below API endpoint does not utilize paging! If the number of files is very large, the amount of data being downloaded by default can be very large! Therefore, it is highly recommended to use the query parameter ``file_fields=field_1,field_2,field_3...`` to only retrieve the information you require:
-
-
-.. code-block:: python
-
-    import requests
-
-    # retrieve all file metadata
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123/files')
-    assert response.status_code == 200, response.content
-
-    # retrieve only specified fields from file metadata
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123/files?file_fields=identifier,file_path')
-    assert response.status_code == 200, response.content
+.. note:: When browsing the files of a dataset, authentication with the API is not required, since if a dataset is retrievable from the API, it means it has been published, and its files are now public information.
 
 
 Using reference data
