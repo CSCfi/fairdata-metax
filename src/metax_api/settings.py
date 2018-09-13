@@ -440,3 +440,18 @@ else:
         'ADMIN_EMAIL': app_config_dict['OAI']['ADMIN_EMAIL'],
         'SET_MAPPINGS': app_config_dict['OAI']['SET_MAPPINGS']
     }
+
+if executing_in_travis:
+    DATACITE = {
+        'USERNAME': 'datacite_user',
+        'PASSWORD': 'datacite_password',
+        'ETSIN_URL_TEMPLATE': 'https://etsin.something.fi/dataset/%s',
+        'PREFIX': '10.5072'
+    }
+else:
+    DATACITE = {
+        'USERNAME': app_config_dict['DATACITE']['USERNAME'],
+        'PASSWORD': app_config_dict['DATACITE']['PASSWORD'],
+        'ETSIN_URL_TEMPLATE': app_config_dict['DATACITE']['ETSIN_URL_TEMPLATE'],
+        'PREFIX': app_config_dict['DATACITE']['PREFIX']
+    }

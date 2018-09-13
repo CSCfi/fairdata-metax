@@ -16,25 +16,25 @@ from redis.exceptions import TimeoutError, ConnectionError
 from redis.sentinel import MasterNotFoundError
 from redis.sentinel import Sentinel
 
-from .utils import executing_test_case, executing_travis
+from metax_api.utils.utils import executing_test_case, executing_travis
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
 
-def RedisSentinelCache(*args, **kwargs):
+def RedisCacheService(*args, **kwargs):
     """
     A factory for the redis client.
 
     Returns dummy cache with hardcoded dict as the storage when executing inside travis
     """
     if executing_travis() or kwargs.get('dummy', False):
-        return _RedisSentinelCacheDummy(*args, **kwargs)
+        return _RedisCacheServiceDummy(*args, **kwargs)
     else:
-        return _RedisSentinelCache(*args, **kwargs)
+        return _RedisCacheService(*args, **kwargs)
 
 
-class _RedisSentinelCache():
+class _RedisCacheService():
 
     def __init__(self, db=0, master_only=False, settings=django_settings):
         """
@@ -230,7 +230,7 @@ class _RedisSentinelCache():
         return len(self._sentinel.discover_slaves(self._service_name)) + 1 # +1 is master
 
 
-class _RedisSentinelCacheDummy():
+class _RedisCacheServiceDummy():
 
     """
     A dummy redis client that writes to a file on disk.

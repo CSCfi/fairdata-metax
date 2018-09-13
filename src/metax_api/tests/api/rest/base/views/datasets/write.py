@@ -15,8 +15,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
+from metax_api.services import RedisCacheService
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
-from metax_api.utils import RedisSentinelCache, get_tz_aware_now_without_micros
+from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
 from metax_api.tests.utils import get_test_oidc_token
 
 
@@ -142,6 +143,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         cr_from_test_data['research_dataset'].pop('preferred_identifier')
         cr_from_test_data.pop('identifier')
         return cr_from_test_data
+
 
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
@@ -332,6 +334,27 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
+
+    def test_create_catalog_record_using_pid_type(self):
+        # Test with pid_type = urn
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json")
+        self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
+
+        # Test with pid_type = doi
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json")
+        self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('doi:10.'))
+
+        # Test with pid_type = not_known
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?pid_type=not_known', self.cr_test_data, format="json")
+        self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
+
+        # Test without pid_type
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
 
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
@@ -909,7 +932,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         The API should attempt to reload the reference data if it is missing from
         cache for whatever reason, and successfully finish the request
         """
-        cache = RedisSentinelCache()
+        cache = RedisCacheService()
         cache.delete('reference_data')
         self.assertEqual(cache.get('reference_data', master=True), None,
                          'cache ref data should be missing after cache.delete()')
@@ -997,9 +1020,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to datasets to their approriate fields
         """
-        from metax_api.utils import RedisSentinelCache
+        from metax_api.services import RedisCacheService
 
-        cache = RedisSentinelCache()
+        cache = RedisCacheService()
         refdata = cache.get('reference_data')['reference_data']
         orgdata = cache.get('reference_data')['organization_data']
         refs = {}
@@ -1604,6 +1627,23 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         response = self.client.get('/rest/datasets/1', format="json")
         self.assertEqual(response.data['dataset_version_set'][0].get('removed', None), True,
             response.data['dataset_version_set'])
+
+    def test_new_dataset_version_pref_id_type_stays_same_as_previous_dataset_version_pref_id_type(self):
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+
+        cr_v1 = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json").data
+        cr_v1['research_dataset']['files'].pop(0)
+        cr_v2 = self.client.put('/rest/datasets/{0}?pid_type=doi'.format(cr_v1['identifier']), cr_v1, format="json")
+        self.assertEqual('new_version_created' in cr_v2.data, True)
+        self.assertTrue(
+            get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.URN)
+
+        cr_v1 = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json").data
+        cr_v1['research_dataset']['files'].pop(0)
+        cr_v2 = self.client.put('/rest/datasets/{0}'.format(cr_v1['identifier']), cr_v1, format="json")
+        self.assertEqual('new_version_created' in cr_v2.data, True)
+        self.assertTrue(
+            get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.DOI)
 
     def _assert_metadata_version_count(self, record, count):
         response = self.client.get('/rest/datasets/%d/metadata_versions' % record['id'], format="json")
