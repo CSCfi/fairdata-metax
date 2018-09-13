@@ -9,26 +9,106 @@ import re
 from os.path import dirname, join
 
 import jsonschema
-from datacite import schema41 as datacite_schema41
+from datacite import schema41 as datacite_schema41, DataCiteMDSClient
+from django.conf import settings as django_settings
 
 from metax_api.exceptions import Http400
-from metax_api.utils import extract_doi_from_doi_identifier, get_identifier_type, IdentifierType
+from metax_api.utils import extract_doi_from_doi_identifier, get_identifier_type, IdentifierType, \
+    executing_travis, executing_test_case
 from .common_service import CommonService
 
 
 _logger = logging.getLogger(__name__)
 
 
-class DataciteService(CommonService):
+def DataciteService(*args, **kwargs):
+    """
+    A factory for the Datacite service, which is capable of interacting with Datacite API and converting catalog records
+    into datacite format.
+    """
+    if executing_travis() or executing_test_case() or kwargs.pop('dummy', False):
+        return _DataciteServiceDummy(*args, **kwargs)
+    else:
+        return _DataciteService(*args, **kwargs)
+
+
+class _DataciteService(CommonService):
 
     """
     Methods related to various aspects of Datacite metadata handling.
-
-    In the future will probably house DOI related operations too.
     """
 
-    @classmethod
-    def to_datacite_xml(cls, catalog_record, include_xml_declaration):
+    def __init__(self, settings=django_settings):
+        if not isinstance(settings, dict):
+            if hasattr(settings, 'DATACITE'):
+                settings = settings.DATACITE
+            else:
+                raise Exception('Missing configuration from settings.py: DATACITE')
+
+        if not settings.get('USERNAME', None):
+            raise Exception('Missing configuration from settings for DATACITE: USERNAME')
+        if not settings.get('PASSWORD', None):
+            raise Exception('Missing configuration from settings for DATACITE: PASSWORD')
+        if not settings.get('PREFIX', None):
+            raise Exception('Missing configuration from settings for DATACITE: PREFIX')
+
+        self.user = settings['USERNAME']
+        self.pw = settings['PASSWORD']
+
+        self.mds = DataCiteMDSClient(
+            username=self.user,
+            password=self.pw,
+            prefix=settings['PREFIX'],
+            test_mode=False)
+
+    def create_doi_metadata(self, datacite_xml_metadata):
+        """
+        Create DOI and its metadata to Datacite. DOI docs state that this results in the DOI to enter the "draft" state.
+
+        :param datacite_xml_metadata:
+        :return:
+        """
+        self.mds.metadata_post(datacite_xml_metadata)
+
+    def register_doi_url(self, doi, location_url):
+        """
+        Set URL for the DOI, meaning the URL to which e.g. doi.org/<doi> will resolve to, to Datacite.
+        Transition from "draft" state to "findable" state, meaning DOI will become resolvable.
+        DOI docs say metadata should exist before the following request is done, but it is unknown what
+        happens if this request is done before metadata exists. Or whether the metadata
+        is needed at all to make the DOI "findable".
+
+        :param doi:
+        :param location_url:
+        :return:
+        """
+        self.mds.doi_post(doi, location_url)
+
+    def delete_doi_metadata(self, doi):
+        """
+        Transition DOI from "findable" state to "registered" state by deleting the DOI metadata from Datacite.
+        If DOI is in "draft" state, should not do anything.
+
+        :param doi_identifier:
+        :return:
+        """
+        self.mds.metadata_delete(doi)
+
+    def delete_draft_doi(self, doi):
+        """
+        Delete DOI that is in "draft" state from Datacite.
+
+        :param doi:
+        :return:
+        """
+        from requests import delete
+        try:
+            delete('https://mds.datacite.org/doi/{0}'.format(doi),
+                   headers={'Content-Type': 'application/plain;charset=UTF-8'}, auth=(self.user, self.pw))
+        except:
+            pass
+
+    def convert_catalog_record_to_datacite_xml(self, catalog_record, include_xml_declaration):
         """
         Convert dataset from metax dataset datamodel to datacite json datamodel, validate datacite json,
         and convert to and return datacite xml as string.
@@ -50,9 +130,9 @@ class DataciteService(CommonService):
             main_lang = 'fi'
 
         try:
-            publisher = cls._main_lang_or_default(rd['publisher']['name'], main_lang)
+            publisher = self._main_lang_or_default(rd['publisher']['name'], main_lang)
         except:
-            publisher = cls._main_lang_or_default(rd['creator'][0]['name'], main_lang)
+            publisher = self._main_lang_or_default(rd['creator'][0]['name'], main_lang)
 
         """
         here contains required fields only, as specified by datacite:
@@ -75,13 +155,13 @@ class DataciteService(CommonService):
                 'identifierType': 'DOI',
             },
             'publicationYear': rd['modified'][0:4],
-            'creators': cls._creators(rd['creator'], main_lang=main_lang),
+            'creators': self._creators(rd['creator'], main_lang=main_lang),
             'titles': [
                 { 'lang': lang, 'title': title } for lang, title in rd['title'].items()
             ],
             'publisher': publisher,
             'resourceType': {
-                'resourceTypeGeneral': cls._resourceTypeGeneral(rd)
+                'resourceTypeGeneral': self._resourceTypeGeneral(rd)
             }
         }
 
@@ -105,9 +185,9 @@ class DataciteService(CommonService):
             for kw in rd.get('keyword', []):
                 datacite_json['subjects'].append({ 'subject': kw })
             for fos in rd.get('field_of_science', []):
-                datacite_json['subjects'].extend(cls._subjects(fos))
+                datacite_json['subjects'].extend(self._subjects(fos))
             for theme in rd.get('theme', []):
-                datacite_json['subjects'].extend(cls._subjects(theme))
+                datacite_json['subjects'].extend(self._subjects(theme))
 
         if 'total_ida_byte_size' in rd:
             datacite_json['sizes'] = [str(rd['total_ida_byte_size'])]
@@ -119,7 +199,7 @@ class DataciteService(CommonService):
             ]
 
         if 'license' in rd['access_rights']:
-            datacite_json['rightsList'] = cls._licenses(rd['access_rights'])
+            datacite_json['rightsList'] = self._licenses(rd['access_rights'])
 
         if 'language' in rd:
             datacite_json['language'] = rd['language'][0]['identifier'].split('http://lexvo.org/id/iso639-3/')[1]
@@ -127,22 +207,22 @@ class DataciteService(CommonService):
         if 'curator' in rd or 'contributor' in rd or 'creator' in rd or 'rights_holder' in rd or 'publisher' in rd:
             datacite_json['contributors'] = []
             if 'curator' in rd:
-                datacite_json['contributors'].extend(cls._contributors(rd['curator'], main_lang=main_lang))
+                datacite_json['contributors'].extend(self._contributors(rd['curator'], main_lang=main_lang))
             if 'contributor' in rd:
-                datacite_json['contributors'].extend(cls._contributors(rd['contributor'], main_lang=main_lang))
+                datacite_json['contributors'].extend(self._contributors(rd['contributor'], main_lang=main_lang))
             if 'creator' in rd:
-                datacite_json['contributors'].extend(cls._contributors(rd['creator'], main_lang=main_lang))
+                datacite_json['contributors'].extend(self._contributors(rd['creator'], main_lang=main_lang))
             if 'rights_holder' in rd:
-                datacite_json['contributors'].extend(cls._contributors(rd['rights_holder'], main_lang=main_lang))
+                datacite_json['contributors'].extend(self._contributors(rd['rights_holder'], main_lang=main_lang))
             if 'publisher' in rd:
-                datacite_json['contributors'].extend(cls._contributors(rd['publisher'], main_lang=main_lang))
+                datacite_json['contributors'].extend(self._contributors(rd['publisher'], main_lang=main_lang))
         if 'spatial' in rd:
-            datacite_json['geoLocations'] = cls._spatials(rd['spatial'])
+            datacite_json['geoLocations'] = self._spatials(rd['spatial'])
 
         try:
             jsonschema.validate(
                 datacite_json,
-                cls.get_json_schema(join(dirname(dirname(__file__)), 'api/rest/base/schemas'), 'datacite_4.1')
+                self.get_json_schema(join(dirname(dirname(__file__)), 'api/rest/base/schemas'), 'datacite_4.1')
             )
         except:
             _logger.exception('Failed to validate metax dataset -> datacite conversion json')
@@ -180,25 +260,23 @@ class DataciteService(CommonService):
         """
         return "Dataset"
 
-    @classmethod
-    def _creators(cls, research_agents, main_lang):
+    def _creators(self, research_agents, main_lang):
         creators = []
         for ra in research_agents:
 
-            cr = { 'creatorName': cls._main_lang_or_default(ra['name'], main_lang=main_lang) }
+            cr = { 'creatorName': self._main_lang_or_default(ra['name'], main_lang=main_lang) }
 
             if 'identifier' in ra:
                 cr['nameIdentifiers'] = [{ 'nameIdentifier': ra['identifier'], 'nameIdentifierScheme': 'URI' }]
 
             if 'member_of' in ra:
-                cr['affiliations'] = cls._person_affiliations(ra, main_lang)
+                cr['affiliations'] = self._person_affiliations(ra, main_lang)
 
             creators.append(cr)
 
         return creators
 
-    @classmethod
-    def _contributors(cls, research_agents, main_lang=None):
+    def _contributors(self, research_agents, main_lang=None):
         if isinstance(research_agents, dict):
             research_agents = [research_agents]
 
@@ -207,13 +285,13 @@ class DataciteService(CommonService):
             if 'contributor_type' not in ra:
                 continue
 
-            cr_base = {'contributorName': cls._main_lang_or_default(ra['name'], main_lang=main_lang)}
+            cr_base = {'contributorName': self._main_lang_or_default(ra['name'], main_lang=main_lang)}
 
             if 'identifier' in ra:
                 cr_base['nameIdentifiers'] = [{'nameIdentifier': ra['identifier'], 'nameIdentifierScheme': 'URI'}]
 
             if 'member_of' in ra:
-                cr_base['affiliations'] = cls._person_affiliations(ra, main_lang)
+                cr_base['affiliations'] = self._person_affiliations(ra, main_lang)
 
             for ct in ra.get('contributor_type', []):
                 # for example, extracts from initial value:
@@ -297,3 +375,25 @@ class DataciteService(CommonService):
             geolocations.append(geo_location)
 
         return geolocations
+
+
+class _DataciteServiceDummy(_DataciteService):
+    """
+        A dummy Datacite service that doesn't connect to Datacite API but is able to convert catalog records to
+        datacite format.
+        """
+
+    def __init__(self, settings=django_settings):
+        pass
+
+    def create_doi_metadata(self, datacite_xml_metadata):
+        pass
+
+    def register_doi_url(self, doi, url):
+        pass
+
+    def delete_doi_metadata(self, doi):
+        pass
+
+    def delete_draft_doi(self, doi):
+        pass

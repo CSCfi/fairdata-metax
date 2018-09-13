@@ -443,8 +443,6 @@ else:
 
 if executing_in_travis:
     DATACITE = {
-        'DOI_BASE_URL': 'https://datacite_doi_api.url',
-        'METADATA_BASE_URL': 'https://datacite_metadata_api.url',
         'USERNAME': 'datacite_user',
         'PASSWORD': 'datacite_password',
         'ETSIN_URL_TEMPLATE': 'https://etsin.something.fi/dataset/%s',
@@ -452,8 +450,6 @@ if executing_in_travis:
     }
 else:
     DATACITE = {
-        'DOI_BASE_URL': app_config_dict['DATACITE']['DOI_BASE_URL'],
-        'METADATA_BASE_URL': app_config_dict['DATACITE']['METADATA_BASE_URL'],
         'USERNAME': app_config_dict['DATACITE']['USERNAME'],
         'PASSWORD': app_config_dict['DATACITE']['PASSWORD'],
         'ETSIN_URL_TEMPLATE': app_config_dict['DATACITE']['ETSIN_URL_TEMPLATE'],

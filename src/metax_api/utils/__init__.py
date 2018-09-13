@@ -5,6 +5,5 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from .datacite_api import DataciteAPI
 from .reference_data_loader import ReferenceDataLoader
 from .utils import *

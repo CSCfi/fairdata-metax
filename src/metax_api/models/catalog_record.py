@@ -17,8 +17,8 @@ from django.http import Http404
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.utils import DataciteAPI, get_tz_aware_now_without_micros, generate_doi_identifier, \
-    generate_uuid_identifier, executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type
+from metax_api.utils import get_tz_aware_now_without_micros, generate_doi_identifier, generate_uuid_identifier, \
+    executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -1537,33 +1537,46 @@ class DataciteDOIUpdate():
         if self.action == 'create':
             _logger.info(
                 'Publishing CatalogRecord {0} metadata and url to Datacite API using DOI {1}'.
-                format(self.cr.identifier, self.cr.research_dataset['preferred_identifier'])
+                format(self.cr.identifier, doi)
             )
         elif self.action == 'update':
             _logger.info(
                 'Updating CatalogRecord {0} metadata and url to Datacite API using DOI {1}'.
-                format(self.cr.identifier, self.cr.research_dataset['preferred_identifier'])
+                format(self.cr.identifier, doi)
             )
         elif self.action == 'delete':
             _logger.info(
                 'Deleting CatalogRecord {0} metadata from Datacite API using DOI {1}'.
-                format(self.cr.identifier, self.cr.research_dataset['preferred_identifier'])
+                format(self.cr.identifier, doi)
             )
 
         try:
-            dc_api = DataciteAPI()
+            dcs = DataciteService()
             if self.action == 'create':
-                datacite_xml = DataciteService.to_datacite_xml({'research_dataset': self.cr.research_dataset}, True)
+                datacite_xml = dcs.convert_catalog_record_to_datacite_xml(
+                    {'research_dataset': self.cr.research_dataset}, True)
                 _logger.debug("Datacite XML to be sent to Datacite API: {0}".format(datacite_xml))
-                dc_api.register_metadata(datacite_xml)
-                dc_api.register_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
+
+                try:
+                    # When the two operations below are successful, it should result in the DOI transitioning to
+                    # "findable" state
+                    dcs.create_doi_metadata(datacite_xml)
+                    dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
+                except Exception as e:
+                    # Try to delete DOI in case the DOI got created but stayed in "draft" state
+                    dcs.delete_draft_doi(doi)
+                    raise(Exception(e))
             elif self.action == 'update':
-                datacite_xml = DataciteService.to_datacite_xml({'research_dataset': self.cr.research_dataset}, True)
-                dc_api.register_metadata(datacite_xml)
-                dc_api.register_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
+                datacite_xml = dcs.convert_catalog_record_to_datacite_xml(
+                    {'research_dataset': self.cr.research_dataset}, True)
+                dcs.create_doi_metadata(datacite_xml)
+                dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
             elif self.action == 'delete':
-                dc_api.delete_registered_metadata(doi)
-        except:
+                # If metadata is in "findable" state, the operation below should transition the DOI to "registered"
+                # state
+                dcs.delete_doi_metadata(doi)
+        except Exception as e:
+            _logger.error(e)
             _logger.exception('Datacite API interaction failed')
             raise Http503({ 'detail': [
                 'failed to publish updates to Datacite API. request is aborted.'

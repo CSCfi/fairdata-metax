@@ -184,7 +184,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         """
 
         if target_format == 'datacite':
-            return DataciteService.to_datacite_xml(catalog_records, include_xml_declaration)
+            return DataciteService().convert_catalog_record_to_datacite_xml(catalog_records, include_xml_declaration)
 
         def item_func(parent_name):
             """
