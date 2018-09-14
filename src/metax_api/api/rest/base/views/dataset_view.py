@@ -18,7 +18,7 @@ from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService as CRS, CommonService as CS
-from metax_api.utils import RabbitMQ
+from metax_api.services import RabbitMQService
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, FileSerializer
 
@@ -246,7 +246,7 @@ class DatasetViewSet(CommonViewSet):
     def rabbitmq_test(self, request, pk=None): # pragma: no cover
         if request.user.username != 'metax':
             raise Http403()
-        rabbitmq = RabbitMQ()
+        rabbitmq = RabbitMQService()
         rabbitmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
         rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
         return Response(data={}, status=status.HTTP_200_OK)

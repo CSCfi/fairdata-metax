@@ -9,27 +9,23 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
+from metax_api.services import RedisCacheService, _RedisCacheService, _RedisCacheServiceDummy
 from metax_api.services import ReferenceDataMixin as RDM
 from metax_api.tests.utils import TestClassUtils
-from metax_api.utils import (
-    _RedisSentinelCache,
-    _RedisSentinelCacheDummy,
-    executing_travis,
-    RedisSentinelCache,
-    ReferenceDataLoader,
-)
+from metax_api.utils import executing_travis, ReferenceDataLoader
+
 
 if executing_travis():
-    _RedisCacheClass = _RedisSentinelCacheDummy
+    _RedisCacheClass = _RedisCacheServiceDummy
 else:
-    _RedisCacheClass = _RedisSentinelCache
+    _RedisCacheClass = _RedisCacheService
 
 
-class MockRedisSentinelCache(_RedisCacheClass):
+class MockRedisCacheService(_RedisCacheClass):
     def __init__(self, return_data_after_retries=0, *args, **kwargs):
         self.call_count = 0
         self.return_data_after_retries = return_data_after_retries
-        super(MockRedisSentinelCache, self).__init__(*args, **kwargs)
+        super(MockRedisCacheService, self).__init__(*args, **kwargs)
 
     def get(self, *args, **kwargs):
         """
@@ -39,7 +35,7 @@ class MockRedisSentinelCache(_RedisCacheClass):
         self.call_count += 1
         if self.call_count <= self.return_data_after_retries - 1:
             return None
-        return super(MockRedisSentinelCache, self).get(*args, **kwargs)
+        return super(MockRedisCacheService, self).get(*args, **kwargs)
 
 
 class ReferenceDataMixinTests(TestCase, TestClassUtils):
@@ -53,14 +49,14 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         RDM.REF_DATA_RELOAD_MAX_RETRIES = 2
 
         super(ReferenceDataMixinTests, cls).setUpClass()
-        cls.cache = RedisSentinelCache()
+        cls.cache = RedisCacheService()
 
     def setUp(self):
         self.cache.delete('reference_data')
 
     def tearDown(self):
         # re-populate cache with ref data to not disturb other test suites
-        ReferenceDataLoader.populate_cache_reference_data(RedisSentinelCache())
+        ReferenceDataLoader.populate_cache_reference_data(RedisCacheService())
 
     def test_reference_data_reload_ok(self):
         """
@@ -79,7 +75,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         return_data_after_retries = 1
         mock_populate_cache_reference_data.return_value = 'reload_started_by_other'
         self._populate_cache_reference_data()
-        mock_cache = MockRedisSentinelCache(return_data_after_retries=return_data_after_retries)
+        mock_cache = MockRedisCacheService(return_data_after_retries=return_data_after_retries)
 
         # the method being tested
         RDM.get_reference_data(mock_cache)
@@ -100,7 +96,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
 
         mock_populate_cache_reference_data.return_value = 'reload_started_by_other'
         self._populate_cache_reference_data()
-        mock_cache = MockRedisSentinelCache(return_data_after_retries=return_data_after_retries)
+        mock_cache = MockRedisCacheService(return_data_after_retries=return_data_after_retries)
 
         try:
             # the method being tested
@@ -124,7 +120,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         mock_populate_cache_reference_data.return_value = None
 
         self._populate_cache_reference_data()
-        mock_cache = MockRedisSentinelCache(return_data_after_retries=return_data_after_retries)
+        mock_cache = MockRedisCacheService(return_data_after_retries=return_data_after_retries)
 
         try:
             # the method being tested

@@ -19,7 +19,7 @@ from rest_framework.viewsets import ModelViewSet
 from metax_api.exceptions import Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
 from metax_api.services import CommonService as CS, ApiErrorService
-from metax_api.utils import RedisSentinelCache
+from metax_api.services import RedisCacheService
 
 _logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class CommonViewSet(ModelViewSet):
     permission_classes = (EndUserPermissions, ServicePermissions)
 
     lookup_field_internal = None
-    cache = RedisSentinelCache()
+    cache = RedisCacheService()
 
     # get_queryset() automatically includes these in .select_related(field1, field2...) when returning
     # queryset to the caller
