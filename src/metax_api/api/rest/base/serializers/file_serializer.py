@@ -125,7 +125,7 @@ class FileSerializer(CommonSerializer):
             # saves a fetch to the db.
             return value
 
-        if self._operation_is_create():
+        if self._operation_is_create:
             if 'project_identifier' not in self.initial_data:
                 # the validation for project_identifier is executed later...
                 return value
@@ -134,7 +134,7 @@ class FileSerializer(CommonSerializer):
             if File.objects.filter(project_identifier=project, file_path=value).exists():
                 raise ValidationError('a file with path %s already exists in project %s' % (value, project))
 
-        elif self._operation_is_update():
+        elif self._operation_is_update:
             if 'file_path' not in self.initial_data:
                 return value
             if self.instance.file_path != self.initial_data['file_path']:

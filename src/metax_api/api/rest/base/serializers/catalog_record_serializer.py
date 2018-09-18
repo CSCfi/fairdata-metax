@@ -89,6 +89,12 @@ class CatalogRecordSerializer(CommonSerializer):
         extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
 
     def is_valid(self, raise_exception=False):
+        if self._request_by_end_user():
+            if self._operation_is_create:
+                self._end_user_create_validations(self.initial_data)
+            elif self._operation_is_update:
+                self._end_user_update_validations(self.instance, self.initial_data)
+
         if self.initial_data.get('data_catalog', False):
             self.initial_data['data_catalog'] = self._get_id_from_related_object(
                 'data_catalog', self._get_data_catalog_relation)
@@ -123,15 +129,9 @@ class CatalogRecordSerializer(CommonSerializer):
             # execute updates without creating new versions
             instance.preserve_version = True
 
-        if self._request_by_end_user():
-            self._end_user_update_validations(instance, validated_data)
-
         return super(CatalogRecordSerializer, self).update(instance, validated_data)
 
     def create(self, validated_data):
-        if self._request_by_end_user():
-            self._end_user_create_validations(validated_data)
-
         if self._migration_override_requested():
 
             # any custom stuff before create that my be necessary for migration purposes
@@ -167,24 +167,34 @@ class CatalogRecordSerializer(CommonSerializer):
         """
         Enforce some rules related to end users when creating records. End users...
         - Can put data only into specified fields.
-        - Can only create records into specified catalogs
+        - Can only create records into specified catalogs (and can only use the identifier value, not id's directly!)
         - Will have some fields automatically filled for them
         """
         fields_to_discard = [ key for key in validated_data.keys() if key not in END_USER_CREATE_ALLOWED_FIELDS ]
         for field_name in fields_to_discard:
             del validated_data[field_name]
 
-        if validated_data['data_catalog'].catalog_json['identifier'] not in END_USER_ALLOWED_DATA_CATALOGS:
+        # set some fields to whoever the authentication token belonged to.
+        validated_data['metadata_provider_user'] = self.context['request'].user.username
+        validated_data['metadata_provider_org'] = self.context['request'].user.token['schacHomeOrganization']
+        validated_data['metadata_owner_org'] = self.context['request'].user.token['schacHomeOrganization']
+
+        try:
+            identifier = validated_data['data_catalog'].catalog_json['identifier']
+        except:
+            try:
+                identifier = validated_data['data_catalog']
+            except KeyError:
+                # an error is raise later about missing required field
+                return
+
+        if identifier not in END_USER_ALLOWED_DATA_CATALOGS:
             raise Http403({
                 'detail': [
                     'You do not have access to the selected data catalog. Please use one of the following '
                     'catalogs: %s' % ', '.join(END_USER_ALLOWED_DATA_CATALOGS)
                 ]
             })
-        # set some fields to whoever the authentication token belonged to.
-        validated_data['metadata_provider_user'] = self.context['request'].user.username
-        validated_data['metadata_provider_org'] = self.context['request'].user.token['schacHomeOrganization']
-        validated_data['metadata_owner_org'] = self.context['request'].user.token['schacHomeOrganization']
 
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
@@ -273,7 +283,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
     def validate_research_dataset(self, value):
         self._validate_json_schema(value)
-        if self._operation_is_create() or self._preferred_identifier_is_changed():
+        if self._operation_is_create or self._preferred_identifier_is_changed():
             self._validate_research_dataset_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
 
@@ -289,7 +299,7 @@ class CatalogRecordSerializer(CommonSerializer):
     def _validate_json_schema(self, value):
         self._set_dataset_schema()
 
-        if self._operation_is_create():
+        if self._operation_is_create:
             if not value.get('preferred_identifier', None):
                 # normally not present, but may be set by harvesters. if missing,
                 # use temporary value and remove after schema validation.
@@ -360,7 +370,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
             # only look for hits within the same data catalog.
 
-            if self._operation_is_create():
+            if self._operation_is_create:
                 # value of data_catalog in initial_data is set in is_valid()
                 params['data_catalog'] = self.initial_data['data_catalog']
             else:
@@ -382,7 +392,7 @@ class CatalogRecordSerializer(CommonSerializer):
             # globally, instead of only inside a data catalog.
             pass
 
-        if self._operation_is_create():
+        if self._operation_is_create:
             return CatalogRecord.objects.filter(**params).exists()
         elif self._data_catalog_supports_versioning():
             # preferred_identifiers already existing in ATT catalogs are fine, so exclude
@@ -398,7 +408,7 @@ class CatalogRecordSerializer(CommonSerializer):
         Check if data_catalog of the record is being changed. Used to decide if
         preferred_identifier uniqueness should be checked in certain situations.
         """
-        if self._operation_is_update() and 'data_catalog' in self.initial_data:
+        if self._operation_is_update and 'data_catalog' in self.initial_data:
             dc = self.initial_data['data_catalog']
             if isinstance(dc, int):
                 return dc != self.instance.data_catalog.id
@@ -467,7 +477,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
     def _set_dataset_schema(self):
         data_catalog = None
-        if self._operation_is_create():
+        if self._operation_is_create:
             try:
                 data_catalog_id = self._get_id_from_related_object('data_catalog', self._get_data_catalog_relation)
                 data_catalog = DataCatalog.objects.get(pk=data_catalog_id)

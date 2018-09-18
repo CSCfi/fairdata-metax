@@ -26,7 +26,7 @@ class FileStorageSerializer(CommonSerializer):
 
     def validate_file_storage_json(self, value):
         validate_json(value, self.context['view'].json_schema)
-        if self._operation_is_create():
+        if self._operation_is_create:
             self._validate_identifier_uniqueness(value)
         return value
 

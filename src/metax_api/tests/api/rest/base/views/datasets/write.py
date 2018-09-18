@@ -2429,6 +2429,9 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.cr_test_data['preservation_description'] = 'discarded by metax'
         self.cr_test_data['preservation_reason_description'] = 'discarded by metax'
         self.cr_test_data['preservation_state'] = 10
+        self.cr_test_data.pop('metadata_provider_user', None)
+        self.cr_test_data.pop('metadata_provider_org', None)
+        self.cr_test_data.pop('metadata_owner_org', None)
 
         # test file permission checking in another test
         self.cr_test_data['research_dataset'].pop('files', None)
@@ -2496,7 +2499,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         modified_data['preservation_state'] = 10
 
         response = self.client.put('/rest/datasets/%d' % modified_data['id'], modified_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['research_dataset']['value'], 112233) # value we set
         self.assertEqual(response.data['user_modified'], self.token['sub']) # set by metax
 

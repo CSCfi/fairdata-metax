@@ -63,8 +63,8 @@ class _IdentifyApiCaller():
         if self._caller_should_be_identified(request):
             try:
                 self._identify_api_caller(request)
-            except Http403:
-                return HttpResponseForbidden()
+            except Http403 as e:
+                return HttpResponseForbidden(e)
 
         response = self.get_response(request)
 
@@ -113,11 +113,24 @@ class _IdentifyApiCaller():
         if isinstance(http_auth_header, bytes):
             http_auth_header = http_auth_header.decode('utf-8')
 
-        auth_method, auth_b64 = http_auth_header.split(' ')
+        try:
+            auth_method, auth_b64 = http_auth_header.split(' ')
+        except ValueError:
+            raise Http403({
+                'detail': [
+                    'Invalid HTTP authorization method. Ensure you included on of the following '
+                    'methods inside the auth header: %s' % ', '.join(self.ALLOWED_AUTH_METHODS)
+                ]
+            })
 
         if auth_method not in self.ALLOWED_AUTH_METHODS:
             _logger.warning('Invalid HTTP authorization method: %s' % auth_method)
-            raise Http403
+            raise Http403({
+                'detail': [
+                    'Invalid HTTP authorization method: %s. Allowed auth methods: %s'
+                    % (auth_method, ', '.join(self.ALLOWED_AUTH_METHODS))
+                ]
+            })
 
         if auth_method.lower() == 'basic':
             self._auth_basic(request, auth_b64)
@@ -136,7 +149,7 @@ class _IdentifyApiCaller():
             username, apikey = b64decode(auth_b64).decode('utf-8').split(':')
         except:
             _logger.warning('Malformed HTTP Authorization header (Basic)')
-            raise Http403
+            raise Http403({ 'detail': [ 'Malformed HTTP Authorization header (Basic)' ]})
 
         user = next(( u for u in self.API_USERS if u['username'] == username), None)
 

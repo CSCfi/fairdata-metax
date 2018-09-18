@@ -9,7 +9,7 @@ General
 
 Datasets, like all objects accessible using the different APIs in Metax, have an internal identifier field ``identifier``, which uniquely identifies a record withing Metax.
 
-The standard way to retrieve a single dataset is by sending a request to the API ``GET /rest/datasets/<pid>``, where ``<pid>`` is the record's internal identifier. The results returned from the API ``GET /rest/datasets`` are also sometimes called "catalog records", or "records", which is the root object containing various other information about the state of the dataset, such as last-modified timestamps, PAS state, and other data. Inside that record is also the field probably of the most interest to end users: The ``research_dataset`` field. ``research_dataset`` contains the actual user-provided metadata descriptions of *The* Dataset.
+The standard way to retrieve a single dataset is by sending a request to the API ``GET /rest/datasets/<pid>``, where ``<pid>`` is the record's internal identifier. The result returned from the API contains various information about the state of the dataset, such as last-modified timestamps, PAS state, and other data. Included is also the field probably of the most interest to end users: The ``research_dataset`` field. ``research_dataset`` contains the actual user-provided metadata descriptions of *The* Dataset.
 
 Datasets can be listed and browsed using the API ``GET /rest/datasets``. Retrieving a dataset or listing datasets can be augmented in various ways by using additional parameters. For details, see swagger's section about datasets.
 
@@ -20,10 +20,17 @@ Datasets can be listed and browsed using the API ``GET /rest/datasets``. Retriev
 
 
 
+Terminology
+^^^^^^^^^^^^
+
+The results returned from the API ``GET /rest/datasets/<pid>`` are also sometimes called "catalog records", or "records". At the top level there are Data Catalogs, and Data Catalogs contain Catalog Records. Catalog records can be considered the "technical" name of a dataset inside Metax.
+
+
+
 Data Catalogs
 ^^^^^^^^^^^^^^
 
-Every dataset belongs in a Data Catalog. Data catalogs house datasets with different origins (harvested vs. Fairdata user provided datasets), slightly different schemas (IDA and ATT catalogs for example), and datasets in some catalogs are automatically versioned. While reading datasets from all catalogs is possibly by anybody (save for some data which might be considered as sensitive, such as personal information), writing to catalogs is restricted to either known services, and some also to end users.
+Every dataset belongs in a Data Catalog. Data catalogs house datasets with different origins (harvested vs. Fairdata user provided datasets), slightly different schemas (IDA and ATT catalogs for example), and datasets in some catalogs are automatically versioned. While reading datasets from all catalogs is possible by anybody (save for some data which might be considered as sensitive, such as personal information), adding datasets to catalogs can be restricted: Others allow adding only by known services, but some also by end users.
 
 Data catalogs can be browsed by using the API ``/rest/datacatalogs``. The data catalog data model visualization can be found here https://tietomallit.suomi.fi/model/mdc.
 
@@ -36,6 +43,47 @@ The official Fairdata data catalogs with end user write access are:
 +---------+-----------------------------------------------------------------------------------+---------------------------------+
 | ATT     | Store datasets which have data stored elsewhere than in the IDA Fairdata service. | urn:nbn:fi:att:data-catalog-att |
 +---------+-----------------------------------------------------------------------------------+---------------------------------+
+
+
+
+Choosing the right Data Catalog
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Other than the harvested data catalogs managed by Fairdata harvesters, the two most interesting data catalogs are probably the IDA catalog, and the ATT catalog, commonly referred to as "the Fairdata catalogs". Also common for these catalogs is the fact that end users can add datasets to them. For the most parts these two catalogs are behaviourally identical, but they do serve different purposes, and have one critical technical difference.
+
+
+**IDA catalog**
+
+The IDA catalog hosts datasets, which have their files stored in the Fairdata IDA service. The datasets stored in this catalog use a schema which allow to use the fields ``research_dataset.files`` and ``research_dataset.directories``, which are used to list and describe related files in IDA. On the other hand, the schema is missing the field ``research_dataset.remote_resources``, meaning it does not allow listing files stored in other file storages than IDA.
+
+
+**ATT catalog**
+
+The ATT catalog is the opposite of the IDA catalog: It hosts datasets whose files are stored elsewhere than in the Fairdata IDA service. The datasets in this catalog use a schema which allow using the field ``research_dataset.remote_resources``, while missing the IDA related fields.
+
+
+**Attaching a dataset to a catalog**
+
+When creating a new dataset and wishing to use for example the ATT catalog, the dataset would be linked to it in the following way:
+
+
+.. code-block:: python
+
+    import requests
+
+    dataset_data = {
+        "data_catalog": "urn:nbn:fi:att:data-catalog-att",
+        "research_dataset": {
+            # lots of content...
+        }
+    }
+
+    headers = { 'Authorization': 'Bearer abc.def.ghi' }
+    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=dataset_data, headers=headers)
+    assert response.status_code == 201, response.content
+
+
+For more involving examples, see the :ref:`rst-dataset-examples` section for datasets.
 
 
 
@@ -346,10 +394,12 @@ This needs to be taken into account when looking which reference data to use, wh
 
 
 
+.. _rst-dataset-examples:
+
 Examples
 ---------
 
-These code examples are from the point of view of an end user. Using the API as an end user requires that the user logs in to ``METAX_DOMAIN/secure`` in order to get a valid access token, which will be used to authenticate with the API. The process for end user authentication is described on the page :doc:`end_users`.
+These code examples are from the point of view of an end user. Using the API as an end user requires that the user logs in to ``https://metax-test.csc.fi/secure`` in order to get a valid access token, which will be used to authenticate with the API. The process for end user authentication is described on the page :doc:`end_users`.
 
 When services interact with Metax, services have the additional responsibility of providing values for fields related to the current user modifying or creating resources, and generally taking care that the user is permitted to do whatever it is that they are doing.
 
@@ -366,7 +416,7 @@ Create a dataset with minimum required fields.
     import requests
 
     dataset_data = {
-        "data_catalog": 1,
+        "data_catalog": "urn:nbn:fi:att:data-catalog-att",
         "research_dataset": {
             "title": {
                 "en": "Test Dataset Title"
@@ -426,7 +476,7 @@ The response should look something like below:
         "identifier": "54efa8b4-f03f-4155-9814-7de6aed4adce",
         "data_catalog": {
             "id": 1,
-            "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"
+            "identifier": "urn:nbn:fi:att:data-catalog-att"
         },
         "dataset_version_set": [
             {
@@ -567,7 +617,7 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
     import requests
 
     dataset_data = {
-        "data_catalog": 1,
+        "data_catalog": "urn:nbn:fi:att:data-catalog-att",
         "research_dataset": {
             "description": {
                 "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
