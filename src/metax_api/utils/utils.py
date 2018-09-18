@@ -7,6 +7,7 @@
 
 import os
 import sys
+import datetime
 from enum import Enum
 from uuid import uuid4
 
@@ -62,6 +63,21 @@ def get_tz_aware_now_without_micros():
     return timezone.now().replace(microsecond=0)
 
 
+def now_is_later_than_datetime_str(datetime_str):
+    try:
+        datetime_obj = parser.parse(datetime_str)
+    except Exception:
+        datetime_obj = None
+
+    if type(datetime_obj) != datetime.datetime:
+        raise Exception("Unable to parse datetime string: {0}".format(datetime_str))
+
+    if timezone.is_naive(datetime_obj):
+        datetime_obj = timezone.make_aware(datetime_obj)
+
+    return datetime.datetime.now(tz=timezone.get_current_timezone()) >= datetime_obj
+
+
 def generate_uuid_identifier(urn_prefix=False):
     if urn_prefix:
         return 'urn:nbn:fi:att:%s' % str(uuid4())
@@ -106,3 +122,36 @@ def get_identifier_type(identifier):
         return IdentifierType.URN
     else:
         return None
+
+
+def remove_keys_recursively(obj, fields_to_remove):
+    """
+     Accepts as parameter either a single dict object or a list of dict objects.
+
+    :param obj:
+    :param fields_to_remove:
+    :return:
+    """
+    if isinstance(obj, dict):
+        obj = {
+            key: remove_keys_recursively(value, fields_to_remove) for key, value in obj.items()
+            if key not in fields_to_remove
+        }
+    elif isinstance(obj, list):
+        obj = [
+            remove_keys_recursively(item, fields_to_remove) for item in obj
+            if item not in fields_to_remove
+        ]
+    return obj
+
+
+def leave_keys_in_dict(dict_obj, fields_to_leave):
+    """
+    Returns a dict object having only the key-values, for which key is listed in fields_to_leave.
+    NOTE: Is not recursive
+
+    :param dict_obj:
+    :param fields_to_leave:
+    :return:
+    """
+    return {key: dict_obj[key] for key in fields_to_leave if key in fields_to_leave}

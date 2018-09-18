@@ -16,6 +16,8 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
+from metax_api.models.catalog_record import ACCESS_TYPES
+from metax_api.utils import now_is_later_than_datetime_str, remove_keys_recursively, leave_keys_in_dict
 from .common_service import CommonService
 from .datacite_service import DataciteService
 from .file_service import FileService
@@ -131,7 +133,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['q_filters'] = [q_filter]
 
     @staticmethod
-    def populate_file_details(catalog_record, request):
+    def populate_file_details(cr_json, request):
         """
         Populate individual research_dataset.file and directory objects with their
         corresponding objects from their db tables.
@@ -143,10 +145,10 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         Note: Some of these results may be very useful to cache, or cache the entire dataset
         if feasible.
         """
-        rd = catalog_record['research_dataset']
-        file_identifiers = [ f['identifier'] for f in rd.get('files', [])]
+        rd = cr_json['research_dataset']
+        file_identifiers = [f['identifier'] for f in rd.get('files', [])]
 
-        directory_fields, file_fields = FileService._get_requested_file_browsing_fields(request, catalog_record['id'])
+        directory_fields, file_fields = FileService._get_requested_file_browsing_fields(request, cr_json['id'])
 
         for file in File.objects.filter(identifier__in=file_identifiers).only(*file_fields):
             for f in rd['files']:
@@ -154,7 +156,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     f['details'] = FileSerializer(file, only_fields=file_fields).data
                     continue
 
-        dir_identifiers = [ dr['identifier'] for dr in rd.get('directories', []) ]
+        dir_identifiers = [dr['identifier'] for dr in rd.get('directories', [])]
 
         for directory in Directory.objects.filter(identifier__in=dir_identifiers).only(*directory_fields):
             for dr in rd['directories']:
@@ -170,11 +172,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             # OR byte_size or file_count among requested fields -> retrieve
 
             _directory_data = CatalogRecord.objects.values_list('_directory_data', flat=True) \
-                .get(pk=catalog_record['id'])
+                .get(pk=cr_json['id'])
 
             for dr in rd['directories']:
                 FileService.retrieve_directory_byte_sizes_and_file_counts_for_cr(dr['details'],
-                    catalog_record['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
+                    cr_json['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
 
     @classmethod
     def transform_datasets_to_format(cls, catalog_records, target_format, include_xml_declaration=True):
@@ -526,27 +528,115 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             raise ValidationError(errors)
 
     @classmethod
-    def strip_catalog_record(cls, catalog_record):
+    def remove_contact_info_metadata(cls, rd):
         """
-        Strip the catalog record of any confidential/private information not supposed to be
-        available for the general public.
+        Strip research dataset of any confidential/private contact information not supposed to be available for the
+        general public
 
-        Accepts as paramater either a single cr object (dict), or a list of objects.
-
-        :param catalog_record:
+        :param rd:
+        :return: research dataset with removed contact information
         """
-        return cls._remove_keys(catalog_record, ['email', 'telephone', 'phone'])
+        return remove_keys_recursively(rd, ['email', 'telephone', 'phone'])
 
     @classmethod
-    def _remove_keys(cls, obj, fields_to_remove):
-        if isinstance(obj, dict):
-            obj = {
-                key: cls._remove_keys(value, fields_to_remove) for key, value in obj.items()
-                if key not in fields_to_remove
-            }
-        elif isinstance(obj, list):
-            obj = [
-                cls._remove_keys(item, fields_to_remove) for item in obj
-                if item not in fields_to_remove
-            ]
-        return obj
+    def check_and_remove_metadata_based_on_access_type(cls, rd):
+        """
+        If necessary, strip research dataset of any confidential/private information not supposed to be
+        available for the general public based on the research dataset's access type.
+
+        :param rd:
+        :return: research dataset with removed metadata based on access type
+        """
+
+        access_type_id = cls.get_research_dataset_access_type(rd)
+        if access_type_id == ACCESS_TYPES['open']:
+            pass
+        elif access_type_id == ACCESS_TYPES['embargoed']:
+            try:
+                access_rights_available = cls.get_research_dataset_embargo_available(rd)
+                embargo_time_passed = now_is_later_than_datetime_str(access_rights_available)
+            except Exception as e:
+                _logger.warning(e)
+                embargo_time_passed = False
+
+            if not embargo_time_passed:
+                # Remove also remote_resources, since if anyone picked embargo as access type, he/she would assume
+                # even remote_resources would not be visible?
+                rd = remove_keys_recursively(rd, ['files', 'directories', 'remote_resources'])
+
+        elif access_type_id == ACCESS_TYPES['restricted_access_permit_fairdata']:
+            # TODO:
+            # If user does not have rems permission for the catalog record, strip it:
+                # rd = cls._strip_file_and_directory_metadata(rd)
+
+            # strip always for now. Remove this part when rems checking is implemented
+            rd = cls._strip_file_and_directory_metadata(rd)
+        else:
+            rd = cls._strip_file_and_directory_metadata(rd)
+
+        return rd
+
+    @classmethod
+    def _strip_file_and_directory_metadata(cls, rd):
+        return cls._strip_directory_metadata(cls._strip_file_metadata(rd))
+
+    @classmethod
+    def _strip_file_metadata(cls, rd):
+        """
+        Keys to leave for a File object:
+        - title
+        - use_category
+        - file_type
+        - details.byte_size, if exists
+
+        :param rd:
+        :return: research_dataset with research_dataset.files objects stripped
+        """
+        files_out = []
+        if 'files' in rd:
+            keys_to_leave_at_least = ['title', 'use_category', 'file_type']
+
+            for file_obj in rd['files']:
+                keys_to_leave = list(keys_to_leave_at_least)
+                if 'details' in file_obj:
+                    file_obj['details'] = leave_keys_in_dict(file_obj['details'], ['byte_size'])
+                    keys_to_leave.append('details')
+                file_obj_out = leave_keys_in_dict(file_obj, keys_to_leave)
+                files_out.append(file_obj_out)
+
+        rd['files'] = files_out
+        return rd
+
+    @classmethod
+    def _strip_directory_metadata(cls, rd):
+        """
+        Keys to leave for a Directory object:
+        - title
+        - use_category
+        - details.byte_size, if exists
+
+        :param rd:
+        :return: research_dataset with research_dataset.directories objects stripped
+        """
+        directories_out = []
+        if 'directories' in rd:
+            keys_to_leave_at_least = ['title', 'use_category']
+
+            for dir_obj in rd['directories']:
+                keys_to_leave = list(keys_to_leave_at_least)
+                if 'details' in dir_obj:
+                    dir_obj['details'] = leave_keys_in_dict(dir_obj['details'], ['byte_size'])
+                    keys_to_leave.append('details')
+                dir_obj_out = leave_keys_in_dict(dir_obj, keys_to_leave)
+                directories_out.append(dir_obj_out)
+
+        rd['directories'] = directories_out
+        return rd
+
+    @staticmethod
+    def get_research_dataset_access_type(rd):
+        return rd.get('access_rights', {}).get('access_type', {}).get('identifier', '')
+
+    @staticmethod
+    def get_research_dataset_embargo_available(rd):
+        return rd.get('access_rights', {}).get('available', '')

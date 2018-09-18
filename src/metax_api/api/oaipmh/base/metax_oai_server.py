@@ -120,7 +120,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
             valueDict['lang'] = lang
         return valueDict
 
-    def _get_oai_dc_metadata(self, record, json, type):
+    def _get_oai_dc_metadata(self, record, json):
         identifier = []
         if 'preferred_identifier' in json:
             identifier.append(self._get_oaic_dc_value(json.get('preferred_identifier')))
@@ -197,8 +197,12 @@ class MetaxOAIServer(ResumptionOAIPMH):
             if 'identifier' in value:
                 rights.append(self._get_oaic_dc_value(value['identifier']))
 
-        types = []
-        types.append(self._get_oaic_dc_value(type))
+        if isinstance(record, CatalogRecord):
+            m_type = 'Dataset'
+        elif isinstance(record, DataCatalog):
+            m_type = 'Datacatalog'
+        else:
+            m_type = 'N/A'
 
         meta = {
             'identifier':  identifier,
@@ -209,7 +213,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
             'publisher': publisher,
             'contributor': contributor,
             'date': [date],
-            'type': types,
+            'type': [self._get_oaic_dc_value(m_type)],
             'language': language,
             'relation': relation,
             'coverage': coverage,
@@ -228,20 +232,28 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
-    def _get_metadata_for_record(self, record, json, type, metadata_prefix):
-        if type == 'Datacatalog' and metadata_prefix != 'oai_dc':
-            raise BadArgumentError('Invalid set value. DataCatalogs can only be harvested using oai_dc format.')
+    def _get_metadata_for_record(self, record, metadata_prefix):
+        if isinstance(record, CatalogRecord):
+            if metadata_prefix == 'oai_dc_urnresolver':
+                # This is a special case. Only identifier values are retrieved from the record,
+                # so strip_catalog_record is not applicable here.
+                json = record.research_dataset
+            else:
+                json = CRS.check_and_remove_metadata_based_on_access_type(
+                    CRS.remove_contact_info_metadata(record.research_dataset))
+        elif isinstance(record, DataCatalog):
+            if metadata_prefix != 'oai_dc':
+                raise BadArgumentError('Invalid set value. DataCatalogs can only be harvested using oai_dc format.')
+            json = record.catalog_json
+        else:
+            json = {}
 
         meta = {}
-        json = CRS.strip_catalog_record(json)
-
         if metadata_prefix == 'oai_dc':
-            meta = self._get_oai_dc_metadata(record, json, type)
+            meta = self._get_oai_dc_metadata(record, json)
         elif metadata_prefix == 'oai_datacite':
             meta = self._get_oai_datacite_metadata(json)
         elif metadata_prefix == 'oai_dc_urnresolver':
-            # This is a special case. Only identifier values are retrieved from the record,
-            # so strip_catalog_record is not applicable here.
             meta = self._get_oai_dc_urnresolver_metadata(record)
             # If record did not have any identifiers to be resolved, return None
             if meta is None:
@@ -249,7 +261,6 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return self._fix_metadata(meta)
 
     def _get_header_timestamp(self, record):
-        timestamp = None
         if record.date_modified:
             timestamp = record.date_modified
         else:
@@ -257,7 +268,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return timezone.make_naive(timestamp)
 
     def _get_oai_item(self, identifier, record, metadata_prefix):
-        metadata = self._get_metadata_for_record(record, record.research_dataset, 'Dataset', metadata_prefix)
+        metadata = self._get_metadata_for_record(record, metadata_prefix)
         if metadata is None:
             return None
 
@@ -266,7 +277,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return item
 
     def _get_oai_catalog_item(self, identifier, record, metadata_prefix):
-        metadata = self._get_metadata_for_record(record, record.catalog_json, 'Datacatalog', metadata_prefix)
+        metadata = self._get_metadata_for_record(record, metadata_prefix)
         item = (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
                 common.Metadata('', metadata), None)
         return item
@@ -359,17 +370,13 @@ class MetaxOAIServer(ResumptionOAIPMH):
         """Implement OAI-PMH verb GetRecord."""
         try:
             record = CatalogRecord.objects.get(identifier__exact=identifier)
-            json = record.research_dataset
-            type = 'Dataset'
         except CatalogRecord.DoesNotExist:
             try:
                 record = DataCatalog.objects.get(catalog_json__identifier__exact=identifier)
-                json = record.catalog_json
-                type = 'Datacatalog'
             except DataCatalog.DoesNotExist:
                 raise IdDoesNotExistError("No record with id %s available." % identifier)
 
-        metadata = self._get_metadata_for_record(record,  json, type, metadataPrefix)
+        metadata = self._get_metadata_for_record(record, metadataPrefix)
         if metadata is None:
             raise NoRecordsMatchError
 

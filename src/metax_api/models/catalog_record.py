@@ -31,6 +31,25 @@ DEBUG = settings.DEBUG
 _logger = logging.getLogger(__name__)
 
 
+ACCESS_TYPES = {
+    'open': 'http://purl.org/att/es/reference_data/access_type/access_type_open_access',
+    'closed': 'http://purl.org/att/es/reference_data/access_type/access_type_closed_access',
+    'embargoed': 'http://purl.org/att/es/reference_data/access_type/access_type_embargoed_access',
+    'restricted_access':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access',
+    'restricted_access_permit_fairdata':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_permit_fairdata',
+    'restricted_access_permit_external':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_permit_external',
+    'restricted_access_research':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_research',
+    'restricted_access_research_education_studying':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_education_studying',
+    'restricted_access_registration':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_registration',
+}
+
+
 class DiscardRecord(Exception):
     pass
 
@@ -310,6 +329,27 @@ class CatalogRecord(Common):
         # note: once access control plans evolve, user_created may not be a legit field ever
         # to check access from. but until then ...
         return request.user.username == self.user_created
+
+    def user_is_privileged(self, request):
+        """
+        Perhaps move this to Common model if/when other models need this information and have appropriate methods?
+
+        :param instance:
+        :return:
+        """
+        if request.user.is_service:
+            # knows what they are doing
+            return True
+        elif self.user_is_owner(request):
+            # can see sensitive fields
+            return True
+        else:
+            # unknown user
+            return False
+
+    def access_type_is_open(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['open']
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():

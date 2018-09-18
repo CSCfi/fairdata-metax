@@ -22,7 +22,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services import AuthService
-from metax_api.utils.utils import get_tz_aware_now_without_micros
+from metax_api.utils.utils import get_tz_aware_now_without_micros, leave_keys_in_dict
 from .common_service import CommonService
 
 
@@ -492,20 +492,28 @@ class FileService(CommonService):
         if cr_identifier:
             # browsing in the context of a cr
             if cr_identifier.isdigit():
-                cr = CatalogRecord.objects.values('id', '_directory_data').get(pk=cr_identifier)
+                cr = CatalogRecord.objects.only('id', '_directory_data', 'editor', 'user_created', 'research_dataset').\
+                    get(pk=cr_identifier)
             else:
                 try:
-                    cr = CatalogRecord.objects.values('id', '_directory_data').get(identifier=cr_identifier)
+                    cr = CatalogRecord.objects.\
+                        only('id', '_directory_data', 'editor', 'user_created', 'research_dataset').\
+                        get(identifier=cr_identifier)
                 except CatalogRecord.DoesNotExist:
                     # raise 400 instead of 404, to distinguish from the error
                     # 'directory not found', which raises a 404
                     raise ValidationError({
-                        'detail': [ 'CatalogRecord with identifier %s does not exist' % cr_identifier ]
+                        'detail': ['CatalogRecord with identifier %s does not exist' % cr_identifier]
                     })
-            cr_id = cr['id']
-            cr_directory_data = cr['_directory_data'] or {}
+
+            if not cr.user_is_privileged(request) and not cr.access_type_is_open():
+                raise Http403({
+                    'detail': ['You do not have permission to see this information.']
+                })
+            cr_id = cr.id
+            cr_directory_data = cr._directory_data or {}
         else:
-            # generally browsing the directory - NOT in the context of a cr! check user permisisons
+            # generally browsing the directory - NOT in the context of a cr! check user permissions
             if not request.user.is_service:
                 if not project_identifier:
                     try:
@@ -615,7 +623,7 @@ class FileService(CommonService):
                     dirs_only=dirs_only, directory_fields=directory_fields, file_fields=file_fields)
             except Http404:
                 if recursive:
-                    return { 'directories': [] }
+                    return {'directories': []}
                 raise
         else:
             # browsing from ALL files, not cr specific
@@ -628,7 +636,7 @@ class FileService(CommonService):
                 files = File.objects.filter(parent_directory_id=directory_id).only(*file_fields)
 
         try:
-            contents = { 'directories': [ DirectorySerializer(n, only_fields=directory_fields).data for n in dirs ] }
+            contents = {'directories': [DirectorySerializer(n, only_fields=directory_fields).data for n in dirs]}
         except FieldDoesNotExist as e:
             raise Http400({ 'detail': [str(e)]})
 
@@ -637,9 +645,9 @@ class FileService(CommonService):
             if files or not dirs_only:
                 # for normal file browsing (not with 'dirs_only'), the files-key should be present,
                 # even if empty.
-                contents['files'] = [ FileSerializer(n, only_fields=file_fields).data for n in files ]
+                contents['files'] = [FileSerializer(n, only_fields=file_fields).data for n in files]
         except FieldDoesNotExist as e:
-            raise Http400({ 'detail': [str(e)]})
+            raise Http400({'detail': [str(e)]})
 
         if recursive:
             for directory in contents['directories']:
@@ -1098,6 +1106,28 @@ class FileService(CommonService):
             cls._find_parent_dir_from_previously_created_dirs(row, existing_dirs)
 
         return sorted_data
+
+    @classmethod
+    def strip_file(cls, file_json):
+        """
+        Strip the file json dict of any confidential/private information not supposed to be
+        available for the general public.
+
+        :param file_json:
+        :return:
+        """
+        return leave_keys_in_dict(file_json, ['byte_size'])
+
+    @classmethod
+    def strip_directory(cls, directory_json):
+        """
+        Strip the directory json dict of any confidential/private information not supposed to be
+        available for the general public.
+
+        :param directory_json:
+        :return:
+        """
+        return leave_keys_in_dict(directory_json, ['byte_size'])
 
     @staticmethod
     def _find_parent_dir_from_previously_created_dirs(node, existing_dirs):
