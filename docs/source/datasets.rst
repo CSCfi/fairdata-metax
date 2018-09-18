@@ -416,7 +416,7 @@ Create a dataset with minimum required fields.
     import requests
 
     dataset_data = {
-        "data_catalog": 1,
+        "data_catalog": "urn:nbn:fi:att:data-catalog-att",
         "research_dataset": {
             "title": {
                 "en": "Test Dataset Title"
@@ -476,7 +476,7 @@ The response should look something like below:
         "identifier": "54efa8b4-f03f-4155-9814-7de6aed4adce",
         "data_catalog": {
             "id": 1,
-            "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"
+            "identifier": "urn:nbn:fi:att:data-catalog-att"
         },
         "dataset_version_set": [
             {
@@ -617,7 +617,7 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
     import requests
 
     dataset_data = {
-        "data_catalog": 1,
+        "data_catalog": "urn:nbn:fi:att:data-catalog-att",
         "research_dataset": {
             "description": {
                 "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
