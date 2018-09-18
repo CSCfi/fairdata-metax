@@ -47,19 +47,10 @@ class CommonSerializer(ModelSerializer):
             'service_created':     { 'required': False },
         }
 
-    def __init__(self, *args, **kwargs):
-        if self._operation_is_update() and 'request' in kwargs and not kwargs['request'].user.is_service:
-            # its better to consider requests by end users as partial (= all update
-            # requests are considere as PATCH requests), since they may not be
-            # permitted to modify some fields. it is very handy
-            # to be able to just discard non-permitted fields, instead of observing
-            # whether some field value is being changed or not.
-            #
-            # downside: end users may try to intentionally change some field they are actually
-            # not able to change, but then dont get any kind of error message about failing
-            # to do so. solution: read the docs and be aware of it.
-            kwargs['partial'] = True
+    _operation_is_update = False
+    _operation_is_create = False
 
+    def __init__(self, *args, **kwargs):
         """
         For most usual GET requests, the fields to retrieve for an object can be
         specified via the query param ?fields=x,y,z. Retrieve those fields from the
@@ -73,6 +64,23 @@ class CommonSerializer(ModelSerializer):
             self.requested_fields = kwargs.pop('only_fields')
 
         super(CommonSerializer, self).__init__(*args, **kwargs)
+
+        if hasattr(self, 'instance') and self.instance is not None:
+            self._operation_is_update = True
+        else:
+            self._operation_is_create = True
+
+        if self._operation_is_update and self._request_by_end_user():
+            # its better to consider requests by end users as partial (= all update
+            # requests are considere as PATCH requests), since they may not be
+            # permitted to modify some fields. it is very handy
+            # to be able to just discard non-permitted fields, instead of observing
+            # whether some field value is being changed or not.
+            #
+            # downside: end users may try to intentionally change some field they are actually
+            # not able to change, but then dont get any kind of error message about failing
+            # to do so. solution: read the docs and be aware of it.
+            self.partial = True
 
         if not self.requested_fields and 'request' in self.context and 'fields' in self.context['request'].query_params:
             self.requested_fields = self.context['request'].query_params['fields'].split(',')
@@ -203,17 +211,3 @@ class CommonSerializer(ModelSerializer):
 
     def _request_by_service(self):
         return 'request' in self.context and self.context['request'].user.is_service
-
-    def _operation_is_create(self):
-        return self.context['view'].request.stream.method == 'POST'
-
-    def _operation_is_update(self, method=None):
-        """
-        Check if current operation is of a specific update type, or a generic update operation
-        """
-        methods = (method, ) if method else ('PUT', 'PATCH')
-        try:
-            # request.stream.method is not always set!
-            return self.context['view'].request.stream.method in methods
-        except AttributeError:
-            return False

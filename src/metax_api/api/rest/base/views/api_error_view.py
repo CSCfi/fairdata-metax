@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from metax_api.exceptions import Http403, Http501
 from metax_api.services import ApiErrorService
 from .common_view import CommonViewSet
-
+from ..serializers import FileSerializer
 
 """
 An API to browse error files and retrieve complete error details.
@@ -30,6 +30,10 @@ _logger = logging.getLogger(__name__)
 
 
 class ApiErrorViewSet(CommonViewSet):
+
+    # this serves no purpose, but strangely in local dev browsable api for /rest/apierrors/pid
+    # works fine, while in metax-test it will throw an error complaining about a missing serializer.
+    serializer_class = FileSerializer
 
     def initial(self, request, *args, **kwargs):
         if request.user.username != 'metax':

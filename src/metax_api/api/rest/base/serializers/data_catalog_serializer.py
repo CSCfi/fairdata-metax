@@ -43,7 +43,7 @@ class DataCatalogSerializer(CommonSerializer):
         DCS.validate_reference_data(value, self.context['view'].cache)
         # ensure ref data validation/population did not break anything
         validate_json(value, self.context['view'].json_schema)
-        if self._operation_is_create():
+        if self._operation_is_create:
             self._validate_identifier_uniqueness(value)
         return value
 
