@@ -2433,7 +2433,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.cr_test_data.pop('metadata_provider_org', None)
         self.cr_test_data.pop('metadata_owner_org', None)
 
-        # import ipdb; ipdb.set_trace()
         # test file permission checking in another test
         self.cr_test_data['research_dataset'].pop('files', None)
         self.cr_test_data['research_dataset'].pop('directories', None)

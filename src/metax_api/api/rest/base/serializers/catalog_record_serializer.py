@@ -174,10 +174,19 @@ class CatalogRecordSerializer(CommonSerializer):
         for field_name in fields_to_discard:
             del validated_data[field_name]
 
+        # set some fields to whoever the authentication token belonged to.
+        validated_data['metadata_provider_user'] = self.context['request'].user.username
+        validated_data['metadata_provider_org'] = self.context['request'].user.token['schacHomeOrganization']
+        validated_data['metadata_owner_org'] = self.context['request'].user.token['schacHomeOrganization']
+
         try:
             identifier = validated_data['data_catalog'].catalog_json['identifier']
         except:
-            identifier = validated_data['data_catalog']
+            try:
+                identifier = validated_data['data_catalog']
+            except KeyError:
+                # an error is raise later about missing required field
+                return
 
         if identifier not in END_USER_ALLOWED_DATA_CATALOGS:
             raise Http403({
@@ -186,10 +195,6 @@ class CatalogRecordSerializer(CommonSerializer):
                     'catalogs: %s' % ', '.join(END_USER_ALLOWED_DATA_CATALOGS)
                 ]
             })
-        # set some fields to whoever the authentication token belonged to.
-        validated_data['metadata_provider_user'] = self.context['request'].user.username
-        validated_data['metadata_provider_org'] = self.context['request'].user.token['schacHomeOrganization']
-        validated_data['metadata_owner_org'] = self.context['request'].user.token['schacHomeOrganization']
 
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
