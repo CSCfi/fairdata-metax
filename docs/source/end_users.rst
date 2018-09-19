@@ -11,6 +11,7 @@ Compared to public users, end users have extra access to the following APIs:
 * ``/rest/directories`` read access for files in user's projects
 
 
+.. _rst-end-user-authentication:
 
 Authentication
 ---------------
@@ -33,3 +34,8 @@ Real tokens in encoded form are very long, but above is an example what the HTTP
 
     print(response.json())
 
+
+Linking Fairdata and CSC accounts
+----------------------------------
+
+If you are going to interact with IDA file metadata, or publish datasets with IDA files, you will additionally need to link your CSC-account to your Fairdata-account. You can do that `here <https://fd-perun.csc.fi/fed/ic/>`_. Once your accounts have been linked, it takes about an hour for your project information to become available for Metax.

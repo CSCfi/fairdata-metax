@@ -14,6 +14,7 @@ Metax API Documentation
    :caption: Metax API Contents:
 
    metax_api
+   quick_start
    general
    end_users
    list_operations
