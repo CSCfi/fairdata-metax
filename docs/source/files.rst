@@ -7,14 +7,11 @@ General
 --------
 
 
-The ``/rest/files`` API supports creating, retrieving, updating, and deleting files.
+The ``/rest/files`` API supports creating, retrieving, updating, and deleting files. The file and directory data model visualization can be found here https://tietomallit.suomi.fi/model/mfs.
 
-* Creating files is currently possible only by utilizing the IDA service.
-* Retrieving/browsing files is possible by utilizing services such as Qvain and Etsin. End Users can browse files of projects where they are a member. Details about browsing files using the Metax API can be found later in this document, and in swagger.
-* Updating files is currently possible only by utilzing the PAS service.
-* Deleting files is currently possible only by utilizing the IDA service.
+Write-operations to the ``/rest/files`` API is generally limited only to Fairdata services. In practice, new file metadata only appears to Metax as a result of freezing files in the Fairdata IDA service.
 
-The file and directory data model visualization can be found here https://tietomallit.suomi.fi/model/mfs.
+End users will only be able to browse file metadata of projects where they are a member. Details about browsing files using the Metax API can be found later in this document :ref:`here <rst-browsing-files>`, and in swagger.
 
 
 
@@ -34,7 +31,7 @@ Browsing files in Metax
 * ``GET /rest/directories/<pid>`` Get details of a single directory. Returned object does not contain files and sub-directories.
 * ``GET /rest/directories/<pid>/files`` Get contents of a directory. Returns only directories and files included in the directory, not the directory itself (the directory designated by ``<pid>``). Returns immediate child directories and files, does not return files recursively from all sub directories.
 * ``GET /rest/directories/<pid>/files?cr_identifier=myidentifier`` Same as above, but only returns the files and dirs that existed at the time of assigning the dir in that dataset
-* ``GET /rest/directories/root?project=project_name`` Retrieve the root directory of a project. Contains the directory itself, and the sub-directories and files contained by the directory.
+* ``GET /rest/directories/root?project=project_identifier`` Retrieve the root directory of a project. Contains the directory itself, and the sub-directories and files contained by the directory.
 * ``GET /rest/datasets/<pid>/files`` Retrieve a flat list of all files associated with the dataset.
 
 This is just a quick overview, below code examples include some use of them, and other details can be found in swagger.
@@ -157,7 +154,7 @@ When browsing files using the ``/rest/directories`` API, the ``identifier`` fiel
 
     import requests
 
-    response = requests.delete('https://metax-test.csc.fi/rest/directories/dir123/files')
+    response = requests.get('https://metax-test.csc.fi/rest/directories/dir123/files')
     assert response.status_code == 200, response.content
 
 

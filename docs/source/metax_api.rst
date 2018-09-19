@@ -4,7 +4,7 @@ Metax API
 
 **The documentation is work in progress**
 
-This documentation contains information about how to use the APIs in Metax.
+This documentation contains information about how to use the APIs in Metax. If you more or less know what you are doing and want to get your hands dirty right away, head over to :doc:`quick_start`. Otherwise, keep reading.
 
 Metax is a metadata storage for Finnish research data. The core of the data is based on metadata from other Fairdata services (such as IDA and PAS), but also user-created metadata (by using Qvain, or other means), and metadata harvested from external sources. Read more at https://www.fairdata.fi and https://www.fairdata.fi/metax/.
 
