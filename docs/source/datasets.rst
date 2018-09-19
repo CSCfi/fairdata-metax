@@ -680,7 +680,7 @@ The error response should look something like this:
 Retrieving datasets
 ^^^^^^^^^^^^^^^^^^^^
 
-Retrieving an existing dataset using a dataset's internal Metax indetifier:
+Retrieving an existing dataset using a dataset's internal Metax identifier:
 
 .. code-block:: python
 
@@ -849,9 +849,9 @@ Add files to a dataset, which already has files associated with it, either from 
 
     # the new automatically created new dataset version needs to be separately retrieved by
     # using the identifiers provided in the response.
-    indetifier_of_new_dataset_version = response_data['new_version_created']['identifier']
+    identifier_of_new_dataset_version = response_data['new_version_created']['identifier']
     response = requests.get(
-        'https://metax-test.csc.fi/rest/datasets/%s' % indetifier_of_new_dataset_version,
+        'https://metax-test.csc.fi/rest/datasets/%s' % identifier_of_new_dataset_version,
         headers=headers
     )
     assert response.status_code == 200, response.content

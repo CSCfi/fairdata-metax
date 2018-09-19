@@ -126,7 +126,7 @@ paths:
         "200":
           description: successful operation, return list of files
           schema:
-            $ref: '#/definitions/File'
+            $ref: '#/definitions/FileList'
       tags:
         - File API
     post:
@@ -152,10 +152,12 @@ paths:
       consumes:
         - application/json
       parameters:
-        - in: "body"
-          name: "body"
-          description: "A list of objects to update."
-          required: true
+      - in: "body"
+        name: "body"
+        description: "A list of objects to update."
+        required: true
+        schema:
+          $ref: '#/definitions/FileList'
       responses:
         '200':
           description: Successful operation. Return values include a list of errors, if any.
@@ -174,6 +176,8 @@ paths:
           name: "body"
           description: "A list of (partial) objects to update."
           required: true
+          schema:
+            $ref: '#/definitions/FileList'
       responses:
         '200':
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
@@ -191,6 +195,8 @@ paths:
           name: "body"
           description: A list of ids, or a list of identifiers.
           required: true
+          schema:
+            $ref: '#/definitions/StringList'
       responses:
         '200':
           description: |
@@ -399,7 +405,8 @@ paths:
           in: body
           description: a list of file id's (integers) or identifiers (strings).
           required: true
-          type: string
+          schema:
+            $ref: '#/definitions/StringList'
       responses:
         '200':
           description: a list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
@@ -410,7 +417,8 @@ paths:
   /files/restore:
     post:
       summary: restore removed files back to "not removed" state.
-      description: note: does not restore possible deprecated datasets (due to files having been removed) to back to non-deprecated state!
+      description: |
+        note&#58; does not restore possible deprecated datasets (due to files having been removed) to back to non-deprecated state!
       produces:
         - application/json
       parameters:
@@ -418,7 +426,8 @@ paths:
           in: body
           description: a list of file identifiers of files to restore.
           required: true
-          type: string
+          schema:
+            $ref: '#/definitions/StringList'
       responses:
         '200':
           description: numbers of files restored.
@@ -521,11 +530,6 @@ paths:
           description: project_identifier of the project to browse from
           required: true
           type: string
-        - name: recursive
-          in: query
-          description: return a flat list of file objects contained by the target directory and its sub-directories
-          required: false
-          type: boolean
         - name: recursive
           in: query
           description: |
@@ -753,6 +757,7 @@ paths:
         - name: editor
           in: query
           description: identifier of the editor used to modify the record, i.e. qvain.
+          type: string
         - name: offset
           in: query
           description: offset for paging
@@ -806,6 +811,8 @@ paths:
           name: "body"
           description: "A list of objects to update."
           required: true
+          schema:
+            $ref: '#/definitions/CatalogRecordList'
       responses:
         '200':
           description: Sucessful operation. Return values include a list of errors, if any.
@@ -824,30 +831,13 @@ paths:
           name: "body"
           description: "A list of (partial) objects to update."
           required: true
+          schema:
+            $ref: '#/definitions/CatalogRecordList'
       responses:
         '200':
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
         '400':
           description: All updates failed. A list of errors is returned.
-      tags:
-        - Dataset API
-  /datasets/{PID}/metadata_versions:
-    get:
-      summary: "list old research_dataset entries of a record"
-      responses:
-        "200":
-          description: successful operation, return a list of entries. may return an empty list.
-      tags:
-        - Dataset API
-  /datasets/{PID}/metadata_versions/{MVI}:
-    get:
-      summary: "get contents of a specific old research_dataset of a record."
-      description: "{MVI} is the metadata_version_identifier of the research_dataset."
-      responses:
-        "200":
-          description: successful operation, return a list of entries. may return an empty list.
-        "404":
-          description: resource not found.
       tags:
         - Dataset API
   /datasets/identifiers:
@@ -1022,36 +1012,6 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Dataset API
-  /datasets/{PID}/exists:
-    get:
-      summary: indicate whether given dataset exists
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-      responses:
-        '200':
-          description: return true
-        '404':
-          description: return false
-      tags:
-        - Dataset API
-  /datasets/{PID}/statistics:
-    get:
-      summary: get statistics for dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, return statistics (e.g. number of downloads, number of permissions asked, number of permissions granted, dissemination service used)
-      tags:
-        - Dataset API (not implemented)
   /datasets/{PID}/files:
     get:
       summary: get list of files in a dataset
@@ -1076,125 +1036,43 @@ paths:
           description: successful operation, return list of full files metadata
       tags:
         - Dataset API
-  /datasets/{PID}/feedback:
+  /datasets/{PID}/metadata_versions:
     get:
-      summary: get feedback (comments and ratings) for a dataset
+      summary: "list old research_dataset entries of a record"
       parameters:
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
-        - name: offset
-          in: query
-          description: offset for paging
-          required: false
-          type: integer
-        - name: limit
-          in: query
-          description: limit for paging
-          required: false
-          type: integer
-          default: 10
       responses:
-        '200':
-          description: successful operation, return feedback objects
+        "200":
+          description: successful operation, return a list of entries. may return an empty list.
+          schema:
+            $ref: '#/definitions/StringList'
       tags:
-        - Dataset API (not implemented)
-    post:
-      summary: create new feedback for dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-      consumes:
-        - application/json
-      responses:
-        '201':
-          description: new feedback created, return Location with the new URL containing feedback ID
-      tags:
-        - Dataset API (not implemented)
-  /datasets/{PID}/feedback/{ID}:
+        - Dataset API
+  /datasets/{PID}/metadata_versions/{MVI}:
     get:
-      summary: get a single feedback object for a dataset
+      summary: "get contents of a specific old research_dataset of a record."
       parameters:
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
-        - name: ID
+        - name: MVI
           in: path
-          description: ID of feedback object
+          description: the metadata_version_identifier of the research_dataset
           required: true
           type: string
       responses:
-        '200':
-          description: successful operation, return feedback object
+        "200":
+          description: successful operation, return a list of entries. may return an empty list.
+        "404":
+          description: resource not found.
       tags:
-        - Dataset API (not implemented)
-  /datasets/{PID}/usage:
-    get:
-      summary: get usages for a dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-        - name: offset
-          in: query
-          description: offset for paging
-          required: false
-          type: integer
-        - name: limit
-          in: query
-          description: limit for paging
-          required: false
-          type: integer
-          default: 10
-      responses:
-        '200':
-          description: successful operation, return usage objects
-      tags:
-        - Dataset API (not implemented)
-    post:
-      summary: create new usage for dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-      consumes:
-        - application/json
-      responses:
-        '201':
-          description: new usage created, return Location with the new URL containing usage ID
-      tags:
-        - Dataset API (not implemented)
-  /datasets/{PID}/usage/{ID}:
-    get:
-      summary: get a single usage object for a dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-        - name: ID
-          in: path
-          description: ID of usage object
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, return usage object
-      tags:
-        - Dataset API (not implemented)
-
+        - Dataset API
 
 # Contract API
   /contracts:
@@ -1292,6 +1170,12 @@ paths:
   /apierrors/{identifier}:
     get:
       summary: get details of a single error entry
+      parameters:
+        - name: identifier
+          in: path
+          description: error_identifier of an error response
+          required: true
+          type: string
       responses:
         '200':
           description: return error details as a json object
@@ -1301,6 +1185,12 @@ paths:
         - ApiErrors API
     delete:
       summary: delete a single error entry
+      parameters:
+        - name: identifier
+          in: path
+          description: error_identifier of an error response
+          required: true
+          type: string
       responses:
         '204':
           description: entry deleted
@@ -1344,7 +1234,7 @@ paths:
       tags:
         - Schema API
 
-              
+            
 definitions:
   CatalogRecord:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
@@ -1354,3 +1244,17 @@ definitions:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/File'
   Directory:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/Directory'
+  StringList:
+    type: array
+    items:
+      type: string
+      example: "value"
+  CatalogRecordList:
+    type: array
+    items:
+      $ref: '#/definitions/CatalogRecord'
+  FileList:
+    type: array
+    items:
+      $ref: '#/definitions/CatalogRecord'
+

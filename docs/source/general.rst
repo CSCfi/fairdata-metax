@@ -15,7 +15,7 @@ Swagger
 Detailed documentation per API currently in swagger:
 
 * `Swagger <https://raw.githubusercontent.com/CSCfi/metax-api/master/swagger/swagger.yaml>`_ file in Github: this is the file to use when finding out what a specific API consumes or returns
-* Direct link to editor/viewer http://editor.swagger.io/?url=https://raw.githubusercontent.com/CSCfi/metax-api/master/swagger/swagger.yaml
+* Direct link to editor/viewer http://editor.swagger.io/?url=https://raw.githubusercontent.com/CSCfi/metax-api/master/swagger/swagger.yaml Note! The document is currently missing some schema definitions for a rare XML-endpoint. Otherwise the schema should work fine. Just click "hide" to hide the validation errors at the top of the page.
 * JSON schema files for objects consumed and returned by the API's can be found in the following links: (the swagger doc also displays the models in these files in a related API's 'model' description)
 
     * `CatalogRecord <https://raw.githubusercontent.com/CSCfi/metax-api/master/src/metax_api/api/rest/base/schemas/ida_dataset_schema.json>`_ (schema used by IDA catalog)
@@ -24,6 +24,15 @@ Detailed documentation per API currently in swagger:
     * `File and Directory <https://raw.githubusercontent.com/CSCfi/metax-api/master/src/metax_api/api/rest/base/schemas/file_schema.json>`_
 
 There are also other schemas for CatalogRecords in other data catalogs for specialized use, such as for harvesting.
+
+
+
+Metax Data Model
+-----------------
+
+.. admonition:: TODO!
+
+  A birds-eye view on whats in metax in terms of data model/relations. Explain what is in tietomallit.suomi.fi and why. A lower-detail image of our db-schema could be helpful.
 
 
 
@@ -48,7 +57,7 @@ An URL of the form https://metax-test.csc.fi/rest/datasets always points to the 
 API Authentication
 -------------------
 
-Basic Authentication and Bearer Tokens are used for access control for certain APIs. Basic Authentication credentials are distributed only to known Fairdata services. End Users are able to utilize Bearer tokens in order to interact with certain APIs.
+Basic Authentication and Bearer Tokens are used for access control for certain APIs. Basic Authentication credentials are distributed only to known Fairdata services. End Users are able to utilize Bearer tokens in order to interact with certain APIs. Read more about End User authentication and token use at :ref:`rst-end-user-authentication`.
 
 Write operations (``POST``, ``PUT``, ``PATCH``, ``DELETE``) always require authentication. Some APIs require no authentication when reading (``GET`` operations), while others do. Authentication-related errors will result in a HTTP 401 or 403 error.
 

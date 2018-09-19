@@ -4,10 +4,10 @@ List operations
 
 
 
-GET operations
----------------
+Retrieve operations (GET)
+--------------------------
 
-GET to resource root, such as ``/rest/datasets`` or ``/rest/files``, retrieves a list of objects, as per usual REST convention. By default paging is forced to avoid time-consuming accidents. To disable paging, optional query parameter ``no_pagination=true`` can be passed to instead retrieve all records in a single request.
+``GET`` to resource root, such as ``/rest/datasets`` or ``/rest/files``, retrieves a list of objects, as per usual REST convention. By default paging is forced to avoid time-consuming accidents. To disable paging, optional query parameter ``no_pagination=true`` can be passed to instead retrieve all records in a single request.
 
 
 
@@ -41,10 +41,10 @@ An additional query parameter ``stream=true`` can be passed to stream the respon
 
 
 
-POST (create) operations
+Create operations (POST)
 -------------------------
 
-POST requests generally accept both individual objects or a list of objects to create from for bulk creation. The response contains the created object or errors in case of failure:
+``POST`` requests generally accept both individual objects or a list of objects to create from for bulk creation. The response contains the created object or errors in case of failure:
 
 .. code-block:: python
 
@@ -108,12 +108,12 @@ In list create, if even one object was successfully created, return code will be
 
 
 
-PUT and PATCH bulk update
---------------------------
+Bulk update (PUT and PATCH)
+----------------------------
 
-Resource root urls such as ``/rest/datasets`` also accept PUT and PATCH requests for bulk update. Provide the parameter objects as usual, except wrapped inside a list.
+Resource root urls such as ``/rest/datasets`` also accept ``PUT`` and ``PATCH`` requests for bulk update. Provide the parameter objects as usual, except wrapped inside a list.
 
-For PATCH bulk update, the parameter object must also contain some field that can be used to identify the object being updated, because the url does not contain it. So usually either the id field, or an identifier field, which may reside inside a json-construct in the object. So for example when bulk updating files:
+For ``PATCH`` bulk update, the parameter object must also contain some field that can be used to identify the object being updated, because the url does not contain the identifier like it does when updating a single object. The field to use for that is, of course, the ``identifier`` field. For example when bulk updating files:
 
 .. code-block:: python
 
@@ -129,18 +129,6 @@ For PATCH bulk update, the parameter object must also contain some field that ca
         }
     ]
 
-    # or
-    [
-        {
-            'id': 12,
-            'field_being_updated': 'value'
-        },
-        {
-            'id': 13,
-            'field_being_updated': 'value2'
-        }
-    ]
-
 
 Return values are similar to bulk create, i.e. the response contains the keys success and failed, with updated objects and possible error descriptions found inside.
 
@@ -149,7 +137,7 @@ Return values are similar to bulk create, i.e. the response contains the keys su
 Bulk delete
 ------------
 
-Only the API ``/rest/files`` currently supports bulk delete.
+Only the API ``/rest/files`` currently supports bulk delete, and is reserver for Fairdata service use only.
 
 
 
