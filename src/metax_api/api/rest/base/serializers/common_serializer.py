@@ -24,7 +24,6 @@ class CommonSerializer(ModelSerializer):
 
     # when query parameter ?fields=x,y is used, will include a list of fields to return
     requested_fields = None
-    strip_sensitive_fields = False
 
     class Meta:
         model = Common
@@ -64,9 +63,6 @@ class CommonSerializer(ModelSerializer):
         """
         if 'only_fields' in kwargs:
             self.requested_fields = kwargs.pop('only_fields')
-
-        if 'strip_sensitive_fields' in kwargs:
-            self.strip_sensitive_fields = kwargs.pop('strip_sensitive_fields')
 
         super(CommonSerializer, self).__init__(*args, **kwargs)
 

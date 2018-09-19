@@ -141,7 +141,8 @@ class DatasetViewSet(CommonViewSet):
 
         if not cr.user_is_privileged(request) and not cr.access_type_is_open():
             raise Http403({
-                'detail': ['You do not have permission to see this information.']
+                'detail': ['You do not have permission to see this information because the dataset access type '
+                           'is not open and you are not the owner of the catalog record.']
             })
 
         if CS.get_boolean_query_param(request, 'removed_files'):

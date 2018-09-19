@@ -17,7 +17,11 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.models.catalog_record import ACCESS_TYPES
-from metax_api.utils import now_is_later_than_datetime_str, remove_keys_recursively, leave_keys_in_dict
+from metax_api.utils import \
+    parse_timestamp_string_to_tz_aware_datetime,\
+    get_tz_aware_now_without_micros,\
+    remove_keys_recursively,\
+    leave_keys_in_dict
 from .common_service import CommonService
 from .datacite_service import DataciteService
 from .file_service import FileService
@@ -148,7 +152,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         rd = cr_json['research_dataset']
         file_identifiers = [f['identifier'] for f in rd.get('files', [])]
 
-        directory_fields, file_fields = FileService._get_requested_file_browsing_fields(request, cr_json['id'])
+        directory_fields, file_fields = FileService._get_requested_file_browsing_fields(request)
 
         for file in File.objects.filter(identifier__in=file_identifiers).only(*file_fields):
             for f in rd['files']:
@@ -553,8 +557,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             pass
         elif access_type_id == ACCESS_TYPES['embargoed']:
             try:
-                access_rights_available = cls.get_research_dataset_embargo_available(rd)
-                embargo_time_passed = now_is_later_than_datetime_str(access_rights_available)
+                embargo_time_passed = get_tz_aware_now_without_micros() >= \
+                    parse_timestamp_string_to_tz_aware_datetime(cls.get_research_dataset_embargo_available(rd))
             except Exception as e:
                 _logger.warning(e)
                 embargo_time_passed = False
@@ -567,18 +571,19 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         elif access_type_id == ACCESS_TYPES['restricted_access_permit_fairdata']:
             # TODO:
             # If user does not have rems permission for the catalog record, strip it:
-                # rd = cls._strip_file_and_directory_metadata(rd)
+                # cls._strip_file_and_directory_metadata(rd)
 
             # strip always for now. Remove this part when rems checking is implemented
-            rd = cls._strip_file_and_directory_metadata(rd)
+            cls._strip_file_and_directory_metadata(rd)
         else:
-            rd = cls._strip_file_and_directory_metadata(rd)
+            cls._strip_file_and_directory_metadata(rd)
 
         return rd
 
     @classmethod
     def _strip_file_and_directory_metadata(cls, rd):
-        return cls._strip_directory_metadata(cls._strip_file_metadata(rd))
+        cls._strip_file_metadata(rd)
+        cls._strip_directory_metadata(rd)
 
     @classmethod
     def _strip_file_metadata(cls, rd):
@@ -590,22 +595,14 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         - details.byte_size, if exists
 
         :param rd:
-        :return: research_dataset with research_dataset.files objects stripped
         """
-        files_out = []
-        if 'files' in rd:
-            keys_to_leave_at_least = ['title', 'use_category', 'file_type']
+        file_keys_to_leave = set(['title', 'use_category', 'file_type', 'details'])
+        details_keys_to_leave = set(['byte_size'])
 
-            for file_obj in rd['files']:
-                keys_to_leave = list(keys_to_leave_at_least)
-                if 'details' in file_obj:
-                    file_obj['details'] = leave_keys_in_dict(file_obj['details'], ['byte_size'])
-                    keys_to_leave.append('details')
-                file_obj_out = leave_keys_in_dict(file_obj, keys_to_leave)
-                files_out.append(file_obj_out)
-
-        rd['files'] = files_out
-        return rd
+        for file in rd.get('files', []):
+            leave_keys_in_dict(file, file_keys_to_leave)
+            if 'details' in file:
+                leave_keys_in_dict(file['details'], details_keys_to_leave)
 
     @classmethod
     def _strip_directory_metadata(cls, rd):
@@ -616,22 +613,14 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         - details.byte_size, if exists
 
         :param rd:
-        :return: research_dataset with research_dataset.directories objects stripped
         """
-        directories_out = []
-        if 'directories' in rd:
-            keys_to_leave_at_least = ['title', 'use_category']
+        dir_keys_to_leave = set(['title', 'use_category', 'details'])
+        details_keys_to_leave = set(['byte_size'])
 
-            for dir_obj in rd['directories']:
-                keys_to_leave = list(keys_to_leave_at_least)
-                if 'details' in dir_obj:
-                    dir_obj['details'] = leave_keys_in_dict(dir_obj['details'], ['byte_size'])
-                    keys_to_leave.append('details')
-                dir_obj_out = leave_keys_in_dict(dir_obj, keys_to_leave)
-                directories_out.append(dir_obj_out)
-
-        rd['directories'] = directories_out
-        return rd
+        for dir in rd.get('directories', []):
+            leave_keys_in_dict(dir, dir_keys_to_leave)
+            if 'details' in dir:
+                leave_keys_in_dict(dir['details'], details_keys_to_leave)
 
     @staticmethod
     def get_research_dataset_access_type(rd):

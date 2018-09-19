@@ -22,7 +22,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services import AuthService
-from metax_api.utils.utils import get_tz_aware_now_without_micros, leave_keys_in_dict
+from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
 
 
@@ -508,7 +508,8 @@ class FileService(CommonService):
 
             if not cr.user_is_privileged(request) and not cr.access_type_is_open():
                 raise Http403({
-                    'detail': ['You do not have permission to see this information.']
+                    'detail': ['You do not have permission to see this information because the dataset access type is '
+                               'not open and you are not the owner of the catalog record.']
                 })
             cr_id = cr.id
             cr_directory_data = cr._directory_data or {}
@@ -527,7 +528,7 @@ class FileService(CommonService):
             cr_directory_data = {}
 
         # note: by default all fields are retrieved
-        directory_fields, file_fields = cls._get_requested_file_browsing_fields(request, cr_id)
+        directory_fields, file_fields = cls._get_requested_file_browsing_fields(request)
 
         contents = cls._get_directory_contents(
             directory_id,
@@ -561,7 +562,7 @@ class FileService(CommonService):
         return contents
 
     @classmethod
-    def _get_requested_file_browsing_fields(cls, request, cr_id):
+    def _get_requested_file_browsing_fields(cls, request):
         """
         Find out if only specific fields were requested to be returned, and return those fields
         for directories and files respectively.
@@ -1106,28 +1107,6 @@ class FileService(CommonService):
             cls._find_parent_dir_from_previously_created_dirs(row, existing_dirs)
 
         return sorted_data
-
-    @classmethod
-    def strip_file(cls, file_json):
-        """
-        Strip the file json dict of any confidential/private information not supposed to be
-        available for the general public.
-
-        :param file_json:
-        :return:
-        """
-        return leave_keys_in_dict(file_json, ['byte_size'])
-
-    @classmethod
-    def strip_directory(cls, directory_json):
-        """
-        Strip the directory json dict of any confidential/private information not supposed to be
-        available for the general public.
-
-        :param directory_json:
-        :return:
-        """
-        return leave_keys_in_dict(directory_json, ['byte_size'])
 
     @staticmethod
     def _find_parent_dir_from_previously_created_dirs(node, existing_dirs):

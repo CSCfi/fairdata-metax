@@ -11,7 +11,6 @@ from rest_framework.serializers import ValidationError
 from rest_framework import serializers
 
 from metax_api.models import Directory
-from metax_api.services import FileService as FS
 from .common_serializer import CommonSerializer
 
 _logger = logging.getLogger(__name__)
@@ -82,9 +81,6 @@ class DirectorySerializer(CommonSerializer):
                 'id': instance.parent_directory.id,
                 'identifier': instance.parent_directory.identifier,
             }
-
-        if self.strip_sensitive_fields:
-            res = FS.strip_directory(res)
 
         return res
 

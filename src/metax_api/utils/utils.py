@@ -7,7 +7,6 @@
 
 import os
 import sys
-import datetime
 from enum import Enum
 from uuid import uuid4
 
@@ -35,9 +34,9 @@ def executing_travis():
     return True if os.getenv('TRAVIS', False) else False
 
 
-def parse_timestamp_string_to_tz_aware_datetime(timestamp):
+def parse_timestamp_string_to_tz_aware_datetime(timestamp_str):
     """
-    Parse a timestamp string to a datetime object. Timestamp such as:
+    Parse a timestamp_str string to a datetime object. Timestamp such as:
 
     'Wed, 23 Sep 2009 22:15:29 GMT'
 
@@ -49,33 +48,25 @@ def parse_timestamp_string_to_tz_aware_datetime(timestamp):
 
     Returns time-zone aware timestamp. Caller is responsible for catching errors in parsing.
     """
-    if not isinstance(timestamp, str):
+    if not isinstance(timestamp_str, str):
         raise ValueError("Timestamp must be a string")
 
-    timestamp = parser.parse(timestamp)
-    if timezone.is_naive(timestamp):
-        timestamp = timezone.make_aware(timestamp)
+    timestamp_str = parser.parse(timestamp_str)
+    if timezone.is_naive(timestamp_str):
+        timestamp_str = timezone.make_aware(timestamp_str)
 
-    return timestamp
+    return timestamp_str
 
 
 def get_tz_aware_now_without_micros():
     return timezone.now().replace(microsecond=0)
 
 
-def now_is_later_than_datetime_str(datetime_str):
-    try:
-        datetime_obj = parser.parse(datetime_str)
-    except Exception:
-        datetime_obj = None
-
-    if type(datetime_obj) != datetime.datetime:
-        raise Exception("Unable to parse datetime string: {0}".format(datetime_str))
-
+def tz_now_is_later_than_tz_datetime_obj(datetime_obj):
     if timezone.is_naive(datetime_obj):
-        datetime_obj = timezone.make_aware(datetime_obj)
+        raise ValueError("Datetime object must be timezone aware")
 
-    return datetime.datetime.now(tz=timezone.get_current_timezone()) >= datetime_obj
+    return get_tz_aware_now_without_micros() >= datetime_obj
 
 
 def generate_uuid_identifier(urn_prefix=False):
@@ -147,11 +138,13 @@ def remove_keys_recursively(obj, fields_to_remove):
 
 def leave_keys_in_dict(dict_obj, fields_to_leave):
     """
-    Returns a dict object having only the key-values, for which key is listed in fields_to_leave.
+    Removes the key-values from dict_obj, for which key is NOT listed in fields_to_leave.
     NOTE: Is not recursive
 
     :param dict_obj:
     :param fields_to_leave:
     :return:
     """
-    return {key: dict_obj[key] for key in fields_to_leave if key in fields_to_leave}
+    for key in list(dict_obj):
+        if key not in fields_to_leave:
+            del dict_obj[key]

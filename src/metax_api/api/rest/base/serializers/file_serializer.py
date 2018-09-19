@@ -12,7 +12,6 @@ from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
 
 from metax_api.models import Directory, File, FileStorage
-from metax_api.services import FileService as FS
 from .common_serializer import CommonSerializer
 from .directory_serializer import DirectorySerializer
 from .file_storage_serializer import FileStorageSerializer
@@ -105,9 +104,6 @@ class FileSerializer(CommonSerializer):
 
         if not self.requested_fields or 'checksum' in self.requested_fields:
             res['checksum'] = self._form_checksum(res)
-
-        if self.strip_sensitive_fields:
-            res = FS.strip_file(res)
 
         return res
 
