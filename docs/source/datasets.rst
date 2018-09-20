@@ -312,6 +312,32 @@ As can probably be guessed from the previous paragraphs, removing an entry from 
 When a directory has been added, excluding files or sub-directories from that directory is not yet supported.
 
 
+
+Using an existing dataset as a template
+----------------------------------------
+
+If you want to use an existing dataset as a template for a new dataset, you can retrieve a dataset from the API, remove two particular identifying fields from the returned object, and then use the resulting object in a new create request to Metax API. Example:
+
+
+.. code-block:: python
+
+    import requests
+
+    headers = { 'Authorization': 'Bearer abc.def.ghi' }
+    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    assert response.status_code == 200, response.content
+    print('Retrieved a dataset that has identifier: %s' response.data['identifier'])
+
+    new_dataset = response.data
+    del new_dataset['identifier']
+    del new_dataset['research_dataset']['preferred_identifier']
+
+    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=new_dataset, headers=headers)
+    assert response.status_code == 201, response.content
+    print('Created a new dataset that has identifier: %s' response.data['identifier'])
+
+
+
 .. _rst-datasets-reference-data:
 
 Reference data guide
