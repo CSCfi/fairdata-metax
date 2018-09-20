@@ -560,7 +560,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 embargo_time_passed = get_tz_aware_now_without_micros() >= \
                     parse_timestamp_string_to_tz_aware_datetime(cls.get_research_dataset_embargo_available(rd))
             except Exception as e:
-                _logger.warning(e)
+                _logger.error(e)
                 embargo_time_passed = False
 
             if not embargo_time_passed:

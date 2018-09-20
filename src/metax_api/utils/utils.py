@@ -62,13 +62,6 @@ def get_tz_aware_now_without_micros():
     return timezone.now().replace(microsecond=0)
 
 
-def tz_now_is_later_than_tz_datetime_obj(datetime_obj):
-    if timezone.is_naive(datetime_obj):
-        raise ValueError("Datetime object must be timezone aware")
-
-    return get_tz_aware_now_without_micros() >= datetime_obj
-
-
 def generate_uuid_identifier(urn_prefix=False):
     if urn_prefix:
         return 'urn:nbn:fi:att:%s' % str(uuid4())
