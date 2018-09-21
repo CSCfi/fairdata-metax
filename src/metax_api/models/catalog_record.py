@@ -362,16 +362,15 @@ class CatalogRecord(Common):
         if not self.research_dataset.get('access_rights', {}).get('available', False):
             return False
         try:
-            return get_tz_aware_now_without_micros() >= \
-                   parse_timestamp_string_to_tz_aware_datetime(
-                       self.research_dataset.get('access_rights', {}).get('available', {}))
+            return get_tz_aware_now_without_micros() >= parse_timestamp_string_to_tz_aware_datetime(
+                self.research_dataset.get('access_rights', {}).get('available', {}))
         except Exception as e:
             _logger.error(e)
             return False
 
     def authorized_to_see_catalog_record_files(self, request):
         return self.user_is_privileged(request) or self._access_type_is_open() or \
-               (self._access_type_is_embargoed() and self._embargo_is_available())
+            (self._access_type_is_embargoed() and self._embargo_is_available())
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():

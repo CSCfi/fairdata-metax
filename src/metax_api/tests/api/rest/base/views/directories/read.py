@@ -12,6 +12,7 @@ from rest_framework.test import APITestCase
 import responses
 
 from metax_api.models import CatalogRecord, Directory
+from metax_api.models.catalog_record import ACCESS_TYPES
 from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
 
@@ -375,6 +376,86 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         _assert_dir_calculations(cr, response.data)
 
+    # THE OK TESTS
+
+    def test_returns_ok_for_open_catalog_record_if_no_authorization(self):
+        open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
+        dir_file_amt = open_cr_json['research_dataset']['directories'][0]['details']['file_count']
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files even without authorization for
+        # open catalog record
+        response = self._assert_ok_and_get_response(open_cr_json, 'no')
+        self.assertEqual(len(response.data), dir_file_amt)
+
+    def test_returns_ok_for_open_catalog_record_if_service_authorization(self):
+        open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
+        dir_file_amt = open_cr_json['research_dataset']['directories'][0]['details']['file_count']
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with service authorization for
+        # open catalog record
+        response = self._assert_ok_and_get_response(open_cr_json, 'service')
+        self.assertEqual(len(response.data), dir_file_amt)
+
+    def test_returns_ok_for_open_catalog_record_if_owner_authorization(self):
+        # TODO how to do tests for this?
+        self.assertTrue(True)
+
+    def test_returns_ok_for_restricted_catalog_record_if_service_authorization(self):
+        restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
+        dir_file_amt = restricted_cr_json['research_dataset']['directories'][0]['details']['file_count']
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with service authorization for
+        # restricted catalog record
+        response = self._assert_ok_and_get_response(restricted_cr_json, 'service')
+        self.assertEqual(len(response.data), dir_file_amt)
+
+    def _assert_forbidden(self, cr_json, credentials_type):
+        dir_id = cr_json['research_dataset']['directories'][0]['identifier']
+        cr_id = cr_json['identifier']
+        self._set_http_authorization(credentials_type)
+        response = self.client.get('/rest/directories/{0}/files?cr_identifier={1}'.format(dir_id, cr_id))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def _assert_ok_and_get_response(self, cr_json, credentials_type):
+        dir_id = cr_json['research_dataset']['directories'][0]['identifier']
+        cr_id = cr_json['identifier']
+        self._set_http_authorization(credentials_type)
+        response = self.client.get('/rest/directories/{0}/files?cr_identifier={1}&recursive&depth=*'
+                                   .format(dir_id, cr_id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        return response
+
+    def test_returns_ok_for_restricted_catalog_record_if_owner_authorization(self):
+        # TODO how to do tests for this?
+        self.assertTrue(True)
+
+    def test_returns_ok_for_embargoed_catalog_record_if_available_reached_and_no_authorization(self):
+        available_embargoed_cr_json = self.get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(True)
+        dir_file_amt = available_embargoed_cr_json['research_dataset']['directories'][0]['details']['file_count']
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files without authorization
+        # for embargoed catalog record whose embargo date has been reached
+        response = self._assert_ok_and_get_response(available_embargoed_cr_json, 'no')
+        self.assertEqual(len(response.data), dir_file_amt)
+
+    # THE FORBIDDEN TESTS
+
+    def test_returns_forbidden_for_restricted_catalog_record_if_no_authorization(self):
+        restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns forbidden without authorization
+        # for restricted catalog record
+        self._assert_forbidden(restricted_cr_json, 'no')
+
+    def test_returns_forbidden_for_embargoed_catalog_record_if_available_not_reached_and_no_authorization(self):
+        not_available_embargoed_cr_json = self.get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(
+            False)
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns forbidden without authorization
+        # for embargoed catalog record whose embargo date has not been reached
+        # Deactivate credentials
+        self._assert_forbidden(not_available_embargoed_cr_json, 'no')
+
 
 class DirectoryApiReadCatalogRecordFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
 
@@ -478,12 +559,23 @@ class DirectoryApiReadEndUserAccess(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @responses.activate
-    def test_browsing_in_cr_context_does_not_check_permissions(self):
+    def test_browsing_in_cr_context(self):
         '''
-        Browsing files in a cr context should not check project membership, since
-        those files are then already public.
+        Cr with open access type should be available for any end-user api user. Browsing files for a cr with restricted
+        access type should be forbidden for non-owner (or service) user.
         '''
+        cr_pk = CatalogRecord.objects.get(pk=1).identifier
         self._use_http_authorization(method='bearer', token=self.token)
-        response = self.client.get('/rest/directories/3/files?cr_identifier=%s'
-            % CatalogRecord.objects.get(pk=1).identifier)
+        response = self.client.get('/rest/directories/3/files?cr_identifier=%s' % cr_pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self._set_http_authorization('service')
+        response = self.client.get('/rest/datasets/{0}'.format(cr_pk))
+        json = response.data
+        json['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted_access']
+        json['research_dataset']['access_rights']['restriction_grounds']['identifier'] = '4'
+        response = self.client.put('/rest/datasets/{0}'.format(cr_pk), response.data, format='json')
+
+        self._use_http_authorization(method='bearer', token=self.token)
+        response = self.client.get('/rest/directories/3/files?cr_identifier=%s' % cr_pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

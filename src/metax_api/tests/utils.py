@@ -12,12 +12,26 @@ from os import path
 from django.conf import settings as django_settings
 import jwt
 import responses
+from rest_framework import status
+
+from metax_api.models.catalog_record import ACCESS_TYPES
+from metax_api.models import CatalogRecord
 
 
 datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 # path to data used by automatic tests
 test_data_file_path = 'metax_api/tests/testdata/test_data.json'
+
+
+def assert_catalog_record_is_open_access(cr):
+    access_type = cr['research_dataset'].get('access_rights', {}).get('access_type', {}).get('identifier', '')
+    assert(access_type == ACCESS_TYPES['open'])
+
+
+def assert_catalog_record_not_open_access(cr):
+    access_type = cr['research_dataset'].get('access_rights', {}).get('access_type', {}).get('identifier', '')
+    assert(access_type != ACCESS_TYPES['open'])
 
 
 def get_json_schema(model_name):
@@ -83,6 +97,19 @@ class TestClassUtils():
     """
     Test classes may (multi-)inherit this class in addition to APITestCase to use these helpers
     """
+
+    def _set_http_authorization(self, credentials_type):
+        # Deactivate credentials
+        if credentials_type == 'no':
+            self.client.credentials()
+        elif credentials_type == 'service':
+            metax_user = django_settings.API_METAX_USER
+            self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+        elif credentials_type == 'owner':
+            # TODO
+            self.client.credentials()
+        else:
+            self.client.credentials()
 
     def _use_http_authorization(self, username='testuser', password=None, header_value=None,
             method='basic', token=None):
@@ -165,3 +192,88 @@ class TestClassUtils():
         raise Exception('Could not find model %s from test data with index == %d. '
                         'Are you certain you generated rows for model %s in generate_test_data.py?'
                         % (model_name, requested_index))
+
+    def get_open_cr_with_files_and_dirs_from_api_with_file_details(self):
+        # Use http auth to get complete details of the catalog record
+        metax_user = django_settings.API_METAX_USER
+        self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+
+        CatalogRecord.objects.get(pk=13).calculate_directory_byte_sizes_and_file_counts()
+        response = self.client.get('/rest/datasets/13?file_details')
+
+        # Verify we are dealing with an open research dataset
+        assert_catalog_record_is_open_access(response.data)
+        rd = response.data['research_dataset']
+
+        # Verify we have both files and dirs in the catalog record
+        self.assertTrue('files' in rd and len(rd['files']) > 0)
+        self.assertTrue('directories' in rd and len(rd['directories']) > 0)
+
+        # Empty credentials to not mess up the actual test
+        self.client.credentials()
+
+        return response.data
+
+    def get_restricted_cr_with_files_and_dirs_from_api_with_file_details(self):
+        # Use http auth to get complete details of the catalog record
+        metax_user = django_settings.API_METAX_USER
+        self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+
+        # Set access_type to restricted (NOTE: only one of many restricted access types)
+        response = self.client.get('/rest/datasets/13')
+        data = response.data
+        data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted_access']
+        data['research_dataset']['access_rights']['restriction_grounds']['identifier'] = '4'
+
+        response = self.client.put('/rest/datasets/13', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        CatalogRecord.objects.get(pk=13).calculate_directory_byte_sizes_and_file_counts()
+        response = self.client.get('/rest/datasets/13?file_details')
+
+        # Verify we are dealing with restricted research dataset
+        assert_catalog_record_not_open_access(response.data)
+        rd = response.data['research_dataset']
+
+        # Verify we have both files and dirs in the catalog record
+        self.assertTrue('files' in rd and len(rd['files']) > 0)
+        self.assertTrue('directories' in rd and len(rd['directories']) > 0)
+
+        # Empty credentials to not mess up the actual test
+        self.client.credentials()
+
+        return response.data
+
+    def get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(self, is_available):
+        # Use http auth to get complete details of the catalog record
+        metax_user = django_settings.API_METAX_USER
+        self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+
+        # Set access_type to restricted (NOTE: only one of many restricted access types)
+        response = self.client.get('/rest/datasets/13')
+        data = response.data
+        data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['embargoed']
+        if is_available:
+            data['research_dataset']['access_rights']['available'] = '2000-01-01T00:00:00Z'
+        else:
+            data['research_dataset']['access_rights']['available'] = '3000-01-01T00:00:00Z'
+        data['research_dataset']['access_rights']['restriction_grounds']['identifier'] = '4'
+
+        response = self.client.put('/rest/datasets/13', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        CatalogRecord.objects.get(pk=13).calculate_directory_byte_sizes_and_file_counts()
+        response = self.client.get('/rest/datasets/13?file_details')
+
+        # Verify we are dealing with restricted research dataset
+        assert_catalog_record_not_open_access(response.data)
+        rd = response.data['research_dataset']
+
+        # Verify we have both files and dirs in the catalog record
+        self.assertTrue('files' in rd and len(rd['files']) > 0)
+        self.assertTrue('directories' in rd and len(rd['directories']) > 0)
+
+        # Empty credentials to not mess up the actual test
+        self.client.credentials()
+
+        return response.data
