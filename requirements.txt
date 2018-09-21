@@ -26,5 +26,6 @@ responses==0.9.0  # Apache 2.0-license
 Sphinx==1.7.8  # custom license
 sphinx-autobuild==0.7.1 # MIT-license
 sphinx-rtd-theme==0.4.1 # MIT-license
+strict-rfc3339==0.7 # GPLv3
 simplejson==3.16.0  # MIT-license
 urllib3==1.23
