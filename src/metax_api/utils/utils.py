@@ -122,10 +122,8 @@ def remove_keys_recursively(obj, fields_to_remove):
             if key not in fields_to_remove
         }
     elif isinstance(obj, list):
-        obj = [
-            remove_keys_recursively(item, fields_to_remove) for item in obj
-            if item not in fields_to_remove
-        ]
+        obj = [remove_keys_recursively(item, fields_to_remove) for item in obj if item not in fields_to_remove]
+
     return obj
 
 

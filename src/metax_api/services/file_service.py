@@ -506,7 +506,7 @@ class FileService(CommonService):
                         'detail': ['CatalogRecord with identifier %s does not exist' % cr_identifier]
                     })
 
-            if not cr.user_is_privileged(request) and not cr.access_type_is_open():
+            if not cr.authorized_to_see_catalog_record_files(request):
                 raise Http403({
                     'detail': ['You do not have permission to see this information because the dataset access type is '
                                'not open and you are not the owner of the catalog record.']

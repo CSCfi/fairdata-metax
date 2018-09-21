@@ -18,7 +18,8 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.utils import get_tz_aware_now_without_micros, generate_doi_identifier, generate_uuid_identifier, \
-    executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type
+    executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type, \
+    parse_timestamp_string_to_tz_aware_datetime
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -349,9 +350,28 @@ class CatalogRecord(Common):
             # unknown user
             return False
 
-    def access_type_is_open(self):
+    def _access_type_is_open(self):
         from metax_api.services import CatalogRecordService as CRS
         return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['open']
+
+    def _access_type_is_embargoed(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['embargoed']
+
+    def _embargo_is_available(self):
+        if not self.research_dataset.get('access_rights', {}).get('available', False):
+            return False
+        try:
+            return get_tz_aware_now_without_micros() >= \
+                   parse_timestamp_string_to_tz_aware_datetime(
+                       self.research_dataset.get('access_rights', {}).get('available', {}))
+        except Exception as e:
+            _logger.error(e)
+            return False
+
+    def authorized_to_see_catalog_record_files(self, request):
+        return self.user_is_privileged(request) or self._access_type_is_open() or \
+               (self._access_type_is_embargoed() and self._embargo_is_available())
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():
