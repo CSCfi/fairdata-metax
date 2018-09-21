@@ -4611,7 +4611,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -4726,7 +4726,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d2",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -4841,7 +4841,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d3",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -4956,7 +4956,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d4",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5071,7 +5071,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d5",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5186,7 +5186,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d6",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5301,7 +5301,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d7",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5416,7 +5416,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d8",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5489,7 +5489,7 @@
                 ],
                 "title": "Helsingin yliopiston biotieteiden laitoksen muuttolintujen laskentatulosten s\u00e4ilytyssopimus",
                 "validity": {
-                    "start_date": "2018-07-01T00:00:00Z"
+                    "start_date": "2018-07-01"
                 }
             },
             "date_created": "2018-04-05T08:19:58+03:00",
@@ -5526,7 +5526,7 @@
                 ],
                 "title": "Title of Contract 2",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             },
             "date_created": "2017-05-15T10:07:22Z",
@@ -5563,7 +5563,7 @@
                 ],
                 "title": "Title of Contract 3",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             },
             "date_created": "2017-05-15T10:07:22Z",
@@ -5600,7 +5600,7 @@
                 ],
                 "title": "Title of Contract 4",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             },
             "date_created": "2017-05-15T10:07:22Z",
@@ -5637,7 +5637,7 @@
                 ],
                 "title": "Title of Contract 5",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             },
             "date_created": "2017-05-15T10:07:22Z",
@@ -6861,7 +6861,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -7101,7 +7101,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -7583,7 +7583,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -7823,7 +7823,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -8373,7 +8373,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -8637,7 +8637,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -10136,7 +10136,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -10323,7 +10323,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -10864,7 +10864,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -11051,7 +11051,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -11592,7 +11592,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -11779,7 +11779,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
