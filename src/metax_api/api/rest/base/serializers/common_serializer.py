@@ -7,17 +7,20 @@
 
 import logging
 from collections import OrderedDict
+from datetime import datetime
 
 from django.db import transaction
+from django.db.models.query import QuerySet
 from rest_framework.fields import SkipField
 from rest_framework.relations import PKOnlyObject
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
 from metax_api.models import Common
+from metax_api.utils import datetime_to_str
 
 _logger = logging.getLogger(__name__)
-d = _logger.debug
+
 
 
 class CommonSerializer(ModelSerializer):
@@ -212,3 +215,171 @@ class CommonSerializer(ModelSerializer):
 
     def _request_by_service(self):
         return 'request' in self.context and self.context['request'].user.is_service
+
+
+class LightSerializer():
+
+    """
+    LightSerializer is optimized for speed for read-only serializing of a
+    dict-form queryset result or result-set (Model.objects.values(*fields).filter()).
+
+    Since by default a queryset.values() returns relation fields only as { relation_field: id },
+    some extra code is required to make the output look the same as from a normal serializer.
+
+    Before creating the queryset, the fields for .values(*fields) should ALWAYS be
+    retrieved first by calling ls_field_list(), optionally providing list of fields
+    to retrieve. This will transform fields such as 'parent_directory' to retrieve more
+    relevant fields such as parent_directory__identifier, instead of just parent_directory_id,
+    which by itself is useless. The method ls_field_list() should over customized by the
+    inheriting serializer to pick whatever field it needs, if the default is not good enough.
+
+    Example use:
+        lfs_field_list = LightFileSerializer.ls_field_list()
+        queryset = File.objects.values(*lfs_field_list).filter(project_identifier="xyz")
+        lfs_output = LightFileSerializer.serialize(queryset)
+
+    The common solution provided by the serializer
+    - copies values to fields of same name for basic key-value -type fields
+    - transforms relation_field__attribute fields to { relation_field: { attribute: value }},
+      as normal serializer outputs them
+    - by default for relation fields, only fields id and identifier are fetched, unless
+      more are manually specified in ls_field_list().
+    - special case: relations where the only interesting field is a json field: the identifier
+      from whatever_json is copied, and the end result still looks as from a normal serializer:
+      { relation_field: { identifier: value, id: value }}
+
+    Serialization for any field can be overrided in serialize_special_field(). List such
+    fields inside cls.special_fields in an inheriting serializer.
+    """
+
+    # the serializer will only output these fields.
+    # inheriting serializer should set value to a set().
+    allowed_fields = None
+
+    # fields that require special handling, if any. can be empty, but must be specified.
+    # when not empty, must implement method serialize_special_field(file, field, value).
+    # inheriting serializer should set value to a set().
+    special_fields = None
+
+    # list names of relation fields for error checking.
+    # inheriting serializer should set value to a set().
+    relation_fields = None
+
+    # transform field names from cls.relation_fields. for example parent_directory
+    # -> parent_directory_id. if the serializer meets a field like this, then that
+    # is a programming error, since the queryset was not queried by first calling
+    # cls.ls_field_list to get LightSerializer-compatible fields.
+    _relation_id_fields = set()
+
+    @staticmethod
+    def serialize_special_field(item, field, value):
+        """
+        If an inheriting serializer needs to handle some field in a special way, this method
+        should be implemented. This method gets called when a field name is specified in
+        cls.special_fields.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def ls_field_list(cls, received_field_list=[]):
+        """
+        Form list of fields to retrieve to be used in a query, where query .values() result
+        will be compatible with LightSerializer use.
+
+        For example, when retrieving identifier for field parent_directory, instead of
+        querying entirety of parent_directory, query just for parent_directory__identifier.
+        Serializer will then recognize the field name.
+
+        This default method only filters out fields that are not ine the allowed_fields list.
+        """
+        assert isinstance(cls.allowed_fields, set), 'light serializer must specify allowed_fields as a set()'
+
+        if received_field_list:
+            # ensure only allowed fields and no rubbish ends up in the query - unknown
+            # fields to the db will cause crash.
+            field_list = [ field for field in received_field_list if field in cls.allowed_fields ]
+            if not field_list:
+                raise Exception(
+                    'uh oh, none of the fields you requested are listed in allowed_fields. '
+                    'received fields: %s' % str(received_field_list)
+                )
+        else:
+            # get all fields
+            field_list = cls.allowed_fields
+
+        return field_list
+
+    @classmethod
+    def serialize(cls, unserialized_data):
+        """
+        A light serializer for files, intended to serialize results for read-only purposes from a
+        Model.objects.filter().values(*fields) query. Serializes either a single result (dictionary)
+        or a queryset.
+
+        The end result is supposed to look the same as normally from a serializer.
+        """
+        assert type(unserialized_data) in (QuerySet, dict), 'unserialized_data type must be QuerySet or dict'
+        assert isinstance(cls.special_fields, set), 'light serializer must specify special_fields as a set()'
+        assert isinstance(cls.relation_fields, set), 'light serializer must specify relation_fields as a set()'
+
+        special_fields = cls.special_fields
+        relation_fields = cls.relation_fields
+        serialize_special_field = cls.serialize_special_field
+        _relation_id_fields = cls._relation_id_fields
+
+        for field in relation_fields:
+            _relation_id_fields.add('%s_id' % field)
+
+        if isinstance(unserialized_data, QuerySet):
+            unserialized_data = unserialized_data
+            multi = True
+        else:
+            unserialized_data = [unserialized_data]
+            multi = False
+
+        serialized_data = []
+        data_append = serialized_data.append
+
+        for row in unserialized_data:
+            item = {}
+            if not row:
+                return [] if multi else {}
+            for field, value in row.items():
+                if value is None:
+                    continue
+                elif field in special_fields:
+                    serialize_special_field(item, field, value)
+                elif '__' in field:
+                    # fields from relations, such as parent_directory__identifier
+                    field_sections = field.split('__')
+                    field_name = field_sections[0]
+                    if field.endswith('_json'):
+                        # _json -ending fields are a special case. only handles
+                        # fields identifier and id.
+                        if field_name not in item:
+                            item[field_name] = {}
+                        if isinstance(value, dict):
+                            # take identifier from inside the json-field
+                            item[field_name] = { 'identifier': value['identifier'] }
+                        else:
+                            # id
+                            item[field_name][field_sections[-1]] = value
+                    else:
+                        # traditional relation field. can take any field from relation
+                        try:
+                            item[field_name][field_sections[-1]] = value
+                        except KeyError:
+                            item[field_name] = { field_sections[-1]: value }
+                elif field in _relation_id_fields:
+                    raise ValueError(
+                        'LightSerializer received field: %s. Expected: %s__attrname. '
+                        'Did you forget to pass result of ls_field_list() to queryset '
+                        '.values(*field_list)?'
+                        % (field, field[:-3])
+                    )
+                else:
+                    if isinstance(value, datetime):
+                        value = datetime_to_str(value)
+                    item[field] = value
+            data_append(item)
+        return serialized_data if multi else serialized_data[0]
