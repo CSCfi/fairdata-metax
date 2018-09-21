@@ -17,10 +17,9 @@ import yaml
 from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
 from metax_api.renderers import XMLRenderer
-from metax_api.services import CatalogRecordService as CRS, CommonService as CS
-from metax_api.services import RabbitMQService
+from metax_api.services import CatalogRecordService as CRS, CommonService as CS, RabbitMQService
 from .common_view import CommonViewSet
-from ..serializers import CatalogRecordSerializer, FileSerializer
+from ..serializers import CatalogRecordSerializer, LightFileSerializer
 
 _logger = logging.getLogger(__name__)
 
@@ -153,10 +152,9 @@ class DatasetViewSet(CommonViewSet):
         if 'file_fields' in request.query_params:
             file_fields = request.query_params['file_fields'].split(',')
 
-        files = [
-            FileSerializer(f, only_fields=file_fields).data
-            for f in cr.files(manager=manager).filter(**params).only(*file_fields)
-        ]
+        file_fields = LightFileSerializer.ls_field_list(file_fields)
+        queryset = cr.files(manager=manager).filter(**params).values(*file_fields)
+        files = LightFileSerializer.serialize(queryset)
 
         return Response(data=files, status=status.HTTP_200_OK)
 

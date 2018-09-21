@@ -13,7 +13,6 @@ from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
 from django.conf import settings
 from django.db import connection
-from django.db.models.fields import FieldDoesNotExist
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -567,6 +566,8 @@ class FileService(CommonService):
         Find out if only specific fields were requested to be returned, and return those fields
         for directories and files respectively.
         """
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
+        from metax_api.api.rest.base.serializers import LightFileSerializer
         directory_fields = []
         file_fields = []
 
@@ -575,6 +576,9 @@ class FileService(CommonService):
 
         if request.query_params.get('file_fields', False):
             file_fields = request.query_params['file_fields'].split(',')
+
+        directory_fields = LightDirectorySerializer.ls_field_list(directory_fields)
+        file_fields = LightFileSerializer.ls_field_list(file_fields)
 
         return directory_fields, file_fields
 
@@ -628,27 +632,21 @@ class FileService(CommonService):
                 raise
         else:
             # browsing from ALL files, not cr specific
-
-            dirs = Directory.objects.filter(parent_directory_id=directory_id).only(*directory_fields)
+            dirs = Directory.objects.filter(parent_directory_id=directory_id).values(*directory_fields)
 
             if dirs_only:
                 files = None
             else:
-                files = File.objects.filter(parent_directory_id=directory_id).only(*file_fields)
+                files = File.objects.filter(parent_directory_id=directory_id).values(*file_fields)
 
-        try:
-            contents = {'directories': [DirectorySerializer(n, only_fields=directory_fields).data for n in dirs]}
-        except FieldDoesNotExist as e:
-            raise Http400({ 'detail': [str(e)]})
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
+        contents = { 'directories': LightDirectorySerializer.serialize(dirs) }
 
-        try:
-            # note: the below statement already executes the queryset, hence this block inside try-except
-            if files or not dirs_only:
-                # for normal file browsing (not with 'dirs_only'), the files-key should be present,
-                # even if empty.
-                contents['files'] = [FileSerializer(n, only_fields=file_fields).data for n in files]
-        except FieldDoesNotExist as e:
-            raise Http400({'detail': [str(e)]})
+        if files or not dirs_only:
+            # for normal file browsing (not with 'dirs_only'), the files-key should be present,
+            # even if empty.
+            from metax_api.api.rest.base.serializers import LightFileSerializer
+            contents['files'] = LightFileSerializer.serialize(files)
 
         if recursive:
             for directory in contents['directories']:
@@ -728,8 +726,8 @@ class FileService(CommonService):
             # didnt exist, or it was not selected
             raise Http404
 
-        dirs = Directory.objects.filter(id__in=directory_ids).only(*directory_fields)
-        files = None if dirs_only else File.objects.filter(id__in=file_ids).only(*file_fields)
+        dirs = Directory.objects.filter(id__in=directory_ids).values(*directory_fields)
+        files = None if dirs_only else File.objects.filter(id__in=file_ids).values(*file_fields)
 
         return dirs, files
 
@@ -780,18 +778,20 @@ class FileService(CommonService):
         """
         Return root directory for a project, with its child directories and files.
         """
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
+        directory_fields = LightDirectorySerializer.ls_field_list()
         try:
-            root_dir = Directory.objects.get(
+            root_dir = Directory.objects.values(*directory_fields).get(
                 project_identifier=project_identifier, parent_directory=None
             )
         except Directory.DoesNotExist:
             raise Http404
         except Directory.MultipleObjectsReturned: # pragma: no cover
             raise Exception(
-                'Directory.MultipleObjectsReturned when looking for root directory. This should never happen')
-
-        root_dir_json = DirectorySerializer(root_dir).data
-        root_dir_json.update(cls._get_directory_contents(root_dir.id))
+                'Directory.MultipleObjectsReturned when looking for root directory. This should never happen'
+            )
+        root_dir_json = LightDirectorySerializer.serialize(root_dir)
+        root_dir_json.update(cls._get_directory_contents(root_dir['id'], directory_fields=directory_fields))
         return root_dir_json
 
     @classmethod

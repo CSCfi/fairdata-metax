@@ -139,7 +139,7 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
 
     def test_read_directory_get_project_root_directory(self):
         response = self.client.get('/rest/directories/root?project=project_x')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
         self.assertEqual(response.data['id'], 1)
         self.assertEqual('directories' in response.data, True)
         self.assertEqual('files' in response.data, True)

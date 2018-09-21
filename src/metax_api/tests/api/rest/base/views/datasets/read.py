@@ -805,7 +805,7 @@ class CatalogRecordApiReadFiles(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data), 0)
 
         response = self.client.get('/rest/datasets/1/files?removed_files=true')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), len(file_ids_before))
         self.assertEqual(file_ids_before, set([ f['id'] for f in response.data ]))
 
