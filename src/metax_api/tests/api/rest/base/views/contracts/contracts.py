@@ -174,7 +174,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                     "name": "Name of Service"
                 }],
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             }
         }
@@ -202,7 +202,7 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                     "name": "Name of Service"
                 }],
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             }
         }

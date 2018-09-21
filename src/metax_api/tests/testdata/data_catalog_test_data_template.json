@@ -3,7 +3,7 @@
   "catalog_record_group_create": "default-record-create-group",
   "catalog_json": {
     "modified": "2014-01-17T08:19:58Z",
-    "issued": "2014-02-27T08:19:58Z",
+    "issued": "2014-02-27",
     "title": {
       "fi": "Testidatakatalogin nimi",
       "en": "Test data catalog name"

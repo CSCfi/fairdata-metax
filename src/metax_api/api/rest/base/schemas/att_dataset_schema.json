@@ -977,7 +977,8 @@
                     "title":"Release date",
                     "description":"Date of formal issuance (e.g., publication) of the resource.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "type":"string"
+                    "type":"string",
+                    "format": "date"
                 },
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -1247,7 +1248,8 @@
                     "title":"Date Available",
                     "description":"Date (often a range) that the resource became or will become available.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "type":"string"
+                    "type":"string",
+                    "format": "date"
                 },
                 "access_type":{
                     "@id":"http://purl.org/dc/terms/type",
