@@ -22,7 +22,6 @@ from metax_api.utils import datetime_to_str
 _logger = logging.getLogger(__name__)
 
 
-
 class CommonSerializer(ModelSerializer):
 
     # when query parameter ?fields=x,y is used, will include a list of fields to return
