@@ -7485,6 +7485,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -8207,6 +8210,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -9021,6 +9027,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -10801,6 +10810,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -11529,6 +11541,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -12257,6 +12272,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [

@@ -686,6 +686,13 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "type":"string",
                     "format":"date-time"
+                },
+                "temporal_coverage":{
+                    "@id":"http://schema.org/temporalCoverage",
+                    "title":"Temporal coverage",
+                    "description":"Period of time expressed as ISO 8601 compliant string",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"string"
                 }
             },
             "additionalProperties": false
