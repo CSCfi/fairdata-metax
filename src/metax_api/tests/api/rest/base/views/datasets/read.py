@@ -225,7 +225,7 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
 
     @responses.activate
     def test_returns_all_file_dir_info_for_open_catalog_record_if_owner_authorization(self):
-        self._create_end_user_data_catalogs()
+        self.create_end_user_data_catalogs()
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify all file and dir details info is returned for open owner-owned cr /rest/datasets/<pk> with
@@ -241,7 +241,7 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
 
     @responses.activate
     def test_returns_all_file_dir_info_for_restricted_catalog_record_if_owner_authorization(self):
-        self._create_end_user_data_catalogs()
+        self.create_end_user_data_catalogs()
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify all file and dir details info is returned for restricted owner-owned cr /rest/datasets/<pk> with
@@ -671,7 +671,7 @@ class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiRea
 
     @responses.activate
     def test_returns_all_details_for_open_catalog_record_if_owner_authorization(self):
-        self._create_end_user_data_catalogs()
+        self.create_end_user_data_catalogs()
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify all file and dir details info is returned for open owner-owned cr /rest/datasets/<pk>?file_details with
@@ -687,7 +687,7 @@ class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiRea
 
     @responses.activate
     def test_returns_all_details_for_restricted_catalog_record_if_owner_authorization(self):
-        self._create_end_user_data_catalogs()
+        self.create_end_user_data_catalogs()
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify all file and dir details info is returned for restricted owner-owned cr
@@ -831,7 +831,7 @@ class CatalogRecordApiReadFilesAuthorization(CatalogRecordApiReadCommon):
 
     @responses.activate
     def test_returns_ok_for_open_catalog_record_if_owner_authorization(self):
-        self._create_end_user_data_catalogs()
+        self.create_end_user_data_catalogs()
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify open owner-owned dataset /rest/datasets/<pk>/files returns all the files with owner authorization
@@ -845,7 +845,7 @@ class CatalogRecordApiReadFilesAuthorization(CatalogRecordApiReadCommon):
 
     @responses.activate
     def test_returns_ok_for_restricted_catalog_record_if_owner_authorization(self):
-        self._create_end_user_data_catalogs()
+        self.create_end_user_data_catalogs()
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify restricted owner-owned dataset /rest/datasets/<pk>/files returns all the files with

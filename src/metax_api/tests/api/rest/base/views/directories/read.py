@@ -400,7 +400,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
 
     @responses.activate
     def test_returns_ok_for_open_catalog_record_if_owner_authorization(self):
-        self._create_end_user_data_catalogs()
+        self.create_end_user_data_catalogs()
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with owner authorization for
@@ -416,7 +416,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
 
     @responses.activate
     def test_returns_ok_for_restricted_catalog_record_if_owner_authorization(self):
-        self._create_end_user_data_catalogs()
+        self.create_end_user_data_catalogs()
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with owner authorization for

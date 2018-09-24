@@ -14,12 +14,6 @@ import jwt
 import responses
 from rest_framework import status
 
-from metax_api.models.catalog_record import ACCESS_TYPES
-from metax_api.models import CatalogRecord, DataCatalog
-from metax_api.utils import get_tz_aware_now_without_micros
-
-END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
-
 datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 # path to data used by automatic tests
@@ -27,11 +21,13 @@ test_data_file_path = 'metax_api/tests/testdata/test_data.json'
 
 
 def assert_catalog_record_is_open_access(cr):
+    from metax_api.models.catalog_record import ACCESS_TYPES
     access_type = cr['research_dataset'].get('access_rights', {}).get('access_type', {}).get('identifier', '')
     assert(access_type == ACCESS_TYPES['open'])
 
 
 def assert_catalog_record_not_open_access(cr):
+    from metax_api.models.catalog_record import ACCESS_TYPES
     access_type = cr['research_dataset'].get('access_rights', {}).get('access_type', {}).get('identifier', '')
     assert(access_type != ACCESS_TYPES['open'])
 
@@ -101,11 +97,12 @@ class TestClassUtils():
     Test classes may (multi-)inherit this class in addition to APITestCase to use these helpers
     """
 
-    @staticmethod
-    def _create_end_user_data_catalogs():
+    def create_end_user_data_catalogs(self):
+        from metax_api.utils import get_tz_aware_now_without_micros
+        from metax_api.models import DataCatalog
         dc = DataCatalog.objects.get(pk=1)
         catalog_json = dc.catalog_json
-        for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+        for identifier in django_settings.END_USER_ALLOWED_DATA_CATALOGS:
             catalog_json['identifier'] = identifier
             DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
 
@@ -212,7 +209,7 @@ class TestClassUtils():
         data['metadata_provider_user'] = self.token['sub']
         data['metadata_provider_org'] = self.token['schacHomeOrganization']
         data['metadata_owner_org'] = self.token['schacHomeOrganization']
-        data['data_catalog']['identifier'] = END_USER_ALLOWED_DATA_CATALOGS[0]
+        data['data_catalog']['identifier'] = django_settings.END_USER_ALLOWED_DATA_CATALOGS[0]
 
         data.pop('identifier', None)
         data['research_dataset'].pop('preferred_identifier', None)
@@ -222,6 +219,7 @@ class TestClassUtils():
         return response.data['id']
 
     def get_open_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False):
+        from metax_api.models import CatalogRecord
         # Use http auth to get complete details of the catalog record
         metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
@@ -247,6 +245,8 @@ class TestClassUtils():
         return response.data
 
     def get_restricted_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False):
+        from metax_api.models import CatalogRecord
+        from metax_api.models.catalog_record import ACCESS_TYPES
         # Use http auth to get complete details of the catalog record
         metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
@@ -282,6 +282,8 @@ class TestClassUtils():
         return response.data
 
     def get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(self, is_available):
+        from metax_api.models import CatalogRecord
+        from metax_api.models.catalog_record import ACCESS_TYPES
         # Use http auth to get complete details of the catalog record
         metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
