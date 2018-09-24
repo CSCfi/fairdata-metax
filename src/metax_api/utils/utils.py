@@ -34,9 +34,9 @@ def executing_travis():
     return True if os.getenv('TRAVIS', False) else False
 
 
-def parse_timestamp_string_to_tz_aware_datetime(timestamp):
+def parse_timestamp_string_to_tz_aware_datetime(timestamp_str):
     """
-    Parse a timestamp string to a datetime object. Timestamp such as:
+    Parse a timestamp_str string to a datetime object. Timestamp such as:
 
     'Wed, 23 Sep 2009 22:15:29 GMT'
 
@@ -48,14 +48,14 @@ def parse_timestamp_string_to_tz_aware_datetime(timestamp):
 
     Returns time-zone aware timestamp. Caller is responsible for catching errors in parsing.
     """
-    if not isinstance(timestamp, str):
+    if not isinstance(timestamp_str, str):
         raise ValueError("Timestamp must be a string")
 
-    timestamp = parser.parse(timestamp)
-    if timezone.is_naive(timestamp):
-        timestamp = timezone.make_aware(timestamp)
+    timestamp_str = parser.parse(timestamp_str)
+    if timezone.is_naive(timestamp_str):
+        timestamp_str = timezone.make_aware(timestamp_str)
 
-    return timestamp
+    return timestamp_str
 
 
 def get_tz_aware_now_without_micros():
@@ -106,3 +106,36 @@ def get_identifier_type(identifier):
         return IdentifierType.URN
     else:
         return None
+
+
+def remove_keys_recursively(obj, fields_to_remove):
+    """
+     Accepts as parameter either a single dict object or a list of dict objects.
+
+    :param obj:
+    :param fields_to_remove:
+    :return:
+    """
+    if isinstance(obj, dict):
+        obj = {
+            key: remove_keys_recursively(value, fields_to_remove) for key, value in obj.items()
+            if key not in fields_to_remove
+        }
+    elif isinstance(obj, list):
+        obj = [remove_keys_recursively(item, fields_to_remove) for item in obj if item not in fields_to_remove]
+
+    return obj
+
+
+def leave_keys_in_dict(dict_obj, fields_to_leave):
+    """
+    Removes the key-values from dict_obj, for which key is NOT listed in fields_to_leave.
+    NOTE: Is not recursive
+
+    :param dict_obj:
+    :param fields_to_leave:
+    :return:
+    """
+    for key in list(dict_obj):
+        if key not in fields_to_leave:
+            del dict_obj[key]

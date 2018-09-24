@@ -19,6 +19,7 @@ from metax_api.models import Common
 _logger = logging.getLogger(__name__)
 d = _logger.debug
 
+
 class CommonSerializer(ModelSerializer):
 
     # when query parameter ?fields=x,y is used, will include a list of fields to return

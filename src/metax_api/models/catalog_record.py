@@ -18,7 +18,8 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.utils import get_tz_aware_now_without_micros, generate_doi_identifier, generate_uuid_identifier, \
-    executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type
+    executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type, \
+    parse_timestamp_string_to_tz_aware_datetime
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -29,6 +30,25 @@ from .file import File
 READ_METHODS = ('GET', 'HEAD', 'OPTIONS')
 DEBUG = settings.DEBUG
 _logger = logging.getLogger(__name__)
+
+
+ACCESS_TYPES = {
+    'open': 'http://purl.org/att/es/reference_data/access_type/access_type_open_access',
+    'closed': 'http://purl.org/att/es/reference_data/access_type/access_type_closed_access',
+    'embargoed': 'http://purl.org/att/es/reference_data/access_type/access_type_embargoed_access',
+    'restricted_access':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access',
+    'restricted_access_permit_fairdata':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_permit_fairdata',
+    'restricted_access_permit_external':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_permit_external',
+    'restricted_access_research':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_research',
+    'restricted_access_research_education_studying':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_education_studying',
+    'restricted_access_registration':
+        'http://purl.org/att/es/reference_data/access_type/access_type_restricted_access_registration',
+}
 
 
 class DiscardRecord(Exception):
@@ -312,6 +332,45 @@ class CatalogRecord(Common):
         # note: once access control plans evolve, user_created may not be a legit field ever
         # to check access from. but until then ...
         return request.user.username == self.user_created
+
+    def user_is_privileged(self, request):
+        """
+        Perhaps move this to Common model if/when other models need this information and have appropriate methods?
+
+        :param instance:
+        :return:
+        """
+        if request.user.is_service:
+            # knows what they are doing
+            return True
+        elif self.user_is_owner(request):
+            # can see sensitive fields
+            return True
+        else:
+            # unknown user
+            return False
+
+    def _access_type_is_open(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['open']
+
+    def _access_type_is_embargoed(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['embargoed']
+
+    def _embargo_is_available(self):
+        if not self.research_dataset.get('access_rights', {}).get('available', False):
+            return False
+        try:
+            return get_tz_aware_now_without_micros() >= parse_timestamp_string_to_tz_aware_datetime(
+                self.research_dataset.get('access_rights', {}).get('available', {}))
+        except Exception as e:
+            _logger.error(e)
+            return False
+
+    def authorized_to_see_catalog_record_files(self, request):
+        return self.user_is_privileged(request) or self._access_type_is_open() or \
+            (self._access_type_is_embargoed() and self._embargo_is_available())
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():

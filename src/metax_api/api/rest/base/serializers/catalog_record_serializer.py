@@ -247,6 +247,12 @@ class CatalogRecordSerializer(CommonSerializer):
                 'version_type': 'dataset'
             }
 
+        # Do the population of file_details here, since if it was done in the view, it might not know the file/dir
+        # identifiers any longer, since the potential stripping of file/dir fields takes away identifier fields from
+        # File and Directory objects, which are needed in populating file_details
+        if 'request' in self.context and 'file_details' in self.context['request'].query_params:
+            CRS.populate_file_details(res, self.context['request'])
+
         res = self._check_and_strip_sensitive_fields(instance, res)
 
         return res
@@ -270,15 +276,9 @@ class CatalogRecordSerializer(CommonSerializer):
         It is much more straightforward to do it here.
         """
         if 'request' in self.context:
-            if self._request_by_service():
-                # knows what they are doing
-                pass
-            elif instance.user_is_owner(self.context['request']):
-                # can see sensitive fields
-                pass
-            else:
-                # unknown user
-                res = CRS.strip_catalog_record(res)
+            if not instance.user_is_privileged(self.context['request']):
+                res['research_dataset'] = CRS.check_and_remove_metadata_based_on_access_type(
+                    CRS.remove_contact_info_metadata(res['research_dataset']))
         return res
 
     def validate_research_dataset(self, value):

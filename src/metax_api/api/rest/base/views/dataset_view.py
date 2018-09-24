@@ -55,12 +55,8 @@ class DatasetViewSet(CommonViewSet):
         res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
 
         if 'dataset_format' in request.query_params:
-            if not request.user.username:
-                res.data = CRS.strip_catalog_record(res.data)
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
             request.accepted_renderer = XMLRenderer()
-        elif 'file_details' in request.query_params:
-            CRS.populate_file_details(res.data, request)
 
         return res
 
@@ -110,14 +106,15 @@ class DatasetViewSet(CommonViewSet):
         except:
             raise Http404
 
-        if not request.user.is_service and request.user.username != cr.user_created:
+        if not cr.user_is_privileged(request):
             # normally when retrieving a record and its research_dataset field,
             # the request goes through the CatalogRecordSerializer, where sensitive
-            # fields are automatically stripped. this is a case where its not
+            # fields are automatically stripped. This is a case where it's not
             # possible to use the serializer, since an older metadata version of a ds
             # is not stored as part of the cr, but in the table ResearchDatasetVersion.
             # therefore, perform this checking and stripping separately here.
-            research_dataset = CRS.strip_catalog_record(research_dataset)
+            research_dataset = CRS.check_and_remove_metadata_based_on_access_type(
+                CRS.remove_contact_info_metadata(research_dataset))
 
         return Response(data=research_dataset, status=status.HTTP_200_OK)
 
@@ -136,14 +133,17 @@ class DatasetViewSet(CommonViewSet):
         Get files associated to this dataset. Can be used to retrieve a list of only
         deleted files by providing the query parameter removed_files=true.
         """
-        if not request.user.username:
-            raise Http403
-
         params = {}
         manager = 'objects'
         # TODO: This applies only to IDA files, not remote resources.
         # TODO: Should this apply also to remote resources?
-        catalog_record = self.get_object()
+        cr = self.get_object()
+
+        if not cr.authorized_to_see_catalog_record_files(request):
+            raise Http403({
+                'detail': ['You do not have permission to see this information because the dataset access type '
+                           'is not open and you are not the owner of the catalog record.']
+            })
 
         if CS.get_boolean_query_param(request, 'removed_files'):
             params['removed'] = True
@@ -155,7 +155,7 @@ class DatasetViewSet(CommonViewSet):
 
         files = [
             FileSerializer(f, only_fields=file_fields).data
-            for f in catalog_record.files(manager=manager).filter(**params).only(*file_fields)
+            for f in cr.files(manager=manager).filter(**params).only(*file_fields)
         ]
 
         return Response(data=files, status=status.HTTP_200_OK)

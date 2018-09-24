@@ -395,7 +395,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         cr = CatalogRecord.objects.get(pk=11)
         from metax_api.api.oaipmh.base.metax_oai_server import MetaxOAIServer
         s = MetaxOAIServer()
-        md = s._get_oai_dc_metadata(cr, cr.research_dataset, 'Dataset')
+        md = s._get_oai_dc_metadata(cr, cr.research_dataset)
         self.assertTrue('identifier' in md)
         self.assertTrue('title' in md)
         self.assertTrue('lang' in md['title'][0])
@@ -404,7 +404,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         cr = DataCatalog.objects.get(pk=1)
         from metax_api.api.oaipmh.base.metax_oai_server import MetaxOAIServer
         s = MetaxOAIServer()
-        md = s._get_oai_dc_metadata(cr, self._datacatalog_record['catalog_json'], 'Datacatalog')
+        md = s._get_oai_dc_metadata(cr, self._datacatalog_record['catalog_json'])
         self.assertTrue('identifier' in md)
         self.assertTrue('title' in md)
         self.assertTrue('lang' in md['title'][0])
