@@ -15,8 +15,10 @@ import responses
 from rest_framework import status
 
 from metax_api.models.catalog_record import ACCESS_TYPES
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, DataCatalog
+from metax_api.utils import get_tz_aware_now_without_micros
 
+END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 
 datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -93,10 +95,19 @@ def generate_test_token(payload):
     '''
     return jwt.encode(payload, 'secret', 'HS256').decode('utf-8')
 
+
 class TestClassUtils():
     """
     Test classes may (multi-)inherit this class in addition to APITestCase to use these helpers
     """
+
+    @staticmethod
+    def _create_end_user_data_catalogs():
+        dc = DataCatalog.objects.get(pk=1)
+        catalog_json = dc.catalog_json
+        for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+            catalog_json['identifier'] = identifier
+            DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
 
     def _set_http_authorization(self, credentials_type):
         # Deactivate credentials
@@ -106,8 +117,8 @@ class TestClassUtils():
             metax_user = django_settings.API_METAX_USER
             self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
         elif credentials_type == 'owner':
-            # TODO
-            self.client.credentials()
+            self._use_http_authorization(method='bearer', token=self.token)
+            self._mock_token_validation_succeeds()
         else:
             self.client.credentials()
 
@@ -193,14 +204,35 @@ class TestClassUtils():
                         'Are you certain you generated rows for model %s in generate_test_data.py?'
                         % (model_name, requested_index))
 
-    def get_open_cr_with_files_and_dirs_from_api_with_file_details(self):
+    def _create_cr_for_owner(self, pk_for_template_cr, data):
+        self.token = get_test_oidc_token()
+        if 'editor' in data:
+            data.pop('editor', None)
+        data['user_created'] = self.token['sub']
+        data['metadata_provider_user'] = self.token['sub']
+        data['metadata_provider_org'] = self.token['schacHomeOrganization']
+        data['metadata_owner_org'] = self.token['schacHomeOrganization']
+        data['data_catalog']['identifier'] = END_USER_ALLOWED_DATA_CATALOGS[0]
+
+        data.pop('identifier', None)
+        data['research_dataset'].pop('preferred_identifier', None)
+
+        response = self.client.post('/rest/datasets', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        return response.data['id']
+
+    def get_open_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False):
         # Use http auth to get complete details of the catalog record
         metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+        pk = 13
 
-        CatalogRecord.objects.get(pk=13).calculate_directory_byte_sizes_and_file_counts()
-        response = self.client.get('/rest/datasets/13?file_details')
+        if set_owner:
+            response = self.client.get('/rest/datasets/{0}'.format(pk))
+            pk = self._create_cr_for_owner(pk, response.data)
 
+        CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
+        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
         # Verify we are dealing with an open research dataset
         assert_catalog_record_is_open_access(response.data)
         rd = response.data['research_dataset']
@@ -214,22 +246,27 @@ class TestClassUtils():
 
         return response.data
 
-    def get_restricted_cr_with_files_and_dirs_from_api_with_file_details(self):
+    def get_restricted_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False):
         # Use http auth to get complete details of the catalog record
         metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+        pk = 13
+
+        response = self.client.get('/rest/datasets/{0}'.format(pk))
+        data = response.data
 
         # Set access_type to restricted (NOTE: only one of many restricted access types)
-        response = self.client.get('/rest/datasets/13')
-        data = response.data
         data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted_access']
         data['research_dataset']['access_rights']['restriction_grounds']['identifier'] = '4'
 
-        response = self.client.put('/rest/datasets/13', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        if set_owner:
+            pk = self._create_cr_for_owner(pk, data)
+        else:
+            response = self.client.put('/rest/datasets/{0}'.format(pk), data, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        CatalogRecord.objects.get(pk=13).calculate_directory_byte_sizes_and_file_counts()
-        response = self.client.get('/rest/datasets/13?file_details')
+        CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
+        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
 
         # Verify we are dealing with restricted research dataset
         assert_catalog_record_not_open_access(response.data)
@@ -248,22 +285,23 @@ class TestClassUtils():
         # Use http auth to get complete details of the catalog record
         metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+        pk = 13
 
         # Set access_type to restricted (NOTE: only one of many restricted access types)
-        response = self.client.get('/rest/datasets/13')
+        response = self.client.get('/rest/datasets/{0}'.format(pk))
         data = response.data
         data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['embargoed']
         if is_available:
-            data['research_dataset']['access_rights']['available'] = '2000-01-01T00:00:00Z'
+            data['research_dataset']['access_rights']['available'] = '2000-01-01'
         else:
-            data['research_dataset']['access_rights']['available'] = '3000-01-01T00:00:00Z'
+            data['research_dataset']['access_rights']['available'] = '3000-01-01'
         data['research_dataset']['access_rights']['restriction_grounds']['identifier'] = '4'
 
         response = self.client.put('/rest/datasets/13', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        CatalogRecord.objects.get(pk=13).calculate_directory_byte_sizes_and_file_counts()
-        response = self.client.get('/rest/datasets/13?file_details')
+        CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
+        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
 
         # Verify we are dealing with restricted research dataset
         assert_catalog_record_not_open_access(response.data)
