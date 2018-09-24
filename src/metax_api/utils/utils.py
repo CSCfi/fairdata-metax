@@ -33,6 +33,8 @@ def executing_travis():
     """
     return True if os.getenv('TRAVIS', False) else False
 
+def datetime_to_str(date_obj):
+    return date_obj.astimezone().isoformat()
 
 def parse_timestamp_string_to_tz_aware_datetime(timestamp_str):
     """

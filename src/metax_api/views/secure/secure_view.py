@@ -29,6 +29,7 @@ class SecureLoginView(TemplateView):
         _logger.debug('extracting information from token')
 
         token_payload = json.loads(request.META['HTTP_OIDC_ID_TOKEN_PAYLOAD'])
+        _logger.debug(token_payload)
 
         context = {
             'email': token_payload['email'],

@@ -149,23 +149,41 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         Note: Some of these results may be very useful to cache, or cache the entire dataset
         if feasible.
         """
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
+        from metax_api.api.rest.base.serializers import LightFileSerializer
+
         rd = cr_json['research_dataset']
         file_identifiers = [f['identifier'] for f in rd.get('files', [])]
 
+        # these fields must be retrieved from the db in order to do the mapping, even if they are not
+        # requested when using ?file_fields=... or ?directory_fields=... ditch those fields
+        # at the end of the method if necessary. while not significant perhaps, for the user it is
+        # less astonishing.
+        dir_identifier_requested = True
+        file_identifier_requested = True
+
         directory_fields, file_fields = FileService._get_requested_file_browsing_fields(request)
 
-        for file in File.objects.filter(identifier__in=file_identifiers).only(*file_fields):
+        if 'identifier' not in directory_fields:
+            directory_fields.append('identifier')
+            dir_identifier_requested = False
+
+        if 'identifier' not in file_fields:
+            file_fields.append('identifier')
+            file_identifier_requested = False
+
+        for file in File.objects.filter(identifier__in=file_identifiers).values(*file_fields):
             for f in rd['files']:
-                if f['identifier'] == file.identifier:
-                    f['details'] = FileSerializer(file, only_fields=file_fields).data
+                if f['identifier'] == file['identifier']:
+                    f['details'] = LightFileSerializer.serialize(file)
                     continue
 
         dir_identifiers = [dr['identifier'] for dr in rd.get('directories', [])]
 
-        for directory in Directory.objects.filter(identifier__in=dir_identifiers).only(*directory_fields):
+        for directory in Directory.objects.filter(identifier__in=dir_identifiers).values(*directory_fields):
             for dr in rd['directories']:
-                if dr['identifier'] == directory.identifier:
-                    dr['details'] = DirectorySerializer(directory, only_fields=directory_fields).data
+                if dr['identifier'] == directory['identifier']:
+                    dr['details'] = LightDirectorySerializer.serialize(directory)
                     continue
 
         if not dir_identifiers:
@@ -181,6 +199,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             for dr in rd['directories']:
                 FileService.retrieve_directory_byte_sizes_and_file_counts_for_cr(dr['details'],
                     cr_json['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
+
+        # cleanup identifiers, if they were not actually requested
+        if not dir_identifier_requested:
+            for dr in rd['directories']:
+                del dr['details']['identifier']
+
+        if not file_identifier_requested:
+            for f in rd['files']:
+                del f['details']['identifier']
 
     @classmethod
     def transform_datasets_to_format(cls, catalog_records, target_format, include_xml_declaration=True):

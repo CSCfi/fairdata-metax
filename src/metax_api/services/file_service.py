@@ -13,7 +13,6 @@ from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
 from django.conf import settings
 from django.db import connection
-from django.db.models.fields import FieldDoesNotExist
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -466,72 +465,69 @@ class FileService(CommonService):
         """
         assert request is not None, 'kw parameter request must be specified'
 
-        if identifier and identifier.isdigit() and not include_parent:
-            directory_id = identifier
+        # get targeted directory
+
+        if identifier:
+            try:
+                params = { 'id': int(identifier) }
+            except ValueError:
+                params = { 'identifier': identifier }
         else:
-            if identifier:
-                if identifier.isdigit():
-                    # go this path because parent needs to be included. avoid having to retrieve
-                    # directory info again later
-                    params = { 'id': identifier }
-                else:
-                    params = { 'identifier': identifier }
-            elif path and project_identifier:
+            if path and project_identifier:
                 params = { 'directory_path': path, 'project_identifier': project_identifier }
             else: # pragma: no cover
-                raise ValidationError({'detail': 'no parameters to query by'})
+                raise ValidationError({'detail': ['no parameters to query by']})
 
-            try:
-                # get entire object in case parent has to be included also (include_parent)
-                directory = Directory.objects.get(**params)
-            except Directory.DoesNotExist:
-                raise Http404
+        try:
+            directory = Directory.objects.values('id', 'directory_path', 'project_identifier').get(**params)
+        except Directory.DoesNotExist:
+            raise Http404
 
-            directory_id = directory.id
+        # get cr if relevant
 
         if cr_identifier:
             # browsing in the context of a cr
-            if cr_identifier.isdigit():
+            try:
+                cr_params = { 'id': int(cr_identifier) }
+            except ValueError:
+                cr_params = { 'identifier': cr_identifier }
+
+            try:
                 cr = CatalogRecord.objects.only('id', '_directory_data', 'editor', 'user_created', 'research_dataset').\
-                    get(pk=cr_identifier)
-            else:
-                try:
-                    cr = CatalogRecord.objects.\
-                        only('id', '_directory_data', 'editor', 'user_created', 'research_dataset').\
-                        get(identifier=cr_identifier)
-                except CatalogRecord.DoesNotExist:
-                    # raise 400 instead of 404, to distinguish from the error
-                    # 'directory not found', which raises a 404
-                    raise ValidationError({
-                        'detail': ['CatalogRecord with identifier %s does not exist' % cr_identifier]
-                    })
+                    get(**cr_params)
+            except CatalogRecord.DoesNotExist:
+                # raise 400 instead of 404, to distinguish from the error
+                # 'directory not found', which raises a 404
+                raise ValidationError({
+                    'detail': [ 'CatalogRecord with identifier %s does not exist' % cr_identifier ]
+                })
 
             if not cr.authorized_to_see_catalog_record_files(request):
                 raise Http403({
-                    'detail': ['You do not have permission to see this information because the dataset access type is '
-                               'not open and you are not the owner of the catalog record.']
+                    'detail': [
+                        'You do not have permission to see this information because the dataset access type is '
+                        'not open and you are not the owner of the catalog record.'
+                    ]
                 })
+
             cr_id = cr.id
             cr_directory_data = cr._directory_data or {}
         else:
             # generally browsing the directory - NOT in the context of a cr! check user permissions
             if not request.user.is_service:
-                if not project_identifier:
-                    try:
-                        project_identifier = directory.project_identifier
-                    except:
-                        project_identifier = Directory.objects.filter(pk=directory_id) \
-                            .values_list('project_identifier', flat=True)[0]
-                FileService.check_user_belongs_to_project(request, project_identifier)
-
+                FileService.check_user_belongs_to_project(request, directory['project_identifier'])
             cr_id = None
             cr_directory_data = {}
 
-        # note: by default all fields are retrieved
+        # get list of field names to retrieve. note: by default all fields are retrieved
         directory_fields, file_fields = cls._get_requested_file_browsing_fields(request)
 
+        if cr_id and recursive and max_depth == '*':
+            # optimized for downloading full file list of an entire directory
+            return cls._get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields)
+
         contents = cls._get_directory_contents(
-            directory_id,
+            directory['id'],
             recursive=recursive,
             max_depth=max_depth,
             dirs_only=dirs_only,
@@ -553,7 +549,8 @@ class FileService(CommonService):
                 return file_list
 
         if include_parent:
-            contents.update(DirectorySerializer(directory, only_fields=directory_fields).data)
+            from metax_api.api.rest.base.serializers import LightDirectorySerializer
+            contents.update(LightDirectorySerializer.serialize(directory))
 
         if cls._include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
             cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id,
@@ -567,6 +564,8 @@ class FileService(CommonService):
         Find out if only specific fields were requested to be returned, and return those fields
         for directories and files respectively.
         """
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
+        from metax_api.api.rest.base.serializers import LightFileSerializer
         directory_fields = []
         file_fields = []
 
@@ -576,7 +575,28 @@ class FileService(CommonService):
         if request.query_params.get('file_fields', False):
             file_fields = request.query_params['file_fields'].split(',')
 
+        directory_fields = LightDirectorySerializer.ls_field_list(directory_fields)
+        file_fields = LightFileSerializer.ls_field_list(file_fields)
+
         return directory_fields, file_fields
+
+    @staticmethod
+    def _get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields):
+        '''
+        Optimized for downloading full file list of an entire directory in a cr.
+        Not a recursive method + no Model objects or normal serializers.
+        '''
+        from metax_api.api.rest.base.serializers import LightFileSerializer
+        params = { 'project_identifier': directory['project_identifier'] }
+
+        if directory['directory_path'] == '/':
+            # for root dir, simply omit file_path param to get all project files.
+            pass
+        else:
+            params['file_path__startswith'] = '%s/' % directory['directory_path']
+
+        files = CatalogRecord.objects.get(pk=cr_id).files.values(*file_fields).filter(**params)
+        return LightFileSerializer.serialize(files)
 
     @staticmethod
     def _include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
@@ -628,27 +648,21 @@ class FileService(CommonService):
                 raise
         else:
             # browsing from ALL files, not cr specific
-
-            dirs = Directory.objects.filter(parent_directory_id=directory_id).only(*directory_fields)
+            dirs = Directory.objects.filter(parent_directory_id=directory_id).values(*directory_fields)
 
             if dirs_only:
                 files = None
             else:
-                files = File.objects.filter(parent_directory_id=directory_id).only(*file_fields)
+                files = File.objects.filter(parent_directory_id=directory_id).values(*file_fields)
 
-        try:
-            contents = {'directories': [DirectorySerializer(n, only_fields=directory_fields).data for n in dirs]}
-        except FieldDoesNotExist as e:
-            raise Http400({ 'detail': [str(e)]})
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
+        contents = { 'directories': LightDirectorySerializer.serialize(dirs) }
 
-        try:
-            # note: the below statement already executes the queryset, hence this block inside try-except
-            if files or not dirs_only:
-                # for normal file browsing (not with 'dirs_only'), the files-key should be present,
-                # even if empty.
-                contents['files'] = [FileSerializer(n, only_fields=file_fields).data for n in files]
-        except FieldDoesNotExist as e:
-            raise Http400({'detail': [str(e)]})
+        if files or not dirs_only:
+            # for normal file browsing (not with 'dirs_only'), the files-key should be present,
+            # even if empty.
+            from metax_api.api.rest.base.serializers import LightFileSerializer
+            contents['files'] = LightFileSerializer.serialize(files)
 
         if recursive:
             for directory in contents['directories']:
@@ -728,8 +742,8 @@ class FileService(CommonService):
             # didnt exist, or it was not selected
             raise Http404
 
-        dirs = Directory.objects.filter(id__in=directory_ids).only(*directory_fields)
-        files = None if dirs_only else File.objects.filter(id__in=file_ids).only(*file_fields)
+        dirs = Directory.objects.filter(id__in=directory_ids).values(*directory_fields)
+        files = None if dirs_only else File.objects.filter(id__in=file_ids).values(*file_fields)
 
         return dirs, files
 
@@ -780,18 +794,20 @@ class FileService(CommonService):
         """
         Return root directory for a project, with its child directories and files.
         """
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
+        directory_fields = LightDirectorySerializer.ls_field_list()
         try:
-            root_dir = Directory.objects.get(
+            root_dir = Directory.objects.values(*directory_fields).get(
                 project_identifier=project_identifier, parent_directory=None
             )
         except Directory.DoesNotExist:
             raise Http404
         except Directory.MultipleObjectsReturned: # pragma: no cover
             raise Exception(
-                'Directory.MultipleObjectsReturned when looking for root directory. This should never happen')
-
-        root_dir_json = DirectorySerializer(root_dir).data
-        root_dir_json.update(cls._get_directory_contents(root_dir.id))
+                'Directory.MultipleObjectsReturned when looking for root directory. This should never happen'
+            )
+        root_dir_json = LightDirectorySerializer.serialize(root_dir)
+        root_dir_json.update(cls._get_directory_contents(root_dir['id'], directory_fields=directory_fields))
         return root_dir_json
 
     @classmethod

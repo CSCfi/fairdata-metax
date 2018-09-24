@@ -12,7 +12,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
 
 from metax_api.models import Directory, File, FileStorage
-from .common_serializer import CommonSerializer
+from .common_serializer import CommonSerializer, LightSerializer
 from .directory_serializer import DirectorySerializer
 from .file_storage_serializer import FileStorageSerializer
 from .serializer_utils import validate_json
@@ -23,7 +23,7 @@ d = logging.getLogger(__name__).debug
 
 class FileSerializer(CommonSerializer):
 
-    _checksum_fields = ['algorithm', 'checked', 'value']
+    checksum_fields = set(['algorithm', 'checked', 'value'])
 
     # has to be present to not break rest_framework browsabale api
     checksum = serializers.CharField(source='checksum_value', read_only=True)
@@ -170,7 +170,7 @@ class FileSerializer(CommonSerializer):
         'checksum_value': val
 
         """
-        for key in self._checksum_fields:
+        for key in self.checksum_fields:
             if key in checksum:
                 self.initial_data['checksum_%s' % key] = checksum[key]
 
@@ -180,7 +180,7 @@ class FileSerializer(CommonSerializer):
         and form a "relation checksum" to return from the api.
         """
         checksum = {}
-        for key in self._checksum_fields:
+        for key in self.checksum_fields:
             checksum_field = 'checksum_%s' % key
             if checksum_field in file_data:
                 checksum[key] = file_data[checksum_field]
@@ -197,3 +197,49 @@ class FileSerializer(CommonSerializer):
             return Directory.objects.get(identifier=identifier_value).id
         except Directory.DoesNotExist:
             raise ValidationError({ 'parent_directory': ['identifier %s not found' % str(identifier_value)]})
+
+
+class LightFileSerializer(LightSerializer):
+
+    allowed_fields = set(FileSerializer.Meta.fields)
+    relation_fields = set(['file_storage', 'parent_directory'])
+    special_fields = set([ 'checksum_%s' % field for field in FileSerializer.checksum_fields ])
+
+    @classmethod
+    def ls_field_list(cls, received_field_list=[]):
+        """
+        Make requested fields compatible with LightSerializer use.
+        """
+        field_list = super().ls_field_list(received_field_list)
+        if not received_field_list:
+            # a field of this name does not exist in the db - remove or will cause crash
+            field_list.discard('checksum')
+
+        return_file_fields = []
+        for field in field_list:
+            if field not in cls.allowed_fields:
+                continue
+            elif field == 'checksum':
+                for checksum_field in FileSerializer.checksum_fields:
+                    return_file_fields.append('checksum_%s' % checksum_field)
+                break
+            elif field in cls.relation_fields:
+                if field == 'file_storage':
+                    return_file_fields.append('%s__file_storage_json' % field)
+                    return_file_fields.append('%s__id' % field)
+                else:
+                    # parent directory
+                    return_file_fields.append('%s__identifier' % field)
+                    return_file_fields.append('%s__id' % field)
+            else:
+                return_file_fields.append(field)
+
+        return return_file_fields
+
+    @staticmethod
+    def serialize_special_field(file, field, value):
+        if field.startswith('checksum'):
+            try:
+                file['checksum'][field.split('_')[1]] = value
+            except KeyError:
+                file['checksum'] = { field.split('_')[1]: value }
