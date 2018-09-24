@@ -522,6 +522,10 @@ class FileService(CommonService):
         # get list of field names to retrieve. note: by default all fields are retrieved
         directory_fields, file_fields = cls._get_requested_file_browsing_fields(request)
 
+        if cr_id and recursive and max_depth == '*':
+            # optimized for downloading full file list of an entire directory
+            return cls._get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields)
+
         contents = cls._get_directory_contents(
             directory['id'],
             recursive=recursive,
@@ -575,6 +579,24 @@ class FileService(CommonService):
         file_fields = LightFileSerializer.ls_field_list(file_fields)
 
         return directory_fields, file_fields
+
+    @staticmethod
+    def _get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields):
+        '''
+        Optimized for downloading full file list of an entire directory in a cr.
+        Not a recursive method + no Model objects or normal serializers.
+        '''
+        from metax_api.api.rest.base.serializers import LightFileSerializer
+        params = { 'project_identifier': directory['project_identifier'] }
+
+        if directory['directory_path'] == '/':
+            # for root dir, simply omit file_path param to get all project files.
+            pass
+        else:
+            params['file_path__startswith'] = '%s/' % directory['directory_path']
+
+        files = CatalogRecord.objects.get(pk=cr_id).files.values(*file_fields).filter(**params)
+        return LightFileSerializer.serialize(files)
 
     @staticmethod
     def _include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
