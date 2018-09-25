@@ -23,56 +23,16 @@ No chit-chat get a dataset published into Metax and see it in the Fairdata servi
 
     import requests
 
-    dataset_data = {
-        "data_catalog": "urn:nbn:fi:att:data-catalog-att",
-        "research_dataset": {
-            "title": {
-                "en": "Test Dataset Title"
-            },
-            "description": {
-                "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
-            },
-            "creator": [
-                {
-                    "name": "Teppo Testaaja",
-                    "@type": "Person",
-                    "member_of": {
-                        "name": {
-                            "fi": "Mysteeriorganisaatio"
-                        },
-                        "@type": "Organization"
-                    }
-                }
-            ],
-            "curator": [
-                {
-                    "name": {
-                        "und": "School Services, BIZ"
-                    },
-                    "@type": "Organization",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-E700"
-                }
-            ],
-            "language":[{
-                "title": { "en": "en" },
-                "identifier": "http://lexvo.org/id/iso639-3/aar"
-            }],
-            "access_rights": {
-                "access_type": {
-                    "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                },
-                "restriction_grounds": {
-                    "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
-                }
-            }
-        }
-    }
-
     token = 'paste your token here'
 
+    response = requests.get('https://metax-test.csc.fi/rpc/datasets/get_minimal_dataset_template?type=endusers')
+    assert response.status_code == 200, response.content
+
+    dataset_data = response.json()
     headers = { 'Authorization': 'Bearer %s' % token }
     response = requests.post('https://metax-test.csc.fi/rest/datasets', json=dataset_data, headers=headers)
     assert response.status_code == 201, response.content
+
     print('I have created a dataset, and its identifier is: %s' % response.json()['identifier'])
 
 
@@ -81,4 +41,4 @@ No chit-chat get a dataset published into Metax and see it in the Fairdata servi
 4) Execute the script.
 5) You should now have a published dataset, and you should be able to find it in the Fairdata service Etsin by using the identifier printed by the script in the following url: ``https://etsin-test.fairdata.fi/dataset/<identifier>``
 
-For more involved examples, see the examples sections in topics :doc:`datasets` and :doc:`files`, or start browsing the various sections of the documentation to get to know what's what.
+In reality you will probably want to create a dataset with a little bit more interesting data in it, but using the example dataset from API ``/rpc/datasets/get_minimal_dataset_template`` is a good starting point for your modifications. For more involved examples, see the examples sections in topics :doc:`datasets` and :doc:`files`, or start browsing the various sections of the documentation to get to know what's what.

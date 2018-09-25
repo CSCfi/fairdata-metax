@@ -20,18 +20,25 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
 
-from metax_api.api.oaipmh.base.view import oaipmh_view as oaipmh
-from metax_api.api.rest.base.router import api_urlpatterns as rest_api_v1
-from metax_api.api.rpc.base.router import api_urlpatterns as rpc_api_v1
-from metax_api.views.router import view_urlpatterns
+from rest_framework.routers import DefaultRouter
 
-urlpatterns = [
-    url('', include(view_urlpatterns)),
-    url(r'^oai/', oaipmh, name='oai'),
-    url(r'^rest/', include(rest_api_v1)),
-    url(r'^rest/v1/', include(rest_api_v1)),
-    url(r'^rpc/', include(rpc_api_v1)),
-    url(r'^rpc/v1/', include(rpc_api_v1)),
-]
+from .views import (
+    DatasetRPC,
+)
+
+
+class CustomRouter(DefaultRouter):
+
+    def get_default_base_name(self, viewset):
+        """
+        When a viewset has no queryset set, or base_name is not passed to a router as the
+        3rd parameter, automatically determine base name.
+        """
+        return viewset.__class__.__name__.split('RPC')[0]
+
+
+router = CustomRouter(trailing_slash=False)
+router.register(r'datasets/?', DatasetRPC)
+
+api_urlpatterns = router.urls
