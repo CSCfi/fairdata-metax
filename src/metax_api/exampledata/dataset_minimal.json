@@ -1,0 +1,44 @@
+{
+    "data_catalog": "urn:nbn:fi:att:data-catalog-att",
+    "research_dataset": {
+        "title": {
+            "en": "Test Dataset Title"
+        },
+        "description": {
+            "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+        },
+        "creator": [
+            {
+                "name": "Teppo Testaaja",
+                "@type": "Person",
+                "member_of": {
+                    "name": {
+                        "fi": "Testiorganisaatio"
+                    },
+                    "@type": "Organization"
+                }
+            }
+        ],
+        "curator": [
+            {
+                "name": {
+                    "fi": "Testiorganisaatio"
+                },
+                "@type": "Organization"
+            }
+        ],
+        "language":[{
+            "identifier": "http://lexvo.org/id/iso639-3/aar"
+        }],
+        "access_rights": {
+            "access_type": {
+                "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+            },
+            "restriction_grounds": {
+                "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+            }
+        }
+    },
+    "metadata_provider_org": "some_org_id",
+    "metadata_provider_user": "some_user_id"
+}

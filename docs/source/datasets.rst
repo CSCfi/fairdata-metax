@@ -431,6 +431,32 @@ When services interact with Metax, services have the additional responsibility o
 
 
 
+Retrieve minimal valid dataset template
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The API ``GET /rpc/datasets/get_minimal_dataset_template`` returns a valid minimal dataset, that can be used as-is to create a dataset into Metax.
+
+
+.. code-block:: python
+
+    import requests
+
+    response = requests.get('https://metax-test.csc.fi/rpc/datasets/get_minimal_dataset_template?type=endusers')
+    assert response.status_code == 200, response.content
+
+    # dataset_data can now be used in a POST request to create a new dataset!
+    dataset_data = response.json()
+
+    headers = { 'Authorization': 'Bearer abc.def.ghi' }
+    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=dataset_data, headers=headers)
+    assert response.status_code == 201, response.content
+    print(response.json())
+
+
+.. important:: The other code examples below contain the full dataset in written form to give you an idea what the dataset contents really look like. While these textual examples can sometimes get outdated, the dataset template from the API is always kept up-to-date, and would serve as a good starting point for your own dataset.
+
+
+
 Creating datasets
 ^^^^^^^^^^^^^^^^^^
 

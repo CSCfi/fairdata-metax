@@ -33,6 +33,7 @@ class CommonViewSet(ModelViewSet):
     which include fields like modified and created timestamps, uuid, active flags etc.
     """
 
+    api_type = 'rest'
     authentication_classes = ()
     permission_classes = (EndUserPermissions, ServicePermissions)
 

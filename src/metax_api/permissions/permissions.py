@@ -61,31 +61,50 @@ class MetaxAPIPermissions(BasePermission):
 
         note: when relevant, permissions per object are checked in has_object_permission().
         """
+        api_type = view.api_type
         api_name = view.get_api_name()
         has_perm = False
 
-        _logger.debug('Checking user permission for api %s...' % api_name)
+        _logger.debug('Checking user permission for api %s...' % request.path)
 
-        if api_name not in self.perms: # pragma: no cover
+        if api_type not in self.perms: # pragma: no cover
             _logger.error(
-                'api_name %s not specified in self.perms - forbidding. this probably should not happen' % api_name
+                'api_type %s not specified in self.perms - forbidding. this probably should not happen'
+                % api_type
             )
             has_perm = False
-        elif request.method in READ_METHODS:
-            if 'all' in self.perms[api_name]['read']:
+        elif api_name not in self.perms[api_type]: # pragma: no cover
+            _logger.error(
+                'api_name %s not specified in self.perms[\'%s\'] - forbidding. this probably should not happen' %
+                (api_name, api_type)
+            )
+            has_perm = False
+        elif api_type == 'rest':
+            if request.method in READ_METHODS:
+                if 'all' in self.perms[api_type][api_name]['read']:
+                    has_perm = True
+                else:
+                    has_perm = self._check_read_perms(request, api_type, api_name)
+            elif request.method in WRITE_METHODS:
+                if 'all' in self.perms[api_type][api_name]['write']:
+                    has_perm = True
+                else:
+                    has_perm = self._check_write_perms(request, api_type, api_name)
+            else:
+                raise MethodNotAllowed
+        elif api_type == 'rpc':
+            rpc_method_name = request.path.split('/')[-1]
+            if 'all' in self.perms[api_type][api_name][rpc_method_name]['use']:
                 has_perm = True
             else:
-                has_perm = self._check_read_perms(request, api_name)
-        elif request.method in WRITE_METHODS:
-            if 'all' in self.perms[api_name]['write']:
-                has_perm = True
-            else:
-                has_perm = self._check_write_perms(request, api_name)
+                has_perm = self._check_use_perms(request, api_type, api_name, rpc_method_name)
         else:
-            raise MethodNotAllowed
+            _logger.info('Unknown api %s' % request.path)
+            raise NotImplementedError
 
         _logger.debug(
-            'user %s has_perm for api %s == %r' % (request.user.username or '(anonymous)', api_name, has_perm)
+            'user %s has_perm for api %s == %r'
+            % (request.user.username or '(anonymous)', request.path, has_perm)
         )
 
         return has_perm
@@ -103,11 +122,14 @@ class EndUserPermissions(MetaxAPIPermissions):
     service_permission = False
     message = 'End Users are not allowed to access this api.'
 
-    def _check_read_perms(self, request, api_name):
-        return 'endusers' in self.perms[api_name]['read']
+    def _check_read_perms(self, request, api_type, api_name):
+        return 'endusers' in self.perms[api_type][api_name]['read']
 
-    def _check_write_perms(self, request, api_name):
-        return 'endusers' in self.perms[api_name]['write']
+    def _check_write_perms(self, request, api_type, api_name):
+        return 'endusers' in self.perms[api_type][api_name]['write']
+
+    def _check_use_perms(self, request, api_type, api_name, rpc_method_name):
+        return 'endusers' in self.perms[api_type][api_name][rpc_method_name]['use']
 
     def has_object_permission(self, request, view, obj):
         """
@@ -135,11 +157,14 @@ class ServicePermissions(MetaxAPIPermissions):
             self.message = self.message % request.user.username
         return has_perm
 
-    def _check_read_perms(self, request, api_name):
-        return request.user.username in self.perms[api_name]['read']
+    def _check_read_perms(self, request, api_type, api_name):
+        return request.user.username in self.perms[api_type][api_name]['read']
 
-    def _check_write_perms(self, request, api_name):
-        return request.user.username in self.perms[api_name]['write']
+    def _check_write_perms(self, request, api_type, api_name):
+        return request.user.username in self.perms[api_type][api_name]['write']
+
+    def _check_use_perms(self, request, api_type, api_name, rpc_method_name):
+        return request.user.username in self.perms[api_type][api_name][rpc_method_name]['use']
 
     def has_object_permission(self, request, view, obj):
         """

@@ -48,6 +48,9 @@ class DirectoryViewSet(CommonViewSet):
     def create(self, request, *args, **kwargs):
         raise Http501()
 
+    def destroy(self, request, *args, **kwargs):
+        raise Http501()
+
     def _get_directory_contents(self, request, identifier=None):
         """
         A wrapper to call FS to collect and validate parameters from the request,
