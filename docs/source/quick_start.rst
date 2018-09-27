@@ -25,7 +25,7 @@ No chit-chat get a dataset published into Metax and see it in the Fairdata servi
 
     token = 'paste your token here'
 
-    response = requests.get('https://metax-test.csc.fi/rpc/datasets/get_minimal_dataset_template?type=endusers')
+    response = requests.get('https://metax-test.csc.fi/rpc/datasets/get_minimal_dataset_template?type=enduser')
     assert response.status_code == 200, response.content
 
     dataset_data = response.json()

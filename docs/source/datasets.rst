@@ -441,7 +441,7 @@ The API ``GET /rpc/datasets/get_minimal_dataset_template`` returns a valid minim
 
     import requests
 
-    response = requests.get('https://metax-test.csc.fi/rpc/datasets/get_minimal_dataset_template?type=endusers')
+    response = requests.get('https://metax-test.csc.fi/rpc/datasets/get_minimal_dataset_template?type=enduser')
     assert response.status_code == 200, response.content
 
     # dataset_data can now be used in a POST request to create a new dataset!
