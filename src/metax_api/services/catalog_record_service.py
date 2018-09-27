@@ -84,7 +84,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['editor__contains'] = { 'identifier': request.query_params['editor'] }
 
         if request.query_params.get('metadata_owner_org', False):
-            queryset_search_params['metadata_owner_org'] = request.query_params['metadata_owner_org']
+            queryset_search_params['metadata_owner_org__in'] = request.query_params['metadata_owner_org'].split(',')
 
         if request.query_params.get('contract_org_identifier', False):
             if request.user.username not in ('metax', 'tpas'):

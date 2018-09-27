@@ -25,7 +25,7 @@ class FileModelBasicTest(TestCase, TestClassUtils):
         """
         Loaded only once for test cases inside this class.
         """
-        call_command('loaddata', test_data_file_path)
+        call_command('loaddata', test_data_file_path, verbosity=0)
         super(FileModelBasicTest, cls).setUpClass()
 
     def setUp(self):

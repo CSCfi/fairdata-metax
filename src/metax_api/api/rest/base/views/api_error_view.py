@@ -31,6 +31,8 @@ _logger = logging.getLogger(__name__)
 
 class ApiErrorViewSet(CommonViewSet):
 
+    filter_backends = ()
+
     # this serves no purpose, but strangely in local dev browsable api for /rest/apierrors/pid
     # works fine, while in metax-test it will throw an error complaining about a missing serializer.
     serializer_class = FileSerializer

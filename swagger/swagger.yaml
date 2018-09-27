@@ -15,6 +15,12 @@ paths:
   /rest/filestorages:
     get:
       summary: List File Storages
+      parameters:
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: return list of file storages
@@ -122,6 +128,11 @@ paths:
           required: false
           type: integer
           default: 10
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: successful operation, return list of files
@@ -599,6 +610,12 @@ paths:
   /rest/datacatalogs:
     get:
       summary: "list of data catalogs"
+      parameters:
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: return list of file data catalogs
@@ -769,6 +786,11 @@ paths:
           required: false
           type: integer
           default: 10
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
@@ -1094,6 +1116,11 @@ paths:
           description: limit for paging
           required: false
           type: integer
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: successful operation, return list of contracts
@@ -1241,7 +1268,7 @@ paths:
       summary: Get minimal dataset template.
       description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. The returned template can be used as-is when creating a dataset into Metax.
       parameters:
-      - name: type
+        - name: type
           in: query
           description: Type of dataset template to retrieve. Accepted values&#58; service, enduser.
           required: true
