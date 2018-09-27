@@ -295,10 +295,10 @@ class _DataciteService(CommonService):
 
             for ct in ra.get('contributor_type', []):
                 # for example, extracts from initial value:
-                # http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor
+                # http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor
                 # and produces value: Distributor
                 cr = dict(cr_base)
-                cr['contributorType'] = ct['identifier'].split('/contributor_type_')[-1]
+                cr['contributorType'] = ct['identifier'].split('contributor_type/code/')[-1]
                 contributors.append(cr)
 
         return contributors

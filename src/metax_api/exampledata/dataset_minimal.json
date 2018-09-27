@@ -32,10 +32,10 @@
         }],
         "access_rights": {
             "access_type": {
-                "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
             },
             "restriction_grounds": {
-                "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
             }
         }
     },

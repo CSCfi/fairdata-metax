@@ -361,61 +361,62 @@ This needs to be taken into account when looking which reference data to use, wh
 .. code-block:: python
 
     {
-        "research_dataset.theme.identifier":                                { "mode": "required", "url": "http://purl.org/att/es/reference_data/keyword" },
-        "research_dataset.field_of_science.identifier":                     { "mode": "required", "url": "http://purl.org/att/es/reference_data/field_of_science" },
-        "research_dataset.remote_resources.license.identifier":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/license" },
-        "research_dataset.remote_resources.resource_type.identifier":       { "mode": "required", "url": "http://purl.org/att/es/reference_data/resource_type" },
-        "research_dataset.remote_resources.file_type.identifier":           { "mode": "required", "url": "http://purl.org/att/es/reference_data/file_type" },
-        "research_dataset.remote_resources.use_category.identifier":        { "mode": "required", "url": "http://purl.org/att/es/reference_data/use_category" },
-        "research_dataset.remote_resources.media_type":                     { "mode": "optional", "url": "http://purl.org/att/es/reference_data/mime_type" },
-        "research_dataset.language.identifier":                             { "mode": "required", "url": "http://purl.org/att/es/reference_data/language" },
-        "research_dataset.access_rights.access_type.identifier":            { "mode": "required", "url": "http://purl.org/att/es/reference_data/access_type" },
-        "research_dataset.access_rights.restriction_grounds.identifier":    { "mode": "required", "url": "http://purl.org/att/es/reference_data/restriction_grounds" },
-        "research_dataset.access_rights.license.identifier":                { "mode": "required", "url": "http://purl.org/att/es/reference_data/license" },
-        "research_dataset.other_identifier.type.identifier":                { "mode": "required", "url": "http://purl.org/att/es/reference_data/identifier_type" },
-        "research_dataset.spatial.place_uri.identifier":                    { "mode": "required", "url": "http://purl.org/att/es/reference_data/location" },
-        "research_dataset.files.file_type.identifier":                      { "mode": "required", "url": "http://purl.org/att/es/reference_data/file_type" },
-        "research_dataset.files.use_category.identifier":                   { "mode": "required", "url": "http://purl.org/att/es/reference_data/use_category" },
-        "research_dataset.directories.use_category.identifier":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/use_category" },
-        "research_dataset.provenance.spatial.place_uri.identifier":         { "mode": "required", "url": "http://purl.org/att/es/reference_data/location" },
-        "research_dataset.provenance.type.identifier":                      { "mode": "required", "url": "http://purl.org/att/es/reference_data/type" },
-        "research_dataset.provenance.preservation_event.identifier":        { "mode": "required", "url": "http://purl.org/att/es/reference_data/preservation_event" },
-        "research_dataset.provenance.event_outcome.identifier":             { "mode": "required", "url": "http://purl.org/att/es/reference_data/event_outcome" },
-        "research_dataset.infrastructure.identifier":                       { "mode": "required", "url": "http://purl.org/att/es/reference_data/research_infra" },
-        "research_dataset.relation.relation_type.identifier":               { "mode": "required", "url": "http://purl.org/att/es/reference_data/relation_type" },
-        "research_dataset.relation.entity.type.identifier":                 { "mode": "required", "url": "http://purl.org/att/es/reference_data/resource_type" },
+        "research_dataset.theme.identifier":                                { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/keyword" },
+        "research_dataset.field_of_science.identifier":                     { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/field_of_science" },
+        "research_dataset.remote_resources.license.identifier":             { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/license" },
+        "research_dataset.remote_resources.resource_type.identifier":       { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/resource_type" },
+        "research_dataset.remote_resources.file_type.identifier":           { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/file_type" },
+        "research_dataset.remote_resources.use_category.identifier":        { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/use_category" },
+        "research_dataset.remote_resources.media_type":                     { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/mime_type" },
+        "research_dataset.language.identifier":                             { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/language" },
+        "research_dataset.access_rights.access_type.identifier":            { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/access_type" },
+        "research_dataset.access_rights.restriction_grounds.identifier":    { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/restriction_grounds" },
+        "research_dataset.access_rights.license.identifier":                { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/license" },
+        "research_dataset.other_identifier.type.identifier":                { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/identifier_type" },
+        "research_dataset.spatial.place_uri.identifier":                    { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/location" },
+        "research_dataset.files.file_type.identifier":                      { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/file_type" },
+        "research_dataset.files.use_category.identifier":                   { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/use_category" },
+        "research_dataset.directories.use_category.identifier":             { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/use_category" },
+        "research_dataset.provenance.spatial.place_uri.identifier":         { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/location" },
+        "research_dataset.provenance.lifecycle_event.identifier":           { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/lifecycle_event" },
+        "research_dataset.provenance.preservation_event.identifier":        { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/preservation_event" },
+        "research_dataset.provenance.event_outcome.identifier":             { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/event_outcome" },
+        "research_dataset.provenance.used_entity.type.identifier":          { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/resource_type" },
+        "research_dataset.infrastructure.identifier":                       { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/research_infra" },
+        "research_dataset.relation.relation_type.identifier":               { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/relation_type" },
+        "research_dataset.relation.entity.type.identifier":                 { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/resource_type" },
 
         # organizations. note! can be recursive through the organization-object's `is_part_of` relation
-        "research_dataset.is_output_of.source_organization.identifier":     { "mode": "required", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.is_output_of.has_funding_agency.identifier":      { "mode": "required", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.is_output_of.funder_type.identifier.identifier":  { "mode": "required", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.other_identifier.provider.identifier":            { "mode": "required", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.contributor.contributor_role.identifier":         { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.publisher.contributor_role.identifier":           { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.curator.contributor_role.identifier":             { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.creator.contributor_role.identifier":             { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.rights_holder.contributor_role.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" }
+        "research_dataset.is_output_of.source_organization.identifier":     { "mode": "required", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.is_output_of.has_funding_agency.identifier":      { "mode": "required", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.is_output_of.funder_type.identifier.identifier":  { "mode": "required", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.other_identifier.provider.identifier":            { "mode": "required", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.contributor.contributor_role.identifier":         { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.publisher.contributor_role.identifier":           { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.curator.contributor_role.identifier":             { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.creator.contributor_role.identifier":             { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.rights_holder.contributor_role.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" }
 
         # persons
-        "research_dataset.contributor.member_of.identifier":          { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.contributor.contributor_role.identifier":   { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.contributor.contributor_type.identifier":   { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
-        "research_dataset.publisher.member_of.identifier":            { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.publisher.contributor_role.identifier":     { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.publisher.contributor_type.identifier":     { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
-        "research_dataset.curator.member_of.identifier":              { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.curator.contributor_role.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.curator.contributor_type.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
-        "research_dataset.creator.member_of.identifier":              { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.creator.contributor_role.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.creator.contributor_type.identifier":       { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
-        "research_dataset.rights_holder.member_of.identifier":        { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.rights_holder.contributor_role.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.rights_holder.contributor_type.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" },
-        "research_dataset.provenance.was_associated_with.member_of.identifier":        { "mode": "optional", "url": "http://purl.org/att/es/organization_data/organization" },
-        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_role" },
-        "research_dataset.provenance.was_associated_with.contributor_type.identifier": { "mode": "optional", "url": "http://purl.org/att/es/reference_data/contributor_type" }
+        "research_dataset.contributor.member_of.identifier":          { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.contributor.contributor_role.identifier":   { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.contributor.contributor_type.identifier":   { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
+        "research_dataset.publisher.member_of.identifier":            { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.publisher.contributor_role.identifier":     { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.publisher.contributor_type.identifier":     { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
+        "research_dataset.curator.member_of.identifier":              { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.curator.contributor_role.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.curator.contributor_type.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
+        "research_dataset.creator.member_of.identifier":              { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.creator.contributor_role.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.creator.contributor_type.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
+        "research_dataset.rights_holder.member_of.identifier":        { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.rights_holder.contributor_role.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.rights_holder.contributor_type.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
+        "research_dataset.provenance.was_associated_with.member_of.identifier":        { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
+        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
+        "research_dataset.provenance.was_associated_with.contributor_type.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" }
     }
 
 
@@ -494,7 +495,7 @@ Create a dataset with minimum required fields.
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
                 }
             ],
             "language":[{
@@ -503,10 +504,10 @@ Create a dataset with minimum required fields.
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
                 },
                 "restriction_grounds": {
-                    "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
                 }
             }
         }
@@ -615,7 +616,7 @@ Try to create a dataset with required fields missing. Below example is missing t
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
                 }
             ],
             "language":[{
@@ -624,10 +625,10 @@ Try to create a dataset with required fields missing. Below example is missing t
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
                 },
                 "restriction_grounds": {
-                    "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
                 }
             }
         }
@@ -692,7 +693,7 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
                 }
             ],
             "language":[{
@@ -701,10 +702,10 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
+                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
                 },
                 "restriction_grounds": {
-                    "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
                 }
             }
         }
@@ -834,7 +835,7 @@ Add files to a dataset, which didn't have any files associated with it when it w
             "identifier": "5105ab9839f63a909893183c14f9e9db",
             "description": "What is this file about",
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source",
+                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
             }
         }
     ]
@@ -872,7 +873,7 @@ Add files to a dataset, which already has files associated with it, either from 
             "identifier": "5105ab9839f63a909893183c14f9e111",
             "description": "What is this file about",
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source",
+                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
             }
         }
     ]
@@ -884,7 +885,7 @@ Add files to a dataset, which already has files associated with it, either from 
         "identifier": "5105ab9839f63a909893183c14f9e9db",
         "description": "What is this file about then?",
         "use_category": {
-            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source",
+            "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
         }
     })
 
@@ -934,7 +935,7 @@ Below is an example similar to the first example where we added files. The datas
             "identifier": "5105ab9839f63a909893183c14f9e113",
             "description": "What is this directory about",
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source",
+                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
             }
         }
     ]
@@ -1030,7 +1031,7 @@ Modifying field ``research_dataset`` to contain data that depends on reference d
             "description": "What is this directory about",
             "use_category": {
                 # the value to the below field is from reference data
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source",
+                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
             }
         }
     ]
