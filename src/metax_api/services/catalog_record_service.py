@@ -303,20 +303,10 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         for remote_resource in research_dataset.get('remote_resources', []):
 
             for license in remote_resource.get('license', []):
-                license_url = license.get('license', None)
-
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.remote_resources.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
-
-                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
-                    # and when the reference data uri does not contain purl.org/att
-                    if not license_url and ref_entry.get('uri', False):
-                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
-
-                if license_url:
-                    license['license'] = license_url
 
             if remote_resource.get('resource_type', False):
                 ref_entry = cls.check_ref_data(refdata['resource_type'], remote_resource['resource_type']['identifier'],
@@ -368,40 +358,26 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             # If restriction grounds are not of open type (codes 1 and 2), then access type code must not be open_access
             # OR
             # If restriction grounds are of open type, then access type code must be open_access
-            # access_type open_access: http://purl.org/att/es/reference_data/access_type/access_type_open_access
-            # restriction_grounds 1: http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1
-            # restriction_grounds 2: http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2
+            # restriction_grounds 1: http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1
+            # restriction_grounds 2: http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/2
             if access_type_valid and restriction_grounds_valid:
                 ar_id = access_rights['access_type']['identifier']
+                ar_id_open = ar_id == ACCESS_TYPES['open']
                 rg_id = access_rights['restriction_grounds']['identifier']
+                rg_id_open = rg_id in ['http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1',
+                                       'http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/2']
 
-                if rg_id not in ['http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1',
-                                 'http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2'] \
-                        and ar_id == 'http://purl.org/att/es/reference_data/access_type/access_type_open_access':
-
+                if not rg_id_open and ar_id_open:
                     errors['access_type'].append('Access type cannot be open if restriction grounds are not open')
 
-                if rg_id in ['http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1',
-                             'http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2'] \
-                        and ar_id != 'http://purl.org/att/es/reference_data/access_type/access_type_open_access':
-
+                if rg_id_open and not ar_id_open:
                     errors['access_type'].append('Access type must be open if restriction grounds are open')
 
             for license in access_rights.get('license', []):
-                license_url = license.get('license', None)
-
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.access_rights.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
-
-                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
-                    # and when the reference data uri does not contain purl.org/att
-                    if not license_url and ref_entry.get('uri', False):
-                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
-
-                if license_url:
-                    license['license'] = license_url
 
         for project in research_dataset.get('is_output_of', []):
             for org_obj in project.get('source_organization', []):

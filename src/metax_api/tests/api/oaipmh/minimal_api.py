@@ -98,12 +98,12 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                             "und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
                         },
                         "license": "https://creativecommons.org/licenses/by/4.0/",
-                        "identifier": "https://creativecommons.org/licenses/by/4.0/"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
                     }
                 ],
                 "access_type": [
                     {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
                         "pref_label": {
                             "en": "Open",
                             "fi": "Avoin",
@@ -130,7 +130,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                         "telephone": [
                             "+12353495823424"
                         ],
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076"
                     }
                 ]
             },
