@@ -510,13 +510,23 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertNotEqual(response.data['count'], qvain_records_count, 'looks like filtering had no effect')
 
     def test_read_catalog_record_search_by_metadata_owner_org(self):
-        metadata_owner_org = 'org_id'
+        owner_org = 'org_id'
         for cr in CatalogRecord.objects.filter(pk__in=[1, 2, 3]):
-            cr.metadata_owner_org = metadata_owner_org
+            cr.metadata_owner_org = owner_org
             cr.force_save()
-        response = self.client.get('/rest/datasets?metadata_owner_org=%s' % metadata_owner_org)
+
+        owner_org_2 = 'org_id_2'
+        for cr in CatalogRecord.objects.filter(pk__in=[4, 5, 6]):
+            cr.metadata_owner_org = owner_org_2
+            cr.force_save()
+
+        response = self.client.get('/rest/datasets?metadata_owner_org=%s' % owner_org)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 3)
+
+        response = self.client.get('/rest/datasets?metadata_owner_org=%s,%s' % (owner_org, owner_org_2))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 6)
 
     def test_filter_by_contract_org_identifier(self):
         """
