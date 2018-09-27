@@ -187,6 +187,24 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             'in harvested catalogs, user (the harvester) is allowed to set preferred_identifier'
         )
 
+    def test_preferred_identifier_is_checked_also_from_deleted_records(self):
+        """
+        If a catalog record having a specific preferred identifier is deleted, and a new catalog
+        record is created having the same preferred identifier, metax should deny this request
+        since a catalog record with the same pref id already exists, albeit deleted.
+        """
+
+        # dc 3 happens to be harvested catalog, which allows setting pref id
+        cr = CatalogRecord.objects.filter(data_catalog_id=3).first()
+        response = self.client.delete('/rest/datasets/%d' % cr.id)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.cr_test_data['research_dataset']['preferred_identifier'] = cr.preferred_identifier
+        self.cr_test_data['data_catalog'] = 3
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('already exists' in response.data['research_dataset'][0], True, response.data)
+
     def test_create_catalog_contract_string_identifier(self):
         contract_identifier = Contract.objects.first().contract_json['identifier']
         self.cr_test_data['contract'] = contract_identifier
@@ -823,15 +841,12 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        deleted_catalog_record = None
-
         try:
             deleted_catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
-        except CatalogRecord.DoesNotExist:
-            pass
-
-        if deleted_catalog_record:
             raise Exception('Deleted CatalogRecord should not be retrievable from the default objects table')
+        except CatalogRecord.DoesNotExist:
+            # successful test should go here, instead of raising the expection in try: block
+            pass
 
         try:
             deleted_catalog_record = CatalogRecord.objects_unfiltered.get(identifier=self.identifier)
@@ -845,14 +860,6 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         url = '/rest/datasets/%s' % self.preferred_identifier
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_delete_catalog_record_contract_is_not_deleted(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=1)
-        url = '/rest/datasets/%s' % catalog_record_from_test_data['research_dataset']['metadata_version_identifier']
-        self.client.delete(url)
-        response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
-        self.assertEqual(response2.status_code, status.HTTP_200_OK,
-                         'The contract of CatalogRecord should not be deleted when deleting a single CatalogRecord.')
 
 
 class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):

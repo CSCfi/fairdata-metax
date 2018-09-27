@@ -393,15 +393,15 @@ class CatalogRecordSerializer(CommonSerializer):
             pass
 
         if self._operation_is_create:
-            return CatalogRecord.objects.filter(**params).exists()
+            return CatalogRecord.objects_unfiltered.filter(**params).exists()
         elif self._data_catalog_supports_versioning():
             # preferred_identifiers already existing in ATT catalogs are fine, so exclude
             # results from ATT catalogs. matches in other catalogs however are considered
             # an error.
-            return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=self.instance.data_catalog_id) \
-                .exists()
+            return CatalogRecord.objects_unfiltered.filter(**params) \
+                .exclude(data_catalog_id=self.instance.data_catalog_id).exists()
         else:
-            return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id).exists()
+            return CatalogRecord.objects_unfiltered.filter(**params).exclude(pk=self.instance.id).exists()
 
     def _data_catalog_is_changed(self):
         """
