@@ -393,35 +393,35 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                 if j < file_divider:
                     # first fifth of files
                     dataset_files[-1]['file_type'] = {
-                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/text",
                     }
                     dataset_files[-1]['use_category'] = {
-                        'identifier': 'source'
+                        'identifier': 'http://uri.suomi.fi/codelist/fairdata/use_category/code/source'
                     }
 
                 elif file_divider <= j < (file_divider * 2):
                     # second fifth of files
                     dataset_files[-1]['file_type'] = {
-                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video"
                     }
                     dataset_files[-1]['use_category'] = {
-                        'identifier': 'outcome'
+                        'identifier': 'http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome'
                     }
                 elif (file_divider * 2) <= j < (file_divider * 3):
                     # third fifth of files
                     dataset_files[-1]['file_type'] = {
-                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image"
                     }
                     dataset_files[-1]['use_category'] = {
-                        'identifier': 'publication'
+                        'identifier': 'http://uri.suomi.fi/codelist/fairdata/use_category/code/publication'
                     }
                 elif (file_divider * 3) <= j < (file_divider * 4):
                     # fourth fifth of files
                     dataset_files[-1]['file_type'] = {
-                        "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_source_code"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/source_code"
                     }
                     dataset_files[-1]['use_category'] = {
-                        'identifier': 'documentation'
+                        'identifier': 'http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation'
                     }
                 else:
                     # the rest of files
@@ -572,7 +572,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "title": "file title 6",
                         "description": "file description 6",
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
+                            "identifier": "video",
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
@@ -587,14 +587,14 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "title": "file title 10",
                         "description": "file description 10",
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
+                            "identifier": "software",
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
+                            "identifier": "publication"
                         }
                     }
                 ]
@@ -605,7 +605,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "title": "Phase 1 of science data C",
                         "description": "Description of the directory",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                            "identifier": "outcome"
                         }
                     },
                     {
@@ -613,7 +613,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "title": "Phase 2 of science data C",
                         "description": "Description of the directory",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                            "identifier": "outcome"
                         }
                     },
                     {
@@ -621,7 +621,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "title": "Phase 1 01/2018 of Science data A",
                         "description": "Description of the directory",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                            "identifier": "outcome"
                         }
                     },
                     {
@@ -629,7 +629,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "title": "Science data B",
                         "description": "Description of the directory",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source"
+                            "identifier": "source"
                         }
                     },
                     {
@@ -637,7 +637,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         "title": "Other stuff",
                         "description": "Description of the directory",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                            "identifier": "method"
                         }
                     }
                 ]

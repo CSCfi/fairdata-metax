@@ -601,7 +601,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
-            'purl' in response.data['research_dataset']['other_identifier'][0]['type']['identifier'],
+            'uri.suomi.fi' in response.data['research_dataset']['other_identifier'][0]['type']['identifier'],
             True,
             'Identifier type should have been populated with data from ref data'
         )
@@ -1865,7 +1865,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             "title": "Directory Title",
             "description": "This is directory at %s" % path,
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                "identifier": "method"
             }
         })
 
@@ -1880,7 +1880,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             "title": "File Title",
             "description": "This is file at %s" % path,
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                "identifier": "method"
             }
         })
 
@@ -1890,7 +1890,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             "title": "Directory Title",
             "description": "This is directory does not exist",
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                "identifier": "method"
             }
         }]
 
@@ -1900,7 +1900,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             "title": "File Title",
             "description": "This is file does not exist",
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                "identifier": "method"
             }
         }]
 
