@@ -115,7 +115,7 @@ elif METAX_ENV == 'test':
     # this affects only per-api access; nginx permissions still limits general write requests
     API_ACCESS = app_config_dict['API_ACCESS']
 
-    for api, perms in API_ACCESS.items():
+    for api, perms in API_ACCESS['rest'].items():
         if 'all' not in perms['read']:
             perms['read'].append('all')
         if 'all' not in perms['write']:
