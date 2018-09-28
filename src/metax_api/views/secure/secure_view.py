@@ -31,11 +31,25 @@ class SecureLoginView(TemplateView):
         token_payload = json.loads(request.META['HTTP_OIDC_ID_TOKEN_PAYLOAD'])
         _logger.debug(token_payload)
 
+        linked_accounts = self._get_linked_accounts(token_payload)
+
+        for acc in linked_accounts:
+            if acc.endswith('@cscuserid'):
+                csc_account_linked = True
+                break
+        else:
+            csc_account_linked = False
+
         context = {
             'email': token_payload['email'],
+            'linked_accounts': linked_accounts,
+            'csc_account_linked': csc_account_linked,
             'token_string': request.META['HTTP_OIDC_ID_TOKEN'],
             'token_valid_until': datetime.fromtimestamp(token_payload['exp']).strftime('%Y-%m-%d %H:%M:%S'),
         }
 
         # note: django automatically searches templates from root directory templates/
         return render(request, 'secure/auth_success.html', context=context)
+
+    def _get_linked_accounts(self, token_payload):
+        return [ acc for acc in token_payload.get('linkedIds', []) if not acc.endswith('@fairdataid') ]
