@@ -12,12 +12,16 @@ from os.path import dirname, join
 import simplexquery as sxq
 from dicttoxml import dicttoxml
 from django.db.models import Q
-from rest_framework import status
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
-from metax_api.utils import RabbitMQ
+from metax_api.models.catalog_record import ACCESS_TYPES
+from metax_api.utils import \
+    parse_timestamp_string_to_tz_aware_datetime,\
+    get_tz_aware_now_without_micros,\
+    remove_keys_recursively,\
+    leave_keys_in_dict
 from .common_service import CommonService
 from .datacite_service import DataciteService
 from .file_service import FileService
@@ -80,7 +84,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['editor__contains'] = { 'identifier': request.query_params['editor'] }
 
         if request.query_params.get('metadata_owner_org', False):
-            queryset_search_params['metadata_owner_org'] = request.query_params['metadata_owner_org']
+            queryset_search_params['metadata_owner_org__in'] = request.query_params['metadata_owner_org'].split(',')
 
         if request.query_params.get('contract_org_identifier', False):
             if request.user.username not in ('metax', 'tpas'):
@@ -133,7 +137,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['q_filters'] = [q_filter]
 
     @staticmethod
-    def populate_file_details(catalog_record, request):
+    def populate_file_details(cr_json, request):
         """
         Populate individual research_dataset.file and directory objects with their
         corresponding objects from their db tables.
@@ -145,23 +149,41 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         Note: Some of these results may be very useful to cache, or cache the entire dataset
         if feasible.
         """
-        rd = catalog_record['research_dataset']
-        file_identifiers = [ f['identifier'] for f in rd.get('files', [])]
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
+        from metax_api.api.rest.base.serializers import LightFileSerializer
 
-        directory_fields, file_fields = FileService._get_requested_file_browsing_fields(request, catalog_record['id'])
+        rd = cr_json['research_dataset']
+        file_identifiers = [f['identifier'] for f in rd.get('files', [])]
 
-        for file in File.objects.filter(identifier__in=file_identifiers).only(*file_fields):
+        # these fields must be retrieved from the db in order to do the mapping, even if they are not
+        # requested when using ?file_fields=... or ?directory_fields=... ditch those fields
+        # at the end of the method if necessary. while not significant perhaps, for the user it is
+        # less astonishing.
+        dir_identifier_requested = True
+        file_identifier_requested = True
+
+        directory_fields, file_fields = FileService._get_requested_file_browsing_fields(request)
+
+        if 'identifier' not in directory_fields:
+            directory_fields.append('identifier')
+            dir_identifier_requested = False
+
+        if 'identifier' not in file_fields:
+            file_fields.append('identifier')
+            file_identifier_requested = False
+
+        for file in File.objects.filter(identifier__in=file_identifiers).values(*file_fields):
             for f in rd['files']:
-                if f['identifier'] == file.identifier:
-                    f['details'] = FileSerializer(file, only_fields=file_fields).data
+                if f['identifier'] == file['identifier']:
+                    f['details'] = LightFileSerializer.serialize(file)
                     continue
 
-        dir_identifiers = [ dr['identifier'] for dr in rd.get('directories', []) ]
+        dir_identifiers = [dr['identifier'] for dr in rd.get('directories', [])]
 
-        for directory in Directory.objects.filter(identifier__in=dir_identifiers).only(*directory_fields):
+        for directory in Directory.objects.filter(identifier__in=dir_identifiers).values(*directory_fields):
             for dr in rd['directories']:
-                if dr['identifier'] == directory.identifier:
-                    dr['details'] = DirectorySerializer(directory, only_fields=directory_fields).data
+                if dr['identifier'] == directory['identifier']:
+                    dr['details'] = LightDirectorySerializer.serialize(directory)
                     continue
 
         if not dir_identifiers:
@@ -172,63 +194,20 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             # OR byte_size or file_count among requested fields -> retrieve
 
             _directory_data = CatalogRecord.objects.values_list('_directory_data', flat=True) \
-                .get(pk=catalog_record['id'])
+                .get(pk=cr_json['id'])
 
             for dr in rd['directories']:
                 FileService.retrieve_directory_byte_sizes_and_file_counts_for_cr(dr['details'],
-                    catalog_record['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
+                    cr_json['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
 
-    @classmethod
-    def publish_updated_datasets(cls, response):
-        """
-        Publish updated datasets to RabbitMQ.
+        # cleanup identifiers, if they were not actually requested
+        if not dir_identifier_requested:
+            for dr in rd['directories']:
+                del dr['details']['identifier']
 
-        If the update operation resulted in a new dataset version being created,
-        publish those new versions as well.
-        """
-        if response.status_code != status.HTTP_200_OK:
-            return
-
-        new_versions = []
-
-        if 'success' in response.data:
-            # bulk update
-            updated_request_data = [ r['object'] for r in response.data['success'] ]
-            for cr in updated_request_data:
-                if cls._new_version_created(cr):
-                    new_versions.append(cls._extract_new_version_data(cr))
-        else:
-            # single update
-            updated_request_data = response.data
-            if cls._new_version_created(updated_request_data):
-                new_versions.append(cls._extract_new_version_data(updated_request_data))
-
-        count = len(updated_request_data) if isinstance(updated_request_data, list) else 1
-        _logger.info('Publishing updated datasets (%d items)' % count)
-
-        try:
-            rabbitmq = RabbitMQ()
-            rabbitmq.publish(updated_request_data, routing_key='update', exchange='datasets')
-
-            if new_versions:
-                _logger.info('Publishing new versions (%d items)' % len(new_versions))
-                rabbitmq.publish(new_versions, routing_key='create', exchange='datasets')
-        except Exception as e:
-            _logger.exception('Publishing rabbitmq messages failed')
-            raise Http503({ 'detail': [
-                'failed to publish updates to rabbitmq, all updates are aborted. details: %s' % str(e)
-            ]})
-        _logger.info('RabbitMQ dataset messages published')
-
-    @staticmethod
-    def _new_version_created(cr):
-        return '__actions' in cr and 'publish_new_version' in cr['__actions']
-
-    @staticmethod
-    def _extract_new_version_data(cr):
-        data = cr['__actions']['publish_new_version']['dataset']
-        cr.pop('__actions')
-        return data
+        if not file_identifier_requested:
+            for f in rd['files']:
+                del f['details']['identifier']
 
     @classmethod
     def transform_datasets_to_format(cls, catalog_records, target_format, include_xml_declaration=True):
@@ -238,11 +217,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         """
 
         if target_format == 'datacite':
-            xml = DataciteService.to_datacite_xml(catalog_records)
-            if not include_xml_declaration:
-                # the +1 is linebreak character
-                return xml[len("<?xml version='1.0' encoding='utf-8'?>") + 1:]
-            return xml
+            return DataciteService().convert_catalog_record_to_datacite_xml(catalog_records, include_xml_declaration)
 
         def item_func(parent_name):
             """
@@ -327,28 +302,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         for remote_resource in research_dataset.get('remote_resources', []):
 
-            # Since checksum is a plain string field, it should not be changed to a reference data uri in case
-            # it is recognized as one of the checksum_algorithm reference data items.
-            # TODO: Find out whether a non-reference data value for the checksum_algorithm should even throw an error
-            if 'checksum' in remote_resource:
-                cls.check_ref_data(refdata['checksum_algorithm'], remote_resource['checksum']['algorithm'],
-                                   'research_dataset.remote_resources.checksum.algorithm', errors)
-
             for license in remote_resource.get('license', []):
-                license_url = license.get('license', None)
-
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.remote_resources.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
-
-                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
-                    # and when the reference data uri does not contain purl.org/att
-                    if not license_url and ref_entry.get('uri', False):
-                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
-
-                if license_url:
-                    license['license'] = license_url
 
             if remote_resource.get('resource_type', False):
                 ref_entry = cls.check_ref_data(refdata['resource_type'], remote_resource['resource_type']['identifier'],
@@ -400,40 +358,26 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             # If restriction grounds are not of open type (codes 1 and 2), then access type code must not be open_access
             # OR
             # If restriction grounds are of open type, then access type code must be open_access
-            # access_type open_access: http://purl.org/att/es/reference_data/access_type/access_type_open_access
-            # restriction_grounds 1: http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1
-            # restriction_grounds 2: http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2
+            # restriction_grounds 1: http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1
+            # restriction_grounds 2: http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/2
             if access_type_valid and restriction_grounds_valid:
                 ar_id = access_rights['access_type']['identifier']
+                ar_id_open = ar_id == ACCESS_TYPES['open']
                 rg_id = access_rights['restriction_grounds']['identifier']
+                rg_id_open = rg_id in ['http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1',
+                                       'http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/2']
 
-                if rg_id not in ['http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1',
-                                 'http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2'] \
-                        and ar_id == 'http://purl.org/att/es/reference_data/access_type/access_type_open_access':
-
+                if not rg_id_open and ar_id_open:
                     errors['access_type'].append('Access type cannot be open if restriction grounds are not open')
 
-                if rg_id in ['http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1',
-                             'http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_2'] \
-                        and ar_id != 'http://purl.org/att/es/reference_data/access_type/access_type_open_access':
-
+                if rg_id_open and not ar_id_open:
                     errors['access_type'].append('Access type must be open if restriction grounds are open')
 
             for license in access_rights.get('license', []):
-                license_url = license.get('license', None)
-
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.access_rights.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
-
-                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
-                    # and when the reference data uri does not contain purl.org/att
-                    if not license_url and ref_entry.get('uri', False):
-                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
-
-                if license_url:
-                    license['license'] = license_url
 
         for project in research_dataset.get('is_output_of', []):
             for org_obj in project.get('source_organization', []):
@@ -591,27 +535,100 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             raise ValidationError(errors)
 
     @classmethod
-    def strip_catalog_record(cls, catalog_record):
+    def remove_contact_info_metadata(cls, rd):
         """
-        Strip the catalog record of any confidential/private information not supposed to be
-        available for the general public.
+        Strip research dataset of any confidential/private contact information not supposed to be available for the
+        general public
 
-        Accepts as paramater either a single cr object (dict), or a list of objects.
-
-        :param catalog_record:
+        :param rd:
+        :return: research dataset with removed contact information
         """
-        return cls._remove_keys(catalog_record, ['email', 'telephone', 'phone'])
+        return remove_keys_recursively(rd, ['email', 'telephone', 'phone'])
 
     @classmethod
-    def _remove_keys(cls, obj, fields_to_remove):
-        if isinstance(obj, dict):
-            obj = {
-                key: cls._remove_keys(value, fields_to_remove) for key, value in obj.items()
-                if key not in fields_to_remove
-            }
-        elif isinstance(obj, list):
-            obj = [
-                cls._remove_keys(item, fields_to_remove) for item in obj
-                if item not in fields_to_remove
-            ]
-        return obj
+    def check_and_remove_metadata_based_on_access_type(cls, rd):
+        """
+        If necessary, strip research dataset of any confidential/private information not supposed to be
+        available for the general public based on the research dataset's access type.
+
+        :param rd:
+        :return: research dataset with removed metadata based on access type
+        """
+
+        access_type_id = cls.get_research_dataset_access_type(rd)
+        if access_type_id == ACCESS_TYPES['open']:
+            pass
+        elif access_type_id == ACCESS_TYPES['embargoed']:
+            try:
+                embargo_time_passed = get_tz_aware_now_without_micros() >= \
+                    parse_timestamp_string_to_tz_aware_datetime(cls.get_research_dataset_embargo_available(rd))
+            except Exception as e:
+                _logger.error(e)
+                embargo_time_passed = False
+
+            if not embargo_time_passed:
+                # Remove also remote_resources, since if anyone picked embargo as access type, he/she would assume
+                # even remote_resources would not be visible?
+                rd = remove_keys_recursively(rd, ['files', 'directories', 'remote_resources'])
+
+        elif access_type_id == ACCESS_TYPES['restricted_access_permit_fairdata']:
+            # TODO:
+            # If user does not have rems permission for the catalog record, strip it:
+                # cls._strip_file_and_directory_metadata(rd)
+
+            # strip always for now. Remove this part when rems checking is implemented
+            cls._strip_file_and_directory_metadata(rd)
+        else:
+            cls._strip_file_and_directory_metadata(rd)
+
+        return rd
+
+    @classmethod
+    def _strip_file_and_directory_metadata(cls, rd):
+        cls._strip_file_metadata(rd)
+        cls._strip_directory_metadata(rd)
+
+    @classmethod
+    def _strip_file_metadata(cls, rd):
+        """
+        Keys to leave for a File object:
+        - title
+        - use_category
+        - file_type
+        - details.byte_size, if exists
+
+        :param rd:
+        """
+        file_keys_to_leave = set(['title', 'use_category', 'file_type', 'details'])
+        details_keys_to_leave = set(['byte_size'])
+
+        for file in rd.get('files', []):
+            leave_keys_in_dict(file, file_keys_to_leave)
+            if 'details' in file:
+                leave_keys_in_dict(file['details'], details_keys_to_leave)
+
+    @classmethod
+    def _strip_directory_metadata(cls, rd):
+        """
+        Keys to leave for a Directory object:
+        - title
+        - use_category
+        - details.byte_size, if exists
+
+        :param rd:
+        """
+        dir_keys_to_leave = set(['title', 'use_category', 'details'])
+        details_keys_to_leave = set(['byte_size'])
+
+        for dir in rd.get('directories', []):
+            leave_keys_in_dict(dir, dir_keys_to_leave)
+            if 'details' in dir:
+                leave_keys_in_dict(dir['details'], details_keys_to_leave)
+
+    @staticmethod
+    def get_research_dataset_access_type(rd):
+        return rd.get('access_rights', {}).get('access_type', {}).get('identifier', '')
+
+    @staticmethod
+    def get_research_dataset_embargo_available(rd):
+        return rd.get('access_rights', {}).get('available', '')

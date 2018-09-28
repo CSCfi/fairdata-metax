@@ -25,6 +25,7 @@ import yaml
 from metax_api.utils import executing_test_case, executing_travis
 
 executing_in_travis = executing_travis()
+executing_in_test_case = executing_test_case()
 
 if not executing_in_travis:
     with open('/home/metax-user/app_config') as app_config:
@@ -47,7 +48,7 @@ if executing_in_travis:
 else:
     SECRET_KEY = app_config_dict['DJANGO_SECRET_KEY']
 
-if executing_test_case() or executing_in_travis:
+if executing_in_test_case or executing_in_travis:
     # used by test cases and travis during test case execution to authenticate with certain api's
     API_TEST_USER = {
         'username': 'testuser',
@@ -69,21 +70,52 @@ if executing_test_case() or executing_in_travis:
     ]
 
     API_ACCESS = {
-        "apierrors":    { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
-        "contracts":    { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
-        "datacatalogs": { "read":  ["all"], "write": ["testuser", "metax"] },
-        "datasets":     { "read":  ["all"], "write": ["testuser", "metax", "api_auth_user"] },
-        "directories":  { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
-        "files":        { "read":  ["testuser", "metax", "api_auth_user"], "write": ["testuser", "metax"] },
-        "filestorages": { "read":  ["testuser", "metax"], "write": ["testuser", "metax"] },
-        "schemas":      { "read":  ["all"], "write": ["testuser", "metax"] }
+        "rest": {
+            "apierrors":    {
+                "read": ["testuser", "metax"],
+                "write": ["testuser", "metax"]
+            },
+            "contracts":    {
+                "read": ["testuser", "metax"],
+                "write": ["testuser", "metax"]
+            },
+            "datacatalogs": {
+                "read": ["all"],
+                "write": ["testuser", "metax"]
+            },
+            "datasets":     {
+                "read": ["all"],
+                "write": ["testuser", "metax", "api_auth_user", "endusers"]
+            },
+            "directories":  {
+                "read": ["testuser", "metax", "endusers"],
+                "write": ["testuser", "metax"]
+            },
+            "files":        {
+                "read": ["testuser", "metax", "api_auth_user", "endusers"],
+                "write": ["testuser", "metax"]
+            },
+            "filestorages": {
+                "read": ["testuser", "metax"],
+                "write": ["testuser", "metax"]
+            },
+            "schemas":      {
+                "read": ["all"],
+                "write": ["testuser", "metax"]
+            }
+        },
+        "rpc": {
+            "datasets": {
+                "get_minimal_dataset_template": { "use": ["all"] }
+            }
+        }
     }
 elif METAX_ENV == 'test':
     # in test-env, modify API_ACCESS to give read and write perms to all (public). note that
     # this affects only per-api access; nginx permissions still limits general write requests
     API_ACCESS = app_config_dict['API_ACCESS']
 
-    for api, perms in API_ACCESS.items():
+    for api, perms in API_ACCESS['rest'].items():
         if 'all' not in perms['read']:
             perms['read'].append('all')
         if 'all' not in perms['write']:
@@ -92,7 +124,28 @@ else:
     # localdev, stable, production
     API_ACCESS = app_config_dict['API_ACCESS']
 
-if executing_test_case() or executing_in_travis:
+if executing_in_travis:
+    ALLOWED_AUTH_METHODS = ['Basic', 'Bearer']
+else:
+    # Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
+    ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
+
+if executing_in_test_case or executing_in_travis:
+    END_USER_ALLOWED_DATA_CATALOGS = [
+        "urn:nbn:fi:att:data-catalog-ida",
+        "urn:nbn:fi:att:data-catalog-att",
+    ]
+else:
+    # allow end users to create catalogrecords only to the following data catalogs
+    END_USER_ALLOWED_DATA_CATALOGS = [
+        app_config_dict['IDA_DATACATALOG_IDENTIFIER'],
+        app_config_dict['ATT_DATACATALOG_IDENTIFIER'],
+    ]
+
+# endpoint in localhost where bearer tokens should be sent for validation
+VALIDATE_TOKEN_URL = 'https://127.0.0.1/secure/validate_token'
+
+if executing_in_test_case or executing_in_travis:
     ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
 else:
     # location to store information about exceptions occurred during api requests
@@ -116,6 +169,9 @@ if executing_in_travis:
     DEBUG = True
 else:
     DEBUG = app_config_dict['DEBUG']
+
+# when using the requests-library or similar, should be used to decide when to verify self-signed certs
+TLS_VERIFY = False if DEBUG else True
 
 # Application definition
 
@@ -147,7 +203,7 @@ MIDDLEWARE = [
     'metax_api.middleware.StreamHttpResponse',
 ]
 
-if not (executing_test_case() or executing_in_travis):
+if not (executing_in_test_case or executing_in_travis):
     # security settings
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -161,6 +217,9 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.OrderingFilter'
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10
@@ -185,22 +244,21 @@ ROOT_URLCONF = 'metax_api.urls'
 
 APPEND_SLASH = False
 
-if DEBUG:
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [],
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.request',
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.messages.context_processors.messages',
-                ],
-            },
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
         },
-    ]
+    },
+]
 
 WSGI_APPLICATION = 'metax_api.wsgi.application'
 
@@ -415,4 +473,19 @@ else:
         'ETSIN_URL_TEMPLATE': app_config_dict['OAI']['ETSIN_URL_TEMPLATE'],
         'ADMIN_EMAIL': app_config_dict['OAI']['ADMIN_EMAIL'],
         'SET_MAPPINGS': app_config_dict['OAI']['SET_MAPPINGS']
+    }
+
+if executing_in_travis:
+    DATACITE = {
+        'USERNAME': 'datacite_user',
+        'PASSWORD': 'datacite_password',
+        'ETSIN_URL_TEMPLATE': 'https://etsin.something.fi/dataset/%s',
+        'PREFIX': '10.5072'
+    }
+else:
+    DATACITE = {
+        'USERNAME': app_config_dict['DATACITE']['USERNAME'],
+        'PASSWORD': app_config_dict['DATACITE']['PASSWORD'],
+        'ETSIN_URL_TEMPLATE': app_config_dict['DATACITE']['ETSIN_URL_TEMPLATE'],
+        'PREFIX': app_config_dict['DATACITE']['PREFIX']
     }

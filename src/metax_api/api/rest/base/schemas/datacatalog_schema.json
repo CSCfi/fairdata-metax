@@ -45,15 +45,17 @@
                     "@id":"http://purl.org/dc/terms/modified",
                     "title":"Date Modified",
                     "description":"Date on which the Catalogue was last modified",
-                    "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "type":"string"
+                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "type":"string",
+                    "format": "date-time"
                 },
                 "issued":{
                     "@id":"http://purl.org/dc/terms/issued",
                     "title":"Date Issued",
                     "description":"Date of formal issuance (e.g., publication, release date) of the catalogue.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "type":"string"
+                    "type":"string",
+                    "format": "date"
                 },
                 "language":{
                     "@id":"http://purl.org/dc/terms/language",
@@ -374,10 +376,8 @@
                     "title":"Date Available",
                     "description":"Date (often a range) that the resource became or will become available.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
+                    "type":"string",
+                    "format": "date"
                 },
                 "access_type":{
                     "@id":"http://purl.org/dc/terms/type",

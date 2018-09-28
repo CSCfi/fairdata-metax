@@ -41,12 +41,12 @@
                         "und": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma"
                     },
                     "license": "https://creativecommons.org/publicdomain/zero/1.0/",
-                    "identifier": "https://creativecommons.org/publicdomain/zero/1.0/"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC0-1.0"
                 }
             ],
             "access_type": [
                 {
-                    "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
                     "pref_label": {
                         "en": "Open",
                         "fi": "Avoin",
@@ -106,12 +106,12 @@
                         "und": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma"
                     },
                     "license": "https://creativecommons.org/publicdomain/zero/1.0/",
-                    "identifier": "https://creativecommons.org/publicdomain/zero/1.0/"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC0-1.0"
                 }
             ],
             "access_type": [
                 {
-                    "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
                     "pref_label": {
                         "en": "Open",
                         "fi": "Avoin",

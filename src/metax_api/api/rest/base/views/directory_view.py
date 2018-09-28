@@ -48,6 +48,9 @@ class DirectoryViewSet(CommonViewSet):
     def create(self, request, *args, **kwargs):
         raise Http501()
 
+    def destroy(self, request, *args, **kwargs):
+        raise Http501()
+
     def _get_directory_contents(self, request, identifier=None):
         """
         A wrapper to call FS to collect and validate parameters from the request,
@@ -57,6 +60,7 @@ class DirectoryViewSet(CommonViewSet):
         dirs_only = CommonService.get_boolean_query_param(request, 'directories_only')
         recursive = CommonService.get_boolean_query_param(request, 'recursive')
         max_depth = request.query_params.get('depth', 1)
+        project_identifier = request.query_params.get('project', None)
 
         # max_depth can be an integer > 0, or * for everything.
         try:
@@ -73,7 +77,7 @@ class DirectoryViewSet(CommonViewSet):
         files_and_dirs = FileService.get_directory_contents(
             identifier=identifier,
             path=request.query_params.get('path', None),
-            project_identifier=request.query_params.get('project', None),
+            project_identifier=project_identifier,
             recursive=recursive,
             max_depth=max_depth,
             dirs_only=dirs_only,
@@ -120,6 +124,9 @@ class DirectoryViewSet(CommonViewSet):
         """
         if 'project' not in request.query_params:
             raise Http400('project is a required query parameter')
+
+        if not request.user.is_service:
+            FileService.check_user_belongs_to_project(request, request.query_params['project'])
 
         root_dirs = FileService.get_project_root_directory(request.query_params['project'])
 

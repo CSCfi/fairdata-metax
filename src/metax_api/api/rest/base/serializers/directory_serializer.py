@@ -11,7 +11,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework import serializers
 
 from metax_api.models import Directory
-from .common_serializer import CommonSerializer
+from .common_serializer import CommonSerializer, LightSerializer
 
 _logger = logging.getLogger(__name__)
 d = _logger.debug
@@ -94,3 +94,30 @@ class DirectorySerializer(CommonSerializer):
             return Directory.objects.get(identifier=identifier_value).id
         except Directory.DoesNotExist:
             raise ValidationError({ 'parent_directory': ['identifier %s not found' % str(identifier_value)]})
+
+
+class LightDirectorySerializer(LightSerializer):
+
+    allowed_fields = set(DirectorySerializer.Meta.fields)
+    special_fields = set()
+    relation_fields = set(['parent_directory'])
+
+    @classmethod
+    def ls_field_list(cls, received_field_list=[]):
+        """
+        Make requested fields compatible with LightSerializer use.
+        """
+        field_list = super().ls_field_list(received_field_list)
+
+        return_file_fields = []
+        for field in field_list:
+            if field not in cls.allowed_fields:
+                continue
+            elif field in cls.relation_fields:
+                # parent directory
+                return_file_fields.append('%s__identifier' % field)
+                return_file_fields.append('%s__id' % field)
+            else:
+                return_file_fields.append(field)
+
+        return return_file_fields

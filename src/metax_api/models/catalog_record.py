@@ -16,17 +16,37 @@ from django.db.models import Q, Sum
 from django.http import Http404
 from rest_framework.serializers import ValidationError
 
-from metax_api.exceptions import Http400, Http503
-from metax_api.utils import get_tz_aware_now_without_micros, RabbitMQ
-from metax_api.utils.utils import generate_identifier
+from metax_api.exceptions import Http400, Http403, Http503
+from metax_api.utils import get_tz_aware_now_without_micros, generate_doi_identifier, generate_uuid_identifier, \
+    executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type, \
+    parse_timestamp_string_to_tz_aware_datetime
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
 from .directory import Directory
 from .file import File
 
+
+READ_METHODS = ('GET', 'HEAD', 'OPTIONS')
 DEBUG = settings.DEBUG
 _logger = logging.getLogger(__name__)
+
+
+ACCESS_TYPES = {
+    'open': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access',
+    'closed': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/closed_access',
+    'embargoed': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/embargoed_access',
+    'restricted_access': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access',
+    'restricted_access_permit_fairdata':
+        'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_permit_fairdata',
+    'restricted_access_permit_external':
+        'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_permit_external',
+    'restricted_access_research': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_research',
+    'restricted_access_research_education_studying':
+        'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_education_studying',
+    'restricted_access_registration':
+        'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_registration',
+}
 
 
 class DiscardRecord(Exception):
@@ -158,6 +178,7 @@ class CatalogRecord(Common):
     PRESERVATION_STATE_METADATA_VALIDATION_FAILED = 50
     PRESERVATION_STATE_VALIDATED_METADATA_UPDATED = 60
     PRESERVATION_STATE_VALID_METADATA = 70
+    PRESERVATION_STATE_METADATA_CONFIRMED = 75
     PRESERVATION_STATE_ACCEPTED_TO_PAS = 80
     PRESERVATION_STATE_IN_PACKAGING_SERVICE = 90
     PRESERVATION_STATE_PACKAGING_FAILED = 100
@@ -175,6 +196,7 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_METADATA_VALIDATION_FAILED, 'Metadata validation failed'),
         (PRESERVATION_STATE_VALIDATED_METADATA_UPDATED, 'Validated metadata updated'),
         (PRESERVATION_STATE_VALID_METADATA, 'Valid metadata'),
+        (PRESERVATION_STATE_METADATA_CONFIRMED, 'Metadata confirmed'),
         (PRESERVATION_STATE_ACCEPTED_TO_PAS, 'Accepted to digital preservation'),
         (PRESERVATION_STATE_IN_PACKAGING_SERVICE, 'in packaging service'),
         (PRESERVATION_STATE_PACKAGING_FAILED, 'Packaging failed'),
@@ -288,6 +310,66 @@ class CatalogRecord(Common):
         for f in self.files.all():
             print(f)
 
+    def user_has_access(self, request):
+        """
+        In the future, will probably be more involved checking...
+        """
+        if request.user.is_service:
+            return True
+
+        elif request.method in READ_METHODS:
+            return True
+
+        # write operation
+        return self.user_is_owner(request)
+
+    def user_is_owner(self, request):
+        if self.editor and 'owner_id' in self.editor:
+            return request.user.username == self.editor['owner_id']
+
+        # note: once access control plans evolve, user_created may not be a legit field ever
+        # to check access from. but until then ...
+        return request.user.username == self.user_created
+
+    def user_is_privileged(self, request):
+        """
+        Perhaps move this to Common model if/when other models need this information and have appropriate methods?
+
+        :param instance:
+        :return:
+        """
+        if request.user.is_service:
+            # knows what they are doing
+            return True
+        elif self.user_is_owner(request):
+            # can see sensitive fields
+            return True
+        else:
+            # unknown user
+            return False
+
+    def _access_type_is_open(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['open']
+
+    def _access_type_is_embargoed(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['embargoed']
+
+    def _embargo_is_available(self):
+        if not self.research_dataset.get('access_rights', {}).get('available', False):
+            return False
+        try:
+            return get_tz_aware_now_without_micros() >= parse_timestamp_string_to_tz_aware_datetime(
+                self.research_dataset.get('access_rights', {}).get('available', {}))
+        except Exception as e:
+            _logger.error(e)
+            return False
+
+    def authorized_to_see_catalog_record_files(self, request):
+        return self.user_is_privileged(request) or self._access_type_is_open() or \
+            (self._access_type_is_embargoed() and self._embargo_is_available())
+
     def save(self, *args, **kwargs):
         if self._operation_is_create():
             self._pre_create_operations()
@@ -310,12 +392,12 @@ class CatalogRecord(Common):
         """
         actual_files_changed = False
 
-        (files_to_add,
-            files_to_remove,
-            files_to_keep,
-            dirs_to_add_by_project,
-            dirs_to_remove_by_project,
-            dirs_to_keep_by_project) = file_changes
+        files_to_add              = file_changes['files_to_add']
+        files_to_remove           = file_changes['files_to_remove']
+        files_to_keep             = file_changes['files_to_keep']
+        dirs_to_add_by_project    = file_changes['dirs_to_add_by_project']
+        dirs_to_remove_by_project = file_changes['dirs_to_remove_by_project']
+        dirs_to_keep_by_project   = file_changes['dirs_to_keep_by_project']
 
         if files_to_add or files_to_remove or dirs_to_add_by_project or dirs_to_remove_by_project:
 
@@ -530,6 +612,10 @@ class CatalogRecord(Common):
         files_to_keep = []
         dirs_to_keep_by_project = defaultdict(list)
 
+        # list of projects involved in current changes. handy later when checking user
+        # permissions for changed files: no need to retrieve related project identifiers again
+        changed_projects = defaultdict(set)
+
         self._find_new_dirs_to_add(file_description_changes,
                                    dirs_to_add_by_project,
                                    dirs_to_remove_by_project,
@@ -538,16 +624,27 @@ class CatalogRecord(Common):
         self._find_new_files_to_add(file_description_changes,
                                     files_to_add,
                                     files_to_remove,
-                                    files_to_keep)
+                                    files_to_keep,
+                                    changed_projects)
 
-        return (
-            files_to_add,
-            files_to_remove,
-            files_to_keep,
-            dirs_to_add_by_project,
-            dirs_to_remove_by_project,
-            dirs_to_keep_by_project
-        )
+        # involved projects from single files (research_dataset.files) were accumulated
+        # in the previous method, but for dirs, its just handy to get the keys from below
+        # variables...
+        for project_identifier in dirs_to_add_by_project.keys():
+            changed_projects['files_added'].add(project_identifier)
+
+        for project_identifier in dirs_to_remove_by_project.keys():
+            changed_projects['files_removed'].add(project_identifier)
+
+        return {
+            'files_to_add': files_to_add,
+            'files_to_remove': files_to_remove,
+            'files_to_keep': files_to_keep,
+            'dirs_to_add_by_project': dirs_to_add_by_project,
+            'dirs_to_remove_by_project': dirs_to_remove_by_project,
+            'dirs_to_keep_by_project': dirs_to_keep_by_project,
+            'changed_projects': changed_projects,
+        }
 
     def _find_new_dirs_to_add(self, file_description_changes, dirs_to_add_by_project, dirs_to_remove_by_project,
             dirs_to_keep_by_project):
@@ -576,6 +673,7 @@ class CatalogRecord(Common):
                 # or to search an already existing directory for new files (and sub dirs).
                 # as a result the actual set of files may or may not change.
                 dirs_to_add_by_project[dr['project_identifier']].append(dr['directory_path'])
+
             elif dr['identifier'] in file_description_changes['directories']['removed']:
                 if not self._path_included_in_previous_metadata_version(dr['project_identifier'], dr['directory_path']):
                     # only remove dirs that are not included by other directory paths.
@@ -590,7 +688,8 @@ class CatalogRecord(Common):
         for project, dirs in top_dirs_by_project.items():
             dirs_to_keep_by_project[project] = dirs
 
-    def _find_new_files_to_add(self, file_description_changes, files_to_add, files_to_remove, files_to_keep):
+    def _find_new_files_to_add(self, file_description_changes, files_to_add, files_to_remove, files_to_keep,
+            changed_projects):
         """
         Based on changes in research_metadata.files (parameter file_description_changes), find out which
         files should be kept when copying files from the previous version to the new version,
@@ -617,6 +716,7 @@ class CatalogRecord(Common):
                 # to check later that it is not a file that was created later.
                 # as a result the actual set of files may or may not change.
                 files_to_add.append(f['id'])
+                changed_projects['files_added'].add(f['project_identifier'])
             elif f['identifier'] in file_description_changes['files']['removed']:
                 if not self._path_included_in_previous_metadata_version(f['project_identifier'], f['file_path']):
                     # file is being removed.
@@ -624,6 +724,7 @@ class CatalogRecord(Common):
                     # which means the actual set of files may change, if the path is not included
                     # in the new directory additions
                     files_to_remove.append(f['id'])
+                    changed_projects['files_removed'].add(f['project_identifier'])
             elif f['identifier'] in file_description_changes['files']['keep']:
                 files_to_keep.append(f['id'])
 
@@ -647,6 +748,8 @@ class CatalogRecord(Common):
     def delete(self, *args, **kwargs):
         if self.has_alternate_records():
             self._remove_from_alternate_record_set()
+        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
+            self.add_post_request_callable(DataciteDOIUpdate(self, 'delete'))
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
         super(CatalogRecord, self).delete(*args, **kwargs)
 
@@ -687,17 +790,23 @@ class CatalogRecord(Common):
         return entries
 
     def _pre_create_operations(self):
+        pref_id_type = self._get_preferred_identifier_type_from_request()
         if self.catalog_is_harvested():
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
             # do not overwrite. note: if the value was left empty, an error would have been
             # raised in the serializer validation.
             pass
         else:
-            self.research_dataset['preferred_identifier'] = generate_identifier()
+            if pref_id_type == IdentifierType.URN:
+                self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
+            elif pref_id_type == IdentifierType.DOI:
+                self.research_dataset['preferred_identifier'] = generate_doi_identifier()
+            else:
+                _logger.debug("Identifier type not specified in the request. Using URN identifier for pref id")
+                self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
 
-        self.research_dataset['metadata_version_identifier'] = generate_identifier(urn=False)
-
-        self.identifier = generate_identifier(urn=False)
+        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+        self.identifier = generate_uuid_identifier()
 
         if not self.metadata_owner_org:
             # field metadata_owner_org is optional, but must be set. in case it is omitted,
@@ -724,6 +833,9 @@ class CatalogRecord(Common):
         other_record = self._check_alternate_records()
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
+
+        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
+            self.add_post_request_callable(DataciteDOIUpdate(self, 'create'))
 
         if self._dataset_is_access_restricted():
             self.add_post_request_callable(REMSUpdate(self), 'create')
@@ -789,6 +901,11 @@ class CatalogRecord(Common):
             # todo check if restriction_grounds and access_type changed
             pass
 
+        if self.field_changed('research_dataset'):
+            self.update_datacite = True
+        else:
+            self.update_datacite = False
+
         if self.catalog_versions_datasets() and not self.preserve_version:
 
             if not self.field_changed('research_dataset'):
@@ -847,6 +964,10 @@ class CatalogRecord(Common):
                 self._handle_preferred_identifier_changed()
 
     def _post_update_operations(self):
+        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI and \
+                self.update_datacite:
+            self.add_post_request_callable(DataciteDOIUpdate(self, 'update'))
+
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
     def _files_added_for_first_time(self):
@@ -906,29 +1027,36 @@ class CatalogRecord(Common):
         of all unique individual files currently in the db.
         """
         file_ids = []
+        file_changes = { 'changed_projects': defaultdict(set) }
 
         if 'files' in self.research_dataset:
-            file_ids.extend(self._get_file_ids_from_file_list(self.research_dataset['files']))
+            file_ids.extend(self._get_file_ids_from_file_list(self.research_dataset['files'], file_changes))
 
         if 'directories' in self.research_dataset:
             file_ids.extend(self._get_file_ids_from_dir_list(self.research_dataset['directories'],
-                ignore_files=file_ids))
+                file_ids, file_changes))
+
+        self._check_changed_files_permissions(file_changes)
 
         # note: possibly might wanto to use set() to remove duplicates instead of using ignore_files=list
         # to ignore already included files in _get_file_ids_from_dir_list()
         return file_ids
 
-    def _get_file_ids_from_file_list(self, file_list):
+    def _get_file_ids_from_file_list(self, file_list, file_changes):
         """
-        Simply retrieve db ids of files in research_dataset.files
+        Simply retrieve db ids of files in research_dataset.files. Update file_changes dict with
+        affected projects for permissions checking.
         """
         if not file_list:
             return []
 
         file_pids = [ f['identifier'] for f in file_list ]
 
-        files = File.objects.filter(identifier__in=file_pids).values('id', 'identifier')
-        file_ids = [ f['id'] for f in files ]
+        files = File.objects.filter(identifier__in=file_pids).values('id', 'identifier', 'project_identifier')
+        file_ids = []
+        for f in files:
+            file_ids.append(f['id'])
+            file_changes['changed_projects']['files_added'].add(f['project_identifier'])
 
         if len(file_ids) != len(file_pids):
             missing_identifiers = [ pid for pid in file_pids if pid not in set(f['identifier'] for f in files)]
@@ -939,12 +1067,14 @@ class CatalogRecord(Common):
 
         return file_ids
 
-    def _get_file_ids_from_dir_list(self, dirs_list, ignore_files=[]):
+    def _get_file_ids_from_dir_list(self, dirs_list, ignore_files, file_changes):
         """
         The field research_dataset.directories can contain directories from multiple
         projects. Find the top-most dirs in each project used, and put their files -
         excluding those files already added from the field research_dataset.files - into
         the db relation dataset_files.
+
+        Also update file_changes dict with affected projects for permissions checking.
         """
         if not dirs_list:
             return []
@@ -962,6 +1092,7 @@ class CatalogRecord(Common):
                     project_identifier=project_identifier,
                     file_path__startswith='%s/' % dir_path
                 )
+            file_changes['changed_projects']['files_added'].add(project_identifier)
 
         return files.exclude(id__in=ignore_files).values_list('id', flat=True)
 
@@ -1014,21 +1145,28 @@ class CatalogRecord(Common):
 
     def _files_changed(self):
         file_changes = self._find_file_changes()
-        if False:
-            # can also check presence of added, removed etc and return false immediately
-            pass
+
+        if not file_changes['changed_projects']:
+            return False
+
+        self._check_changed_files_permissions(file_changes)
 
         try:
             with transaction.atomic():
                 # create temporary record to perform the file changes on, to see if there were real file changes.
                 # if no, discard it. if yes, the temp_record will be transformed into the new dataset version record.
+
+                # note: when this code is executed, at this point it should be reasonably certain that associated
+                # files did in fact change, and the following operation is necessary. consider the exception
+                # raising and rollback at the end as an extra safety measure.
+
                 temp_record = CatalogRecord.objects.get(pk=self.id)
                 temp_record.id = None
                 temp_record.next_dataset_version = None
                 temp_record.previous_dataset_version = None
                 temp_record.dataset_version_set = None
-                temp_record.identifier = generate_identifier()
-                temp_record.research_dataset['metadata_version_identifier'] = generate_identifier()
+                temp_record.identifier = generate_uuid_identifier()
+                temp_record.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
                 super(Common, temp_record).save()
                 actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
 
@@ -1042,6 +1180,42 @@ class CatalogRecord(Common):
             # rolled back
             pass
         return False
+
+    def _check_changed_files_permissions(self, file_changes):
+        '''
+        Ensure user belongs to projects of all changed files and dirs.
+
+        Raises 403 on error.
+        '''
+        if not self.request:
+            # when files associated with a dataset have been changed, the user should be
+            # always known, i.e. the http request object is present. if its not, the code
+            # is not being executed as a result of a api request. in that case, only allow
+            # proceeding when the code is executed for testing: the code is being called directly
+            # from a test case, to set up test conditions etc.
+            assert executing_test_case(), 'only permitted when setting up testing conditions'
+            return
+
+        if self.request.user.is_service:
+            # assumed the service knows what it is doing
+            return
+
+        projects_added = file_changes['changed_projects'].get('files_added', set())
+        projects_removed = file_changes['changed_projects'].get('files_removed', set())
+        project_changes = projects_added.union(projects_removed)
+
+        from metax_api.services import AuthService
+        user_projects = AuthService.extract_file_projects_from_token(self.request.user.token)
+
+        invalid_project_perms = [ proj for proj in project_changes if proj not in user_projects ]
+
+        if invalid_project_perms:
+            raise Http403({
+                'detail': [
+                    'Unable to add files to dataset. You are lacking project membership in the following projects: %s'
+                    % ', '.join(invalid_project_perms)
+                ]
+            })
 
     def _handle_metadata_versioning(self):
         if not self.research_dataset_versions.exists():
@@ -1058,7 +1232,7 @@ class CatalogRecord(Common):
 
         # create and add the new metadata version
 
-        self.research_dataset['metadata_version_identifier'] = generate_identifier()
+        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
 
         new_rdv = ResearchDatasetVersion(
             date_created=self.date_modified,
@@ -1081,7 +1255,10 @@ class CatalogRecord(Common):
 
         _logger.info(
             'Files changed during CatalogRecord update. Creating new dataset version '
-            'from CatalogRecord %s...' % old_version.metadata_version_identifier
+            'from old CatalogRecord having identifier %s' % old_version.identifier
+        )
+        _logger.debug(
+            'Old CR metadata version identifier: %s' % old_version.metadata_version_identifier
         )
 
         new_version = self._new_version
@@ -1104,8 +1281,18 @@ class CatalogRecord(Common):
         # contains the new field data from the request. this effectively transfers
         # the changes to the new dataset version.
         new_version.research_dataset = deepcopy(old_version.research_dataset)
-        new_version.research_dataset['metadata_version_identifier'] = generate_identifier()
-        new_version.research_dataset['preferred_identifier'] = generate_identifier()
+        new_version.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+
+        # This effectively means one cannot change identifier type for new catalog record versions
+        pref_id_type = get_identifier_type(old_version.research_dataset['preferred_identifier'])
+        if pref_id_type == IdentifierType.URN:
+            new_version.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
+        elif pref_id_type == IdentifierType.DOI:
+            new_version.research_dataset['preferred_identifier'] = generate_doi_identifier()
+        else:
+            _logger.debug("This code should never be reached. Using URN identifier for the new version pref id")
+            self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
+
         new_version._calculate_total_ida_byte_size()
 
         if 'remote_resources' in new_version.research_dataset:
@@ -1134,11 +1321,15 @@ class CatalogRecord(Common):
 
         new_version.calculate_directory_byte_sizes_and_file_counts()
 
+        if pref_id_type == IdentifierType.DOI:
+            self.add_post_request_callable(DataciteDOIUpdate(new_version, 'create'))
+
         new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
 
         old_version.new_dataset_version_created = True
 
-        _logger.info('New dataset version %s created' % new_version.preferred_identifier)
+        _logger.info('New dataset version created, identifier %s' % new_version.identifier)
+        _logger.debug('New dataset version preferred identifer %s' % new_version.preferred_identifier)
 
     def _get_metadata_file_changes(self):
         """
@@ -1279,6 +1470,20 @@ class CatalogRecord(Common):
                 self.files.count(),
             )
 
+    def _get_preferred_identifier_type_from_request(self):
+        """
+        Get preferred identifier type as IdentifierType enum object
+
+        :return: IdentifierType. Return None if parameter not given or is unrecognized. Calling code is then
+        responsible for choosing which IdentifierType to use.
+        """
+        pid_type = self.request.query_params.get('pid_type', None)
+        if pid_type == IdentifierType.DOI.value:
+            pid_type = IdentifierType.DOI
+        elif pid_type == IdentifierType.URN.value:
+            pid_type = IdentifierType.URN
+        return pid_type
+
 
 class RabbitMQPublishRecord():
 
@@ -1297,6 +1502,8 @@ class RabbitMQPublishRecord():
         """
         The actual code that gets executed during CommonService.run_post_request_callables().
         """
+        from metax_api.services import RabbitMQService
+
         _logger.info(
             'Publishing CatalogRecord %s to RabbitMQ... routing_key: %s'
             % (self.cr.identifier, self.routing_key)
@@ -1308,7 +1515,7 @@ class RabbitMQPublishRecord():
             cr_json = self._to_json()
 
         try:
-            rabbitmq = RabbitMQ()
+            rabbitmq = RabbitMQService()
             rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange='datasets')
         except:
             # note: if we'd like to let the request be a success even if this operation fails,
@@ -1353,3 +1560,83 @@ class REMSUpdate():
             raise Http503({ 'detail': [
                 'failed to publish updates to rems. request is aborted.'
             ]})
+
+
+class DataciteDOIUpdate():
+
+    """
+    Callable object to be passed to CommonService.add_post_request_callable(callable).
+
+    Handles creating, updating or deleting DOI metadata along with DOI identifier,
+    and publishing of URL for resolving the DOI identifier in Datacite API.
+    """
+
+    def __init__(self, cr, action):
+        assert action in ('create', 'update', 'delete'), 'invalid value for action'
+        self.cr = cr
+        self.action = action
+
+    def __call__(self):
+        """
+        The actual code that gets executed during CommonService.run_post_request_callables().
+        Do not run for tests or in travis
+        """
+        from metax_api.services.datacite_service import DataciteService
+
+        if hasattr(settings, 'DATACITE'):
+            if not settings.DATACITE.get('ETSIN_URL_TEMPLATE', None):
+                raise Exception('Missing configuration from settings for DATACITE: ETSIN_URL_TEMPLATE')
+        else:
+            raise Exception('Missing configuration from settings: DATACITE')
+
+        doi = extract_doi_from_doi_identifier(self.cr.research_dataset['preferred_identifier'])
+        if doi is None:
+            return
+
+        if self.action == 'create':
+            _logger.info(
+                'Publishing CatalogRecord {0} metadata and url to Datacite API using DOI {1}'.
+                format(self.cr.identifier, doi)
+            )
+        elif self.action == 'update':
+            _logger.info(
+                'Updating CatalogRecord {0} metadata and url to Datacite API using DOI {1}'.
+                format(self.cr.identifier, doi)
+            )
+        elif self.action == 'delete':
+            _logger.info(
+                'Deleting CatalogRecord {0} metadata from Datacite API using DOI {1}'.
+                format(self.cr.identifier, doi)
+            )
+
+        try:
+            dcs = DataciteService()
+            if self.action == 'create':
+                try:
+                    self._publish_to_datacite(dcs, doi)
+                except Exception as e:
+                    # Try to delete DOI in case the DOI got created but stayed in "draft" state
+                    dcs.delete_draft_doi(doi)
+                    raise(Exception(e))
+            elif self.action == 'update':
+                self._publish_to_datacite(dcs, doi)
+            elif self.action == 'delete':
+                # If metadata is in "findable" state, the operation below should transition the DOI to "registered"
+                # state
+                dcs.delete_doi_metadata(doi)
+        except Exception as e:
+            _logger.error(e)
+            _logger.exception('Datacite API interaction failed')
+            raise Http503({ 'detail': [
+                'failed to publish updates to Datacite API. request is aborted.'
+            ]})
+
+    def _publish_to_datacite(self, dcs, doi):
+        datacite_xml = dcs.convert_catalog_record_to_datacite_xml(
+            {'research_dataset': self.cr.research_dataset}, True)
+        _logger.debug("Datacite XML to be sent to Datacite API: {0}".format(datacite_xml))
+
+        # When the two operations below are successful, it should result in the DOI transitioning to
+        # "findable" state
+        dcs.create_doi_metadata(datacite_xml)
+        dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)

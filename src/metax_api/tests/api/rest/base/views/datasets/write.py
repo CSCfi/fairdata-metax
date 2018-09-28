@@ -8,13 +8,21 @@
 from copy import deepcopy
 from datetime import datetime, timedelta
 
+import responses
+from django.conf import settings as django_settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
+from metax_api.services import RedisCacheService
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
-from metax_api.utils import RedisSentinelCache, get_tz_aware_now_without_micros
+from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
+from metax_api.tests.utils import get_test_oidc_token
+
+
+VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
+END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -136,6 +144,7 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         cr_from_test_data.pop('identifier')
         return cr_from_test_data
 
+
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
     #
@@ -177,6 +186,24 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             response.data['research_dataset']['preferred_identifier'],
             'in harvested catalogs, user (the harvester) is allowed to set preferred_identifier'
         )
+
+    def test_preferred_identifier_is_checked_also_from_deleted_records(self):
+        """
+        If a catalog record having a specific preferred identifier is deleted, and a new catalog
+        record is created having the same preferred identifier, metax should deny this request
+        since a catalog record with the same pref id already exists, albeit deleted.
+        """
+
+        # dc 3 happens to be harvested catalog, which allows setting pref id
+        cr = CatalogRecord.objects.filter(data_catalog_id=3).first()
+        response = self.client.delete('/rest/datasets/%d' % cr.id)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.cr_test_data['research_dataset']['preferred_identifier'] = cr.preferred_identifier
+        self.cr_test_data['data_catalog'] = 3
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('already exists' in response.data['research_dataset'][0], True, response.data)
 
     def test_create_catalog_contract_string_identifier(self):
         contract_identifier = Contract.objects.first().contract_json['identifier']
@@ -309,6 +336,43 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], custom_pid)
+
+    def test_parameter_migration_override_no_preferred_identifier_when_creating(self):
+        """
+        Normally, when saving to att/ida catalogs, providing a custom preferred_identifier is not
+        permitted. Using the optional query parameter ?migration_override=bool a custom preferred_identifier
+        can be passed.
+        """
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
+
+        self.cr_test_data['research_dataset'].pop('preferred_identifier', None)
+        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
+
+    def test_create_catalog_record_using_pid_type(self):
+        # Test with pid_type = urn
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json")
+        self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
+
+        # Test with pid_type = doi
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json")
+        self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('doi:10.'))
+
+        # Test with pid_type = not_known
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?pid_type=not_known', self.cr_test_data, format="json")
+        self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
+
+        # Test without pid_type
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
 
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
@@ -537,7 +601,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
-            'purl' in response.data['research_dataset']['other_identifier'][0]['type']['identifier'],
+            'uri.suomi.fi' in response.data['research_dataset']['other_identifier'][0]['type']['identifier'],
             True,
             'Identifier type should have been populated with data from ref data'
         )
@@ -661,15 +725,25 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 1)
         self.assertEqual(len(response.data['failed']), 1)
 
-    def test_catalog_record_deprecated_from_true_to_false_not_allowed(self):
-        # Test catalog record's deprecated field cannot be changed from true to false value
-        response = self.client.patch('/rest/datasets/1', { 'deprecated': True }, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['deprecated'], True)
+    def test_catalog_record_deprecated_cannot_be_set(self):
+        # Test catalog record's deprecated field cannot be set with POST, PUT or PATCH
 
-        response = self.client.patch('/rest/datasets/1', { 'deprecated': False }, format="json")
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST,
-            "Changing deprecated from true to false should result in 400 bad request")
+        initial_deprecated = True
+        self.cr_test_data['deprecated'] = initial_deprecated
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.data['deprecated'], False)
+
+        response_json = self.client.get('/rest/datasets/1').data
+        initial_deprecated = response_json['deprecated']
+        response_json['deprecated'] = not initial_deprecated
+        response = self.client.put('/rest/datasets/1', response_json, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['deprecated'], initial_deprecated)
+
+        initial_deprecated = self.client.get('/rest/datasets/1').data['deprecated']
+        response = self.client.patch('/rest/datasets/1', { 'deprecated': not initial_deprecated }, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['deprecated'], initial_deprecated)
 
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
@@ -767,15 +841,12 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        deleted_catalog_record = None
-
         try:
             deleted_catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
-        except CatalogRecord.DoesNotExist:
-            pass
-
-        if deleted_catalog_record:
             raise Exception('Deleted CatalogRecord should not be retrievable from the default objects table')
+        except CatalogRecord.DoesNotExist:
+            # successful test should go here, instead of raising the expection in try: block
+            pass
 
         try:
             deleted_catalog_record = CatalogRecord.objects_unfiltered.get(identifier=self.identifier)
@@ -789,14 +860,6 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         url = '/rest/datasets/%s' % self.preferred_identifier
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_delete_catalog_record_contract_is_not_deleted(self):
-        catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=1)
-        url = '/rest/datasets/%s' % catalog_record_from_test_data['research_dataset']['metadata_version_identifier']
-        self.client.delete(url)
-        response2 = self.client.get('/rest/contracts/%d' % catalog_record_from_test_data['contract'])
-        self.assertEqual(response2.status_code, status.HTTP_200_OK,
-                         'The contract of CatalogRecord should not be deleted when deleting a single CatalogRecord.')
 
 
 class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
@@ -876,7 +939,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         The API should attempt to reload the reference data if it is missing from
         cache for whatever reason, and successfully finish the request
         """
-        cache = RedisSentinelCache()
+        cache = RedisCacheService()
         cache.delete('reference_data')
         self.assertEqual(cache.get('reference_data', master=True), None,
                          'cache ref data should be missing after cache.delete()')
@@ -911,14 +974,13 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['research_dataset']), 19)
 
         rd_att = self.cr_full_att_test_data['research_dataset']
-        rd_att['remote_resources'][0]['checksum']['algorithm'] = 'nonexisting'
         rd_att['remote_resources'][0]['license'][0]['identifier'] = 'nonexisting'
         rd_att['remote_resources'][1]['resource_type']['identifier'] = 'nonexisting'
         rd_att['remote_resources'][0]['use_category']['identifier'] = 'nonexisting'
         response = self.client.post('/rest/datasets', self.cr_full_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 4)
+        self.assertEqual(len(response.data['research_dataset']), 3)
 
     def test_create_catalog_record_with_dependent_reference_datas(self):
         # Unallowed combinations
@@ -965,9 +1027,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to datasets to their approriate fields
         """
-        from metax_api.utils import RedisSentinelCache
+        from metax_api.services import RedisCacheService
 
-        cache = RedisSentinelCache()
+        cache = RedisCacheService()
         refdata = cache.get('reference_data')['reference_data']
         orgdata = cache.get('reference_data')['organization_data']
         refs = {}
@@ -975,7 +1037,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         data_types = [
             'access_type',
             'restriction_grounds',
-            'checksum_algorithm',
             'field_of_science',
             'identifier_type',
             'keyword',
@@ -1077,7 +1138,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_att['remote_resources'][1]['resource_type'] = {'identifier': refs['resource_type']['code']}
         rd_att['remote_resources'][0]['use_category'] = {'identifier': refs['use_category']['code']}
         rd_att['remote_resources'][0]['license'][0] = {'identifier': refs['license']['code']}
-        rd_att['remote_resources'][0]['checksum']['algorithm'] = refs['checksum_algorithm']['code']
 
         # Assert remote resources related reference datas
         response = self.client.post('/rest/datasets', self.cr_full_att_test_data, format="json")
@@ -1095,7 +1155,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['use_category']['label'],
                          new_rd['remote_resources'][0]['use_category'].get('pref_label', None))
         self.assertEqual(refs['license']['label'], new_rd['remote_resources'][0]['license'][0].get('title', None))
-        self.assertEquals(refs['checksum_algorithm']['code'], new_rd['remote_resources'][0]['checksum']['algorithm'])
 
     def _assert_uri_copied_to_identifier(self, refs, new_rd):
         self.assertEqual(refs['keyword']['uri'], new_rd['theme'][0]['identifier'])
@@ -1576,6 +1635,23 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data['dataset_version_set'][0].get('removed', None), True,
             response.data['dataset_version_set'])
 
+    def test_new_dataset_version_pref_id_type_stays_same_as_previous_dataset_version_pref_id_type(self):
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+
+        cr_v1 = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json").data
+        cr_v1['research_dataset']['files'].pop(0)
+        cr_v2 = self.client.put('/rest/datasets/{0}?pid_type=doi'.format(cr_v1['identifier']), cr_v1, format="json")
+        self.assertEqual('new_version_created' in cr_v2.data, True)
+        self.assertTrue(
+            get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.URN)
+
+        cr_v1 = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json").data
+        cr_v1['research_dataset']['files'].pop(0)
+        cr_v2 = self.client.put('/rest/datasets/{0}'.format(cr_v1['identifier']), cr_v1, format="json")
+        self.assertEqual('new_version_created' in cr_v2.data, True)
+        self.assertTrue(
+            get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.DOI)
+
     def _assert_metadata_version_count(self, record, count):
         response = self.client.get('/rest/datasets/%d/metadata_versions' % record['id'], format="json")
         self.assertEqual(len(response.data), count)
@@ -1789,7 +1865,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             "title": "Directory Title",
             "description": "This is directory at %s" % path,
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                "identifier": "method"
             }
         })
 
@@ -1804,7 +1880,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             "title": "File Title",
             "description": "This is file at %s" % path,
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                "identifier": "method"
             }
         })
 
@@ -1814,7 +1890,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             "title": "Directory Title",
             "description": "This is directory does not exist",
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                "identifier": "method"
             }
         }]
 
@@ -1824,7 +1900,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             "title": "File Title",
             "description": "This is file does not exist",
             "use_category": {
-                "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                "identifier": "method"
             }
         }]
 
@@ -2308,3 +2384,249 @@ class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['metadata_provider_user'], original)
+
+
+class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
+
+    """
+    End User Access -related permission testing.
+    """
+
+    def setUp(self):
+        super().setUp()
+
+        # create catalogs with end user access permitted
+        dc = DataCatalog.objects.get(pk=1)
+        catalog_json = dc.catalog_json
+        for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+            catalog_json['identifier'] = identifier
+            DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+
+        self.token = get_test_oidc_token()
+
+        # by default, use the unmodified token. to use a different/modified token
+        # for various test scenarions, alter self.token, and call the below method again
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        # no reason to test anything related to failed authentication, since failed
+        # authentication stops the request from proceeding anywhere
+        self._mock_token_validation_succeeds()
+
+    def _set_cr_owner_to_token_user(self, cr_id):
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.user_created = self.token['sub']
+        cr.editor = None # pretend the record was created by user directly
+        cr.force_save()
+
+    @responses.activate
+    def test_user_can_create_dataset(self):
+        '''
+        Ensure end user can create a new dataset, and required fields are
+        automatically placed and the user is only able to affect allowed
+        fields
+        '''
+        user_created = self.token['sub']
+        metadata_provider_user = self.token['sub']
+        metadata_provider_org = self.token['schacHomeOrganization']
+        metadata_owner_org = self.token['schacHomeOrganization']
+
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0] # ida
+        self.cr_test_data['contract'] = 1
+        self.cr_test_data['editor'] = { 'nope': 'discarded by metax' }
+        self.cr_test_data['preservation_description'] = 'discarded by metax'
+        self.cr_test_data['preservation_reason_description'] = 'discarded by metax'
+        self.cr_test_data['preservation_state'] = 10
+        self.cr_test_data.pop('metadata_provider_user', None)
+        self.cr_test_data.pop('metadata_provider_org', None)
+        self.cr_test_data.pop('metadata_owner_org', None)
+
+        # test file permission checking in another test
+        self.cr_test_data['research_dataset'].pop('files', None)
+        self.cr_test_data['research_dataset'].pop('directories', None)
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+        self.assertEqual(response.data['user_created'], user_created)
+        self.assertEqual(response.data['metadata_provider_user'], metadata_provider_user)
+        self.assertEqual(response.data['metadata_provider_org'], metadata_provider_org)
+        self.assertEqual(response.data['metadata_owner_org'], metadata_owner_org)
+        self.assertEqual('contract' in response.data, False)
+        self.assertEqual('editor' in response.data, False)
+        self.assertEqual('preservation_description' in response.data, False)
+        self.assertEqual('preservation_reason_description' in response.data, False)
+        self.assertEqual(response.data['preservation_state'], 0)
+
+    @responses.activate
+    def test_user_can_create_datasets_only_to_limited_catalogs(self):
+        '''
+        End users should not be able to create datasets for example to harvested
+        data catalogs.
+        '''
+
+        # test file permission checking in another test
+        self.cr_test_data['research_dataset'].pop('files', None)
+        self.cr_test_data['research_dataset'].pop('directories', None)
+
+        # should not work
+        self.cr_test_data['data_catalog'] = 1
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        # check error has expected error description
+        self.assertEqual('selected data catalog' in response.data['detail'][0], True, response.data)
+
+        # should work
+        for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+            self.cr_test_data['data_catalog'] = identifier
+            response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    @responses.activate
+    def test_owner_can_edit_dataset(self):
+        '''
+        Ensure end users are able to edit datasets owned by them.
+        Ensure end users can only edit permitted fields.
+        Note: File project permissions should not be checked, since files are not changed.
+        '''
+
+        # create test record
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0]
+        self.cr_test_data['research_dataset'].pop('files', None) # test file permission checking in another test
+        self.cr_test_data['research_dataset'].pop('directories', None)
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        modified_data = response.data
+        # research_dataset is the only permitted field to edit
+        modified_data['research_dataset']['value'] = 112233
+        modified_data['contract'] = 1
+        modified_data['editor'] = { 'nope': 'discarded by metax' }
+        modified_data['preservation_description'] = 'discarded by metax'
+        modified_data['preservation_reason_description'] = 'discarded by metax'
+        modified_data['preservation_state'] = 10
+
+        response = self.client.put('/rest/datasets/%d' % modified_data['id'], modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['research_dataset']['value'], 112233) # value we set
+        self.assertEqual(response.data['user_modified'], self.token['sub']) # set by metax
+
+        # none of these should have been affected
+        self.assertEqual('contract' in response.data, False)
+        self.assertEqual('editor' in response.data, False)
+        self.assertEqual('preservation_description' in response.data, False)
+        self.assertEqual('preservation_reason_description' in response.data, False)
+        self.assertEqual(response.data['preservation_state'], 0)
+
+    @responses.activate
+    def test_owner_can_edit_dataset_check_perms_from_editor_field(self):
+        '''
+        Ensure end user perms are also checked from the field 'editor', which may be
+        set by .e.g. qvain.
+        '''
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.user_created = 'editor field is checked before this field, so should be ok'
+        cr.editor = { 'owner_id': self.token['sub'] }
+        cr.force_save()
+
+        response = self.client.get('/rest/datasets/1', format="json")
+        modified_data = response.data
+        modified_data['research_dataset']['value'] = 112233
+        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @responses.activate
+    def test_other_users_cant_edit_dataset(self):
+        '''
+        Ensure end users are unable edit datasets not owned by them.
+        '''
+        response = self.client.get('/rest/datasets/1', format="json")
+        modified_data = response.data
+        modified_data['research_dataset']['value'] = 112233
+        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @responses.activate
+    def test_user_can_delete_dataset(self):
+        self._set_cr_owner_to_token_user(1)
+        response = self.client.delete('/rest/datasets/1', format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+    @responses.activate
+    def test_user_file_permissions_are_checked_during_dataset_create(self):
+        '''
+        Ensure user's association with a project is checked during dataset create when
+        attaching files or directories to a dataset.
+        '''
+
+        # try creating without proper permisisons
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0] # ida
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+        # add project membership to user's token and try again
+        file_identifier = self.cr_test_data['research_dataset']['files'][0]['identifier']
+        project_identifier = File.objects.get(identifier=file_identifier).project_identifier
+        self.token['group_names'].append('fairdata:IDA01:%s' % project_identifier)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+    @responses.activate
+    def test_user_file_permissions_are_checked_during_dataset_update(self):
+        '''
+        Ensure user's association with a project is checked during dataset update when
+        attaching files or directories to a dataset. The permissions should be checked
+        only for changed files (newly added, or removed).
+        '''
+        # get some files to add to another dataset
+        response = self.client.get('/rest/datasets/2', format="json")
+        new_files = response.data['research_dataset']['files']
+
+        # this is the dataset we'll modify
+        self._set_cr_owner_to_token_user(1)
+        response = self.client.get('/rest/datasets/1', format="json")
+        # ensure the files really are new
+        for f in new_files:
+            for existing_f in response.data['research_dataset']['files']:
+                assert f['identifier'] != existing_f['identifier'], 'test preparation failure, files should differ'
+        modified_data = response.data
+        modified_data['research_dataset']['files'].extend(new_files)
+
+        # should fail, since user's token has no permission for the newly added files
+        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+        # add project membership to user's token and try again
+        project_identifier = File.objects.get(identifier=new_files[0]['identifier']).project_identifier
+        self.token['group_names'].append('fairdata:IDA01:%s' % project_identifier)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    @responses.activate
+    def test_owner_receives_unfiltered_dataset_data(self):
+        '''
+        The general public will have some fields filtered out from the dataset,
+        in order to protect sensitive data. The owner of a dataset however should
+        always receive full data.
+        '''
+        self._set_cr_owner_to_token_user(1)
+
+        def _check_fields(obj):
+            for sensitive_field in ['email', 'telephone', 'phone']:
+                self.assertEqual(sensitive_field in obj['research_dataset']['curator'][0], True,
+                    'field %s should be present' % sensitive_field)
+
+        for cr in CatalogRecord.objects.filter(pk=1):
+            cr.research_dataset['curator'][0].update({
+                'email': 'email@mail.com',
+                'phone': '123124',
+                'telephone': '123124',
+            })
+            cr.force_save()
+
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        _check_fields(response.data)
