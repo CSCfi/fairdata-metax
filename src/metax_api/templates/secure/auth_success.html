@@ -11,12 +11,29 @@
         <p>
             This page gives you an authentication token that you can use to interact directly with Metax API. For more information, visit Metax documentation about <a href="/docs/end_users.html">End User Access</a>.
         </p>
-        <p>
-            If you are going to interact with IDA file metadata, or publish datasets with IDA files, this is a good opportunity to link your CSC-account to your Fairdata-account. You can do that <a href="https://fd-perun.csc.fi/fed/ic/">here</a>. Once your accounts have been linked, it takes about an hour for your project information to become available for Metax.
-        </p>
 
         <h3>You are logged in as:</h3>
         <p>{{ email }}</p>
+
+        {% if linked_accounts %}
+        <h3>Linked accounts</h3>
+        <p>The following accounts have been linked with your Fairdata identity:</p>
+        <ul>
+            {% for acc in linked_accounts %}
+                <li>{{ acc }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if csc_account_linked %}
+        <p>
+            Your CSC-account is linked to your Fairdata identity, so you should be able to access your IDA projects using Metax, and other services. If you linked the account only a short while ago, it takes about an hour for your project information to become available for Metax.
+        </p>
+        {% else %}
+        <p>
+            Your Fairdata identity has not been linked with a CSC-account. If you are going to interact with IDA file metadata, or publish datasets with IDA files, this is a good opportunity to link your CSC-account to your Fairdata-account. You can do that <a href="https://fd-perun.csc.fi/fed/ic/">here</a>. Once your accounts have been linked, it takes about an hour for your project information to become available for Metax.
+        </p>
+        {% endif %}
 
         <h3>Your token (id_token) is:</h3>
         <p>{{ token_string }}</p>
