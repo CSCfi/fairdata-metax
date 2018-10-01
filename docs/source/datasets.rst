@@ -495,7 +495,7 @@ Create a dataset with minimum required fields.
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901"
                 }
             ],
             "language":[{
@@ -504,10 +504,10 @@ Create a dataset with minimum required fields.
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
                 },
                 "restriction_grounds": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
                 }
             }
         }
@@ -616,7 +616,7 @@ Try to create a dataset with required fields missing. Below example is missing t
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901"
                 }
             ],
             "language":[{
@@ -625,10 +625,10 @@ Try to create a dataset with required fields missing. Below example is missing t
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
                 },
                 "restriction_grounds": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
                 }
             }
         }
@@ -693,7 +693,7 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901"
                 }
             ],
             "language":[{
@@ -702,10 +702,10 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
                 },
                 "restriction_grounds": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
                 }
             }
         }
@@ -835,7 +835,7 @@ Add files to a dataset, which didn't have any files associated with it when it w
             "identifier": "5105ab9839f63a909893183c14f9e9db",
             "description": "What is this file about",
             "use_category": {
-                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
             }
         }
     ]
@@ -873,7 +873,7 @@ Add files to a dataset, which already has files associated with it, either from 
             "identifier": "5105ab9839f63a909893183c14f9e111",
             "description": "What is this file about",
             "use_category": {
-                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
             }
         }
     ]
@@ -885,7 +885,7 @@ Add files to a dataset, which already has files associated with it, either from 
         "identifier": "5105ab9839f63a909893183c14f9e9db",
         "description": "What is this file about then?",
         "use_category": {
-            "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
         }
     })
 
@@ -935,7 +935,7 @@ Below is an example similar to the first example where we added files. The datas
             "identifier": "5105ab9839f63a909893183c14f9e113",
             "description": "What is this directory about",
             "use_category": {
-                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
             }
         }
     ]
@@ -1031,7 +1031,7 @@ Modifying field ``research_dataset`` to contain data that depends on reference d
             "description": "What is this directory about",
             "use_category": {
                 # the value to the below field is from reference data
-                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
             }
         }
     ]
