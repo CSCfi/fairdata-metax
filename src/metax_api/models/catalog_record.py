@@ -1122,6 +1122,11 @@ class CatalogRecord(Common):
         dirs_by_project = defaultdict(list)
 
         for dr in dirs:
+            if dr['directory_path'] == '/':
+                raise ValidationError({ 'detail': [
+                    'Adding the filesystem root directory ("/") to a dataset is not allowed. Identifier of the '
+                    'offending directory: %s' % dr['directory_path']
+                ]})
             dirs_by_project[dr['project_identifier']].append(dr['directory_path'])
 
         top_level_dirs_by_project = defaultdict(list)

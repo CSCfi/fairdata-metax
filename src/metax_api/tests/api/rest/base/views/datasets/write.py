@@ -1854,8 +1854,12 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
 
         return files_1, files_2
 
-    def _add_directory(self, ds, path):
-        identifier = Directory.objects.filter(directory_path__startswith=path).first().identifier
+    def _add_directory(self, ds, path, project=None):
+        params = { 'directory_path__startswith': path }
+        if project:
+            params['project_identifier'] = project
+
+        identifier = Directory.objects.filter(**params).first().identifier
 
         if 'directories' not in ds['research_dataset']:
             ds['research_dataset']['directories'] = []
@@ -1983,6 +1987,15 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
 
     def assert_total_ida_byte_size(self, cr, expected_size):
         self.assertEqual(cr['research_dataset']['total_ida_byte_size'], expected_size)
+
+    def test_adding_filesystem_root_dir_not_permitted(self):
+        """
+        The root dir of a filesystem ("/") should not be permitted to be added to a dataset.
+        """
+        self._add_directory(self.cr_test_data, '/', project='testproject')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_files_are_saved_during_create(self):
         """
