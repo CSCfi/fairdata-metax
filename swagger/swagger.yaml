@@ -1313,6 +1313,14 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
+  # /rpc/statistics/something:
+  #   get:
+  #     summary: Statistics api will be described here.
+  #     responses:
+  #       '200':
+  #         description: successful operation.
+  #     tags:
+  #       - Statistics RPC
 
 parameters:
   dryrun:

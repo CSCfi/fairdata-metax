@@ -6,3 +6,4 @@
 # :license: MIT
 
 from .dataset_rpc import DatasetRPC
+from .statistic_rpc import StatisticRPC

@@ -25,6 +25,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     DatasetRPC,
+    StatisticRPC,
 )
 
 
@@ -40,5 +41,6 @@ class CustomRouter(DefaultRouter):
 
 router = CustomRouter(trailing_slash=False)
 router.register(r'datasets/?', DatasetRPC)
+router.register(r'statistics/?', StatisticRPC)
 
 api_urlpatterns = router.urls
