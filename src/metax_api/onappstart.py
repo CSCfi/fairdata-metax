@@ -37,7 +37,7 @@ class OnAppStart(AppConfig):
         if any(cmd in sys.argv for cmd in ['manage.py']):
             return
 
-        from metax_api.services import RedisCacheService as cache, RabbitMQService
+        from metax_api.services import RedisCacheService as cache, RabbitMQService as rabbitmq
         from metax_api.utils import executing_test_case, ReferenceDataLoader
 
         # ex = expiration in seconds
@@ -78,7 +78,6 @@ class OnAppStart(AppConfig):
             pass
 
         try:
-            rabbitmq = RabbitMQService()
             rabbitmq.init_exchanges()
         except Exception as e:
             _logger.error(e)

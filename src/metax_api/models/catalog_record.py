@@ -1507,7 +1507,7 @@ class RabbitMQPublishRecord():
         """
         The actual code that gets executed during CommonService.run_post_request_callables().
         """
-        from metax_api.services import RabbitMQService
+        from metax_api.services import RabbitMQService as rabbitmq
 
         _logger.info(
             'Publishing CatalogRecord %s to RabbitMQ... routing_key: %s'
@@ -1520,7 +1520,6 @@ class RabbitMQPublishRecord():
             cr_json = self._to_json()
 
         try:
-            rabbitmq = RabbitMQService()
             rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange='datasets')
         except:
             # note: if we'd like to let the request be a success even if this operation fails,

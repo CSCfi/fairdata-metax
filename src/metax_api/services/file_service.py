@@ -424,8 +424,7 @@ class FileService(CommonService):
             return
 
         _logger.info('Publishing %d deprecated datasets to rabbitmq update queues...' % len(deprecated_records))
-        from metax_api.services import RabbitMQService
-        rabbitmq = RabbitMQService()
+        from metax_api.services import RabbitMQService as rabbitmq
         rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
 
     @classmethod
