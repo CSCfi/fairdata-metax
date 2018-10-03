@@ -43,8 +43,8 @@ def get_auth_header():
 def retrieve_and_update_all_datasets_in_db(headers):
     print('-- begin retrieving and updating all datasets in the db --')
 
-    print('retrieving all metadata_version_identifiers...')
-    response = requests.get('https://localhost/rest/datasets/identifiers',
+    print('retrieving all datasets...')
+    response = requests.get('https://localhost/rest/datasets?no_pagination',
         headers=headers, verify=False)
     if response.status_code != 200:
         raise Exception(response.content)
@@ -52,19 +52,8 @@ def retrieve_and_update_all_datasets_in_db(headers):
     records = []
     count = 0
 
-    print('received %d metadata_version_identifiers' % len(response.json()))
-    print('retrieving details of datasets...')
-
-    for urn in response.json():
-        response = requests.get('https://localhost/rest/datasets/%s' % urn, headers=headers, verify=False)
-
-        if response.status_code == 200:
-            records.append(response.json())
-            count += 1
-        else:
-            print(response.status_code)
-            raise Exception(response.content)
-
+    records = response.json()
+    print('received %d datasets' % len(records))
     print('updating %d datasets using bulk update...' % count)
 
     # dont want to create new versions from datasets for this operation,
