@@ -9,7 +9,7 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 
-from metax_api.services import RedisCacheService
+from metax_api.services import RedisCacheService as cache
 from metax_api.utils import ReferenceDataLoader
 
 
@@ -26,7 +26,6 @@ class Command(BaseCommand):
     def _update_reference_data(self):
         _logger.info('Updating reference data...')
         try:
-            cache = RedisCacheService(master_only=True)
             ReferenceDataLoader.populate_cache_reference_data(cache)
         except Exception as e:
             _logger.exception('Reference data update ended in an error: %s' % str(e))
