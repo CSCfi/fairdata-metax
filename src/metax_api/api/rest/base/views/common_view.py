@@ -65,7 +65,9 @@ class CommonViewSet(ModelViewSet):
             try:
                 CS.run_post_request_callables()
             except Exception as e:
-                return self.handle_exception(e)
+                res = self.handle_exception(e)
+                # normally .dispatch() does this. sets response.accepted_renderer among other things
+                res = self.finalize_response(request, res, **kwargs)
         return res
 
     def get_permissions(self):
