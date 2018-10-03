@@ -128,12 +128,12 @@ class ApiAuthnzTestV1(APITestCase, TestClassUtils):
     #
 
     def test_malformed_auth_header(self):
-        self._use_http_authorization(header_value=b'Basic hubbabubba')
+        self._use_http_authorization(header_value='Basic hubbabubba')
         response = self.client.post('/rest/datasets')
         self.assertEqual(response.status_code, FORBIDDEN)
 
     def test_invalid_auth_method(self):
-        self._use_http_authorization(header_value=b'NotSupported hubbabubba')
+        self._use_http_authorization(header_value='NotSupported hubbabubba')
         response = self.client.post('/rest/datasets')
         self.assertEqual(response.status_code, FORBIDDEN)
 

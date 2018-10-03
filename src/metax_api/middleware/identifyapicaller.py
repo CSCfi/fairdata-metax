@@ -110,9 +110,6 @@ class _IdentifyApiCaller():
                             % request.META['REMOTE_ADDR'])
             raise Http403
 
-        if isinstance(http_auth_header, bytes):
-            http_auth_header = http_auth_header.decode('utf-8')
-
         try:
             auth_method, auth_b64 = http_auth_header.split(' ')
         except ValueError:

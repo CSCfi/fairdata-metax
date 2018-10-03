@@ -151,7 +151,7 @@ class TestClassUtils():
                 if not password:
                     raise Exception('Missing parameter \'password\' for HTTP Authorization header')
 
-            header_value = b'Basic %s' % b64encode(bytes('%s:%s' % (username, password), 'utf-8'))
+            header_value = 'Basic %s' % b64encode(bytes('%s:%s' % (username, password), 'utf-8')).decode('utf-8')
 
         elif method == 'bearer':
             assert token is not None, 'token (dictionary) is required when using auth method bearer'
