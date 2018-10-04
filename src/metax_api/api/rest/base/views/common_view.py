@@ -18,8 +18,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from metax_api.exceptions import Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
-from metax_api.services import CommonService as CS, ApiErrorService
-from metax_api.services import RedisCacheService
+from metax_api.services import CommonService as CS, ApiErrorService, CallableService, RedisCacheService
 
 _logger = logging.getLogger(__name__)
 
@@ -60,10 +59,11 @@ class CommonViewSet(ModelViewSet):
             self.queryset_unfiltered = self.object.objects_unfiltered.all()
 
     def dispatch(self, request, **kwargs):
+        CallableService.clear_callables()
         res = super().dispatch(request, **kwargs)
         if res.status_code in RESPONSE_SUCCESS_CODES:
             try:
-                CS.run_post_request_callables()
+                CallableService.run_post_request_callables()
             except Exception as e:
                 res = self.handle_exception(e)
                 # normally .dispatch() does this. sets response.accepted_renderer among other things

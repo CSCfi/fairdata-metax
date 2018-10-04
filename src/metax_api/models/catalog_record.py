@@ -1459,8 +1459,8 @@ class CatalogRecord(Common):
         """
         Wrapper in order to import CommonService in one place only...
         """
-        from metax_api.services import CommonService
-        CommonService.add_post_request_callable(*args, **kwargs)
+        from metax_api.services import CallableService
+        CallableService.add_post_request_callable(*args, **kwargs)
 
     def __repr__(self):
         return '<%s: %d, removed: %s, data_catalog: %s, metadata_version_identifier: %s, ' \
