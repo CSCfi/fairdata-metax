@@ -49,14 +49,14 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         RDM.REF_DATA_RELOAD_MAX_RETRIES = 2
 
         super(ReferenceDataMixinTests, cls).setUpClass()
-        cls.cache = RedisCacheService()
+        cls.cache = RedisCacheService
 
     def setUp(self):
         self.cache.delete('reference_data')
 
     def tearDown(self):
         # re-populate cache with ref data to not disturb other test suites
-        ReferenceDataLoader.populate_cache_reference_data(RedisCacheService())
+        ReferenceDataLoader.populate_cache_reference_data(RedisCacheService)
 
     def test_reference_data_reload_ok(self):
         """
