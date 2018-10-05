@@ -20,7 +20,7 @@ Below is a rough outline what type of APIs Metax is currently providing. The res
 +----------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
 | API                              | Description                                                                                                                                 |
 +----------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
-| https://metax-test.csc.fi/rest   | The main API to interact with most resources inside Metax, such as datasets, files, and data catalogs.                                      |
+| https://__METAX_ENV_DOMAIN__/rest   | The main API to interact with most resources inside Metax, such as datasets, files, and data catalogs.                                      |
 +----------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
-| https://metax-test.csc.fi/oaipmh | Implements the OAI-PMH specification. The specification defines a way to harvest filtered sets of data (datasets) in an incremental manner. |
+| https://__METAX_ENV_DOMAIN__/oaipmh | Implements the OAI-PMH specification. The specification defines a way to harvest filtered sets of data (datasets) in an incremental manner. |
 +----------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
