@@ -30,7 +30,7 @@ Real tokens in encoded form are very long, but above is an example what the HTTP
 
     # retrieve a file by its identifier. using the /rest/files API, its possible to only retrieve metadata
     # of files where you are a member the file's project.
-    response = requests.get('https://metax-test.csc.fi/rest/files/abc123def', headers=headers)
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/files/abc123def', headers=headers)
 
     print(response.json())
 

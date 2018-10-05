@@ -2,14 +2,14 @@
 Reference Data
 ===============
 
-For some API's - such as ``/rest/datasets`` and ``/rest/datacatalogs`` - when creating or updating objects, values of some fields are checked against pre-defined reference data for valid values. The complete reference data, as provided by ElasticSearch, can be browsed here https://metax-test.csc.fi/es/.
+For some API's - such as ``/rest/datasets`` and ``/rest/datacatalogs`` - when creating or updating objects, values of some fields are checked against pre-defined reference data for valid values. The complete reference data, as provided by ElasticSearch, can be browsed here https://__METAX_ENV_DOMAIN__/es/.
 
 
 
 How to use reference data when uploading data to Metax?
 --------------------------------------------------------
 
-Let's pick a language from the available reference data, and use it in the ``language`` field of a dataset. Browse the language reference data at https://metax-test.csc.fi/es/reference_data/language/_search?pretty=true, and search for "English language". You probably won't find it on the first page of the reference data, but that's ok. In the language reference data, the result for the English language looks like the following:
+Let's pick a language from the available reference data, and use it in the ``language`` field of a dataset. Browse the language reference data at https://__METAX_ENV_DOMAIN__/es/reference_data/language/_search?pretty=true, and search for "English language". You probably won't find it on the first page of the reference data, but that's ok. In the language reference data, the result for the English language looks like the following:
 
 
 .. code-block:: python
@@ -113,15 +113,15 @@ To get started right away, here are some examples for how to get something out o
 
 The below examples can be tried out by pointing your web browser to the presented urls. If you are reading the reference data for machine-reading purposes, you can leave out the ``pretty=true`` query parameter for unnecessary formatting of the output.
 
-* Get data from a specific index https://metax-test.csc.fi/es/reference_data/field_of_science/_search?pretty
+* Get data from a specific index https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science/_search?pretty
 
-* Get data from a specific index, increase retrieved results size https://metax-test.csc.fi/es/reference_data/field_of_science/_search?pretty&size=100
+* Get data from a specific index, increase retrieved results size https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science/_search?pretty&size=100
 
     * Note, ``size=10000`` is max for this kind of request, so if there are more search results, refer to ElasticSearch scroll API
 
 Additionally, with a little bit of help from UNIX tools, a handy command to list all available indexes and types:
 
-* ``curl -X GET https://metax-test.csc.fi/es/_mapping | jq 'to_entries | .[] | {(.key): .value.mappings | keys}'``
+* ``curl -X GET https://__METAX_ENV_DOMAIN__/es/_mapping | jq 'to_entries | .[] | {(.key): .value.mappings | keys}'``
 
 
 
