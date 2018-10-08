@@ -4543,7 +4543,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -4658,7 +4658,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -4773,7 +4773,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -4888,7 +4888,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5003,7 +5003,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5118,7 +5118,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5233,7 +5233,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5348,7 +5348,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5744,10 +5744,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -5854,10 +5851,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -5964,10 +5958,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6074,10 +6065,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6184,10 +6172,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6294,10 +6279,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6404,10 +6386,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6514,10 +6493,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6621,10 +6597,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6726,10 +6699,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6846,7 +6816,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -6877,9 +6847,11 @@
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -7571,7 +7543,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -7602,9 +7574,11 @@
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -8364,7 +8338,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -8395,9 +8369,11 @@
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -9086,10 +9062,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9191,10 +9164,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9296,10 +9266,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9401,10 +9368,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9506,10 +9470,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9611,10 +9572,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9716,10 +9674,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9819,10 +9774,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9922,10 +9874,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -10025,10 +9974,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -10130,7 +10076,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -10161,9 +10107,11 @@
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -10861,7 +10809,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -10892,9 +10840,11 @@
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -11592,7 +11542,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -11623,9 +11573,11 @@
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -12332,10 +12284,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -12430,10 +12379,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [

@@ -71,7 +71,7 @@
       },
       "available": "2014-01-15",
       "access_type": {
-        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
         "pref_label": {
           "en": "pref label for this type"
         },
@@ -80,9 +80,9 @@
         },
         "in_scheme": "http://uri.of.filetype.concept/scheme"
       },
-      "restriction_grounds": {
-        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
-      },
+      "restriction_grounds": [{
+        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+      }],
       "license": [
         {
           "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",

@@ -342,13 +342,11 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, access_rights['access_type'], label_field='pref_label')
 
-            if 'restriction_grounds' in access_rights:
-                ref_entry = cls.check_ref_data(refdata['restriction_grounds'],
-                                               access_rights['restriction_grounds']['identifier'],
+            for rg in access_rights.get('restriction_grounds', []):
+                ref_entry = cls.check_ref_data(refdata['restriction_grounds'], rg['identifier'],
                                                'research_dataset.access_rights.restriction_grounds.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, access_rights['restriction_grounds'],
-                                               label_field='pref_label')
+                    cls.populate_from_ref_data(ref_entry, rg, label_field='pref_label')
 
             for license in access_rights.get('license', []):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
@@ -535,7 +533,16 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         access_type_id = cls.get_research_dataset_access_type(rd)
         if access_type_id == ACCESS_TYPES['open']:
             pass
-        elif access_type_id == ACCESS_TYPES['embargoed']:
+        elif access_type_id == ACCESS_TYPES['login']:
+            pass
+        elif access_type_id == ACCESS_TYPES['permit']:
+            # TODO:
+            # If user does not have rems permission for the catalog record, strip it:
+                # cls._strip_file_and_directory_metadata(rd)
+
+            # strip always for now. Remove this part when rems checking is implemented
+            cls._strip_file_and_directory_metadata(rd)
+        elif access_type_id == ACCESS_TYPES['embargo']:
             try:
                 embargo_time_passed = get_tz_aware_now_without_micros() >= \
                     parse_timestamp_string_to_tz_aware_datetime(cls.get_research_dataset_embargo_available(rd))
@@ -544,17 +551,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 embargo_time_passed = False
 
             if not embargo_time_passed:
-                # Remove also remote_resources, since if anyone picked embargo as access type, he/she would assume
-                # even remote_resources would not be visible?
-                rd = remove_keys_recursively(rd, ['files', 'directories', 'remote_resources'])
-
-        elif access_type_id == ACCESS_TYPES['restricted_access_permit_fairdata']:
-            # TODO:
-            # If user does not have rems permission for the catalog record, strip it:
-                # cls._strip_file_and_directory_metadata(rd)
-
-            # strip always for now. Remove this part when rems checking is implemented
-            cls._strip_file_and_directory_metadata(rd)
+                cls._strip_file_and_directory_metadata(rd)
         else:
             cls._strip_file_and_directory_metadata(rd)
 
