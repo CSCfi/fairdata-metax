@@ -2,7 +2,66 @@
 Reference Data
 ===============
 
-For some API's - such as ``/rest/datasets`` and ``/rest/datacatalogs`` - when creating or updating objects, values of some fields are checked against pre-defined reference data for valid values. The complete reference data, as provided by ElasticSearch, can be browsed here https://__METAX_ENV_DOMAIN__/es/.
+"Reference Data" is a fancy name for "a list of known values". When creating new objects in Metax, or updating existing objects, values for some fields are checked against an approriate category in this pre-defined list of known values. For example, when setting the language of a dataset, "my cat" is not a valid value. Instead, a valid value must be chosen from the language reference data listed at https://__METAX_ENV_DOMAIN__/es/reference_data/language/_search?pretty=true (the link only shows a few values, since the list of languages is pretty huge, but it gives you a glimpse of what reference data in practice looks like).
+
+Some other examples for reference data use include describing the purpose of associated files in a dataset (`Use Category <https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true>`_), the manner how contributors were involved in a research (`Contributor Role <https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true>`_), or telling which fields of science the research fits into (`Field of Science <https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science/_search?pretty=true>`_). The docs for each API has a section dedicated for reference data, which explains when use of reference data is required. For example for datasets, that section can be found here :ref:`rst-datasets-reference-data`.
+
+The Metax API documentation contains some examples for querying the reference data index, but since the index is a ElasticSearch database, it is best to refer to the official ElasticSearch documentation for how to build more complex search queries.
+
+
+
+Reference Data Indexes
+-----------------------
+
+Below table contains a full list of the different indexes stored in the reference data.
+
++----------------------------------------------------------------------------------------+
+| Url to browse reference data                                                           |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/access_type/_search?pretty=true         | 
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true    |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true    |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/event_outcome/_search?pretty=true       |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science/_search?pretty=true    |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/file_format_version/_search?pretty=true |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/file_type/_search?pretty=true           |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/funder_type/_search?pretty=true         |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/identifier_type/_search?pretty=true     |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/keyword/_search?pretty=true             |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/language/_search?pretty=true            |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/license/_search?pretty=true             |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/lifecycle_event/_search?pretty=true     |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/location/_search?pretty=true            |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/mime_type/_search?pretty=true           |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/preservation_event/_search?pretty=true  |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/relation_type/_search?pretty=true       |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/research_infra/_search?pretty=true      |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true       |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/restriction_grounds/_search?pretty=true |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true        |
++----------------------------------------------------------------------------------------+
+| https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true     |
++----------------------------------------------------------------------------------------+
 
 
 
@@ -92,20 +151,6 @@ Most often, the field that will get populated from the reference data will be th
 
 
 
-Reference data validation errors
----------------------------------
-
-Any errors in reference data validation are returned from the API and displayed as all other errors.
-
-
-
-How often is the reference data updated?
------------------------------------------
-
-The reference data index is updated nightly.
-
-
-
 Querying Reference Data
 ------------------------
 
@@ -125,8 +170,15 @@ Additionally, with a little bit of help from UNIX tools, a handy command to list
 
 
 
-When is use of reference data required in Metax?
--------------------------------------------------
+Reference data validation errors
+---------------------------------
 
-The docs for each API has a section dedicated for reference data, when use of reference data is required. For datasets, that section can be found here :ref:`rst-datasets-reference-data`.
+Any errors in reference data validation are returned from the API and displayed as all other errors.
+
+
+
+How often is the reference data updated?
+-----------------------------------------
+
+The reference data index is updated nightly.
 
