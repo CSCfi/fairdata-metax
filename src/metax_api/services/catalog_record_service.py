@@ -336,42 +336,17 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         access_rights = research_dataset.get('access_rights', None)
         if access_rights:
-            access_type_valid = False
-            restriction_grounds_valid = False
-
             if 'access_type' in access_rights:
                 ref_entry = cls.check_ref_data(refdata['access_type'], access_rights['access_type']['identifier'],
                                                'research_dataset.access_rights.access_type.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, access_rights['access_type'], label_field='pref_label')
-                    access_type_valid = True
 
-            if 'restriction_grounds' in access_rights:
-                ref_entry = cls.check_ref_data(refdata['restriction_grounds'],
-                                               access_rights['restriction_grounds']['identifier'],
+            for rg in access_rights.get('restriction_grounds', []):
+                ref_entry = cls.check_ref_data(refdata['restriction_grounds'], rg['identifier'],
                                                'research_dataset.access_rights.restriction_grounds.identifier', errors)
                 if ref_entry:
-                    cls.populate_from_ref_data(ref_entry, access_rights['restriction_grounds'],
-                                               label_field='pref_label')
-                    restriction_grounds_valid = True
-
-            # If restriction grounds are not of open type (codes 1 and 2), then access type code must not be open_access
-            # OR
-            # If restriction grounds are of open type, then access type code must be open_access
-            # restriction_grounds 1: http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1
-            # restriction_grounds 2: http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/2
-            if access_type_valid and restriction_grounds_valid:
-                ar_id = access_rights['access_type']['identifier']
-                ar_id_open = ar_id == ACCESS_TYPES['open']
-                rg_id = access_rights['restriction_grounds']['identifier']
-                rg_id_open = rg_id in ['http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1',
-                                       'http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/2']
-
-                if not rg_id_open and ar_id_open:
-                    errors['access_type'].append('Access type cannot be open if restriction grounds are not open')
-
-                if rg_id_open and not ar_id_open:
-                    errors['access_type'].append('Access type must be open if restriction grounds are open')
+                    cls.populate_from_ref_data(ref_entry, rg, label_field='pref_label')
 
             for license in access_rights.get('license', []):
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
@@ -558,7 +533,16 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         access_type_id = cls.get_research_dataset_access_type(rd)
         if access_type_id == ACCESS_TYPES['open']:
             pass
-        elif access_type_id == ACCESS_TYPES['embargoed']:
+        elif access_type_id == ACCESS_TYPES['login']:
+            pass
+        elif access_type_id == ACCESS_TYPES['permit']:
+            # TODO:
+            # If user does not have rems permission for the catalog record, strip it:
+                # cls._strip_file_and_directory_metadata(rd)
+
+            # strip always for now. Remove this part when rems checking is implemented
+            cls._strip_file_and_directory_metadata(rd)
+        elif access_type_id == ACCESS_TYPES['embargo']:
             try:
                 embargo_time_passed = get_tz_aware_now_without_micros() >= \
                     parse_timestamp_string_to_tz_aware_datetime(cls.get_research_dataset_embargo_available(rd))
@@ -567,17 +551,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 embargo_time_passed = False
 
             if not embargo_time_passed:
-                # Remove also remote_resources, since if anyone picked embargo as access type, he/she would assume
-                # even remote_resources would not be visible?
-                rd = remove_keys_recursively(rd, ['files', 'directories', 'remote_resources'])
-
-        elif access_type_id == ACCESS_TYPES['restricted_access_permit_fairdata']:
-            # TODO:
-            # If user does not have rems permission for the catalog record, strip it:
-                # cls._strip_file_and_directory_metadata(rd)
-
-            # strip always for now. Remove this part when rems checking is implemented
-            cls._strip_file_and_directory_metadata(rd)
+                cls._strip_file_and_directory_metadata(rd)
         else:
             cls._strip_file_and_directory_metadata(rd)
 

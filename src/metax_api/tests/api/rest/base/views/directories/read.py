@@ -391,12 +391,26 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
         # open catalog record
         self._assert_ok(open_cr_json, 'no')
 
+    def test_returns_ok_for_login_catalog_record_if_no_authorization(self):
+        login_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(use_login_access_type=True)
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files even without authorization for
+        # login catalog record
+        self._assert_ok(login_cr_json, 'no')
+
     def test_returns_ok_for_open_catalog_record_if_service_authorization(self):
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with service authorization for
         # open catalog record
         self._assert_ok(open_cr_json, 'service')
+
+    def test_returns_ok_for_login_catalog_record_if_service_authorization(self):
+        login_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(use_login_access_type=True)
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with service authorization for
+        # login catalog record
+        self._assert_ok(login_cr_json, 'service')
 
     @responses.activate
     def test_returns_ok_for_open_catalog_record_if_owner_authorization(self):
@@ -406,6 +420,15 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with owner authorization for
         # owner-owned open catalog record
         self._assert_ok(open_cr_json, 'owner')
+
+    @responses.activate
+    def test_returns_ok_for_login_catalog_record_if_owner_authorization(self):
+        self.create_end_user_data_catalogs()
+        login_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(True)
+
+        # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with owner authorization for
+        # owner-owned login_cr_json catalog record
+        self._assert_ok(login_cr_json, 'owner')
 
     def test_returns_ok_for_restricted_catalog_record_if_service_authorization(self):
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
@@ -581,8 +604,7 @@ class DirectoryApiReadEndUserAccess(DirectoryApiReadCommon):
         self._set_http_authorization('service')
         response = self.client.get('/rest/datasets/{0}'.format(cr_pk))
         json = response.data
-        json['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted_access']
-        json['research_dataset']['access_rights']['restriction_grounds']['identifier'] = '4'
+        json['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted']
         response = self.client.put('/rest/datasets/{0}'.format(cr_pk), response.data, format='json')
 
         self._use_http_authorization(method='bearer', token=self.token)

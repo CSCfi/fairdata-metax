@@ -1482,8 +1482,11 @@
                     "title":"Restriction grounds",
                     "description":"Classified reason of allocated access type.",
                     "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Concept"
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 },
                 "access_process":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#accessProcess",

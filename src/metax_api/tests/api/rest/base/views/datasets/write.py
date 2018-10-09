@@ -981,43 +981,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(len(response.data['research_dataset']), 3)
 
-    def test_create_catalog_record_with_dependent_reference_datas(self):
-        # Unallowed combinations
-
-        rd_ida = self.cr_full_ida_test_data['research_dataset']
-        rd_ida['access_rights']['access_type']['identifier'] = 'open_access'
-        rd_ida['access_rights']['restriction_grounds']['identifier'] = '3'
-
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 1)
-
-        rd_ida = self.cr_full_ida_test_data['research_dataset']
-        rd_ida['access_rights']['access_type']['identifier'] = 'restricted_access_permit_fairdata'
-        rd_ida['access_rights']['restriction_grounds']['identifier'] = '1'
-
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 1)
-
-        # Allowed combinations
-
-        rd_ida = self.cr_full_ida_test_data['research_dataset']
-        rd_ida['access_rights']['access_type']['identifier'] = 'open_access'
-        rd_ida['access_rights']['restriction_grounds']['identifier'] = '1'
-
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        rd_ida = self.cr_full_ida_test_data['research_dataset']
-        rd_ida['access_rights']['access_type']['identifier'] = 'restricted_access_permit_fairdata'
-        rd_ida['access_rights']['restriction_grounds']['identifier'] = '3'
-
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
         1) Insert codes from cached reference data to dataset identifier fields
@@ -1081,7 +1044,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['field_of_science'][0] = {'identifier': refs['field_of_science']['code']}
         rd_ida['language'][0] = {'identifier': refs['language']['code']}
         rd_ida['access_rights']['access_type'] = {'identifier': refs['access_type']['code']}
-        rd_ida['access_rights']['restriction_grounds'] = {'identifier': refs['restriction_grounds']['code']}
+        rd_ida['access_rights']['restriction_grounds'][0] = {'identifier': refs['restriction_grounds']['code']}
         rd_ida['access_rights']['license'][0] = {'identifier': refs['license']['code']}
         rd_ida['other_identifier'][0]['type'] = {'identifier': refs['identifier_type']['code']}
         rd_ida['spatial'][0]['place_uri'] = {'identifier': refs['location']['code']}
@@ -1158,7 +1121,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['language']['uri'], new_rd['language'][0]['identifier'])
         self.assertEqual(refs['access_type']['uri'], new_rd['access_rights']['access_type']['identifier'])
         self.assertEqual(refs['restriction_grounds']['uri'],
-                         new_rd['access_rights']['restriction_grounds']['identifier'])
+                         new_rd['access_rights']['restriction_grounds'][0]['identifier'])
         self.assertEqual(refs['license']['uri'], new_rd['access_rights']['license'][0]['identifier'])
         self.assertEqual(refs['identifier_type']['uri'], new_rd['other_identifier'][0]['type']['identifier'])
         self.assertEqual(refs['location']['uri'], new_rd['spatial'][0]['place_uri']['identifier'])
@@ -1190,7 +1153,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['language']['scheme'], new_rd['language'][0]['in_scheme'])
         self.assertEqual(refs['access_type']['scheme'], new_rd['access_rights']['access_type']['in_scheme'])
         self.assertEqual(refs['restriction_grounds']['scheme'],
-                         new_rd['access_rights']['restriction_grounds']['in_scheme'])
+                         new_rd['access_rights']['restriction_grounds'][0]['in_scheme'])
         self.assertEqual(refs['license']['scheme'], new_rd['access_rights']['license'][0]['in_scheme'])
         self.assertEqual(refs['identifier_type']['scheme'], new_rd['other_identifier'][0]['type']['in_scheme'])
         self.assertEqual(refs['location']['scheme'], new_rd['spatial'][0]['place_uri']['in_scheme'])
@@ -1214,7 +1177,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['field_of_science']['label'], new_rd['field_of_science'][0].get('pref_label', None))
         self.assertEqual(refs['access_type']['label'], new_rd['access_rights']['access_type'].get('pref_label', None))
         self.assertEqual(refs['restriction_grounds']['label'],
-                         new_rd['access_rights']['restriction_grounds'].get('pref_label', None))
+                         new_rd['access_rights']['restriction_grounds'][0].get('pref_label', None))
         self.assertEqual(refs['identifier_type']['label'],
                          new_rd['other_identifier'][0]['type'].get('pref_label', None))
         self.assertEqual(refs['location']['label'], new_rd['spatial'][0]['place_uri'].get('pref_label', None))
