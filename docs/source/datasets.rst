@@ -56,6 +56,8 @@ Other than the harvested data catalogs managed by Fairdata harvesters, the two m
 
 The IDA catalog hosts datasets, which have their files stored in the Fairdata IDA service. The datasets stored in this catalog use a schema which allow to use the fields ``research_dataset.files`` and ``research_dataset.directories``, which are used to list and describe related files in IDA. On the other hand, the schema is missing the field ``research_dataset.remote_resources``, meaning it does not allow listing files stored in other file storages than IDA.
 
+.. note:: For end users it is important to note, that you will never be "creating" or "storing" new files in Metax or in IDA by using Metax API: Files are always stored by using the IDA service (https://www.fairdata.fi/en/ida/). Once the files have been stored (frozen) using IDA, the metadata of the stored files is automatically sent to Metax. Then, using Metax APIs, the metadata of the files can be browsed, and linked to datasets, and finally published to the world as part of a dataset.
+
 
 **ATT catalog**
 
@@ -574,7 +576,7 @@ Explanation of all the fields in the received response/newly created dataset:
 * ``date_created`` Date when record was created.
 * ``user_created`` Identifier of the user who created the record.
 
-.. caution:: While in test environments using the internal ``id`` fields will work in place of the string-form unique identifiers (``identifier`` field), and are very handy for that purpose, in production environment they should never be used, since in some situations they can change without notice and may result in errors or accidentally referring to unintended objects, while the longer identifiers will be persistent, and are always safe to use.
+.. caution:: While in test environments using the internal ``id`` fields will work in place of the string-form unique identifiers (``identifier`` field), and are very handy for that purpose, in production environment they should never be used, since in some situations they can change without notice and may result in errors or accidentally referring to unintended objects, while the longer identifiers will be persistent, and are always safe to use. Example how to use the internal ``id`` field to retrieve a dataset: https://__METAX_ENV_DOMAIN__/rest/datasets/12 (note: assuming there exists a record with the id: 12)
 
 
 **Errors: Required fields missing**
@@ -856,7 +858,7 @@ Add files to a dataset, which already has files associated with it, either from 
     assert len(modified_data['research_dataset']['files']) == 1, 'initially the dataset has one file'
 
     """
-    In this example, the contents of the field research_dataset['files'] is excepted to look
+    In this example, the contents of the field research_dataset['files'] is expected to look
     like the following:
     [
         {

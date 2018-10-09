@@ -15,6 +15,15 @@ End users will only be able to browse file metadata of projects where they are a
 
 
 
+File Storages and Projects
+---------------------------
+
+A file metadata entry in Metax always belongs to a File Storage, and to a Project. A file storage can be for example the Fairdata IDA service.
+
+A Project in this documentation generally refers to a project in IDA. For end users, browsing files in Metax, and associating files from a certain project with a dataset, and publishing the dataset, requires membership in that project. Read more about the IDA service, and how to become an IDA user at https://www.fairdata.fi/en/ida/.
+
+
+
 File hierarchy
 ---------------
 
@@ -25,17 +34,26 @@ When sending a list of files to ``POST /rest/files``, a file/directory hierarchy
 Browsing files in Metax
 ------------------------
 
-
-**APIs of interest for browsing files**
-
-* ``GET /rest/directories/<pid>`` Get details of a single directory. Returned object does not contain files and sub-directories.
-* ``GET /rest/directories/<pid>/files`` Get contents of a directory. Returns only directories and files included in the directory, not the directory itself (the directory designated by ``<pid>``). Returns immediate child directories and files, does not return files recursively from all sub directories.
-* ``GET /rest/directories/<pid>/files?cr_identifier=myidentifier`` Same as above, but only returns the files and dirs that existed at the time of assigning the dir in that dataset
-* ``GET /rest/directories/root?project=project_identifier`` Retrieve the root directory of a project. Contains the directory itself, and the sub-directories and files contained by the directory.
-* ``GET /rest/datasets/<pid>/files`` Retrieve a flat list of all files associated with the dataset.
+Note that browsing files using Metax API requires authentication in order to verify project membership. Once a file has been used in a published dataset, the file metadata will be free to browse for everybody (by using the approriate API).
 
 This is just a quick overview, below code examples include some use of them, and other details can be found in swagger.
 
+
+**Browse all file metadata of frozen IDA files (requires authentication)**
+
+
+* ``GET /rest/directories/<pid>`` Get details of a single directory. Returned object does not contain files and sub-directories.
+* ``GET /rest/directories/<pid>/files`` Get contents of a directory. Returns only directories and files included in the directory, not the directory itself (the directory designated by ``<pid>``). Returns immediate child directories and files, does not return files recursively from all sub directories.
+* ``GET /rest/directories/root?project=project_identifier`` Retrieve the root directory of a project. Contains the directory itself, and the sub-directories and files contained by the directory.
+
+
+**Browse file metadata in published datasets (no authentication)**
+
+
+* ``GET /rest/directories/<pid>/files?cr_identifier=myidentifier`` Returns the files and directories that have been used in a specific published dataset (referred to by the parameter ``?cr_identifier=myidentifier``).
+* ``GET /rest/datasets/<pid>/files`` Retrieve a flat list of all files associated with the dataset.
+
+In the public browse API's, a dataset's access restrictions or embargoes may apply, and only limited metadata may be returned. Authentication for these public API's is optional, but by authenticating access restrictions may be lifted, for example due to ownership of the published dataset, etc.
 
 
 .. _rst-files-reference-data:
@@ -72,6 +90,10 @@ Creating files
 ^^^^^^^^^^^^^^^
 
 Example payload to create a file in Metax (``POST /rest/files``).
+
+.. important::
+
+    The possibility to create new file metadata entries in Metax is reserved for selected Fairdata services only. Currently, the only service that can do this, is the IDA service (https://www.fairdata.fi/en/ida/).
 
 .. code-block:: python
 
