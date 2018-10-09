@@ -472,10 +472,7 @@ Create a dataset with minimum required fields.
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                },
-                "restriction_grounds": {
-                    "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                 }
             }
         }
@@ -593,10 +590,7 @@ Try to create a dataset with required fields missing. Below example is missing t
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                },
-                "restriction_grounds": {
-                    "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                 }
             }
         }
@@ -670,10 +664,7 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access"
-                },
-                "restriction_grounds": {
-                    "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                 }
             }
         }
