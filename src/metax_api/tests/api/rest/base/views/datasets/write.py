@@ -15,7 +15,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
-from metax_api.services import RedisCacheService
+from metax_api.services import RedisCacheService as cache
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
 from metax_api.tests.utils import get_test_oidc_token
@@ -939,7 +939,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         The API should attempt to reload the reference data if it is missing from
         cache for whatever reason, and successfully finish the request
         """
-        cache = RedisCacheService()
         cache.delete('reference_data')
         self.assertEqual(cache.get('reference_data', master=True), None,
                          'cache ref data should be missing after cache.delete()')
@@ -982,43 +981,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(len(response.data['research_dataset']), 3)
 
-    def test_create_catalog_record_with_dependent_reference_datas(self):
-        # Unallowed combinations
-
-        rd_ida = self.cr_full_ida_test_data['research_dataset']
-        rd_ida['access_rights']['access_type']['identifier'] = 'open_access'
-        rd_ida['access_rights']['restriction_grounds']['identifier'] = '3'
-
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 1)
-
-        rd_ida = self.cr_full_ida_test_data['research_dataset']
-        rd_ida['access_rights']['access_type']['identifier'] = 'restricted_access_permit_fairdata'
-        rd_ida['access_rights']['restriction_grounds']['identifier'] = '1'
-
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('research_dataset' in response.data.keys(), True)
-        self.assertEqual(len(response.data['research_dataset']), 1)
-
-        # Allowed combinations
-
-        rd_ida = self.cr_full_ida_test_data['research_dataset']
-        rd_ida['access_rights']['access_type']['identifier'] = 'open_access'
-        rd_ida['access_rights']['restriction_grounds']['identifier'] = '1'
-
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        rd_ida = self.cr_full_ida_test_data['research_dataset']
-        rd_ida['access_rights']['access_type']['identifier'] = 'restricted_access_permit_fairdata'
-        rd_ida['access_rights']['restriction_grounds']['identifier'] = '3'
-
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
         1) Insert codes from cached reference data to dataset identifier fields
@@ -1027,9 +989,6 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to datasets to their approriate fields
         """
-        from metax_api.services import RedisCacheService
-
-        cache = RedisCacheService()
         refdata = cache.get('reference_data')['reference_data']
         orgdata = cache.get('reference_data')['organization_data']
         refs = {}
@@ -1085,7 +1044,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['field_of_science'][0] = {'identifier': refs['field_of_science']['code']}
         rd_ida['language'][0] = {'identifier': refs['language']['code']}
         rd_ida['access_rights']['access_type'] = {'identifier': refs['access_type']['code']}
-        rd_ida['access_rights']['restriction_grounds'] = {'identifier': refs['restriction_grounds']['code']}
+        rd_ida['access_rights']['restriction_grounds'][0] = {'identifier': refs['restriction_grounds']['code']}
         rd_ida['access_rights']['license'][0] = {'identifier': refs['license']['code']}
         rd_ida['other_identifier'][0]['type'] = {'identifier': refs['identifier_type']['code']}
         rd_ida['spatial'][0]['place_uri'] = {'identifier': refs['location']['code']}
@@ -1162,7 +1121,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['language']['uri'], new_rd['language'][0]['identifier'])
         self.assertEqual(refs['access_type']['uri'], new_rd['access_rights']['access_type']['identifier'])
         self.assertEqual(refs['restriction_grounds']['uri'],
-                         new_rd['access_rights']['restriction_grounds']['identifier'])
+                         new_rd['access_rights']['restriction_grounds'][0]['identifier'])
         self.assertEqual(refs['license']['uri'], new_rd['access_rights']['license'][0]['identifier'])
         self.assertEqual(refs['identifier_type']['uri'], new_rd['other_identifier'][0]['type']['identifier'])
         self.assertEqual(refs['location']['uri'], new_rd['spatial'][0]['place_uri']['identifier'])
@@ -1194,7 +1153,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['language']['scheme'], new_rd['language'][0]['in_scheme'])
         self.assertEqual(refs['access_type']['scheme'], new_rd['access_rights']['access_type']['in_scheme'])
         self.assertEqual(refs['restriction_grounds']['scheme'],
-                         new_rd['access_rights']['restriction_grounds']['in_scheme'])
+                         new_rd['access_rights']['restriction_grounds'][0]['in_scheme'])
         self.assertEqual(refs['license']['scheme'], new_rd['access_rights']['license'][0]['in_scheme'])
         self.assertEqual(refs['identifier_type']['scheme'], new_rd['other_identifier'][0]['type']['in_scheme'])
         self.assertEqual(refs['location']['scheme'], new_rd['spatial'][0]['place_uri']['in_scheme'])
@@ -1218,7 +1177,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['field_of_science']['label'], new_rd['field_of_science'][0].get('pref_label', None))
         self.assertEqual(refs['access_type']['label'], new_rd['access_rights']['access_type'].get('pref_label', None))
         self.assertEqual(refs['restriction_grounds']['label'],
-                         new_rd['access_rights']['restriction_grounds'].get('pref_label', None))
+                         new_rd['access_rights']['restriction_grounds'][0].get('pref_label', None))
         self.assertEqual(refs['identifier_type']['label'],
                          new_rd['other_identifier'][0]['type'].get('pref_label', None))
         self.assertEqual(refs['location']['label'], new_rd['spatial'][0]['place_uri'].get('pref_label', None))
@@ -1854,8 +1813,12 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
 
         return files_1, files_2
 
-    def _add_directory(self, ds, path):
-        identifier = Directory.objects.filter(directory_path__startswith=path).first().identifier
+    def _add_directory(self, ds, path, project=None):
+        params = { 'directory_path__startswith': path }
+        if project:
+            params['project_identifier'] = project
+
+        identifier = Directory.objects.filter(**params).first().identifier
 
         if 'directories' not in ds['research_dataset']:
             ds['research_dataset']['directories'] = []
@@ -1983,6 +1946,15 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
 
     def assert_total_ida_byte_size(self, cr, expected_size):
         self.assertEqual(cr['research_dataset']['total_ida_byte_size'], expected_size)
+
+    def test_adding_filesystem_root_dir_not_permitted(self):
+        """
+        The root dir of a filesystem ("/") should not be permitted to be added to a dataset.
+        """
+        self._add_directory(self.cr_test_data, '/', project='testproject')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_files_are_saved_during_create(self):
         """

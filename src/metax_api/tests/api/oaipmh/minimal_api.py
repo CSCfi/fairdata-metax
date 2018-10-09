@@ -103,7 +103,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                 ],
                 "access_type": [
                     {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "pref_label": {
                             "en": "Open",
                             "fi": "Avoin",

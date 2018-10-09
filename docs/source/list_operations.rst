@@ -16,7 +16,7 @@ Pagination
 
 Paging using query parameters limit and offset, example:
 
-* https://metax-test.csc.fi/rest/datasets?limit=2&offset=3
+* https://__METAX_ENV_DOMAIN__/rest/datasets?limit=2&offset=3
 
 Since we are using Django REST framework, the response provided for us looks like the following:
 
@@ -24,8 +24,8 @@ Since we are using Django REST framework, the response provided for us looks lik
 
     {
         "count": 12, # total count of objects available in the db
-        "next": "http://metax-test.csc.fi/rest/datasets?limit=2&offset=5", # convenience link for next page
-        "previous": "http://metax-test.csc.fi/rest/datasets?limit=2&offset=1", # convenience link for previous page
+        "next": "http://__METAX_ENV_DOMAIN__/rest/datasets?limit=2&offset=5", # convenience link for next page
+        "previous": "http://__METAX_ENV_DOMAIN__/rest/datasets?limit=2&offset=1", # convenience link for previous page
         "results": [ # the list of objects on the queried page
             object,
             ...

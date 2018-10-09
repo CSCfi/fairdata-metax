@@ -88,7 +88,7 @@ class Directory(Common):
             % (
                 self.project_identifier,
                 self.byte_size,
-                self.byte_size / 1024 / 1024.0,
+                self.byte_size / 1024 / 1024 / 1024,
                 self.file_count
             )
         )

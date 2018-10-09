@@ -15,6 +15,15 @@ End users will only be able to browse file metadata of projects where they are a
 
 
 
+File Storages and Projects
+---------------------------
+
+A file metadata entry in Metax always belongs to a File Storage, and to a Project. A file storage can be for example the Fairdata IDA service.
+
+A Project in this documentation generally refers to a project in IDA. For end users, browsing files in Metax, and associating files from a certain project with a dataset, and publishing the dataset, requires membership in that project. Read more about the IDA service, and how to become an IDA user at https://www.fairdata.fi/en/ida/.
+
+
+
 File hierarchy
 ---------------
 
@@ -25,17 +34,26 @@ When sending a list of files to ``POST /rest/files``, a file/directory hierarchy
 Browsing files in Metax
 ------------------------
 
-
-**APIs of interest for browsing files**
-
-* ``GET /rest/directories/<pid>`` Get details of a single directory. Returned object does not contain files and sub-directories.
-* ``GET /rest/directories/<pid>/files`` Get contents of a directory. Returns only directories and files included in the directory, not the directory itself (the directory designated by ``<pid>``). Returns immediate child directories and files, does not return files recursively from all sub directories.
-* ``GET /rest/directories/<pid>/files?cr_identifier=myidentifier`` Same as above, but only returns the files and dirs that existed at the time of assigning the dir in that dataset
-* ``GET /rest/directories/root?project=project_identifier`` Retrieve the root directory of a project. Contains the directory itself, and the sub-directories and files contained by the directory.
-* ``GET /rest/datasets/<pid>/files`` Retrieve a flat list of all files associated with the dataset.
+Note that browsing files using Metax API requires authentication in order to verify project membership. Once a file has been used in a published dataset, the file metadata will be free to browse for everybody (by using the approriate API).
 
 This is just a quick overview, below code examples include some use of them, and other details can be found in swagger.
 
+
+**Browse all file metadata of frozen IDA files (requires authentication)**
+
+
+* ``GET /rest/directories/<pid>`` Get details of a single directory. Returned object does not contain files and sub-directories.
+* ``GET /rest/directories/<pid>/files`` Get contents of a directory. Returns only directories and files included in the directory, not the directory itself (the directory designated by ``<pid>``). Returns immediate child directories and files, does not return files recursively from all sub directories.
+* ``GET /rest/directories/root?project=project_identifier`` Retrieve the root directory of a project. Contains the directory itself, and the sub-directories and files contained by the directory.
+
+
+**Browse file metadata in published datasets (no authentication)**
+
+
+* ``GET /rest/directories/<pid>/files?cr_identifier=myidentifier`` Returns the files and directories that have been used in a specific published dataset (referred to by the parameter ``?cr_identifier=myidentifier``).
+* ``GET /rest/datasets/<pid>/files`` Retrieve a flat list of all files associated with the dataset.
+
+In the public browse API's, a dataset's access restrictions or embargoes may apply, and only limited metadata may be returned. Authentication for these public API's is optional, but by authenticating access restrictions may be lifted, for example due to ownership of the published dataset, etc.
 
 
 .. _rst-files-reference-data:
@@ -43,7 +61,7 @@ This is just a quick overview, below code examples include some use of them, and
 Reference data guide
 ---------------------
 
-File metadata only utilizes reference data when describing the field ``file.file_characteristics``, and more specifically, fields ``file_format`` and ``format_version`` inside that field. The related reference data can be browsed here https://metax-test.csc.fi/es/reference_data/file_format_version/_search?pretty=true.
+File metadata only utilizes reference data when describing the field ``file.file_characteristics``, and more specifically, fields ``file_format`` and ``format_version`` inside that field. The related reference data can be browsed here https://__METAX_ENV_DOMAIN__/es/reference_data/file_format_version/_search?pretty=true.
 
 For additional reference, the file schema visualization can be found here https://tietomallit.suomi.fi/model/mfs.
 
@@ -55,9 +73,9 @@ First choose a value for field ``file.file_characteristics.file_format`` from th
 
 Example:
 
-Let's browse the file_format_version reference data at https://metax-test.csc.fi/es/reference_data/file_format_version/_search?pretty=true. Let' pick an entry where the reference data field ``input_file_format`` equals "application/vnd.oasis.opendocument.text". This will be the value for field ``file.file_characteristics.file_format``. In order to pick a version for the selected format, browse the reference data again, but only searching results where ``input_file_format`` is the same as we chose previously. There will be (possibly) multiple results. The reference data query for that is:
+Let's browse the file_format_version reference data at https://__METAX_ENV_DOMAIN__/es/reference_data/file_format_version/_search?pretty=true. Let' pick an entry where the reference data field ``input_file_format`` equals "application/vnd.oasis.opendocument.text". This will be the value for field ``file.file_characteristics.file_format``. In order to pick a version for the selected format, browse the reference data again, but only searching results where ``input_file_format`` is the same as we chose previously. There will be (possibly) multiple results. The reference data query for that is:
 
-``https://metax-test.csc.fi/es/reference_data/file_format_version/_search?pretty=true&q=input_file_format:application\/vnd\.oasis\.opendocument\.text``
+``https://__METAX_ENV_DOMAIN__/es/reference_data/file_format_version/_search?pretty=true&q=input_file_format:application\/vnd\.oasis\.opendocument\.text``
 
 Where the relevant addition is ``&q=input_file_format:application\/vnd\.oasis\.opendocument\.text``, where the ``"/"`` and ``"."`` characters have been escaped by a leading ``"\"`` character. Not nearly as many results now! The different version numbers can be seen in the field ``output_format_version``. Pick on that fancies you, and use that as the value for field ``file.file_characteristics.format_version``.
 
@@ -72,6 +90,10 @@ Creating files
 ^^^^^^^^^^^^^^^
 
 Example payload to create a file in Metax (``POST /rest/files``).
+
+.. important::
+
+    The possibility to create new file metadata entries in Metax is reserved for selected Fairdata services only. Currently, the only service that can do this, is the IDA service (https://www.fairdata.fi/en/ida/).
 
 .. code-block:: python
 
@@ -116,7 +138,7 @@ First, lets look what the contents of a single directory might look like in the 
 .. code-block:: python
 
     import requests
-    response = requests.get('https://metax-test.csc.fi/rest/directories/5105ab9839f63a909893183c14f9e119')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/directories/5105ab9839f63a909893183c14f9e119')
     print(response.json())
 
 
@@ -154,7 +176,7 @@ When browsing files using the ``/rest/directories`` API, the ``identifier`` fiel
 
     import requests
 
-    response = requests.get('https://metax-test.csc.fi/rest/directories/dir123/files')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/directories/dir123/files')
     assert response.status_code == 200, response.content
 
 
@@ -190,7 +212,7 @@ Shows contents of the directory, as if ``GET /rest/directories/<pid>/files`` was
 .. code-block:: python
 
     import requests
-    response = requests.get('https://metax-test.csc.fi/rest/directories/root?project=<project_identifier>')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/directories/root?project=<project_identifier>')
 
 
 **Find directory by project and path**
@@ -202,4 +224,4 @@ Shows contents of the directory, as if ``GET /rest/directories/<pid>/files`` was
 .. code-block:: python
 
     import requests
-    response = requests.get('https://metax-test.csc.fi/rest/directories/files?project=<projcet_identifier>&path=/path/to/dir')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/directories/files?project=<projcet_identifier>&path=/path/to/dir')

@@ -5,7 +5,7 @@ General API Information
 
 This page contains general information and conventions used in all the Metax REST API's.
 
-API root for latest version of the REST API is https://metax-test.csc.fi/rest/
+API root for latest version of the REST API is https://__METAX_ENV_DOMAIN__/rest/
 
 
 
@@ -14,14 +14,14 @@ Swagger
 
 Detailed documentation per API currently in swagger:
 
-* `Swagger <https://raw.githubusercontent.com/CSCfi/metax-api/master/swagger/swagger.yaml>`_ file in Github: this is the file to use when finding out what a specific API consumes or returns
-* Direct link to editor/viewer http://editor.swagger.io/?url=https://raw.githubusercontent.com/CSCfi/metax-api/master/swagger/swagger.yaml Note! The document is currently missing some schema definitions for a rare XML-endpoint. Otherwise the schema should work fine. Just click "hide" to hide the validation errors at the top of the page.
+* `Swagger <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/swagger/swagger.yaml>`_ file in Github: this is the file to use when finding out what a specific API consumes or returns
+* Direct link to editor/viewer http://editor.swagger.io/?url=https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/swagger/swagger.yaml Note! The document is currently missing some schema definitions for a rare XML-endpoint. Otherwise the schema should work fine. Just click "hide" to hide the validation errors at the top of the page.
 * JSON schema files for objects consumed and returned by the API's can be found in the following links: (the swagger doc also displays the models in these files in a related API's 'model' description)
 
-    * `CatalogRecord <https://raw.githubusercontent.com/CSCfi/metax-api/master/src/metax_api/api/rest/base/schemas/ida_dataset_schema.json>`_ (schema used by IDA catalog)
-    * `CatalogRecord <https://raw.githubusercontent.com/CSCfi/metax-api/master/src/metax_api/api/rest/base/schemas/att_dataset_schema.json>`_ (schema used by ATT catalog)
-    * `DataCatalog <https://raw.githubusercontent.com/CSCfi/metax-api/master/src/metax_api/api/rest/base/schemas/datacatalog_schema.json>`_
-    * `File and Directory <https://raw.githubusercontent.com/CSCfi/metax-api/master/src/metax_api/api/rest/base/schemas/file_schema.json>`_
+    * `CatalogRecord <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/base/schemas/ida_dataset_schema.json>`_ (schema used by IDA catalog)
+    * `CatalogRecord <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/base/schemas/att_dataset_schema.json>`_ (schema used by ATT catalog)
+    * `DataCatalog <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/base/schemas/datacatalog_schema.json>`_
+    * `File and Directory <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/base/schemas/file_schema.json>`_
 
 There are also other schemas for CatalogRecords in other data catalogs for specialized use, such as for harvesting.
 
@@ -43,16 +43,16 @@ Models in tietomallit.suomi.fi are logical models expressing the 'fundamental re
 
 From the perspective of an API user, some fields or relations can be read-only for the user, can be modified only in certain situations, and the models can have additional implementation-specific fields added to them (such as ``user_created``, ``date_modified``, versioning related fields, etc.). To avoid writing lengthy API remarks in the tietomallit.suomi.fi schemas, the models in the swagger API documentation are described from the perspective of an API user, separately from the tietomallit.suomi.fi models. Since some models/relations are validated 1:1 against its tietomallit.suomi.fi schema file with very little special handling, some models are replaced with a link to tietomallit.suomi.fi, along with relevant information explained to the user about the handling of some fields in the model.
 
-The schemas in tietomallit.suomi.fi are not usable as such, since the actual schemas used have some manual modification made in them (due to tietomallit.suomi.fi not supporting some json schema features yet, such as oneOf relations). Because of that, to validate any payloads being sent to Metax, the actual schema files should be downloaded from the Metax API ``GET /rest/schemas`` endpoint, or from Github from their respective branches. In the repositories, the schema files are located in src/metax_api/api/rest/base/schemas. For example for metax-test, the files are in https://github.com/CSCfi/metax-api/tree/test/src/metax_api/api/rest/base/schemas.
+The schemas in tietomallit.suomi.fi are not usable as such, since the actual schemas used have some manual modification made in them due to tietomallit.suomi.fi not supporting some json schema features yet, such as oneOf relations. Because of that, to validate any payloads being sent to Metax, the actual schema files should be downloaded from the Metax API ``GET /rest/schemas`` endpoint, or from Github from their respective branches. In the repositories, the schema files are located in src/metax_api/api/rest/base/schemas. For example for metax-test, the files are in https://github.com/CSCfi/metax-api/tree/test/src/metax_api/api/rest/base/schemas.
 
 
 
 API versioning
 ---------------
 
-In times to come, other versions of the API can be accessed like https://metax-test.csc.fi/rest/v1/datasets or https://metax-test.csc.fi/rest/v2/datasets etc.
+In times to come, other versions of the API can be accessed like https://__METAX_ENV_DOMAIN__/rest/v1/datasets or https://__METAX_ENV_DOMAIN__/rest/v2/datasets etc.
 
-An URL of the form https://metax-test.csc.fi/rest/datasets always points to the latest version.
+An URL of the form https://__METAX_ENV_DOMAIN__/rest/datasets always points to the latest version.
 
 API Authentication
 -------------------
@@ -63,7 +63,7 @@ Write operations (``POST``, ``PUT``, ``PATCH``, ``DELETE``) always require authe
 
 
 
-Characted encodings
+Character encodings
 --------------------
 
 All data that goes into and comes out of the API should be utf-8 encoded.

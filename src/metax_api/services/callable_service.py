@@ -11,7 +11,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class CallableService():
+class _CallableService():
 
     """
     Methods to handle adding and executing callable objects, which will be executed
@@ -29,39 +29,36 @@ class CallableService():
 
     post_request_callables = []
 
-    @classmethod
-    def add_post_request_callable(cls, callable):
-        if not cls.post_request_callables:
-            cls.post_request_callables = []
-        cls.post_request_callables.append(callable)
+    def add_post_request_callable(self, callable):
+        if not self.post_request_callables:
+            self.post_request_callables = []
+        self.post_request_callables.append(callable)
 
-    @classmethod
-    def run_post_request_callables(cls):
+    def run_post_request_callables(self):
         """
-        Execute all callable objects inserted into cls.post_request_callables during the ongoing request.
+        Execute all callable objects inserted into self.post_request_callables during the ongoing request.
         """
-        if not cls.post_request_callables:
+        if not self.post_request_callables:
             return
 
-        _logger.debug('Executing %d post_request_callables...' % len(cls.post_request_callables))
+        _logger.debug('Executing %d post_request_callables...' % len(self.post_request_callables))
 
-        for callable_obj in cls.post_request_callables:
+        for callable_obj in self.post_request_callables:
             try:
                 callable_obj()
             except:
                 _logger.exception('Failed to execute post_request_callables')
                 # failure to execute a callable should fail the entire request
-                cls.clear_callables()
+                self.clear_callables()
                 raise
 
-        cls.clear_callables()
+        self.clear_callables()
 
-    @classmethod
-    def clear_callables(cls):
+    def clear_callables(self):
         """
         If the callable objects are never cleared, and some request some time for whatever reason
         fails to execute them, they would get executed during the next request made by the same
-        process, since this static class is persistent during the lifetime of the process.
+        process, since the instantiated object is persistent during the lifetime of the process.
 
         Why not use this as a feature to retry, when encountering errors?
         1) Processes get restarted by gunicorn every x requests, so it would get cleared at
@@ -69,5 +66,8 @@ class CallableService():
         2) The retry would be quite random: A chance only when there is a request, and it happens
             to hit the same process.
         """
-        if cls.post_request_callables:
-            cls.post_request_callables = []
+        if self.post_request_callables:
+            self.post_request_callables = []
+
+
+CallableService = _CallableService()

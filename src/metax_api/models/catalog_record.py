@@ -33,19 +33,11 @@ _logger = logging.getLogger(__name__)
 
 
 ACCESS_TYPES = {
-    'open': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/open_access',
-    'closed': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/closed_access',
-    'embargoed': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/embargoed_access',
-    'restricted_access': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access',
-    'restricted_access_permit_fairdata':
-        'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_permit_fairdata',
-    'restricted_access_permit_external':
-        'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_permit_external',
-    'restricted_access_research': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_research',
-    'restricted_access_research_education_studying':
-        'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_education_studying',
-    'restricted_access_registration':
-        'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted_access_registration',
+    'open': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/open',
+    'login': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/login',
+    'permit': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/permit',
+    'embargo': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/embargo',
+    'restricted': 'http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted'
 }
 
 
@@ -352,9 +344,13 @@ class CatalogRecord(Common):
         from metax_api.services import CatalogRecordService as CRS
         return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['open']
 
-    def _access_type_is_embargoed(self):
+    def _access_type_is_login(self):
         from metax_api.services import CatalogRecordService as CRS
-        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['embargoed']
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['login']
+
+    def _access_type_is_embargo(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['embargo']
 
     def _embargo_is_available(self):
         if not self.research_dataset.get('access_rights', {}).get('available', False):
@@ -367,8 +363,8 @@ class CatalogRecord(Common):
             return False
 
     def authorized_to_see_catalog_record_files(self, request):
-        return self.user_is_privileged(request) or self._access_type_is_open() or \
-            (self._access_type_is_embargoed() and self._embargo_is_available())
+        return self.user_is_privileged(request) or self._access_type_is_open() or self._access_type_is_login() or \
+            (self._access_type_is_embargo() and self._embargo_is_available())
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():
@@ -1122,6 +1118,11 @@ class CatalogRecord(Common):
         dirs_by_project = defaultdict(list)
 
         for dr in dirs:
+            if dr['directory_path'] == '/':
+                raise ValidationError({ 'detail': [
+                    'Adding the filesystem root directory ("/") to a dataset is not allowed. Identifier of the '
+                    'offending directory: %s' % dr['directory_path']
+                ]})
             dirs_by_project[dr['project_identifier']].append(dr['directory_path'])
 
         top_level_dirs_by_project = defaultdict(list)
@@ -1454,8 +1455,8 @@ class CatalogRecord(Common):
         """
         Wrapper in order to import CommonService in one place only...
         """
-        from metax_api.services import CommonService
-        CommonService.add_post_request_callable(*args, **kwargs)
+        from metax_api.services import CallableService
+        CallableService.add_post_request_callable(*args, **kwargs)
 
     def __repr__(self):
         return '<%s: %d, removed: %s, data_catalog: %s, metadata_version_identifier: %s, ' \
@@ -1502,7 +1503,7 @@ class RabbitMQPublishRecord():
         """
         The actual code that gets executed during CommonService.run_post_request_callables().
         """
-        from metax_api.services import RabbitMQService
+        from metax_api.services import RabbitMQService as rabbitmq
 
         _logger.info(
             'Publishing CatalogRecord %s to RabbitMQ... routing_key: %s'
@@ -1515,7 +1516,6 @@ class RabbitMQPublishRecord():
             cr_json = self._to_json()
 
         try:
-            rabbitmq = RabbitMQService()
             rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange='datasets')
         except:
             # note: if we'd like to let the request be a success even if this operation fails,

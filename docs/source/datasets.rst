@@ -56,6 +56,8 @@ Other than the harvested data catalogs managed by Fairdata harvesters, the two m
 
 The IDA catalog hosts datasets, which have their files stored in the Fairdata IDA service. The datasets stored in this catalog use a schema which allow to use the fields ``research_dataset.files`` and ``research_dataset.directories``, which are used to list and describe related files in IDA. On the other hand, the schema is missing the field ``research_dataset.remote_resources``, meaning it does not allow listing files stored in other file storages than IDA.
 
+.. note:: For end users it is important to note, that you will never be "creating" or "storing" new files in Metax or in IDA by using Metax API: Files are always stored by using the IDA service (https://www.fairdata.fi/en/ida/). Once the files have been stored (frozen) using IDA, the metadata of the stored files is automatically sent to Metax. Then, using Metax APIs, the metadata of the files can be browsed, and linked to datasets, and finally published to the world as part of a dataset.
+
 
 **ATT catalog**
 
@@ -79,7 +81,7 @@ When creating a new dataset and wishing to use for example the ATT catalog, the 
     }
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=dataset_data, headers=headers)
+    response = requests.post('https://__METAX_ENV_DOMAIN__/rest/datasets', json=dataset_data, headers=headers)
     assert response.status_code == 201, response.content
 
 
@@ -324,7 +326,7 @@ If you want to use an existing dataset as a template for a new dataset, you can 
     import requests
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', headers=headers)
     assert response.status_code == 200, response.content
     print('Retrieved a dataset that has identifier: %s' response.data['identifier'])
 
@@ -332,7 +334,7 @@ If you want to use an existing dataset as a template for a new dataset, you can 
     del new_dataset['identifier']
     del new_dataset['research_dataset']['preferred_identifier']
 
-    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=new_dataset, headers=headers)
+    response = requests.post('https://__METAX_ENV_DOMAIN__/rest/datasets', json=new_dataset, headers=headers)
     assert response.status_code == 201, response.content
     print('Created a new dataset that has identifier: %s' response.data['identifier'])
 
@@ -353,7 +355,7 @@ In the table, on the left hand side is described the relation object which uses 
 **But first about ResearchAgent, Organization, and Person**
 
 
-In the schema visualization at https://tietomallit.suomi.fi/model/mrd, there are various relations leading from the object ``ResearchDataset`` to the object ``ResearchAgent``. The visualization is - at current time - unable to visualize "oneOf"-relations of JSON schemas. If opening one of the actual dataset schema files provided by the API ``/rest/schemas``, such as https://metax-test.csc.fi/rest/schemas/ida_dataset, and searching for the string "oneOf" inside that file, you will see that the object ``ResearchAgent`` is actually an instance of either the ``Person`` or the ``Organization`` object. That means, that for example when setting the ``research_dataset.curator`` relation (which is an array), the contents of the ``curator`` field can be either a person, an organization, or a mix of persons and organizations.
+In the schema visualization at https://tietomallit.suomi.fi/model/mrd, there are various relations leading from the object ``ResearchDataset`` to the object ``ResearchAgent``. The visualization is - at current time - unable to visualize "oneOf"-relations of JSON schemas. If opening one of the actual dataset schema files provided by the API ``/rest/schemas``, such as https://__METAX_ENV_DOMAIN__/rest/schemas/ida_dataset, and searching for the string "oneOf" inside that file, you will see that the object ``ResearchAgent`` is actually an instance of either the ``Person`` or the ``Organization`` object. That means, that for example when setting the ``research_dataset.curator`` relation (which is an array), the contents of the ``curator`` field can be either a person, an organization, or a mix of persons and organizations.
 
 This needs to be taken into account when looking which reference data to use, when dealing with ``Person`` or ``Organization`` objects in the schema. In the below table, the person- and organization-related relations have been separated from the rest of the fields that use reference data, and then split, to make it easier to find out which reference data to use depending on what kind of object is being used.
 
@@ -361,62 +363,62 @@ This needs to be taken into account when looking which reference data to use, wh
 .. code-block:: python
 
     {
-        "research_dataset.theme.identifier":                                { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/keyword" },
-        "research_dataset.field_of_science.identifier":                     { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/field_of_science" },
-        "research_dataset.remote_resources.license.identifier":             { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/license" },
-        "research_dataset.remote_resources.resource_type.identifier":       { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/resource_type" },
-        "research_dataset.remote_resources.file_type.identifier":           { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/file_type" },
-        "research_dataset.remote_resources.use_category.identifier":        { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/use_category" },
-        "research_dataset.remote_resources.media_type":                     { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/mime_type" },
-        "research_dataset.language.identifier":                             { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/language" },
-        "research_dataset.access_rights.access_type.identifier":            { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/access_type" },
-        "research_dataset.access_rights.restriction_grounds.identifier":    { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/restriction_grounds" },
-        "research_dataset.access_rights.license.identifier":                { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/license" },
-        "research_dataset.other_identifier.type.identifier":                { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/identifier_type" },
-        "research_dataset.spatial.place_uri.identifier":                    { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/location" },
-        "research_dataset.files.file_type.identifier":                      { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/file_type" },
-        "research_dataset.files.use_category.identifier":                   { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/use_category" },
-        "research_dataset.directories.use_category.identifier":             { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/use_category" },
-        "research_dataset.provenance.spatial.place_uri.identifier":         { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/location" },
-        "research_dataset.provenance.lifecycle_event.identifier":           { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/lifecycle_event" },
-        "research_dataset.provenance.preservation_event.identifier":        { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/preservation_event" },
-        "research_dataset.provenance.event_outcome.identifier":             { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/event_outcome" },
-        "research_dataset.provenance.used_entity.type.identifier":          { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/resource_type" },
-        "research_dataset.infrastructure.identifier":                       { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/research_infra" },
-        "research_dataset.relation.relation_type.identifier":               { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/relation_type" },
-        "research_dataset.relation.entity.type.identifier":                 { "mode": "required", "url": "https://metax.fairdata.fi/es/reference_data/resource_type" },
+        "research_dataset.theme.identifier":                                { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/keyword" },
+        "research_dataset.field_of_science.identifier":                     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science" },
+        "research_dataset.remote_resources.license.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/license" },
+        "research_dataset.remote_resources.resource_type.identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type" },
+        "research_dataset.remote_resources.file_type.identifier":           { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/file_type" },
+        "research_dataset.remote_resources.use_category.identifier":        { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category" },
+        "research_dataset.remote_resources.media_type":                     { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/mime_type" },
+        "research_dataset.language.identifier":                             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/language" },
+        "research_dataset.access_rights.access_type.identifier":            { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/access_type" },
+        "research_dataset.access_rights.restriction_grounds.identifier":    { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/restriction_grounds" },
+        "research_dataset.access_rights.license.identifier":                { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/license" },
+        "research_dataset.other_identifier.type.identifier":                { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/identifier_type" },
+        "research_dataset.spatial.place_uri.identifier":                    { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/location" },
+        "research_dataset.files.file_type.identifier":                      { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/file_type" },
+        "research_dataset.files.use_category.identifier":                   { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category" },
+        "research_dataset.directories.use_category.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category" },
+        "research_dataset.provenance.spatial.place_uri.identifier":         { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/location" },
+        "research_dataset.provenance.lifecycle_event.identifier":           { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/lifecycle_event" },
+        "research_dataset.provenance.preservation_event.identifier":        { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/preservation_event" },
+        "research_dataset.provenance.event_outcome.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/event_outcome" },
+        "research_dataset.provenance.used_entity.type.identifier":          { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type" },
+        "research_dataset.infrastructure.identifier":                       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/research_infra" },
+        "research_dataset.relation.relation_type.identifier":               { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/relation_type" },
+        "research_dataset.relation.entity.type.identifier":                 { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type" },
 
         # organizations. note! can be recursive through the organization-object's `is_part_of` relation
-        "research_dataset.is_output_of.source_organization.identifier":     { "mode": "required", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.is_output_of.has_funding_agency.identifier":      { "mode": "required", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.is_output_of.funder_type.identifier.identifier":  { "mode": "required", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.other_identifier.provider.identifier":            { "mode": "required", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.contributor.contributor_role.identifier":         { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.publisher.contributor_role.identifier":           { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.curator.contributor_role.identifier":             { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.creator.contributor_role.identifier":             { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.rights_holder.contributor_role.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" }
+        "research_dataset.is_output_of.source_organization.identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.is_output_of.has_funding_agency.identifier":      { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.is_output_of.funder_type.identifier.identifier":  { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.other_identifier.provider.identifier":            { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.contributor.contributor_role.identifier":         { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.publisher.contributor_role.identifier":           { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.curator.contributor_role.identifier":             { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.creator.contributor_role.identifier":             { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.rights_holder.contributor_role.identifier":       { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" }
 
         # persons
-        "research_dataset.contributor.member_of.identifier":          { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.contributor.contributor_role.identifier":   { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.contributor.contributor_type.identifier":   { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
-        "research_dataset.publisher.member_of.identifier":            { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.publisher.contributor_role.identifier":     { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.publisher.contributor_type.identifier":     { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
-        "research_dataset.curator.member_of.identifier":              { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.curator.contributor_role.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.curator.contributor_type.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
-        "research_dataset.creator.member_of.identifier":              { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.creator.contributor_role.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.creator.contributor_type.identifier":       { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
-        "research_dataset.rights_holder.member_of.identifier":        { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.rights_holder.contributor_role.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.rights_holder.contributor_type.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" },
-        "research_dataset.provenance.was_associated_with.member_of.identifier":        { "mode": "optional", "url": "https://metax.fairdata.fi/es/organization_data/organization" },
-        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_role" },
-        "research_dataset.provenance.was_associated_with.contributor_type.identifier": { "mode": "optional", "url": "https://metax.fairdata.fi/es/reference_data/contributor_type" }
+        "research_dataset.contributor.member_of.identifier":          { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.contributor.contributor_role.identifier":   { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.contributor.contributor_type.identifier":   { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type" },
+        "research_dataset.publisher.member_of.identifier":            { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.publisher.contributor_role.identifier":     { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.publisher.contributor_type.identifier":     { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type" },
+        "research_dataset.curator.member_of.identifier":              { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.curator.contributor_role.identifier":       { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.curator.contributor_type.identifier":       { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type" },
+        "research_dataset.creator.member_of.identifier":              { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.creator.contributor_role.identifier":       { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.creator.contributor_type.identifier":       { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type" },
+        "research_dataset.rights_holder.member_of.identifier":        { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.rights_holder.contributor_role.identifier": { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.rights_holder.contributor_type.identifier": { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type" },
+        "research_dataset.provenance.was_associated_with.member_of.identifier":        { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization" },
+        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role" },
+        "research_dataset.provenance.was_associated_with.contributor_type.identifier": { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type" }
     }
 
 
@@ -426,7 +428,7 @@ This needs to be taken into account when looking which reference data to use, wh
 Examples
 ---------
 
-These code examples are from the point of view of an end user. Using the API as an end user requires that the user logs in to ``https://metax-test.csc.fi/secure`` in order to get a valid access token, which will be used to authenticate with the API. The process for end user authentication is described on the page :doc:`end_users`.
+These code examples are from the point of view of an end user. Using the API as an end user requires that the user logs in to ``https://__METAX_ENV_DOMAIN__/secure`` in order to get a valid access token, which will be used to authenticate with the API. The process for end user authentication is described on the page :doc:`end_users`.
 
 When services interact with Metax, services have the additional responsibility of providing values for fields related to the current user modifying or creating resources, and generally taking care that the user is permitted to do whatever it is that they are doing.
 
@@ -442,14 +444,14 @@ The API ``GET /rpc/datasets/get_minimal_dataset_template`` returns a valid minim
 
     import requests
 
-    response = requests.get('https://metax-test.csc.fi/rpc/datasets/get_minimal_dataset_template?type=enduser')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rpc/datasets/get_minimal_dataset_template?type=enduser')
     assert response.status_code == 200, response.content
 
     # dataset_data can now be used in a POST request to create a new dataset!
     dataset_data = response.json()
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=dataset_data, headers=headers)
+    response = requests.post('https://__METAX_ENV_DOMAIN__/rest/datasets', json=dataset_data, headers=headers)
     assert response.status_code == 201, response.content
     print(response.json())
 
@@ -495,7 +497,7 @@ Create a dataset with minimum required fields.
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901"
                 }
             ],
             "language":[{
@@ -504,17 +506,14 @@ Create a dataset with minimum required fields.
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
-                },
-                "restriction_grounds": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                 }
             }
         }
     }
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=dataset_data, headers=headers)
+    response = requests.post('https://__METAX_ENV_DOMAIN__/rest/datasets', json=dataset_data, headers=headers)
     assert response.status_code == 201, response.content
     print(response.json())
 
@@ -577,7 +576,7 @@ Explanation of all the fields in the received response/newly created dataset:
 * ``date_created`` Date when record was created.
 * ``user_created`` Identifier of the user who created the record.
 
-.. caution:: While in test environments using the internal ``id`` fields will work in place of the string-form unique identifiers (``identifier`` field), and are very handy for that purpose, in production environment they should never be used, since in some situations they can change without notice and may result in errors or accidentally referring to unintended objects, while the longer identifiers will be persistent, and are always safe to use.
+.. caution:: While in test environments using the internal ``id`` fields will work in place of the string-form unique identifiers (``identifier`` field), and are very handy for that purpose, in production environment they should never be used, since in some situations they can change without notice and may result in errors or accidentally referring to unintended objects, while the longer identifiers will be persistent, and are always safe to use. Example how to use the internal ``id`` field to retrieve a dataset: https://__METAX_ENV_DOMAIN__/rest/datasets/12 (note: assuming there exists a record with the id: 12)
 
 
 **Errors: Required fields missing**
@@ -616,7 +615,7 @@ Try to create a dataset with required fields missing. Below example is missing t
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901"
                 }
             ],
             "language":[{
@@ -625,17 +624,14 @@ Try to create a dataset with required fields missing. Below example is missing t
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
-                },
-                "restriction_grounds": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                 }
             }
         }
     }
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=dataset_data, headers=headers)
+    response = requests.post('https://__METAX_ENV_DOMAIN__/rest/datasets', json=dataset_data, headers=headers)
     assert response.status_code == 400, response.content
     print(response.json())
 
@@ -693,7 +689,7 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
                         "und": "School Services, BIZ"
                     },
                     "@type": "Organization",
-                    "identifier": "https://metax.fairdata.fi/es/organization_data/organization/organization_10076-E700"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901"
                 }
             ],
             "language":[{
@@ -702,17 +698,14 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
             }],
             "access_rights": {
                 "access_type": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/access_type/access_type_open_access"
-                },
-                "restriction_grounds": {
-                    "identifier": "https://metax.fairdata.fi/es/reference_data/restriction_grounds/restriction_grounds_1"
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                 }
             }
         }
     }
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.post('https://metax-test.csc.fi/rest/datasets', json=dataset_data, headers=headers)
+    response = requests.post('https://__METAX_ENV_DOMAIN__/rest/datasets', json=dataset_data, headers=headers)
     assert response.status_code == 400, response.content
     print(response.json())
 
@@ -739,7 +732,7 @@ Retrieving an existing dataset using a dataset's internal Metax identifier:
 
     import requests
 
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123')
     assert response.status_code == 200, response.content
     print(response.json())
 
@@ -768,13 +761,13 @@ Update an existing dataset using a ``PUT`` request:
 
     # first retrieve a dataset that you are the owner of
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', headers=headers)
     assert response.status_code == 200, response.content
 
     modified_data = response.json()
     modified_data['research_dataset']['description']['en'] = 'A More Accurdate Description'
 
-    response = requests.put('https://metax-test.csc.fi/rest/datasets/abc123', json=modified_data, headers=headers)
+    response = requests.put('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', json=modified_data, headers=headers)
     assert response.status_code == 200, response.content
     print(response.json())
 
@@ -799,7 +792,7 @@ The exact same result can be achieved using a ``PATCH`` request, which allows yo
 
     # add the HTTP Authorization header, since authentication will be required when executing write operations in the API.
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.patch('https://metax-test.csc.fi/rest/datasets/abc123', json=modified_data, headers=headers)
+    response = requests.patch('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', json=modified_data, headers=headers)
 
     # ... the rest is the same as in the above example
 
@@ -825,7 +818,7 @@ Add files to a dataset, which didn't have any files associated with it when it w
     import requests
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', headers=headers)
     assert response.status_code == 200, response.content
 
     modified_data = response.json()
@@ -835,12 +828,12 @@ Add files to a dataset, which didn't have any files associated with it when it w
             "identifier": "5105ab9839f63a909893183c14f9e9db",
             "description": "What is this file about",
             "use_category": {
-                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
             }
         }
     ]
 
-    response = requests.put('https://metax-test.csc.fi/rest/datasets/abc123', json=modified_data, headers=headers)
+    response = requests.put('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', json=modified_data, headers=headers)
     assert response.status_code == 200, response.content
 
 
@@ -858,14 +851,14 @@ Add files to a dataset, which already has files associated with it, either from 
     import requests
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', headers=headers)
     assert response.status_code == 200, response.content
 
     modified_data = response.json()
     assert len(modified_data['research_dataset']['files']) == 1, 'initially the dataset has one file'
 
     """
-    In this example, the contents of the field research_dataset['files'] is excepted to look
+    In this example, the contents of the field research_dataset['files'] is expected to look
     like the following:
     [
         {
@@ -873,7 +866,7 @@ Add files to a dataset, which already has files associated with it, either from 
             "identifier": "5105ab9839f63a909893183c14f9e111",
             "description": "What is this file about",
             "use_category": {
-                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
             }
         }
     ]
@@ -885,11 +878,11 @@ Add files to a dataset, which already has files associated with it, either from 
         "identifier": "5105ab9839f63a909893183c14f9e9db",
         "description": "What is this file about then?",
         "use_category": {
-            "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
         }
     })
 
-    response = requests.put('https://metax-test.csc.fi/rest/datasets/abc123', json=modified_data, headers=headers)
+    response = requests.put('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', json=modified_data, headers=headers)
     assert response.status_code == 200, response.content
 
     response_data = response.json()
@@ -904,7 +897,7 @@ Add files to a dataset, which already has files associated with it, either from 
     # using the identifiers provided in the response.
     identifier_of_new_dataset_version = response_data['new_version_created']['identifier']
     response = requests.get(
-        'https://metax-test.csc.fi/rest/datasets/%s' % identifier_of_new_dataset_version,
+        'https://__METAX_ENV_DOMAIN__/rest/datasets/%s' % identifier_of_new_dataset_version,
         headers=headers
     )
     assert response.status_code == 200, response.content
@@ -925,7 +918,7 @@ Below is an example similar to the first example where we added files. The datas
     import requests
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', headers=headers)
     assert response.status_code == 200, response.content
 
     modified_data = response.json()
@@ -935,12 +928,12 @@ Below is an example similar to the first example where we added files. The datas
             "identifier": "5105ab9839f63a909893183c14f9e113",
             "description": "What is this directory about",
             "use_category": {
-                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
             }
         }
     ]
 
-    response = requests.put('https://metax-test.csc.fi/rest/datasets/abc123', json=modified_data, headers=headers)
+    response = requests.put('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', json=modified_data, headers=headers)
     assert response.status_code == 200, response.content
 
 
@@ -957,15 +950,15 @@ Delete an existing dataset using a ``DELETE`` request:
     import requests
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.delete('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    response = requests.delete('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', headers=headers)
     assert response.status_code == 204, response.content
 
     # the dataset is now removed from the general API results
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123')
     assert response.status_code == 404, 'metax should return 404 due to dataset not found'
 
     # removed datasets are still findable using the ?removed=true parameter
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123?removed=true')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123?removed=true')
     assert response.status_code == 200, 'metax should have returned a dataset'
 
 
@@ -982,11 +975,11 @@ First way is to retrieve a flat list of file metadata of all the files included 
     import requests
 
     # retrieve all file metadata
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123/files')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123/files')
     assert response.status_code == 200, response.content
 
     # retrieve only specified fields from file metadata
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123/files?file_fields=identifier,file_path')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123/files?file_fields=identifier,file_path')
     assert response.status_code == 200, response.content
 
 
@@ -999,7 +992,7 @@ Example:
 
     import requests
 
-    response = requests.get('https://metax-test.csc.fi/rest/directories/dir123/files?cr_identifier=abc123')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/directories/dir123/files?cr_identifier=abc123')
     assert response.status_code == 200, response.content
 
 
@@ -1020,7 +1013,7 @@ Modifying field ``research_dataset`` to contain data that depends on reference d
     import requests
 
     headers = { 'Authorization': 'Bearer abc.def.ghi' }
-    response = requests.get('https://metax-test.csc.fi/rest/datasets/abc123', headers=headers)
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', headers=headers)
     assert response.status_code == 200, response.content
 
     modified_data = response.json()
@@ -1031,14 +1024,14 @@ Modifying field ``research_dataset`` to contain data that depends on reference d
             "description": "What is this directory about",
             "use_category": {
                 # the value to the below field is from reference data
-                "identifier": "https://metax.fairdata.fi/es/reference_data/use_category/use_category_source",
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
             }
         }
     ]
 
-    response = requests.put('https://metax-test.csc.fi/rest/datasets/abc123', json=modified_data, headers=headers)
+    response = requests.put('https://__METAX_ENV_DOMAIN__/rest/datasets/abc123', json=modified_data, headers=headers)
     assert response.status_code == 200, response.content
 
-When the dataset is updated, some fields inside the field ``use_category`` will have been populated by Metax according to the used reference data. The value used in the example above is the value of ``uri`` field from one of the objects in the following list: https://metax-test.csc.fi/es/reference_data/use_category/_search?pretty.
+When the dataset is updated, some fields inside the field ``use_category`` will have been populated by Metax according to the used reference data. The value used in the example above is the value of ``uri`` field from one of the objects in the following list: https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty.
 
 For more information about reference data, see :doc:`reference_data`.

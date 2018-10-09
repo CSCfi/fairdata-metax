@@ -151,7 +151,7 @@ class TestClassUtils():
                 if not password:
                     raise Exception('Missing parameter \'password\' for HTTP Authorization header')
 
-            header_value = b'Basic %s' % b64encode(bytes('%s:%s' % (username, password), 'utf-8'))
+            header_value = 'Basic %s' % b64encode(bytes('%s:%s' % (username, password), 'utf-8')).decode('utf-8')
 
         elif method == 'bearer':
             assert token is not None, 'token (dictionary) is required when using auth method bearer'
@@ -218,8 +218,9 @@ class TestClassUtils():
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         return response.data['id']
 
-    def get_open_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False):
+    def get_open_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False, use_login_access_type=False):
         from metax_api.models import CatalogRecord
+        from metax_api.models.catalog_record import ACCESS_TYPES
         # Use http auth to get complete details of the catalog record
         metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
@@ -230,10 +231,19 @@ class TestClassUtils():
             pk = self._create_cr_for_owner(pk, response.data)
 
         CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
-        # Verify we are dealing with an open research dataset
-        assert_catalog_record_is_open_access(response.data)
-        rd = response.data['research_dataset']
+
+        if use_login_access_type:
+            response_data = self.client.get('/rest/datasets/{0}'.format(pk)).data
+            response_data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['login']
+            response = self.client.put('/rest/datasets/{0}'.format(pk), response_data, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+            rd = response.data['research_dataset']
+        else:
+            response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+            rd = response.data['research_dataset']
+            # Verify we are dealing with an open research dataset
+            assert_catalog_record_is_open_access(response.data)
 
         # Verify we have both files and dirs in the catalog record
         self.assertTrue('files' in rd and len(rd['files']) > 0)
@@ -255,9 +265,8 @@ class TestClassUtils():
         response = self.client.get('/rest/datasets/{0}'.format(pk))
         data = response.data
 
-        # Set access_type to restricted (NOTE: only one of many restricted access types)
-        data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted_access']
-        data['research_dataset']['access_rights']['restriction_grounds']['identifier'] = '4'
+        # Set access_type to restricted
+        data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted']
 
         if set_owner:
             pk = self._create_cr_for_owner(pk, data)
@@ -289,15 +298,16 @@ class TestClassUtils():
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
         pk = 13
 
-        # Set access_type to restricted (NOTE: only one of many restricted access types)
         response = self.client.get('/rest/datasets/{0}'.format(pk))
         data = response.data
-        data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['embargoed']
+
+        # Set access_type to embargo
+        data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['embargo']
+
         if is_available:
             data['research_dataset']['access_rights']['available'] = '2000-01-01'
         else:
             data['research_dataset']['access_rights']['available'] = '3000-01-01'
-        data['research_dataset']['access_rights']['restriction_grounds']['identifier'] = '4'
 
         response = self.client.put('/rest/datasets/13', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
