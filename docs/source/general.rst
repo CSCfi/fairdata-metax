@@ -27,12 +27,18 @@ There are also other schemas for CatalogRecords in other data catalogs for speci
 
 
 
-Metax Data Model
------------------
+Metax Data Model: A High Level View
+----------------------------------
 
-.. admonition:: TODO!
+A simplified data model of Metax internals, and the relations between the most relevant objects that can be interacted with using Metax API.
 
-  A birds-eye view on whats in metax in terms of data model/relations. Explain what is in tietomallit.suomi.fi and why. A lower-detail image of our db-schema could be helpful.
+
+.. image:: metax_high_level.png
+
+
+.. important::
+
+    Files do not physically reside in Metax. Only when files are frozen in the Fairdata IDA service, the metadata of the related files are pushed to Metax, so that it becomes accessible to other Fairdata services.
 
 
 
