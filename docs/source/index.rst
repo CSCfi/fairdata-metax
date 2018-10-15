@@ -21,7 +21,7 @@ Metax API Documentation
    datasets
    files
    reference_data
-   oai_pmh
+   .. oai_pmh
 
 
 
