@@ -12,9 +12,15 @@ produces:
 paths:
 
 # File Storage API
-  /filestorages:
+  /rest/filestorages:
     get:
       summary: List File Storages
+      parameters:
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: return list of file storages
@@ -33,7 +39,7 @@ paths:
           description: Unauthorized
       tags:
         - File Storage API
-  /filestorages/{PID}:
+  /rest/filestorages/{PID}:
     get:
       summary: Get File Storage metadata
       parameters:
@@ -102,7 +108,7 @@ paths:
         - File Storage API
 
 # File API
-  /files:
+  /rest/files:
     get:
       summary: get list of files
       parameters:
@@ -122,11 +128,16 @@ paths:
           required: false
           type: integer
           default: 10
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: successful operation, return list of files
           schema:
-            $ref: '#/definitions/File'
+            $ref: '#/definitions/FileList'
       tags:
         - File API
     post:
@@ -152,10 +163,12 @@ paths:
       consumes:
         - application/json
       parameters:
-        - in: "body"
-          name: "body"
-          description: "A list of objects to update."
-          required: true
+      - in: "body"
+        name: "body"
+        description: "A list of objects to update."
+        required: true
+        schema:
+          $ref: '#/definitions/FileList'
       responses:
         '200':
           description: Successful operation. Return values include a list of errors, if any.
@@ -174,6 +187,8 @@ paths:
           name: "body"
           description: "A list of (partial) objects to update."
           required: true
+          schema:
+            $ref: '#/definitions/FileList'
       responses:
         '200':
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
@@ -191,6 +206,8 @@ paths:
           name: "body"
           description: A list of ids, or a list of identifiers.
           required: true
+          schema:
+            $ref: '#/definitions/StringList'
       responses:
         '200':
           description: |
@@ -202,7 +219,7 @@ paths:
           description: None of the provided identifiers were found.
       tags:
         - File API
-  /files/{PID}:
+  /rest/files/{PID}:
     get:
       summary: get file metadata
       parameters:
@@ -283,7 +300,7 @@ paths:
           description: object not found
       tags:
         - File API
-  /files/{PID}/XML:
+  /rest/files/{PID}/XML:
     get:
       summary: get XML metadata from file
       produces:
@@ -385,7 +402,7 @@ paths:
           description: file or namespace does not exist
       tags:
         - File API
-  /files/datasets:
+  /rest/files/datasets:
     post:
       summary: get datasets where files belong to
       description: |
@@ -399,7 +416,8 @@ paths:
           in: body
           description: a list of file id's (integers) or identifiers (strings).
           required: true
-          type: string
+          schema:
+            $ref: '#/definitions/StringList'
       responses:
         '200':
           description: a list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
@@ -407,10 +425,11 @@ paths:
           description: files given in the list not found
       tags:
         - File API
-  /files/restore:
+  /rest/files/restore:
     post:
       summary: restore removed files back to "not removed" state.
-      description: note: does not restore possible deprecated datasets (due to files having been removed) to back to non-deprecated state!
+      description: |
+        note&#58; does not restore possible deprecated datasets (due to files having been removed) to back to non-deprecated state!
       produces:
         - application/json
       parameters:
@@ -418,7 +437,8 @@ paths:
           in: body
           description: a list of file identifiers of files to restore.
           required: true
-          type: string
+          schema:
+            $ref: '#/definitions/StringList'
       responses:
         '200':
           description: numbers of files restored.
@@ -426,10 +446,10 @@ paths:
           description: request ended in an error, response contains details.
       tags:
         - File API
-  /directories/{PID}:
+  /rest/directories/{PID}:
     get:
       summary: get details of a directory
-      description: Does not contain the directory's files and sub-directories. For that, use /directories/{PID}/files
+      description: Does not contain the directory's files and sub-directories. For that, use /rest/directories/{PID}/files
       parameters:
         - name: PID
           in: path
@@ -445,7 +465,7 @@ paths:
           description: not found
       tags:
         - File API
-  /directories/{PID}/files:
+  /rest/directories/{PID}/files:
     get:
       summary: get list of files and directories contained by a directory
       parameters:
@@ -477,8 +497,8 @@ paths:
           in: query
           description: |
             includes the 'parent directory' of the contents being fetched in the results also. example&#58;
-            GET /directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
-            otherwise, one would query for its data separately by GET /directories/3.
+            GET /rest/directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            otherwise, one would query for its data separately by GET /rest/directories/3.
           required: false
           type: boolean
         - name: cr_identifier
@@ -505,11 +525,11 @@ paths:
           description: directory not found
       tags:
         - File API
-  /directories/files:
+  /rest/directories/files:
     get:
       summary: get list of files and directories contained by a directory, queried by dir path and project
       description: |
-        functions the same as /directories/pid, except queried by dir path and project identifier, instead of directly by directory identifier.
+        functions the same as /rest/directories/pid, except queried by dir path and project identifier, instead of directly by directory identifier.
       parameters:
         - name: path
           in: path
@@ -521,11 +541,6 @@ paths:
           description: project_identifier of the project to browse from
           required: true
           type: string
-        - name: recursive
-          in: query
-          description: return a flat list of file objects contained by the target directory and its sub-directories
-          required: false
-          type: boolean
         - name: recursive
           in: query
           description: |
@@ -549,8 +564,8 @@ paths:
           in: query
           description: |
             includes the 'parent directory' of the contents being fetched in the results also. example&#58;
-            GET /directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
-            otherwise, one would query for its data separately by GET /directories/3.
+            GET /rest/directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            otherwise, one would query for its data separately by GET /rest/directories/3.
           required: false
           type: boolean
         - name: preferred_identifier
@@ -567,7 +582,7 @@ paths:
           description: directory not found
       tags:
         - File API
-  /directories/root:
+  /rest/directories/root:
     get:
       summary: return root directory for a project, and its files and directories
       description: Useful when starting to browse files for a project, when individual root-level directory identifier is not yet known.
@@ -592,9 +607,15 @@ paths:
 
 
 # Data Catalog API
-  /datacatalogs:
+  /rest/datacatalogs:
     get:
       summary: "list of data catalogs"
+      parameters:
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: return list of file data catalogs
@@ -620,7 +641,7 @@ paths:
           description: Unauthorized. Reserved for admins only
       tags:
         - Data Catalog API
-  /datacatalogs/{PID}:
+  /rest/datacatalogs/{PID}:
     get:
       summary: get data catalog metadata
       parameters:
@@ -697,7 +718,7 @@ paths:
 
 
 # Dataset API
-  /datasets:
+  /rest/datasets:
     # some of the parameters and returned fields are for TPAS usage only
     get:
       summary: "list datasets"
@@ -753,6 +774,7 @@ paths:
         - name: editor
           in: query
           description: identifier of the editor used to modify the record, i.e. qvain.
+          type: string
         - name: offset
           in: query
           description: offset for paging
@@ -764,6 +786,11 @@ paths:
           required: false
           type: integer
           default: 10
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
@@ -806,6 +833,8 @@ paths:
           name: "body"
           description: "A list of objects to update."
           required: true
+          schema:
+            $ref: '#/definitions/CatalogRecordList'
       responses:
         '200':
           description: Sucessful operation. Return values include a list of errors, if any.
@@ -824,6 +853,8 @@ paths:
           name: "body"
           description: "A list of (partial) objects to update."
           required: true
+          schema:
+            $ref: '#/definitions/CatalogRecordList'
       responses:
         '200':
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
@@ -831,26 +862,7 @@ paths:
           description: All updates failed. A list of errors is returned.
       tags:
         - Dataset API
-  /datasets/{PID}/metadata_versions:
-    get:
-      summary: "list old research_dataset entries of a record"
-      responses:
-        "200":
-          description: successful operation, return a list of entries. may return an empty list.
-      tags:
-        - Dataset API
-  /datasets/{PID}/metadata_versions/{MVI}:
-    get:
-      summary: "get contents of a specific old research_dataset of a record."
-      description: "{MVI} is the metadata_version_identifier of the research_dataset."
-      responses:
-        "200":
-          description: successful operation, return a list of entries. may return an empty list.
-        "404":
-          description: resource not found.
-      tags:
-        - Dataset API
-  /datasets/identifiers:
+  /rest/datasets/identifiers:
     get:
       summary: "list all dataset identifiers"
       parameters:
@@ -884,7 +896,7 @@ paths:
           description: successful operation, returns a list of all dataset metadata version identifiers.
       tags:
         - Dataset API
-  /datasets/unique_preferred_identifiers:
+  /rest/datasets/unique_preferred_identifiers:
     get:
       summary: "list all unique dataset preferred identifiers"
       parameters:
@@ -918,7 +930,7 @@ paths:
           description: successful operation, returns a list of all unique dataset preferred identifiers.
       tags:
         - Dataset API
-  /datasets/{PID}:
+  /rest/datasets/{PID}:
     get:
       summary: get dataset metadata
       parameters:
@@ -1022,37 +1034,7 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Dataset API
-  /datasets/{PID}/exists:
-    get:
-      summary: indicate whether given dataset exists
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-      responses:
-        '200':
-          description: return true
-        '404':
-          description: return false
-      tags:
-        - Dataset API
-  /datasets/{PID}/statistics:
-    get:
-      summary: get statistics for dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, return statistics (e.g. number of downloads, number of permissions asked, number of permissions granted, dissemination service used)
-      tags:
-        - Dataset API (not implemented)
-  /datasets/{PID}/files:
+  /rest/datasets/{PID}/files:
     get:
       summary: get list of files in a dataset
       parameters:
@@ -1076,128 +1058,46 @@ paths:
           description: successful operation, return list of full files metadata
       tags:
         - Dataset API
-  /datasets/{PID}/feedback:
+  /rest/datasets/{PID}/metadata_versions:
     get:
-      summary: get feedback (comments and ratings) for a dataset
+      summary: "list old research_dataset entries of a record"
       parameters:
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
-        - name: offset
-          in: query
-          description: offset for paging
-          required: false
-          type: integer
-        - name: limit
-          in: query
-          description: limit for paging
-          required: false
-          type: integer
-          default: 10
       responses:
-        '200':
-          description: successful operation, return feedback objects
+        "200":
+          description: successful operation, return a list of entries. may return an empty list.
+          schema:
+            $ref: '#/definitions/StringList'
       tags:
-        - Dataset API (not implemented)
-    post:
-      summary: create new feedback for dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-      consumes:
-        - application/json
-      responses:
-        '201':
-          description: new feedback created, return Location with the new URL containing feedback ID
-      tags:
-        - Dataset API (not implemented)
-  /datasets/{PID}/feedback/{ID}:
+        - Dataset API
+  /rest/datasets/{PID}/metadata_versions/{MVI}:
     get:
-      summary: get a single feedback object for a dataset
+      summary: "get contents of a specific old research_dataset of a record."
       parameters:
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
-        - name: ID
+        - name: MVI
           in: path
-          description: ID of feedback object
+          description: the metadata_version_identifier of the research_dataset
           required: true
           type: string
       responses:
-        '200':
-          description: successful operation, return feedback object
+        "200":
+          description: successful operation, return a list of entries. may return an empty list.
+        "404":
+          description: resource not found.
       tags:
-        - Dataset API (not implemented)
-  /datasets/{PID}/usage:
-    get:
-      summary: get usages for a dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-        - name: offset
-          in: query
-          description: offset for paging
-          required: false
-          type: integer
-        - name: limit
-          in: query
-          description: limit for paging
-          required: false
-          type: integer
-          default: 10
-      responses:
-        '200':
-          description: successful operation, return usage objects
-      tags:
-        - Dataset API (not implemented)
-    post:
-      summary: create new usage for dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-      consumes:
-        - application/json
-      responses:
-        '201':
-          description: new usage created, return Location with the new URL containing usage ID
-      tags:
-        - Dataset API (not implemented)
-  /datasets/{PID}/usage/{ID}:
-    get:
-      summary: get a single usage object for a dataset
-      parameters:
-        - name: PID
-          in: path
-          description: Persistent ID of dataset OR the internal pk
-          required: true
-          type: string
-        - name: ID
-          in: path
-          description: ID of usage object
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation, return usage object
-      tags:
-        - Dataset API (not implemented)
-
+        - Dataset API
 
 # Contract API
-  /contracts:
+  /rest/contracts:
     get:
       summary: "list contracts"
       parameters:
@@ -1216,6 +1116,11 @@ paths:
           description: limit for paging
           required: false
           type: integer
+        - name: ordering
+          in: query
+          description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
       responses:
         "200":
           description: successful operation, return list of contracts
@@ -1232,7 +1137,7 @@ paths:
           description: parameters contained errors, response includes details
       tags:
         - Contract API
-  /contracts/{PID}:
+  /rest/contracts/{PID}:
     get:
       summary: get contract metadata
       parameters:
@@ -1281,7 +1186,7 @@ paths:
 
 
 # ApiErrors API
-  /apierrors:
+  /rest/apierrors:
     get:
       summary: "list errors produced during api requests"
       responses:
@@ -1289,9 +1194,15 @@ paths:
           description: returns a list of error entries. may return an empty list.
       tags:
         - ApiErrors API
-  /apierrors/{identifier}:
+  /rest/apierrors/{identifier}:
     get:
       summary: get details of a single error entry
+      parameters:
+        - name: identifier
+          in: path
+          description: error_identifier of an error response
+          required: true
+          type: string
       responses:
         '200':
           description: return error details as a json object
@@ -1301,6 +1212,12 @@ paths:
         - ApiErrors API
     delete:
       summary: delete a single error entry
+      parameters:
+        - name: identifier
+          in: path
+          description: error_identifier of an error response
+          required: true
+          type: string
       responses:
         '204':
           description: entry deleted
@@ -1308,7 +1225,7 @@ paths:
           description: not found
       tags:
         - ApiErrors API
-  /apierrors/flush:
+  /rest/apierrors/flush:
     post:
       summary: "delete all error entries"
       responses:
@@ -1319,7 +1236,7 @@ paths:
 
 
 # Schema API
-  /schemas:
+  /rest/schemas:
     get:
       summary: "list schemas"
       responses:
@@ -1327,7 +1244,7 @@ paths:
           description: successful operation, return list of schema names
       tags:
         - Schema API
-  /schemas/{name}:
+  /rest/schemas/{name}:
     get:
       summary: get schema content
       parameters:
@@ -1344,7 +1261,27 @@ paths:
       tags:
         - Schema API
 
-              
+
+# RPC APIs
+  /rpc/datasets/get_minimal_dataset_template:
+    get:
+      summary: Get minimal dataset template.
+      description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. The returned template can be used as-is when creating a dataset into Metax.
+      parameters:
+        - name: type
+          in: query
+          description: Type of dataset template to retrieve. Accepted values&#58; service, enduser.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, return dataset template as json.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+      tags:
+        - Dataset RPC
+
+            
 definitions:
   CatalogRecord:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
@@ -1354,3 +1291,17 @@ definitions:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/File'
   Directory:
     $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/Directory'
+  StringList:
+    type: array
+    items:
+      type: string
+      example: "value"
+  CatalogRecordList:
+    type: array
+    items:
+      $ref: '#/definitions/CatalogRecord'
+  FileList:
+    type: array
+    items:
+      $ref: '#/definitions/CatalogRecord'
+

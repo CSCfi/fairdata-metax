@@ -56,20 +56,10 @@ class DataCatalogService(ReferenceDataMixin):
                     cls.populate_from_ref_data(ref_entry, access_type, label_field='pref_label', add_in_scheme=False)
 
             for license in access_rights.get('license', []):
-                license_url = license.get('license', None)
-
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'data_catalog_json.access_rights.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
-
-                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
-                    # and when the reference data uri does not contain purl.org/att
-                    if not license_url and ref_entry.get('uri', False):
-                        license_url = ref_entry['uri'] if 'purl.org/att' not in ref_entry['uri'] else None
-
-                if license_url:
-                    license['license'] = license_url
 
             if 'has_rights_related_agent' in access_rights:
                 for agent in access_rights.get('has_rights_related_agent', []):

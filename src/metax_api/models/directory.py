@@ -45,6 +45,12 @@ class Directory(Common):
         # actual delete
         super(Common, self).delete()
 
+    def user_has_access(self, request):
+        if request.user.is_service:
+            return True
+        from metax_api.services import AuthService
+        return self.project_identifier in AuthService.extract_file_projects_from_token(request.user.token)
+
     def calculate_byte_size_and_file_count(self):
         """
         Traverse the entire directory tree and update total byte size and file count
@@ -82,7 +88,7 @@ class Directory(Common):
             % (
                 self.project_identifier,
                 self.byte_size,
-                self.byte_size / 1024 / 1024.0,
+                self.byte_size / 1024 / 1024 / 1024,
                 self.file_count
             )
         )

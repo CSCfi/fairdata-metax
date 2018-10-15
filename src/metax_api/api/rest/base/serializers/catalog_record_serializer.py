@@ -8,8 +8,10 @@
 import logging
 from os import path
 
+from django.conf import settings as django_settings
 from rest_framework.serializers import ValidationError
 
+from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord, DataCatalog, Contract, Common
 from metax_api.services import CatalogRecordService as CRS, CommonService
 from .common_serializer import CommonSerializer
@@ -17,8 +19,31 @@ from .contract_serializer import ContractSerializer
 from .data_catalog_serializer import DataCatalogSerializer
 from .serializer_utils import validate_json
 
+
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
+
+# when end user creates a record, strip all fields except these
+END_USER_CREATE_ALLOWED_FIELDS = [
+    'data_catalog',
+    'research_dataset',
+
+    # not set by the user, but are set by metax, so should not be discarded
+    'date_created',
+    'user_created',
+    '__request'
+]
+
+# when end user updates a record, strip all fields except these
+END_USER_UPDATE_ALLOWED_FIELDS = [
+    'research_dataset',
+
+    # not set by the user, but are set by metax, so should not be discarded
+    'date_modified',
+    'user_modified',
+    '__request'
+]
+
+END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 
 
 class CatalogRecordSerializer(CommonSerializer):
@@ -64,6 +89,12 @@ class CatalogRecordSerializer(CommonSerializer):
         extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
 
     def is_valid(self, raise_exception=False):
+        if self._request_by_end_user():
+            if self._operation_is_create:
+                self._end_user_create_validations(self.initial_data)
+            elif self._operation_is_update:
+                self._end_user_update_validations(self.instance, self.initial_data)
+
         if self.initial_data.get('data_catalog', False):
             self.initial_data['data_catalog'] = self._get_id_from_related_object(
                 'data_catalog', self._get_data_catalog_relation)
@@ -75,6 +106,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('next_dataset_version', None)
         self.initial_data.pop('previous_dataset_version', None)
         self.initial_data.pop('removed', None)
+        self.initial_data.pop('deprecated', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
@@ -91,17 +123,20 @@ class CatalogRecordSerializer(CommonSerializer):
             self._validate_json_schema(self.initial_data['research_dataset'])
 
     def update(self, instance, validated_data):
-        if 'preserve_version' in self.context['view'].request.query_params:
+        if 'preserve_version' in self.context['request'].query_params:
+            if self._request_by_end_user():
+                raise Http403({ 'detail': [ 'Parameter preserve_version not permitted for end users' ]})
             # execute updates without creating new versions
             instance.preserve_version = True
+
         return super(CatalogRecordSerializer, self).update(instance, validated_data)
 
     def create(self, validated_data):
         if self._migration_override_requested():
 
             # any custom stuff before create that my be necessary for migration purposes
-
-            if 'preferred_identifier' in validated_data['research_dataset']:
+            pid = ''
+            if validated_data['research_dataset'].get('preferred_identifier', False):
                 # store pid, since it will be overwritten during create otherwise
                 pid = validated_data['research_dataset']['preferred_identifier']
 
@@ -111,7 +146,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
             # any custom stuff after create that my be necessary for migration purposes
 
-            if 'preferred_identifier' in validated_data['research_dataset']:
+            if pid:
                 # save original pid provided by the requestor
                 res.research_dataset['preferred_identifier'] = pid
 
@@ -119,6 +154,47 @@ class CatalogRecordSerializer(CommonSerializer):
                 super(Common, res).save()
 
         return res
+
+    def _end_user_update_validations(self, instance, validated_data):
+        """
+        Enforce some rules related to end users when updating records.
+        """
+        fields_to_discard = [ key for key in validated_data.keys() if key not in END_USER_UPDATE_ALLOWED_FIELDS ]
+        for field_name in fields_to_discard:
+            del validated_data[field_name]
+
+    def _end_user_create_validations(self, validated_data):
+        """
+        Enforce some rules related to end users when creating records. End users...
+        - Can put data only into specified fields.
+        - Can only create records into specified catalogs (and can only use the identifier value, not id's directly!)
+        - Will have some fields automatically filled for them
+        """
+        fields_to_discard = [ key for key in validated_data.keys() if key not in END_USER_CREATE_ALLOWED_FIELDS ]
+        for field_name in fields_to_discard:
+            del validated_data[field_name]
+
+        # set some fields to whoever the authentication token belonged to.
+        validated_data['metadata_provider_user'] = self.context['request'].user.username
+        validated_data['metadata_provider_org'] = self.context['request'].user.token['schacHomeOrganization']
+        validated_data['metadata_owner_org'] = self.context['request'].user.token['schacHomeOrganization']
+
+        try:
+            identifier = validated_data['data_catalog'].catalog_json['identifier']
+        except:
+            try:
+                identifier = validated_data['data_catalog']
+            except KeyError:
+                # an error is raise later about missing required field
+                return
+
+        if identifier not in END_USER_ALLOWED_DATA_CATALOGS:
+            raise Http403({
+                'detail': [
+                    'You do not have access to the selected data catalog. Please use one of the following '
+                    'catalogs: %s' % ', '.join(END_USER_ALLOWED_DATA_CATALOGS)
+                ]
+            })
 
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
@@ -171,11 +247,43 @@ class CatalogRecordSerializer(CommonSerializer):
                 'version_type': 'dataset'
             }
 
+        # Do the population of file_details here, since if it was done in the view, it might not know the file/dir
+        # identifiers any longer, since the potential stripping of file/dir fields takes away identifier fields from
+        # File and Directory objects, which are needed in populating file_details
+        if 'request' in self.context and 'file_details' in self.context['request'].query_params:
+            CRS.populate_file_details(res, self.context['request'])
+
+        res = self._check_and_strip_sensitive_fields(instance, res)
+
+        return res
+
+    def _check_and_strip_sensitive_fields(self, instance, res):
+        """
+        Strip sensitive fields as necessary from the dataset that are not meant for the general public.
+
+        While not stricly a "serializer's" job (job: converting data from one format to another), the
+        serializer is a good location to do this kind of "access management" (stripping fields), since
+        damn near every api endpoint who returns the research_dataset to the client, does so by using
+        this serializer. Additionally, in the serializer, all required data is at hand:
+        - the user is known (the http request object)
+        - the target record is known and therefore its owner/permissions
+        - the data itself is here and always in the same format (as opposed to list/dict/xml/origami)
+
+        Doing the stripping at the end of a request "for all requests", for example in the dataset
+        view dispatcher(), is problematic, since at the very end of a request, not all fields may
+        be present in the data any longer to make decisions with (?fields=x,y was used), or when
+        retrieving a list where some filter was used, the identifiers may not be known either...
+        It is much more straightforward to do it here.
+        """
+        if 'request' in self.context:
+            if not instance.user_is_privileged(self.context['request']):
+                res['research_dataset'] = CRS.check_and_remove_metadata_based_on_access_type(
+                    CRS.remove_contact_info_metadata(res['research_dataset']))
         return res
 
     def validate_research_dataset(self, value):
         self._validate_json_schema(value)
-        if self._operation_is_create() or self._preferred_identifier_is_changed():
+        if self._operation_is_create or self._preferred_identifier_is_changed():
             self._validate_research_dataset_uniqueness(value)
         CRS.validate_reference_data(value, self.context['view'].cache)
 
@@ -191,7 +299,7 @@ class CatalogRecordSerializer(CommonSerializer):
     def _validate_json_schema(self, value):
         self._set_dataset_schema()
 
-        if self._operation_is_create():
+        if self._operation_is_create:
             if not value.get('preferred_identifier', None):
                 # normally not present, but may be set by harvesters. if missing,
                 # use temporary value and remove after schema validation.
@@ -262,7 +370,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
             # only look for hits within the same data catalog.
 
-            if self._operation_is_create():
+            if self._operation_is_create:
                 # value of data_catalog in initial_data is set in is_valid()
                 params['data_catalog'] = self.initial_data['data_catalog']
             else:
@@ -284,23 +392,23 @@ class CatalogRecordSerializer(CommonSerializer):
             # globally, instead of only inside a data catalog.
             pass
 
-        if self._operation_is_create():
-            return CatalogRecord.objects.filter(**params).exists()
+        if self._operation_is_create:
+            return CatalogRecord.objects_unfiltered.filter(**params).exists()
         elif self._data_catalog_supports_versioning():
             # preferred_identifiers already existing in ATT catalogs are fine, so exclude
             # results from ATT catalogs. matches in other catalogs however are considered
             # an error.
-            return CatalogRecord.objects.filter(**params).exclude(data_catalog_id=self.instance.data_catalog_id) \
-                .exists()
+            return CatalogRecord.objects_unfiltered.filter(**params) \
+                .exclude(data_catalog_id=self.instance.data_catalog_id).exists()
         else:
-            return CatalogRecord.objects.filter(**params).exclude(pk=self.instance.id).exists()
+            return CatalogRecord.objects_unfiltered.filter(**params).exclude(pk=self.instance.id).exists()
 
     def _data_catalog_is_changed(self):
         """
         Check if data_catalog of the record is being changed. Used to decide if
         preferred_identifier uniqueness should be checked in certain situations.
         """
-        if self._operation_is_update() and 'data_catalog' in self.initial_data:
+        if self._operation_is_update and 'data_catalog' in self.initial_data:
             dc = self.initial_data['data_catalog']
             if isinstance(dc, int):
                 return dc != self.instance.data_catalog.id
@@ -362,13 +470,14 @@ class CatalogRecordSerializer(CommonSerializer):
         Check presence of query parameter ?migration_override, which enables some specific actions during
         the request, at this point useful only for migration operations.
         """
-        if 'request' in self.context:
-            return CommonService.get_boolean_query_param(self.context['request'], 'migration_override')
-        return False
+        migration_override = CommonService.get_boolean_query_param(self.context['request'], 'migration_override')
+        if migration_override and self._request_by_end_user():
+            raise Http403({ 'detail': [ 'Parameter migration_override not permitted for end users' ]})
+        return migration_override
 
     def _set_dataset_schema(self):
         data_catalog = None
-        if self._operation_is_create():
+        if self._operation_is_create:
             try:
                 data_catalog_id = self._get_id_from_related_object('data_catalog', self._get_data_catalog_relation)
                 data_catalog = DataCatalog.objects.get(pk=data_catalog_id)

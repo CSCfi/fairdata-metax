@@ -17,9 +17,8 @@ from rest_framework.views import set_rollback
 from rest_framework.viewsets import ModelViewSet
 
 from metax_api.exceptions import Http403, Http500
-from metax_api.permissions import ServicePermissions
-from metax_api.services import CommonService as CS, ApiErrorService
-from metax_api.utils import RedisSentinelCache
+from metax_api.permissions import EndUserPermissions, ServicePermissions
+from metax_api.services import CommonService as CS, ApiErrorService, CallableService, RedisCacheService
 
 _logger = logging.getLogger(__name__)
 
@@ -33,11 +32,12 @@ class CommonViewSet(ModelViewSet):
     which include fields like modified and created timestamps, uuid, active flags etc.
     """
 
+    api_type = 'rest'
     authentication_classes = ()
-    permission_classes = (ServicePermissions,)
+    permission_classes = (EndUserPermissions, ServicePermissions)
 
     lookup_field_internal = None
-    cache = RedisSentinelCache()
+    cache = RedisCacheService
 
     # get_queryset() automatically includes these in .select_related(field1, field2...) when returning
     # queryset to the caller
@@ -59,13 +59,25 @@ class CommonViewSet(ModelViewSet):
             self.queryset_unfiltered = self.object.objects_unfiltered.all()
 
     def dispatch(self, request, **kwargs):
+        CallableService.clear_callables()
         res = super().dispatch(request, **kwargs)
         if res.status_code in RESPONSE_SUCCESS_CODES:
             try:
-                CS.run_post_request_callables()
+                CallableService.run_post_request_callables()
             except Exception as e:
-                return self.handle_exception(e)
+                res = self.handle_exception(e)
+                # normally .dispatch() does this. sets response.accepted_renderer among other things
+                res = self.finalize_response(request, res, **kwargs)
         return res
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        return [
+            permission() for permission in self.permission_classes
+            if permission.service_permission == self.request.user.is_service
+        ]
 
     def handle_exception(self, exc):
         """
@@ -264,12 +276,18 @@ class CommonViewSet(ModelViewSet):
 
     def initialize_request(self, request, *args, **kwargs):
         """
-        Overrided from rest_framework to preserve the username set during
-        identifyapicaller middleware.
+        Overrided from rest_framework to preserve the username and other variables
+        set during identifyapicaller middleware.
         """
         username = request.user.username if hasattr(request.user, 'username') else None
+        is_service = request.user.is_service if hasattr(request.user, 'is_service') else False
+        token = request.user.token if hasattr(request.user, 'token') else None
+
         drf_req = super(CommonViewSet, self).initialize_request(request, *args, **kwargs)
+
         drf_req.user.username = username
+        drf_req.user.is_service = is_service
+        drf_req.user.token = token
         return drf_req
 
     def set_json_schema(self, view_file):

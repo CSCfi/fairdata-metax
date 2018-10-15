@@ -17,10 +17,9 @@ import yaml
 from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
 from metax_api.renderers import XMLRenderer
-from metax_api.services import CatalogRecordService as CRS, CommonService as CS
-from metax_api.utils import RabbitMQ
+from metax_api.services import CatalogRecordService as CRS, CommonService as CS, RabbitMQService as rabbitmq
 from .common_view import CommonViewSet
-from ..serializers import CatalogRecordSerializer, FileSerializer
+from ..serializers import CatalogRecordSerializer, LightFileSerializer
 
 _logger = logging.getLogger(__name__)
 
@@ -37,25 +36,6 @@ class DatasetViewSet(CommonViewSet):
         # As opposed to other views, do not set json schema here
         # It is done in the serializer
         super(DatasetViewSet, self).__init__(*args, **kwargs)
-
-    def dispatch(self, request, **kwargs):
-        """
-        In all responses, strip fields from dataset objects that are not meant for the general public
-        """
-        res = super().dispatch(request, **kwargs)
-        if not request.user.username:
-            if isinstance(res.data, dict):
-                if 'results' in res.data:
-                    # list with paging
-                    res.data['results'] = CRS.strip_catalog_record(res.data['results'])
-                else:
-                    # single std get
-                    res.data = CRS.strip_catalog_record(res.data)
-            elif isinstance(res.data, list):
-                # list with paging disabled
-                for i, item in enumerate(res.data):
-                    res.data[i] = CRS.strip_catalog_record(item)
-        return res
 
     def get_object(self):
         try:
@@ -74,12 +54,8 @@ class DatasetViewSet(CommonViewSet):
         res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
 
         if 'dataset_format' in request.query_params:
-            if not request.user.username:
-                res.data = CRS.strip_catalog_record(res.data)
             res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
             request.accepted_renderer = XMLRenderer()
-        elif 'file_details' in request.query_params:
-            CRS.populate_file_details(res.data, request)
 
         return res
 
@@ -129,6 +105,16 @@ class DatasetViewSet(CommonViewSet):
         except:
             raise Http404
 
+        if not cr.user_is_privileged(request):
+            # normally when retrieving a record and its research_dataset field,
+            # the request goes through the CatalogRecordSerializer, where sensitive
+            # fields are automatically stripped. This is a case where it's not
+            # possible to use the serializer, since an older metadata version of a ds
+            # is not stored as part of the cr, but in the table ResearchDatasetVersion.
+            # therefore, perform this checking and stripping separately here.
+            research_dataset = CRS.check_and_remove_metadata_based_on_access_type(
+                CRS.remove_contact_info_metadata(research_dataset))
+
         return Response(data=research_dataset, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], url_path="metadata_versions")
@@ -146,14 +132,17 @@ class DatasetViewSet(CommonViewSet):
         Get files associated to this dataset. Can be used to retrieve a list of only
         deleted files by providing the query parameter removed_files=true.
         """
-        if not request.user.username:
-            raise Http403
-
         params = {}
         manager = 'objects'
         # TODO: This applies only to IDA files, not remote resources.
         # TODO: Should this apply also to remote resources?
-        catalog_record = self.get_object()
+        cr = self.get_object()
+
+        if not cr.authorized_to_see_catalog_record_files(request):
+            raise Http403({
+                'detail': ['You do not have permission to see this information because the dataset access type '
+                           'is not open and you are not the owner of the catalog record.']
+            })
 
         if CS.get_boolean_query_param(request, 'removed_files'):
             params['removed'] = True
@@ -163,10 +152,9 @@ class DatasetViewSet(CommonViewSet):
         if 'file_fields' in request.query_params:
             file_fields = request.query_params['file_fields'].split(',')
 
-        files = [
-            FileSerializer(f, only_fields=file_fields).data
-            for f in catalog_record.files(manager=manager).filter(**params).only(*file_fields)
-        ]
+        file_fields = LightFileSerializer.ls_field_list(file_fields)
+        queryset = cr.files(manager=manager).filter(**params).values(*file_fields)
+        files = LightFileSerializer.serialize(queryset)
 
         return Response(data=files, status=status.HTTP_200_OK)
 
@@ -213,6 +201,7 @@ class DatasetViewSet(CommonViewSet):
             obj = self.get_queryset().filter(research_dataset__contains={'preferred_identifier': lookup_value}) \
                 .order_by('data_catalog_id', 'date_created').first()
             if obj:
+                self.check_object_permissions(self.request, obj)
                 return obj
             raise Http404
 
@@ -255,7 +244,6 @@ class DatasetViewSet(CommonViewSet):
     def rabbitmq_test(self, request, pk=None): # pragma: no cover
         if request.user.username != 'metax':
             raise Http403()
-        rabbitmq = RabbitMQ()
         rabbitmq.publish({ 'msg': 'hello create'}, routing_key='create', exchange='datasets')
         rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
         return Response(data={}, status=status.HTTP_200_OK)

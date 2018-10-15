@@ -9,6 +9,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from metax_api.services import RedisCacheService as cache
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -86,9 +87,6 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to data catalog to their approriate fields
         """
-        from metax_api.utils import RedisSentinelCache
-
-        cache = RedisSentinelCache()
         refdata = cache.get('reference_data')['reference_data']
         orgdata = cache.get('reference_data')['organization_data']
         refs = {}

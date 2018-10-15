@@ -271,6 +271,15 @@
                     "@id":"http://spdx.org/rdf/terms#algorithm",
                     "title":"Algorithm",
                     "description":"Used checksum algortihm",
+                    "enum":[
+                        "MD5",
+                        "SHA-1",
+                        "SHA-224",
+                        "SHA-256",
+                        "SHA-384",
+                        "SHA-512",
+                        "OTHER"
+                    ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
                 },
@@ -654,6 +663,13 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "type":"string",
                     "format":"date-time"
+                },
+                "temporal_coverage":{
+                    "@id":"http://schema.org/temporalCoverage",
+                    "title":"Temporal coverage",
+                    "description":"Period of time expressed as ISO 8601 compliant string",
+                    "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "type":"string"
                 }
             },
             "additionalProperties": false
@@ -868,92 +884,9 @@
             "@id":"http://xmlns.com/foaf/0.1/Agent",
 			"oneOf":[
                 {"$ref": "#/definitions/Person"},
-                {"$ref": "#/definitions/Organization"},
-                {"$ref": "#/definitions/Agent"}
+                {"$ref": "#/definitions/Organization"}
             ],
             "description":"An agent (eg. person, group, software or physical artifact)."
-        },
-        "Agent":{
-			"type":"object",
-            "title":"Generic Agent",
-            "@id":"http://xmlns.com/foaf/0.1/Agent",
-            "description":"An agent (eg. person, group, software or physical artifact).",
-            "properties":{
-				"@type":{
-            		"type":"string",
-            		"enum":["Agent"]
-            	},
-                "identifier":{
-                    "@id":"http://purl.org/dc/terms/identifier",
-                    "title":"Identifier",
-                    "description":"An unambiguous reference to the resource within a given context.",
-                    "@type":"@id",
-                    "type":"string",
-                    "format":"uri",
-                    "example":[
-                        "http://orcid.org/0000-0002-1825-0097"
-                    ]
-                },
-                "name":{
-                    "@id":"http://xmlns.com/foaf/0.1/name",
-                    "title":"Name",
-                    "description":"This property contains a name of the agent. This property can be repeated for different versions of the name (e.g. the name in different languages)",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"string"
-                },
-                "email":{
-                    "@id":"http://schema.org/email",
-                    "title":"Email",
-                    "description":"Email address.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"string",
-                    "format":"email"
-                },
-                "telephone":{
-                    "@id":"http://schema.org/telephone",
-                    "title":"Phone",
-                    "description":"The telephone number.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"array",
-                    "items":{
-                        "type":"string"
-                    }
-                },
-                "homepage":{
-                    "@id":"http://xmlns.com/foaf/0.1/homepage",
-                    "title":"Homepage",
-                    "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Document"
-                },
-                "contributor_role":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#contributorRole",
-                    "title":"Contributor role",
-                    "description":"Contribution role from CASRAI. This relates person with the contribution domain.",
-                    "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/Concept"
-                    }
-                },
-                "contributor_type":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#contributorType",
-                    "title":"Contributor type",
-                    "description":"Contributor type of the Agent. Reference data from DataCite.",
-                    "@type":"@id",
-                    "type":"array",
-                    "items":{
-                        "type":"object",
-                        "$ref":"#/definitions/Concept"
-                    }
-                }
-            },
-            "required":[
-			    "@type",
-                "name"
-            ],
-            "additionalProperties": false
         },
         "ResearchDataLicenseDocument":{
             "title":"License Document",
@@ -1051,7 +984,8 @@
                     "title":"Release date",
                     "description":"Date of formal issuance (e.g., publication) of the resource.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "type":"string"
+                    "type":"string",
+                    "format": "date"
                 },
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -1321,7 +1255,8 @@
                     "title":"Date Available",
                     "description":"Date (often a range) that the resource became or will become available.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "type":"string"
+                    "type":"string",
+                    "format": "date"
                 },
                 "access_type":{
                     "@id":"http://purl.org/dc/terms/type",
@@ -1336,8 +1271,11 @@
                     "title":"Restriction grounds",
                     "description":"Classified reason of allocated access type.",
                     "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Concept"
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/Concept"
+                    }
                 },
                 "access_process":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#accessProcess",
@@ -1372,8 +1310,7 @@
                 }
             },
             "required":[
-                "access_type",
-                "restriction_grounds"
+                "access_type"
             ],
             "additionalProperties": false
         },
@@ -1594,7 +1531,6 @@
             },
             "required":[
                 "use_category",
-                "modified",
                 "title"
             ],
             "additionalProperties": false

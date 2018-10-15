@@ -98,12 +98,12 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                             "und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
                         },
                         "license": "https://creativecommons.org/licenses/by/4.0/",
-                        "identifier": "https://creativecommons.org/licenses/by/4.0/"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
                     }
                 ],
                 "access_type": [
                     {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "pref_label": {
                             "en": "Open",
                             "fi": "Avoin",
@@ -130,7 +130,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                         "telephone": [
                             "+12353495823424"
                         ],
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076"
                     }
                 ]
             },
@@ -395,7 +395,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         cr = CatalogRecord.objects.get(pk=11)
         from metax_api.api.oaipmh.base.metax_oai_server import MetaxOAIServer
         s = MetaxOAIServer()
-        md = s._get_oai_dc_metadata(cr, cr.research_dataset, 'Dataset')
+        md = s._get_oai_dc_metadata(cr, cr.research_dataset)
         self.assertTrue('identifier' in md)
         self.assertTrue('title' in md)
         self.assertTrue('lang' in md['title'][0])
@@ -404,7 +404,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         cr = DataCatalog.objects.get(pk=1)
         from metax_api.api.oaipmh.base.metax_oai_server import MetaxOAIServer
         s = MetaxOAIServer()
-        md = s._get_oai_dc_metadata(cr, self._datacatalog_record['catalog_json'], 'Datacatalog')
+        md = s._get_oai_dc_metadata(cr, self._datacatalog_record['catalog_json'])
         self.assertTrue('identifier' in md)
         self.assertTrue('title' in md)
         self.assertTrue('lang' in md['title'][0])

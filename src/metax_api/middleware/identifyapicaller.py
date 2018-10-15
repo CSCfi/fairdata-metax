@@ -8,7 +8,9 @@
 import logging
 from base64 import b64decode
 
+import json
 import yaml
+import requests
 from django.conf import settings as django_settings
 from django.http import HttpResponseForbidden
 
@@ -16,7 +18,7 @@ from metax_api.exceptions import Http403
 from metax_api.utils import executing_test_case, executing_travis
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
+
 
 """
 Currently API access authnz is already enforced once on the web server proxy level.
@@ -36,11 +38,12 @@ fetch users or sessions: Everything required for user authnz is living inside th
 for the lifetime of the process.
 """
 
-def IdentifyApiCaller(*args, **kwargs):
-    if executing_test_case() or executing_travis():
-        return _IdentifyApiCallerDummy(*args, **kwargs)
-    else:
-        return _IdentifyApiCaller(*args, **kwargs)
+
+WRITE_METHODS = ('POST', 'PUT', 'PATCH', 'DELETE')
+
+
+if not django_settings.TLS_VERIFY:
+    requests.packages.urllib3.disable_warnings()
 
 
 class _IdentifyApiCaller():
@@ -48,17 +51,20 @@ class _IdentifyApiCaller():
     def __init__(self, get_response):
         self.get_response = get_response
         self.API_USERS = self._get_api_users()
+        self.ALLOWED_AUTH_METHODS = django_settings.ALLOWED_AUTH_METHODS
 
     def __call__(self, request):
 
         # Code to be executed for each request before
         # the view (and later middleware) are called.
 
+        request.user.is_service = False
+
         if self._caller_should_be_identified(request):
             try:
                 self._identify_api_caller(request)
-            except Http403:
-                return HttpResponseForbidden()
+            except Http403 as e:
+                return HttpResponseForbidden(e)
 
         response = self.get_response(request)
 
@@ -67,22 +73,10 @@ class _IdentifyApiCaller():
 
         return response
 
-    def _api_user_allowed(self, username, apikey):
-        user = next(( u for u in self.API_USERS if u['username'] == username), None)
-        if not user:
-            return False
-        if apikey != user['password']:
-            return False
-        return True
-
-    def _caller_should_be_identified(self, request):
-        if request.META.get('HTTP_AUTHORIZATION', None):
-            return True
-        elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
-            return True
-        return False
-
     def _get_api_users(self):
+        """
+        Services, or other pre-defined api users.
+        """
         with open('/home/metax-user/app_config') as app_config:
             app_config_dict = yaml.load(app_config)
         try:
@@ -91,14 +85,23 @@ class _IdentifyApiCaller():
             _logger.exception('API_USERS missing from app_config')
             raise
 
+    def _caller_should_be_identified(self, request):
+        if request.META.get('HTTP_AUTHORIZATION', None):
+            return True
+        elif request.method in WRITE_METHODS:
+            return True
+        return False
+
     def _identify_api_caller(self, request):
         """
-        Try to identify the user from a HTTP authorization header. Places the user's name
-        in request.user.username if the user is valid. Raise 403 forbidden on errors.
+        Try to identify the user from a HTTP authorization header. Places information about
+        the user into request.user, such as request.user.username, is_service, and possibly
+        other info. Raises 403 forbidden on errors.
 
-        Valid users are listed in app_config.
+        Service users are authenticated against pre-defined settings, while End Users will have
+        their auth token validated.
 
-        Currently only Basic Auth is accepted.
+        Valid service users and authentication methods are listed in app_config.
         """
         http_auth_header = request.META.get('HTTP_AUTHORIZATION', None)
 
@@ -107,32 +110,104 @@ class _IdentifyApiCaller():
                             % request.META['REMOTE_ADDR'])
             raise Http403
 
-        if isinstance(http_auth_header, bytes):
-            http_auth_header = http_auth_header.decode('utf-8')
+        try:
+            auth_method, auth_b64 = http_auth_header.split(' ')
+        except ValueError:
+            raise Http403({
+                'detail': [
+                    'Invalid HTTP authorization method. Ensure you included on of the following '
+                    'methods inside the auth header: %s' % ', '.join(self.ALLOWED_AUTH_METHODS)
+                ]
+            })
 
-        auth_method, auth_b64 = http_auth_header.split(' ')
+        if auth_method not in self.ALLOWED_AUTH_METHODS:
+            _logger.warning('Invalid HTTP authorization method: %s' % auth_method)
+            raise Http403({
+                'detail': [
+                    'Invalid HTTP authorization method: %s. Allowed auth methods: %s'
+                    % (auth_method, ', '.join(self.ALLOWED_AUTH_METHODS))
+                ]
+            })
 
-        if auth_method != 'Basic':
-            _logger.warning('Invalid HTTP authorization method: %s, from ip: %s' %
-                            (auth_method, request.META['REMOTE_ADDR']))
-            raise Http403
+        if auth_method.lower() == 'basic':
+            self._auth_basic(request, auth_b64)
+        elif auth_method.lower() == 'bearer':
+            self._auth_bearer(request, auth_b64)
+        else:
+            raise Exception('The allowed auth method %s is missing handling' % auth_method)
 
+        return request
+
+    def _auth_basic(self, request, auth_b64):
+        """
+        Check request user credentials for service-level users.
+        """
         try:
             username, apikey = b64decode(auth_b64).decode('utf-8').split(':')
         except:
-            _logger.warning('Malformed HTTP Authorization header (Basic) from ip: %s' % request.META['REMOTE_ADDR'])
+            _logger.warning('Malformed HTTP Authorization header (Basic)')
+            raise Http403({ 'detail': [ 'Malformed HTTP Authorization header (Basic)' ]})
+
+        user = next(( u for u in self.API_USERS if u['username'] == username), None)
+
+        if not user:
+            _logger.warning('Failed authnz for user %s: user not found' % username)
+            raise Http403
+        if apikey != user['password']:
+            _logger.warning('Failed authnz for user %s: password mismatch' % username)
             raise Http403
 
-        if self._api_user_allowed(username, apikey):
-            request.user.username = username
-        else:
-            _logger.warning('Failed authnz for user: %s, from ip: %s' % (username, request.META['REMOTE_ADDR']))
+        request.user.username = username
+        request.user.is_service = True
+
+    def _auth_bearer(self, request, auth_b64):
+        _logger.debug('validating bearer token...')
+
+        response = requests.get(
+            # url protected by oidc. the proxy is configured to return 200 OK for any valid token
+            django_settings.VALIDATE_TOKEN_URL,
+            headers={ 'Authorization': request.META.get('HTTP_AUTHORIZATION', None) },
+            verify=django_settings.TLS_VERIFY,
+        )
+
+        _logger.debug('response from token validation: %s' % str(response))
+
+        if response.status_code != 200:
+            _logger.warning('Bearer token validation failed')
             raise Http403
 
-        return request
+        try:
+            token = self._extract_id_token(auth_b64)
+        except:
+            # the above method should never fail, as this code should not be
+            # reachable if the token validation had already failed.
+            _logger.exception('Failed to extract token from id_token string')
+            raise Http403
+
+        request.user.username = token['sub']
+        request.user.is_service = False
+        request.user.token = token
+
+    def _extract_id_token(self, id_token_string):
+        """
+        Extract the interesting part from the dot-separated string that looks something like
+        "asdasd.abcabc.defghi".
+        """
+        id_token_payload_b64 = id_token_string.split('.')[1]
+
+        # in the dot-separated string, the b64 encoded strings may not be multiples of 4, which
+        # complete valid b64 strings should be. add a few trailing '=' characters to ensure
+        # requirement is satisfied. the b64decode method knows to discard excess '='.
+        return json.loads(b64decode('%s===' % id_token_payload_b64).decode('utf-8'))
 
 
 class _IdentifyApiCallerDummy(_IdentifyApiCaller):
 
     def _get_api_users(self):
         return django_settings.API_TEST_USERS
+
+
+if executing_test_case() or executing_travis():
+    IdentifyApiCaller = _IdentifyApiCallerDummy
+else:
+    IdentifyApiCaller = _IdentifyApiCaller

@@ -16,38 +16,22 @@ from redis.exceptions import TimeoutError, ConnectionError
 from redis.sentinel import MasterNotFoundError
 from redis.sentinel import Sentinel
 
-from .utils import executing_test_case, executing_travis
+from metax_api.utils.utils import executing_test_case, executing_travis
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
 
 
-def RedisSentinelCache(*args, **kwargs):
-    """
-    A factory for the redis client.
+class _RedisCacheService():
 
-    Returns dummy cache with hardcoded dict as the storage when executing inside travis
-    """
-    if executing_travis() or kwargs.get('dummy', False):
-        return _RedisSentinelCacheDummy(*args, **kwargs)
-    else:
-        return _RedisSentinelCache(*args, **kwargs)
-
-
-class _RedisSentinelCache():
-
-    def __init__(self, db=0, master_only=False, settings=django_settings):
+    def __init__(self, db=0):
         """
         db: database index to read/write to. available indexes 0-15.
-        master_only: always use master for read operations, for those times when you know you are going to
-                     read the same key again from cache very soon.
-        settings: override redis settings in settings.py. easier to use class from outside context of django (i.e. cron)
         """
-        if not isinstance(settings, dict):
-            if hasattr(settings, 'REDIS'):
-                settings = settings.REDIS
-            else:
-                raise Exception('Missing configuration from settings.py: REDIS')
+        if hasattr(django_settings, 'REDIS'):
+            settings = django_settings.REDIS
+        else:
+            raise Exception('Missing configuration from settings.py: REDIS')
 
         if not settings.get('SENTINEL', None):
             raise Exception('Missing configuration from settings for REDIS: SENTINEL')
@@ -82,7 +66,6 @@ class _RedisSentinelCache():
 
         self._service_name = settings['SENTINEL']['SERVICE']
         self._DEBUG = settings.get('DEBUG', False)
-        self._read_from_master_only = master_only
         self._node_count = self._count_nodes()
 
     def set(self, key, value, **kwargs):
@@ -133,7 +116,7 @@ class _RedisSentinelCache():
         if self._DEBUG:
             d('cache: get()...')
 
-        if self._read_from_master_only or master:
+        if master:
             return self._get_from_master(key, **kwargs)
         else:
             try:
@@ -230,7 +213,7 @@ class _RedisSentinelCache():
         return len(self._sentinel.discover_slaves(self._service_name)) + 1 # +1 is master
 
 
-class _RedisSentinelCacheDummy():
+class _RedisCacheServiceDummy():
 
     """
     A dummy redis client that writes to a file on disk.
@@ -289,3 +272,9 @@ class _RedisSentinelCacheDummy():
                 dump_json(storage, f)
         except Exception as e:
             _logger.error('Could not open dummy cache file for writing at %s: %s' % (self._storage_path, str(e)))
+
+
+if executing_travis():
+    RedisCacheService = _RedisCacheServiceDummy()
+else:
+    RedisCacheService = _RedisCacheService()

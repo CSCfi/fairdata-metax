@@ -4543,7 +4543,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -4563,7 +4563,7 @@
                         },
                         {
                             "email": "wahatever@madeupdomain.com",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Org referenssidatassa"
@@ -4575,7 +4575,7 @@
                     ],
                     "license": [
                         {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
@@ -4611,7 +4611,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -4658,7 +4658,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -4678,7 +4678,7 @@
                         },
                         {
                             "email": "wahatever@madeupdomain.com",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Org referenssidatassa"
@@ -4690,7 +4690,7 @@
                     ],
                     "license": [
                         {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
@@ -4726,7 +4726,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d2",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -4773,7 +4773,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -4793,7 +4793,7 @@
                         },
                         {
                             "email": "wahatever@madeupdomain.com",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Org referenssidatassa"
@@ -4805,7 +4805,7 @@
                     ],
                     "license": [
                         {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
@@ -4841,7 +4841,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d3",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -4888,7 +4888,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -4908,7 +4908,7 @@
                         },
                         {
                             "email": "wahatever@madeupdomain.com",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Org referenssidatassa"
@@ -4920,7 +4920,7 @@
                     ],
                     "license": [
                         {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
@@ -4956,7 +4956,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d4",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5003,7 +5003,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5023,7 +5023,7 @@
                         },
                         {
                             "email": "wahatever@madeupdomain.com",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Org referenssidatassa"
@@ -5035,7 +5035,7 @@
                     ],
                     "license": [
                         {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
@@ -5071,7 +5071,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d5",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5118,7 +5118,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5138,7 +5138,7 @@
                         },
                         {
                             "email": "wahatever@madeupdomain.com",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Org referenssidatassa"
@@ -5150,7 +5150,7 @@
                     ],
                     "license": [
                         {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
@@ -5186,7 +5186,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d6",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5233,7 +5233,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5253,7 +5253,7 @@
                         },
                         {
                             "email": "wahatever@madeupdomain.com",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Org referenssidatassa"
@@ -5265,7 +5265,7 @@
                     ],
                     "license": [
                         {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
@@ -5301,7 +5301,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d7",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5348,7 +5348,7 @@
                 "access_rights": {
                     "access_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                             "pref_label": {
                                 "en": "Open",
                                 "fi": "Avoin"
@@ -5368,7 +5368,7 @@
                         },
                         {
                             "email": "wahatever@madeupdomain.com",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Org referenssidatassa"
@@ -5380,7 +5380,7 @@
                     ],
                     "license": [
                         {
-                            "identifier": "https://creativecommons.org/licenses/by/4.0/",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
                             "title": {
                                 "en": "CC BY 4.0",
                                 "fi": "CC BY 4.0"
@@ -5416,7 +5416,7 @@
                     }
                 ],
                 "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d8",
-                "issued": "2014-02-27T08:19:58Z",
+                "issued": "2014-02-27",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/fin"
@@ -5489,7 +5489,7 @@
                 ],
                 "title": "Helsingin yliopiston biotieteiden laitoksen muuttolintujen laskentatulosten s\u00e4ilytyssopimus",
                 "validity": {
-                    "start_date": "2018-07-01T00:00:00Z"
+                    "start_date": "2018-07-01"
                 }
             },
             "date_created": "2018-04-05T08:19:58+03:00",
@@ -5526,7 +5526,7 @@
                 ],
                 "title": "Title of Contract 2",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             },
             "date_created": "2017-05-15T10:07:22Z",
@@ -5563,7 +5563,7 @@
                 ],
                 "title": "Title of Contract 3",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             },
             "date_created": "2017-05-15T10:07:22Z",
@@ -5600,7 +5600,7 @@
                 ],
                 "title": "Title of Contract 4",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             },
             "date_created": "2017-05-15T10:07:22Z",
@@ -5637,7 +5637,7 @@
                 ],
                 "title": "Title of Contract 5",
                 "validity": {
-                    "start_date": "2014-01-17T08:19:58Z"
+                    "start_date": "2014-01-17"
                 }
             },
             "date_created": "2017-05-15T10:07:22Z",
@@ -5744,10 +5744,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -5755,7 +5752,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -5786,22 +5783,22 @@
                 "files": [
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/text"
                         },
                         "identifier": "pid:urn:1",
                         "title": "File metadata title 1",
                         "use_category": {
-                            "identifier": "source"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source"
                         }
                     },
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/text"
                         },
                         "identifier": "pid:urn:2",
                         "title": "File metadata title 2",
                         "use_category": {
-                            "identifier": "source"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source"
                         }
                     }
                 ],
@@ -5854,10 +5851,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -5865,7 +5859,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -5896,22 +5890,22 @@
                 "files": [
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_text"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/text"
                         },
                         "identifier": "pid:urn:3",
                         "title": "File metadata title 3",
                         "use_category": {
-                            "identifier": "source"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source"
                         }
                     },
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video"
                         },
                         "identifier": "pid:urn:4",
                         "title": "File metadata title 4",
                         "use_category": {
-                            "identifier": "outcome"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome"
                         }
                     }
                 ],
@@ -5964,10 +5958,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -5975,7 +5966,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -6006,22 +5997,22 @@
                 "files": [
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video"
                         },
                         "identifier": "pid:urn:5",
                         "title": "File metadata title 5",
                         "use_category": {
-                            "identifier": "outcome"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome"
                         }
                     },
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video"
                         },
                         "identifier": "pid:urn:6",
                         "title": "File metadata title 6",
                         "use_category": {
-                            "identifier": "outcome"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome"
                         }
                     }
                 ],
@@ -6074,10 +6065,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6085,7 +6073,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -6116,22 +6104,22 @@
                 "files": [
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video"
                         },
                         "identifier": "pid:urn:7",
                         "title": "File metadata title 7",
                         "use_category": {
-                            "identifier": "outcome"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome"
                         }
                     },
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image"
                         },
                         "identifier": "pid:urn:8",
                         "title": "File metadata title 8",
                         "use_category": {
-                            "identifier": "publication"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
                         }
                     }
                 ],
@@ -6184,10 +6172,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6195,7 +6180,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -6226,22 +6211,22 @@
                 "files": [
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image"
                         },
                         "identifier": "pid:urn:9",
                         "title": "File metadata title 9",
                         "use_category": {
-                            "identifier": "publication"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
                         }
                     },
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image"
                         },
                         "identifier": "pid:urn:10",
                         "title": "File metadata title 10",
                         "use_category": {
-                            "identifier": "publication"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
                         }
                     }
                 ],
@@ -6294,10 +6279,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6305,7 +6287,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -6336,22 +6318,22 @@
                 "files": [
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image"
                         },
                         "identifier": "pid:urn:11",
                         "title": "File metadata title 11",
                         "use_category": {
-                            "identifier": "publication"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
                         }
                     },
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_source_code"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/source_code"
                         },
                         "identifier": "pid:urn:12",
                         "title": "File metadata title 12",
                         "use_category": {
-                            "identifier": "documentation"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation"
                         }
                     }
                 ],
@@ -6404,10 +6386,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6415,7 +6394,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -6446,22 +6425,22 @@
                 "files": [
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_source_code"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/source_code"
                         },
                         "identifier": "pid:urn:13",
                         "title": "File metadata title 13",
                         "use_category": {
-                            "identifier": "documentation"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation"
                         }
                     },
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_source_code"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/source_code"
                         },
                         "identifier": "pid:urn:14",
                         "title": "File metadata title 14",
                         "use_category": {
-                            "identifier": "documentation"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation"
                         }
                     }
                 ],
@@ -6514,10 +6493,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6525,7 +6501,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -6556,12 +6532,12 @@
                 "files": [
                     {
                         "file_type": {
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_source_code"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/source_code"
                         },
                         "identifier": "pid:urn:15",
                         "title": "File metadata title 15",
                         "use_category": {
-                            "identifier": "documentation"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation"
                         }
                     },
                     {
@@ -6621,10 +6597,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6632,7 +6605,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -6726,10 +6699,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -6737,7 +6707,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -6846,7 +6816,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -6861,7 +6831,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -6870,16 +6840,18 @@
                             "description": {
                                 "en": "Free account of the rights"
                             },
-                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
                                 "en": "A name given to the resource"
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -6887,7 +6859,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/funding_acquisition"
                             }
                         ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
@@ -6895,7 +6867,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -6913,7 +6885,7 @@
                         "@type": "Person",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ProjectLeader"
                             }
                         ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
@@ -6941,7 +6913,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/conceptualization"
                             }
                         ],
                         "member_of": {
@@ -6960,10 +6932,10 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                             },
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Sponsor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Sponsor"
                             }
                         ],
                         "identifier": "id:of:curator:default",
@@ -6990,7 +6962,7 @@
                         "identifier": "pid:urn:dir:2",
                         "title": "dir_name",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/method"
                         }
                     },
                     {
@@ -6998,7 +6970,7 @@
                         "identifier": "pid:urn:dir:3",
                         "title": "dir_name_2",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/method"
                         }
                     }
                 ],
@@ -7021,13 +6993,13 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:1",
                         "title": "file title",
                         "use_category": {
-                            "identifier": "configuration"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/configuration"
                         }
                     },
                     {
@@ -7036,13 +7008,13 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/software",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:2",
                         "title": "file title",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
                         }
                     }
                 ],
@@ -7062,7 +7034,7 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Editor"
                                     }
                                 ],
                                 "email": "rahoitus@rahaorg.fi",
@@ -7085,11 +7057,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/HostingInstitution"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -7101,7 +7073,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -7122,11 +7094,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ContactPerson"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -7153,11 +7125,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCollector"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization",
                                 "fi": "Organisaatio"
@@ -7170,7 +7142,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/identifier_type/code/urn",
                             "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
@@ -7191,7 +7163,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "outcome_description": {
@@ -7270,11 +7242,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCurator"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -7297,7 +7269,7 @@
                             "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -7320,7 +7292,7 @@
                     "@type": "Organization",
                     "contributor_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                         }
                     ],
                     "email": "info@csc.fi",
@@ -7331,7 +7303,7 @@
                             "fi": "Julkaisijan kotisivu"
                         }
                     },
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076-A800",
                     "is_part_of": {
                         "@type": "Organization",
                         "email": "info@csc.fi",
@@ -7342,7 +7314,7 @@
                                 "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
                             }
                         },
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                         "name": {
                             "en": "Parent of Mysterious Organization",
                             "fi": "Organisaatio"
@@ -7371,7 +7343,7 @@
                                 "fi": "Ulkopuolinen aineisto 1"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/physical_object"
                             }
                         },
                         "relation_type": {
@@ -7389,7 +7361,7 @@
                                 "fi": "Ulkopuolinen asia 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/collection"
                             }
                         },
                         "relation_type": {
@@ -7407,7 +7379,7 @@
                                 "fi": "Ulkopuolinen aineisto 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/service"
                             }
                         },
                         "relation_type": {
@@ -7425,7 +7397,7 @@
                                 "fi": "Ulkopuolinen asia 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/ui"
                             }
                         },
                         "relation_type": {
@@ -7438,11 +7410,11 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataManager"
                             }
                         ],
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                         "is_part_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -7485,6 +7457,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -7568,7 +7543,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -7583,7 +7558,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -7592,16 +7567,18 @@
                             "description": {
                                 "en": "Free account of the rights"
                             },
-                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
                                 "en": "A name given to the resource"
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -7609,7 +7586,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/funding_acquisition"
                             }
                         ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
@@ -7617,7 +7594,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -7635,7 +7612,7 @@
                         "@type": "Person",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ProjectLeader"
                             }
                         ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
@@ -7663,7 +7640,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/conceptualization"
                             }
                         ],
                         "member_of": {
@@ -7682,10 +7659,10 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                             },
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Sponsor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Sponsor"
                             }
                         ],
                         "identifier": "id:of:curator:default",
@@ -7712,7 +7689,7 @@
                         "identifier": "pid:urn:dir:2",
                         "title": "dir_name",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/method"
                         }
                     },
                     {
@@ -7720,7 +7697,7 @@
                         "identifier": "pid:urn:dir:3",
                         "title": "dir_name_2",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/method"
                         }
                     }
                 ],
@@ -7743,13 +7720,13 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:1",
                         "title": "file title",
                         "use_category": {
-                            "identifier": "configuration"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/configuration"
                         }
                     },
                     {
@@ -7758,13 +7735,13 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/software",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:2",
                         "title": "file title",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
                         }
                     }
                 ],
@@ -7784,7 +7761,7 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Editor"
                                     }
                                 ],
                                 "email": "rahoitus@rahaorg.fi",
@@ -7807,11 +7784,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/HostingInstitution"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -7823,7 +7800,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -7844,11 +7821,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ContactPerson"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -7875,11 +7852,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCollector"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization",
                                 "fi": "Organisaatio"
@@ -7892,7 +7869,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/identifier_type/code/urn",
                             "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
@@ -7913,7 +7890,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "outcome_description": {
@@ -7992,11 +7969,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCurator"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -8019,7 +7996,7 @@
                             "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -8042,7 +8019,7 @@
                     "@type": "Organization",
                     "contributor_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                         }
                     ],
                     "email": "info@csc.fi",
@@ -8053,7 +8030,7 @@
                             "fi": "Julkaisijan kotisivu"
                         }
                     },
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076-A800",
                     "is_part_of": {
                         "@type": "Organization",
                         "email": "info@csc.fi",
@@ -8064,7 +8041,7 @@
                                 "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
                             }
                         },
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                         "name": {
                             "en": "Parent of Mysterious Organization",
                             "fi": "Organisaatio"
@@ -8093,7 +8070,7 @@
                                 "fi": "Ulkopuolinen aineisto 1"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/physical_object"
                             }
                         },
                         "relation_type": {
@@ -8111,7 +8088,7 @@
                                 "fi": "Ulkopuolinen asia 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/collection"
                             }
                         },
                         "relation_type": {
@@ -8129,7 +8106,7 @@
                                 "fi": "Ulkopuolinen aineisto 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/service"
                             }
                         },
                         "relation_type": {
@@ -8147,7 +8124,7 @@
                                 "fi": "Ulkopuolinen asia 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/ui"
                             }
                         },
                         "relation_type": {
@@ -8160,11 +8137,11 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataManager"
                             }
                         ],
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                         "is_part_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -8207,6 +8184,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -8358,7 +8338,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -8373,7 +8353,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -8382,16 +8362,18 @@
                             "description": {
                                 "en": "Free account of the rights"
                             },
-                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
                                 "en": "A name given to the resource"
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -8399,7 +8381,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/funding_acquisition"
                             }
                         ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
@@ -8407,7 +8389,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -8425,7 +8407,7 @@
                         "@type": "Person",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ProjectLeader"
                             }
                         ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
@@ -8453,7 +8435,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/conceptualization"
                             }
                         ],
                         "member_of": {
@@ -8472,10 +8454,10 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                             },
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Sponsor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Sponsor"
                             }
                         ],
                         "identifier": "id:of:curator:default",
@@ -8502,7 +8484,7 @@
                         "identifier": "pid:urn:dir:18",
                         "title": "Phase 1 of science data C",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                            "identifier": "outcome"
                         }
                     },
                     {
@@ -8510,7 +8492,7 @@
                         "identifier": "pid:urn:dir:22",
                         "title": "Phase 2 of science data C",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                            "identifier": "outcome"
                         }
                     },
                     {
@@ -8518,7 +8500,7 @@
                         "identifier": "pid:urn:dir:12",
                         "title": "Phase 1 01/2018 of Science data A",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_outcome"
+                            "identifier": "outcome"
                         }
                     },
                     {
@@ -8526,7 +8508,7 @@
                         "identifier": "pid:urn:dir:13",
                         "title": "Science data B",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_source"
+                            "identifier": "source"
                         }
                     },
                     {
@@ -8534,7 +8516,7 @@
                         "identifier": "pid:urn:dir:14",
                         "title": "Other stuff",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_method"
+                            "identifier": "method"
                         }
                     }
                 ],
@@ -8557,7 +8539,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_video",
+                            "identifier": "video",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:6",
@@ -8572,13 +8554,13 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_software",
+                            "identifier": "software",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "identifier": "pid:urn:10",
                         "title": "file title 10",
                         "use_category": {
-                            "identifier": "http://purl.org/att/es/reference_data/use_category/use_category_publication"
+                            "identifier": "publication"
                         }
                     }
                 ],
@@ -8598,7 +8580,7 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Editor"
                                     }
                                 ],
                                 "email": "rahoitus@rahaorg.fi",
@@ -8621,11 +8603,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/HostingInstitution"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -8637,7 +8619,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -8658,11 +8640,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ContactPerson"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -8689,11 +8671,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCollector"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization",
                                 "fi": "Organisaatio"
@@ -8706,7 +8688,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/identifier_type/code/urn",
                             "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
@@ -8727,7 +8709,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "outcome_description": {
@@ -8806,11 +8788,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCurator"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -8833,7 +8815,7 @@
                             "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -8856,7 +8838,7 @@
                     "@type": "Organization",
                     "contributor_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                         }
                     ],
                     "email": "info@csc.fi",
@@ -8867,7 +8849,7 @@
                             "fi": "Julkaisijan kotisivu"
                         }
                     },
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076-A800",
                     "is_part_of": {
                         "@type": "Organization",
                         "email": "info@csc.fi",
@@ -8878,7 +8860,7 @@
                                 "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
                             }
                         },
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                         "name": {
                             "en": "Parent of Mysterious Organization",
                             "fi": "Organisaatio"
@@ -8907,7 +8889,7 @@
                                 "fi": "Ulkopuolinen aineisto 1"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_physical_object"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/physical_object"
                             }
                         },
                         "relation_type": {
@@ -8925,7 +8907,7 @@
                                 "fi": "Ulkopuolinen asia 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_collection"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/collection"
                             }
                         },
                         "relation_type": {
@@ -8943,7 +8925,7 @@
                                 "fi": "Ulkopuolinen aineisto 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_service"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/service"
                             }
                         },
                         "relation_type": {
@@ -8961,7 +8943,7 @@
                                 "fi": "Ulkopuolinen asia 2"
                             },
                             "type": {
-                                "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_ui"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/ui"
                             }
                         },
                         "relation_type": {
@@ -8974,11 +8956,11 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataManager"
                             }
                         ],
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                         "is_part_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -9021,6 +9003,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -9077,10 +9062,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9088,7 +9070,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -9105,7 +9087,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ResearchGroup"
                             }
                         ],
                         "identifier": "10076-E700",
@@ -9182,10 +9164,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9193,7 +9172,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -9210,7 +9189,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ResearchGroup"
                             }
                         ],
                         "identifier": "10076-E700",
@@ -9287,10 +9266,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9298,7 +9274,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -9315,7 +9291,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ResearchGroup"
                             }
                         ],
                         "identifier": "10076-E700",
@@ -9392,10 +9368,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9403,7 +9376,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -9420,7 +9393,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ResearchGroup"
                             }
                         ],
                         "identifier": "10076-E700",
@@ -9497,10 +9470,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9508,7 +9478,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -9525,7 +9495,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ResearchGroup"
                             }
                         ],
                         "identifier": "10076-E700",
@@ -9602,10 +9572,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9613,7 +9580,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -9630,7 +9597,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ResearchGroup"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ResearchGroup"
                             }
                         ],
                         "identifier": "10076-E700",
@@ -9707,10 +9674,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9718,7 +9682,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -9810,10 +9774,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9821,7 +9782,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -9913,10 +9874,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -9924,7 +9882,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -10016,10 +9974,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -10027,7 +9982,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -10121,7 +10076,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -10136,7 +10091,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -10145,16 +10100,18 @@
                             "description": {
                                 "en": "Free account of the rights"
                             },
-                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
                                 "en": "A name given to the resource"
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -10162,7 +10119,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/funding_acquisition"
                             }
                         ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
@@ -10170,7 +10127,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -10188,7 +10145,7 @@
                         "@type": "Person",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ProjectLeader"
                             }
                         ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
@@ -10216,7 +10173,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/conceptualization"
                             }
                         ],
                         "member_of": {
@@ -10235,7 +10192,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                             }
                         ],
                         "identifier": "id:of:curator:default",
@@ -10284,7 +10241,7 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Editor"
                                     }
                                 ],
                                 "email": "rahoitus@rahaorg.fi",
@@ -10307,11 +10264,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/HostingInstitution"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -10323,7 +10280,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -10344,11 +10301,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ContactPerson"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -10375,11 +10332,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCollector"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization",
                                 "fi": "Organisaatio"
@@ -10392,7 +10349,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/identifier_type/code/urn",
                             "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
@@ -10413,7 +10370,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "outcome_description": {
@@ -10492,11 +10449,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCurator"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -10519,7 +10476,7 @@
                             "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -10542,7 +10499,7 @@
                     "@type": "Organization",
                     "contributor_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                         }
                     ],
                     "email": "info@csc.fi",
@@ -10553,7 +10510,7 @@
                             "fi": "Julkaisijan kotisivu"
                         }
                     },
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076-A800",
                     "is_part_of": {
                         "@type": "Organization",
                         "email": "info@csc.fi",
@@ -10564,7 +10521,7 @@
                                 "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
                             }
                         },
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                         "name": {
                             "en": "Parent of Mysterious Organization",
                             "fi": "Organisaatio"
@@ -10659,7 +10616,7 @@
                     {
                         "byte_size": 2048,
                         "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "algorithm": "SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the distribution.",
@@ -10676,7 +10633,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
@@ -10691,7 +10648,7 @@
                                 "description": {
                                     "en": "Free account of the rights"
                                 },
-                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
                                     "en": "A name given to the resource"
@@ -10717,7 +10674,7 @@
                         },
                         "byte_size": 4096,
                         "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "algorithm": "SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the second distribution.",
@@ -10727,7 +10684,7 @@
                                 "description": {
                                     "en": "Free account of the rights"
                                 },
-                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
                                     "en": "A name given to the resource"
@@ -10740,7 +10697,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/api",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "title": "A name given to the second distribution",
@@ -10754,11 +10711,11 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataManager"
                             }
                         ],
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                         "is_part_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -10801,6 +10758,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -10849,7 +10809,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -10864,7 +10824,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -10873,16 +10833,18 @@
                             "description": {
                                 "en": "Free account of the rights"
                             },
-                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
                                 "en": "A name given to the resource"
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -10890,7 +10852,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/funding_acquisition"
                             }
                         ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
@@ -10898,7 +10860,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -10916,7 +10878,7 @@
                         "@type": "Person",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ProjectLeader"
                             }
                         ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
@@ -10944,7 +10906,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/conceptualization"
                             }
                         ],
                         "member_of": {
@@ -10963,7 +10925,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                             }
                         ],
                         "identifier": "id:of:curator:default",
@@ -11012,7 +10974,7 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Editor"
                                     }
                                 ],
                                 "email": "rahoitus@rahaorg.fi",
@@ -11035,11 +10997,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/HostingInstitution"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -11051,7 +11013,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -11072,11 +11034,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ContactPerson"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -11103,11 +11065,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCollector"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization",
                                 "fi": "Organisaatio"
@@ -11120,7 +11082,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/identifier_type/code/urn",
                             "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
@@ -11141,7 +11103,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "outcome_description": {
@@ -11220,11 +11182,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCurator"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -11247,7 +11209,7 @@
                             "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -11270,7 +11232,7 @@
                     "@type": "Organization",
                     "contributor_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                         }
                     ],
                     "email": "info@csc.fi",
@@ -11281,7 +11243,7 @@
                             "fi": "Julkaisijan kotisivu"
                         }
                     },
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076-A800",
                     "is_part_of": {
                         "@type": "Organization",
                         "email": "info@csc.fi",
@@ -11292,7 +11254,7 @@
                                 "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
                             }
                         },
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                         "name": {
                             "en": "Parent of Mysterious Organization",
                             "fi": "Organisaatio"
@@ -11387,7 +11349,7 @@
                     {
                         "byte_size": 2048,
                         "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "algorithm": "SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the distribution.",
@@ -11404,7 +11366,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
@@ -11419,7 +11381,7 @@
                                 "description": {
                                     "en": "Free account of the rights"
                                 },
-                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
                                     "en": "A name given to the resource"
@@ -11445,7 +11407,7 @@
                         },
                         "byte_size": 4096,
                         "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "algorithm": "SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the second distribution.",
@@ -11455,7 +11417,7 @@
                                 "description": {
                                     "en": "Free account of the rights"
                                 },
-                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
                                     "en": "A name given to the resource"
@@ -11468,7 +11430,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/api",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "title": "A name given to the second distribution",
@@ -11482,11 +11444,11 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataManager"
                             }
                         ],
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                         "is_part_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -11529,6 +11491,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -11577,7 +11542,7 @@
                         "definition": {
                             "en": "A statement or formal explanation of the meaning of a concept."
                         },
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
                         "in_scheme": "http://uri.of.filetype.concept/scheme",
                         "pref_label": {
                             "en": "pref label for this type"
@@ -11592,7 +11557,7 @@
                             "en": "A name given to the document"
                         }
                     },
-                    "available": "2014-01-15T08:19:58Z",
+                    "available": "2014-01-15",
                     "description": {
                         "en": "Free account of the rights"
                     },
@@ -11601,16 +11566,18 @@
                             "description": {
                                 "en": "Free account of the rights"
                             },
-                            "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
                             "title": {
                                 "en": "A name given to the resource"
                             }
                         }
                     ],
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
-                    }
+                    "restriction_grounds": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+                        }
+                    ]
                 },
                 "bibliographic_citation": "whot",
                 "contributor": [
@@ -11618,7 +11585,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_funding_acquisition"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/funding_acquisition"
                             }
                         ],
                         "email": "kalle.kontribuuttaaja@csc.fi",
@@ -11626,7 +11593,7 @@
                         "member_of": {
                             "@type": "Organization",
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization 1",
                                 "fi": "Organisaatio"
@@ -11644,7 +11611,7 @@
                         "@type": "Person",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ProjectLeader"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ProjectLeader"
                             }
                         ],
                         "email": "franzibald.kontribuuttaaja@csc.fi",
@@ -11672,7 +11639,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_conceptualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/conceptualization"
                             }
                         ],
                         "member_of": {
@@ -11691,7 +11658,7 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                             }
                         ],
                         "identifier": "id:of:curator:default",
@@ -11740,7 +11707,7 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Editor"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Editor"
                                     }
                                 ],
                                 "email": "rahoitus@rahaorg.fi",
@@ -11763,11 +11730,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_HostingInstitution"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/HostingInstitution"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -11779,7 +11746,7 @@
                         ]
                     }
                 ],
-                "issued": "2014-01-17T08:19:58Z",
+                "issued": "2014-01-17",
                 "keyword": [
                     "keyword",
                     "keyword2",
@@ -11800,11 +11767,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_ContactPerson"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ContactPerson"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Org in ref data",
                                 "fi": "Organisaatio"
@@ -11831,11 +11798,11 @@
                             "@type": "Organization",
                             "contributor_type": [
                                 {
-                                    "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCollector"
+                                    "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCollector"
                                 }
                             ],
                             "email": "info@csc.fi",
-                            "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                             "name": {
                                 "en": "Mysterious Organization",
                                 "fi": "Organisaatio"
@@ -11848,7 +11815,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/identifier_type/identifier_type_urn",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/identifier_type/code/urn",
                             "in_scheme": "http://uri.of.filetype.concept/scheme",
                             "pref_label": {
                                 "en": "pref label for y"
@@ -11869,7 +11836,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/lifecycle_event/lifecycle_event_collected",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "outcome_description": {
@@ -11948,11 +11915,11 @@
                                 "@type": "Organization",
                                 "contributor_type": [
                                     {
-                                        "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataCurator"
+                                        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCurator"
                                     }
                                 ],
                                 "email": "info@csc.fi",
-                                "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                                 "name": {
                                     "en": "Mysterious Organization",
                                     "fi": "Organisaatio"
@@ -11975,7 +11942,7 @@
                             "fi": "Ep\u00e4onnistui"
                         },
                         "preservation_event": {
-                            "identifier": "http://purl.org/att/reference_data/preservation_event/preservation_event_upd"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd"
                         },
                         "spatial": {
                             "alt": "11.111",
@@ -11998,7 +11965,7 @@
                     "@type": "Organization",
                     "contributor_type": [
                         {
-                            "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_Distributor"
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
                         }
                     ],
                     "email": "info@csc.fi",
@@ -12009,7 +11976,7 @@
                             "fi": "Julkaisijan kotisivu"
                         }
                     },
-                    "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076-A800",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076-A800",
                     "is_part_of": {
                         "@type": "Organization",
                         "email": "info@csc.fi",
@@ -12020,7 +11987,7 @@
                                 "fi": "Julkaisijan yl\u00e4organisaation kotisivu"
                             }
                         },
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_10076",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
                         "name": {
                             "en": "Parent of Mysterious Organization",
                             "fi": "Organisaatio"
@@ -12115,7 +12082,7 @@
                     {
                         "byte_size": 2048,
                         "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "algorithm": "SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the distribution.",
@@ -12132,7 +12099,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/file_type/file_type_image",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "has_object_characteristics": {
@@ -12147,7 +12114,7 @@
                                 "description": {
                                     "en": "Free account of the rights"
                                 },
-                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
                                     "en": "A name given to the resource"
@@ -12173,7 +12140,7 @@
                         },
                         "byte_size": 4096,
                         "checksum": {
-                            "algorithm": "http://purl.org/att/es/reference_data/checksum_algorithm/checksum_algorithm_SHA-512",
+                            "algorithm": "SHA-512",
                             "checksum_value": "u5y6f4y68765ngf6ry8n"
                         },
                         "description": "Free-text account of the second distribution.",
@@ -12183,7 +12150,7 @@
                                 "description": {
                                     "en": "Free account of the rights"
                                 },
-                                "identifier": "http://www.opensource.org/licenses/Apache-2.0",
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                                 "license": "https://url.of.license.which.applies.org",
                                 "title": {
                                     "en": "A name given to the resource"
@@ -12196,7 +12163,7 @@
                             "definition": {
                                 "en": "A statement or formal explanation of the meaning of a concept."
                             },
-                            "identifier": "http://purl.org/att/es/reference_data/resource_type/resource_type_api",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/api",
                             "in_scheme": "http://uri.of.filetype.concept/scheme"
                         },
                         "title": "A name given to the second distribution",
@@ -12210,11 +12177,11 @@
                         "@type": "Organization",
                         "contributor_type": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_type/contributor_type_DataManager"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataManager"
                             }
                         ],
                         "email": "info@csc.fi",
-                        "identifier": "http://purl.org/att/es/organization_data/organization/organization_01901",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/01901",
                         "is_part_of": {
                             "@type": "Organization",
                             "identifier": "10076",
@@ -12257,6 +12224,9 @@
                     {
                         "end_date": "2014-12-31T08:19:58Z",
                         "start_date": "2014-01-01T08:19:58Z"
+                    },
+                    {
+                        "temporal_coverage": "2011"
                     }
                 ],
                 "theme": [
@@ -12314,10 +12284,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -12325,7 +12292,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {
@@ -12412,10 +12379,7 @@
             "research_dataset": {
                 "access_rights": {
                     "access_type": {
-                        "identifier": "http://purl.org/att/es/reference_data/access_type/access_type_open_access"
-                    },
-                    "restriction_grounds": {
-                        "identifier": "http://purl.org/att/es/reference_data/restriction_grounds/restriction_grounds_1"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
                     }
                 },
                 "creator": [
@@ -12423,7 +12387,7 @@
                         "@type": "Person",
                         "contributor_role": [
                             {
-                                "identifier": "http://purl.org/att/es/reference_data/contributor_role/contributor_role_visualization"
+                                "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
                             }
                         ],
                         "member_of": {

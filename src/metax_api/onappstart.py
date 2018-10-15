@@ -14,7 +14,6 @@ from time import sleep
 from django.apps import AppConfig
 from django.conf import settings
 
-from metax_api.utils import RedisSentinelCache, executing_test_case, RabbitMQ, ReferenceDataLoader
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -38,7 +37,8 @@ class OnAppStart(AppConfig):
         if any(cmd in sys.argv for cmd in ['manage.py']):
             return
 
-        cache = RedisSentinelCache(master_only=True)
+        from metax_api.services import RedisCacheService as cache, RabbitMQService as rabbitmq
+        from metax_api.utils import executing_test_case, ReferenceDataLoader
 
         # ex = expiration in seconds
         if not cache.get_or_set('on_app_start_executing', True, ex=120):
@@ -55,7 +55,7 @@ class OnAppStart(AppConfig):
             if settings.ELASTICSEARCH['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART']:
                 cache.set('reference_data', None)
 
-            if not cache.get('reference_data'):
+            if not cache.get('reference_data', master=True):
                 ReferenceDataLoader.populate_cache_reference_data(cache)
             else:
                 # d('cache already populated')
@@ -78,7 +78,6 @@ class OnAppStart(AppConfig):
             pass
 
         try:
-            rabbitmq = RabbitMQ()
             rabbitmq.init_exchanges()
         except Exception as e:
             _logger.error(e)

@@ -14,12 +14,11 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http412
 from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime, get_tz_aware_now_without_micros
-from .callable_service import CallableService
 
 _logger = logging.getLogger(__name__)
 
 
-class CommonService(CallableService):
+class CommonService():
 
     @staticmethod
     def is_primary_key(received_lookup_value):
@@ -63,6 +62,7 @@ class CommonService(CallableService):
         serializer_class: does the actual saving, knows what kind of object is in question
         """
         common_info = cls.update_common_info(request, return_only=True)
+        kwargs['context']['request'] = request
 
         results = None
 
@@ -215,20 +215,18 @@ class CommonService(CallableService):
     def update_common_info(request, return_only=False):
         """
         Update fields common for all tables and most actions:
-        - last modified timestamp and service name
-        - created on timestamp and service name
+        - last modified timestamp and service/user name
+        - created on timestamp and service/user name
 
         For cases where request data is actually xml, or bulk update/create, it is useful to
         return the common info, so that its info can be used manually, instead of updating
         request.data here automatically. For that purpose, use the return_only flag.
         """
-        service_name = request.user.username or None
-
-        if not service_name: # pragma: no cover
+        if not request.user.username: # pragma: no cover
             # should never happen: update_common_info is executed only on update operations,
             # which requires authorization, which should put the username into the request obj.
             ValidationError({
-                'detail': 'request.user.username not set; unknown service. '
+                'detail': 'request.user.username not set; unknown service or user. '
                 'how did you get here without passing authorization...?'
             })
 
@@ -237,15 +235,17 @@ class CommonService(CallableService):
         common_info = {}
 
         if method in ('PUT', 'PATCH', 'DELETE'):
-            common_info.update({
-                'service_modified': service_name,
-                'date_modified': current_time
-            })
+            common_info['date_modified'] = current_time
+            if request.user.is_service:
+                common_info['service_modified'] = request.user.username
+            else:
+                common_info['user_modified'] = request.user.username
         elif method == 'POST':
-            common_info.update({
-                'service_created': service_name,
-                'date_created': current_time,
-            })
+            common_info['date_created'] = current_time
+            if request.user.is_service:
+                common_info['service_created'] = request.user.username
+            else:
+                common_info['user_created'] = request.user.username
         else:
             pass
 

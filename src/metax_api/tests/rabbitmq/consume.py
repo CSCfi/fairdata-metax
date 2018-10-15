@@ -28,7 +28,7 @@ test_user = get_test_user()
 credentials = pika.PlainCredentials(test_user['name'], test_user['password'])
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        settings['HOSTS'],
+        settings['HOSTS'][0],
         settings['PORT'],
         test_user['vhost'],
         credentials))

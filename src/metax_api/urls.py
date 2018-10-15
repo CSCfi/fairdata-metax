@@ -23,10 +23,15 @@ Including another URLconf
 from django.conf.urls import url, include
 
 from metax_api.api.oaipmh.base.view import oaipmh_view as oaipmh
-from metax_api.api.rest.base.router import api_urlpatterns as api_v1
+from metax_api.api.rest.base.router import api_urlpatterns as rest_api_v1
+from metax_api.api.rpc.base.router import api_urlpatterns as rpc_api_v1
+from metax_api.views.router import view_urlpatterns
 
 urlpatterns = [
-    url(r'^rest/', include(api_v1)),
-    url(r'^rest/v1/', include(api_v1)),
-    url(r'^oai/', oaipmh, name='oai')
+    url('', include(view_urlpatterns)),
+    url(r'^oai/', oaipmh, name='oai'),
+    url(r'^rest/', include(rest_api_v1)),
+    url(r'^rest/v1/', include(rest_api_v1)),
+    url(r'^rpc/', include(rpc_api_v1)),
+    url(r'^rpc/v1/', include(rpc_api_v1)),
 ]

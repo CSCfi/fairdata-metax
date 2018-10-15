@@ -237,14 +237,16 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
                     "minItems":1,
                     "maxItems":1,
-                    "type":"string"
+                    "type":"string",
+                    "format": "date"
                 },
                 "end_date":{
                     "title":"End date",
                     "@id":"http://iow.csc.fi/ns/jhs#paattymispaivamaara",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
                     "maxItems":1,
-                    "type":"string"
+                    "type":"string",
+                    "format": "date"
                 }
             },
             "required":[

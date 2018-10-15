@@ -13,8 +13,10 @@ from metax_api.services import SchemaService
 
 class SchemaViewSet(viewsets.ReadOnlyModelViewSet):
 
+    filter_backends = ()
     authentication_classes = ()
     permission_classes = (ServicePermissions,)
+    api_type = 'rest'
 
     def list(self, request, *args, **kwargs):
         return SchemaService.get_all_schemas()
