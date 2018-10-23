@@ -5,6 +5,7 @@
 /src/__pycache__/*
 /src/static/*
 /src/.coverage
+/swagger/index.html
 .idea/
 ubuntu-xenial-16.04-cloudimg-console.log
 .ropeproject/

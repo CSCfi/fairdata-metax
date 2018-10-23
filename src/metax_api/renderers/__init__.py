@@ -5,4 +5,4 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from .renderers import XMLRenderer
+from .renderers import HTMLToJSONRenderer, XMLRenderer

@@ -121,6 +121,7 @@ class CatalogRecordSerializer(CommonSerializer):
         # is still compatible with the schema
         if 'research_dataset' in self.initial_data:
             self._validate_json_schema(self.initial_data['research_dataset'])
+            self._validate_org_name_is_set(self.initial_data['research_dataset'])
 
     def update(self, instance, validated_data):
         if 'preserve_version' in self.context['request'].query_params:
@@ -313,6 +314,37 @@ class CatalogRecordSerializer(CommonSerializer):
         else:
             # update operations
             validate_json(value, self.json_schema)
+
+    def _validate_org_name_is_set(self, obj):
+        """
+        Organization 'name' field is not madatory in the schema, but that is only because it does
+        not make sense to end users when using an identifier from reference data, which will overwrite
+        the name anyway.
+
+        If after reference data validation name is still missing, the user is also required to enter
+        a name.
+        """
+        if isinstance(obj, dict):
+            if '@type' in obj and obj['@type'] == 'Organization' and 'name' not in obj:
+                raise ValidationError({
+                    'detail': [
+                        'Specified organization object does not have a name. If you are using '
+                        'an org identifier from reference data, then the name will be populated '
+                        'automatically. If your org identifier is not from reference data, you '
+                        'must provide the organization name. The object that caused the error: %s'
+                        % str(obj)
+                    ]
+                })
+            for field, value in obj.items():
+                if isinstance(value, (dict, list)):
+                    self._validate_org_name_is_set(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                if isinstance(item, (dict, list)):
+                    self._validate_org_name_is_set(item)
+        else:
+            # string, int, whatever
+            pass
 
     def _validate_research_dataset_uniqueness(self, research_dataset):
         """

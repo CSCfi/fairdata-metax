@@ -42,6 +42,9 @@ class ApiErrorViewSet(CommonViewSet):
             raise Http403
         return super(ApiErrorViewSet, self).initial(request, *args, **kwargs)
 
+    def get_queryset(self):
+        return self.list(None)
+
     def retrieve(self, request, *args, **kwargs):
         try:
             error_details = ApiErrorService.retrieve_error_details(kwargs['pk'])
