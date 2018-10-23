@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: METAX REST API
   version: v1
-host: metax.fairdata.fi
+host: __METAX_ENV_DOMAIN__
 schemes:
   - https
 basePath: /rest/v1/
@@ -1281,16 +1281,16 @@ paths:
       tags:
         - Dataset RPC
 
-            
+
 definitions:
   CatalogRecord:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/datacatalog.json#/definitions/Catalog'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/datacatalog.json#/definitions/Catalog'
   File:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/File'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/file.json#/definitions/File'
   Directory:
-    $ref: 'https://raw.githubusercontent.com/CSCfi/metax-api/test/src/metax_api/api/rest/base/api_schemas/file.json#/definitions/Directory'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/file.json#/definitions/Directory'
   StringList:
     type: array
     items:
@@ -1303,5 +1303,5 @@ definitions:
   FileList:
     type: array
     items:
-      $ref: '#/definitions/CatalogRecord'
+      $ref: '#/definitions/File'
 

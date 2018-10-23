@@ -7,12 +7,26 @@
 
 from rest_framework import renderers
 
-"""
-A fantastic XMLRenderer, because setting content-type to xml and returning a string
-just isnt complicated enough in django's opinion.
-"""
+
+class HTMLToJSONRenderer(renderers.JSONRenderer):
+
+    """
+    Deals with web browser requests to the API when BrowsableAPIRenderer is not enabled
+    in settings.py. A web browers generally send Accept header 'text/html', and some others,
+    but not JSON.
+
+    This renderer catches the 'text/html' Accept header, but returns JSON instead of html.
+    """
+
+    media_type = 'text/html'
+
 
 class XMLRenderer(renderers.BaseRenderer):
+
+    """
+    A fantastic XMLRenderer, because setting content-type to xml and returning a string
+    just isnt complicated enough in django's opinion.
+    """
 
     media_type = 'application/xml'
     format = 'xml'

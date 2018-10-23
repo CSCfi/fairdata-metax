@@ -33,7 +33,7 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         cr['contract'] = 1
 
         response = self.client.put('/rest/datasets/1', cr, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_write_access_error(self):
         """
