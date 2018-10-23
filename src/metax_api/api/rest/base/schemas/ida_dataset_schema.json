@@ -662,8 +662,7 @@
                 }
             },
             "required":[
-                "@type",
-                "name"
+                "@type"
             ],
             "additionalProperties": false
         },
