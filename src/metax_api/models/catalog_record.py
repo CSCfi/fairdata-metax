@@ -41,6 +41,9 @@ ACCESS_TYPES = {
 }
 
 
+LEGACY_CATALOGS = settings.LEGACY_CATALOGS
+
+
 class DiscardRecord(Exception):
     pass
 
@@ -769,6 +772,9 @@ class CatalogRecord(Common):
     def catalog_is_harvested(self):
         return self.data_catalog.catalog_json.get('harvested', False) is True
 
+    def catalog_is_legacy(self):
+        return self.data_catalog.catalog_json['identifier'] in LEGACY_CATALOGS
+
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
@@ -792,6 +798,21 @@ class CatalogRecord(Common):
             # do not overwrite. note: if the value was left empty, an error would have been
             # raised in the serializer validation.
             pass
+        elif self.catalog_is_legacy():
+            if 'preferred_identifier' not in self.research_dataset:
+                raise ValidationError({
+                    'detail': [
+                        'Selected catalog %s is a legacy catalog. Preferred identifiers are not '
+                        'automatically generated for datasets stored in legacy catalogs, nor is '
+                        'their uniqueness enforced. Please provide a value for dataset field '
+                        'preferred_identifier.'
+                        % self.data_catalog.catalog_json['identifier']
+                    ]
+                })
+            _logger.info(
+                'Catalog %s is a legacy catalog - not generating pid'
+                % self.data_catalog.catalog_json['identifier']
+            )
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)

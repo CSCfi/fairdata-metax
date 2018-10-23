@@ -44,6 +44,7 @@ END_USER_UPDATE_ALLOWED_FIELDS = [
 ]
 
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
+LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 
 
 class CatalogRecordSerializer(CommonSerializer):
@@ -360,6 +361,9 @@ class CatalogRecordSerializer(CommonSerializer):
         Unfortunately for unique fields inside a jsonfield, Django does not offer a neat
         http400 error with an error message, so have to do it ourselves.
         """
+        if not self._catalog_enforces_unique_pids():
+            return
+
         preferred_identifier_value = research_dataset.get('preferred_identifier', None)
 
         if not preferred_identifier_value:
@@ -388,6 +392,25 @@ class CatalogRecordSerializer(CommonSerializer):
                 'a catalog record already exists which has the given preferred_identifier'
                 ' value as its metadata_version_identifier value.'
             ])
+
+    def _catalog_enforces_unique_pids(self):
+        """
+        Check whether the dataset's data catalog enforces dataset pid uniqueness. Currently,
+        the only catalogs to not require unique pids, are listed in settings.py LEGACY_CATALOGS.
+        """
+        if self._operation_is_create:
+            try:
+                dc = DataCatalog.objects.values('catalog_json').get(pk=self.initial_data['data_catalog'])
+            except DataCatalog.DoesNotExist:
+                raise ValidationError({ 'detail': ['Provided data catalog does not exist']})
+            except KeyError:
+                # data_catalog was omitted. an approriate error is raised later.
+                return
+            dc_pid = dc['catalog_json']['identifier']
+        else:
+            dc_pid = self.instance.data_catalog.catalog_json['identifier']
+
+        return dc_pid not in LEGACY_CATALOGS
 
     def _find_object_using_identifier(self, field_name, identifier):
         """
