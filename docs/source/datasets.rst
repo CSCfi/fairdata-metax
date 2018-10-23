@@ -24,6 +24,37 @@ Additionally, the chosen data catalog may have some additional restrictions to t
 
 
 
+Dataset schemas
+^^^^^^^^^^^^^^^^
+
+JSON schema files dataset metadata descriptions (field ``research_dataset``):
+
+    * `IDA datasets <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/base/schemas/ida_dataset_schema.json>`_ (schema used in IDA data catalog)
+    * `ATT datasets <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/base/schemas/att_dataset_schema.json>`_ (schema used in ATT data catalog)
+
+There are also other schemas for datasets in other data catalogs for specialized use, such as for harvesting.
+
+
+
+Common schema validation errors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Schema validation errors can sometimes be difficult to decipher for an untrained eye, and in some cases they just simply don't tell exactly what's wrong with some object or value (e.g. when object is not conforming to oneOf objects!). Here are some common hard-to-understand error messages, and tips what to look for.
+
+
+**"<object> is not valid under any of the given schemas"**
+
+
+    Can happen with ``oneOf`` objects (``ResearchAgent`` is one of ``Person`` or ``Organization`` objects). Depending which type of object you have used (person or organization), double check that the fields on that object conform to either the ``Person`` object or the ``Organization`` object in the dataset schema. Ensure:
+
+        * field values are of the correct type
+        * mandatory fields are present
+        * relation field cardinalities are correct (is the relation field an array, or a single object?)
+
+    Unfortunately the ``oneOf`` errors are not very detailed in the current schema validation library.
+
+
+
 Terminology
 ^^^^^^^^^^^^
 
@@ -50,7 +81,7 @@ Data Catalogs
 
 Every dataset belongs in a Data Catalog. Data catalogs house datasets with different origins (harvested vs. Fairdata user provided datasets), slightly different schemas (IDA and ATT catalogs for example), and datasets in some catalogs are automatically versioned. While reading datasets from all catalogs is possible by anybody (save for some data which might be considered as sensitive, such as personal information), adding datasets to catalogs can be restricted: Others allow adding only by known services, but some also by end users.
 
-Data catalogs can be browsed by using the API ``/rest/datacatalogs``. The data catalog data model visualization can be found here https://tietomallit.suomi.fi/model/mdc.
+Data catalogs can be browsed by using the API ``/rest/datacatalogs``. The data catalog data model visualization can be found here https://tietomallit.suomi.fi/model/mdc. The data catalog JSON schema file can be found `here <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/base/schemas/datacatalog_schema.json>`_.
 
 The official Fairdata data catalogs with end user write access are:
 
@@ -387,77 +418,77 @@ Some of the reference data can also be browsed using the koodistot.suomi.fi serv
 
 In the below table, the person- and organization-related relations have been separated from the rest of the fields that use reference data, to make it easier to find out which reference data to use depending on what kind of object is being used.
 
-It helps to have the `research_dataset data model visualization <https://tietomallit.suomi.fi/model/mrd>`_ open while looking at the table.
+It helps to have the `research_dataset data model visualization <https://tietomallit.suomi.fi/model/mrd>`_ open while looking at the table. To help with recognizing which relations are single objects, and which are arrays, the below table has a tailing ``[]`` in field names to signal that the field is actually an array. While effort is made to keep this table up to date, if it looks like it contains mistakes (e.g. some field is actually not an array, or vica versa), the truth is always found in the related dataset JSON schema file.
 
 .. note::
 
-    Below reference data urls contain the ``/_search?pretty=true`` parameter, which formats the output into a more readable form. The default page only shows a few results, so be sure to check out :ref:`rst-reference-data-query-examples` for more examples how to browse reference data in general.
+    Below reference data urls contain the ``?pretty=true`` parameter, which formats the output into a more readable form. The default page only shows a few results, so be sure to check out :ref:`rst-reference-data-query-examples` for more examples how to browse reference data in general.
 
 
 .. code-block:: python
 
     {
-        "research_dataset.access_rights.access_type.identifier":            { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/access_type/_search?pretty=true" },
-        "research_dataset.access_rights.license.identifier":                { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/license/_search?pretty=true" },
-        "research_dataset.access_rights.restriction_grounds.identifier":    { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/restriction_grounds/_search?pretty=true" },
-        "research_dataset.directories.use_category.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true" },
-        "research_dataset.field_of_science.identifier":                     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science/_search?pretty=true" },
-        "research_dataset.files.file_type.identifier":                      { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/file_type/_search?pretty=true" },
-        "research_dataset.files.use_category.identifier":                   { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true" },
-        "research_dataset.infrastructure.identifier":                       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/research_infra/_search?pretty=true" },
-        "research_dataset.language.identifier":                             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/language/_search?pretty=true" },
-        "research_dataset.other_identifier.type.identifier":                { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/identifier_type/_search?pretty=true" },
-        "research_dataset.provenance.event_outcome.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/event_outcome/_search?pretty=true" },
-        "research_dataset.provenance.lifecycle_event.identifier":           { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/lifecycle_event/_search?pretty=true" },
-        "research_dataset.provenance.preservation_event.identifier":        { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/preservation_event/_search?pretty=true" },
-        "research_dataset.provenance.spatial.place_uri.identifier":         { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/location/_search?pretty=true" },
-        "research_dataset.provenance.used_entity.type.identifier":          { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true" },
-        "research_dataset.relation.entity.type.identifier":                 { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true" },
-        "research_dataset.relation.relation_type.identifier":               { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/relation_type/_search?pretty=true" },
-        "research_dataset.remote_resources.file_type.identifier":           { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/file_type/_search?pretty=true" },
-        "research_dataset.remote_resources.license.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/license/_search?pretty=true" },
-        "research_dataset.remote_resources.media_type":                     { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/mime_type/_search?pretty=true" },
-        "research_dataset.remote_resources.resource_type.identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true" },
-        "research_dataset.remote_resources.use_category.identifier":        { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true" },
-        "research_dataset.spatial.place_uri.identifier":                    { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/location/_search?pretty=true" },
-        "research_dataset.theme.identifier":                                { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/keyword/_search?pretty=true" },
+        "research_dataset.access_rights.access_type.identifier":           { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/access_type/_search?pretty=true" },
+        "research_dataset.access_rights.license[].identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/license/_search?pretty=true" },
+        "research_dataset.access_rights.restriction_grounds[].identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/restriction_grounds/_search?pretty=true" },
+        "research_dataset.directories[].use_category.identifier":          { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true" },
+        "research_dataset.field_of_science[].identifier":                  { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science/_search?pretty=true" },
+        "research_dataset.files[].file_type.identifier":                   { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/file_type/_search?pretty=true" },
+        "research_dataset.files[].use_category.identifier":                { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true" },
+        "research_dataset.infrastructure[].identifier":                    { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/research_infra/_search?pretty=true" },
+        "research_dataset.language[].identifier":                          { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/language/_search?pretty=true" },
+        "research_dataset.other_identifier[].type.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/identifier_type/_search?pretty=true" },
+        "research_dataset.provenance[].event_outcome.identifier":          { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/event_outcome/_search?pretty=true" },
+        "research_dataset.provenance[].lifecycle_event.identifier":        { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/lifecycle_event/_search?pretty=true" },
+        "research_dataset.provenance[].preservation_event.identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/preservation_event/_search?pretty=true" },
+        "research_dataset.provenance[].spatial.place_uri.identifier":      { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/location/_search?pretty=true" },
+        "research_dataset.provenance[].used_entity[].type.identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true" },
+        "research_dataset.relation[].entity.type.identifier":              { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true" },
+        "research_dataset.relation[].relation_type.identifier":            { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/relation_type/_search?pretty=true" },
+        "research_dataset.remote_resources[].file_type.identifier":        { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/file_type/_search?pretty=true" },
+        "research_dataset.remote_resources[].license[].identifier":        { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/license/_search?pretty=true" },
+        "research_dataset.remote_resources[].media_type":                  { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/mime_type/_search?pretty=true" },
+        "research_dataset.remote_resources[].resource_type.identifier":    { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true" },
+        "research_dataset.remote_resources[].use_category.identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true" },
+        "research_dataset.spatial[].place_uri.identifier":                 { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/location/_search?pretty=true" },
+        "research_dataset.theme[].identifier":                             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/keyword/_search?pretty=true" },
 
         # organizations. note! can be recursive through the organization-object's `is_part_of` relation
-        "research_dataset.contributor.contributor_type.identifier":         { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.contributor.identifier":                          { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.creator.contributor_type.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.creator.identifier":                              { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.curator.contributor_type.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.curator.identifier":                              { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.is_output_of.funder_type.identifier":             { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.is_output_of.has_funding_agency.identifier":      { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.is_output_of.source_organization.identifier":     { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.other_identifier.provider.identifier":            { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.provenance.was_associated_with.contributor_type.identifier": { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.publisher.contributor_type.identifier":           { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.publisher.identifier":                            { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.rights_holder.contributor_type.identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.rights_holder.identifier":                        { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.contributor[].contributor_type[].identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.contributor[].identifier":                        { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.creator[].contributor_type[].identifier":         { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.creator[].identifier":                            { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.curator[].contributor_type[].identifier":         { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.curator[].identifier":                            { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.is_output_of[].funder_type.identifier":           { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.is_output_of[].has_funding_agency[].identifier":  { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.is_output_of[].source_organization[].identifier": { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.other_identifier[].provider.identifier":          { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.provenance[].was_associated_with.contributor_type[].identifier": { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.publisher[].contributor_type[].identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.publisher[].identifier":                          { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.rights_holder[].contributor_type[].identifier":   { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.rights_holder[].identifier":                      { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
 
         # persons
-        "research_dataset.contributor.contributor_role.identifier":   { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
-        "research_dataset.contributor.contributor_type.identifier":   { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.contributor.member_of.identifier":          { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.creator.contributor_role.identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
-        "research_dataset.creator.contributor_type.identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.creator.member_of.identifier":              { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.curator.contributor_role.identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
-        "research_dataset.curator.contributor_type.identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.curator.member_of.identifier":              { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.publisher.contributor_role.identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
-        "research_dataset.publisher.contributor_type.identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.publisher.member_of.identifier":            { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.provenance.was_associated_with.contributor_role.identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
-        "research_dataset.provenance.was_associated_with.contributor_type.identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_typ/_search?pretty=truee" }
-        "research_dataset.provenance.was_associated_with.member_of.identifier":        { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
-        "research_dataset.rights_holder.contributor_role.identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
-        "research_dataset.rights_holder.contributor_type.identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
-        "research_dataset.rights_holder.member_of.identifier":        { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.contributor[].contributor_role[].identifier":   { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
+        "research_dataset.contributor[].contributor_type[].identifier":   { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.contributor[].member_of.identifier":            { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.creator[].contributor_role[].identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
+        "research_dataset.creator[].contributor_type[].identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.creator[].member_of.identifier":                { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.curator[].contributor_role[].identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
+        "research_dataset.curator[].contributor_type[].identifier":       { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.curator[].member_of.identifier":                { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.publisher[].contributor_role[].identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
+        "research_dataset.publisher[].contributor_type[].identifier":     { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.publisher[].member_of.identifier":              { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.provenance[].was_associated_with[].contributor_role[].identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
+        "research_dataset.provenance[].was_associated_with[].contributor_type[].identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_typ/_search?pretty=truee" }
+        "research_dataset.provenance[].was_associated_with[].member_of.identifier":          { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
+        "research_dataset.rights_holder[].contributor_role[].identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true" },
+        "research_dataset.rights_holder[].contributor_type[].identifier": { "mode": "required", "url": "https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true" },
+        "research_dataset.rights_holder[].member_of.identifier":          { "mode": "optional", "url": "https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true" },
     }
 
 

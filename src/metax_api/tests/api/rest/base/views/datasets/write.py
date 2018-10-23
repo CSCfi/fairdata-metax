@@ -934,6 +934,40 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
     from reference_data, according to given uri or code as the value.
     """
 
+    def test_organization_name_is_required(self):
+        """
+        Organization 'name' field is not madatory in the schema, but that is only because it does
+        not make sense to end users when using an identifier from reference data, which will overwrite
+        the name anyway.
+
+        If an organization identifier is used, which is not found in the reference data, and therefore
+        does not populate the name automatically, then the user is required to provide the name.
+        """
+
+        # simple case
+        cr = deepcopy(self.cr_full_ida_test_data)
+        cr['research_dataset']['curator'] = [{
+            '@type': 'Organization',
+            'identifier': 'not found!',
+            # no name!
+        }]
+        response = self.client.post('/rest/datasets', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # a more complex case. ensure organizations are found from deep structures
+        cr = deepcopy(self.cr_full_ida_test_data)
+        org = cr['research_dataset']['provenance'][0]['was_associated_with'][0]
+        del org['name'] # should cause the error
+        org['@type'] = 'Organization'
+        org['identifier'] = 'not found!'
+        response = self.client.post('/rest/datasets', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # try again. should be ok
+        org['identifier'] = 'http://uri.suomi.fi/codelist/fairdata/organization/code/10076'
+        response = self.client.post('/rest/datasets', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
     def test_catalog_record_reference_data_missing_ok(self):
         """
         The API should attempt to reload the reference data if it is missing from
