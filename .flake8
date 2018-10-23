@@ -28,4 +28,4 @@ ignore =
     E722
 
 # often contains "unused" imports, too long lines (generated files), and such
-exclude = __init__.py,src/metax_api/migrations/*,src/static
+exclude = __init__.py,src/metax_api/migrations/*,src/static,swagger/*
