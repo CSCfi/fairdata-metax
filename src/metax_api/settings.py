@@ -234,15 +234,15 @@ REST_FRAMEWORK['DEFAULT_PARSER_CLASSES'] = [
 if DEBUG:
     # the renderer is selected based on the 'Accept' HTTP header
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
-        'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
         'metax_api.renderers.XMLRenderer',
     ]
 else:
     # the renderer is selected based on the 'Accept' HTTP header
     REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
-        'metax_api.renderers.HTMLToJSONRenderer',
         'rest_framework.renderers.JSONRenderer',
+        'metax_api.renderers.HTMLToJSONRenderer',
         'metax_api.renderers.XMLRenderer',
     ]
 
