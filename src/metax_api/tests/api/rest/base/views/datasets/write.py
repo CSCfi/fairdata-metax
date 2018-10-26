@@ -2398,6 +2398,26 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/%s' % modify['id'], self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
+    def test_delete_legacy_catalog_dataset(self):
+        """
+        Datasets in legacy catalogs should be deleted permanently, instead of only marking them
+        as 'removed'.
+        """
+
+        # test setup
+        self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
+        self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['id']
+
+        # delete record
+        response = self.client.delete('/rest/datasets/%s' % cr_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        results_count = CatalogRecord.objects_unfiltered.filter(pk=cr_id).count()
+        self.assertEqual(results_count, 0, 'record should have been deleted permantly')
+
+
 class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
 
     """

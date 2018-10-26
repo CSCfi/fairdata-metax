@@ -750,7 +750,11 @@ class CatalogRecord(Common):
         if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'delete'))
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
-        super(CatalogRecord, self).delete(*args, **kwargs)
+        if self.catalog_is_legacy():
+            # delete permanently instead of only marking as 'removed'
+            super(Common, self).delete()
+        else:
+            super().delete(*args, **kwargs)
 
     @property
     def preferred_identifier(self):
