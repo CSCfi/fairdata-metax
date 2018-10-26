@@ -90,7 +90,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
         if data_catalog == 'urn:nbn:fi:att:data-catalog-harvest-syke':
             identifiers = self._handle_syke_urnresolver_metadata(record)
-        else:
+        elif record.data_catalog.catalog_json['identifier'] not in settings.LEGACY_CATALOGS:
             identifiers.append(settings.OAI['ETSIN_URL_TEMPLATE'] % record.identifier)
 
             if not record.catalog_is_harvested():
