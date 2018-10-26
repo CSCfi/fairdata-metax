@@ -321,6 +321,19 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                                         self.preferred_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
+    def test_legacy_catalog_datasets_are_not_urnresolved(self):
+        cr = CatalogRecord.objects.get(identifier=self.identifier)
+        cr.data_catalog.catalog_json['identifier'] = settings.LEGACY_CATALOGS[0]
+        cr.data_catalog.force_save()
+
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        identifiers = self._get_results(response.content,
+                                        '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' %
+                                        self.preferred_identifier)
+        self.assertTrue(len(identifiers) == 0, response.content)
+
     def test_list_records_from_datasets_set(self):
         ms = settings.OAI['BATCH_SIZE']
         allRecords = CatalogRecord.objects.filter(

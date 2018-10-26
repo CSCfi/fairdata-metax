@@ -88,6 +88,10 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         cr = self._get_object_from_test_data('catalogrecord', requested_index=9)
         pid = cr['research_dataset']['preferred_identifier']
 
+        # verify there are more than one record with same pid!
+        count = CatalogRecord.objects.filter(research_dataset__preferred_identifier=pid).count()
+        self.assertEqual(count > 1, True, 'makes no sense to test with a pid that exists only once')
+
         # the retrieved record should be the one that is in catalog 1
         response = self.client.get('/rest/datasets?preferred_identifier=%s' %
             urllib.parse.quote(pid))

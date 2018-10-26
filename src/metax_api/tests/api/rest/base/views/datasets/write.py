@@ -23,6 +23,7 @@ from metax_api.tests.utils import get_test_oidc_token
 
 VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
+LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -2335,6 +2336,88 @@ class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
                          total_remote_resources_byte_size)
 
 
+class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
+
+    """
+    Tests related to legacy data catalogs.
+    """
+
+    def setUp(self):
+        """
+        Create a test-datacatalog that plays the role of a legacy catalog.
+        """
+        super().setUp()
+        dc = DataCatalog.objects.filter(catalog_json__research_dataset_schema='att').first()
+        dc.catalog_json['identifier'] = LEGACY_CATALOGS[0]
+        dc.force_save()
+        del self.cr_test_data['research_dataset']['files']
+        del self.cr_test_data['research_dataset']['total_ida_byte_size']
+
+    def test_legacy_catalog_pids_are_not_unique(self):
+        # values provided as pid values in legacy catalogs are not required to be unique
+        # within the catalog.
+        self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
+        self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
+        same_pid_ids = []
+        for i in range(3):
+            response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+            self.assertEqual(response.data['research_dataset']['preferred_identifier'], 'a')
+            same_pid_ids.append(response.data['id'])
+
+        # pid can even be same as an existing dataset's pid in an ATT catalog
+        real_pid = CatalogRecord.objects.get(pk=1).preferred_identifier
+        self.cr_test_data['research_dataset']['preferred_identifier'] = real_pid
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], real_pid)
+
+    def test_legacy_catalog_pid_must_be_provided(self):
+        # pid cant be empty string
+        self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # pid cant be omitted
+        del self.cr_test_data['research_dataset']['preferred_identifier']
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_legacy_catalog_pids_update(self):
+        # test setup
+        self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
+        self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # update record. in updates uniqueness also should not be checked
+        modify = response.data
+        real_pid = CatalogRecord.objects.get(pk=1).preferred_identifier
+        modify['research_dataset']['preferred_identifier'] = real_pid
+        response = self.client.put('/rest/datasets/%s' % modify['id'], modify, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_delete_legacy_catalog_dataset(self):
+        """
+        Datasets in legacy catalogs should be deleted permanently, instead of only marking them
+        as 'removed'.
+        """
+
+        # test setup
+        self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
+        self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['id']
+
+        # delete record
+        response = self.client.delete('/rest/datasets/%s' % cr_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        results_count = CatalogRecord.objects_unfiltered.filter(pk=cr_id).count()
+        self.assertEqual(results_count, 0, 'record should have been deleted permantly')
+
+
 class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
 
     """
@@ -2483,6 +2566,8 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
 
         # should work
         for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+            if identifier in LEGACY_CATALOGS:
+                self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
             self.cr_test_data['data_catalog'] = identifier
             response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
