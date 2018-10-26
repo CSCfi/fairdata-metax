@@ -2395,7 +2395,7 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         modify = response.data
         real_pid = CatalogRecord.objects.get(pk=1).preferred_identifier
         modify['research_dataset']['preferred_identifier'] = real_pid
-        response = self.client.put('/rest/datasets/%s' % modify['id'], self.cr_test_data, format="json")
+        response = self.client.put('/rest/datasets/%s' % modify['id'], modify, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_delete_legacy_catalog_dataset(self):

@@ -881,7 +881,7 @@ class CatalogRecord(Common):
                 self._initial_data['research_dataset']['metadata_version_identifier']
 
         if self.field_changed('research_dataset.preferred_identifier'):
-            if not self.catalog_is_harvested():
+            if not (self.catalog_is_harvested() or self.catalog_is_legacy()):
                 raise Http400("Cannot change preferred_identifier in datasets in non-harvested catalogs")
 
         if self.field_changed('research_dataset.total_ida_byte_size'):
