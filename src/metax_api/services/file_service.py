@@ -5,6 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from collections import defaultdict
 import logging
 from os import getpid
 from os.path import dirname, basename
@@ -23,6 +24,7 @@ from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services import AuthService
 from metax_api.utils.utils import get_tz_aware_now_without_micros
 from .common_service import CommonService
+from .reference_data_mixin import ReferenceDataMixin
 
 
 DEBUG = settings.DEBUG
@@ -57,7 +59,7 @@ class MaxRecursionDepthExceeded(Exception):
     pass
 
 
-class FileService(CommonService):
+class FileService(CommonService, ReferenceDataMixin):
 
     @staticmethod
     def check_user_belongs_to_project(request, project_identifier):
@@ -1158,3 +1160,57 @@ class FileService(CommonService):
             pass
         else:
             project_root_dir.calculate_byte_size_and_file_count()
+
+    @classmethod
+    def validate_file_characteristics_reference_data(cls, file_characteristics, cache):
+        reference_data = cls.get_reference_data(cache).get('reference_data', None)
+        errors = defaultdict(list)
+
+        if 'file_format' in file_characteristics:
+            ff = file_characteristics['file_format']
+            fv = file_characteristics.get('format_version', '')
+            versions = cls._get_versions_for_file_format_in_reference_data(
+                reference_data['file_format_version'], ff, errors)
+
+            # If file_format is valid value, proceed to checking format_version
+            if not errors:
+                # If the given file_format had several output_format_version values in refdata, but the given
+                # format_version is not one of them, it's an error
+                if versions and fv not in versions:
+                    errors['file_characteristics.format_version'].\
+                        append('Value \'{0}\' for format_version does not match the allowed values for the given '
+                               'file_format value \'{1}\' in reference data'.format(fv, ff))
+                # If the give file_format did not have any output_format_version values in refdata, but the given
+                # format_version is non-empty, it's an error
+                elif not versions and fv:
+                    errors['file_characteristics.format_version']. \
+                        append('Any non-empty value for format_version not allowed for the given file_format value '
+                               '\'{1}\' in reference data'.format(fv, ff))
+        # If format_version was given but no file_format is given, it's an error
+        elif 'format_version' in file_characteristics:
+            errors['file_characteristics.file_format'].append('Value missing')
+
+        if errors:
+            raise ValidationError(errors)
+
+    @staticmethod
+    def _get_versions_for_file_format_in_reference_data(file_format_version_refdata, input_file_format, errors={}):
+        """
+        Check if given input_file_format value exists in file_format_version reference data, and if it does,
+        return a list of all possible output_format_version values for the given particular input_file_format.
+
+        Given input_file_format should be found from the reference data, otherwise it is an error.
+        """
+        versions = []
+        iff_found = False
+        for entry in file_format_version_refdata:
+            if input_file_format == entry['input_file_format']:
+                iff_found = True
+                if entry.get('output_format_version', False):
+                    versions.append(entry['output_format_version'])
+
+        if not iff_found:
+            errors['file_characteristics.file_format'].append(
+                'Value for file_format \'%s\' not found in reference data' % input_file_format)
+
+        return versions
