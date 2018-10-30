@@ -249,7 +249,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def test_list_identifiers(self):
         ms = settings.OAI['BATCH_SIZE']
         allRecords = CatalogRecord.objects.filter(
-            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter(None))[:ms]
+            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter())[:ms]
         response = self.client.get('/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         headers = self._get_results(response.content, '//o:header')
@@ -258,7 +258,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def test_list_records(self):
         ms = settings.OAI['BATCH_SIZE']
         allRecords = CatalogRecord.objects.filter(
-            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter(None))[:ms]
+            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter())[:ms]
 
         response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -337,7 +337,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def test_list_records_from_datasets_set(self):
         ms = settings.OAI['BATCH_SIZE']
         allRecords = CatalogRecord.objects.filter(
-            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter(None))[:ms]
+            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter())[:ms]
 
         response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc&set=datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

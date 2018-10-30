@@ -26,24 +26,23 @@ OAI_DC_URNRESOLVER_MDPREFIX = 'oai_dc_urnresolver'
 
 class MetaxOAIServer(ResumptionOAIPMH):
 
-    def _is_valid_set(self, set, metadataPrefix):
+    @staticmethod
+    def _validate_mdprefix_and_set(metadataPrefix, set=None):
         if not set:
-            return True
-        if set == DATACATALOGS_SET:
-            if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
-                raise BadArgumentError('{0} metadataPrefix not implemented for datacatalogs'
-                                       .format(OAI_DC_URNRESOLVER_MDPREFIX))
-            else:
-                return True
-        if set in settings.OAI['SET_MAPPINGS']:
+            pass
+        elif set == DATACATALOGS_SET:
+            if metadataPrefix != OAI_DC_MDPREFIX:
+                raise BadArgumentError('Invalid metadataPrefix value. Data catalogs can only be harvested using '
+                                       '{0} format.'.format(OAI_DC_MDPREFIX))
+        elif set in settings.OAI['SET_MAPPINGS']:
             if set != DATASETS_SET and metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
                 raise BadArgumentError('When using metadataPrefix {0}, set value must be either {1} or {2}'
                                        .format(OAI_DC_URNRESOLVER_MDPREFIX, DATACATALOGS_SET, DATASETS_SET))
-            else:
-                return True
-        return False
+        else:
+            raise BadArgumentError('Invalid set value')
 
-    def _get_default_set_filter(self):
+    @staticmethod
+    def _get_default_set_filter():
         # there are not that many sets yet, so just using list even though
         # there will be duplicates
         catalog_urns = []
@@ -52,9 +51,6 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return catalog_urns
 
     def _get_filtered_records(self, metadataPrefix, set, cursor, batch_size, from_=None, until=None):
-        if not self._is_valid_set(set, metadataPrefix):
-            raise BadArgumentError('Invalid set value')
-
         proxy = CatalogRecord
         if set == DATACATALOGS_SET:
             proxy = DataCatalog
@@ -88,7 +84,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
         cursor_end = cursor + batch_size if cursor + batch_size < len(query_set) else len(query_set)
         return query_set[cursor:cursor_end]
 
-    def _handle_syke_urnresolver_metadata(self, record):
+    @staticmethod
+    def _handle_syke_urnresolver_metadata(record):
         identifiers = []
         preferred_identifier = record.research_dataset.get('preferred_identifier')
         identifiers.append(preferred_identifier)
@@ -133,7 +130,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
-    def _get_oaic_dc_value(self, value, lang=None):
+    @staticmethod
+    def _get_oaic_dc_value(value, lang=None):
         valueDict = {}
         valueDict['value'] = value
         if lang:
@@ -241,7 +239,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
-    def _get_oai_datacite_metadata(self, json):
+    @staticmethod
+    def _get_oai_datacite_metadata(json):
         datacite_xml = CRS.transform_datasets_to_format(
             {'research_dataset': json}, 'datacite', False
         )
@@ -254,13 +253,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def _get_metadata_for_record(self, record, metadataPrefix):
         if isinstance(record, CatalogRecord):
-            if metadataPrefix != OAI_DC_URNRESOLVER_MDPREFIX:
-                json = CRS.check_and_remove_metadata_based_on_access_type(
-                    CRS.remove_contact_info_metadata(record.research_dataset))
+            json = CRS.check_and_remove_metadata_based_on_access_type(
+                CRS.remove_contact_info_metadata(record.research_dataset))
         elif isinstance(record, DataCatalog):
-            if metadataPrefix != OAI_DC_MDPREFIX:
-                raise BadArgumentError('Invalid metadataPrefix value. '
-                                       'DataCatalogs can only be harvested using oai_dc format.')
             json = record.catalog_json
         else:
             json = {}
@@ -277,7 +272,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 return None
         return self._fix_metadata(meta)
 
-    def _get_header_timestamp(self, record):
+    @staticmethod
+    def _get_header_timestamp(record):
         if record.date_modified:
             timestamp = record.date_modified
         else:
@@ -299,7 +295,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 common.Metadata('', metadata), None)
         return item
 
-    def _fix_metadata(self, meta):
+    @staticmethod
+    def _fix_metadata(meta):
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
         # letters
@@ -310,11 +307,14 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 metadata[str(key)] = value
         return metadata
 
-    def _get_record_identifier(self, record, set):
+    @staticmethod
+    def _get_record_identifier(record, set):
         if set == DATACATALOGS_SET:
             return record.catalog_json['identifier']
         else:
             return record.identifier
+
+# OAI-PMH VERBS
 
     def identify(self):
         """Implement OAI-PMH verb Identify ."""
@@ -361,6 +361,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
     def listIdentifiers(self, metadataPrefix=None, set=None, cursor=None,
                         from_=None, until=None, batch_size=None):
         """Implement OAI-PMH verb listIdentifiers."""
+        self._validate_mdprefix_and_set(metadataPrefix, set)
+
         records = self._get_filtered_records(metadataPrefix, set, cursor, batch_size, from_, until)
         data = []
         for record in records:
@@ -371,6 +373,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
     def listRecords(self, metadataPrefix=None, set=None, cursor=None, from_=None,
                     until=None, batch_size=None):
         """Implement OAI-PMH verb ListRecords."""
+        self._validate_mdprefix_and_set(metadataPrefix, set)
+
         data = []
         records = self._get_filtered_records(metadataPrefix, set, cursor, batch_size, from_, until)
         for record in records:
@@ -396,8 +400,12 @@ class MetaxOAIServer(ResumptionOAIPMH):
                     record = DataCatalog.objects_unfiltered.get(catalog_json__identifier__exact=identifier)
                 else:
                     record = DataCatalog.objects.get(catalog_json__identifier__exact=identifier)
+
+                if record and metadataPrefix != OAI_DC_MDPREFIX:
+                    raise BadArgumentError('Invalid metadataPrefix value. Data catalogs can only be harvested using '
+                                           '{0} format.'.format(OAI_DC_MDPREFIX))
             except DataCatalog.DoesNotExist:
-                raise IdDoesNotExistError("No record with id %s available." % identifier)
+                raise IdDoesNotExistError("No record with identifier %s is available." % identifier)
 
         metadata = self._get_metadata_for_record(record, metadataPrefix)
         if metadata is None:
