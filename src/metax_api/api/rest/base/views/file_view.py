@@ -30,7 +30,7 @@ _logger = logging.getLogger(__name__)
 
 # i.e. /rest/v6/files, but must NOT end in /
 # or: /rest/files, but must NOT end in /
-RE_PATTERN_FILES_CREATE = re.compile('^/rest/(v\d/)?files(?!/)')
+RE_PATTERN_FILES_CREATE = re.compile(r'^/rest/(v\d/)?files(?!/)')
 
 
 # none of the methods in this class use atomic requests by default! see method dispatch()
