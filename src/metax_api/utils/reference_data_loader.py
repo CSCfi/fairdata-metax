@@ -118,6 +118,9 @@ class ReferenceDataLoader():
                     if type_name == 'location':
                         entry['wkt'] = row['_source'].get('wkt', None)
 
+                    if type_name == 'license' and 'same_as' in row['_source'] and len(row['_source']['same_as']) > 0:
+                        entry['same_as'] = row['_source']['same_as'][0]
+
                     reference_data[index_name][type_name].append(entry)
 
         return reference_data

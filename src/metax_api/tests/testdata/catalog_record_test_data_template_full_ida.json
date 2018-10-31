@@ -93,6 +93,21 @@
             "en": "Free account of the rights"
           },
           "license": "https://url.of.license.which.applies.here.org"
+        },
+        {
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-NC-2.0",
+          "title": {
+            "en": "A name given to the resource"
+          },
+          "description": {
+            "en": "Free account of the rights"
+          }
+        },
+        {
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/other",
+          "title": {
+            "en": "A name given to the resource"
+          }
         }
       ],
       "access_url": {

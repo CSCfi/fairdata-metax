@@ -6845,6 +6845,21 @@
                             "title": {
                                 "en": "A name given to the resource"
                             }
+                        },
+                        {
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-NC-2.0",
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
+                        },
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/other",
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
                         }
                     ],
                     "restriction_grounds": [
@@ -7569,6 +7584,21 @@
                             },
                             "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
+                        },
+                        {
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-NC-2.0",
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
+                        },
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/other",
                             "title": {
                                 "en": "A name given to the resource"
                             }
@@ -8364,6 +8394,21 @@
                             },
                             "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
                             "license": "https://url.of.license.which.applies.here.org",
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
+                        },
+                        {
+                            "description": {
+                                "en": "Free account of the rights"
+                            },
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-NC-2.0",
+                            "title": {
+                                "en": "A name given to the resource"
+                            }
+                        },
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/other",
                             "title": {
                                 "en": "A name given to the resource"
                             }
