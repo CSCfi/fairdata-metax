@@ -252,24 +252,25 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return meta
 
     def _get_metadata_for_record(self, record, metadataPrefix):
-        if isinstance(record, CatalogRecord):
-            json = CRS.check_and_remove_metadata_based_on_access_type(
-                CRS.remove_contact_info_metadata(record.research_dataset))
-        elif isinstance(record, DataCatalog):
-            json = record.catalog_json
-        else:
-            json = {}
-
         meta = {}
-        if metadataPrefix == OAI_DC_MDPREFIX:
-            meta = self._get_oai_dc_metadata(record, json)
-        elif metadataPrefix == OAI_DATACITE_MDPREFIX:
-            meta = self._get_oai_datacite_metadata(json)
-        elif metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
+        if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
             meta = self._get_oai_dc_urnresolver_metadata(record)
             # If record did not have any identifiers to be resolved, return None
             if meta is None:
                 return None
+        else:
+            if isinstance(record, CatalogRecord):
+                json = CRS.check_and_remove_metadata_based_on_access_type(
+                    CRS.remove_contact_info_metadata(record.research_dataset))
+            elif isinstance(record, DataCatalog):
+                json = record.catalog_json
+            else:
+                json = {}
+
+            if metadataPrefix == OAI_DC_MDPREFIX:
+                meta = self._get_oai_dc_metadata(record, json)
+            elif metadataPrefix == OAI_DATACITE_MDPREFIX:
+                meta = self._get_oai_datacite_metadata(json)
         return self._fix_metadata(meta)
 
     @staticmethod
