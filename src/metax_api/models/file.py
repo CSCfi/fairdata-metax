@@ -46,7 +46,7 @@ class File(Common):
     file_frozen = models.DateTimeField()
     file_format = models.CharField(max_length=200, null=True)
     file_modified = models.DateTimeField(auto_now=True)
-    file_name = models.CharField(max_length=200)
+    file_name = models.TextField()
     file_path = models.TextField()
     file_storage = models.ForeignKey('metax_api.FileStorage', on_delete=models.DO_NOTHING)
     file_uploaded = models.DateTimeField()
