@@ -1169,10 +1169,10 @@ class FileService(CommonService, ReferenceDataMixin):
         if 'file_format' in file_characteristics:
             ff = file_characteristics['file_format']
             fv = file_characteristics.get('format_version', '')
-            versions = cls._get_versions_for_file_format_in_reference_data(
+            versions = cls._validate_file_format_and_get_versions_from_reference_data(
                 reference_data['file_format_version'], ff, errors)
 
-            # If file_format is valid value, proceed to checking format_version
+            # If the given file_format is a valid value, proceed to checking the given format_version value
             if not errors:
                 # If the given file_format had several output_format_version values in refdata, but the given
                 # format_version is not one of them, it's an error
@@ -1180,13 +1180,13 @@ class FileService(CommonService, ReferenceDataMixin):
                     errors['file_characteristics.format_version'].\
                         append('Value \'{0}\' for format_version does not match the allowed values for the given '
                                'file_format value \'{1}\' in reference data'.format(fv, ff))
-                # If the give file_format did not have any output_format_version values in refdata, but the given
+                # If the given file_format did not have any output_format_version values in refdata, but the given
                 # format_version is non-empty, it's an error
                 elif not versions and fv:
                     errors['file_characteristics.format_version']. \
                         append('Any non-empty value for format_version not allowed for the given file_format value '
                                '\'{1}\' in reference data'.format(fv, ff))
-        # If format_version was given but no file_format is given, it's an error
+        # If format_version was given but no file_format was given, it's an error
         elif 'format_version' in file_characteristics:
             errors['file_characteristics.file_format'].append('Value missing')
 
@@ -1194,12 +1194,13 @@ class FileService(CommonService, ReferenceDataMixin):
             raise ValidationError(errors)
 
     @staticmethod
-    def _get_versions_for_file_format_in_reference_data(file_format_version_refdata, input_file_format, errors={}):
+    def _validate_file_format_and_get_versions_from_reference_data(file_format_version_refdata,
+                                                                   input_file_format, errors={}):
         """
-        Check if given input_file_format value exists in file_format_version reference data, and if it does,
-        return a list of all possible output_format_version values for the given particular input_file_format.
+        Check if the input_file_format value exists in file_format_version reference data, and if it does,
+        return a list of all possible output_format_version values for the particular input_file_format.
 
-        Given input_file_format should be found from the reference data, otherwise it is an error.
+        The input_file_format should be found from the reference data, otherwise it is an error.
         """
         versions = []
         iff_found = False
