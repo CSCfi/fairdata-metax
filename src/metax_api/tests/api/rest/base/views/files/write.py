@@ -200,7 +200,9 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
 
     def test_create_file(self):
         # note: leading and trailing whitespace must be preserved.
-        newly_created_file_name = '   newly_created _file_name   '
+        newly_created_file_name = "   MX  .201015_Suomessa_tavattavat_ruokasammakot_ovat_väritykseltään_vaihtelevia_" \
+            "osa_on_ruskeita,_osa_kirkkaankin_vihreitä._Vihersammakoiden_silmät_ovat_kohtalaisen_korkealla_päälae" \
+            "lla._Sammakkolampi.fi_CC-BY-NC-4.0_thumb.jpg.meta   "
         self.test_new_data['file_name'] = newly_created_file_name
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
@@ -346,8 +348,11 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         """
 
         f = self._form_complex_list_from_test_file()[0]
-        f['file_path'] = '/project_y_FROZEN/Experiment_1/path/of/lonely/file/%s' % f['file_name']
-        f['identifier'] = '%s-111' % f['file_path']
+        file_path = '/project_y_FROZEN/Experiment_1/path/of/lonely/file_and_this_also_has_to_support' \
+            'veryverylooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' \
+            'ooooooooooooooooooooooooooooooooooooooongdirectorynames/%s'
+        f['file_path'] = file_path % f['file_name']
+        f['identifier'] = 'abc123111'
 
         response = self.client.post('/rest/files', f, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

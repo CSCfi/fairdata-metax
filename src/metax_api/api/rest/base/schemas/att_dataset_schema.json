@@ -943,7 +943,8 @@
                     "description":"Dataset metadata version identifier in form of http://urn.fi{URN}:version:{number}",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "type":"string",
-                    "format":"uri"
+                    "format":"uri",
+                    "readOnly": true
                 },
                 "preferred_identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
@@ -951,7 +952,8 @@
                     "description":"Unique identifier for the dataset. URN or URI.",
                     "@type":"@id",
                     "type":"string",
-                    "format":"uri"
+                    "format":"uri",
+                    "readOnly": true
                 },
                 "modified":{
                     "@id":"http://purl.org/dc/terms/modified",
@@ -1223,14 +1225,14 @@
                     "title":"Total remote resources byte size",
                     "description":"Sum of all remote resources distribution byte size. Read only field.",
                     "@type":"http://www.w3.org/2001/XMLSchema#decimal",
-                    "type":"number"
+                    "type":"number",
+                    "readOnly": true
                 }
             },
             "required":[
                 "creator",
                 "description",
                 "access_rights",
-                "preferred_identifier",
                 "title"
             ],
             "additionalProperties": false
