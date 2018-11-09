@@ -1539,6 +1539,8 @@ class RabbitMQPublishRecord():
             cr_json = { 'identifier': self.cr.identifier }
         else:
             cr_json = self._to_json()
+            # Send full data_catalog json
+            cr_json['data_catalog'] = {'catalog_json': self.cr.data_catalog.catalog_json}
 
         try:
             rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange='datasets')
