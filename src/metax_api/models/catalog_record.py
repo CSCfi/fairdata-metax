@@ -1540,7 +1540,6 @@ class RabbitMQPublishRecord():
         else:
             cr_json = self._to_json()
             # Send full data_catalog json
-            cr_json.pop('data_catalog', None)
             cr_json['data_catalog'] = {'catalog_json': self.cr.data_catalog.catalog_json}
 
         try:
