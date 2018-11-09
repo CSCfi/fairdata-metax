@@ -118,6 +118,9 @@ class ReferenceDataLoader():
                     if type_name == 'location':
                         entry['wkt'] = row['_source'].get('wkt', None)
 
+                    if type_name == 'license' and 'same_as' in row['_source'] and len(row['_source']['same_as']) > 0:
+                        entry['same_as'] = row['_source']['same_as'][0]
+
                     if type_name == 'file_format_version':
                         entry['input_file_format'] = row['_source'].get('input_file_format', None)
                         entry['output_format_version'] = row['_source'].get('output_format_version', None)
