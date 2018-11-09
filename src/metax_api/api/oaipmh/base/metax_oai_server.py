@@ -26,8 +26,7 @@ OAI_DC_URNRESOLVER_MDPREFIX = 'oai_dc_urnresolver'
 
 class MetaxOAIServer(ResumptionOAIPMH):
 
-    @staticmethod
-    def _validate_mdprefix_and_set(metadataPrefix, set=None):
+    def _validate_mdprefix_and_set(self, metadataPrefix, set=None):
         if not set:
             pass
         elif set == DATACATALOGS_SET:
@@ -41,8 +40,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         else:
             raise BadArgumentError('Invalid set value')
 
-    @staticmethod
-    def _get_default_set_filter():
+    def _get_default_set_filter(self):
         # there are not that many sets yet, so just using list even though
         # there will be duplicates
         catalog_urns = []
@@ -84,8 +82,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         cursor_end = cursor + batch_size if cursor + batch_size < len(query_set) else len(query_set)
         return query_set[cursor:cursor_end]
 
-    @staticmethod
-    def _handle_syke_urnresolver_metadata(record):
+    def _handle_syke_urnresolver_metadata(self, record):
         identifiers = []
         preferred_identifier = record.research_dataset.get('preferred_identifier')
         identifiers.append(preferred_identifier)
@@ -130,8 +127,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
-    @staticmethod
-    def _get_oaic_dc_value(value, lang=None):
+    def _get_oaic_dc_value(self, value, lang=None):
         valueDict = {}
         valueDict['value'] = value
         if lang:
@@ -239,8 +235,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
-    @staticmethod
-    def _get_oai_datacite_metadata(json):
+    def _get_oai_datacite_metadata(self, json):
         datacite_xml = CRS.transform_datasets_to_format(
             {'research_dataset': json}, 'datacite', False
         )
@@ -273,8 +268,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 meta = self._get_oai_datacite_metadata(json)
         return self._fix_metadata(meta)
 
-    @staticmethod
-    def _get_header_timestamp(record):
+    def _get_header_timestamp(self, record):
         if record.date_modified:
             timestamp = record.date_modified
         else:
@@ -296,8 +290,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 common.Metadata('', metadata), None)
         return item
 
-    @staticmethod
-    def _fix_metadata(meta):
+    def _fix_metadata(self, meta):
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
         # letters
@@ -308,8 +301,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 metadata[str(key)] = value
         return metadata
 
-    @staticmethod
-    def _get_record_identifier(record, set):
+    def _get_record_identifier(self, record, set):
         if set == DATACATALOGS_SET:
             return record.catalog_json['identifier']
         else:
