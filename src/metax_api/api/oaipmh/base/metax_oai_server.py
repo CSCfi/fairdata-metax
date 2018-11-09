@@ -40,7 +40,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
         else:
             raise BadArgumentError('Invalid set value')
 
-    def _get_default_set_filter(self):
+    @staticmethod
+    def _get_default_set_filter():
         # there are not that many sets yet, so just using list even though
         # there will be duplicates
         catalog_urns = []
