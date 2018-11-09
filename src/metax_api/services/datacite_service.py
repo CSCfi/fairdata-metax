@@ -336,8 +336,8 @@ class _DataciteService(CommonService):
             for lang in license['title'].keys():
                 licenses.append({
                     'lang': lang,
-                    'rightsURI': license['license'],
-                    'rights': license['title'][lang],
+                    'rightsURI': license['license'] if 'license' in license else license['identifier'],
+                    'rights': license['title'][lang]
                 })
         return licenses
 
@@ -353,8 +353,8 @@ class _DataciteService(CommonService):
             for wkt in spatial.get('as_wkt', []):
                 if wkt.startswith('POINT'):
                     geo_location['geoLocationPoint'] = {
-                        'pointLongitude': float(re.search('POINT\((.*) ', wkt, re.IGNORECASE).group(1)),
-                        'pointLatitude': float(re.search(' (.*)\)', wkt, re.IGNORECASE).group(1)),
+                        'pointLongitude': float(re.search(r'POINT\((.*) ', wkt, re.IGNORECASE).group(1)),
+                        'pointLatitude': float(re.search(r' (.*)\)', wkt, re.IGNORECASE).group(1)),
                     }
                     # only one point can be placed
                     break
