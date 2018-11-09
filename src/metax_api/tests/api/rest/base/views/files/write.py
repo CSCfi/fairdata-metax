@@ -15,6 +15,7 @@ from rest_framework.test import APITestCase
 import responses
 
 from metax_api.models import Directory, File
+from metax_api.services import RedisCacheService as cache
 from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
 
@@ -95,6 +96,99 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
         file['file_name'] = new_name
 
 
+class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
+    @classmethod
+    def setUpClass(cls):
+        """
+        Loaded only once for test cases inside this class.
+        """
+        call_command('updatereferencedata', verbosity=0)
+        super(FileApiWriteReferenceDataValidationTests, cls).setUpClass()
+
+    def setUp(self):
+        super().setUp()
+        ffv_refdata = cache.get('reference_data')['reference_data']['file_format_version']
+
+        # File format version entry in reference data that has some output_format_version
+        self.ff_with_version = None
+        # File format version entry in reference data that has same input_file_format than ff_with_versions but
+        # different output_format_version
+        self.ff_with_different_version = None
+        # File format version entry in reference data which has not output_format_version
+        self.ff_without_version = None
+
+        for ffv_obj in ffv_refdata:
+            if self.ff_with_different_version is None and self.ff_with_version is not None:
+                if ffv_obj['input_file_format'] == self.ff_with_version['input_file_format']:
+                    self.ff_with_different_version = ffv_obj
+            if self.ff_with_version is None and ffv_obj['output_format_version']:
+                self.ff_with_version = ffv_obj
+            if self.ff_without_version is None and not ffv_obj['output_format_version']:
+                self.ff_without_version = ffv_obj
+
+        self.assertTrue(self.ff_with_version['output_format_version'] != '')
+        self.assertTrue(self.ff_with_different_version['output_format_version'] != '')
+        self.assertTrue(self.ff_with_version['input_file_format'] ==
+                        self.ff_with_different_version['input_file_format'])
+        self.assertTrue(self.ff_with_version['output_format_version'] !=
+                        self.ff_with_different_version['output_format_version'])
+        self.assertTrue(self.ff_without_version['output_format_version'] == '')
+
+    def test_file_format_version_with_invalid_file_format_when_format_version_given_1(self):
+        self.test_new_data['file_characteristics']['format_version'] = 'any'
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('file_characteristics' in response.data.keys(), True)
+        self.assertEqual('file_characteristics.file_format' in response.data['file_characteristics'], True)
+
+    def test_file_format_version_with_invalid_file_format_when_format_version_given_2(self):
+        self.test_new_data['file_characteristics']['file_format'] = 'nonexisting'
+        self.test_new_data['file_characteristics']['format_version'] = 'any'
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('file_characteristics' in response.data.keys(), True)
+        self.assertEqual('file_characteristics.file_format' in response.data['file_characteristics'], True)
+
+    def test_file_format_version_with_invalid_format_version_when_file_format_has_versions_1(self):
+        self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('file_characteristics' in response.data.keys(), True)
+        self.assertEqual('file_characteristics.format_version' in response.data['file_characteristics'], True)
+
+    def test_file_format_version_with_invalid_format_version_when_file_format_has_versions_2(self):
+        self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
+        self.test_new_data['file_characteristics']['format_version'] = 'nonexisting'
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('file_characteristics' in response.data.keys(), True)
+        self.assertEqual('file_characteristics.format_version' in response.data['file_characteristics'], True)
+
+    def test_file_format_version_with_empty_format_version_when_file_format_has_no_version_1(self):
+        self.test_new_data['file_characteristics']['file_format'] = self.ff_without_version['input_file_format']
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_file_format_version_with_empty_format_version_when_file_format_has_no_version_2(self):
+        self.test_new_data['file_characteristics']['file_format'] = self.ff_without_version['input_file_format']
+        self.test_new_data['file_characteristics']['format_version'] = ''
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_file_format_version_with_valid_file_format_and_valid_file_version_1(self):
+        self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
+        self.test_new_data['file_characteristics']['format_version'] = self.ff_with_version['output_format_version']
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_file_format_version_with_valid_file_format_and_valid_file_version_2(self):
+        self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
+        self.test_new_data['file_characteristics']['format_version'] = \
+            self.ff_with_different_version['output_format_version']
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
 class FileApiWriteCreateTests(FileApiWriteCommon):
     #
     #
@@ -106,7 +200,9 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
 
     def test_create_file(self):
         # note: leading and trailing whitespace must be preserved.
-        newly_created_file_name = '   newly_created _file_name   '
+        newly_created_file_name = "   MX  .201015_Suomessa_tavattavat_ruokasammakot_ovat_väritykseltään_vaihtelevia_" \
+            "osa_on_ruskeita,_osa_kirkkaankin_vihreitä._Vihersammakoiden_silmät_ovat_kohtalaisen_korkealla_päälae" \
+            "lla._Sammakkolampi.fi_CC-BY-NC-4.0_thumb.jpg.meta   "
         self.test_new_data['file_name'] = newly_created_file_name
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
@@ -252,8 +348,11 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         """
 
         f = self._form_complex_list_from_test_file()[0]
-        f['file_path'] = '/project_y_FROZEN/Experiment_1/path/of/lonely/file/%s' % f['file_name']
-        f['identifier'] = '%s-111' % f['file_path']
+        file_path = '/project_y_FROZEN/Experiment_1/path/of/lonely/file_and_this_also_has_to_support' \
+            'veryverylooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo' \
+            'ooooooooooooooooooooooooooooooooooooooongdirectorynames/%s'
+        f['file_path'] = file_path % f['file_name']
+        f['identifier'] = 'abc123111'
 
         response = self.client.post('/rest/files', f, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

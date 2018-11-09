@@ -2,7 +2,7 @@
 
 # Run after the tests are successfully completed in travis build.
 
-if [[ "$TRAVIS_BRANCH" == "playground" || "$TRAVIS_BRANCH" == "master" || "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+if [[ "$TRAVIS_BRANCH" == "master" || "$TRAVIS_PULL_REQUEST" != "false" ]]; then
     exit 0
 fi
 
