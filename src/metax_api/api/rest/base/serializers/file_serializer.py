@@ -12,6 +12,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
 
 from metax_api.models import Directory, File, FileStorage
+from metax_api.services import FileService as FS
 from .common_serializer import CommonSerializer, LightSerializer
 from .directory_serializer import DirectorySerializer
 from .file_storage_serializer import FileStorageSerializer
@@ -109,6 +110,7 @@ class FileSerializer(CommonSerializer):
 
     def validate_file_characteristics(self, value):
         validate_json(value, self.context['view'].json_schema)
+        FS.validate_file_characteristics_reference_data(value, self.context['view'].cache)
         return value
 
     def validate_file_path(self, value):

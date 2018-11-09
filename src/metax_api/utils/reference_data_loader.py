@@ -118,6 +118,10 @@ class ReferenceDataLoader():
                     if type_name == 'location':
                         entry['wkt'] = row['_source'].get('wkt', None)
 
+                    if type_name == 'file_format_version':
+                        entry['input_file_format'] = row['_source'].get('input_file_format', None)
+                        entry['output_format_version'] = row['_source'].get('output_format_version', None)
+
                     reference_data[index_name][type_name].append(entry)
 
         return reference_data
