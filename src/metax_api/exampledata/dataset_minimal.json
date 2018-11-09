@@ -19,17 +19,6 @@
                 }
             }
         ],
-        "curator": [
-            {
-                "name": {
-                    "fi": "Testiorganisaatio"
-                },
-                "@type": "Organization"
-            }
-        ],
-        "language":[{
-            "identifier": "http://lexvo.org/id/iso639-3/aar"
-        }],
         "access_rights": {
             "access_type": {
                 "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"

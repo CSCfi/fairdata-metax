@@ -1128,7 +1128,8 @@
                     "description":"Dataset metadata version identifier in form of http://urn.fi{URN}:version:{number}",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "type":"string",
-                    "format":"uri"
+                    "format":"uri",
+                    "readOnly": true
                 },
                 "preferred_identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
@@ -1430,14 +1431,16 @@
                     "title":"Total ida byte size",
                     "description":"Sum of all Ida distribution byte size. Read only field.",
                     "@type":"http://www.w3.org/2001/XMLSchema#decimal",
-                    "type":"number"
+                    "type":"number",
+                    "readOnly": true
                 },
                 "total_remote_resources_byte_size":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#totalremoteresourcesbytesize",
                     "title":"Total remote resources byte size",
                     "description":"Sum of all remote resources distribution byte size. Read only field.",
                     "@type":"http://www.w3.org/2001/XMLSchema#decimal",
-                    "type":"number"
+                    "type":"number",
+                    "readOnly": true
                 }
             },
             "required":[

@@ -336,8 +336,8 @@ class _DataciteService(CommonService):
             for lang in license['title'].keys():
                 licenses.append({
                     'lang': lang,
-                    'rightsURI': license['license'],
-                    'rights': license['title'][lang],
+                    'rightsURI': license['license'] if 'license' in license else license['identifier'],
+                    'rights': license['title'][lang]
                 })
         return licenses
 

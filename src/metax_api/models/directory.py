@@ -24,7 +24,7 @@ class Directory(Common):
     byte_size = models.BigIntegerField(default=0)
     directory_deleted = models.DateTimeField(null=True)
     directory_modified = models.DateTimeField(auto_now=True)
-    directory_name = models.CharField(max_length=200)
+    directory_name = models.TextField()
     directory_path = models.TextField()
     identifier = models.CharField(max_length=200, unique=True)
     file_count = models.BigIntegerField(default=0)
