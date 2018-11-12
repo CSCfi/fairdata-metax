@@ -65,7 +65,7 @@
                 },
                 "preservation_state":{
                     "title":"Preservation state",
-                    "description":"Allowed values: 0 = Initialized, 10 = Proposed for digital preservation, 20 = Technical metadata generated, 30 = Technical metadata generation failed, 40 = Invalid metadata, 50 = Metadata validation failed, 60 = Validated metadata updated, 70 = Valid metadata, 80 = Accepted to digital preservation, 90 = in packaging service, 100 = Packaging failed, 110 = SIP sent to ingestion in digital preservation service, 120 = in digital preservation, 130 = Rejected in digital preservation service, 140 = in dissemination.",
+                    "description":"Allowed values: 0 = Initialized, 10 = Proposed for digital preservation, 20 = Technical metadata generated, 30 = Technical metadata generation failed, 40 = Invalid metadata, 50 = Metadata validation failed, 60 = Validated metadata updated, 70 = Valid metadata, 75 = Metadata confirmed,80 = Accepted to digital preservation, 90 = in packaging service, 100 = Packaging failed, 110 = SIP sent to ingestion in digital preservation service, 120 = in digital preservation, 130 = Rejected in digital preservation service, 140 = in dissemination.",
                     "enum":[
                         0,
                         10,
@@ -75,6 +75,7 @@
                         50,
                         60,
                         70,
+                        75,
                         80,
                         90,
                         100,
@@ -245,7 +246,7 @@
             },
             "required":[
                 "owner_id",
-                "identifier",
+                "identifier"
             ]
         },
         "CatalogRecordVersion":{
@@ -300,9 +301,9 @@
                     "type":"string",
                     "readonly": true,
                     "enum":[
-                        "dataset",
-                    ],
-                },
+                        "dataset"
+                    ]
+                }
             },
             "required":[
                 "identifier",

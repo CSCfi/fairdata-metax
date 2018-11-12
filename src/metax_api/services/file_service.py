@@ -951,7 +951,8 @@ class FileService(CommonService, ReferenceDataMixin):
                     # the requestor can use the parameter ignore_already_exists_errors to be spared from
                     # uninteresting errors.
                     if not connection.in_atomic_block:
-                        # do not close when in atomic block! should only happen when inside test cases
+                        # do not close when in atomic block! should only happen when query param
+                        # ?dryrun=true is specified, or when inside test cases
                         connection.close()
                         connection.connect()
 
