@@ -28,6 +28,8 @@ paths:
         - File Storage API
     post:
       summary: Create File Storage metadata
+      parameters:
+        - $ref: "#/parameters/dryrun"
       consumes:
         - application/json
       responses:
@@ -63,6 +65,7 @@ paths:
           description: identifier of file storage
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation. modified content returned
@@ -80,6 +83,7 @@ paths:
           description: identifier of file storage
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation. modified content returned
@@ -97,6 +101,7 @@ paths:
           description: identifier of file storage
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '204':
           description: successful operation
@@ -151,6 +156,7 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/File'
+      - $ref: "#/parameters/dryrun"
       responses:
         '201':
           description: Returns the created object, or if a list was given, a list of objects and errors.
@@ -169,6 +175,7 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/FileList'
+      - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: Successful operation. Return values include a list of errors, if any.
@@ -189,6 +196,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/FileList'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
@@ -208,6 +216,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/StringList'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: |
@@ -251,6 +260,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/File'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation. modified content returned
@@ -274,6 +284,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/File'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation, full content returned
@@ -293,6 +304,7 @@ paths:
           description: Persistent ID of file OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '204':
           description: successful operation, no content returned
@@ -345,6 +357,7 @@ paths:
           in: body
           description: The XML to create.
           required: true
+        - $ref: "#/parameters/dryrun"
       responses:
         '201':
           description: return created XML
@@ -371,6 +384,7 @@ paths:
           in: body
           description: "The XML to update"
           required: true
+        - $ref: "#/parameters/dryrun"
       responses:
         '204':
           description: XML saved
@@ -393,6 +407,7 @@ paths:
           description: namespace of the schema
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '204':
           description: XML is deleted
@@ -418,6 +433,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/StringList'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: a list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
@@ -439,6 +455,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/StringList'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: numbers of files restored.
@@ -626,12 +643,13 @@ paths:
       consumes:
         - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Object or a list of objects to create."
-        required: true
-        schema:
-          $ref: '#/definitions/DataCatalog'
+        - in: "body"
+          name: "body"
+          description: "Object or a list of objects to create."
+          required: true
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        - $ref: "#/parameters/dryrun"
       responses:
         '201':
           description: new data catalog created
@@ -676,6 +694,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/DataCatalog'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation. modified content returned
@@ -702,6 +721,7 @@ paths:
           description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation, full content returned
@@ -811,12 +831,13 @@ paths:
       consumes:
         - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Object or a list of objects to create."
-        required: true
-        schema:
-          $ref: '#/definitions/CatalogRecord'
+        - in: "body"
+          name: "body"
+          description: "Object or a list of objects to create."
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        - $ref: "#/parameters/dryrun"
       responses:
         '201':
           description: Returns the created object, or if a list was given, a list of objects and errors.
@@ -835,6 +856,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecordList'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: Sucessful operation. Return values include a list of errors, if any.
@@ -855,6 +877,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecordList'
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
@@ -998,6 +1021,7 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation. modified content returned
@@ -1025,6 +1049,7 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation, full content returned
@@ -1128,6 +1153,8 @@ paths:
         - Contract API
     post:
       summary: create new contract metadata
+      parameters:
+        - $ref: "#/parameters/dryrun"
       consumes:
         - application/json
       responses:
@@ -1161,6 +1188,7 @@ paths:
           description: Persistent ID of contract OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation. modified content returned
@@ -1176,6 +1204,7 @@ paths:
           description: Persistent ID of contract OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/dryrun"
       responses:
         '200':
           description: successful operation, full content returned
@@ -1281,6 +1310,13 @@ paths:
       tags:
         - Dataset RPC
 
+parameters:
+  dryrun:
+    name: dryrun
+    in: query
+    description: execute the operation normally, returning the same response as normally, but do not save anything to db, or publish anything to remote services.
+    required: false
+    type: boolean
 
 definitions:
   CatalogRecord:
@@ -1304,4 +1340,3 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/File'
-

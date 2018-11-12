@@ -14,8 +14,8 @@ Swagger
 
 Detailed documentation per API currently in swagger:
 
-* `Swagger <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/swagger/swagger.yaml>`_ file in Github: this is the file to use when finding out what a specific API consumes or returns
-* Direct link to editor/viewer http://editor.swagger.io/?url=https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/swagger/swagger.yaml Note! The document is currently missing some schema definitions for a rare XML-endpoint. Otherwise the schema should work fine. Just click "hide" to hide the validation errors at the top of the page.
+* `Swagger UI <https://__METAX_ENV_DOMAIN__/swagger>`_.
+* `Swagger file <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/swagger/swagger.yaml>`_ in Github: this is the file to use when finding out what a specific API consumes or returns
 
 
 

@@ -1,8 +1,9 @@
 [{
     "catalog_json": {
         "title": {
-            "en": "IDA catalog",
-            "fi": "IDA-aineistot (IDA-katalogi)"
+            "en": "Fairdata IDA datasets",
+            "fi": "Fairdata IDA-aineistot",
+            "sv": "Fairdata forskningsdata"
         },
         "language": [
             {
@@ -29,7 +30,14 @@
             "name": {
                 "en": "Ministry of Education and Culture, Finland",
                 "fi": "Opetus- ja kulttuuriministeriö"
-            }
+            },
+            "homepage": [{
+                "identifier": "https://www.fairdata.fi",
+                "title": {
+                     "fi": "Fairdata.fi",
+                     "en": "Fairdata.fi"
+                }
+            }]
         },
         "identifier": "urn:nbn:fi:att:data-catalog-ida",
         "access_rights": {
@@ -60,14 +68,89 @@
             }
         },
         "dataset_versioning": true,
-        "research_dataset_schema": "ida"
+        "research_dataset_schema": "ida",
+        "logo": "fairdata_tree_logo.svg"
     }
 },
 {
     "catalog_json": {
         "title": {
-            "en": "Other datasets (ATT catalog)",
-            "fi": "Muut aineistot (ATT-katalogi)"
+            "en": "Fairdata general register",
+            "fi": "Fairdata yleiskatalogi",
+            "sv": "Fairdata allmänt register"
+        },
+        "language": [
+            {
+                "title": {
+                    "en": "Finnish language",
+                    "fi": "Suomen kieli",
+                    "sv": "finska",
+                    "und": "Suomen kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/fin"
+            },
+            {
+                "title": {
+                    "en": "English language",
+                    "fi": "Englannin kieli",
+                    "sv": "engelska",
+                    "und": "Englannin kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/eng"
+            }
+        ],
+        "harvested": false,
+        "publisher": {
+            "name": {
+                "en": "Ministry of Education and Culture, Finland",
+                "fi": "Opetus- ja kulttuuriministeriö"
+            },
+            "homepage": [{
+                "identifier": "https://www.fairdata.fi",
+                "title": {
+                     "fi": "Fairdata.fi",
+                     "en": "Fairdata.fi"
+                }
+            }]
+        },
+        "identifier": "urn:nbn:fi:att:data-catalog-att",
+        "access_rights": {
+            "license": [
+                {
+                    "title": {
+                        "fi": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma",
+                        "en": "Creative Commons CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+                        "und": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma"
+                    },
+                    "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC0-1.0"
+                }
+            ],
+            "access_type": [
+                {
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+                    "pref_label": {
+                        "en": "Open",
+                        "fi": "Avoin",
+                        "und": "Avoin"
+                    }
+                }
+            ],
+            "description": {
+                "en": "Contains datasets that are not stored in the Finnish Fairdata services.",
+                "fi": "Sisältää esimerkiksi verkkoaineistot, rajapinnat ja muut muualla kuin fairdata-palveluissa säilytettävät aineistot."
+            }
+        },
+        "dataset_versioning": false,
+        "research_dataset_schema": "att",
+        "logo": "fairdata_tree_logo.svg"
+    }
+},
+{
+    "catalog_json": {
+        "title": {
+            "en": "Metadata Catalog for Legacy Research Datasets",
+            "fi": "Aiemmin julkaistujen tutkimusaineistojen kuvailutietokatalogi"
         },
         "language": [
             {
@@ -96,7 +179,7 @@
                 "fi": "Opetus- ja kulttuuriministeriö"
             }
         },
-        "identifier": "urn:nbn:fi:att:data-catalog-att",
+        "identifier": "urn:nbn:fi:att:data-catalog-legacy",
         "access_rights": {
             "license": [
                 {
@@ -120,8 +203,8 @@
                 }
             ],
             "description": {
-                "en": "Contains datasets that are not stored in the Finnish Fairdata services.",
-                "fi": "Sisältää esimerkiksi verkkoaineistot, rajapinnat ja muut muualla kuin fairdata-palveluissa säilytettävät aineistot."
+                "en": "Contains metadata about legacy research datasets that are published elsewhere. Published datasets may not have all of the required metadata to qualify as Fairdata-dataset",
+                "fi": "Sisältää kuvailutietoja muualla julkaistuista tutkimusaineistoista. Kaikki tutkimusaineistot eivät välttämättä täytä Fairdata-kuvailuvaatimuksia"
             }
         },
         "dataset_versioning": false,

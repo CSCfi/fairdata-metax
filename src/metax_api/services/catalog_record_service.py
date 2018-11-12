@@ -349,10 +349,20 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     cls.populate_from_ref_data(ref_entry, rg, label_field='pref_label')
 
             for license in access_rights.get('license', []):
+                license_url = license.get('license', False)
+
                 ref_entry = cls.check_ref_data(refdata['license'], license['identifier'],
                                                'research_dataset.access_rights.license.identifier', errors)
                 if ref_entry:
                     cls.populate_from_ref_data(ref_entry, license, label_field='title', add_in_scheme=False)
+
+                    # Populate license field from reference data only if it is empty, i.e. not provided by the user
+                    # and when the reference data license has a same_as entry
+                    if not license_url and ref_entry.get('same_as', False):
+                        license_url = ref_entry['same_as']
+
+                if license_url:
+                    license['license'] = license_url
 
         for project in research_dataset.get('is_output_of', []):
             for org_obj in project.get('source_organization', []):
