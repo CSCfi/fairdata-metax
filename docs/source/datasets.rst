@@ -731,7 +731,7 @@ Try to create a dataset when JSON schema validation fails for field ``research_d
 
     The contents of the field ``research_dataset`` are validated directly against the relevant schema from ``GET /rest/schemas``, so probably either the ``ida`` schema or ``att`` schema, depending on if you are going to include files from IDA in your dataset or not. When schema validation fails, the entire output from the validator is returned. For an untrained eye, it can be difficult to find the relevant parts from the output. For that reason, it is strongly recommended that you:
 
-    * Validate the contents of field ``research_dataset`` against the proper schema before you try to upload the dataset to Metax. Whatever JSON schema validator will work, and the error output will probably be easier to inspect compared to the output provided by Metax.
+    * Periodically upload your dataset to Metax using the optional query parameter ``?dryrun=true``, which executes all validations on the dataset, and returns you the same result it normally would have returned, except nothing really gets saved into Metax database.
     * Start with a bare minimum working dataset description, and add new fields and descriptions incrementally, validating the contents periodically. This way, it will be a lot easier to backtrack and find any mistakes in the JSON structure.
 
 

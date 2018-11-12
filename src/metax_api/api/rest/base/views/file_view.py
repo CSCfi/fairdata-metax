@@ -54,6 +54,15 @@ class FileViewSet(CommonViewSet):
         self.set_json_schema(__file__)
         super(FileViewSet, self).__init__(*args, **kwargs)
 
+    def _use_transaction(self, request):
+        # todo add checking of ?atomic parameter too?
+        if CommonService.get_boolean_query_param(self.request, 'dryrun'):
+            return True
+        elif request.method == 'POST' and RE_PATTERN_FILES_CREATE.match(request.META['PATH_INFO']):
+            # for POST /files only (creating), do not use a transaction !
+            return False
+        return True
+
     @method_decorator(transaction.non_atomic_requests)
     def dispatch(self, request, **kwargs):
         """
@@ -68,13 +77,12 @@ class FileViewSet(CommonViewSet):
         https://docs.djangoproject.com/en/2.0/topics/class-based-views/intro/#decorating-the-class
         https://docs.djangoproject.com/en/2.0/topics/db/transactions/#django.db.transaction.non_atomic_requests
         """
-        # todo add checking of ?atomic parameter to skip this ?
-        if request.method == 'POST' and RE_PATTERN_FILES_CREATE.match(request.META['PATH_INFO']):
-            # for POST /files only (creating), do not use a transaction !
+        if self._use_transaction(request):
+            with transaction.atomic():
+                _logger.debug('Note: Request in transaction')
+                return super().dispatch(request, **kwargs)
+        else:
             _logger.debug('Note: Request not in transaction')
-            return super().dispatch(request, **kwargs)
-        with transaction.atomic():
-            _logger.debug('Note: Request in transaction')
             return super().dispatch(request, **kwargs)
 
     def list(self, request, *args, **kwargs):

@@ -1107,3 +1107,23 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         response = self.client.get('/rest/files/1', format="json")
         response = self.client.put('/rest/files/1', response.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+class FileApiWriteDryrunTest(FileApiWriteCommon):
+
+    """
+    Test query param ?dryrun=bool separately for post /rest/files api, due to special
+    behavior in POST /rest/files.
+
+    For other apis, the common test case is among views/common/write tests.
+    """
+
+    def test_dryrun(self):
+        """
+        Ensure query parameter ?dryrun=true returns same result as they normally would, but
+        changes made during the request do not get saved in the db.
+        """
+        response = self.client.post('/rest/files?what&dryrun=true&other', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('id' in response.data, True)
+        found = File.objects.filter(pk=response.data['id']).exists()
+        self.assertEqual(found, False, 'file should not get truly created when using parameter dryrun')
