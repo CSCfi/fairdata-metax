@@ -30,9 +30,6 @@ class ApiWriteCommon(APITestCase, TestClassUtils):
 
     def setUp(self):
         call_command('loaddata', test_data_file_path, verbosity=0)
-        record_from_test_data = self._get_object_from_test_data('catalogrecord')
-        self.mvi = record_from_test_data['research_dataset']['metadata_version_identifier']
-        self.pk = record_from_test_data['id']
         self.test_new_data = self._get_new_test_data()
         self._use_http_authorization()
 
@@ -238,3 +235,21 @@ class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
         cr2 = self.client.get('/rest/datasets/2', format="json").data
         self.assertEqual(cr['research_dataset']['title']['en'] == 'updated', False)
         self.assertEqual(cr2['research_dataset']['title']['en'] == 'updated', False)
+
+
+class ApiWriteQueryParamTests(ApiWriteCommon):
+
+    """
+    Misc common query params tests
+    """
+
+    def test_dryrun(self):
+        """
+        Ensure query parameter ?dryrun=true returns same result as they normally would, but
+        changes made during the request do not get saved in the db.
+        """
+        response = self.client.post('/rest/datasets?dryrun=true', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('id' in response.data, True)
+        found = CatalogRecord.objects.filter(pk=response.data['id']).exists()
+        self.assertEqual(found, False, 'record should not get truly created when using parameter dryrun')

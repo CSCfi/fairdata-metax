@@ -61,13 +61,21 @@ class CommonViewSet(ModelViewSet):
     def dispatch(self, request, **kwargs):
         CallableService.clear_callables()
         res = super().dispatch(request, **kwargs)
+
         if res.status_code in RESPONSE_SUCCESS_CODES:
-            try:
-                CallableService.run_post_request_callables()
-            except Exception as e:
-                res = self.handle_exception(e)
-                # normally .dispatch() does this. sets response.accepted_renderer among other things
-                res = self.finalize_response(request, res, **kwargs)
+            if CS.get_boolean_query_param(self.request, 'dryrun'):
+                # with dryrun parameter:
+                # - nothing must be saved into db
+                # - no events must escape from metax to other services, such as rabbitmq
+                #   messages, or doi identifier requests
+                set_rollback()
+            else:
+                try:
+                    CallableService.run_post_request_callables()
+                except Exception as e:
+                    res = self.handle_exception(e)
+                    # normally .dispatch() does this. sets response.accepted_renderer among other things
+                    res = self.finalize_response(request, res, **kwargs)
         return res
 
     def get_permissions(self):

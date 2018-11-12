@@ -10,7 +10,7 @@ import lxml.etree
 from rest_framework import status
 from rest_framework.test import APITestCase
 from metax_api.models import CatalogRecord
-from metax_api.api.oaipmh.base.metax_oai_server import syke_url_prefix_template
+from metax_api.api.oaipmh.base.metax_oai_server import SYKE_URL_PREFIX_TEMPLATE
 
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
@@ -63,7 +63,7 @@ class SYKEOAIPMHReadTests(APITestCase, TestClassUtils):
             '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' % self.pref_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
-        syke_url = syke_url_prefix_template % '{55AB842F-9CED-4E80-A7E5-07A54F0AE4A4}'
+        syke_url = SYKE_URL_PREFIX_TEMPLATE % '{55AB842F-9CED-4E80-A7E5-07A54F0AE4A4}'
         identifiers = self._get_results(response.content,
             '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' % syke_url)
         self.assertTrue(len(identifiers) == 1, response.content)

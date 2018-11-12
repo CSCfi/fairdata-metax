@@ -10,8 +10,8 @@ from json import load as json_load
 
 from django.utils import timezone
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
-
 from metax_api.exceptions import Http400, Http412
 from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime, get_tz_aware_now_without_micros
 
@@ -37,7 +37,27 @@ class CommonService():
         Helper method to also check for values, instead of only presence of a boolean parameter,
         such as ?recursive=true/false instead of only ?recursive, which can only evaluate to true.
         """
-        value = request.query_params.get(param_name, None)
+        if isinstance(request, Request):
+            # DRF request
+            value = request.query_params.get(param_name, None)
+        else:
+            # if method is called before a view's dispatch() method, the only request available
+            # is a low level WSGIRequest.
+            for query_param in (val for val in request.environ['QUERY_STRING'].split('&')):
+                try:
+                    param, val = query_param.split('=')
+                except ValueError:
+                    # probably error was 'cant unpack tuple, not enough values' -> was a
+                    # param without value specified, such as ?recursive, instead of ?recursive=true.
+                    # if flag is specified without value, default value is to be considered True.
+                    param, val = query_param, 'true'
+
+                if param == param_name:
+                    value = val
+                    break
+            else:
+                return False
+
         if value in ('', 'true'):
             # flag was specified without value (?recursive), or with value (?recursive=true)
             return True

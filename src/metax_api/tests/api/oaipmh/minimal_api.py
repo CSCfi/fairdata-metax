@@ -249,7 +249,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def test_list_identifiers(self):
         ms = settings.OAI['BATCH_SIZE']
         allRecords = CatalogRecord.objects.filter(
-            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter(None))[:ms]
+            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter())[:ms]
         response = self.client.get('/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         headers = self._get_results(response.content, '//o:header')
@@ -258,7 +258,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def test_list_records(self):
         ms = settings.OAI['BATCH_SIZE']
         allRecords = CatalogRecord.objects.filter(
-            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter(None))[:ms]
+            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter())[:ms]
 
         response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -266,7 +266,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertTrue(len(records) == len(allRecords))
 
     def test_metadataformat_for_urn_resolver(self):
-        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc_urnresolver')
+        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc_urnresolver&set=datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         headers = self._get_results(response.content, '//o:header')
         self.assertTrue(len(headers) > 0)
@@ -312,7 +312,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                                         'datacite:schemaVersion[text()="%s"]' % '4.1')
         self.assertTrue(len(identifiers) == 1, response.content)
 
-    def test_get_urnresolver_record(self):
+    def test_get_urnresolver_dataset_record(self):
         response = self.client.get(
             '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -321,10 +321,23 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                                         self.preferred_identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
+    def test_legacy_catalog_datasets_are_not_urnresolved(self):
+        cr = CatalogRecord.objects.get(identifier=self.identifier)
+        cr.data_catalog.catalog_json['identifier'] = settings.LEGACY_CATALOGS[0]
+        cr.data_catalog.force_save()
+
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver&set=datasets' % self.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        identifiers = self._get_results(response.content,
+                                        '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' %
+                                        self.preferred_identifier)
+        self.assertTrue(len(identifiers) == 0, response.content)
+
     def test_list_records_from_datasets_set(self):
         ms = settings.OAI['BATCH_SIZE']
         allRecords = CatalogRecord.objects.filter(
-            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter(None))[:ms]
+            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter())[:ms]
 
         response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc&set=datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -352,7 +365,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def test_list_records_from_urnresolver_datasets_set(self):
         allRecords = CatalogRecord.objects.all()[:settings.OAI['BATCH_SIZE']]
 
-        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc&set=urnresolver')
+        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc_urnresolver&set=datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, '//o:record')
         self.assertTrue(len(records) == len(allRecords), len(records))
@@ -481,6 +494,12 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         dc_identifier = dc.catalog_json['identifier']
         response = self.client.get(
             '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % dc_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        errors = self._get_results(response.content, '//o:error[@code="badArgument"]')
+        self.assertTrue(len(errors) == 1, response.content)
+
+    def test_list_records_from_urnresolver_datacatalogs_set(self):
+        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc_urnresolver&set=datacatalogs')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         errors = self._get_results(response.content, '//o:error[@code="badArgument"]')
         self.assertTrue(len(errors) == 1, response.content)

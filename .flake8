@@ -26,6 +26,8 @@ ignore =
     E128
     # do not use bare except
     E722
+    # line break after binary operator
+    W504
 
 # often contains "unused" imports, too long lines (generated files), and such
 exclude = __init__.py,src/metax_api/migrations/*,src/static,swagger/*

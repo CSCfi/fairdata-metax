@@ -134,12 +134,22 @@ if executing_in_test_case or executing_in_travis:
     END_USER_ALLOWED_DATA_CATALOGS = [
         "urn:nbn:fi:att:data-catalog-ida",
         "urn:nbn:fi:att:data-catalog-att",
+        "urn:nbn:fi:att:data-catalog-legacy",
+    ]
+    LEGACY_CATALOGS = [
+        "urn:nbn:fi:att:data-catalog-legacy",
     ]
 else:
     # allow end users to create catalogrecords only to the following data catalogs
     END_USER_ALLOWED_DATA_CATALOGS = [
         app_config_dict['IDA_DATACATALOG_IDENTIFIER'],
         app_config_dict['ATT_DATACATALOG_IDENTIFIER'],
+        app_config_dict['LEGACY_DATACATALOG_IDENTIFIER'],
+    ]
+
+    # catalogs where uniqueness of dataset pids is not enforced.
+    LEGACY_CATALOGS = [
+        app_config_dict['LEGACY_DATACATALOG_IDENTIFIER'],
     ]
 
 # endpoint in localhost where bearer tokens should be sent for validation

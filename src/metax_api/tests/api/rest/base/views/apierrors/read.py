@@ -111,9 +111,9 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         cr_1.pop('data_catalog') # causes an error
 
         response = self.client.post('/rest/datasets', cr_1, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         response = self.client.post('/rest/datasets', cr_1, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
         # ensure something was produced...
         response = self.client.get('/rest/apierrors')
