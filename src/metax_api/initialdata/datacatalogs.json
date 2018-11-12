@@ -1,8 +1,9 @@
 [{
     "catalog_json": {
         "title": {
-            "en": "IDA catalog",
-            "fi": "IDA-aineistot (IDA-katalogi)"
+            "en": "Fairdata IDA datasets",
+            "fi": "Fairdata IDA-aineistot",
+            "sv": "Fairdata forskningsdata"
         },
         "language": [
             {
@@ -74,8 +75,9 @@
 {
     "catalog_json": {
         "title": {
-            "en": "Other datasets (ATT catalog)",
-            "fi": "Muut aineistot (ATT-katalogi)"
+            "en": "Fairdata general register",
+            "fi": "Fairdata yleiskatalogi",
+            "sv": "Fairdata allmänt register"
         },
         "language": [
             {
