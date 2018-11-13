@@ -747,7 +747,7 @@ class CatalogRecord(Common):
     def delete(self, *args, **kwargs):
         if self.has_alternate_records():
             self._remove_from_alternate_record_set()
-        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
+        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'delete'))
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
         if self.catalog_is_legacy():
@@ -799,8 +799,7 @@ class CatalogRecord(Common):
         pref_id_type = self._get_preferred_identifier_type_from_request()
         if self.catalog_is_harvested():
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
-            # do not overwrite. note: if the value was left empty, an error would have been
-            # raised in the serializer validation.
+            # do not overwrite.
             pass
         elif self.catalog_is_legacy():
             if 'preferred_identifier' not in self.research_dataset:
@@ -855,7 +854,7 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
+        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'create'))
 
         if self._dataset_is_access_restricted():
@@ -985,7 +984,7 @@ class CatalogRecord(Common):
                 self._handle_preferred_identifier_changed()
 
     def _post_update_operations(self):
-        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI and \
+        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI and \
                 self.update_datacite:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'update'))
 

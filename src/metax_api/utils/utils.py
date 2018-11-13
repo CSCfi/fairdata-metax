@@ -102,12 +102,12 @@ def extract_doi_from_doi_identifier(doi_identifier):
 
 
 def get_identifier_type(identifier):
-    if identifier.startswith('doi:'):
-        return IdentifierType.DOI
-    elif identifier.startswith('urn:'):
-        return IdentifierType.URN
-    else:
-        return None
+    if identifier:
+        if identifier.startswith('doi:'):
+            return IdentifierType.DOI
+        elif identifier.startswith('urn:'):
+            return IdentifierType.URN
+    return None
 
 
 def remove_keys_recursively(obj, fields_to_remove):
