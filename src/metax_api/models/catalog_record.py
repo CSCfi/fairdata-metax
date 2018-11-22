@@ -1287,6 +1287,7 @@ class CatalogRecord(Common):
         )
 
         new_version = self._new_version
+        new_version.deprecated = False
         new_version.contract = None
         new_version.date_created = old_version.date_modified
         new_version.date_modified = None

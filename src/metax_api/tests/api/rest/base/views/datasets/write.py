@@ -1614,6 +1614,20 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         self.assertEqual('new_version_created' in response.data, True)
         self.assertEqual('dataset_version_set' in response.data, True)
 
+    def test_new_dataset_version_fixes_deprecated(self):
+        """
+        A dataset is marked as deprecated when some of its files have been deleted. Creating
+        a new version should fix it.
+        """
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.deprecated = True
+        cr.force_save()
+
+        cr = self.client.get('/rest/datasets/1').data
+        cr['research_dataset']['files'].pop(0)
+        self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(CatalogRecord.objects.get(pk=1).next_dataset_version.deprecated, False)
+
     def test_dataset_version_lists_removed_records(self):
         # create new version
         cr = self.client.get('/rest/datasets/1').data

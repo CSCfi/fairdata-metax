@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 import responses
 
-from metax_api.models import Directory, File
+from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services import RedisCacheService as cache
 from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
@@ -954,6 +954,17 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self.assertEqual(File.objects_unfiltered.filter(project_identifier=project_identifier, removed=True).count(),
                          removed,
                          'files should be retrievable from removed=True scope')
+
+    def test_deleting_files_deprecates_datasets(self):
+        for cr in CatalogRecord.objects.filter(deprecated=True):
+            # ensure later assert is correct
+            cr.deprecated = False
+            cr.force_save()
+
+        datasets_with_file = CatalogRecord.objects.filter(files__id=1).count()
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(CatalogRecord.objects.filter(deprecated=True).count(), datasets_with_file)
 
 
 class FileApiWriteRestoreTests(FileApiWriteCommon):
