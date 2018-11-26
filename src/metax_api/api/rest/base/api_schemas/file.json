@@ -157,11 +157,6 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "type":"string"
                 },
-                "replication_path":{
-                    "description":"Identifier in file: scheme for the place that the file is replicated",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "type":"string"
-                },
                 "file_uploaded":{
                     "description":"date when data was uploaded",
                     "type":"string",

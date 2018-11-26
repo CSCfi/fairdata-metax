@@ -55,7 +55,6 @@ class File(Common):
     parent_directory = models.ForeignKey('metax_api.Directory', on_delete=models.SET_NULL, null=True,
         related_name='files')
     project_identifier = models.CharField(max_length=200)
-    replication_path = models.CharField(max_length=200, blank=True, null=True)
 
     # END OF MODEL FIELD DEFINITIONS #
 

@@ -82,13 +82,6 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
                 },
-                "replication_path":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#replicationpath",
-                    "title":"Replication path",
-                    "description":"Identifier for the place that the directory is replicated",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"string"
-                },
                 "directory_uploaded":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#dateUploaded",
                     "title":"Date uploaded",
@@ -211,14 +204,6 @@
                     "description":"Path to the item as file: URI",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
-                },
-                "replication_path":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#replicationpath",
-                    "title":"Replication path",
-                    "description":"Identifier in file: scheme for the place that the file is replicated",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "type":"string",
-                    "format":"uri"
                 },
                 "file_uploaded":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#dateUploaded",
