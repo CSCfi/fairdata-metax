@@ -36,6 +36,7 @@ class CommonSerializer(ModelSerializer):
             'date_created',
             'service_modified',
             'service_created',
+            'date_removed'
         )
         extra_kwargs = {
             # not required during creation, or updating

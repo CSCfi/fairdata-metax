@@ -1308,6 +1308,7 @@ class CatalogRecord(Common):
         new_version.service_created = old_version.service_modified or old_version.service_created
         new_version.service_modified = None
         new_version.alternate_record_set = None
+        new_version.date_removed = None
         old_version.dataset_version_set.records.add(new_version)
 
         # note: copying research_dataset from the currently open instance 'old_version',

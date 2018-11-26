@@ -11,7 +11,7 @@ from dateutil import parser
 from django.core.exceptions import FieldError
 from django.db import models
 
-from metax_api.utils.utils import executing_test_case
+from metax_api.utils.utils import executing_test_case, get_tz_aware_now_without_micros
 
 
 class CommonManager(models.Manager):
@@ -35,6 +35,7 @@ class Common(models.Model):
         help_text='Name of the service who last modified the record')
     service_created = models.CharField(max_length=200, null=True,
         help_text='Name of the service who created the record')
+    date_removed = models.DateTimeField(null=True)
 
     # END OF MODEL FIELD DEFINITIONS #
 
@@ -90,7 +91,8 @@ class Common(models.Model):
         Mark record as removed, never delete from db.
         """
         self.removed = True
-        super().save(update_fields=['removed'])
+        self.date_removed = get_tz_aware_now_without_micros()
+        super().save(update_fields=['removed', 'date_removed'])
 
     def user_has_access(self, request):
         """

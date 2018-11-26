@@ -108,6 +108,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('next_dataset_version', None)
         self.initial_data.pop('previous_dataset_version', None)
         self.initial_data.pop('removed', None)
+        self.initial_data.pop('date_removed', None)
         self.initial_data.pop('deprecated', None)
         self.initial_data.pop('date_deprecated', None)
 
