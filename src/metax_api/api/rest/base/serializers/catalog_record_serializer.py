@@ -59,6 +59,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'data_catalog',
             'dataset_version_set',
             'deprecated',
+            'date_deprecated',
             'metadata_owner_org',
             'metadata_provider_org',
             'metadata_provider_user',
@@ -108,6 +109,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('previous_dataset_version', None)
         self.initial_data.pop('removed', None)
         self.initial_data.pop('deprecated', None)
+        self.initial_data.pop('date_deprecated', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
