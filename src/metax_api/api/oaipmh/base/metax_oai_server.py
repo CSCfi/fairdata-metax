@@ -49,18 +49,42 @@ class MetaxOAIServer(ResumptionOAIPMH):
             catalog_urns.extend(v)
         return catalog_urns
 
+    def _get_urnresolver_record_data(self, set, cursor, batch_size, from_=None, until=None):
+        proxy = CatalogRecord
+        if set == DATACATALOGS_SET:
+            proxy = DataCatalog
+
+        # Use unfiltered objects for fetching catalog records for urn resolver, since otherwise deleted objects
+        # won't appear in the result. Get only active objects.
+        records = proxy.objects_unfiltered.filter(active=True)
+
+        if from_ and until:
+            records = proxy.objects.filter(date_modified__gte=from_, date_modified__lte=until)
+        elif from_:
+            records = proxy.objects.filter(date_modified__gte=from_)
+        elif until:
+            records = proxy.objects.filter(date_modified__lte=until)
+
+        data = []
+        for record in records:
+            identifier = self._get_record_identifier(record, set)
+            md = self._get_oai_dc_urnresolver_metadata(record)
+            # If record did not have any identifiers to be resolved, do not add it to data
+            if md is not None:
+                item = (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
+                        common.Metadata('', md), None)
+                data.append(item)
+
+        cursor_end = cursor + batch_size if cursor + batch_size < len(data) else len(data)
+        return data[cursor:cursor_end]
+
     def _get_filtered_records(self, metadataPrefix, set, cursor, batch_size, from_=None, until=None):
         proxy = CatalogRecord
         if set == DATACATALOGS_SET:
             proxy = DataCatalog
 
-        if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
-            # Use unfiltered objects for fetching catalog records for urn resolver, since otherwise deleted objects
-            # won't appear in the result. Get only active objects.
-            query_set = proxy.objects_unfiltered.filter(active=True)
-        else:
-            # For NON urn resolver, only get non-deleted active objects
-            query_set = proxy.objects.all()
+        # For NON urn resolver, only get non-deleted active objects
+        query_set = proxy.objects.all()
 
         if from_ and until:
             query_set = proxy.objects.filter(date_modified__gte=from_, date_modified__lte=until)
@@ -69,17 +93,15 @@ class MetaxOAIServer(ResumptionOAIPMH):
         elif until:
             query_set = proxy.objects.filter(date_modified__lte=until)
 
-        if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
-            pass
-        else:
-            if set:
-                if set == DATACATALOGS_SET:
-                    pass
-                else:
-                    query_set = query_set.filter(
-                        data_catalog__catalog_json__identifier__in=settings.OAI['SET_MAPPINGS'][set])
+        if set:
+            if set == DATACATALOGS_SET:
+                pass
             else:
-                query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
+                query_set = query_set.filter(
+                    data_catalog__catalog_json__identifier__in=settings.OAI['SET_MAPPINGS'][set])
+        else:
+            query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
+
         cursor_end = cursor + batch_size if cursor + batch_size < len(query_set) else len(query_set)
         return query_set[cursor:cursor_end]
 
@@ -151,7 +173,11 @@ class MetaxOAIServer(ResumptionOAIPMH):
         creator_data = json.get('creator', [])
         for value in creator_data:
             if 'name' in value:
-                creator.append(self._get_oaic_dc_value(value.get('name')))
+                if isinstance(value['name'], dict):
+                    for key, val in value['name'].items():
+                        creator.append(self._get_oaic_dc_value(val, key))
+                else:
+                    creator.append(self._get_oaic_dc_value(value.get('name')))
 
         subject = []
         subject_data = json.get('keyword', [])
@@ -167,9 +193,13 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 subject.append(self._get_oaic_dc_value(value2, key))
 
         desc = []
-        desc_data = json.get('description', {}).get('name', {})
-        for key, value in desc_data.items():
-                desc.append(self._get_oaic_dc_value(value, key))
+        desc_data = json.get('description', None)
+        if desc_data is not None:
+            if isinstance(desc_data, dict):
+                for key, value in desc_data.items():
+                    desc.append(self._get_oaic_dc_value(value, key))
+            else:
+                desc.append(desc_data)
 
         publisher = []
         publisher_data = json.get('publisher', {})
@@ -180,7 +210,11 @@ class MetaxOAIServer(ResumptionOAIPMH):
         contributor_data = json.get('contributor', [])
         for value in contributor_data:
             if 'name' in value:
-                contributor.append(self._get_oaic_dc_value(value.get('name')))
+                if isinstance(value['name'], dict):
+                    for key, val in value['name'].items():
+                        contributor.append(self._get_oaic_dc_value(val, key))
+                else:
+                    contributor.append(self._get_oaic_dc_value(value.get('name')))
 
         date = self._get_oaic_dc_value(str(record.date_created))
 
@@ -237,9 +271,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return meta
 
     def _get_oai_datacite_metadata(self, json):
-        datacite_xml = CRS.transform_datasets_to_format(
-            {'research_dataset': json}, 'datacite', False
-        )
+        datacite_xml = CRS.transform_datasets_to_format({'research_dataset': json}, 'datacite', False)
         meta = {
             'datacentreSymbol': 'Metax',
             'schemaVersion': '4.1',
@@ -249,24 +281,19 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
     def _get_metadata_for_record(self, record, metadataPrefix):
         meta = {}
-        if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
-            meta = self._get_oai_dc_urnresolver_metadata(record)
-            # If record did not have any identifiers to be resolved, return None
-            if meta is None:
-                return None
+        if isinstance(record, CatalogRecord):
+            json = CRS.check_and_remove_metadata_based_on_access_type(
+                CRS.remove_contact_info_metadata(record.research_dataset))
+        elif isinstance(record, DataCatalog):
+            json = record.catalog_json
         else:
-            if isinstance(record, CatalogRecord):
-                json = CRS.check_and_remove_metadata_based_on_access_type(
-                    CRS.remove_contact_info_metadata(record.research_dataset))
-            elif isinstance(record, DataCatalog):
-                json = record.catalog_json
-            else:
-                json = {}
+            json = {}
 
-            if metadataPrefix == OAI_DC_MDPREFIX:
-                meta = self._get_oai_dc_metadata(record, json)
-            elif metadataPrefix == OAI_DATACITE_MDPREFIX:
-                meta = self._get_oai_datacite_metadata(json)
+        if metadataPrefix == OAI_DC_MDPREFIX:
+            meta = self._get_oai_dc_metadata(record, json)
+        elif metadataPrefix == OAI_DATACITE_MDPREFIX:
+            meta = self._get_oai_datacite_metadata(json)
+
         return self._fix_metadata(meta)
 
     def _get_header_timestamp(self, record):
@@ -277,15 +304,6 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return timezone.make_naive(timestamp)
 
     def _get_oai_item(self, identifier, record, metadata_prefix):
-        metadata = self._get_metadata_for_record(record, metadata_prefix)
-        if metadata is None:
-            return None
-
-        item = (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
-                common.Metadata('', metadata), None)
-        return item
-
-    def _get_oai_catalog_item(self, identifier, record, metadata_prefix):
         metadata = self._get_metadata_for_record(record, metadata_prefix)
         item = (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
                 common.Metadata('', metadata), None)
@@ -370,15 +388,13 @@ class MetaxOAIServer(ResumptionOAIPMH):
         self._validate_mdprefix_and_set(metadataPrefix, set)
 
         data = []
-        records = self._get_filtered_records(metadataPrefix, set, cursor, batch_size, from_, until)
-        for record in records:
-            identifier = self._get_record_identifier(record, set)
-            if set == DATACATALOGS_SET:
-                data.append(self._get_oai_catalog_item(identifier, record, metadataPrefix))
-            else:
-                oai_item = self._get_oai_item(identifier, record, metadataPrefix)
-                if oai_item is not None:
-                    data.append(oai_item)
+        if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
+            data = self._get_urnresolver_record_data(set, cursor, batch_size, from_, until)
+        else:
+            records = self._get_filtered_records(metadataPrefix, set, cursor, batch_size, from_, until)
+            for record in records:
+                data.append(self._get_oai_item( self._get_record_identifier(record, set), record, metadataPrefix))
+
         return data
 
     def getRecord(self, metadataPrefix, identifier):
@@ -401,7 +417,11 @@ class MetaxOAIServer(ResumptionOAIPMH):
             except DataCatalog.DoesNotExist:
                 raise IdDoesNotExistError("No record with identifier %s is available." % identifier)
 
-        metadata = self._get_metadata_for_record(record, metadataPrefix)
+        if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
+            metadata = self._get_oai_dc_urnresolver_metadata(record)
+        else:
+            metadata = self._get_metadata_for_record(record, metadataPrefix)
+
         if metadata is None:
             raise NoRecordsMatchError
 
