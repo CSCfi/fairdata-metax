@@ -352,7 +352,7 @@
                     "title":"Text encoding",
                     "description":"Used text encoding",
                     "enum":[
-                        "ISO_8859-15",
+                        "ISO-8859-15",
                         "UTF-8",
                         "UTF-16",
                         "UTF-32"
