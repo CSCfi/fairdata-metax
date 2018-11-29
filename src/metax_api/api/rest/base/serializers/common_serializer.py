@@ -36,6 +36,7 @@ class CommonSerializer(ModelSerializer):
             'date_created',
             'service_modified',
             'service_created',
+            'removed',
             'date_removed'
         )
         extra_kwargs = {
@@ -68,6 +69,10 @@ class CommonSerializer(ModelSerializer):
             self.requested_fields = kwargs.pop('only_fields')
 
         super(CommonSerializer, self).__init__(*args, **kwargs)
+
+        if hasattr(self, 'initial_data') and self.initial_data is not None:
+            self.initial_data.pop('removed', None)
+            self.initial_data.pop('date_removed', None)
 
         if hasattr(self, 'instance') and self.instance is not None:
             self._operation_is_update = True

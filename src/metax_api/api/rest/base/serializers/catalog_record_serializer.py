@@ -72,8 +72,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'next_dataset_version',
             'previous_dataset_version',
             'mets_object_identifier',
-            'editor',
-            'removed',
+            'editor'
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -107,8 +106,6 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('dataset_version_set', None)
         self.initial_data.pop('next_dataset_version', None)
         self.initial_data.pop('previous_dataset_version', None)
-        self.initial_data.pop('removed', None)
-        self.initial_data.pop('date_removed', None)
         self.initial_data.pop('deprecated', None)
         self.initial_data.pop('date_deprecated', None)
 

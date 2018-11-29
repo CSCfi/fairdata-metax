@@ -79,6 +79,37 @@ class ApiWriteCommonFieldsTests(ApiWriteCommon):
         self.assertEqual(orig_user_created, response.data.get('user_created', None))
         self.assertEqual(orig_service_created, response.data.get('service_created', None))
 
+    def test_deletion_sets_removed_true_and_sets_value_for_date_removed(self):
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_id = response.data['id']
+        response = self.client.delete('/rest/datasets/%d' % cr_id)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # Verify date_removed got set
+        response = self.client.get('/rest/datasets/%d?removed' % cr_id)
+        self.assertTrue(response.data['removed'] is True)
+        self.assertTrue(response.data.get('date_removed', False) and
+                        response.data.get('date_removed', '').startswith('2'))
+
+    def test_updating_sets_removed_false_and_empties_date_removed(self):
+        response = self.client.post('/rest/datasets', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_id = response.data['id']
+        response = self.client.delete('/rest/datasets/%d' % cr_id)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        rd = self.client.get('/rest/datasets/%d?removed' % cr_id).data
+        response = self.client.put('/rest/datasets/%d?removed' % cr_id, rd, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        response = self.client.get('/rest/datasets/%d' % cr_id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertTrue(response.data['removed'] is False)
+        self.assertTrue(response.data.get('date_removed') is None)
+
 
 class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
 
