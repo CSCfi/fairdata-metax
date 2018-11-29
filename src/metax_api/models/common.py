@@ -73,6 +73,7 @@ class Common(models.Model):
     def save(self, *args, **kwargs):
         if self._operation_is_update():
             self._check_read_only_after_create_fields()
+            self._unset_removed()
         super(Common, self).save(*args, **kwargs)
         self._update_tracked_field_values()
 
@@ -90,9 +91,9 @@ class Common(models.Model):
         """
         Mark record as removed, never delete from db.
         """
-        self.removed = True
-        self.date_removed = get_tz_aware_now_without_micros()
+        self._set_removed()
         super().save(update_fields=['removed', 'date_removed'])
+        self._update_tracked_field_values()
 
     def user_has_access(self, request):
         """
@@ -146,6 +147,14 @@ class Common(models.Model):
                         self._initial_data[field_name] = deepcopy(requested_field)
                     else:
                         self._initial_data[field_name] = requested_field
+
+    def _set_removed(self):
+        self.removed = True
+        self.date_removed = get_tz_aware_now_without_micros()
+
+    def _unset_removed(self):
+        self.removed = False
+        self.date_removed = None
 
     def _track_json_field(self, field_name):
         field_name, json_field_name = field_name.split('.')

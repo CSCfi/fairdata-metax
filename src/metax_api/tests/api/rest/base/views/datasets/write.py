@@ -726,25 +726,48 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 1)
         self.assertEqual(len(response.data['failed']), 1)
 
-    def test_catalog_record_deprecated_cannot_be_set(self):
+    def test_catalog_record_deprecated_and_date_deprecated_cannot_be_set(self):
         # Test catalog record's deprecated field cannot be set with POST, PUT or PATCH
 
         initial_deprecated = True
         self.cr_test_data['deprecated'] = initial_deprecated
+        self.cr_test_data['date_deprecated'] = '2018-01-01T00:00:00'
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.data['deprecated'], False)
+        self.assertTrue('date_deprecated' not in response.data)
 
         response_json = self.client.get('/rest/datasets/1').data
         initial_deprecated = response_json['deprecated']
         response_json['deprecated'] = not initial_deprecated
+        response_json['date_deprecated'] = '2018-01-01T00:00:00'
         response = self.client.put('/rest/datasets/1', response_json, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['deprecated'], initial_deprecated)
+        self.assertTrue('date_deprecated' not in response.data)
 
         initial_deprecated = self.client.get('/rest/datasets/1').data['deprecated']
         response = self.client.patch('/rest/datasets/1', { 'deprecated': not initial_deprecated }, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['deprecated'], initial_deprecated)
+        self.assertTrue('date_deprecated' not in response.data)
+
+    def test_catalog_record_date_deprecated_and_date_deprecated_lifecycle(self):
+        ds = CatalogRecord.objects.filter(files__id=1)
+        ds_id = ds[0].identifier
+
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/rest/datasets/%s' % ds_id)
+        cr = response.data
+        self.assertTrue(cr['deprecated'])
+        self.assertTrue(cr['date_deprecated'].startswith('2'))
+
+        cr['deprecated'] = False
+        cr.pop('date_deprecated', None)
+        cr['research_dataset']['files'].pop(0)
+        response = self.client.put('/rest/datasets/%s' % ds_id, cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
@@ -1625,7 +1648,8 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
 
         cr = self.client.get('/rest/datasets/1').data
         cr['research_dataset']['files'].pop(0)
-        self.client.put('/rest/datasets/1', cr, format="json")
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(CatalogRecord.objects.get(pk=1).next_dataset_version.deprecated, False)
 
     def test_dataset_version_lists_removed_records(self):

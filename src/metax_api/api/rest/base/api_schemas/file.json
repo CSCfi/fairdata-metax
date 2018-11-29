@@ -248,6 +248,13 @@
                     "description":"Service name who last modified this resource.",
                     "type":"string",
                     "readonly": true
+                },
+                "date_removed":{
+                    "title":"Date removed",
+                    "description":"Date of removal of the resource. Can't be updated once set",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly":true
                 }
             },
             "required":[

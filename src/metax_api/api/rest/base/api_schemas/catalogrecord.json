@@ -210,6 +210,26 @@
                     "description":"Service name who last modified this resource.",
                     "type":"string",
                     "readonly": true
+                },
+                "date_removed":{
+                    "title":"Date removed",
+                    "description":"Date of removal of the resource. Can't be updated once set",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly":true
+                },
+                "deprecated":{
+                    "title":"Catalog record deprecation state",
+                    "description":"If physical files that are part of the catalog record are unfrozen, deprecated becomes true",
+                    "type":"boolean",
+                    "readyonly":true
+                },
+                "date_deprecated":{
+                    "title":"Date deprecated",
+                    "description":"Date of deprecation of the resource. Can't be updated once set",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly":true
                 }
             },
             "required":[
