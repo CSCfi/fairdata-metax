@@ -359,8 +359,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
                  'https://schema.datacite.org/meta/kernel-4.1/metadata.xsd',
                  'https://schema.datacite.org/meta/kernel-4.1/'),
                 (OAI_DC_URNRESOLVER_MDPREFIX,
-                 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
-                 'http://www.openarchives.org/OAI/2.0/oai_dc/')
+                 '',
+                 '')
                 ]
 
     def listSets(self, cursor=None, batch_size=None):
