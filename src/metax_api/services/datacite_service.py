@@ -361,13 +361,17 @@ class _DataciteService(CommonService):
 
                 elif wkt.startswith('POLYGON'):
                     geo_location['geoLocationPolygon'] = { 'polygonPoints': [] }
-                    for point in wkt.split('POLYGON')[1][2:-2].split(','):
-                        longitude, latitude = point.strip().split(' ')
-                        polygon_point = {
-                            'pointLongitude': int(longitude),
-                            'pointLatitude': int(latitude),
-                        }
-                        geo_location['geoLocationPolygon']['polygonPoints'].append(polygon_point)
+                    # Split POLYGON in case it contains several polygon objects
+                    for polygon in wkt.split('POLYGON')[1][2:-2].split('),('):
+                        for point in polygon.split(','):
+                            longitude, latitude = point.strip().split(' ')
+                            polygon_point = {
+                                'pointLongitude': float(longitude),
+                                'pointLatitude': float(latitude),
+                            }
+                            geo_location['geoLocationPolygon']['polygonPoints'].append(polygon_point)
+                        # Do not support for more than one polygon within one POLYGON value, for now
+                        break
 
                 else:
                     # not applicable

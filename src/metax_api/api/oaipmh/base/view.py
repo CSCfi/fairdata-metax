@@ -47,13 +47,14 @@ def oai_dc_writer_with_lang(element, metadata):
         'contributor', 'date', 'type', 'format', 'identifier',
         'source', 'language', 'relation', 'coverage', 'rights'
     ]:
-
-        for value in map.get(name, []):
-
-            e = SubElement(e_dc, nsdc(name))
-            if 'lang' in value:
-                e.attrib['{http://www.w3.org/XML/1998/namespace}lang'] = value['lang']
-            e.text = value['value']
+        try:
+            for value in map.get(name, []):
+                e = SubElement(e_dc, nsdc(name))
+                if 'lang' in value:
+                    e.attrib['{http://www.w3.org/XML/1998/namespace}lang'] = value['lang']
+                e.text = value['value']
+        except:
+            pass
 
 
 def oai_datacite_writer(element, metadata):
