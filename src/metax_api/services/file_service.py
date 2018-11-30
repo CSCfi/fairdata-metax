@@ -417,7 +417,9 @@ class FileService(CommonService, ReferenceDataMixin):
 
         for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False).distinct('id'):
             cr.deprecated = True
-            cr.date_modified = get_tz_aware_now_without_micros()
+            current = get_tz_aware_now_without_micros()
+            cr.date_deprecated = current
+            cr.date_modified = current
             cr.save()
             deprecated_records.append(CatalogRecordSerializer(cr).data)
 

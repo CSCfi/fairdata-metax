@@ -218,6 +218,8 @@ class CatalogRecord(Common):
     deprecated = models.BooleanField(
         default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
 
+    date_deprecated = models.DateTimeField(null=True)
+
     _directory_data = JSONField(null=True, help_text='Stores directory data related to browsing files and directories')
 
     files = models.ManyToManyField(File)
@@ -286,6 +288,7 @@ class CatalogRecord(Common):
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
+            'date_deprecated',
             'deprecated',
             'identifier',
             'metadata_owner_org',
@@ -905,6 +908,9 @@ class CatalogRecord(Common):
         if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
             raise Http400("Cannot change dataset deprecation state from true to false")
 
+        if self.field_changed('date_deprecated') and self._initial_data['date_deprecated']:
+            raise Http400("Cannot change dataset deprecation date when it has been once set")
+
         if not self.metadata_owner_org:
             # can not be updated to null
             self.metadata_owner_org = self._initial_data['metadata_owner_org']
@@ -1288,6 +1294,7 @@ class CatalogRecord(Common):
 
         new_version = self._new_version
         new_version.deprecated = False
+        new_version.date_deprecated = None
         new_version.contract = None
         new_version.date_created = old_version.date_modified
         new_version.date_modified = None
@@ -1301,6 +1308,7 @@ class CatalogRecord(Common):
         new_version.service_created = old_version.service_modified or old_version.service_created
         new_version.service_modified = None
         new_version.alternate_record_set = None
+        new_version.date_removed = None
         old_version.dataset_version_set.records.add(new_version)
 
         # note: copying research_dataset from the currently open instance 'old_version',

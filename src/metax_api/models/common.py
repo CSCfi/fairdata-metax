@@ -11,7 +11,7 @@ from dateutil import parser
 from django.core.exceptions import FieldError
 from django.db import models
 
-from metax_api.utils.utils import executing_test_case
+from metax_api.utils.utils import executing_test_case, get_tz_aware_now_without_micros
 
 
 class CommonManager(models.Manager):
@@ -35,6 +35,7 @@ class Common(models.Model):
         help_text='Name of the service who last modified the record')
     service_created = models.CharField(max_length=200, null=True,
         help_text='Name of the service who created the record')
+    date_removed = models.DateTimeField(null=True)
 
     # END OF MODEL FIELD DEFINITIONS #
 
@@ -72,6 +73,7 @@ class Common(models.Model):
     def save(self, *args, **kwargs):
         if self._operation_is_update():
             self._check_read_only_after_create_fields()
+            self._unset_removed()
         super(Common, self).save(*args, **kwargs)
         self._update_tracked_field_values()
 
@@ -89,8 +91,9 @@ class Common(models.Model):
         """
         Mark record as removed, never delete from db.
         """
-        self.removed = True
-        super().save(update_fields=['removed'])
+        self._set_removed()
+        super().save(update_fields=['removed', 'date_removed'])
+        self._update_tracked_field_values()
 
     def user_has_access(self, request):
         """
@@ -144,6 +147,14 @@ class Common(models.Model):
                         self._initial_data[field_name] = deepcopy(requested_field)
                     else:
                         self._initial_data[field_name] = requested_field
+
+    def _set_removed(self):
+        self.removed = True
+        self.date_removed = get_tz_aware_now_without_micros()
+
+    def _unset_removed(self):
+        self.removed = False
+        self.date_removed = None
 
     def _track_json_field(self, field_name):
         field_name, json_field_name = field_name.split('.')
