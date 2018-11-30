@@ -90,8 +90,7 @@ class ApiWriteCommonFieldsTests(ApiWriteCommon):
         # Verify date_removed got set
         response = self.client.get('/rest/datasets/%d?removed' % cr_id)
         self.assertTrue(response.data['removed'] is True)
-        self.assertTrue(response.data.get('date_removed', False) and
-                        response.data.get('date_removed', '').startswith('2'))
+        self.assertTrue(response.data.get('date_removed', '').startswith('2'))
 
     def test_updating_sets_removed_false_and_empties_date_removed(self):
         response = self.client.post('/rest/datasets', self.test_new_data, format="json")
