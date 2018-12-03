@@ -744,7 +744,7 @@ class CatalogRecord(Common):
             self._previous_highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
         return any(
             True for dr_path in self._previous_highest_level_dirs_by_project.get(project, [])
-            if path != dr_path and path.startswith(dr_path)
+            if path != dr_path and path.startswith('%s/' % dr_path)
         )
 
     def delete(self, *args, **kwargs):
@@ -1158,19 +1158,24 @@ class CatalogRecord(Common):
         top_level_dirs_by_project = defaultdict(list)
 
         for proj, dir_paths in dirs_by_project.items():
-            for path in dir_paths:
-                path_contained_by_other_paths = ( p.startswith(path) for p in dir_paths if p != path )
 
-                if all(path_contained_by_other_paths):
-                    # a 'root' level directory, every other directory is inside this dir
-                    top_level_dirs_by_project[proj].append(path)
+            for path in dir_paths:
+
+                dir_is_root = [ p.startswith('%s/' % path) for p in dir_paths if p != path ]
+
+                if all(dir_is_root):
+                    # found the root dir. disregard all the rest of the paths, if there were any.
+                    top_level_dirs_by_project[proj] = [path]
                     break
-                elif any(path_contained_by_other_paths):
-                    # a child of at least one other path. no need to include it in the list
-                    pass
                 else:
-                    # "unique", not a child of any other path
-                    top_level_dirs_by_project[proj].append(path)
+                    path_contained_by_other_paths = [ path.startswith('%s/' % p) for p in dir_paths if p != path ]
+
+                    if any(path_contained_by_other_paths):
+                        # a child of at least one other path. no need to include it in the list
+                        pass
+                    else:
+                        # "unique", not a child of any other path
+                        top_level_dirs_by_project[proj].append(path)
 
         return top_level_dirs_by_project
 

@@ -1865,6 +1865,26 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
                 "file_path": "/SecondExperiment/Directory_1/file_20.txt",
                 'project_identifier': 'testproject_2',
             },
+            {
+                "file_name": "file_21.txt",
+                "file_path": "/SecondExperiment/Data/file_21.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_22.txt",
+                "file_path": "/SecondExperiment/Data_Config/file_22.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_23.txt",
+                "file_path": "/SecondExperiment/Data_Config/file_23.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_24.txt",
+                "file_path": "/SecondExperiment/Data/History/file_24.txt",
+                'project_identifier': 'testproject_2',
+            },
 
         ]
 
@@ -1887,11 +1907,11 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         return files_1, files_2
 
     def _add_directory(self, ds, path, project=None):
-        params = { 'directory_path__startswith': path }
+        params = { 'directory_path': path }
         if project:
             params['project_identifier'] = project
 
-        identifier = Directory.objects.filter(**params).first().identifier
+        identifier = Directory.objects.get(**params).identifier
 
         if 'directories' not in ds['research_dataset']:
             ds['research_dataset']['directories'] = []
@@ -2046,6 +2066,32 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         """
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 4)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+
+    def test_single_common_root_directory(self):
+        """
+        A very simple "there is a single common root directory" test.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 8)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 8)
+
+    def test_directory_names_are_similar(self):
+        """
+        Ensure similar directory names are not mistaken to have parent/child relations,
+        i.e. directory separator-character is the true separator of dirs in the path.
+        """
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data')
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data/History')
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data_Config') # the interesting dir
+
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 4)
@@ -2267,7 +2313,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
         original_version = response.data
 
-        # add a new directories.
+        # add new directories.
         # files are added
         self._add_directory(original_version, '/TestExperiment/Directory_2/Group_1')
         self._add_directory(original_version, '/TestExperiment/Directory_2/Group_2')
@@ -2277,6 +2323,18 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 8)
         self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 8)
+
+    def test_add_multiple_directories_2(self):
+        """
+        Ensure adding multiple directories at once really adds files from all new directories.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 14)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 14)
 
     def test_add_files_from_different_projects(self):
         """
