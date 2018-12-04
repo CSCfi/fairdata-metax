@@ -307,10 +307,25 @@ class CatalogRecordSerializer(CommonSerializer):
                 # use temporary value and remove after schema validation.
                 value['preferred_identifier'] = 'temp'
 
+            if self._migration_override_requested():
+                for is_output_of in value.get('is_output_of', []):
+                    if 'source_organization' not in is_output_of or not is_output_of['source_organization']:
+                        is_output_of['source_organization'] = [
+                            {'@type': 'Organization',
+                             'identifier': 'MIGRATION_OVERRIDE',
+                             'name': {'und': 'temp'}}
+                        ]
+
             validate_json(value, self.json_schema)
 
             if value['preferred_identifier'] == 'temp':
                 value.pop('preferred_identifier')
+
+            if self._migration_override_requested():
+                for is_output_of in value.get('is_output_of', []):
+                    if 'source_organization' in is_output_of and len(is_output_of['source_organization']) == 1 and \
+                            is_output_of['source_organization'][0]['identifier'] == 'MIGRATION_OVERRIDE':
+                        is_output_of.pop('source_organization', None)
 
         else:
             # update operations
