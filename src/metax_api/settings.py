@@ -107,6 +107,9 @@ if executing_in_test_case or executing_in_travis:
         "rpc": {
             "datasets": {
                 "get_minimal_dataset_template": { "use": ["all"] }
+            },
+            "statistics": {
+                "something": { "use": ["all"] }
             }
         }
     }

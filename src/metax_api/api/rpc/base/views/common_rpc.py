@@ -7,11 +7,11 @@
 
 import logging
 
-from rest_framework.serializers import ModelSerializer
-
 from metax_api.api.rest.base.views import CommonViewSet
+from metax_api.models import File
 from metax_api.exceptions import Http501
 from metax_api.permissions import EndUserPermissions, ServicePermissions
+from metax_api.api.rest.base.serializers import FileSerializer
 
 _logger = logging.getLogger(__name__)
 
@@ -26,7 +26,8 @@ class CommonRPC(CommonViewSet):
     api_type = 'rpc'
 
     # serves no purpose, but satisfies the ViewSet basic requirements
-    serializer_class = ModelSerializer
+    serializer_class = FileSerializer
+    queryset = File.objects.all()
 
     permission_classes = (EndUserPermissions, ServicePermissions)
 

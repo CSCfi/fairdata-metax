@@ -59,6 +59,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'data_catalog',
             'dataset_version_set',
             'deprecated',
+            'date_deprecated',
             'metadata_owner_org',
             'metadata_provider_org',
             'metadata_provider_user',
@@ -71,8 +72,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'next_dataset_version',
             'previous_dataset_version',
             'mets_object_identifier',
-            'editor',
-            'removed',
+            'editor'
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -106,8 +106,8 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('dataset_version_set', None)
         self.initial_data.pop('next_dataset_version', None)
         self.initial_data.pop('previous_dataset_version', None)
-        self.initial_data.pop('removed', None)
         self.initial_data.pop('deprecated', None)
+        self.initial_data.pop('date_deprecated', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
@@ -307,10 +307,25 @@ class CatalogRecordSerializer(CommonSerializer):
                 # use temporary value and remove after schema validation.
                 value['preferred_identifier'] = 'temp'
 
+            if self._migration_override_requested():
+                for is_output_of in value.get('is_output_of', []):
+                    if 'source_organization' not in is_output_of or not is_output_of['source_organization']:
+                        is_output_of['source_organization'] = [
+                            {'@type': 'Organization',
+                             'identifier': 'MIGRATION_OVERRIDE',
+                             'name': {'und': 'temp'}}
+                        ]
+
             validate_json(value, self.json_schema)
 
             if value['preferred_identifier'] == 'temp':
                 value.pop('preferred_identifier')
+
+            if self._migration_override_requested():
+                for is_output_of in value.get('is_output_of', []):
+                    if 'source_organization' in is_output_of and len(is_output_of['source_organization']) == 1 and \
+                            is_output_of['source_organization'][0]['identifier'] == 'MIGRATION_OVERRIDE':
+                        is_output_of.pop('source_organization', None)
 
         else:
             # update operations

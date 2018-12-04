@@ -558,6 +558,26 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets?contract_org_identifier=1234')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_read_catalog_record_search_by_data_catalog_id(self):
+        from metax_api.models.data_catalog import DataCatalog
+
+        # Create a new data catalog
+        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc_id = 'original_dc_identifier'
+        dc['catalog_json']['identifier'] = dc_id
+        self.client.post('/rest/datacatalogs', dc, format="json")
+
+        # Set the new data catalog for a catalog record and store the catalog record
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.data_catalog = DataCatalog.objects.get(catalog_json__identifier=dc_id)
+        cr.force_save()
+
+        # Verify
+        response = self.client.get('/rest/datasets?data_catalog={0}'.format(dc_id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['data_catalog']['identifier'], dc_id)
+
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
     """
@@ -817,10 +837,10 @@ class CatalogRecordApiReadFiles(CatalogRecordApiReadCommon):
         file_ids_before = set([ f['id'] for f in response.data ])
         obj = File.objects.get(pk=1)
         obj.removed = True
-        obj.save()
+        obj.force_save()
         obj2 = File.objects.get(pk=2)
         obj2.removed = True
-        obj2.save()
+        obj2.force_save()
 
         response = self.client.get('/rest/datasets/1/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)

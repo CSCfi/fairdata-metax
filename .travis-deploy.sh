@@ -13,11 +13,11 @@ cd metax-ops/ansible/
 if [[ "$TRAVIS_BRANCH" == "test" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     echo "Deploying to test.."
     ansible-galaxy -r requirements.yml install --roles-path=roles
-    ansible-playbook -vv -i inventories/test/hosts site_deploy.yml --extra-vars "ssh_user=metax-deploy-user"
+    ansible-playbook -vv -i inventories/test/hosts site_deploy.yml --extra-vars "ssh_user=metax-deploy-user server_domain_name=metax-test.csc.fi"
 elif [[ "$TRAVIS_BRANCH" == "stable" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     echo "Deploying to stable.."
     ansible-galaxy -r requirements.yml install --roles-path=roles
-    ansible-playbook -vv -i inventories/stable/hosts site_deploy.yml --extra-vars "ssh_user=metax-deploy-user"
+    ansible-playbook -vv -i inventories/stable/hosts site_deploy.yml --extra-vars "ssh_user=metax-deploy-user server_domain_name=metax-stable.csc.fi"
 fi
 
 # Make sure the last command to run before this part is the ansible-playbook command

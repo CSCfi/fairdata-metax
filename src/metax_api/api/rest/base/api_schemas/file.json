@@ -157,11 +157,6 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "type":"string"
                 },
-                "replication_path":{
-                    "description":"Identifier in file: scheme for the place that the file is replicated",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "type":"string"
-                },
                 "file_uploaded":{
                     "description":"date when data was uploaded",
                     "type":"string",
@@ -253,6 +248,19 @@
                     "description":"Service name who last modified this resource.",
                     "type":"string",
                     "readonly": true
+                },
+                "removed":{
+                    "title":"Resource removed state",
+                    "description":"Indicates whether resource is deleted",
+                    "type":"boolean",
+                    "readyonly":true
+                },
+                "date_removed":{
+                    "title":"Date removed",
+                    "description":"Date of removal of the resource. Can't be updated once set",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly":true
                 }
             },
             "required":[

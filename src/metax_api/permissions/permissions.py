@@ -11,6 +11,8 @@ from django.conf import settings
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.permissions import BasePermission
 
+from metax_api.exceptions import Http400
+
 
 _logger = logging.getLogger(__name__)
 READ_METHODS = ('GET', 'HEAD', 'OPTIONS')
@@ -94,7 +96,14 @@ class MetaxAPIPermissions(BasePermission):
                 raise MethodNotAllowed
         elif api_type == 'rpc':
             rpc_method_name = request.path.split('/')[-1]
-            if 'all' in self.perms[api_type][api_name][rpc_method_name]['use']:
+            if rpc_method_name not in self.perms[api_type][api_name]:
+                raise Http400({
+                    'detail': [
+                        'Unknown RPC method: %s. Valid %s RPC methods are: %s'
+                        % (rpc_method_name, api_name, ', '.join(self.perms[api_type][api_name].keys()))
+                    ]
+                })
+            elif 'all' in self.perms[api_type][api_name][rpc_method_name]['use']:
                 has_perm = True
             else:
                 has_perm = self._check_use_perms(request, api_type, api_name, rpc_method_name)

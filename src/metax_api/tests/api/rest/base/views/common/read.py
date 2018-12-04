@@ -24,10 +24,10 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
     def test_removed_query_param(self):
         obj = CatalogRecord.objects.get(pk=1)
         obj.removed = True
-        obj.save()
+        obj.force_save()
         obj2 = CatalogRecord.objects.get(pk=2)
         obj2.removed = True
-        obj2.save()
+        obj2.force_save()
         response = self.client.get('/rest/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         response = self.client.get('/rest/datasets/1?removed=true')
@@ -38,10 +38,10 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
 
         obj = File.objects.get(pk=1)
         obj.removed = True
-        obj.save()
+        obj.force_save()
         obj2 = File.objects.get(pk=2)
         obj2.removed = True
-        obj2.save()
+        obj2.force_save()
         response = self.client.get('/rest/files/1')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         response = self.client.get('/rest/files/1?removed=true')

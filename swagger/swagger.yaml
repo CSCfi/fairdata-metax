@@ -795,6 +795,10 @@ paths:
           in: query
           description: identifier of the editor used to modify the record, i.e. qvain.
           type: string
+        - name: data_catalog
+          in: query
+          description: Filter by data catalog identifier
+          type: string
         - name: offset
           in: query
           description: offset for paging
@@ -1309,6 +1313,14 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
+  # /rpc/statistics/something:
+  #   get:
+  #     summary: Statistics api will be described here.
+  #     responses:
+  #       '200':
+  #         description: successful operation.
+  #     tags:
+  #       - Statistics RPC
 
 parameters:
   dryrun:

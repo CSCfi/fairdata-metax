@@ -53,7 +53,6 @@
             "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -87,7 +86,6 @@
             "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -121,7 +119,6 @@
             "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -155,7 +152,6 @@
             "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -189,7 +185,6 @@
             "parent_directory": 3,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -223,7 +218,6 @@
             "parent_directory": 4,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -257,7 +251,6 @@
             "parent_directory": 4,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -291,7 +284,6 @@
             "parent_directory": 4,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -325,7 +317,6 @@
             "parent_directory": 4,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -359,7 +350,6 @@
             "parent_directory": 4,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -393,7 +383,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -427,7 +416,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -461,7 +449,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -495,7 +482,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -529,7 +515,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -563,7 +548,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -597,7 +581,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -631,7 +614,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -665,7 +647,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -699,7 +680,6 @@
             "parent_directory": 6,
             "project_identifier": "project_x",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -733,7 +713,6 @@
             "parent_directory": 9,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -767,7 +746,6 @@
             "parent_directory": 12,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -801,7 +779,6 @@
             "parent_directory": 12,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -835,7 +812,6 @@
             "parent_directory": 12,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -869,7 +845,6 @@
             "parent_directory": 13,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -903,7 +878,6 @@
             "parent_directory": 15,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -937,7 +911,6 @@
             "parent_directory": 16,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -971,7 +944,6 @@
             "parent_directory": 16,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1005,7 +977,6 @@
             "parent_directory": 16,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1039,7 +1010,6 @@
             "parent_directory": 17,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1073,7 +1043,6 @@
             "parent_directory": 17,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1107,7 +1076,6 @@
             "parent_directory": 17,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1141,7 +1109,6 @@
             "parent_directory": 17,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1175,7 +1142,6 @@
             "parent_directory": 17,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1209,7 +1175,6 @@
             "parent_directory": 18,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1243,7 +1208,6 @@
             "parent_directory": 18,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1277,7 +1241,6 @@
             "parent_directory": 18,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1311,7 +1274,6 @@
             "parent_directory": 18,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1345,7 +1307,6 @@
             "parent_directory": 18,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1379,7 +1340,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1413,7 +1373,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1447,7 +1406,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1481,7 +1439,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1515,7 +1472,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1549,7 +1505,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1583,7 +1538,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1617,7 +1571,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1651,7 +1604,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1685,7 +1637,6 @@
             "parent_directory": 20,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1719,7 +1670,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1753,7 +1703,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1787,7 +1736,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1821,7 +1769,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1855,7 +1802,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1889,7 +1835,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1923,7 +1868,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1957,7 +1901,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -1991,7 +1934,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2025,7 +1967,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2059,7 +2000,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2093,7 +2033,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2127,7 +2066,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2161,7 +2099,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2195,7 +2132,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2229,7 +2165,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2263,7 +2198,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2297,7 +2231,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2331,7 +2264,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2365,7 +2297,6 @@
             "parent_directory": 21,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2399,7 +2330,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2433,7 +2363,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2467,7 +2396,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2501,7 +2429,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2535,7 +2462,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2569,7 +2495,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2603,7 +2528,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2637,7 +2561,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2671,7 +2594,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2705,7 +2627,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2739,7 +2660,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2773,7 +2693,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2807,7 +2726,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2841,7 +2759,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2875,7 +2792,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2909,7 +2825,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2943,7 +2858,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -2977,7 +2891,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3011,7 +2924,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3045,7 +2957,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3079,7 +2990,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3113,7 +3023,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3147,7 +3056,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3181,7 +3089,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3215,7 +3122,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3249,7 +3155,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3283,7 +3188,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3317,7 +3221,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3351,7 +3254,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3385,7 +3287,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3419,7 +3320,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3453,7 +3353,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3487,7 +3386,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3521,7 +3419,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3555,7 +3452,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3589,7 +3485,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3623,7 +3518,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3657,7 +3551,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3691,7 +3584,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3725,7 +3617,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3759,7 +3650,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3793,7 +3683,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3827,7 +3716,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3861,7 +3749,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3895,7 +3782,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3929,7 +3815,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3963,7 +3848,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -3997,7 +3881,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -4031,7 +3914,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -4065,7 +3947,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
@@ -4099,7 +3980,6 @@
             "parent_directory": 24,
             "project_identifier": "research_project_112",
             "removed": false,
-            "replication_path": "/path/to/copy/of/file",
             "service_created": "metax"
         },
         "model": "metax_api.file",
