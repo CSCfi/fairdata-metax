@@ -17,3 +17,4 @@ from .rabbitmq_service import RabbitMQService
 from .redis_cache_service import RedisCacheService, _RedisCacheService, _RedisCacheServiceDummy
 from .reference_data_mixin import ReferenceDataMixin
 from .schema_service import SchemaService
+from .statistic_service import StatisticService

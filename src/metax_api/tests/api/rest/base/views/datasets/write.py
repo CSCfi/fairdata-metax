@@ -726,25 +726,48 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 1)
         self.assertEqual(len(response.data['failed']), 1)
 
-    def test_catalog_record_deprecated_cannot_be_set(self):
+    def test_catalog_record_deprecated_and_date_deprecated_cannot_be_set(self):
         # Test catalog record's deprecated field cannot be set with POST, PUT or PATCH
 
         initial_deprecated = True
         self.cr_test_data['deprecated'] = initial_deprecated
+        self.cr_test_data['date_deprecated'] = '2018-01-01T00:00:00'
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.data['deprecated'], False)
+        self.assertTrue('date_deprecated' not in response.data)
 
         response_json = self.client.get('/rest/datasets/1').data
         initial_deprecated = response_json['deprecated']
         response_json['deprecated'] = not initial_deprecated
+        response_json['date_deprecated'] = '2018-01-01T00:00:00'
         response = self.client.put('/rest/datasets/1', response_json, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['deprecated'], initial_deprecated)
+        self.assertTrue('date_deprecated' not in response.data)
 
         initial_deprecated = self.client.get('/rest/datasets/1').data['deprecated']
         response = self.client.patch('/rest/datasets/1', { 'deprecated': not initial_deprecated }, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['deprecated'], initial_deprecated)
+        self.assertTrue('date_deprecated' not in response.data)
+
+    def test_catalog_record_date_deprecated_and_date_deprecated_lifecycle(self):
+        ds = CatalogRecord.objects.filter(files__id=1)
+        ds_id = ds[0].identifier
+
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/rest/datasets/%s' % ds_id)
+        cr = response.data
+        self.assertTrue(cr['deprecated'])
+        self.assertTrue(cr['date_deprecated'].startswith('2'))
+
+        cr['deprecated'] = False
+        cr.pop('date_deprecated', None)
+        cr['research_dataset']['files'].pop(0)
+        response = self.client.put('/rest/datasets/%s' % ds_id, cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
@@ -1614,6 +1637,21 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         self.assertEqual('new_version_created' in response.data, True)
         self.assertEqual('dataset_version_set' in response.data, True)
 
+    def test_new_dataset_version_fixes_deprecated(self):
+        """
+        A dataset is marked as deprecated when some of its files have been deleted. Creating
+        a new version should fix it.
+        """
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.deprecated = True
+        cr.force_save()
+
+        cr = self.client.get('/rest/datasets/1').data
+        cr['research_dataset']['files'].pop(0)
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(CatalogRecord.objects.get(pk=1).next_dataset_version.deprecated, False)
+
     def test_dataset_version_lists_removed_records(self):
         # create new version
         cr = self.client.get('/rest/datasets/1').data
@@ -1827,6 +1865,26 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
                 "file_path": "/SecondExperiment/Directory_1/file_20.txt",
                 'project_identifier': 'testproject_2',
             },
+            {
+                "file_name": "file_21.txt",
+                "file_path": "/SecondExperiment/Data/file_21.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_22.txt",
+                "file_path": "/SecondExperiment/Data_Config/file_22.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_23.txt",
+                "file_path": "/SecondExperiment/Data_Config/file_23.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_24.txt",
+                "file_path": "/SecondExperiment/Data/History/file_24.txt",
+                'project_identifier': 'testproject_2',
+            },
 
         ]
 
@@ -1849,11 +1907,11 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         return files_1, files_2
 
     def _add_directory(self, ds, path, project=None):
-        params = { 'directory_path__startswith': path }
+        params = { 'directory_path': path }
         if project:
             params['project_identifier'] = project
 
-        identifier = Directory.objects.filter(**params).first().identifier
+        identifier = Directory.objects.get(**params).identifier
 
         if 'directories' not in ds['research_dataset']:
             ds['research_dataset']['directories'] = []
@@ -2008,6 +2066,32 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         """
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 4)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+
+    def test_single_common_root_directory(self):
+        """
+        A very simple "there is a single common root directory" test.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 8)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 8)
+
+    def test_directory_names_are_similar(self):
+        """
+        Ensure similar directory names are not mistaken to have parent/child relations,
+        i.e. directory separator-character is the true separator of dirs in the path.
+        """
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data')
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data/History')
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data_Config') # the interesting dir
+
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 4)
@@ -2229,7 +2313,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
         original_version = response.data
 
-        # add a new directories.
+        # add new directories.
         # files are added
         self._add_directory(original_version, '/TestExperiment/Directory_2/Group_1')
         self._add_directory(original_version, '/TestExperiment/Directory_2/Group_2')
@@ -2239,6 +2323,18 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 8)
         self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 8)
+
+    def test_add_multiple_directories_2(self):
+        """
+        Ensure adding multiple directories at once really adds files from all new directories.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 14)
+        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 14)
 
     def test_add_files_from_different_projects(self):
         """

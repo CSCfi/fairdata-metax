@@ -1430,16 +1430,16 @@
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#totalidabytesize",
                     "title":"Total ida byte size",
                     "description":"Sum of all Ida distribution byte size. Read only field.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#decimal",
-                    "type":"number",
+                    "@type":"http://www.w3.org/2001/XMLSchema#integer",
+                    "type":"integer",
                     "readOnly": true
                 },
                 "total_remote_resources_byte_size":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#totalremoteresourcesbytesize",
                     "title":"Total remote resources byte size",
                     "description":"Sum of all remote resources distribution byte size. Read only field.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#decimal",
-                    "type":"number",
+                    "@type":"http://www.w3.org/2001/XMLSchema#integer",
+                    "type":"integer",
                     "readOnly": true
                 }
             },

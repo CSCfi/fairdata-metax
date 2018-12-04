@@ -95,6 +95,10 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('pas_filter', False):
             cls.set_pas_filter(queryset_search_params, request)
 
+        if request.query_params.get('data_catalog', False):
+            queryset_search_params['data_catalog__catalog_json__identifier__iregex'] = \
+                request.query_params['data_catalog']
+
         return queryset_search_params
 
     @staticmethod

@@ -218,6 +218,8 @@ class CatalogRecord(Common):
     deprecated = models.BooleanField(
         default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
 
+    date_deprecated = models.DateTimeField(null=True)
+
     _directory_data = JSONField(null=True, help_text='Stores directory data related to browsing files and directories')
 
     files = models.ManyToManyField(File)
@@ -286,6 +288,7 @@ class CatalogRecord(Common):
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
+            'date_deprecated',
             'deprecated',
             'identifier',
             'metadata_owner_org',
@@ -741,13 +744,13 @@ class CatalogRecord(Common):
             self._previous_highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
         return any(
             True for dr_path in self._previous_highest_level_dirs_by_project.get(project, [])
-            if path != dr_path and path.startswith(dr_path)
+            if path != dr_path and path.startswith('%s/' % dr_path)
         )
 
     def delete(self, *args, **kwargs):
         if self.has_alternate_records():
             self._remove_from_alternate_record_set()
-        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
+        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'delete'))
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
         if self.catalog_is_legacy():
@@ -799,8 +802,7 @@ class CatalogRecord(Common):
         pref_id_type = self._get_preferred_identifier_type_from_request()
         if self.catalog_is_harvested():
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
-            # do not overwrite. note: if the value was left empty, an error would have been
-            # raised in the serializer validation.
+            # do not overwrite.
             pass
         elif self.catalog_is_legacy():
             if 'preferred_identifier' not in self.research_dataset:
@@ -855,7 +857,7 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI:
+        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'create'))
 
         if self._dataset_is_access_restricted():
@@ -905,6 +907,9 @@ class CatalogRecord(Common):
 
         if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
             raise Http400("Cannot change dataset deprecation state from true to false")
+
+        if self.field_changed('date_deprecated') and self._initial_data['date_deprecated']:
+            raise Http400("Cannot change dataset deprecation date when it has been once set")
 
         if not self.metadata_owner_org:
             # can not be updated to null
@@ -985,7 +990,7 @@ class CatalogRecord(Common):
                 self._handle_preferred_identifier_changed()
 
     def _post_update_operations(self):
-        if get_identifier_type(self.research_dataset['preferred_identifier']) == IdentifierType.DOI and \
+        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI and \
                 self.update_datacite:
             self.add_post_request_callable(DataciteDOIUpdate(self, 'update'))
 
@@ -1153,19 +1158,24 @@ class CatalogRecord(Common):
         top_level_dirs_by_project = defaultdict(list)
 
         for proj, dir_paths in dirs_by_project.items():
-            for path in dir_paths:
-                path_contained_by_other_paths = ( p.startswith(path) for p in dir_paths if p != path )
 
-                if all(path_contained_by_other_paths):
-                    # a 'root' level directory, every other directory is inside this dir
-                    top_level_dirs_by_project[proj].append(path)
+            for path in dir_paths:
+
+                dir_is_root = [ p.startswith('%s/' % path) for p in dir_paths if p != path ]
+
+                if all(dir_is_root):
+                    # found the root dir. disregard all the rest of the paths, if there were any.
+                    top_level_dirs_by_project[proj] = [path]
                     break
-                elif any(path_contained_by_other_paths):
-                    # a child of at least one other path. no need to include it in the list
-                    pass
                 else:
-                    # "unique", not a child of any other path
-                    top_level_dirs_by_project[proj].append(path)
+                    path_contained_by_other_paths = [ path.startswith('%s/' % p) for p in dir_paths if p != path ]
+
+                    if any(path_contained_by_other_paths):
+                        # a child of at least one other path. no need to include it in the list
+                        pass
+                    else:
+                        # "unique", not a child of any other path
+                        top_level_dirs_by_project[proj].append(path)
 
         return top_level_dirs_by_project
 
@@ -1288,6 +1298,8 @@ class CatalogRecord(Common):
         )
 
         new_version = self._new_version
+        new_version.deprecated = False
+        new_version.date_deprecated = None
         new_version.contract = None
         new_version.date_created = old_version.date_modified
         new_version.date_modified = None
@@ -1301,6 +1313,7 @@ class CatalogRecord(Common):
         new_version.service_created = old_version.service_modified or old_version.service_created
         new_version.service_modified = None
         new_version.alternate_record_set = None
+        new_version.date_removed = None
         old_version.dataset_version_set.records.add(new_version)
 
         # note: copying research_dataset from the currently open instance 'old_version',

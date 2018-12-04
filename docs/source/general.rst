@@ -163,7 +163,7 @@ Retrieving deleted objects
 
 All standard ``GET`` list and detail API's (such as ``GET /rest/datasets``, ``GET /rest/datasets/<pid>``) accept an optional query parameter ``?removed=bool``, which can be set to search results only from deleted records. More complex API's, such as ``GET /rest/datasets/<pid>/files`` accepts a different parameter to retrieve deleted files only, not to be confused with the general ``?removed=bool`` parameter.
 
-Updating deleted objects is currently allowed, by using ``?removed=true`` in a ``PUT`` or ``PATCH`` request, to for example restore an object. Enabling to do that is up to a client, but the actual action is not prohibited by Metax. Whether this will be denied in the future or not will be seen.
+Restoring deleted objects is currently allowed by performing a ``PUT`` or a ``PATCH`` request together with ``?removed=true`` parameter. However, by applying the previously described operation on a removed object, the object *always* becomes non-removed, which effectively means a removed object cannot be updated without restoring it simultaneously. Enabling to do this is up to a client, but the actual action is not prohibited by Metax. Whether this will be denied or changed in the future or not will be seen.
 
 
 

@@ -66,7 +66,6 @@ class FileSerializer(CommonSerializer):
             'file_characteristics_extension',
             'open_access',
             'project_identifier',
-            'replication_path',
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = CommonSerializer.Meta.extra_kwargs

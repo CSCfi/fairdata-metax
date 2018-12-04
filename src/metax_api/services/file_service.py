@@ -417,7 +417,9 @@ class FileService(CommonService, ReferenceDataMixin):
 
         for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False).distinct('id'):
             cr.deprecated = True
-            cr.date_modified = get_tz_aware_now_without_micros()
+            current = get_tz_aware_now_without_micros()
+            cr.date_deprecated = current
+            cr.date_modified = current
             cr.save()
             deprecated_records.append(CatalogRecordSerializer(cr).data)
 
@@ -465,6 +467,7 @@ class FileService(CommonService, ReferenceDataMixin):
         request: the web request object.
         """
         assert request is not None, 'kw parameter request must be specified'
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer
 
         # get targeted directory
 
@@ -480,7 +483,8 @@ class FileService(CommonService, ReferenceDataMixin):
                 raise ValidationError({'detail': ['no parameters to query by']})
 
         try:
-            directory = Directory.objects.values('id', 'directory_path', 'project_identifier').get(**params)
+            fields = LightDirectorySerializer.ls_field_list()
+            directory = Directory.objects.values(*fields).get(**params)
         except Directory.DoesNotExist:
             raise Http404
 
@@ -550,7 +554,6 @@ class FileService(CommonService, ReferenceDataMixin):
                 return file_list
 
         if include_parent:
-            from metax_api.api.rest.base.serializers import LightDirectorySerializer
             contents.update(LightDirectorySerializer.serialize(directory))
 
         if cls._include_total_byte_sizes_and_file_counts(cr_id, directory_fields):

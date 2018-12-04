@@ -14,18 +14,18 @@ ipdb==0.11 # dev tool
 jsonschema==2.6.0
 lxml==4.2.5
 pika==0.12.0
-psycopg2-binary==2.7.5  # LGPL with exceptions or ZPL
+psycopg2-binary==2.7.6.1  # LGPL with exceptions or ZPL
 PyJWT==1.6.4 # MIT-license
 pyoai==2.5.0
 python-simplexquery==1.0.5.3
 pytz==2018.7
 pyyaml==3.13
 redis==2.10.6
-requests==2.20.0  # Apache 2.0-license
-responses==0.10.1  # Apache 2.0-license
-Sphinx==1.8.1  # custom license
+requests==2.20.1  # Apache 2.0-license
+responses==0.10.3  # Apache 2.0-license
+Sphinx==1.8.2  # custom license
 sphinx-autobuild==0.7.1 # MIT-license
 sphinx-rtd-theme==0.4.2 # MIT-license
 strict-rfc3339==0.7 # GPLv3
 simplejson==3.16.0  # MIT-license
-urllib3==1.24
+urllib3==1.24.1
