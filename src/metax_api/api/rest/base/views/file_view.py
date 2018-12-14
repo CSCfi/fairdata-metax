@@ -16,10 +16,9 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-import yaml
 
-from metax_api.exceptions import Http400, Http403
-from metax_api.models import File, XmlMetadata, Common, Directory
+from metax_api.exceptions import Http400
+from metax_api.models import File, XmlMetadata
 from metax_api.renderers import XMLRenderer
 from metax_api.services import AuthService, CommonService, FileService
 from .common_view import CommonViewSet
@@ -215,31 +214,5 @@ class FileViewSet(CommonViewSet):
 
     @list_route(methods=['post'], url_path="flush_project")
     def flush_project(self, request): # pragma: no cover
-        """
-        Permanently delete an entire project's files and directories
-        """
-        if request.user.username not in ('metax', 'ida'):
-            raise Http403
-
-        with open('/home/metax-user/app_config') as app_config:
-            app_config_dict = yaml.load(app_config)
-            for host in app_config_dict['ALLOWED_HOSTS']:
-                if 'metax.csc.local' in host or 'metax-test' in host or 'metax-stable' in host:
-                    break
-            # else:
-            #     raise ValidationError('API currently allowed only in test environments')
-
-        if 'project' not in request.query_params:
-            raise ValidationError('project is a required query parameter')
-
-        project = request.query_params['project']
-
-        for f in File.objects_unfiltered.filter(project_identifier=project):
-            super(Common, f).delete()
-
-        for dr in Directory.objects_unfiltered.filter(project_identifier=project):
-            super(Common, dr).delete()
-
-        _logger.debug('FLUSH project called by %s' % request.user.username)
-
-        return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        # todo remove api when comfortable
+        raise ValidationError({ 'detail': ['API has been moved to RPC API: /rpc/files/flush_project'] })
