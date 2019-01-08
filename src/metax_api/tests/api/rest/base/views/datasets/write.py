@@ -2600,6 +2600,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
     def _set_cr_owner_to_token_user(self, cr_id):
         cr = CatalogRecord.objects.get(pk=cr_id)
         cr.user_created = self.token['sub']
+        cr.metadata_provider_user = self.token['sub']
         cr.editor = None # pretend the record was created by user directly
         cr.force_save()
 
