@@ -19,6 +19,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+import time
 
 import yaml
 
@@ -333,7 +334,8 @@ LOGGING = {
     'formatters': {
         'standard': {
             # timestamp, process id, python module name, loglevel, msg content...
-            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s'
+            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s',
+            'datefmt': '%Y-%m-%dT%H:%M:%S.%03dZ',
         },
     },
     'filters': {
@@ -376,6 +378,7 @@ LOGGING = {
     }
 }
 
+logging.Formatter.converter = time.gmtime
 logger = logging.getLogger('metax_api')
 logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
 
