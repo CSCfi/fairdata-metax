@@ -144,4 +144,21 @@ def leave_keys_in_dict(dict_obj, fields_to_leave):
             del dict_obj[key]
 
 
-json_logger = structlog.get_logger('structlog')
+if executing_test_case() or executing_travis():
+    class TestJsonLogger():
+
+        def info(self, *args, **kwargs):
+            pass
+
+        def error(self, *args, **kwargs):
+            pass
+
+        def warning(self, *args, **kwargs):
+            pass
+
+        def debug(self, *args, **kwargs):
+            pass
+
+    json_logger = TestJsonLogger()
+else:
+    json_logger = structlog.get_logger('structlog')
