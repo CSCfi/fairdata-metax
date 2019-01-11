@@ -62,11 +62,11 @@ class StatisticService():
         sql_args = []
 
         if from_date:
-            where_args.append('and date_created >= %s::date')
+            where_args.append('and cr.date_created >= %s::date')
             sql_args.append(from_date)
 
         if to_date:
-            where_args.append('and date_created <= %s::date')
+            where_args.append('and cr.date_created <= %s::date')
             sql_args.append(to_date)
 
         if access_type:
