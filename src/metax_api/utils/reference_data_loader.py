@@ -125,6 +125,9 @@ class ReferenceDataLoader():
                         entry['input_file_format'] = row['_source'].get('input_file_format', None)
                         entry['output_format_version'] = row['_source'].get('output_format_version', None)
 
+                    if type_name == 'organization' and row['_source'].get('parent_id', False):
+                        entry['parent_org_code'] = row['_source']['parent_id'][len('organization_'):]
+
                     reference_data[index_name][type_name].append(entry)
 
         return reference_data
