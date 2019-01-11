@@ -70,6 +70,19 @@ def generate_uuid_identifier(urn_prefix=False):
     return str(uuid4())
 
 
+def is_metax_generated_doi_identifier(identifier):
+    """
+    Check whether given identifier is a metax generated doi identifier
+
+    :param identifier:
+    :return: boolean
+    """
+    if not identifier or not hasattr(settings, 'DATACITE') or not settings.DATACITE.get('PREFIX', False):
+        return False
+
+    return identifier.startswith('doi:{0}/'.format(settings.DATACITE.get('PREFIX')))
+
+
 def generate_doi_identifier(doi_suffix=generate_uuid_identifier()):
     """
     Until a better mechanism for generating DOI suffix is conceived, use UUIDs.

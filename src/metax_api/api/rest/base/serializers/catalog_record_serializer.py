@@ -68,6 +68,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_state_modified',
             'preservation_description',
             'preservation_reason_description',
+            'preservation_identifier',
             'dataset_version_set',
             'next_dataset_version',
             'previous_dataset_version',
@@ -108,6 +109,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('previous_dataset_version', None)
         self.initial_data.pop('deprecated', None)
         self.initial_data.pop('date_deprecated', None)
+        self.initial_data.pop('preservation_identifier', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.

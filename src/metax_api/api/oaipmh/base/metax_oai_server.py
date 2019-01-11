@@ -270,8 +270,12 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
-    def _get_oai_datacite_metadata(self, json):
-        datacite_xml = CRS.transform_datasets_to_format({'research_dataset': json}, 'datacite', False)
+    def _get_oai_datacite_metadata(self, rd_json, cr):
+        cr_json = {'research_dataset': rd_json}
+        if cr.preservation_identifier:
+            cr_json['preservation_identifier'] = cr.preservation_identifier
+
+        datacite_xml = CRS.transform_datasets_to_format(cr_json, 'datacite', False)
         meta = {
             'datacentreSymbol': 'Metax',
             'schemaVersion': '4.1',
@@ -292,7 +296,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         if metadataPrefix == OAI_DC_MDPREFIX:
             meta = self._get_oai_dc_metadata(record, json)
         elif metadataPrefix == OAI_DATACITE_MDPREFIX:
-            meta = self._get_oai_datacite_metadata(json)
+            meta = self._get_oai_datacite_metadata(json, record)
 
         return self._fix_metadata(meta)
 

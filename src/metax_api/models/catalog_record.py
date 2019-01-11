@@ -19,7 +19,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.utils import get_tz_aware_now_without_micros, generate_doi_identifier, generate_uuid_identifier, \
     executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type, \
-    parse_timestamp_string_to_tz_aware_datetime
+    parse_timestamp_string_to_tz_aware_datetime, is_metax_generated_doi_identifier
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -248,6 +248,8 @@ class CatalogRecord(Common):
 
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
 
+    preservation_identifier = models.CharField(max_length=200, unique=True, null=True)
+
     research_dataset = JSONField()
 
     next_dataset_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
@@ -295,6 +297,7 @@ class CatalogRecord(Common):
             'metadata_provider_org',
             'metadata_provider_user',
             'preservation_state',
+            'preservation_identifier',
             'research_dataset',
             'research_dataset.files',
             'research_dataset.directories',
@@ -753,7 +756,8 @@ class CatalogRecord(Common):
         if self.has_alternate_records():
             self._remove_from_alternate_record_set()
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-            self.add_post_request_callable(DataciteDOIUpdate(self, 'delete'))
+            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                             'delete'))
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
         if self.catalog_is_legacy():
             # delete permanently instead of only marking as 'removed'
@@ -825,7 +829,10 @@ class CatalogRecord(Common):
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
             elif pref_id_type == IdentifierType.DOI:
-                self.research_dataset['preferred_identifier'] = generate_doi_identifier()
+                doi_id = generate_doi_identifier()
+                self.research_dataset['preferred_identifier'] = doi_id
+                if self.dataset_in_ida_data_catalog():
+                    self.preservation_identifier = doi_id
             else:
                 _logger.debug("Identifier type not specified in the request. Using URN identifier for pref id")
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -860,7 +867,8 @@ class CatalogRecord(Common):
             self._create_or_update_alternate_record_set(other_record)
 
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-            self.add_post_request_callable(DataciteDOIUpdate(self, 'create'))
+            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                             'create'))
 
         if self._dataset_is_access_restricted():
             self.add_post_request_callable(REMSUpdate(self), 'create')
@@ -912,6 +920,9 @@ class CatalogRecord(Common):
 
         if self.field_changed('date_deprecated') and self._initial_data['date_deprecated']:
             raise Http400("Cannot change dataset deprecation date when it has been once set")
+
+        if self.field_changed('preservation_identifier'):
+            self.preservation_identifier = self._initial_data['preservation_identifier']
 
         if not self.metadata_owner_org:
             # can not be updated to null
@@ -994,7 +1005,8 @@ class CatalogRecord(Common):
     def _post_update_operations(self):
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI and \
                 self.update_datacite:
-            self.add_post_request_callable(DataciteDOIUpdate(self, 'update'))
+            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                             'update'))
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
@@ -1032,6 +1044,9 @@ class CatalogRecord(Common):
         Check using logic x and y if dataset uses REMS for managing access.
         """
         return False
+
+    def dataset_in_ida_data_catalog(self):
+        return self.data_catalog.catalog_json['identifier'] == 'urn:nbn:fi:att:data-catalog-ida'
 
     def _calculate_total_ida_byte_size(self):
         rd = self.research_dataset
@@ -1205,6 +1220,7 @@ class CatalogRecord(Common):
                 temp_record.dataset_version_set = None
                 temp_record.identifier = generate_uuid_identifier()
                 temp_record.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+                temp_record.preservation_identifier = None
                 super(Common, temp_record).save()
                 actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
 
@@ -1329,7 +1345,10 @@ class CatalogRecord(Common):
         if pref_id_type == IdentifierType.URN:
             new_version.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
         elif pref_id_type == IdentifierType.DOI:
-            new_version.research_dataset['preferred_identifier'] = generate_doi_identifier()
+            doi_id = generate_doi_identifier()
+            new_version.research_dataset['preferred_identifier'] = doi_id
+            if self.dataset_in_ida_data_catalog():
+                new_version.preservation_identifier = doi_id
         else:
             _logger.debug("This code should never be reached. Using URN identifier for the new version pref id")
             self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -1363,7 +1382,9 @@ class CatalogRecord(Common):
         new_version.calculate_directory_byte_sizes_and_file_counts()
 
         if pref_id_type == IdentifierType.DOI:
-            self.add_post_request_callable(DataciteDOIUpdate(new_version, 'create'))
+            self.add_post_request_callable(DataciteDOIUpdate(new_version,
+                                                             new_version.research_dataset['preferred_identifier'],
+                                                             'create'))
 
         new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
 
@@ -1613,9 +1634,18 @@ class DataciteDOIUpdate():
     and publishing of URL for resolving the DOI identifier in Datacite API.
     """
 
-    def __init__(self, cr, action):
+    def __init__(self, cr, doi_identifier, action):
+        """
+        Give doi_identifier as parameter since its location in cr is not always the same
+
+        :param cr:
+        :param doi_identifier:
+        :param action:
+        """
         assert action in ('create', 'update', 'delete'), 'invalid value for action'
+        assert is_metax_generated_doi_identifier(doi_identifier)
         self.cr = cr
+        self.doi_identifier = doi_identifier
         self.action = action
 
     def __call__(self):
@@ -1631,7 +1661,7 @@ class DataciteDOIUpdate():
         else:
             raise Exception('Missing configuration from settings: DATACITE')
 
-        doi = extract_doi_from_doi_identifier(self.cr.research_dataset['preferred_identifier'])
+        doi = extract_doi_from_doi_identifier(self.doi_identifier)
         if doi is None:
             return
 
@@ -1674,8 +1704,11 @@ class DataciteDOIUpdate():
             ]})
 
     def _publish_to_datacite(self, dcs, doi):
-        datacite_xml = dcs.convert_catalog_record_to_datacite_xml(
-            {'research_dataset': self.cr.research_dataset}, True)
+        cr_json = {'research_dataset': self.cr.research_dataset}
+        if self.cr.preservation_identifier:
+            cr_json['preservation_identifier'] = self.cr.preservation_identifier
+
+        datacite_xml = dcs.convert_catalog_record_to_datacite_xml(cr_json, True)
         _logger.debug("Datacite XML to be sent to Datacite API: {0}".format(datacite_xml))
 
         # When the two operations below are successful, it should result in the DOI transitioning to
