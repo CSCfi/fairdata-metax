@@ -204,7 +204,11 @@ class CommonSerializer(ModelSerializer):
             # in un-tampered form with normal fields present, since
             # relation fields can not be updated through another object
             if 'id' in identifier_value:
-                return int(identifier_value['id'])
+                try:
+                    return int(identifier_value['id'])
+                except:
+                    raise ValidationError({relation_field: ['Validation error for relation id field. '
+                                                            'Data in unexpected format']})
             else:
                 # try to look for identifier field in the dict
                 return string_relation_func(identifier_value['identifier'])
