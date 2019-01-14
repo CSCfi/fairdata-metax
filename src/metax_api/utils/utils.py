@@ -83,13 +83,15 @@ def is_metax_generated_doi_identifier(identifier):
     return identifier.startswith('doi:{0}/'.format(settings.DATACITE.get('PREFIX')))
 
 
-def generate_doi_identifier(doi_suffix=generate_uuid_identifier()):
+def generate_doi_identifier(doi_suffix=None):
     """
     Until a better mechanism for generating DOI suffix is conceived, use UUIDs.
 
     :param doi_suffix:
     :return: DOI identifier suitable for storing to Metax: doi:10.<doi_prefix>/<doi_suffix>
     """
+    if doi_suffix is None:
+        doi_suffix = generate_uuid_identifier()
 
     doi_prefix = None
     if hasattr(settings, 'DATACITE'):

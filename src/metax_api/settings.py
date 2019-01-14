@@ -106,7 +106,8 @@ if executing_in_test_case or executing_in_travis:
         },
         "rpc": {
             "datasets": {
-                "get_minimal_dataset_template": { "use": ["all"] }
+                "get_minimal_dataset_template": { "use": ["all"] },
+                "set_preservation_identifier": { "use": ["metax", "tpas"] }
             },
             "statistics": {
                 "something": { "use": ["all"] }
@@ -133,26 +134,30 @@ else:
     # Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
     ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
 
+IDA_DATA_CATALOG_IDENTIFIER = app_config_dict['IDA_DATACATALOG_IDENTIFIER']
+ATT_DATA_CATALOG_IDENTIFIER = app_config_dict['ATT_DATACATALOG_IDENTIFIER']
+LEGACY_DATA_CATALOG_IDENTIFIER = app_config_dict['LEGACY_DATACATALOG_IDENTIFIER']
+
 if executing_in_test_case or executing_in_travis:
     END_USER_ALLOWED_DATA_CATALOGS = [
-        "urn:nbn:fi:att:data-catalog-ida",
-        "urn:nbn:fi:att:data-catalog-att",
-        "urn:nbn:fi:att:data-catalog-legacy",
+        IDA_DATA_CATALOG_IDENTIFIER,
+        ATT_DATA_CATALOG_IDENTIFIER,
+        LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
     LEGACY_CATALOGS = [
-        "urn:nbn:fi:att:data-catalog-legacy",
+        LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
 else:
     # allow end users to create catalogrecords only to the following data catalogs
     END_USER_ALLOWED_DATA_CATALOGS = [
-        app_config_dict['IDA_DATACATALOG_IDENTIFIER'],
-        app_config_dict['ATT_DATACATALOG_IDENTIFIER'],
-        app_config_dict['LEGACY_DATACATALOG_IDENTIFIER'],
+        IDA_DATA_CATALOG_IDENTIFIER,
+        ATT_DATA_CATALOG_IDENTIFIER,
+        LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
 
     # catalogs where uniqueness of dataset pids is not enforced.
     LEGACY_CATALOGS = [
-        app_config_dict['LEGACY_DATACATALOG_IDENTIFIER'],
+        LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
 
 # endpoint in localhost where bearer tokens should be sent for validation
@@ -474,14 +479,14 @@ if executing_in_travis:
         'ADMIN_EMAIL': 'noreply@csc.fi',
         'SET_MAPPINGS': {
             'datasets': [
-                'urn:nbn:fi:att:data-catalog-ida',
-                'urn:nbn:fi:att:data-catalog-att'
+                IDA_DATA_CATALOG_IDENTIFIER,
+                ATT_DATA_CATALOG_IDENTIFIER
             ],
             'ida_datasets': [
-                'urn:nbn:fi:att:data-catalog-ida'
+                IDA_DATA_CATALOG_IDENTIFIER
             ],
             'att_datasets': [
-                'urn:nbn:fi:att:data-catalog-att'
+                ATT_DATA_CATALOG_IDENTIFIER
             ]
         }
     }

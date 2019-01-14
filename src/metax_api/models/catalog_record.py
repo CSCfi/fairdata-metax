@@ -42,6 +42,7 @@ ACCESS_TYPES = {
 
 
 LEGACY_CATALOGS = settings.LEGACY_CATALOGS
+IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
 
 
 class DiscardRecord(Exception):
@@ -788,6 +789,9 @@ class CatalogRecord(Common):
     def catalog_is_legacy(self):
         return self.data_catalog.catalog_json['identifier'] in LEGACY_CATALOGS
 
+    def catalog_is_ida(self):
+        return self.data_catalog.catalog_json['identifier'] == IDA_CATALOG
+
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
@@ -829,9 +833,12 @@ class CatalogRecord(Common):
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
             elif pref_id_type == IdentifierType.DOI:
+                if not self.catalog_is_ida():
+                    raise Http400("Cannot create DOI for other than datasets in IDA catalog")
+
                 doi_id = generate_doi_identifier()
                 self.research_dataset['preferred_identifier'] = doi_id
-                if self.dataset_in_ida_data_catalog():
+                if self.catalog_is_ida():
                     self.preservation_identifier = doi_id
             else:
                 _logger.debug("Identifier type not specified in the request. Using URN identifier for pref id")
@@ -1044,9 +1051,6 @@ class CatalogRecord(Common):
         Check using logic x and y if dataset uses REMS for managing access.
         """
         return False
-
-    def dataset_in_ida_data_catalog(self):
-        return self.data_catalog.catalog_json['identifier'] == 'urn:nbn:fi:att:data-catalog-ida'
 
     def _calculate_total_ida_byte_size(self):
         rd = self.research_dataset
@@ -1327,6 +1331,7 @@ class CatalogRecord(Common):
         new_version.preservation_state = 0
         new_version.preservation_state_modified = None
         new_version.previous_dataset_version = old_version
+        new_version.preservation_identifier = None
         new_version.next_dataset_version_id = None
         new_version.service_created = old_version.service_modified or old_version.service_created
         new_version.service_modified = None
@@ -1347,7 +1352,7 @@ class CatalogRecord(Common):
         elif pref_id_type == IdentifierType.DOI:
             doi_id = generate_doi_identifier()
             new_version.research_dataset['preferred_identifier'] = doi_id
-            if self.dataset_in_ida_data_catalog():
+            if self.catalog_is_ida():
                 new_version.preservation_identifier = doi_id
         else:
             _logger.debug("This code should never be reached. Using URN identifier for the new version pref id")
