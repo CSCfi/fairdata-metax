@@ -1278,6 +1278,40 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['organization']['label'], new_rd['publisher']['is_part_of'].get('name', None))
         self.assertEqual(refs['organization']['label'], new_rd['rights_holder'][0]['is_part_of'].get('name', None))
 
+    def test_refdata_sub_org_main_org_population(self):
+        # Test parent org gets populated when sub org is from ref data and user has not provided is_part_of relation
+        self.cr_test_data['research_dataset']['publisher'] = {'@type': 'Organization', 'identifier': '10076-A800'}
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('is_part_of' in response.data['research_dataset']['publisher'], True)
+        self.assertEqual('http://uri.suomi.fi/codelist/fairdata/organization/code/10076',
+                         response.data['research_dataset']['publisher']['is_part_of']['identifier'])
+        self.assertTrue(response.data['research_dataset']['publisher']['is_part_of'].get('name', False))
+
+        # Test parent org does not get populated when sub org is from ref data and user has provided is_part_of relation
+        self.cr_test_data['research_dataset']['publisher'] = {
+            '@type': 'Organization',
+            'identifier': '10076-A800',
+            'is_part_of': {
+                '@type': 'Organization',
+                'identifier': 'test_id',
+                'name': {'und': 'test_name'}
+            }}
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('is_part_of' in response.data['research_dataset']['publisher'], True)
+        self.assertEqual('test_id', response.data['research_dataset']['publisher']['is_part_of']['identifier'])
+        self.assertEqual('test_name', response.data['research_dataset']['publisher']['is_part_of']['name']['und'])
+
+        # Test nothing happens when org is a parent org
+        self.cr_test_data['research_dataset']['publisher'] = {'@type': 'Organization', 'identifier': '10076'}
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('is_part_of' not in response.data['research_dataset']['publisher'], True)
+
 
 class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
     """

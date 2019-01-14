@@ -117,10 +117,15 @@ class ReferenceDataMixin():
         """
         First check if org object contains is_part_of relation, in which case recursively call this method
         until there is no is_part_of relation. After this, check whether org object has a value in identifier field.
-        If there is, check whether it can be found from the organization reference data. If it is found, populate
-        the name field of org obj with the ref data label and identifier field with the ref data uri.
 
-        If identifier value is not found from reference data, never mind
+        If there is a value in identifier field, check whether it can be found from the organization reference data.
+        If the value is found, populate the name field of org obj with the ref data label and identifier field with
+        the ref data uri. If the value is not found from reference data, never mind.
+
+        Populate possible contributor_type from ref data.
+
+        Auto-populate reference data sub org's parent org (two level org hierarchy assumed!), if org object's identifier
+        is found to be a sub org and user has not given a parent org (via is_part_of relation).
         """
         if not orgdata or not org_obj:
             return
@@ -135,6 +140,18 @@ class ReferenceDataMixin():
                                            org_obj_relation_name + '.identifier', value_not_found_is_error=False)
             if ref_entry:
                 cls.populate_from_ref_data(ref_entry, org_obj, 'identifier', 'name', add_in_scheme=False)
+
+                if ref_entry.get('parent_org_code', False) and 'is_part_of' not in org_obj:
+                    parent_ref_entry = cls.check_ref_data(orgdata, ref_entry['parent_org_code'],
+                                                          org_obj_relation_name + '.is_part_of.identifier',
+                                                          value_not_found_is_error=False)
+                    if parent_ref_entry:
+                        parent_org_obj = {
+                            '@type': 'Organization'
+                        }
+                        cls.populate_from_ref_data(parent_ref_entry, parent_org_obj,
+                                                   'identifier', 'name', add_in_scheme=False)
+                        org_obj['is_part_of'] = parent_org_obj
 
         if refdata and 'contributor_type' in refdata:
             for contributor_type in org_obj.get('contributor_type', []):
