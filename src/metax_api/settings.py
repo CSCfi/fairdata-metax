@@ -19,7 +19,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+import time
 
+import structlog
 import yaml
 
 from metax_api.utils import executing_test_case, executing_travis
@@ -338,7 +340,8 @@ LOGGING = {
     'formatters': {
         'standard': {
             # timestamp, process id, python module name, loglevel, msg content...
-            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s'
+            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s',
+            'datefmt': '%Y-%m-%dT%H:%M:%S.%03dZ',
         },
     },
     'filters': {
@@ -369,7 +372,7 @@ LOGGING = {
             'filename': '/var/log/metax-api/metax_api.log',
             'formatter': 'standard',
             'filters': ['require_debug_false'],
-        }
+        },
     },
     'loggers': {
         'django': {
@@ -377,12 +380,32 @@ LOGGING = {
         },
         'metax_api': {
             'handlers': ['general', 'console', 'debug'],
-        }
+        },
     }
 }
 
+logging.Formatter.converter = time.gmtime
 logger = logging.getLogger('metax_api')
 logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+
+structlog.configure(
+    processors=[
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
+handler = logging.FileHandler('/var/log/metax-api/metax_api.json.log')
+handler.setFormatter(logging.Formatter('%(message)s'))
+json_logger = logging.getLogger('structlog')
+json_logger.addHandler(handler)
+json_logger.setLevel(logging.INFO)
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
