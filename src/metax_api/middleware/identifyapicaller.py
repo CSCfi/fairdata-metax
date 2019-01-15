@@ -167,7 +167,7 @@ class _IdentifyApiCaller():
             # url protected by oidc. the proxy is configured to return 200 OK for any valid token
             django_settings.VALIDATE_TOKEN_URL,
             headers={ 'Authorization': request.META.get('HTTP_AUTHORIZATION', None) },
-            verify=django_settings.TLS_VERIFY,
+            verify=False
         )
 
         _logger.debug('response from token validation: %s' % str(response))
