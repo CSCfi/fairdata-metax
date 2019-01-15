@@ -13,6 +13,7 @@ from uuid import uuid4
 from dateutil import parser
 from django.conf import settings
 from django.utils import timezone
+import structlog
 
 
 class IdentifierType(Enum):
@@ -141,3 +142,23 @@ def leave_keys_in_dict(dict_obj, fields_to_leave):
     for key in list(dict_obj):
         if key not in fields_to_leave:
             del dict_obj[key]
+
+
+if executing_test_case() or executing_travis():
+    class TestJsonLogger():
+
+        def info(self, *args, **kwargs):
+            pass
+
+        def error(self, *args, **kwargs):
+            pass
+
+        def warning(self, *args, **kwargs):
+            pass
+
+        def debug(self, *args, **kwargs):
+            pass
+
+    json_logger = TestJsonLogger()
+else:
+    json_logger = structlog.get_logger('structlog')
