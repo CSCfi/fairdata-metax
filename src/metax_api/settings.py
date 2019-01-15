@@ -156,11 +156,7 @@ if executing_in_test_case or executing_in_travis:
     ]
 else:
     # allow end users to create catalogrecords only to the following data catalogs
-    END_USER_ALLOWED_DATA_CATALOGS = [
-        IDA_DATA_CATALOG_IDENTIFIER,
-        ATT_DATA_CATALOG_IDENTIFIER,
-        LEGACY_DATA_CATALOG_IDENTIFIER,
-    ]
+    END_USER_ALLOWED_DATA_CATALOGS = app_config_dict['END_USER_ALLOWED_DATA_CATALOGS']
 
     # catalogs where uniqueness of dataset pids is not enforced.
     LEGACY_CATALOGS = [
