@@ -56,8 +56,7 @@ class SYKEOAIPMHReadTests(APITestCase, TestClassUtils):
         return root.xpath(xpath, namespaces=self._namespaces)
 
     def test_get_urn_resolver_record(self):
-        response = self.client.get(
-            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.identifier)
+        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc_urnresolver&set=datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
             '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' % self.pref_identifier)
