@@ -24,6 +24,7 @@ from metax_api.tests.utils import get_test_oidc_token
 VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
+IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -360,8 +361,19 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json")
         self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
 
-        # Test with pid_type = doi
+        # Test with pid_type = doi AND not ida catalog
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # Create ida data catalog
+        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc_id = IDA_CATALOG
+        dc['catalog_json']['identifier'] = dc_id
+        self.client.post('/rest/datacatalogs', dc, format="json")
+        # Test with pid_type = doi AND ida catalog
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
         response = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json")
         self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('doi:10.'))
 
@@ -1702,6 +1714,13 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
             response.data['dataset_version_set'])
 
     def test_new_dataset_version_pref_id_type_stays_same_as_previous_dataset_version_pref_id_type(self):
+        # Create ida data catalog
+        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc_id = IDA_CATALOG
+        dc['catalog_json']['identifier'] = dc_id
+        self.client.post('/rest/datacatalogs', dc, format="json")
+
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
 
         cr_v1 = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json").data

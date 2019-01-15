@@ -598,6 +598,29 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/1?dataset_format=doesnotexist')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_read_datacite_xml_format_identifier(self):
+        # Create ida data catalog
+        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc_id = settings.IDA_DATA_CATALOG_IDENTIFIER
+        dc['catalog_json']['identifier'] = dc_id
+        self.client.post('/rest/datacatalogs', dc, format="json")
+
+        # Create new cr by requesting a doi identifier
+        cr_json = self.client.get('/rest/datasets/1').data
+        cr_json.pop('preservation_identifier', None)
+        cr_json.pop('identifier')
+        cr_json['research_dataset'].pop('preferred_identifier', None)
+        cr_json['data_catalog'] = dc_id
+        response = self.client.post('/rest/datasets?pid_type=doi', cr_json, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        doi = response.data['preservation_identifier']
+
+        # Datacite xml should contain the doi created
+        response = self.client.get('/rest/datasets/%s?dataset_format=datacite' % response.data['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('<identifier identifierType="DOI">%s' % doi[len('doi:'):] in response.data,
+                         True, response.data)
+
     def _check_dataset_xml_format_response(self, response, element_name):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('content-type' in response._headers, True, response._headers)
