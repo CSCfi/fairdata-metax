@@ -39,13 +39,15 @@ class RequestLogging():
         try:
             json_logger.info(
                 event='request_start',
-                query_string=request.environ['QUERY_STRING'],
-                url_path=request.environ['PATH_INFO'],
-                ip=request.environ['HTTP_X_REAL_IP'],
-                user_type=user_type,
-                username=username,
-                http_method=request.environ['REQUEST_METHOD'],
-                process_id=self._pid,
+                user_id=username,
+                request={
+                    'query_string': request.environ['QUERY_STRING'],
+                    'url_path': request.environ['PATH_INFO'],
+                    'ip': request.environ['HTTP_X_REAL_IP'],
+                    'user_type': user_type,
+                    'http_method': request.environ['REQUEST_METHOD'],
+                    'process_id': self._pid,
+                }
             )
         except:
             _logger.exception('Exception during trying to json-log request start')
@@ -84,19 +86,21 @@ class RequestLogging():
         try:
             request_info = {
                 'event': 'request_end',
-                'query_string': request.environ['QUERY_STRING'],
-                'url_path': request.environ['PATH_INFO'],
-                'ip': request.environ['HTTP_X_REAL_IP'],
-                'user_type': user_type,
-                'username': username,
-                'http_method': request.environ['REQUEST_METHOD'],
-                'http_status': response.status_code,
-                'process_id': self._pid,
-                'request_duration': float('%.3f' % (time() - start_time)),
+                'user_id': username,
+                'request': {
+                    'query_string': request.environ['QUERY_STRING'],
+                    'url_path': request.environ['PATH_INFO'],
+                    'ip': request.environ['HTTP_X_REAL_IP'],
+                    'user_type': user_type,
+                    'http_method': request.environ['REQUEST_METHOD'],
+                    'http_status': response.status_code,
+                    'process_id': self._pid,
+                    'request_duration': float('%.3f' % (time() - start_time)),
+                }
             }
 
             if response.status_code not in SUCCESS_CODES and 'error_identifier' in response.data:
-                request_info['error_identifier'] = request.data['error_identifier']
+                request_info['error'] = { 'error_identifier': response.data['error_identifier'] }
 
             json_logger.info(**request_info)
         except:

@@ -7,6 +7,7 @@
 
 import os
 import sys
+from datetime import datetime
 from enum import Enum
 from uuid import uuid4
 
@@ -19,6 +20,21 @@ import structlog
 class IdentifierType(Enum):
     URN = 'urn'
     DOI = 'doi'
+
+
+class DelayedLog():
+
+    """
+    A callable that can be passed to CallableService as a post_request_callable,
+    when needing to log something only when the request has ended with a success code,
+    and transactions to db have been successful.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._log_args = kwargs
+
+    def __call__(self, *args, **kwargs):
+        json_logger.info(**self._log_args)
 
 
 def executing_test_case():
@@ -34,8 +50,15 @@ def executing_travis():
     """
     return True if os.getenv('TRAVIS', False) else False
 
+
 def datetime_to_str(date_obj):
-    return date_obj.astimezone().isoformat()
+    if isinstance(date_obj, datetime):
+        return date_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+    elif datetime is None:
+        return None
+    else:
+        assert isinstance(date_obj, datetime), 'date_obj must be datetime object or None'
+
 
 def parse_timestamp_string_to_tz_aware_datetime(timestamp_str):
     """

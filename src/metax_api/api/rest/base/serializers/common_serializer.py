@@ -17,7 +17,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
 from metax_api.models import Common
-from metax_api.utils import datetime_to_str
+
 
 _logger = logging.getLogger(__name__)
 
@@ -384,7 +384,7 @@ class LightSerializer():
                     )
                 else:
                     if isinstance(value, datetime):
-                        value = datetime_to_str(value)
+                        value = value.astimezone().isoformat()
                     item[field] = value
             data_append(item)
         return serialized_data if multi else serialized_data[0]
