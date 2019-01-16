@@ -108,6 +108,11 @@
                     "format":"date-time",
                     "readonly": true
                 },
+                "preservation_identifier":{
+                    "title":"Preservation identifier",
+                    "description":"PAS identifier",
+                    "type":"string"
+                },
                 "mets_object_identifier":{
                     "title":"Mets object identifier",
                     "description":"PID in mid/longterm preservation",

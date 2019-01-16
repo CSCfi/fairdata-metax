@@ -1313,6 +1313,23 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
+  /rpc/datasets/set_preservation_identifier:
+    post:
+      summary: Assign a preservation identifier value for a catalog record and return it
+      description: Usable only by tpas user. Works only for ida catalog records. If cr does not have a preservation_identifier, creates it and handles appropriate publishing of the identifier, finally returns it. If cr already has a preservation identifier, just returns it.
+      parameters:
+        - name: identifier
+          in: query
+          description: Catalog record identifier for which the pas_identifier is to be assigned.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, return catalog record preservation identifier.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+      tags:
+        - Dataset RPC
   # /rpc/statistics/something:
   #   get:
   #     summary: Statistics api will be described here.

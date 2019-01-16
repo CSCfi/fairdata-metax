@@ -13,8 +13,8 @@ from datacite import schema41 as datacite_schema41, DataCiteMDSClient
 from django.conf import settings as django_settings
 
 from metax_api.exceptions import Http400
-from metax_api.utils import extract_doi_from_doi_identifier, get_identifier_type, IdentifierType, \
-    executing_travis, executing_test_case
+from metax_api.utils import extract_doi_from_doi_identifier, get_identifier_type, is_metax_generated_doi_identifier, \
+    IdentifierType, executing_travis, executing_test_case
 from .common_service import CommonService
 
 
@@ -144,10 +144,12 @@ class _DataciteService(CommonService):
         resourceType
         """
 
-        # 10.0/0 is a dummy value for catalog records that do not have a DOI preferred identifier.
+        # 10.0/0 is a dummy value for catalog records that do not have a DOI identifier.
         # This is done so because datacite xml won't validate unless there is some (any) DOI in identifier field
-        is_doi = get_identifier_type(pref_id) == IdentifierType.DOI
-        identifier_value = extract_doi_from_doi_identifier(pref_id) if is_doi else '10.0/0'
+        # Primarily use cr preservation_identifier. If it does not exist, use pref_id.
+        identifier = catalog_record.get('preservation_identifier', None) or pref_id
+        is_metax_doi = is_metax_generated_doi_identifier(identifier)
+        identifier_value = extract_doi_from_doi_identifier(identifier) if is_metax_doi else '10.0/0'
         datacite_json = {
             'identifier': {
                 # dummy-value until we start utilizing real DOI identifiers
