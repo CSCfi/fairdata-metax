@@ -148,17 +148,6 @@ class _DataciteService(CommonService):
         is_metax_doi = is_metax_generated_doi_identifier(identifier)
         is_metax_urn = is_metax_generated_urn_identifier(identifier)
 
-        if is_metax_doi:
-            identifier_value = extract_doi_from_doi_identifier(identifier)
-            identifier_type = 'DOI'
-        elif not is_strict and is_metax_urn:
-            identifier_value = identifier
-            identifier_type = 'URN'
-        else:
-            raise DataciteException('Dataset does not have a valid preferred identifier (field: '
-                                    'research_dataset.preferred_identifier), which should contain a Metax '
-                                    'generated DOI, which is a required value for datacite format')
-
         # Creators
         if rd.get('creator', False):
             creators = self._creators(rd['creator'], main_lang=main_lang)
@@ -190,6 +179,17 @@ class _DataciteService(CommonService):
                                     'is a required value for datacite format')
         else:
             publication_year = cr_json['date_created'][0:4]
+
+        if is_metax_doi:
+            identifier_value = extract_doi_from_doi_identifier(identifier)
+            identifier_type = 'DOI'
+        elif not is_strict and is_metax_urn:
+            identifier_value = identifier
+            identifier_type = 'URN'
+        else:
+            raise DataciteException('Dataset does not have a valid preferred identifier (field: '
+                                    'research_dataset.preferred_identifier), which should contain a Metax '
+                                    'generated DOI, which is a required value for datacite format')
 
         """
         Required fields, as specified by datacite:
