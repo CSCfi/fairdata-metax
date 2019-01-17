@@ -142,12 +142,6 @@ class _DataciteService(CommonService):
         else:
             main_lang = None
 
-        # Identifier
-        pref_id = rd['preferred_identifier']
-        identifier = cr_json.get('preservation_identifier', None) or pref_id
-        is_metax_doi = is_metax_generated_doi_identifier(identifier)
-        is_metax_urn = is_metax_generated_urn_identifier(identifier)
-
         # Creators
         if rd.get('creator', False):
             creators = self._creators(rd['creator'], main_lang=main_lang)
@@ -179,6 +173,12 @@ class _DataciteService(CommonService):
                                     'is a required value for datacite format')
         else:
             publication_year = cr_json['date_created'][0:4]
+
+        # Identifier
+        pref_id = rd['preferred_identifier']
+        identifier = cr_json.get('preservation_identifier', None) or pref_id
+        is_metax_doi = is_metax_generated_doi_identifier(identifier)
+        is_metax_urn = is_metax_generated_urn_identifier(identifier)
 
         if is_metax_doi:
             identifier_value = extract_doi_from_doi_identifier(identifier)
