@@ -19,7 +19,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.utils import get_tz_aware_now_without_micros, generate_doi_identifier, generate_uuid_identifier, \
     executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type, \
-    parse_timestamp_string_to_tz_aware_datetime, is_metax_generated_doi_identifier
+    parse_timestamp_string_to_tz_aware_datetime, datetime_to_str, DelayedLog, is_metax_generated_doi_identifier
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -760,11 +760,36 @@ class CatalogRecord(Common):
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'delete'))
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
+
+        log_args = {
+            'event': 'dataset_deleted',
+            'user_id': self.user_modified,
+            'catalogrecord': {
+                'identifier': self.identifier,
+                'preferred_identifier': self.preferred_identifier,
+                'data_catalog': self.data_catalog.catalog_json['identifier'],
+            }
+        }
         if self.catalog_is_legacy():
             # delete permanently instead of only marking as 'removed'
             super(Common, self).delete()
         else:
             super().delete(*args, **kwargs)
+            log_args['catalogrecord']['date_removed'] = datetime_to_str(self.date_removed)
+
+        self.add_post_request_callable(DelayedLog(**log_args))
+
+    def deprecate(self, timestamp=None):
+        self.deprecated = True
+        self.date_deprecated = timestamp or get_tz_aware_now_without_micros()
+        super().save(update_fields=['deprecated', 'date_deprecated'])
+        self.add_post_request_callable(DelayedLog(
+            event='dataset_deprecated',
+            catalogrecord={
+                'identifier': self.identifier,
+                'date_deprecated': datetime_to_str(self.date_deprecated),
+            }
+        ))
 
     @property
     def preferred_identifier(self):
@@ -888,6 +913,26 @@ class CatalogRecord(Common):
             'preferred_identifier: %s >'
             % (self.id, self.identifier, self.preferred_identifier)
         )
+
+        log_args = {
+            'catalogrecord': {
+                'identifier': self.identifier,
+                'preferred_identifier': self.preferred_identifier,
+                'data_catalog': self.data_catalog.catalog_json['identifier'],
+                'date_created': datetime_to_str(self.date_created),
+                'metadata_owner_org': self.metadata_owner_org,
+            },
+            'user_id': self.user_created or self.service_created,
+        }
+
+        if self.previous_dataset_version:
+            log_args['event'] = 'dataset_version_created'
+            log_args['catalogrecord']['previous_version_preferred_identifier'] \
+                = self.previous_dataset_version.preferred_identifier
+        else:
+            log_args['event'] = 'dataset_created'
+
+        self.add_post_request_callable(DelayedLog(**log_args))
 
     def _pre_update_operations(self):
         if self.field_changed('identifier'):
@@ -1016,6 +1061,19 @@ class CatalogRecord(Common):
                                                              'update'))
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+        log_args = {
+            'event': 'dataset_updated',
+            'user_id': self.user_modified or self.service_modified,
+            'catalogrecord': {
+                'identifier': self.identifier,
+                'preferred_identifier': self.preferred_identifier,
+                'data_catalog': self.data_catalog.catalog_json['identifier'],
+                'date_modified': datetime_to_str(self.date_modified),
+            },
+        }
+
+        self.add_post_request_callable(DelayedLog(**log_args))
 
     def _files_added_for_first_time(self):
         """

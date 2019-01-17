@@ -61,7 +61,7 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
         amt_to_delete = 2
         for i in range(amt_to_delete):
             response = self.client.delete('{0}/{1}'.format(path, objects[i]['id']))
-            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, "Deleting object failed")
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
         results = self.client.get('{0}?no_pagination&removed=false'.format(path)).json()
         self.assertEqual(len(results), initial_amt - amt_to_delete, "Non-removed object amount is incorrect")

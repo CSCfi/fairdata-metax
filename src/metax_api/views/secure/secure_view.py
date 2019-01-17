@@ -45,7 +45,7 @@ class SecureLoginView(TemplateView):
         json_logger.info(
             event='user_login_visit',
             user_id=token_payload['sub'],
-            org=token_payload['schacHomeOrganization'],
+            org_id=token_payload['schacHomeOrganization'],
         )
 
         context = {
