@@ -99,7 +99,7 @@ class RequestLogging():
                 }
             }
 
-            if response.status_code not in SUCCESS_CODES and response.data and 'error_identifier' in response.data:
+            if response.status_code not in SUCCESS_CODES and hasattr(response, 'data') and 'error_identifier' in response.data:
                 request_info['error'] = { 'error_identifier': response.data['error_identifier'] }
 
             json_logger.info(**request_info)

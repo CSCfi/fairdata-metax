@@ -135,11 +135,6 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         records = self._get_results(response.content, '//o:record')
         self.assertTrue(len(records) == len(allRecords))
 
-        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_fairdata_datacite')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        records = self._get_results(response.content, '//o:record')
-        self.assertTrue(len(records) == len(allRecords))
-
         response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc_urnresolver')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, '//o:record')

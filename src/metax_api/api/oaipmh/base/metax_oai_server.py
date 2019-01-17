@@ -311,9 +311,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return timezone.make_naive(timestamp)
 
     def _get_oai_item(self, identifier, record, metadata_prefix):
-        metadata = self._get_metadata_for_record(record, metadata_prefix)
         item = (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
-                common.Metadata('', metadata), None)
+                common.Metadata('', self._get_metadata_for_record(record, metadata_prefix)), None)
         return item
 
     def _fix_metadata(self, meta):
@@ -397,8 +396,10 @@ class MetaxOAIServer(ResumptionOAIPMH):
     def listRecords(self, metadataPrefix=None, set=None, cursor=None, from_=None,
                     until=None, batch_size=None):
         """Implement OAI-PMH verb ListRecords."""
-        self._validate_mdprefix_and_set(metadataPrefix, set)
+        if metadataPrefix == OAI_DATACITE_MDPREFIX or metadataPrefix == OAI_FAIRDATA_DATACITE_MDPREFIX:
+            raise BadArgumentError('Invalid metadataPrefix value. It can be only used with GetRecord verb')
 
+        self._validate_mdprefix_and_set(metadataPrefix, set)
         data = []
         if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
             data = self._get_urnresolver_record_data(set, cursor, batch_size, from_, until)
