@@ -590,7 +590,7 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
     def test_read_dataset_xml_format_datacite(self):
         for id in CatalogRecord.objects.all().values_list('id', flat=True):
-            response = self.client.get('/rest/datasets/%d?dataset_format=datacite' % id)
+            response = self.client.get('/rest/datasets/%d?dataset_format=fairdata_datacite' % id)
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self._check_dataset_xml_format_response(response, '<resource')
 
@@ -610,6 +610,8 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         cr_json.pop('preservation_identifier', None)
         cr_json.pop('identifier')
         cr_json['research_dataset'].pop('preferred_identifier', None)
+        cr_json['research_dataset']['publisher'] = {'@type': 'Organization', 'name': {'und': 'Testaaja'}}
+        cr_json['research_dataset']['issued'] = '2010-01-01'
         cr_json['data_catalog'] = dc_id
         response = self.client.post('/rest/datasets?pid_type=doi', cr_json, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

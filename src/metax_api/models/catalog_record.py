@@ -899,6 +899,7 @@ class CatalogRecord(Common):
             self._create_or_update_alternate_record_set(other_record)
 
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
+            self._validate_cr_against_datacite_schema()
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'create'))
 
@@ -1057,6 +1058,7 @@ class CatalogRecord(Common):
     def _post_update_operations(self):
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI and \
                 self.update_datacite:
+            self._validate_cr_against_datacite_schema()
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'update'))
 
@@ -1074,6 +1076,15 @@ class CatalogRecord(Common):
         }
 
         self.add_post_request_callable(DelayedLog(**log_args))
+
+    def _validate_cr_against_datacite_schema(self):
+        from metax_api.services.datacite_service import DataciteService, DataciteException, \
+            convert_cr_to_datacite_cr_json
+        try:
+            DataciteService().get_validated_datacite_json(
+                convert_cr_to_datacite_cr_json(self), True)
+        except DataciteException as e:
+            raise Http400(str(e))
 
     def _files_added_for_first_time(self):
         """
@@ -1689,7 +1700,6 @@ class REMSUpdate():
 
 
 class DataciteDOIUpdate():
-
     """
     Callable object to be passed to CommonService.add_post_request_callable(callable).
 
@@ -1705,18 +1715,19 @@ class DataciteDOIUpdate():
         :param doi_identifier:
         :param action:
         """
+        from metax_api.services.datacite_service import DataciteService
         assert action in ('create', 'update', 'delete'), 'invalid value for action'
         assert is_metax_generated_doi_identifier(doi_identifier)
         self.cr = cr
         self.doi_identifier = doi_identifier
         self.action = action
+        self.dcs = DataciteService()
 
     def __call__(self):
         """
         The actual code that gets executed during CommonService.run_post_request_callables().
         Do not run for tests or in travis
         """
-        from metax_api.services.datacite_service import DataciteService
 
         if hasattr(settings, 'DATACITE'):
             if not settings.DATACITE.get('ETSIN_URL_TEMPLATE', None):
@@ -1745,36 +1756,33 @@ class DataciteDOIUpdate():
             )
 
         try:
-            dcs = DataciteService()
             if self.action == 'create':
                 try:
-                    self._publish_to_datacite(dcs, doi)
+                    self._publish_to_datacite(doi)
                 except Exception as e:
                     # Try to delete DOI in case the DOI got created but stayed in "draft" state
-                    dcs.delete_draft_doi(doi)
+                    self.dcs.delete_draft_doi(doi)
                     raise(Exception(e))
             elif self.action == 'update':
-                self._publish_to_datacite(dcs, doi)
+                self._publish_to_datacite(doi)
             elif self.action == 'delete':
                 # If metadata is in "findable" state, the operation below should transition the DOI to "registered"
                 # state
-                dcs.delete_doi_metadata(doi)
+                self.dcs.delete_doi_metadata(doi)
         except Exception as e:
             _logger.error(e)
             _logger.exception('Datacite API interaction failed')
-            raise Http503({ 'detail': [
+            raise Http503({'detail': [
                 'failed to publish updates to Datacite API. request is aborted.'
             ]})
 
-    def _publish_to_datacite(self, dcs, doi):
-        cr_json = {'research_dataset': self.cr.research_dataset}
-        if self.cr.preservation_identifier:
-            cr_json['preservation_identifier'] = self.cr.preservation_identifier
-
-        datacite_xml = dcs.convert_catalog_record_to_datacite_xml(cr_json, True)
+    def _publish_to_datacite(self, doi):
+        from metax_api.services.datacite_service import convert_cr_to_datacite_cr_json
+        cr_json = convert_cr_to_datacite_cr_json(self.cr)
+        datacite_xml = self.dcs.convert_catalog_record_to_datacite_xml(cr_json, True, True)
         _logger.debug("Datacite XML to be sent to Datacite API: {0}".format(datacite_xml))
 
         # When the two operations below are successful, it should result in the DOI transitioning to
         # "findable" state
-        dcs.create_doi_metadata(datacite_xml)
-        dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
+        self.dcs.create_doi_metadata(datacite_xml)
+        self.dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)

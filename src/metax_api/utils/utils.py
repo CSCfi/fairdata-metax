@@ -107,6 +107,19 @@ def is_metax_generated_doi_identifier(identifier):
     return identifier.startswith('doi:{0}/'.format(settings.DATACITE.get('PREFIX')))
 
 
+def is_metax_generated_urn_identifier(identifier):
+    """
+    Check whether given identifier is a metax generated urn identifier
+
+    :param identifier:
+    :return: boolean
+    """
+    if not identifier:
+        return False
+
+    return identifier.startswith('urn:nbn:fi:att:') or identifier.startswith('urn:nbn:fi:csc')
+
+
 def generate_doi_identifier(doi_suffix=None):
     """
     Until a better mechanism for generating DOI suffix is conceived, use UUIDs.

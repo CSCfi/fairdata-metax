@@ -47,6 +47,9 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         slightly as approriate for different purposes
         """
         self.cr_test_data = self._get_new_test_cr_data()
+        self.cr_test_data['research_dataset']['publisher'] = {'@type': 'Organization', 'name': {'und': 'Testaaja'}}
+        self.cr_test_data['research_dataset']['issued'] = '2010-01-01'
+
         self.cr_att_test_data = self._get_new_test_cr_data(cr_index=14, dc_index=5)
         self.cr_test_data_new_identifier = self._get_new_test_cr_data_with_updated_identifier()
         self.cr_full_ida_test_data = self._get_new_full_test_ida_cr_data()

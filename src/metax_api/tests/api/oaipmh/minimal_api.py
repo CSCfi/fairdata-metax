@@ -74,7 +74,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         response = self.client.get('/oai/?verb=ListMetadataFormats')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         formats = self._get_single_result(response.content, '//o:ListMetadataFormats')
-        self.assertEqual(len(formats), 3)
+        self.assertEqual(len(formats), 4)
 
         metadataPrefix = self._get_results(formats, '//o:metadataPrefix[text() = "oai_dc"]')
         self.assertEqual(len(metadataPrefix), 1)
@@ -135,7 +135,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         records = self._get_results(response.content, '//o:record')
         self.assertTrue(len(records) == len(allRecords))
 
-        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_datacite')
+        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_fairdata_datacite')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, '//o:record')
         self.assertTrue(len(records) == len(allRecords))
@@ -257,10 +257,10 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertTrue(len(identifiers) == 1, response.content)
 
         response = self.client.get(
-            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_datacite' % self.identifier)
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_fairdata_datacite' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
-                                        '//o:record/o:metadata/datacite:oai_datacite/' +
+                                        '//o:record/o:metadata/datacite:oai_fairdata_datacite/' +
                                         'datacite:schemaVersion[text()="%s"]' % '4.1')
         self.assertTrue(len(identifiers) == 1, response.content)
         identifiers = self._get_results(response.content,

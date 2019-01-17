@@ -11,16 +11,18 @@ from django.utils import timezone
 from django.conf import settings
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
-from oaipmh.error import IdDoesNotExistError, BadArgumentError, NoRecordsMatchError
+from oaipmh.error import IdDoesNotExistError, BadArgumentError, NoRecordsMatchError, CannotDisseminateFormatError
 
 from metax_api.models.catalog_record import CatalogRecord, DataCatalog
 from metax_api.services import CatalogRecordService as CRS
+from metax_api.services.datacite_service import DataciteException, convert_cr_to_datacite_cr_json
 
 SYKE_URL_PREFIX_TEMPLATE = 'http://metatieto.ymparisto.fi:8080/geoportal/catalog/search/resource/details.page?uuid=%s'
 DATACATALOGS_SET = 'datacatalogs'
 DATASETS_SET = 'datasets'
 OAI_DC_MDPREFIX = 'oai_dc'
 OAI_DATACITE_MDPREFIX = 'oai_datacite'
+OAI_FAIRDATA_DATACITE_MDPREFIX = 'oai_fairdata_datacite'
 OAI_DC_URNRESOLVER_MDPREFIX = 'oai_dc_urnresolver'
 
 
@@ -270,12 +272,13 @@ class MetaxOAIServer(ResumptionOAIPMH):
         }
         return meta
 
-    def _get_oai_datacite_metadata(self, rd_json, cr):
-        cr_json = {'research_dataset': rd_json}
-        if cr.preservation_identifier:
-            cr_json['preservation_identifier'] = cr.preservation_identifier
+    def _get_oai_datacite_metadata(self, cr, datacite_type):
+        cr_json = convert_cr_to_datacite_cr_json(cr)
+        try:
+            datacite_xml = CRS.transform_datasets_to_format(cr_json, datacite_type, False)
+        except DataciteException as e:
+            raise CannotDisseminateFormatError(str(e))
 
-        datacite_xml = CRS.transform_datasets_to_format(cr_json, 'datacite', False)
         meta = {
             'datacentreSymbol': 'Metax',
             'schemaVersion': '4.1',
@@ -286,8 +289,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
     def _get_metadata_for_record(self, record, metadataPrefix):
         meta = {}
         if isinstance(record, CatalogRecord):
-            json = CRS.check_and_remove_metadata_based_on_access_type(
-                CRS.remove_contact_info_metadata(record.research_dataset))
+            json = record.research_dataset
         elif isinstance(record, DataCatalog):
             json = record.catalog_json
         else:
@@ -295,8 +297,10 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
         if metadataPrefix == OAI_DC_MDPREFIX:
             meta = self._get_oai_dc_metadata(record, json)
+        elif metadataPrefix == OAI_FAIRDATA_DATACITE_MDPREFIX:
+            meta = self._get_oai_datacite_metadata(record, 'fairdata_datacite')
         elif metadataPrefix == OAI_DATACITE_MDPREFIX:
-            meta = self._get_oai_datacite_metadata(json, record)
+            meta = self._get_oai_datacite_metadata(record, 'datacite')
 
         return self._fix_metadata(meta)
 
@@ -359,6 +363,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return [(OAI_DC_MDPREFIX,
                  'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
                  'http://www.openarchives.org/OAI/2.0/oai_dc/'),
+                (OAI_FAIRDATA_DATACITE_MDPREFIX,
+                 'https://schema.datacite.org/meta/kernel-4.1/metadata.xsd',
+                 'https://schema.datacite.org/meta/kernel-4.1/'),
                 (OAI_DATACITE_MDPREFIX,
                  'https://schema.datacite.org/meta/kernel-4.1/metadata.xsd',
                  'https://schema.datacite.org/meta/kernel-4.1/'),
