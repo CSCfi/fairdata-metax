@@ -112,8 +112,8 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
 
         response = self.client.get('/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc_urnresolver')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        headers = self._get_results(response.content, '//o:header')
-        self.assertTrue(len(headers) == len(allRecords), len(headers))
+        errors = self._get_results(response.content, '//o:error[@code="badArgument"]')
+        self.assertTrue(len(errors) == 1, response.content)
 
     def test_list_identifiers_from_datacatalogs_set(self):
         allRecords = DataCatalog.objects.all()[:settings.OAI['BATCH_SIZE']]
@@ -267,13 +267,6 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
                                         '//o:record/o:header/o:identifier[text()="%s"]' % self.identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
 
-        response = self.client.get(
-            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.identifier)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        identifiers = self._get_results(response.content,
-                                        '//o:record/o:header/o:identifier[text()="%s"]' % self.identifier)
-        self.assertTrue(len(identifiers) == 1, response.content)
-
     def test_get_record_non_existing(self):
         response = self.client.get('/oai/?verb=GetRecord&identifier=urn:non:existing&metadataPrefix=oai_dc')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -284,10 +277,8 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         response = self.client.get(
             '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc_urnresolver' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        identifiers = self._get_results(response.content,
-                                        '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' %
-                                        self.preferred_identifier)
-        self.assertTrue(len(identifiers) == 1, response.content)
+        errors = self._get_results(response.content, '//o:error[@code="badArgument"]')
+        self.assertTrue(len(errors) == 1, response.content)
 
     def test_get_record_datacatalog_unsupported_in_urnresolver(self):
         dc = DataCatalog.objects.get(pk=1)
