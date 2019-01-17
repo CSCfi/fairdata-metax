@@ -768,7 +768,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         ds_id = ds[0].identifier
 
         response = self.client.delete('/rest/files/1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         response = self.client.get('/rest/datasets/%s' % ds_id)
         cr = response.data
