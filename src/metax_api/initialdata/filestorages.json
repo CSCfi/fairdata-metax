@@ -1,6 +1,14 @@
-[{
+[
+    {
     "file_storage_json": {
         "title": "IDA File Storage",
         "identifier": "urn:nbn:fi:att:file-storage-ida"
     }
-}]
+    },
+    {
+        "file_storage_json": {
+            "title": "PAS File Storage",
+            "identifier": "urn:nbn:fi:att:file-storage-pas"
+        }
+    }
+]
