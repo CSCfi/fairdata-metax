@@ -79,7 +79,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         cursor_end = cursor + batch_size if cursor + batch_size < len(data) else len(data)
         return data[cursor:cursor_end]
 
-    def _get_filtered_records(self, set, cursor, batch_size, from_=None, until=None):
+    def _get_filtered_records_data(self, verb, metadata_prefix, set, cursor, batch_size, from_=None, until=None):
         proxy = CatalogRecord
         if set == DATACATALOGS_SET:
             proxy = DataCatalog
@@ -103,8 +103,25 @@ class MetaxOAIServer(ResumptionOAIPMH):
         else:
             query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
 
-        cursor_end = cursor + batch_size if cursor + batch_size < len(query_set) else len(query_set)
-        return query_set[cursor:cursor_end]
+        data = []
+        for record in query_set:
+            if verb == 'ListRecords':
+                try:
+                    oai_item = self._get_oai_item(self._get_record_identifier(record, set), record, metadata_prefix)
+                    data.append(oai_item)
+                except CannotDisseminateFormatError as e:
+                    if metadata_prefix == OAI_FAIRDATA_DATACITE_MDPREFIX or metadata_prefix == OAI_DATACITE_MDPREFIX:
+                        pass
+                    else:
+                        raise e
+            elif verb == 'ListIdentifiers':
+                identifier = self._get_record_identifier(record, set)
+                data.append(common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False))
+            else:
+                raise Exception("OAI-PMH bad code error")
+
+        cursor_end = cursor + batch_size if cursor + batch_size < len(data) else len(data)
+        return data[cursor:cursor_end]
 
     def _handle_syke_urnresolver_metadata(self, record):
         identifiers = []
@@ -386,27 +403,17 @@ class MetaxOAIServer(ResumptionOAIPMH):
             raise BadArgumentError('Invalid metadataPrefix value. It can be only used with ListRecords verb')
 
         self._validate_mdprefix_and_set(metadataPrefix, set)
-        records = self._get_filtered_records(set, cursor, batch_size, from_, until)
-        data = []
-        for record in records:
-            identifier = self._get_record_identifier(record, set)
-            data.append(common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False))
-        return data
+        return self._get_filtered_records_data('ListIdentifiers', metadataPrefix, set, cursor, batch_size, from_, until)
 
     def listRecords(self, metadataPrefix=None, set=None, cursor=None, from_=None,
                     until=None, batch_size=None):
         """Implement OAI-PMH verb ListRecords."""
-        if metadataPrefix == OAI_DATACITE_MDPREFIX or metadataPrefix == OAI_FAIRDATA_DATACITE_MDPREFIX:
-            raise BadArgumentError('Invalid metadataPrefix value. It can be only used with GetRecord verb')
-
         self._validate_mdprefix_and_set(metadataPrefix, set)
         data = []
         if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
             data = self._get_urnresolver_record_data(set, cursor, batch_size, from_, until)
         else:
-            records = self._get_filtered_records(set, cursor, batch_size, from_, until)
-            for record in records:
-                data.append(self._get_oai_item( self._get_record_identifier(record, set), record, metadataPrefix))
+            data = self._get_filtered_records_data('ListRecords', metadataPrefix, set, cursor, batch_size, from_, until)
 
         return data
 
