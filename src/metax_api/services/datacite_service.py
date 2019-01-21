@@ -125,7 +125,7 @@ class _DataciteService(CommonService):
         if isinstance(cr_json, list):
             raise DataciteException('Datacite conversion can only be done to individual datasets, not lists.')
 
-        if not cr_json or 'research_dataset' not in cr_json:
+        if not cr_json:
             raise DataciteException("Catalog record containing research_dataset required to convert anything "
                                     "to datacite format")
 
