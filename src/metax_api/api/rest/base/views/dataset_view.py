@@ -14,7 +14,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 import yaml
 
-from metax_api.exceptions import Http403
+from metax_api.exceptions import Http403, Http400
 from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService as CRS, CommonService as CS, RabbitMQService as rabbitmq
@@ -48,13 +48,17 @@ class DatasetViewSet(CommonViewSet):
         return self._search_using_dataset_identifiers()
 
     def retrieve(self, request, *args, **kwargs):
+        from metax_api.services.datacite_service import DataciteException
         self.queryset_search_params = {}
         CS.set_if_modified_since_filter(self.request, self.queryset_search_params)
 
         res = super(DatasetViewSet, self).retrieve(request, *args, **kwargs)
 
         if 'dataset_format' in request.query_params:
-            res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
+            try:
+                res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
+            except DataciteException as e:
+                raise Http400(str(e))
             request.accepted_renderer = XMLRenderer()
 
         return res

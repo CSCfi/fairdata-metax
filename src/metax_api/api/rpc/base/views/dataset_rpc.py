@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from metax_api.exceptions import Http400
 from metax_api.models import CatalogRecord
 from metax_api.models.catalog_record import DataciteDOIUpdate
+from metax_api.services.datacite_service import DataciteException, DataciteService, convert_cr_to_datacite_cr_json
 from metax_api.utils import generate_doi_identifier, is_metax_generated_doi_identifier
 from .common_rpc import CommonRPC
 
@@ -71,8 +72,7 @@ class DatasetRPC(CommonRPC):
                 _logger.warning("Reached a code block in dataset_rpc set_preservation_identifier method, which should"
                                 " not be reached.")
                 cr.preservation_identifier = pref_id
-                super(CatalogRecord, cr).save(update_fields=['preservation_identifier'])
-                DataciteDOIUpdate(cr, cr.preservation_identifier, 'update')()
+                action = 'update'
             else:
                 # Generate a new DOI for the dataset. If pref id is a metax generated urn, use that urn's suffix as
                 # the doi suffix. Otherwise generate completely new doi.
@@ -80,8 +80,18 @@ class DatasetRPC(CommonRPC):
                     cr.preservation_identifier = generate_doi_identifier(pref_id[len('urn:nbn:fi:att:'):])
                 else:
                     cr.preservation_identifier = generate_doi_identifier()
+                action = 'create'
 
-                super(CatalogRecord, cr).save(update_fields=['preservation_identifier'])
-                DataciteDOIUpdate(cr, cr.preservation_identifier, 'create')()
+            self._save_and_publish_dataset(cr, action)
 
         return Response(cr.preservation_identifier)
+
+    def _save_and_publish_dataset(self, cr, action):
+        try:
+            DataciteService().get_validated_datacite_json(
+                convert_cr_to_datacite_cr_json(cr), True)
+        except DataciteException as e:
+            raise Http400(str(e))
+
+        super(CatalogRecord, cr).save(update_fields=['preservation_identifier'])
+        DataciteDOIUpdate(cr, cr.preservation_identifier, action)()
