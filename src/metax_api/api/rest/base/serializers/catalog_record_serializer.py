@@ -163,6 +163,7 @@ class CatalogRecordSerializer(CommonSerializer):
         """
         Enforce some rules related to end users when updating records.
         """
+        self._check_end_user_allowed_catalogs(instance.data_catalog.catalog_json['identifier'])
         fields_to_discard = [ key for key in validated_data.keys() if key not in END_USER_UPDATE_ALLOWED_FIELDS ]
         for field_name in fields_to_discard:
             del validated_data[field_name]
@@ -184,15 +185,18 @@ class CatalogRecordSerializer(CommonSerializer):
         validated_data['metadata_owner_org'] = self.context['request'].user.token['schacHomeOrganization']
 
         try:
-            identifier = validated_data['data_catalog'].catalog_json['identifier']
+            dc_identifier = validated_data['data_catalog'].catalog_json['identifier']
         except:
             try:
-                identifier = validated_data['data_catalog']
+                dc_identifier = validated_data['data_catalog']
             except KeyError:
                 # an error is raise later about missing required field
                 return
 
-        if identifier not in END_USER_ALLOWED_DATA_CATALOGS:
+        self._check_end_user_allowed_catalogs(dc_identifier)
+
+    def _check_end_user_allowed_catalogs(self, dc_identifier):
+        if dc_identifier not in END_USER_ALLOWED_DATA_CATALOGS:
             raise Http403({
                 'detail': [
                     'You do not have access to the selected data catalog. Please use one of the following '

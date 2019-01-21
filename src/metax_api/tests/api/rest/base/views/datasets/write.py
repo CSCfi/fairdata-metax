@@ -2638,7 +2638,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         catalog_json = dc.catalog_json
         for identifier in END_USER_ALLOWED_DATA_CATALOGS:
             catalog_json['identifier'] = identifier
-            DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+            dc = DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
 
         self.token = get_test_oidc_token()
 
@@ -2655,6 +2655,11 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         cr.user_created = self.token['sub']
         cr.metadata_provider_user = self.token['sub']
         cr.editor = None # pretend the record was created by user directly
+        cr.force_save()
+
+    def _set_cr_to_permitted_catalog(self, cr_id):
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.data_catalog_id = DataCatalog.objects.get(catalog_json__identifier=END_USER_ALLOWED_DATA_CATALOGS[0]).id
         cr.force_save()
 
     @responses.activate
@@ -2759,20 +2764,47 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data['preservation_state'], 0)
 
     @responses.activate
+    def test_owner_can_edit_datasets_only_in_permitted_catalogs(self):
+        '''
+        Ensure end users are able to edit datasets only in permitted catalogs, even if they
+        own the record (catalog may be disabled from end user editing for reason or another).
+        '''
+
+        # create test record
+        self.cr_test_data['data_catalog'] = 1
+        self.cr_test_data['user_created'] = self.token['sub']
+        self.cr_test_data['metadata_provider_user'] = self.token['sub']
+        self.cr_test_data.pop('editor', None)
+
+        self._use_http_authorization() # create cr as a service-user
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        modified_data = response.data
+        modified_data['research_dataset']['value'] = 112233
+
+        self._use_http_authorization(method='bearer', token=self.token)
+        response = self.client.put('/rest/datasets/%d' % modified_data['id'], modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    @responses.activate
     def test_owner_can_edit_dataset_check_perms_from_editor_field(self):
         '''
         Ensure end user perms are also checked from the field 'editor', which may be
         set by .e.g. qvain.
         '''
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.user_created = 'editor field is checked before this field, so should be ok'
-        cr.editor = { 'owner_id': self.token['sub'] }
-        cr.force_save()
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0]
+        self.cr_test_data['user_created'] = 'editor field is checked before this field, so should be ok'
+        self.cr_test_data['editor'] = { 'owner_id': self.token['sub'] }
 
-        response = self.client.get('/rest/datasets/1', format="json")
+        self._use_http_authorization() # create cr as a service-user to ensure editor-field is set
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.get('/rest/datasets/%d' % response.data['id'], format="json")
         modified_data = response.data
         modified_data['research_dataset']['value'] = 112233
-        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        response = self.client.put('/rest/datasets/%d' % response.data['id'], modified_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @responses.activate
@@ -2789,6 +2821,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
     @responses.activate
     def test_user_can_delete_dataset(self):
         self._set_cr_owner_to_token_user(1)
+        self._set_cr_to_permitted_catalog(1)
         response = self.client.delete('/rest/datasets/1', format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
@@ -2826,6 +2859,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
 
         # this is the dataset we'll modify
         self._set_cr_owner_to_token_user(1)
+        self._set_cr_to_permitted_catalog(1)
         response = self.client.get('/rest/datasets/1', format="json")
         # ensure the files really are new
         for f in new_files:
