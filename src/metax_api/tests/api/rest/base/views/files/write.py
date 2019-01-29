@@ -97,6 +97,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
 
 
 class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
+
     @classmethod
     def setUpClass(cls):
         """
@@ -187,6 +188,19 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
             self.ff_with_different_version['output_format_version']
         response = self.client.post('/rest/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    # update tests
+
+    def test_file_characteristics_is_validated_on_update(self):
+        """
+        Ensure validation also works when updating existing files.
+        """
+        self.test_new_data['file_characteristics']['file_format'] = self.ff_without_version['input_file_format']
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.put('/rest/files/%s' % response.data['identifier'], response.data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
 
 class FileApiWriteCreateTests(FileApiWriteCommon):
