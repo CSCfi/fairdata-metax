@@ -52,7 +52,7 @@ class StatisticService():
         sql = '''
             SELECT
                 count(cr.id) AS count,
-                COALESCE(SUM(COALESCE((research_dataset->>'total_ida_byte_size')::int, 0)), 0) AS ida_byte_size
+                COALESCE(SUM(COALESCE((research_dataset->>'total_files_byte_size')::int, 0)), 0) AS ida_byte_size
             from metax_api_catalogrecord as cr
             join metax_api_datacatalog as dc on dc.id = cr.data_catalog_id
             where 1=1
@@ -141,7 +141,7 @@ class StatisticService():
             WITH cte AS (
                 SELECT
                     date_trunc('month', cr.date_created) AS mon,
-                    SUM(COALESCE((cr.research_dataset->>'total_ida_byte_size')::int, 0)) AS mon_ida_byte_size
+                    SUM(COALESCE((cr.research_dataset->>'total_files_byte_size')::int, 0)) AS mon_ida_byte_size
                 FROM metax_api_catalogrecord cr
                 GROUP BY mon
             )
@@ -219,7 +219,7 @@ class StatisticService():
             WITH cte AS (
                 SELECT
                     date_trunc('month', cr.date_created) AS mon,
-                    SUM(COALESCE((cr.research_dataset->>'total_ida_byte_size')::int, 0)) AS mon_ida_byte_size
+                    SUM(COALESCE((cr.research_dataset->>'total_files_byte_size')::int, 0)) AS mon_ida_byte_size
                 FROM metax_api_catalogrecord cr
                 JOIN metax_api_datacatalog as dc on dc.id = cr.data_catalog_id
                 where dc.id = %s
@@ -314,7 +314,7 @@ class StatisticService():
             WITH cte AS (
                 SELECT
                     date_trunc('month', cr.date_created) AS mon,
-                    SUM(COALESCE((cr.research_dataset->>'total_ida_byte_size')::int, 0)) AS mon_ida_byte_size
+                    SUM(COALESCE((cr.research_dataset->>'total_files_byte_size')::int, 0)) AS mon_ida_byte_size
                 FROM metax_api_catalogrecord cr
                 JOIN metax_api_datacatalog as dc on dc.id = cr.data_catalog_id
                 where dc.id = %s

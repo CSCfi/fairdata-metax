@@ -120,7 +120,7 @@ class StatisticRPCTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         response = self.client.get('/rest/directories/update_byte_sizes_and_file_counts', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        response = self.client.get('/rest/datasets/update_cr_total_ida_byte_sizes', format='json')
+        response = self.client.get('/rest/datasets/update_cr_total_files_byte_sizes', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_something(self):

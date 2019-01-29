@@ -302,7 +302,7 @@ class CatalogRecord(Common):
             'research_dataset',
             'research_dataset.files',
             'research_dataset.directories',
-            'research_dataset.total_ida_byte_size',
+            'research_dataset.total_files_byte_size',
             'research_dataset.total_remote_resources_byte_size',
             'research_dataset.metadata_version_identifier',
             'research_dataset.preferred_identifier',
@@ -890,7 +890,7 @@ class CatalogRecord(Common):
             # files must be added after the record itself has been created, to be able
             # to insert into a many2many relation.
             self.files.add(*self._get_dataset_selected_file_ids())
-            self._calculate_total_ida_byte_size()
+            self._calculate_total_files_byte_size()
             super().save(update_fields=['research_dataset']) # save byte size calculation
             self.calculate_directory_byte_sizes_and_file_counts()
 
@@ -949,13 +949,13 @@ class CatalogRecord(Common):
             if not (self.catalog_is_harvested() or self.catalog_is_legacy()):
                 raise Http400("Cannot change preferred_identifier in datasets in non-harvested catalogs")
 
-        if self.field_changed('research_dataset.total_ida_byte_size'):
+        if self.field_changed('research_dataset.total_files_byte_size'):
             # read-only
-            if 'total_ida_byte_size' in self._initial_data['research_dataset']:
-                self.research_dataset['total_ida_byte_size'] = \
-                    self._initial_data['research_dataset']['total_ida_byte_size']
+            if 'total_files_byte_size' in self._initial_data['research_dataset']:
+                self.research_dataset['total_files_byte_size'] = \
+                    self._initial_data['research_dataset']['total_files_byte_size']
             else:
-                self.research_dataset.pop('total_ida_byte_size')
+                self.research_dataset.pop('total_files_byte_size')
 
         if self.field_changed('research_dataset.total_remote_resources_byte_size'):
             # read-only
@@ -1017,7 +1017,7 @@ class CatalogRecord(Common):
                     # first update from 0 to n files should not create a dataset version. all later updates
                     # will create new dataset versions normally.
                     self.files.add(*self._get_dataset_selected_file_ids())
-                    self._calculate_total_ida_byte_size()
+                    self._calculate_total_files_byte_size()
                     self._handle_metadata_versioning()
                     self.calculate_directory_byte_sizes_and_file_counts()
                 else:
@@ -1121,12 +1121,12 @@ class CatalogRecord(Common):
         """
         return False
 
-    def _calculate_total_ida_byte_size(self):
+    def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
         if 'files' in rd or 'directories' in rd:
-            rd['total_ida_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum']
+            rd['total_files_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum']
         else:
-            rd['total_ida_byte_size'] = 0
+            rd['total_files_byte_size'] = 0
 
     def _calculate_total_remote_resources_byte_size(self):
         rd = self.research_dataset
@@ -1427,7 +1427,7 @@ class CatalogRecord(Common):
             _logger.debug("This code should never be reached. Using URN identifier for the new version pref id")
             self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
 
-        new_version._calculate_total_ida_byte_size()
+        new_version._calculate_total_files_byte_size()
 
         if 'remote_resources' in new_version.research_dataset:
             new_version._calculate_total_remote_resources_byte_size()

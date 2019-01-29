@@ -2094,8 +2094,8 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
     def assert_file_count(self, cr, expected_file_count):
         self.assertEqual(CatalogRecord.objects.get(pk=cr['id']).files.count(), expected_file_count)
 
-    def assert_total_ida_byte_size(self, cr, expected_size):
-        self.assertEqual(cr['research_dataset']['total_ida_byte_size'], expected_size)
+    def assert_total_files_byte_size(self, cr, expected_size):
+        self.assertEqual(cr['research_dataset']['total_files_byte_size'], expected_size)
 
     def test_adding_filesystem_root_dir_not_permitted(self):
         """
@@ -2115,7 +2115,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
 
     def test_directories_are_saved_during_create(self):
         """
@@ -2126,7 +2126,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 4)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
 
     def test_single_common_root_directory(self):
         """
@@ -2138,7 +2138,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 8)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 8)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 8)
 
     def test_directory_names_are_similar(self):
         """
@@ -2152,7 +2152,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 4)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
 
     def test_files_and_directories_are_saved_during_create(self):
         """
@@ -2165,7 +2165,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 6)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 6)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
 
     def test_files_and_directories_are_saved_during_create_2(self):
         """
@@ -2177,7 +2177,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
 
     def test_empty_files_and_directories_arrays_are_removed(self):
         """
@@ -2218,7 +2218,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 5)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 5)
 
         # separately add (describe) a child directory of the previous dir.
         # no new files are added
@@ -2233,7 +2233,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 6)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 6)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 6)
 
         # remove the previously added file, not included by the previously added directories.
         # files are removed
@@ -2242,7 +2242,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 5)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 5)
 
         # add a single new file already included by the previously added directories.
         # new files are not added
@@ -2270,7 +2270,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 1)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 1)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 1)
 
     def test_add_files_which_were_frozen_later(self):
         """
@@ -2297,7 +2297,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 9)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 9)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 9)
 
         # add one new directory, which holds one new file, since the other file was already added
         self._add_directory(new_version, '/TestExperiment/Directory_2/Group_3')
@@ -2305,7 +2305,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 10)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 10)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 10)
 
     def test_metadata_changes_do_not_add_later_frozen_files(self):
         """
@@ -2345,7 +2345,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 14)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 14)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 14)
         original_version = response.data
 
         # remove the root dir, and another sub-dir. there should be two directories left. both of them
@@ -2357,7 +2357,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 10)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 10)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 10)
 
     def test_add_multiple_directories(self):
         """
@@ -2367,7 +2367,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
         original_version = response.data
 
         # add new directories.
@@ -2379,7 +2379,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 8)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 8)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 8)
 
     def test_add_multiple_directories_2(self):
         """
@@ -2391,7 +2391,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 14)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 14)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 14)
 
     def test_add_files_from_different_projects(self):
         """
@@ -2403,7 +2403,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 4)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
         original_version = response.data
 
         # add a new directory. this is a top-level of the previous dir, which contains new files.
@@ -2413,7 +2413,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 6)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 6)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 6)
 
         # remove the previously added dir, which is now the top-level dir in that project.
         # files are removed
@@ -2422,7 +2422,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 4)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 4)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 4)
 
         # remove dirs from the second project entirely.
         # files are removed
@@ -2431,7 +2431,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 2)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 2)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 2)
 
     def test_file_not_found(self):
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
@@ -2504,7 +2504,7 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         dc.catalog_json['identifier'] = LEGACY_CATALOGS[0]
         dc.force_save()
         del self.cr_test_data['research_dataset']['files']
-        del self.cr_test_data['research_dataset']['total_ida_byte_size']
+        del self.cr_test_data['research_dataset']['total_files_byte_size']
 
     def test_legacy_catalog_pids_are_not_unique(self):
         # values provided as pid values in legacy catalogs are not required to be unique
