@@ -15,7 +15,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
-from metax_api.services import RedisCacheService as cache
+from metax_api.services import ReferenceDataMixin as RDM, RedisCacheService as cache
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
 from metax_api.tests.utils import get_test_oidc_token
@@ -1062,8 +1062,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to datasets to their approriate fields
         """
-        refdata = cache.get('reference_data')['reference_data']
-        orgdata = cache.get('reference_data')['organization_data']
+        rf = RDM.get_reference_data(cache)
+        refdata = rf['reference_data']
+        orgdata = rf['organization_data']
         refs = {}
 
         data_types = [

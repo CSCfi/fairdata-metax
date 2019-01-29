@@ -39,6 +39,7 @@ class MockRedisCacheService(_RedisCacheClass):
 
 
 class ReferenceDataMixinTests(TestCase, TestClassUtils):
+
     @classmethod
     def setUpClass(cls):
         """
@@ -53,6 +54,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
 
     def setUp(self):
         self.cache.delete('reference_data')
+        RDM.process_cached_reference_data = None
 
     def tearDown(self):
         # re-populate cache with ref data to not disturb other test suites
