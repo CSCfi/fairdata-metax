@@ -12,7 +12,7 @@ from django.conf import settings as django_settings
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http403
-from metax_api.models import CatalogRecord, DataCatalog, Contract, Common
+from metax_api.models import CatalogRecord, DataCatalog, Directory, Contract, Common, File
 from metax_api.services import CatalogRecordService as CRS, CommonService
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
@@ -289,18 +289,70 @@ class CatalogRecordSerializer(CommonSerializer):
                     CRS.remove_contact_info_metadata(res['research_dataset']))
         return res
 
+    def _populate_dir_titles(self, ds):
+        """
+        If dir title has been omitted, populate it with its dir name.
+        """
+        if 'directories' not in ds:
+            return
+
+        dirs_to_populate = [ dr['identifier'] for dr in ds['directories'] if not dr.get('title', None) ]
+
+        if dirs_to_populate:
+
+            dirs_from_db = [
+                dr for dr in
+                Directory.objects.filter(identifier__in=dirs_to_populate).values('identifier', 'directory_name')
+            ]
+
+            for dr in ds['directories']:
+                for i, dir_details in enumerate(dirs_from_db):
+                    if dir_details['identifier'] == dr['identifier']:
+                        dr['title'] = dir_details['directory_name']
+                        dirs_from_db.pop(i)
+                        break
+
+    def _populate_file_titles(self, ds):
+        """
+        If file title has been omitted, populate it with its file name.
+        """
+        if 'files' not in ds:
+            return
+
+        files_to_populate = [ f['identifier'] for f in ds['files'] if not f.get('title', None) ]
+
+        if files_to_populate:
+
+            files_from_db = [
+                f for f in
+                File.objects.filter(identifier__in=files_to_populate).values('identifier', 'file_name')
+            ]
+
+            for f in ds['files']:
+                for i, file_details in enumerate(files_from_db):
+                    if file_details['identifier'] == f['identifier']:
+                        f['title'] = file_details['file_name']
+                        files_from_db.pop(i)
+                        break
+
     def validate_research_dataset(self, value):
-        self._validate_json_schema(value)
-        if self._operation_is_create or self._preferred_identifier_is_changed():
-            self._validate_research_dataset_uniqueness(value)
-        CRS.validate_reference_data(value, self.context['view'].cache)
 
         if 'directories' in value and not value['directories']:
             # remove if empty list
             del value['directories']
+        else:
+            self._populate_dir_titles(value)
+
         if 'files' in value and not value['files']:
             # remove if empty list
             del value['files']
+        else:
+            self._populate_file_titles(value)
+
+        self._validate_json_schema(value)
+        if self._operation_is_create or self._preferred_identifier_is_changed():
+            self._validate_research_dataset_uniqueness(value)
+        CRS.validate_reference_data(value, self.context['view'].cache)
 
         return value
 

@@ -2470,6 +2470,52 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
             'file changes in old dataset versions should not be allowed')
 
+    # other tests related to adding files / dirs
+
+    def test_file_and_dir_titles_are_populated_when_omitted(self):
+        """
+        If field 'title' is omitted from file or dir metadata, their respective file_name or
+        directory_name should automatically be populated as title.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+
+        # ensure titles are not overwritten when specified by the user
+
+        orig_titles = [
+            self.cr_test_data['research_dataset']['files'][0]['title'],
+            self.cr_test_data['research_dataset']['directories'][0]['title'],
+        ]
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(
+            response.data['research_dataset']['files'][0]['title'] in orig_titles,
+            response.data['research_dataset']['files'][0]['title']
+        )
+        self.assertTrue(
+            response.data['research_dataset']['directories'][0]['title'] in orig_titles,
+            response.data['research_dataset']['directories'][0]['title']
+        )
+
+        # ensure titles are automatically populated when omitted by the user
+
+        del self.cr_test_data['research_dataset']['files'][0]['title']
+        del self.cr_test_data['research_dataset']['directories'][0]['title']
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(
+            response.data['research_dataset']['files'][0]['title'] not in orig_titles,
+            response.data['research_dataset']['files'][0]['title']
+        )
+        self.assertTrue(
+            response.data['research_dataset']['directories'][0]['title'] not in orig_titles,
+            response.data['research_dataset']['directories'][0]['title']
+        )
+
 
 class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
 
