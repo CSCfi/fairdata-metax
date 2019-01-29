@@ -884,7 +884,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         CallableService.add_post_request_callable(DelayedLog(
             event='files_created',
-            user_id=initial_data_list[0].get('user_created', initial_data_list[0]['service_created']),
+            user_id=initial_data_list[0].get('user_created', common_info['service_created']),
             files={
                 'project_identifier': initial_data_list[0]['project_identifier'],
                 'file_storage': str(initial_data_list[0]['file_storage']),
