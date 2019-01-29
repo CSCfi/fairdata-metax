@@ -25,6 +25,8 @@ class ReferenceDataMixin():
 
     REF_DATA_RELOAD_MAX_RETRIES = 4
 
+    process_cached_reference_data = None
+
     @staticmethod
     def check_ref_data(ref_data_type, field_to_check, relation_name, errors={}, value_not_found_is_error=True):
         """
@@ -54,11 +56,19 @@ class ReferenceDataMixin():
         Return reference data from cache, and attempt to reload it from ES if reference_data key
         is missing. If reference data reload is in progress by another request, retry for five
         seconds, and give up.
+
+        Once reference data has been loaded once, it is stored in the process itself, so it does not
+        need to be reloaded from the distributed cache again. Reference data does not change actively
+        during normal operation, so saving it in the process should be safe.
         """
+        if cls.process_cached_reference_data is not None:
+            return cls.process_cached_reference_data
+
         ref_data = cache.get('reference_data')
 
         if ref_data:
-            return ref_data
+            cls.process_cached_reference_data = ref_data
+            return cls.process_cached_reference_data
         else:
             _logger.info('reference_data missing from cache - attempting to reload')
 
@@ -74,7 +84,8 @@ class ReferenceDataMixin():
             ref_data = cache.get('reference_data', master=True)
 
             if ref_data:
-                return ref_data
+                cls.process_cached_reference_data = ref_data
+                return cls.process_cached_reference_data
             elif state == 'reload_started_by_other' and retry < cls.REF_DATA_RELOAD_MAX_RETRIES:
                 sleep(1)
             elif state == 'reload_started_by_other' and retry >= cls.REF_DATA_RELOAD_MAX_RETRIES:
