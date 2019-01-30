@@ -830,7 +830,7 @@ paths:
         # research_dataset read-only fields
         - metadata_version_identifier
         - preferred_identifier (except harvested catalogs)
-        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_files_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
         - total_remote_resources_byte_size (generated from entries in remote_resources)
       consumes:
         - application/json
@@ -1011,7 +1011,7 @@ paths:
         # research_dataset read-only fields
         - metadata_version_identifier
         - preferred_identifier (except harvested catalogs)
-        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_files_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
         - total_remote_resources_byte_size (generated from entries in remote_resources)
       parameters:
         - in: "body"
@@ -1039,7 +1039,7 @@ paths:
         # research_dataset read-only fields
         - metadata_version_identifier
         - preferred_identifier (except harvested catalogs)
-        - total_ida_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_files_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
         - total_remote_resources_byte_size (generated from entries in remote_resources)
       parameters:
         - in: "body"

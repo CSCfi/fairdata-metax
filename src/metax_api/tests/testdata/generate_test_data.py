@@ -373,12 +373,12 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
         if type == 'ida':
             new['fields']['files'] = []
             dataset_files = []
-            total_ida_byte_size = 0
+            total_files_byte_size = 0
             file_divider = 4
 
             for j in range(files_start_idx, files_start_idx + files_per_dataset):
 
-                total_ida_byte_size += file_list[j - 1]['fields']['byte_size']
+                total_files_byte_size += file_list[j - 1]['fields']['byte_size']
 
                 # note - this field will go in the m2m table in the db when importing generated testdata...
                 new['fields']['files'].append(file_list[j - 1]['pk'])
@@ -430,7 +430,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                     }
 
             new['fields']['research_dataset']['files'] = dataset_files
-            new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+            new['fields']['research_dataset']['total_files_byte_size'] = total_files_byte_size
             files_start_idx += files_per_dataset
 
         elif type == 'att':
@@ -508,7 +508,7 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
             row['fields']['preservation_state_modified'] = '2017-05-23T10:07:22.559656Z'
 
     # add a couple of catalog records with fuller research_dataset fields belonging to both ida and att data catalog
-    total_ida_byte_size = 0
+    total_files_byte_size = 0
     if type == 'ida':
         template = 'catalog_record_test_data_template_full_ida.json'
     elif type == 'att':
@@ -554,8 +554,8 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                 new['fields']['files'] = [i for i in range(1, 21)]
                 file_identifier_0 = file_list[0]['fields']['identifier']
                 file_identifier_1 = file_list[1]['fields']['identifier']
-                total_ida_byte_size = sum(f['fields']['byte_size'] for f in file_list[0:19])
-                new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+                total_files_byte_size = sum(f['fields']['byte_size'] for f in file_list[0:19])
+                new['fields']['research_dataset']['total_files_byte_size'] = total_files_byte_size
                 new['fields']['research_dataset']['files'][0]['identifier'] = file_identifier_0
                 new['fields']['research_dataset']['files'][1]['identifier'] = file_identifier_1
             elif j == 2:
@@ -642,12 +642,12 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                     }
                 ]
 
-                total_ida_byte_size += sum(file_list[file_pk - 1]['fields']['byte_size'] for file_pk in db_files)
+                total_files_byte_size += sum(file_list[file_pk - 1]['fields']['byte_size'] for file_pk in db_files)
 
                 new['fields']['files'] = db_files
                 new['fields']['research_dataset']['files'] = files
                 new['fields']['research_dataset']['directories'] = directories
-                new['fields']['research_dataset']['total_ida_byte_size'] = total_ida_byte_size
+                new['fields']['research_dataset']['total_files_byte_size'] = total_files_byte_size
         elif type == 'att':
             total_remote_resources_byte_size = 0
             if 'remote_resources' in new['fields']['research_dataset']:

@@ -240,8 +240,8 @@ class _DataciteService(CommonService):
             for theme in rd.get('theme', []):
                 datacite_json['subjects'].extend(self._subjects(theme))
 
-        if 'total_ida_byte_size' in rd:
-            datacite_json['sizes'] = [str(rd['total_ida_byte_size'])]
+        if 'total_files_byte_size' in rd:
+            datacite_json['sizes'] = [str(rd['total_files_byte_size'])]
 
         if rd.get('description', False):
             datacite_json['descriptions'] = [

@@ -5693,7 +5693,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 300,
+                "total_files_byte_size": 300,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -5800,7 +5800,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 700,
+                "total_files_byte_size": 700,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -5907,7 +5907,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 1100,
+                "total_files_byte_size": 1100,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6014,7 +6014,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 1500,
+                "total_files_byte_size": 1500,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6121,7 +6121,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 1900,
+                "total_files_byte_size": 1900,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6228,7 +6228,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 2300,
+                "total_files_byte_size": 2300,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6335,7 +6335,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 2700,
+                "total_files_byte_size": 2700,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6439,7 +6439,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 3100,
+                "total_files_byte_size": 3100,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6540,7 +6540,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 3500,
+                "total_files_byte_size": 3500,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -6642,7 +6642,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 3900,
+                "total_files_byte_size": 3900,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -7382,7 +7382,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 19000,
+                "total_files_byte_size": 19000,
                 "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
@@ -8124,7 +8124,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 19000,
+                "total_files_byte_size": 19000,
                 "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
@@ -8958,7 +8958,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 640100,
+                "total_files_byte_size": 640100,
                 "value": 0.111,
                 "version_info": "0.1.2",
                 "version_notes": [
@@ -12272,7 +12272,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 3900,
+                "total_files_byte_size": 3900,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]
@@ -12367,7 +12367,7 @@
                 "title": {
                     "en": "Wonderful Title"
                 },
-                "total_ida_byte_size": 3900,
+                "total_files_byte_size": 3900,
                 "version_notes": [
                     "This version contains changes to x and y."
                 ]

@@ -53,12 +53,12 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
     def setUp(self):
         self.cr = CatalogRecord.objects.get(pk=1)
 
-    def test_disallow_total_ida_byte_size_manual_update(self):
+    def test_disallow_total_files_byte_size_manual_update(self):
         cr = self.cr
-        old = cr.research_dataset['total_ida_byte_size']
-        cr.research_dataset['total_ida_byte_size'] = 999
+        old = cr.research_dataset['total_files_byte_size']
+        cr.research_dataset['total_files_byte_size'] = 999
         cr.save()
-        self.assertEqual(old, cr.research_dataset['total_ida_byte_size'])
+        self.assertEqual(old, cr.research_dataset['total_files_byte_size'])
 
     def test_disallow_metadata_version_identifier_manual_update(self):
         cr = self.cr
@@ -67,7 +67,7 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
         cr.save()
         self.assertEqual(old, cr.research_dataset['metadata_version_identifier'])
 
-    def test_total_ida_byte_size_auto_update_on_files_changed(self):
+    def test_total_files_byte_size_auto_update_on_files_changed(self):
         """
         Changing files of a dataset creates a new version, so make sure that the file size
         of the old version does NOT change, and the file size of the new version DOES change.
@@ -77,13 +77,13 @@ class CatalogRecordModelTests(TestCase, TestClassUtils):
         file_from_testdata = self._get_object_from_test_data('file', requested_index=new_file_id)
 
         cr = CatalogRecord.objects.get(pk=1)
-        old = cr.research_dataset['total_ida_byte_size']
+        old = cr.research_dataset['total_files_byte_size']
         cr.research_dataset['files'] = [file_from_testdata]
         cr.save()
         new_version = cr.next_dataset_version
 
-        self.assertEqual(old, cr.research_dataset['total_ida_byte_size'])
-        self.assertNotEqual(old, new_version.research_dataset['total_ida_byte_size'])
+        self.assertEqual(old, cr.research_dataset['total_files_byte_size'])
+        self.assertNotEqual(old, new_version.research_dataset['total_files_byte_size'])
 
     def test_preservation_state_modified_auto_update(self):
         cr = self.cr
