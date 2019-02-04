@@ -5,6 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from django.conf import settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -59,3 +60,37 @@ class DatasetRPCTests(APITestCase, TestClassUtils):
         self._mock_token_validation_succeeds()
         response = self.client.post('/rest/datasets', response.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_set_preservation_identifier(self):
+        self._set_http_authorization('service')
+
+        # Parameter 'identifier' is required
+        response = self.client.post('/rpc/datasets/set_preservation_identifier')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Nonexisting identifier should return 404
+        response = self.client.post('/rpc/datasets/set_preservation_identifier?identifier=nonexisting')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Create ida data catalog
+        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc_id = settings.IDA_DATA_CATALOG_IDENTIFIER
+        dc['catalog_json']['identifier'] = dc_id
+        self.client.post('/rest/datacatalogs', dc, format="json")
+
+        # Test OK ops
+
+        # Create new ida cr without doi
+        cr_json = self.client.get('/rest/datasets/1').data
+        cr_json.pop('preservation_identifier', None)
+        cr_json.pop('identifier')
+        cr_json['research_dataset'].pop('preferred_identifier', None)
+        cr_json['data_catalog'] = dc_id
+        response = self.client.post('/rest/datasets?pid_type=urn', cr_json, format="json")
+        identifier = response.data['identifier']
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # Verify rpc api returns the same doi as the one that is set to the datasets' preservation identifier
+        response = self.client.post(f'/rpc/datasets/set_preservation_identifier?identifier={identifier}')
+        cr_json = self.client.get(f'/rest/datasets/{identifier}').data
+        self.assertEqual(response.data, cr_json['preservation_identifier'])

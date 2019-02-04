@@ -19,7 +19,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import logging.config
 import os
+import time
 
+import structlog
 import yaml
 
 from metax_api.utils import executing_test_case, executing_travis
@@ -106,7 +108,8 @@ if executing_in_test_case or executing_in_travis:
         },
         "rpc": {
             "datasets": {
-                "get_minimal_dataset_template": { "use": ["all"] }
+                "get_minimal_dataset_template": { "use": ["all"] },
+                "set_preservation_identifier": { "use": ["metax", "tpas"] }
             },
             "statistics": {
                 "something": { "use": ["all"] }
@@ -134,25 +137,30 @@ else:
     ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
 
 if executing_in_test_case or executing_in_travis:
+    IDA_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ida"
+    ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
+    LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
+else:
+    IDA_DATA_CATALOG_IDENTIFIER = app_config_dict['IDA_DATACATALOG_IDENTIFIER']
+    ATT_DATA_CATALOG_IDENTIFIER = app_config_dict['ATT_DATACATALOG_IDENTIFIER']
+    LEGACY_DATA_CATALOG_IDENTIFIER = app_config_dict['LEGACY_DATACATALOG_IDENTIFIER']
+
+if executing_in_test_case or executing_in_travis:
     END_USER_ALLOWED_DATA_CATALOGS = [
-        "urn:nbn:fi:att:data-catalog-ida",
-        "urn:nbn:fi:att:data-catalog-att",
-        "urn:nbn:fi:att:data-catalog-legacy",
+        IDA_DATA_CATALOG_IDENTIFIER,
+        ATT_DATA_CATALOG_IDENTIFIER,
+        LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
     LEGACY_CATALOGS = [
-        "urn:nbn:fi:att:data-catalog-legacy",
+        LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
 else:
     # allow end users to create catalogrecords only to the following data catalogs
-    END_USER_ALLOWED_DATA_CATALOGS = [
-        app_config_dict['IDA_DATACATALOG_IDENTIFIER'],
-        app_config_dict['ATT_DATACATALOG_IDENTIFIER'],
-        app_config_dict['LEGACY_DATACATALOG_IDENTIFIER'],
-    ]
+    END_USER_ALLOWED_DATA_CATALOGS = app_config_dict['END_USER_ALLOWED_DATA_CATALOGS']
 
     # catalogs where uniqueness of dataset pids is not enforced.
     LEGACY_CATALOGS = [
-        app_config_dict['LEGACY_DATACATALOG_IDENTIFIER'],
+        LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
 
 # endpoint in localhost where bearer tokens should be sent for validation
@@ -333,7 +341,8 @@ LOGGING = {
     'formatters': {
         'standard': {
             # timestamp, process id, python module name, loglevel, msg content...
-            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s'
+            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s',
+            'datefmt': '%Y-%m-%dT%H:%M:%S.%03dZ',
         },
     },
     'filters': {
@@ -364,7 +373,7 @@ LOGGING = {
             'filename': '/var/log/metax-api/metax_api.log',
             'formatter': 'standard',
             'filters': ['require_debug_false'],
-        }
+        },
     },
     'loggers': {
         'django': {
@@ -372,12 +381,32 @@ LOGGING = {
         },
         'metax_api': {
             'handlers': ['general', 'console', 'debug'],
-        }
+        },
     }
 }
 
+logging.Formatter.converter = time.gmtime
 logger = logging.getLogger('metax_api')
 logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+
+structlog.configure(
+    processors=[
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
+handler = logging.FileHandler('/var/log/metax-api/metax_api.json.log')
+handler.setFormatter(logging.Formatter('%(message)s'))
+json_logger = logging.getLogger('structlog')
+json_logger.addHandler(handler)
+json_logger.setLevel(logging.INFO)
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -474,14 +503,14 @@ if executing_in_travis:
         'ADMIN_EMAIL': 'noreply@csc.fi',
         'SET_MAPPINGS': {
             'datasets': [
-                'urn:nbn:fi:att:data-catalog-ida',
-                'urn:nbn:fi:att:data-catalog-att'
+                IDA_DATA_CATALOG_IDENTIFIER,
+                ATT_DATA_CATALOG_IDENTIFIER
             ],
             'ida_datasets': [
-                'urn:nbn:fi:att:data-catalog-ida'
+                IDA_DATA_CATALOG_IDENTIFIER
             ],
             'att_datasets': [
-                'urn:nbn:fi:att:data-catalog-att'
+                ATT_DATA_CATALOG_IDENTIFIER
             ]
         }
     }

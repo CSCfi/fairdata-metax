@@ -252,6 +252,14 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
                     "type":"string",
                     "format":"uri"
+                },
+                "preservation_identifier":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#preservation_identifier",
+                    "title":"Preservation identifier",
+                    "description":"PAS identifier",
+                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "type":"string",
+                    "format":"uri"
                 }
             },
             "required":[
@@ -1254,10 +1262,10 @@
                         "$ref":"#/definitions/Concept"
                     }
                 },
-                "total_ida_byte_size":{
+                "total_files_byte_size":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#totalidabytesize",
                     "title":"Total ida byte size",
-                    "description":"Sum of all Ida distribution byte size. Read only field.",
+                    "description":"Byte size sum of all Fairdata managed files. Read only field.",
                     "@type":"http://www.w3.org/2001/XMLSchema#integer",
                     "type":"integer",
                     "readOnly": true

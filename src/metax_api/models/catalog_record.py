@@ -19,7 +19,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.utils import get_tz_aware_now_without_micros, generate_doi_identifier, generate_uuid_identifier, \
     executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type, \
-    parse_timestamp_string_to_tz_aware_datetime
+    parse_timestamp_string_to_tz_aware_datetime, datetime_to_str, DelayedLog, is_metax_generated_doi_identifier
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -42,6 +42,7 @@ ACCESS_TYPES = {
 
 
 LEGACY_CATALOGS = settings.LEGACY_CATALOGS
+IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
 
 
 class DiscardRecord(Exception):
@@ -248,6 +249,8 @@ class CatalogRecord(Common):
 
     preservation_state_modified = models.DateTimeField(null=True, help_text='Date of last preservation state change.')
 
+    preservation_identifier = models.CharField(max_length=200, unique=True, null=True)
+
     research_dataset = JSONField()
 
     next_dataset_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
@@ -295,10 +298,11 @@ class CatalogRecord(Common):
             'metadata_provider_org',
             'metadata_provider_user',
             'preservation_state',
+            'preservation_identifier',
             'research_dataset',
             'research_dataset.files',
             'research_dataset.directories',
-            'research_dataset.total_ida_byte_size',
+            'research_dataset.total_files_byte_size',
             'research_dataset.total_remote_resources_byte_size',
             'research_dataset.metadata_version_identifier',
             'research_dataset.preferred_identifier',
@@ -753,13 +757,39 @@ class CatalogRecord(Common):
         if self.has_alternate_records():
             self._remove_from_alternate_record_set()
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-            self.add_post_request_callable(DataciteDOIUpdate(self, 'delete'))
+            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                             'delete'))
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
+
+        log_args = {
+            'event': 'dataset_deleted',
+            'user_id': self.user_modified,
+            'catalogrecord': {
+                'identifier': self.identifier,
+                'preferred_identifier': self.preferred_identifier,
+                'data_catalog': self.data_catalog.catalog_json['identifier'],
+            }
+        }
         if self.catalog_is_legacy():
             # delete permanently instead of only marking as 'removed'
             super(Common, self).delete()
         else:
             super().delete(*args, **kwargs)
+            log_args['catalogrecord']['date_removed'] = datetime_to_str(self.date_removed)
+
+        self.add_post_request_callable(DelayedLog(**log_args))
+
+    def deprecate(self, timestamp=None):
+        self.deprecated = True
+        self.date_deprecated = timestamp or get_tz_aware_now_without_micros()
+        super().save(update_fields=['deprecated', 'date_deprecated'])
+        self.add_post_request_callable(DelayedLog(
+            event='dataset_deprecated',
+            catalogrecord={
+                'identifier': self.identifier,
+                'date_deprecated': datetime_to_str(self.date_deprecated),
+            }
+        ))
 
     @property
     def preferred_identifier(self):
@@ -783,6 +813,9 @@ class CatalogRecord(Common):
 
     def catalog_is_legacy(self):
         return self.data_catalog.catalog_json['identifier'] in LEGACY_CATALOGS
+
+    def catalog_is_ida(self):
+        return self.data_catalog.catalog_json['identifier'] == IDA_CATALOG
 
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
@@ -825,7 +858,13 @@ class CatalogRecord(Common):
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
             elif pref_id_type == IdentifierType.DOI:
-                self.research_dataset['preferred_identifier'] = generate_doi_identifier()
+                if not self.catalog_is_ida():
+                    raise Http400("Cannot create DOI for other than datasets in IDA catalog")
+
+                doi_id = generate_doi_identifier()
+                self.research_dataset['preferred_identifier'] = doi_id
+                if self.catalog_is_ida():
+                    self.preservation_identifier = doi_id
             else:
                 _logger.debug("Identifier type not specified in the request. Using URN identifier for pref id")
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -851,7 +890,7 @@ class CatalogRecord(Common):
             # files must be added after the record itself has been created, to be able
             # to insert into a many2many relation.
             self.files.add(*self._get_dataset_selected_file_ids())
-            self._calculate_total_ida_byte_size()
+            self._calculate_total_files_byte_size()
             super().save(update_fields=['research_dataset']) # save byte size calculation
             self.calculate_directory_byte_sizes_and_file_counts()
 
@@ -860,7 +899,9 @@ class CatalogRecord(Common):
             self._create_or_update_alternate_record_set(other_record)
 
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-            self.add_post_request_callable(DataciteDOIUpdate(self, 'create'))
+            self._validate_cr_against_datacite_schema()
+            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                             'create'))
 
         if self._dataset_is_access_restricted():
             self.add_post_request_callable(REMSUpdate(self), 'create')
@@ -873,6 +914,26 @@ class CatalogRecord(Common):
             'preferred_identifier: %s >'
             % (self.id, self.identifier, self.preferred_identifier)
         )
+
+        log_args = {
+            'catalogrecord': {
+                'identifier': self.identifier,
+                'preferred_identifier': self.preferred_identifier,
+                'data_catalog': self.data_catalog.catalog_json['identifier'],
+                'date_created': datetime_to_str(self.date_created),
+                'metadata_owner_org': self.metadata_owner_org,
+            },
+            'user_id': self.user_created or self.service_created,
+        }
+
+        if self.previous_dataset_version:
+            log_args['event'] = 'dataset_version_created'
+            log_args['catalogrecord']['previous_version_preferred_identifier'] \
+                = self.previous_dataset_version.preferred_identifier
+        else:
+            log_args['event'] = 'dataset_created'
+
+        self.add_post_request_callable(DelayedLog(**log_args))
 
     def _pre_update_operations(self):
         if self.field_changed('identifier'):
@@ -888,13 +949,13 @@ class CatalogRecord(Common):
             if not (self.catalog_is_harvested() or self.catalog_is_legacy()):
                 raise Http400("Cannot change preferred_identifier in datasets in non-harvested catalogs")
 
-        if self.field_changed('research_dataset.total_ida_byte_size'):
+        if self.field_changed('research_dataset.total_files_byte_size'):
             # read-only
-            if 'total_ida_byte_size' in self._initial_data['research_dataset']:
-                self.research_dataset['total_ida_byte_size'] = \
-                    self._initial_data['research_dataset']['total_ida_byte_size']
+            if 'total_files_byte_size' in self._initial_data['research_dataset']:
+                self.research_dataset['total_files_byte_size'] = \
+                    self._initial_data['research_dataset']['total_files_byte_size']
             else:
-                self.research_dataset.pop('total_ida_byte_size')
+                self.research_dataset.pop('total_files_byte_size')
 
         if self.field_changed('research_dataset.total_remote_resources_byte_size'):
             # read-only
@@ -912,6 +973,9 @@ class CatalogRecord(Common):
 
         if self.field_changed('date_deprecated') and self._initial_data['date_deprecated']:
             raise Http400("Cannot change dataset deprecation date when it has been once set")
+
+        if self.field_changed('preservation_identifier'):
+            self.preservation_identifier = self._initial_data['preservation_identifier']
 
         if not self.metadata_owner_org:
             # can not be updated to null
@@ -953,7 +1017,7 @@ class CatalogRecord(Common):
                     # first update from 0 to n files should not create a dataset version. all later updates
                     # will create new dataset versions normally.
                     self.files.add(*self._get_dataset_selected_file_ids())
-                    self._calculate_total_ida_byte_size()
+                    self._calculate_total_files_byte_size()
                     self._handle_metadata_versioning()
                     self.calculate_directory_byte_sizes_and_file_counts()
                 else:
@@ -994,9 +1058,33 @@ class CatalogRecord(Common):
     def _post_update_operations(self):
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI and \
                 self.update_datacite:
-            self.add_post_request_callable(DataciteDOIUpdate(self, 'update'))
+            self._validate_cr_against_datacite_schema()
+            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                             'update'))
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+        log_args = {
+            'event': 'dataset_updated',
+            'user_id': self.user_modified or self.service_modified,
+            'catalogrecord': {
+                'identifier': self.identifier,
+                'preferred_identifier': self.preferred_identifier,
+                'data_catalog': self.data_catalog.catalog_json['identifier'],
+                'date_modified': datetime_to_str(self.date_modified),
+            },
+        }
+
+        self.add_post_request_callable(DelayedLog(**log_args))
+
+    def _validate_cr_against_datacite_schema(self):
+        from metax_api.services.datacite_service import DataciteService, DataciteException, \
+            convert_cr_to_datacite_cr_json
+        try:
+            DataciteService().get_validated_datacite_json(
+                convert_cr_to_datacite_cr_json(self), True)
+        except DataciteException as e:
+            raise Http400(str(e))
 
     def _files_added_for_first_time(self):
         """
@@ -1033,12 +1121,12 @@ class CatalogRecord(Common):
         """
         return False
 
-    def _calculate_total_ida_byte_size(self):
+    def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
         if 'files' in rd or 'directories' in rd:
-            rd['total_ida_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum']
+            rd['total_files_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum']
         else:
-            rd['total_ida_byte_size'] = 0
+            rd['total_files_byte_size'] = 0
 
     def _calculate_total_remote_resources_byte_size(self):
         rd = self.research_dataset
@@ -1205,6 +1293,7 @@ class CatalogRecord(Common):
                 temp_record.dataset_version_set = None
                 temp_record.identifier = generate_uuid_identifier()
                 temp_record.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+                temp_record.preservation_identifier = None
                 super(Common, temp_record).save()
                 actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
 
@@ -1311,6 +1400,7 @@ class CatalogRecord(Common):
         new_version.preservation_state = 0
         new_version.preservation_state_modified = None
         new_version.previous_dataset_version = old_version
+        new_version.preservation_identifier = None
         new_version.next_dataset_version_id = None
         new_version.service_created = old_version.service_modified or old_version.service_created
         new_version.service_modified = None
@@ -1329,12 +1419,15 @@ class CatalogRecord(Common):
         if pref_id_type == IdentifierType.URN:
             new_version.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
         elif pref_id_type == IdentifierType.DOI:
-            new_version.research_dataset['preferred_identifier'] = generate_doi_identifier()
+            doi_id = generate_doi_identifier()
+            new_version.research_dataset['preferred_identifier'] = doi_id
+            if self.catalog_is_ida():
+                new_version.preservation_identifier = doi_id
         else:
             _logger.debug("This code should never be reached. Using URN identifier for the new version pref id")
             self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
 
-        new_version._calculate_total_ida_byte_size()
+        new_version._calculate_total_files_byte_size()
 
         if 'remote_resources' in new_version.research_dataset:
             new_version._calculate_total_remote_resources_byte_size()
@@ -1363,7 +1456,9 @@ class CatalogRecord(Common):
         new_version.calculate_directory_byte_sizes_and_file_counts()
 
         if pref_id_type == IdentifierType.DOI:
-            self.add_post_request_callable(DataciteDOIUpdate(new_version, 'create'))
+            self.add_post_request_callable(DataciteDOIUpdate(new_version,
+                                                             new_version.research_dataset['preferred_identifier'],
+                                                             'create'))
 
         new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
 
@@ -1605,7 +1700,6 @@ class REMSUpdate():
 
 
 class DataciteDOIUpdate():
-
     """
     Callable object to be passed to CommonService.add_post_request_callable(callable).
 
@@ -1613,17 +1707,27 @@ class DataciteDOIUpdate():
     and publishing of URL for resolving the DOI identifier in Datacite API.
     """
 
-    def __init__(self, cr, action):
+    def __init__(self, cr, doi_identifier, action):
+        """
+        Give doi_identifier as parameter since its location in cr is not always the same
+
+        :param cr:
+        :param doi_identifier:
+        :param action:
+        """
+        from metax_api.services.datacite_service import DataciteService
         assert action in ('create', 'update', 'delete'), 'invalid value for action'
+        assert is_metax_generated_doi_identifier(doi_identifier)
         self.cr = cr
+        self.doi_identifier = doi_identifier
         self.action = action
+        self.dcs = DataciteService()
 
     def __call__(self):
         """
         The actual code that gets executed during CommonService.run_post_request_callables().
         Do not run for tests or in travis
         """
-        from metax_api.services.datacite_service import DataciteService
 
         if hasattr(settings, 'DATACITE'):
             if not settings.DATACITE.get('ETSIN_URL_TEMPLATE', None):
@@ -1631,7 +1735,7 @@ class DataciteDOIUpdate():
         else:
             raise Exception('Missing configuration from settings: DATACITE')
 
-        doi = extract_doi_from_doi_identifier(self.cr.research_dataset['preferred_identifier'])
+        doi = extract_doi_from_doi_identifier(self.doi_identifier)
         if doi is None:
             return
 
@@ -1652,33 +1756,33 @@ class DataciteDOIUpdate():
             )
 
         try:
-            dcs = DataciteService()
             if self.action == 'create':
                 try:
-                    self._publish_to_datacite(dcs, doi)
+                    self._publish_to_datacite(doi)
                 except Exception as e:
                     # Try to delete DOI in case the DOI got created but stayed in "draft" state
-                    dcs.delete_draft_doi(doi)
+                    self.dcs.delete_draft_doi(doi)
                     raise(Exception(e))
             elif self.action == 'update':
-                self._publish_to_datacite(dcs, doi)
+                self._publish_to_datacite(doi)
             elif self.action == 'delete':
                 # If metadata is in "findable" state, the operation below should transition the DOI to "registered"
                 # state
-                dcs.delete_doi_metadata(doi)
+                self.dcs.delete_doi_metadata(doi)
         except Exception as e:
             _logger.error(e)
             _logger.exception('Datacite API interaction failed')
-            raise Http503({ 'detail': [
+            raise Http503({'detail': [
                 'failed to publish updates to Datacite API. request is aborted.'
             ]})
 
-    def _publish_to_datacite(self, dcs, doi):
-        datacite_xml = dcs.convert_catalog_record_to_datacite_xml(
-            {'research_dataset': self.cr.research_dataset}, True)
+    def _publish_to_datacite(self, doi):
+        from metax_api.services.datacite_service import convert_cr_to_datacite_cr_json
+        cr_json = convert_cr_to_datacite_cr_json(self.cr)
+        datacite_xml = self.dcs.convert_catalog_record_to_datacite_xml(cr_json, True, True)
         _logger.debug("Datacite XML to be sent to Datacite API: {0}".format(datacite_xml))
 
         # When the two operations below are successful, it should result in the DOI transitioning to
         # "findable" state
-        dcs.create_doi_metadata(datacite_xml)
-        dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)
+        self.dcs.create_doi_metadata(datacite_xml)
+        self.dcs.register_doi_url(doi, settings.DATACITE['ETSIN_URL_TEMPLATE'] % self.cr.identifier)

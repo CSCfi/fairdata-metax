@@ -260,6 +260,7 @@ class CommonService():
                 common_info['service_modified'] = request.user.username
             else:
                 common_info['user_modified'] = request.user.username
+                common_info['service_modified'] = None
         elif method == 'POST':
             common_info['date_created'] = current_time
             if request.user.is_service:

@@ -22,7 +22,8 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services import AuthService
-from metax_api.utils.utils import get_tz_aware_now_without_micros
+from metax_api.utils.utils import get_tz_aware_now_without_micros, DelayedLog
+from .callable_service import CallableService
 from .common_service import CommonService
 from .reference_data_mixin import ReferenceDataMixin
 
@@ -255,6 +256,15 @@ class FileService(CommonService, ReferenceDataMixin):
         cls.calculate_project_directory_byte_sizes_and_file_counts(file.project_identifier)
         cls._mark_datasets_as_deprecated([file.id])
 
+        CallableService.add_post_request_callable(DelayedLog(
+            event='files_deleted',
+            files={
+                'project_identifier': file.project_identifier,
+                'file_storage': file.file_storage.file_storage_json['identifier'],
+                'file_count': deleted_files_count,
+            }
+        ))
+
         _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
         return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
 
@@ -283,6 +293,17 @@ class FileService(CommonService, ReferenceDataMixin):
         cls._find_and_delete_empty_directories(project_identifier)
         cls.calculate_project_directory_byte_sizes_and_file_counts(project_identifier)
         cls._mark_datasets_as_deprecated(file_ids)
+
+        file = File.objects_unfiltered.get(pk=file_ids[0])
+
+        CallableService.add_post_request_callable(DelayedLog(
+            event='files_deleted',
+            files={
+                'project_identifier': file.project_identifier,
+                'file_storage': file.file_storage.file_storage_json['identifier'],
+                'file_count': deleted_files_count,
+            }
+        ))
 
         _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
         return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
@@ -415,12 +436,9 @@ class FileService(CommonService, ReferenceDataMixin):
         _logger.info('Marking related datasets as deprecated...')
         deprecated_records = []
 
+        current_time = get_tz_aware_now_without_micros()
         for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False).distinct('id'):
-            cr.deprecated = True
-            current = get_tz_aware_now_without_micros()
-            cr.date_deprecated = current
-            cr.date_modified = current
-            cr.save()
+            cr.deprecate(current_time)
             deprecated_records.append(CatalogRecordSerializer(cr).data)
 
         if not deprecated_records:
@@ -832,7 +850,18 @@ class FileService(CommonService, ReferenceDataMixin):
 
         cls.calculate_project_directory_byte_sizes_and_file_counts(initial_data['project_identifier'])
 
+        CallableService.add_post_request_callable(DelayedLog(
+            event='files_created',
+            user_id=initial_data.get('user_created', res[0]['service_created']),
+            files={
+                'project_identifier': initial_data['project_identifier'],
+                'file_storage': str(initial_data['file_storage']),
+                'file_count': 1,
+            },
+        ))
+
         _logger.info('Created 1 new files')
+
         return res
 
     @classmethod
@@ -852,6 +881,16 @@ class FileService(CommonService, ReferenceDataMixin):
             common_info, file_list_with_dirs, results, serializer_class, **kwargs)
 
         cls.calculate_project_directory_byte_sizes_and_file_counts(initial_data_list[0]['project_identifier'])
+
+        CallableService.add_post_request_callable(DelayedLog(
+            event='files_created',
+            user_id=initial_data_list[0].get('user_created', common_info['service_created']),
+            files={
+                'project_identifier': initial_data_list[0]['project_identifier'],
+                'file_storage': str(initial_data_list[0]['file_storage']),
+                'file_count': len(results.get('success', [])),
+            }
+        ))
 
         _logger.info('Created %d new files' % len(results.get('success', [])))
 

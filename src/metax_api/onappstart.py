@@ -7,21 +7,24 @@
 
 import logging
 import sys
-from os import makedirs
+from os import makedirs, getpid
 from shutil import rmtree
 from time import sleep
 
 from django.apps import AppConfig
 from django.conf import settings
 
+from metax_api.utils import json_logger
+
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
+
 
 class OnAppStart(AppConfig):
 
     name = 'metax_api'
     verbose_name = "Metax API"
+    _pid = getpid()
 
     def ready(self): # pragma: no cover
         """
@@ -34,6 +37,10 @@ class OnAppStart(AppConfig):
         once. The key 'on_app_start_executing' in the cache is set to true by the fastest process,
         informing other processes to not proceed further.
         """
+        json_logger.info(
+            event='process_started',
+            process_id=self._pid
+        )
         if any(cmd in sys.argv for cmd in ['manage.py']):
             return
 
@@ -42,7 +49,6 @@ class OnAppStart(AppConfig):
 
         # ex = expiration in seconds
         if not cache.get_or_set('on_app_start_executing', True, ex=120):
-            # d('another process is already executing startup tasks, skipping')
             return
 
         # actual startup tasks ->
@@ -57,8 +63,11 @@ class OnAppStart(AppConfig):
 
             if not cache.get('reference_data', master=True):
                 ReferenceDataLoader.populate_cache_reference_data(cache)
+                json_logger.info(
+                    event='reference_data_loaded',
+                    process_id=self._pid
+                )
             else:
-                # d('cache already populated')
                 pass
         except:
             raise
