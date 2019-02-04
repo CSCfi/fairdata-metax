@@ -7,17 +7,34 @@
 
 import os
 import sys
+from datetime import datetime
 from enum import Enum
 from uuid import uuid4
 
 from dateutil import parser
 from django.conf import settings
 from django.utils import timezone
+import structlog
 
 
 class IdentifierType(Enum):
     URN = 'urn'
     DOI = 'doi'
+
+
+class DelayedLog():
+
+    """
+    A callable that can be passed to CallableService as a post_request_callable,
+    when needing to log something only when the request has ended with a success code,
+    and transactions to db have been successful.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._log_args = kwargs
+
+    def __call__(self, *args, **kwargs):
+        json_logger.info(**self._log_args)
 
 
 def executing_test_case():
@@ -33,8 +50,15 @@ def executing_travis():
     """
     return True if os.getenv('TRAVIS', False) else False
 
+
 def datetime_to_str(date_obj):
-    return date_obj.astimezone().isoformat()
+    if isinstance(date_obj, datetime):
+        return date_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+    elif datetime is None:
+        return None
+    else:
+        assert isinstance(date_obj, datetime), 'date_obj must be datetime object or None'
+
 
 def parse_timestamp_string_to_tz_aware_datetime(timestamp_str):
     """
@@ -70,13 +94,41 @@ def generate_uuid_identifier(urn_prefix=False):
     return str(uuid4())
 
 
-def generate_doi_identifier(doi_suffix=generate_uuid_identifier()):
+def is_metax_generated_doi_identifier(identifier):
+    """
+    Check whether given identifier is a metax generated doi identifier
+
+    :param identifier:
+    :return: boolean
+    """
+    if not identifier or not hasattr(settings, 'DATACITE') or not settings.DATACITE.get('PREFIX', False):
+        return False
+
+    return identifier.startswith('doi:{0}/'.format(settings.DATACITE.get('PREFIX')))
+
+
+def is_metax_generated_urn_identifier(identifier):
+    """
+    Check whether given identifier is a metax generated urn identifier
+
+    :param identifier:
+    :return: boolean
+    """
+    if not identifier:
+        return False
+
+    return identifier.startswith('urn:nbn:fi:att:') or identifier.startswith('urn:nbn:fi:csc')
+
+
+def generate_doi_identifier(doi_suffix=None):
     """
     Until a better mechanism for generating DOI suffix is conceived, use UUIDs.
 
     :param doi_suffix:
     :return: DOI identifier suitable for storing to Metax: doi:10.<doi_prefix>/<doi_suffix>
     """
+    if doi_suffix is None:
+        doi_suffix = generate_uuid_identifier()
 
     doi_prefix = None
     if hasattr(settings, 'DATACITE'):
@@ -141,3 +193,23 @@ def leave_keys_in_dict(dict_obj, fields_to_leave):
     for key in list(dict_obj):
         if key not in fields_to_leave:
             del dict_obj[key]
+
+
+if executing_test_case() or executing_travis():
+    class TestJsonLogger():
+
+        def info(self, *args, **kwargs):
+            pass
+
+        def error(self, *args, **kwargs):
+            pass
+
+        def warning(self, *args, **kwargs):
+            pass
+
+        def debug(self, *args, **kwargs):
+            pass
+
+    json_logger = TestJsonLogger()
+else:
+    json_logger = structlog.get_logger('structlog')

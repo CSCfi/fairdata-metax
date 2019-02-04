@@ -214,14 +214,17 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 del f['details']['identifier']
 
     @classmethod
-    def transform_datasets_to_format(cls, catalog_records, target_format, include_xml_declaration=True):
+    def transform_datasets_to_format(cls, catalog_records_json, target_format, include_xml_declaration=True):
         """
         params:
         catalog_records: a list of catalog record dicts, or a single dict
         """
-
         if target_format == 'datacite':
-            return DataciteService().convert_catalog_record_to_datacite_xml(catalog_records, include_xml_declaration)
+            return DataciteService().convert_catalog_record_to_datacite_xml(catalog_records_json,
+                                                                            include_xml_declaration, True)
+        elif target_format == 'fairdata_datacite':
+            return DataciteService().convert_catalog_record_to_datacite_xml(catalog_records_json,
+                                                                            include_xml_declaration, False)
 
         def item_func(parent_name):
             """
@@ -233,12 +236,12 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 'researchdatasets': 'researchdataset'
             }.get(parent_name, 'item')
 
-        if isinstance(catalog_records, dict):
+        if isinstance(catalog_records_json, dict):
             is_list = False
-            content_to_transform = catalog_records['research_dataset']
+            content_to_transform = catalog_records_json['research_dataset']
         else:
             is_list = True
-            content_to_transform = (cr['research_dataset'] for cr in catalog_records)
+            content_to_transform = (cr['research_dataset'] for cr in catalog_records_json)
 
         xml_str = dicttoxml(
             content_to_transform,

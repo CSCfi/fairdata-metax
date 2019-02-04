@@ -12,6 +12,8 @@ import json
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
+from metax_api.utils import json_logger
+
 
 _logger = logging.getLogger(__name__)
 
@@ -39,6 +41,12 @@ class SecureLoginView(TemplateView):
                 break
         else:
             csc_account_linked = False
+
+        json_logger.info(
+            event='user_login_visit',
+            user_id=token_payload['sub'],
+            org_id=token_payload['schacHomeOrganization'],
+        )
 
         context = {
             'email': token_payload['email'],

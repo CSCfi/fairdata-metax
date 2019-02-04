@@ -15,7 +15,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
-from metax_api.services import RedisCacheService as cache
+from metax_api.services import ReferenceDataMixin as RDM, RedisCacheService as cache
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
 from metax_api.tests.utils import get_test_oidc_token
@@ -24,6 +24,7 @@ from metax_api.tests.utils import get_test_oidc_token
 VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
+IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -46,6 +47,9 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         slightly as approriate for different purposes
         """
         self.cr_test_data = self._get_new_test_cr_data()
+        self.cr_test_data['research_dataset']['publisher'] = {'@type': 'Organization', 'name': {'und': 'Testaaja'}}
+        self.cr_test_data['research_dataset']['issued'] = '2010-01-01'
+
         self.cr_att_test_data = self._get_new_test_cr_data(cr_index=14, dc_index=5)
         self.cr_test_data_new_identifier = self._get_new_test_cr_data_with_updated_identifier()
         self.cr_full_ida_test_data = self._get_new_full_test_ida_cr_data()
@@ -360,8 +364,19 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json")
         self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
 
-        # Test with pid_type = doi
+        # Test with pid_type = doi AND not ida catalog
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # Create ida data catalog
+        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc_id = IDA_CATALOG
+        dc['catalog_json']['identifier'] = dc_id
+        self.client.post('/rest/datacatalogs', dc, format="json")
+        # Test with pid_type = doi AND ida catalog
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
         response = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json")
         self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('doi:10.'))
 
@@ -756,7 +771,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         ds_id = ds[0].identifier
 
         response = self.client.delete('/rest/files/1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         response = self.client.get('/rest/datasets/%s' % ds_id)
         cr = response.data
@@ -1047,8 +1062,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to datasets to their approriate fields
         """
-        refdata = cache.get('reference_data')['reference_data']
-        orgdata = cache.get('reference_data')['organization_data']
+        rf = RDM.get_reference_data(cache)
+        refdata = rf['reference_data']
+        orgdata = rf['organization_data']
         refs = {}
 
         data_types = [
@@ -1277,6 +1293,40 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(refs['organization']['label'], new_rd['curator'][0]['is_part_of'].get('name', None))
         self.assertEqual(refs['organization']['label'], new_rd['publisher']['is_part_of'].get('name', None))
         self.assertEqual(refs['organization']['label'], new_rd['rights_holder'][0]['is_part_of'].get('name', None))
+
+    def test_refdata_sub_org_main_org_population(self):
+        # Test parent org gets populated when sub org is from ref data and user has not provided is_part_of relation
+        self.cr_test_data['research_dataset']['publisher'] = {'@type': 'Organization', 'identifier': '10076-A800'}
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('is_part_of' in response.data['research_dataset']['publisher'], True)
+        self.assertEqual('http://uri.suomi.fi/codelist/fairdata/organization/code/10076',
+                         response.data['research_dataset']['publisher']['is_part_of']['identifier'])
+        self.assertTrue(response.data['research_dataset']['publisher']['is_part_of'].get('name', False))
+
+        # Test parent org does not get populated when sub org is from ref data and user has provided is_part_of relation
+        self.cr_test_data['research_dataset']['publisher'] = {
+            '@type': 'Organization',
+            'identifier': '10076-A800',
+            'is_part_of': {
+                '@type': 'Organization',
+                'identifier': 'test_id',
+                'name': {'und': 'test_name'}
+            }}
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('is_part_of' in response.data['research_dataset']['publisher'], True)
+        self.assertEqual('test_id', response.data['research_dataset']['publisher']['is_part_of']['identifier'])
+        self.assertEqual('test_name', response.data['research_dataset']['publisher']['is_part_of']['name']['und'])
+
+        # Test nothing happens when org is a parent org
+        self.cr_test_data['research_dataset']['publisher'] = {'@type': 'Organization', 'identifier': '10076'}
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('is_part_of' not in response.data['research_dataset']['publisher'], True)
 
 
 class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
@@ -1668,6 +1718,13 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
             response.data['dataset_version_set'])
 
     def test_new_dataset_version_pref_id_type_stays_same_as_previous_dataset_version_pref_id_type(self):
+        # Create ida data catalog
+        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc_id = IDA_CATALOG
+        dc['catalog_json']['identifier'] = dc_id
+        self.client.post('/rest/datacatalogs', dc, format="json")
+
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
 
         cr_v1 = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json").data
@@ -2037,8 +2094,8 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
     def assert_file_count(self, cr, expected_file_count):
         self.assertEqual(CatalogRecord.objects.get(pk=cr['id']).files.count(), expected_file_count)
 
-    def assert_total_ida_byte_size(self, cr, expected_size):
-        self.assertEqual(cr['research_dataset']['total_ida_byte_size'], expected_size)
+    def assert_total_files_byte_size(self, cr, expected_size):
+        self.assertEqual(cr['research_dataset']['total_files_byte_size'], expected_size)
 
     def test_adding_filesystem_root_dir_not_permitted(self):
         """
@@ -2058,7 +2115,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
 
     def test_directories_are_saved_during_create(self):
         """
@@ -2069,7 +2126,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 4)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
 
     def test_single_common_root_directory(self):
         """
@@ -2081,7 +2138,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 8)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 8)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 8)
 
     def test_directory_names_are_similar(self):
         """
@@ -2095,7 +2152,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 4)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
 
     def test_files_and_directories_are_saved_during_create(self):
         """
@@ -2108,7 +2165,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 6)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 6)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
 
     def test_files_and_directories_are_saved_during_create_2(self):
         """
@@ -2120,7 +2177,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
 
     def test_empty_files_and_directories_arrays_are_removed(self):
         """
@@ -2161,7 +2218,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 5)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 5)
 
         # separately add (describe) a child directory of the previous dir.
         # no new files are added
@@ -2176,7 +2233,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 6)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 6)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 6)
 
         # remove the previously added file, not included by the previously added directories.
         # files are removed
@@ -2185,7 +2242,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 5)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 5)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 5)
 
         # add a single new file already included by the previously added directories.
         # new files are not added
@@ -2213,7 +2270,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 1)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 1)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 1)
 
     def test_add_files_which_were_frozen_later(self):
         """
@@ -2240,7 +2297,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 9)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 9)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 9)
 
         # add one new directory, which holds one new file, since the other file was already added
         self._add_directory(new_version, '/TestExperiment/Directory_2/Group_3')
@@ -2248,7 +2305,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 10)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 10)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 10)
 
     def test_metadata_changes_do_not_add_later_frozen_files(self):
         """
@@ -2288,7 +2345,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 14)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 14)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 14)
         original_version = response.data
 
         # remove the root dir, and another sub-dir. there should be two directories left. both of them
@@ -2300,7 +2357,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 10)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 10)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 10)
 
     def test_add_multiple_directories(self):
         """
@@ -2310,7 +2367,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 2)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 2)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
         original_version = response.data
 
         # add new directories.
@@ -2322,7 +2379,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 8)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 8)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 8)
 
     def test_add_multiple_directories_2(self):
         """
@@ -2334,7 +2391,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 14)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 14)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 14)
 
     def test_add_files_from_different_projects(self):
         """
@@ -2346,7 +2403,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assert_file_count(response.data, 4)
-        self.assert_total_ida_byte_size(response.data, self._single_file_byte_size * 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
         original_version = response.data
 
         # add a new directory. this is a top-level of the previous dir, which contains new files.
@@ -2356,7 +2413,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 6)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 6)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 6)
 
         # remove the previously added dir, which is now the top-level dir in that project.
         # files are removed
@@ -2365,7 +2422,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 4)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 4)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 4)
 
         # remove dirs from the second project entirely.
         # files are removed
@@ -2374,7 +2431,7 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assert_preferred_identifier_changed(response, True)
         new_version = self.get_next_version(response.data)
         self.assert_file_count(new_version, 2)
-        self.assert_total_ida_byte_size(new_version, self._single_file_byte_size * 2)
+        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 2)
 
     def test_file_not_found(self):
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
@@ -2413,6 +2470,52 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
             'file changes in old dataset versions should not be allowed')
 
+    # other tests related to adding files / dirs
+
+    def test_file_and_dir_titles_are_populated_when_omitted(self):
+        """
+        If field 'title' is omitted from file or dir metadata, their respective file_name or
+        directory_name should automatically be populated as title.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+
+        # ensure titles are not overwritten when specified by the user
+
+        orig_titles = [
+            self.cr_test_data['research_dataset']['files'][0]['title'],
+            self.cr_test_data['research_dataset']['directories'][0]['title'],
+        ]
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(
+            response.data['research_dataset']['files'][0]['title'] in orig_titles,
+            response.data['research_dataset']['files'][0]['title']
+        )
+        self.assertTrue(
+            response.data['research_dataset']['directories'][0]['title'] in orig_titles,
+            response.data['research_dataset']['directories'][0]['title']
+        )
+
+        # ensure titles are automatically populated when omitted by the user
+
+        del self.cr_test_data['research_dataset']['files'][0]['title']
+        del self.cr_test_data['research_dataset']['directories'][0]['title']
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(
+            response.data['research_dataset']['files'][0]['title'] not in orig_titles,
+            response.data['research_dataset']['files'][0]['title']
+        )
+        self.assertTrue(
+            response.data['research_dataset']['directories'][0]['title'] not in orig_titles,
+            response.data['research_dataset']['directories'][0]['title']
+        )
+
 
 class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
 
@@ -2447,7 +2550,7 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         dc.catalog_json['identifier'] = LEGACY_CATALOGS[0]
         dc.force_save()
         del self.cr_test_data['research_dataset']['files']
-        del self.cr_test_data['research_dataset']['total_ida_byte_size']
+        del self.cr_test_data['research_dataset']['total_files_byte_size']
 
     def test_legacy_catalog_pids_are_not_unique(self):
         # values provided as pid values in legacy catalogs are not required to be unique
@@ -2585,7 +2688,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         catalog_json = dc.catalog_json
         for identifier in END_USER_ALLOWED_DATA_CATALOGS:
             catalog_json['identifier'] = identifier
-            DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+            dc = DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
 
         self.token = get_test_oidc_token()
 
@@ -2602,6 +2705,11 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         cr.user_created = self.token['sub']
         cr.metadata_provider_user = self.token['sub']
         cr.editor = None # pretend the record was created by user directly
+        cr.force_save()
+
+    def _set_cr_to_permitted_catalog(self, cr_id):
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.data_catalog_id = DataCatalog.objects.get(catalog_json__identifier=END_USER_ALLOWED_DATA_CATALOGS[0]).id
         cr.force_save()
 
     @responses.activate
@@ -2706,20 +2814,47 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data['preservation_state'], 0)
 
     @responses.activate
+    def test_owner_can_edit_datasets_only_in_permitted_catalogs(self):
+        '''
+        Ensure end users are able to edit datasets only in permitted catalogs, even if they
+        own the record (catalog may be disabled from end user editing for reason or another).
+        '''
+
+        # create test record
+        self.cr_test_data['data_catalog'] = 1
+        self.cr_test_data['user_created'] = self.token['sub']
+        self.cr_test_data['metadata_provider_user'] = self.token['sub']
+        self.cr_test_data.pop('editor', None)
+
+        self._use_http_authorization() # create cr as a service-user
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        modified_data = response.data
+        modified_data['research_dataset']['value'] = 112233
+
+        self._use_http_authorization(method='bearer', token=self.token)
+        response = self.client.put('/rest/datasets/%d' % modified_data['id'], modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    @responses.activate
     def test_owner_can_edit_dataset_check_perms_from_editor_field(self):
         '''
         Ensure end user perms are also checked from the field 'editor', which may be
         set by .e.g. qvain.
         '''
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.user_created = 'editor field is checked before this field, so should be ok'
-        cr.editor = { 'owner_id': self.token['sub'] }
-        cr.force_save()
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0]
+        self.cr_test_data['user_created'] = 'editor field is checked before this field, so should be ok'
+        self.cr_test_data['editor'] = { 'owner_id': self.token['sub'] }
 
-        response = self.client.get('/rest/datasets/1', format="json")
+        self._use_http_authorization() # create cr as a service-user to ensure editor-field is set
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.get('/rest/datasets/%d' % response.data['id'], format="json")
         modified_data = response.data
         modified_data['research_dataset']['value'] = 112233
-        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        response = self.client.put('/rest/datasets/%d' % response.data['id'], modified_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @responses.activate
@@ -2736,6 +2871,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
     @responses.activate
     def test_user_can_delete_dataset(self):
         self._set_cr_owner_to_token_user(1)
+        self._set_cr_to_permitted_catalog(1)
         response = self.client.delete('/rest/datasets/1', format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
@@ -2773,6 +2909,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
 
         # this is the dataset we'll modify
         self._set_cr_owner_to_token_user(1)
+        self._set_cr_to_permitted_catalog(1)
         response = self.client.get('/rest/datasets/1', format="json")
         # ensure the files really are new
         for f in new_files:

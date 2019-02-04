@@ -53,7 +53,7 @@
       }
     </subjects>
     <sizes>
-      <size>{ mrd:researchdataset/mrd:total_ida_byte_size/text() } bytes</size>
+      <size>{ mrd:researchdataset/mrd:total_files_byte_size/text() } bytes</size>
     </sizes>
     <descriptions>
       {

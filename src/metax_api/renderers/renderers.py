@@ -19,6 +19,7 @@ class HTMLToJSONRenderer(renderers.JSONRenderer):
     """
 
     media_type = 'text/html'
+    charset = 'utf-8'
 
 
 class XMLRenderer(renderers.BaseRenderer):
