@@ -8,6 +8,7 @@
 import logging
 from json import load as json_load
 
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.request import Request
@@ -392,7 +393,8 @@ class CommonService():
     def set_if_modified_since_filter(cls, request, filter_obj):
         """
         Evaluate If-Modified-Since http header only on read operations.
-        Filter items whose date_modified field timestamp value is greater than the header value.
+        Filter items whose date_modified field timestamp value is greater than the header value,
+        or if date_modified is missing, compares with field date_created instead.
         This method updates given filter object.
 
         :param request:
@@ -400,6 +402,12 @@ class CommonService():
         :return:
         """
         if not cls._request_is_write_operation(request) and cls._request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
-            filter_obj.update({
-                'date_modified__gt': cls.validate_and_get_if_modified_since_header_as_tz_aware_datetime(request)
-            })
+
+            ts = cls.validate_and_get_if_modified_since_header_as_tz_aware_datetime(request)
+
+            flter = Q(date_modified__gt=ts) | (Q(date_modified=None) & Q(date_created__gt=ts))
+
+            if 'q_filters' in filter_obj:
+                filter_obj['q_filters'].append(flter)
+            else:
+                filter_obj['q_filters'] = [flter]
