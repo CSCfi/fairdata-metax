@@ -184,7 +184,9 @@ class _IdentifyApiCaller():
             _logger.exception('Failed to extract token from id_token string')
             raise Http403
 
-        request.user.username = token['sub']
+        # todo temporary. eventually only CSCUsername will be supported
+        # (or make field configurable, but for now support both)
+        request.user.username = token.get('CSCUserName', token['sub'])
         request.user.is_service = False
         request.user.token = token
 
