@@ -78,7 +78,7 @@ class _IdentifyApiCaller():
         Services, or other pre-defined api users.
         """
         with open('/home/metax-user/app_config') as app_config:
-            app_config_dict = yaml.load(app_config)
+            app_config_dict = yaml.load(app_config, Loader=yaml.FullLoader)
         try:
             return app_config_dict['API_USERS']
         except:

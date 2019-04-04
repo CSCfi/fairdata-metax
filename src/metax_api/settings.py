@@ -31,7 +31,7 @@ executing_in_test_case = executing_test_case()
 
 if not executing_in_travis:
     with open('/home/metax-user/app_config') as app_config:
-        app_config_dict = yaml.load(app_config)
+        app_config_dict = yaml.load(app_config, Loader=yaml.FullLoader)
 
     if 'METAX_ENV' in app_config_dict:
         METAX_ENV = app_config_dict['METAX_ENV']
