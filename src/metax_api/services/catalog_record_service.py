@@ -555,7 +555,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         elif access_type_id == ACCESS_TYPES['permit']:
             # TODO:
             # If user does not have rems permission for the catalog record, strip it:
-                # cls._strip_file_and_directory_metadata(rd)
+            # cls._strip_file_and_directory_metadata(rd)
 
             # strip always for now. Remove this part when rems checking is implemented
             cls._strip_file_and_directory_metadata(rd)
