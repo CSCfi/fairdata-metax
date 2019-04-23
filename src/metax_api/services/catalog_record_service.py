@@ -83,6 +83,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('editor', False):
             queryset_search_params['editor__contains'] = { 'identifier': request.query_params['editor'] }
 
+        if request.query_params.get('metadata_provider_user', False):
+            queryset_search_params['metadata_provider_user'] = request.query_params['metadata_provider_user']
+
         if request.query_params.get('metadata_owner_org', False):
             queryset_search_params['metadata_owner_org__in'] = request.query_params['metadata_owner_org'].split(',')
 
