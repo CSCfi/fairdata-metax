@@ -78,7 +78,7 @@ class _IdentifyApiCaller():
         Services, or other pre-defined api users.
         """
         with open('/home/metax-user/app_config') as app_config:
-            app_config_dict = yaml.load(app_config)
+            app_config_dict = yaml.load(app_config, Loader=yaml.FullLoader)
         try:
             return app_config_dict['API_USERS']
         except:
@@ -184,7 +184,9 @@ class _IdentifyApiCaller():
             _logger.exception('Failed to extract token from id_token string')
             raise Http403
 
-        request.user.username = token['sub']
+        # todo temporary. eventually only CSCUsername will be supported
+        # (or make field configurable, but for now support both)
+        request.user.username = token.get('CSCUserName', token['sub'])
         request.user.is_service = False
         request.user.token = token
 

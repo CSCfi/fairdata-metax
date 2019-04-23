@@ -85,7 +85,7 @@ class _RabbitMQService():
             for message in messages:
                 if isinstance(message, dict):
                     message = json_dumps(message)
-                self._channel.publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
+                self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
         except Exception as e:
             _logger.error(e)
             _logger.error("Unable to publish message to RabbitMQ")

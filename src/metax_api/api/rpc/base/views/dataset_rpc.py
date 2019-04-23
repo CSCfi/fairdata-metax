@@ -55,11 +55,6 @@ class DatasetRPC(CommonRPC):
         except CatalogRecord.DoesNotExist:
             raise Http404
 
-        if not cr.catalog_is_ida():
-            raise Http400({
-                'detail': ['Setting preservation identifier not allowed for a non-IDA catalog record']
-            })
-
         if cr.preservation_identifier:
             # If cr preservation identifier already exists, make sure it also exists in Datacite
             DataciteDOIUpdate(cr, cr.preservation_identifier, 'update')()

@@ -171,6 +171,16 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         self.assertTrue(len(response.data.get('results')) > 6)
         self.assertTrue(len(response.data.get('results')) == 28)
 
+        # should also work with records that have been recently created, and date_modified is empty
+
+        cr.date_created = date_modified
+        cr.date_modified = None
+        cr.force_save()
+        response = self.client.get('/rest/datasets?limit=100', **headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(len(response.data.get('results')) > 6)
+        self.assertTrue(len(response.data.get('results')) == 28)
+
 
 class ApiReadQueryParamTests(CatalogRecordApiReadCommon):
 
