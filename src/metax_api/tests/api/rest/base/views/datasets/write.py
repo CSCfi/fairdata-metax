@@ -1622,16 +1622,26 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         data['research_dataset']['title']['en'] = 'updated again'
         data = self.client.put('/rest/datasets/%d' % data['id'], data, format="json").data
 
+        response = self.client.get('/rest/datasets', format="json")
+        dataset_count_beginning = response.data['count']
+
         # add files for the first time - should not create a new dataset version
         data['research_dataset']['files'] = files
         response = self.client.put('/rest/datasets/%d' % data['id'], data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('new_version_created' in response.data, False)
 
+        # ensure no "ghost datasets" are created as residue
+        response = self.client.get('/rest/datasets', format="json")
+        self.assertEqual(response.data['count'], dataset_count_beginning, 'no new datasets should be created')
+
         # remove files again... a new version is created normally
         files = data['research_dataset'].pop('files')
         response = self.client.put('/rest/datasets/%d' % data['id'], data, format="json")
         new_version = self.get_next_version(response.data)
+
+        response = self.client.get('/rest/datasets', format="json")
+        self.assertEqual(response.data['count'], dataset_count_beginning + 1)
 
         # ...and put the files back. this is another 0->n files update. this time
         # should normally create new dataset version.
@@ -1639,6 +1649,9 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/%d' % new_version['id'], new_version, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('new_version_created' in response.data, True)
+
+        response = self.client.get('/rest/datasets', format="json")
+        self.assertEqual(response.data['count'], dataset_count_beginning + 2)
 
     def test_update_to_non_versioning_catalog_does_not_create_version(self):
         self._set_cr_to_catalog(pk=self.pk, dc=3)
