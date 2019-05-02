@@ -40,7 +40,7 @@ class AuthService():
 
         user_projects = set()
 
-        project_prefix = 'IDA01:' if 'CSCUserName' in token else 'fairdata:IDA01:'
+        project_prefix = 'fairdata:IDA01:' if token.get('sub', '').endswith('@fairdataid') else 'IDA01:'
 
         user_projects = set(
             group.split(':')[-1]
