@@ -67,6 +67,7 @@ def get_test_oidc_token(new_proxy=False):
     }
 
     if new_proxy:
+        token["sub"] = "randomstringhere"
         token["CSCUserName"] = "testuser"
         token["CSCOrgNameFi"] = "IT Center for Science"
 

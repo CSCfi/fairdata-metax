@@ -186,7 +186,14 @@ class _IdentifyApiCaller():
 
         # todo temporary. eventually only CSCUsername will be supported
         # (or make field configurable, but for now support both)
-        request.user.username = token.get('CSCUserName', token['sub'])
+        if token.get('sub', '').endswith('@fairdataid'):
+            request.user.username = token['sub']
+        elif len(token.get('CSCUserName', '')) > 0:
+            request.user.username = token['CSCUserName']
+        else:
+            _logger.warning('id_token does not contain valid user id: fairdataid or cscusername')
+            raise Http403
+
         request.user.is_service = False
         request.user.token = token
 
