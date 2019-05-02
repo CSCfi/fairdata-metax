@@ -1273,18 +1273,26 @@ class CatalogRecord(Common):
         file_changes = self._find_file_changes()
 
         if not file_changes['changed_projects']:
+            # no changes in directory or file entries were detected.
             return False
+        elif self._files_added_for_first_time():
+            return True
+
+        # there are changes in directory or file entries. it may be that those changes can be
+        # considered to be only "metadata description changes", and no real file changes have happened.
+
+        # but in case of file or directory entry additions, the reason of adding can also be that the
+        # user is trying to add files that have been frozen later. therefore if "parent directory is
+        # already included", the file changes should still be executed in order to see if there were
+        # any newly frozen files added to the dataset as a result. the database knows about the new files,
+        # but the metadata descriptions do not.
 
         self._check_changed_files_permissions(file_changes)
 
         try:
             with transaction.atomic():
-                # create temporary record to perform the file changes on, to see if there were real file changes.
+                # create a temporary record to perform the file changes on, to see if there were real file changes.
                 # if no, discard it. if yes, the temp_record will be transformed into the new dataset version record.
-
-                # note: when this code is executed, at this point it should be reasonably certain that associated
-                # files did in fact change, and the following operation is necessary. consider the exception
-                # raising and rollback at the end as an extra safety measure.
 
                 temp_record = CatalogRecord.objects.get(pk=self.id)
                 temp_record.id = None
