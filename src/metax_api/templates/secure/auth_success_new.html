@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Metax End User Authentication</title>
+    </head>
+    <body style="width: 75%; word-wrap:break-word;">
+        <h1>Metax API Authentication Successful</h1>
+
+        <h2>Where have I arrived?</h2>
+        <p>
+            This page gives you an authentication token that you can use to interact directly with Metax API. For more information, visit Metax documentation about <a href="/docs/end_users.html">End User Access</a>.
+        </p>
+
+        <h3>You are logged in as:</h3>
+        <p>{{ email }}</p>
+
+        {% if idm_account_exists and home_org_exists %}
+        <h3>Your token (id_token) is:</h3>
+        <p>{{ token_string }}</p>
+
+        <h3>Valid until:</h3>
+        <p>{{ token_valid_until }}</p>
+        {% elif not idm_account_exists %}
+        <h3>How to get an API authentication token?</h3>
+        <p>
+            You currently do not have a CSC account. In order to get an authentication token and interact directly with the Metax API, register a CSC account and come back to this page.
+        </p>
+        {% elif not home_org_exists %}
+        <h3>How to get an API authentication token?</h3>
+        <p>
+            You currently do not have a home organization set. In order to get an authentication token and interact directly with the Metax API, contact CSC helpdesk to get your home organization sorted out and come back to this page.
+        </p>
+        {% endif %}
+
+    </body>
+</html>

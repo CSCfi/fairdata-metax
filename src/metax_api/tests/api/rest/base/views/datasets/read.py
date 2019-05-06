@@ -518,6 +518,19 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets')
         self.assertNotEqual(response.data['count'], qvain_records_count, 'looks like filtering had no effect')
 
+    def test_read_catalog_record_search_by_metadata_provider_user(self):
+        response = self.client.get('/rest/datasets?metadata_provider_user=123')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 0)
+
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.metadata_provider_user = '123'
+        cr.force_save()
+
+        response = self.client.get('/rest/datasets?metadata_provider_user=123')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
+
     def test_read_catalog_record_search_by_metadata_owner_org(self):
         owner_org = 'org_id'
         for cr in CatalogRecord.objects.filter(pk__in=[1, 2, 3]):

@@ -36,8 +36,8 @@ def get_json_schema(model_name):
     with open(path.dirname(path.realpath(__file__)) + '/../api/rest/base/schemas/%s_schema.json' % model_name) as f:
         return json_load(f)
 
-def get_test_oidc_token():
-    return {
+def get_test_oidc_token(new_proxy=False):
+    token = {
         "sub": "testuser123456@fairdataid",
         "linkedIds": [
             "testuser123456@fairdataid",
@@ -65,6 +65,13 @@ def get_test_oidc_token():
         "family_name": "Testaaja",
         "email": "teppo.testaaja@csc.fi"
     }
+
+    if new_proxy:
+        token["sub"] = "randomstringhere"
+        token["CSCUserName"] = "testuser"
+        token["CSCOrgNameFi"] = "IT Center for Science"
+
+    return token
 
 def generate_test_identifier(itype, index, urn=True):
     '''

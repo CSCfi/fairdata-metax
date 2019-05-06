@@ -32,7 +32,12 @@ class SecureLoginView(TemplateView):
 
         token_payload = json.loads(request.META['HTTP_OIDC_ID_TOKEN_PAYLOAD'])
         _logger.debug(token_payload)
+        if token_payload.get('sub', '').endswith('@fairdataid'):
+            return self._old_proxy(request, token_payload)
+        else:
+            return self._new_proxy(request, token_payload)
 
+    def _old_proxy(self, request, token_payload):
         linked_accounts = self._get_linked_accounts(token_payload)
 
         for acc in linked_accounts:
@@ -58,6 +63,31 @@ class SecureLoginView(TemplateView):
 
         # note: django automatically searches templates from root directory templates/
         return render(request, 'secure/auth_success.html', context=context)
+
+    def _new_proxy(self, request, token_payload):
+        try:
+            json_logger.info(
+                event='user_login_visit',
+                user_id=token_payload.get('CSCUserName', token_payload['eppn']),
+                org_id=token_payload.get('schacHomeOrganization', 'org_missing'),
+            )
+        except KeyError:
+            _logger.error('token_payload has no CSCUserName or eppn')
+
+        idm_account_exists = len(token_payload.get('CSCUserName', '')) > 0
+
+        home_org_exists = len(token_payload.get('schacHomeOrganization', '')) > 0
+
+        context = {
+            'email': token_payload['email'],
+            'idm_account_exists': idm_account_exists,
+            'home_org_exists': home_org_exists,
+            'token_string': request.META['HTTP_OIDC_ID_TOKEN'] if idm_account_exists and home_org_exists else '',
+            'token_valid_until': datetime.fromtimestamp(token_payload['exp']).strftime('%Y-%m-%d %H:%M:%S'),
+        }
+
+        # note: django automatically searches templates from root directory templates/
+        return render(request, 'secure/auth_success_new.html', context=context)
 
     def _get_linked_accounts(self, token_payload):
         return [ acc for acc in token_payload.get('linkedIds', []) if not acc.endswith('@fairdataid') ]

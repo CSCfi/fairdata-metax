@@ -160,7 +160,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
                 resolution_url = settings.OAI['ETSIN_URL_TEMPLATE'] % record.identifier
                 if not record.catalog_is_harvested() and (pref_id.startswith('urn:nbn:fi:att:') or
                                                           pref_id.startswith('urn:nbn:fi:csc')):
-                        metadatas.append({'identifier': [resolution_url, pref_id]})
+                    metadatas.append({'identifier': [resolution_url, pref_id]})
 
                 for id_obj in other_ids:
                     if id_obj.get('notation', '').startswith('urn:nbn:fi:csc-kata'):

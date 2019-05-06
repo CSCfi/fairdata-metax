@@ -781,6 +781,11 @@ paths:
           description: Filter by dataset field metadata_owner_org
           required: false
           type: string
+        - name: metadata_provider_user
+          in: query
+          description: Filter by dataset field metadata_provider_user
+          required: false
+          type: string
         - name: contract_org_identifier
           in: query
           description: Filter by dataset contract.contract_json.organization.organization_identifier. Restricted to permitted users.

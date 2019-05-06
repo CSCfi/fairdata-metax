@@ -29,15 +29,23 @@ class AuthService():
           to parameterize this part in settings.py in the future)
         - Third part is the actual project identifier, as it appears in file metadata
           field 'project_identifier'.
+
+        As a temporary solution, support also an alternative representation of group names,
+        where valid group names look like: IDA01:2001036. This kind of group names are to
+        be expected when the key CSCUserName is present in the authentication token.
+        Eventually, only this form of group names will be supported (and configurable... proabably).
         '''
         if not token:
             return set()
 
         user_projects = set()
 
-        for group in token.get('group_names', []):
-            group_name_parts = group.split(':')
-            if len(group_name_parts) == 3 and group_name_parts[0] == 'fairdata' and group_name_parts[1] == 'IDA01':
-                user_projects.add(group_name_parts[2])
+        project_prefix = 'fairdata:IDA01:' if token.get('sub', '').endswith('@fairdataid') else 'IDA01:'
+
+        user_projects = set(
+            group.split(':')[-1]
+            for group in token.get('group_names', [])
+            if group.startswith(project_prefix)
+        )
 
         return user_projects
