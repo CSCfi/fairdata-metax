@@ -54,9 +54,10 @@ class RequestLogging():
 
         try:
             _logger.info(
-                '%s - %s - "%s %s %s" %s'
+                '%s - [%s] %s - "%s %s %s" %s'
                 % (
                     request.environ['HTTP_X_REAL_IP'],
+                    user_type,
                     username,
                     request.environ['REQUEST_METHOD'],
                     request.get_full_path(),
@@ -71,8 +72,10 @@ class RequestLogging():
 
         try:
             _logger.info(
-                '%s - "%s %s" %d %s'
+                '%s - [%s] %s - "%s %s" %d %s'
                 % (
+                    request.environ['HTTP_X_REAL_IP'],
+                    user_type,
                     username,
                     request.method,
                     request.get_full_path(),
