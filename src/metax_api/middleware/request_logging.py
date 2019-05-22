@@ -54,9 +54,10 @@ class RequestLogging():
 
         try:
             _logger.info(
-                '%s - %s - "%s %s %s" %s'
+                '%s - [%s] %s - "%s %s %s" %s'
                 % (
                     request.environ['HTTP_X_REAL_IP'],
+                    user_type,
                     username,
                     request.environ['REQUEST_METHOD'],
                     request.get_full_path(),
@@ -71,8 +72,10 @@ class RequestLogging():
 
         try:
             _logger.info(
-                '%s - "%s %s" %d %s'
+                '%s - [%s] %s - "%s %s" %d %s'
                 % (
+                    request.environ['HTTP_X_REAL_IP'],
+                    user_type,
                     username,
                     request.method,
                     request.get_full_path(),
@@ -129,7 +132,10 @@ class RequestLogging():
         elif 'Bearer' in auth_header or 'bearer' in auth_header:
             try:
                 user_type = 'end_user'
-                user = json_loads(b64decode(auth_header.split(' ')[1].split('.')[1] + '===').decode('utf-8'))['sub']
+                user = json_loads(
+                    b64decode(auth_header.split(' ')[1].split('.')[1] + '===')
+                    .decode('utf-8')
+                )['CSCUserName']
             except:
                 # dont log as an error or crash, since we dont want to get bothered by
                 # errors about malformed tokens. auth middleware is going to reject this

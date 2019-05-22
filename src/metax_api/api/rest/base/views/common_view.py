@@ -36,7 +36,6 @@ class CommonViewSet(ModelViewSet):
     authentication_classes = ()
     permission_classes = (EndUserPermissions, ServicePermissions)
 
-    lookup_field_internal = None
     cache = RedisCacheService
 
     # get_queryset() automatically includes these in .select_related(field1, field2...) when returning
