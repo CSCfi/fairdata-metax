@@ -132,7 +132,10 @@ class RequestLogging():
         elif 'Bearer' in auth_header or 'bearer' in auth_header:
             try:
                 user_type = 'end_user'
-                user = json_loads(b64decode(auth_header.split(' ')[1].split('.')[1] + '===').decode('utf-8'))['sub']
+                user = json_loads(
+                    b64decode(auth_header.split(' ')[1].split('.')[1] + '===')
+                    .decode('utf-8')
+                )['CSCUserName']
             except:
                 # dont log as an error or crash, since we dont want to get bothered by
                 # errors about malformed tokens. auth middleware is going to reject this
