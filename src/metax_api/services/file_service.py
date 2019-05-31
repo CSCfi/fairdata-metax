@@ -308,6 +308,32 @@ class FileService(CommonService, ReferenceDataMixin):
         _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
         return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
 
+    @classmethod
+    def delete_project(cls, project_id):
+        """
+        Marks files deleted, deprecates related datasets and removes all directories.
+
+        This method is called by FileRPC
+        """
+        _logger.info('Begin to delete project from database...')
+
+        file_ids = [ id for id in File.objects.filter(project_identifier=project_id).values_list('id', flat=True) ]
+
+        deleted_files_count = 0
+
+        if file_ids:
+            deleted_files_count = cls._mark_files_as_deleted(file_ids)[0]
+            cls._mark_datasets_as_deprecated(file_ids)
+            cls._find_and_delete_empty_directories(project_id)
+            cls.calculate_project_directory_byte_sizes_and_file_counts(project_id)
+
+        else:
+            _logger.info('Project %s contained no files' % project_id)
+
+        _logger.info('Deleted project %s successfully. %d files deleted' % (project_id, deleted_files_count))
+
+        return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
+
     @staticmethod
     def _file_identifiers_to_ids(file_identifiers):
         """
