@@ -23,34 +23,37 @@ class FileRPCTests(APITestCase, TestClassUtils):
         super().setUpClass()
 
     def setUp(self):
+        """
+        Reloaded for every test case
+        """
         super().setUp()
         call_command('loaddata', test_data_file_path, verbosity=0)
-        self._use_http_authorization(username='metax')
+        self._use_http_authorization()
 
 class DeleteProjectTests(FileRPCTests):
 
     """
-    NoteToSelf: how to test ida/tpas user authentication? Should every ida/tpas user has right to delete any project?
+    Tests cover user authentication, wrong type of requests and
+    correct result for successful operations.
     """
 
     def test_wrong_parameters(self):
-        self._use_http_authorization()
-        response = self.client.delete('/rpc/files/delete_project?project_identifier=research_project_112')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        #wrong_user
-        self._set_http_authorization('testuser')
-        response = self.client.delete('/rpc/files/delete_project')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-        #no_project_identifier
-        self._use_http_authorization(username='metax')
+        #correct user, no project identifier
         response = self.client.delete('/rpc/files/delete_project')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        #nonexisting_project_identifier:
+        #nonexisting project identifier:
         response = self.client.delete('/rpc/files/delete_project?project_identifier=non_existing')
         self.assertEqual(response.data['deleted_files_count'], 0)
+
+        #wrong request method
+        response = self.client.post('/rpc/files/delete_project?project_identifier=research_project_112')
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        #wrong user
+        self._use_http_authorization('api_auth_user')
+        response = self.client.delete('/rpc/files/delete_project?project_identifier=research_project_112')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_known_project_identifier(self):
         response = self.client.delete('/rpc/files/delete_project?project_identifier=research_project_112')

@@ -27,9 +27,8 @@ class FileRPC(CommonRPC):
         """
         Marks files deleted, deprecates related datasets and removes all directories.
         """
-        _logger.info('arrived in delete_project')
         if 'project_identifier' not in request.query_params:
-            raise Http400({ 'detail': ['required parameters missing'] })
+            raise Http400({ 'detail': ['project identifier missing'] })
 
         return FileService.delete_project(request.query_params['project_identifier'])
 
