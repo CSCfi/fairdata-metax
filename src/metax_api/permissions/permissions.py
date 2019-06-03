@@ -124,7 +124,7 @@ class MetaxAPIPermissions(BasePermission):
 
         return has_perm
 
-    def _check_rpc_perms(self, request, api_name, rpc_method_name):
+    def _check_rpc_perms(self, request, api_name):
         """
         Check if user (service user) or user type (endusers) has permission to
         use given RPC method.
