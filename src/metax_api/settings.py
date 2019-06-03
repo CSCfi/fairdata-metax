@@ -62,7 +62,7 @@ if executing_in_test_case or executing_in_travis:
     }
     API_AUTH_TEST_USER = {
         'username': 'api_auth_user',
-        'password': 'assword'
+        'password': 'password'
     }
 
     API_TEST_USERS = [
@@ -75,35 +75,45 @@ if executing_in_test_case or executing_in_travis:
         "rest": {
             "apierrors":    {
                 "read": ["testuser", "metax"],
-                "write": ["testuser", "metax"]
+                "create": ["testuser", "metax"],
+                "update": ["testuser", "metax"],
+                "delete": ["testuser", "metax"]
             },
             "contracts":    {
                 "read": ["testuser", "metax"],
-                "write": ["testuser", "metax"]
+                "create": ["testuser", "metax"],
+                "update": ["testuser", "metax"],
+                "delete": ["testuser", "metax"]
             },
             "datacatalogs": {
                 "read": ["all"],
-                "write": ["testuser", "metax"]
+                "create": ["testuser", "metax"],
+                "update": ["testuser", "metax"],
+                "delete": ["testuser", "metax"]
             },
             "datasets":     {
                 "read": ["all"],
-                "write": ["testuser", "metax", "api_auth_user", "endusers"]
+                "create": ["testuser", "metax", "api_auth_user", "endusers"],
+                "update": ["testuser", "metax", "api_auth_user", "endusers"],
+                "delete": ["testuser", "metax", "api_auth_user", "endusers"]
             },
             "directories":  {
                 "read": ["testuser", "metax", "endusers"],
-                "write": ["testuser", "metax"]
             },
             "files":        {
                 "read": ["testuser", "metax", "api_auth_user", "endusers"],
-                "write": ["testuser", "metax"]
+                "create": ["testuser", "metax"],
+                "update": ["testuser", "metax", "endusers"],
+                "delete": ["testuser", "metax"]
             },
             "filestorages": {
                 "read": ["testuser", "metax"],
-                "write": ["testuser", "metax"]
+                "create": ["testuser", "metax"],
+                "update": ["testuser", "metax"],
+                "delete": ["testuser", "metax"]
             },
             "schemas":      {
                 "read": ["all"],
-                "write": ["testuser", "metax"]
             }
         },
         "rpc": {
@@ -122,10 +132,10 @@ elif METAX_ENV == 'test':
     API_ACCESS = app_config_dict['API_ACCESS']
 
     for api, perms in API_ACCESS['rest'].items():
-        if 'all' not in perms['read']:
-            perms['read'].append('all')
-        if 'all' not in perms['write']:
-            perms['write'].append('all')
+        perms['read'] = ['all']
+        perms['create'] = ['all']
+        perms['update'] = ['all']
+        perms['delete'] = ['all']
 else:
     # localdev, stable, production
     API_ACCESS = app_config_dict['API_ACCESS']

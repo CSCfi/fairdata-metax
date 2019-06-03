@@ -33,9 +33,3 @@ Real tokens in encoded form are very long, but above is an example what the HTTP
     response = requests.get('https://__METAX_ENV_DOMAIN__/rest/files/abc123def', headers=headers)
 
     print(response.json())
-
-
-Linking Fairdata and CSC accounts
-----------------------------------
-
-If you are going to interact with IDA file metadata, or publish datasets with IDA files, you will additionally need to link your CSC-account to your Fairdata-account. You can do that `here <https://fd-perun.csc.fi/fed/ic/>`_. Once your accounts have been linked, it takes about an hour for your project information to become available for Metax.

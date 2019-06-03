@@ -23,21 +23,26 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         # test user api_auth_user has some custom api permissions set in settings.py
         self._use_http_authorization(username='api_auth_user')
 
-    def test_write_access_ok(self):
+    def test_read_access_ok(self):
         """
-        User api_auth_user should have write and read access to datasets api.
+        User api_auth_user should have read access to files api.
+        """
+        response = self.client.get('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_access_ok(self):
+        """
+        User api_auth_user should have create access to datasets api.
         """
         response = self.client.get('/rest/datasets/1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
         cr = response.data
         cr['contract'] = 1
-
         response = self.client.put('/rest/datasets/1', cr, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-    def test_write_access_error(self):
+    def test_update_access_error(self):
         """
-        User api_auth_user should have read access to files api, but not write.
+        User api_auth_user should not have update access to files api.
         """
         response = self.client.get('/rest/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -45,6 +50,13 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         file['file_format'] = 'text/html'
 
         response = self.client.put('/rest/files/1', file, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_access_error(self):
+        """
+        User api_auth_user should not have delete access to files api.
+        """
+        response = self.client.delete('/rest/files/1')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_read_for_world_ok(self):
@@ -103,9 +115,9 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @responses.activate
-    def test_end_user_has_api_access(self):
+    def test_end_user_read_access(self):
         """
-        Not all apis are open for end users. Ensure end users are recognized in api access permissions.
+        Ensure end users are recognized in api read access permissions.
         """
         self._mock_token_validation_succeeds()
 
@@ -116,6 +128,16 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         # contracts-api should not be allowed for end users
         response = self.client.get('/rest/contracts/1')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @responses.activate
+    def test_end_user_create_access_error(self):
+        """
+        Ensure end users are recognized in api create access permissions.
+        """
+        self._mock_token_validation_succeeds()
+        # end users should not have create access to files api.
+        response = self.client.post('/rest/files', {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_removing_bearer_from_allowed_auth_methods_disables_oidc(self):
         pass

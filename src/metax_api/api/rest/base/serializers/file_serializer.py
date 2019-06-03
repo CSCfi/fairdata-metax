@@ -18,8 +18,19 @@ from .directory_serializer import DirectorySerializer
 from .file_storage_serializer import FileStorageSerializer
 from .serializer_utils import validate_json
 
+
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
+
+
+END_USER_UPDATE_ALLOWED_FIELDS = [
+    'file_characteristics',
+
+    # not set by the user, but are set by metax, so should not be discarded
+    'date_modified',
+    'user_modified',
+    'service_modified',
+    '__request'
+]
 
 
 class FileSerializer(CommonSerializer):
@@ -71,14 +82,20 @@ class FileSerializer(CommonSerializer):
         extra_kwargs = CommonSerializer.Meta.extra_kwargs
 
     def is_valid(self, raise_exception=False):
+        if self._request_by_end_user():
+            self._end_user_update_validations(self.initial_data)
+
         if 'file_storage' in self.initial_data:
             self.initial_data['file_storage'] = self._get_id_from_related_object(
                 'file_storage', self._get_file_storage_relation)
+
         if 'checksum' in self.initial_data:
             self._flatten_checksum(self.initial_data['checksum'])
+
         if 'parent_directory' in self.initial_data:
             self.initial_data['parent_directory'] = self._get_id_from_related_object(
                 'parent_directory', self._get_parent_directory_relation)
+
         super(FileSerializer, self).is_valid(raise_exception=raise_exception)
 
     def to_representation(self, instance):
@@ -142,6 +159,14 @@ class FileSerializer(CommonSerializer):
             pass
 
         return value
+
+    def _end_user_update_validations(self, validated_data):
+        """
+        Enforce some rules related to end users when updating files.
+        """
+        fields_to_discard = [ key for key in validated_data.keys() if key not in END_USER_UPDATE_ALLOWED_FIELDS ]
+        for field_name in fields_to_discard:
+            del validated_data[field_name]
 
     def _get_file_storage_relation(self, identifier_value):
         """
