@@ -40,6 +40,7 @@ END_USER_UPDATE_ALLOWED_FIELDS = [
     # not set by the user, but are set by metax, so should not be discarded
     'date_modified',
     'user_modified',
+    'service_modified',
     '__request'
 ]
 

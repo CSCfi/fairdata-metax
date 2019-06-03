@@ -86,11 +86,20 @@ class DatasetRPCTests(APITestCase, TestClassUtils):
         cr_json.pop('identifier')
         cr_json['research_dataset'].pop('preferred_identifier', None)
         cr_json['data_catalog'] = dc_id
+        cr_json['research_dataset']['issued'] = '2018-01-01'
+        cr_json['research_dataset']['publisher'] = {
+            '@type': 'Organization',
+            'name': { 'en': 'publisher' }
+        }
+
         response = self.client.post('/rest/datasets?pid_type=urn', cr_json, format="json")
-        identifier = response.data['identifier']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        identifier = response.data['identifier']
 
         # Verify rpc api returns the same doi as the one that is set to the datasets' preservation identifier
         response = self.client.post(f'/rpc/datasets/set_preservation_identifier?identifier={identifier}')
-        cr_json = self.client.get(f'/rest/datasets/{identifier}').data
-        self.assertEqual(response.data, cr_json['preservation_identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        response2 = self.client.get(f'/rest/datasets/{identifier}')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK, response2.data)
+        self.assertEqual(response.data, response2.data['preservation_identifier'], response2.data)

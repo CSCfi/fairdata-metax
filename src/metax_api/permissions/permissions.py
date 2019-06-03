@@ -15,8 +15,16 @@ from metax_api.exceptions import Http400
 
 
 _logger = logging.getLogger(__name__)
-READ_METHODS = ('GET', 'HEAD', 'OPTIONS')
-WRITE_METHODS = ('POST', 'PUT', 'PATCH', 'DELETE')
+
+METHOD_MAP = {
+    'GET':     'read',
+    'HEAD':    'read',
+    'OPTIONS': 'read',
+    'POST':    'create',
+    'PUT':     'update',
+    'PATCH':   'update',
+    'DELETE':  'delete',
+}
 
 
 class MetaxAPIPermissions(BasePermission):
@@ -46,7 +54,9 @@ class MetaxAPIPermissions(BasePermission):
         {
             'datasets': {
                 'read': ['service1', 'service2'],
-                'write': ['service1', 'service3']
+                'create': ['service1', 'service3'],
+                'update': ['service1', 'service3', 'endusers'],
+                'delete': ['service1'],
             }
             'files': {
                 ...
@@ -82,31 +92,9 @@ class MetaxAPIPermissions(BasePermission):
             )
             has_perm = False
         elif api_type == 'rest':
-            if request.method in READ_METHODS:
-                if 'all' in self.perms[api_type][api_name]['read']:
-                    has_perm = True
-                else:
-                    has_perm = self._check_read_perms(request, api_type, api_name)
-            elif request.method in WRITE_METHODS:
-                if 'all' in self.perms[api_type][api_name]['write']:
-                    has_perm = True
-                else:
-                    has_perm = self._check_write_perms(request, api_type, api_name)
-            else:
-                raise MethodNotAllowed
+            has_perm = self._check_rest_perms(request, api_name)
         elif api_type == 'rpc':
-            rpc_method_name = request.path.split('/')[-1]
-            if rpc_method_name not in self.perms[api_type][api_name]:
-                raise Http400({
-                    'detail': [
-                        'Unknown RPC method: %s. Valid %s RPC methods are: %s'
-                        % (rpc_method_name, api_name, ', '.join(self.perms[api_type][api_name].keys()))
-                    ]
-                })
-            elif 'all' in self.perms[api_type][api_name][rpc_method_name]['use']:
-                has_perm = True
-            else:
-                has_perm = self._check_use_perms(request, api_type, api_name, rpc_method_name)
+            has_perm = self._check_rpc_perms(request, api_name)
         else:
             _logger.info('Unknown api %s' % request.path)
             raise NotImplementedError
@@ -115,6 +103,45 @@ class MetaxAPIPermissions(BasePermission):
             'user %s has_perm for api %s == %r'
             % (request.user.username or '(anonymous)', request.path, has_perm)
         )
+
+        return has_perm
+
+    def _check_rest_perms(self, request, api_name):
+        """
+        Check if user (service user) or user type (endusers) has permission to
+        execute specific operation type on given API endpoint.
+        """
+        if request.method in METHOD_MAP:
+
+            operation_type = METHOD_MAP[request.method]
+
+            if 'all' in self.perms['rest'][api_name].get(operation_type, []):
+                has_perm = True
+            else:
+                has_perm = self._check_user_rest_perms(request, api_name, operation_type)
+        else:
+            raise MethodNotAllowed
+
+        return has_perm
+
+    def _check_rpc_perms(self, request, api_name):
+        """
+        Check if user (service user) or user type (endusers) has permission to
+        use given RPC method.
+        """
+        rpc_method_name = request.path.split('/')[-1]
+
+        if rpc_method_name not in self.perms['rpc'][api_name]:
+            raise Http400({
+                'detail': [
+                    'Unknown RPC method: %s. Valid %s RPC methods are: %s'
+                    % (rpc_method_name, api_name, ', '.join(self.perms['rpc'][api_name].keys()))
+                ]
+            })
+        elif 'all' in self.perms['rpc'][api_name][rpc_method_name]['use']:
+            has_perm = True
+        else:
+            has_perm = self._check_user_rpc_perms(request, api_name, rpc_method_name)
 
         return has_perm
 
@@ -131,14 +158,11 @@ class EndUserPermissions(MetaxAPIPermissions):
     service_permission = False
     message = 'End Users are not allowed to access this api.'
 
-    def _check_read_perms(self, request, api_type, api_name):
-        return 'endusers' in self.perms[api_type][api_name]['read']
+    def _check_user_rest_perms(self, request, api_name, operation_type):
+        return 'endusers' in self.perms['rest'][api_name].get(operation_type, [])
 
-    def _check_write_perms(self, request, api_type, api_name):
-        return 'endusers' in self.perms[api_type][api_name]['write']
-
-    def _check_use_perms(self, request, api_type, api_name, rpc_method_name):
-        return 'endusers' in self.perms[api_type][api_name][rpc_method_name]['use']
+    def _check_user_rpc_perms(self, request, api_name, rpc_method_name):
+        return 'endusers' in self.perms['rpc'][api_name][rpc_method_name]['use']
 
     def has_object_permission(self, request, view, obj):
         """
@@ -166,14 +190,11 @@ class ServicePermissions(MetaxAPIPermissions):
             self.message = self.message % request.user.username
         return has_perm
 
-    def _check_read_perms(self, request, api_type, api_name):
-        return request.user.username in self.perms[api_type][api_name]['read']
+    def _check_user_rest_perms(self, request, api_name, operation_type):
+        return request.user.username in self.perms['rest'][api_name].get(operation_type, [])
 
-    def _check_write_perms(self, request, api_type, api_name):
-        return request.user.username in self.perms[api_type][api_name]['write']
-
-    def _check_use_perms(self, request, api_type, api_name, rpc_method_name):
-        return request.user.username in self.perms[api_type][api_name][rpc_method_name]['use']
+    def _check_user_rpc_perms(self, request, api_name, rpc_method_name):
+        return request.user.username in self.perms['rpc'][api_name][rpc_method_name]['use']
 
     def has_object_permission(self, request, view, obj):
         """
