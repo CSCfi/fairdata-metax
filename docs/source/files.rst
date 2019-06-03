@@ -9,7 +9,7 @@ General
 
 The ``/rest/files`` API supports creating, retrieving, updating, and deleting files. The file and directory data model visualization can be found here https://tietomallit.suomi.fi/model/mfs.
 
-Write-operations to the ``/rest/files`` API is generally limited only to Fairdata services. In practice, new file metadata only appears to Metax as a result of freezing files in the Fairdata IDA service.
+Write-operations to the ``/rest/files`` API is generally limited only to Fairdata services. In practice, new file metadata only appears to Metax as a result of freezing files in the Fairdata IDA service, or during some PAS processes.
 
 End users will only be able to browse file metadata of projects where they are a member, end edit a limited set of metadata fields. Details about browsing files using the Metax API can be found later in this document :ref:`here <rst-browsing-files>`, and in swagger.
 
