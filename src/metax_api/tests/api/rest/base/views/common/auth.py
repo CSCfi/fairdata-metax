@@ -5,8 +5,11 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import os
+import json
 import responses
 from rest_framework import status
+from django.conf import settings
 
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import get_test_oidc_token
@@ -82,6 +85,11 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         super().setUp()
         self._use_http_authorization(method='bearer', token=get_test_oidc_token())
 
+    def tearDown(self):
+        super().tearDown()
+        if os.path.exists(settings.ADDITIONAL_USER_PROJECTS_PATH):
+            os.remove(settings.ADDITIONAL_USER_PROJECTS_PATH)
+
     @responses.activate
     def test_valid_token(self):
         """
@@ -108,7 +116,7 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         - malformed token
         - bad claims (such as intended audience)
 
-        In all cases, metax code execution stops at the middleware where authentication failed.
+        In all cases, metax code execution stops at the middleware where authentication failed.print(user_projects)
         """
         self._mock_token_validation_fails()
         response = self.client.get('/rest/datasets/1')
@@ -137,6 +145,46 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         self._mock_token_validation_succeeds()
         # end users should not have create access to files api.
         response = self.client.post('/rest/files', {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    @responses.activate
+    def test_additional_projects_success(self):
+        """
+        Ensures user's file projects are also fetched from local file.
+        """
+        self._use_http_authorization(method='bearer', token=get_test_oidc_token(new_proxy=True))
+        self._mock_token_validation_succeeds()
+        testdata = { "testuser": ["project_x"] }
+        with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'w+') as testfile:
+            testfile.write(json.dumps(testdata, indent=4))
+            os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
+
+        response = self.client.get('/rest/files?project_identifier=project_x', {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @responses.activate
+    def test_additional_projects_no_file(self):
+        """
+        Projects are fetched also from token when local file is not available.
+        """
+        self._use_http_authorization(method='bearer', token=get_test_oidc_token(new_proxy=True))
+        self._mock_token_validation_succeeds()
+        response = self.client.get('/rest/files?project_identifier=2001036', {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @responses.activate
+    def test_additional_projects_bad_file(self):
+        """
+        Returns forbidden since values on local file are not list of strings.
+        """
+        self._use_http_authorization(method='bearer', token=get_test_oidc_token(new_proxy=True))
+        self._mock_token_validation_succeeds()
+        testdata = { "testuser": "project_x" }
+        with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'w+') as testfile:
+            testfile.write(json.dumps(testdata, indent=4))
+            os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
+
+        response = self.client.get('/rest/files?project_identifier=project_x', {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_removing_bearer_from_allowed_auth_methods_disables_oidc(self):

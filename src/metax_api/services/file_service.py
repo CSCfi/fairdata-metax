@@ -64,7 +64,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
     @staticmethod
     def check_user_belongs_to_project(request, project_identifier):
-        if project_identifier not in AuthService.extract_file_projects_from_token(request.user.token):
+        if project_identifier not in AuthService.get_user_projects(request):
             raise Http403({ 'detail': [ 'You do not have access to this project.' ]})
 
     @classmethod

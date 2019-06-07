@@ -88,7 +88,7 @@ class FileViewSet(CommonViewSet):
         self.queryset_search_params = FileService.get_queryset_search_params(request)
         if not request.user.is_service:
             # end users can only retrieve their own files
-            user_projects = AuthService.extract_file_projects_from_token(request.user.token)
+            user_projects = AuthService.get_user_projects(request)
             self.queryset_search_params['project_identifier__in'] = user_projects
         return super().list(request, *args, **kwargs)
 

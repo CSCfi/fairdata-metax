@@ -5,8 +5,39 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import json
+import logging
+from django.conf import settings
+
+_logger = logging.getLogger(__name__)
+
 
 class AuthService():
+
+    @staticmethod
+    def get_user_projects(request):
+        """
+        Fetches users file projects from local file and from
+        token. On local file values must be a list of strings.
+        """
+        user_projects = set()
+        username = request.user.token.get('CSCUserName', '')
+
+        try:
+            with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'r') as file:
+                file_projects = json.load(file)
+
+            if isinstance(file_projects[username], list) and isinstance(file_projects[username][0], str):
+                for project in file_projects[username]:
+                    user_projects.add(project)
+        except:
+            _logger.debug("Unable to read projects from file.")
+
+        finally:
+            for project in AuthService.extract_file_projects_from_token(request.user.token):
+                user_projects.add(project)
+
+            return user_projects
 
     @staticmethod
     def extract_file_projects_from_token(token):
@@ -42,7 +73,7 @@ class AuthService():
 
         project_prefix = 'fairdata:IDA01:' if token.get('sub', '').endswith('@fairdataid') else 'IDA01:'
 
-        user_projects = set(
+        user_projects = (
             group.split(':')[-1]
             for group in token.get('group_names', [])
             if group.startswith(project_prefix)

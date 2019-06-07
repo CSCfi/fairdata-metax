@@ -72,7 +72,7 @@ class File(Common):
         if request.user.is_service:
             return True
         from metax_api.services import AuthService
-        return self.project_identifier in AuthService.extract_file_projects_from_token(request.user.token)
+        return self.project_identifier in AuthService.get_user_projects(request)
 
     def __repr__(self):
         return '<%s: %d, removed: %s, project_identifier: %s, identifier: %s, file_path: %s >' % (

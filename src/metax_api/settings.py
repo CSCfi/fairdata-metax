@@ -146,6 +146,12 @@ else:
     # Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
     ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
 
+#Path to local file projects
+if executing_in_test_case or executing_in_travis:
+    ADDITIONAL_USER_PROJECTS_PATH = "/tmp/user_projects.json"
+else:
+    ADDITIONAL_USER_PROJECTS_PATH = app_config_dict['ADDITIONAL_USER_PROJECTS_PATH']
+
 if executing_in_test_case or executing_in_travis:
     IDA_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ida"
     ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
