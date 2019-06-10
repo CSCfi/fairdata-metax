@@ -9,7 +9,8 @@ from datetime import datetime
 import logging
 import json
 
-from django.shortcuts import render
+from django.conf import settings as django_settings
+from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 
 from metax_api.utils import json_logger
@@ -28,10 +29,12 @@ class SecureLoginView(TemplateView):
         """
         # from pprint import pprint
         # pprint(request.META)
+
         _logger.debug('extracting information from token')
 
         token_payload = json.loads(request.META['HTTP_OIDC_ID_TOKEN_PAYLOAD'])
         _logger.debug(token_payload)
+
         if token_payload.get('sub', '').endswith('@fairdataid'):
             return self._old_proxy(request, token_payload)
         else:
@@ -84,6 +87,8 @@ class SecureLoginView(TemplateView):
             'home_org_exists': home_org_exists,
             'token_string': request.META['HTTP_OIDC_ID_TOKEN'] if idm_account_exists and home_org_exists else '',
             'token_valid_until': datetime.fromtimestamp(token_payload['exp']).strftime('%Y-%m-%d %H:%M:%S'),
+            'haka_exists': 'eppn' in token_payload,
+            'logout_redirect_domain': django_settings.SERVER_DOMAIN_NAME,
         }
 
         # note: django automatically searches templates from root directory templates/
@@ -91,3 +96,12 @@ class SecureLoginView(TemplateView):
 
     def _get_linked_accounts(self, token_payload):
         return [ acc for acc in token_payload.get('linkedIds', []) if not acc.endswith('@fairdataid') ]
+
+
+class SecureLogoutView(TemplateView):
+
+    def get(self, request, **kwargs):
+        """
+        After local oidc logout, redirect to OP for OP's logout procedures.
+        """
+        return redirect(django_settings.AUTH_SERVER_LOGOUT_URL)
