@@ -198,6 +198,14 @@ if not os.getenv('TRAVIS', None):
     for allowed_host in app_config_dict['ALLOWED_HOSTS']:
         ALLOWED_HOSTS.append(allowed_host)
 
+if executing_in_travis:
+    SERVER_DOMAIN_NAME = 'not set'
+    AUTH_SERVER_LOGOUT_URL = 'not set'
+else:
+    SERVER_DOMAIN_NAME = app_config_dict['SERVER_DOMAIN_NAME']
+    AUTH_SERVER_LOGOUT_URL = app_config_dict['AUTH_SERVER_LOGOUT_URL']
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 if executing_in_travis:
     DEBUG = True

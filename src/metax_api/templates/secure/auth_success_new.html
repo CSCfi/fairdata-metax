@@ -33,5 +33,15 @@
         </p>
         {% endif %}
 
+        <p>
+            <a href="/secure/redirect_uri?logout=https%3A%2F%2F{{ logout_redirect_domain }}%2Flogout">Logout</a>
+        </p>
+
+        {% if haka_exists %}
+        <p>
+            <u>IF LOGGED IN USING HAKA, CLOSE BROWSER IN ORDER TO COMPLETELY CLOSE CURRENT SESSION!</u>
+        </p>
+        {% endif %}
+
     </body>
 </html>
