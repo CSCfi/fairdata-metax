@@ -323,10 +323,9 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if file_ids:
             deleted_files_count = cls._mark_files_as_deleted(file_ids)[0]
-            cls._mark_datasets_as_deprecated(file_ids)
             cls._find_and_delete_empty_directories(project_id)
             cls.calculate_project_directory_byte_sizes_and_file_counts(project_id)
-
+            cls._mark_datasets_as_deprecated(file_ids)
         else:
             _logger.info('Project %s contained no files' % project_id)
 

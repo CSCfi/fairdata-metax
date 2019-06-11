@@ -1344,7 +1344,7 @@ paths:
   #     tags:
   #       - Statistics RPC
   /rpc/files/delete_project:
-    delete:
+    post:
       summary: Deletes given project from the database.
       description: Usable by ida, tpas and metax users. Marks all related files deleted, deprecates related datasets and removes all directories. Returns number of deleted files. Request is successful even when the project identifier is wrong, number of deleted files is then 0.
       parameters:
@@ -1360,7 +1360,7 @@ paths:
           description: Unsuccesful operation when project identifier is missing.
       tags:
         - File RPC
-        
+
 parameters:
   dryrun:
     name: dryrun

@@ -22,13 +22,13 @@ _logger = logging.getLogger(__name__)
 
 class FileRPC(CommonRPC):
 
-    @list_route(methods=['delete'], url_path="delete_project")
+    @list_route(methods=['post'], url_path="delete_project")
     def delete_project(self, request):
         """
         Marks files deleted, deprecates related datasets and removes all directories.
         """
         if 'project_identifier' not in request.query_params:
-            raise Http400({ 'detail': ['project identifier missing'] })
+            raise Http400({ 'detail': ['required query parameter project_identifier missing'] })
 
         return FileService.delete_project(request.query_params['project_identifier'])
 
