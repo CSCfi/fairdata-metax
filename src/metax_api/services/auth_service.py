@@ -9,8 +9,8 @@ import json
 import logging
 from django.conf import settings
 
-_logger = logging.getLogger(__name__)
 
+_logger = logging.getLogger(__name__)
 
 class AuthService():
 
@@ -73,7 +73,7 @@ class AuthService():
 
         project_prefix = 'fairdata:IDA01:' if token.get('sub', '').endswith('@fairdataid') else 'IDA01:'
 
-        user_projects = (
+        user_projects = set(
             group.split(':')[-1]
             for group in token.get('group_names', [])
             if group.startswith(project_prefix)

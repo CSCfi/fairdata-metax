@@ -7,6 +7,7 @@
 
 import os
 import json
+
 import responses
 from rest_framework import status
 from django.conf import settings
@@ -116,7 +117,7 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         - malformed token
         - bad claims (such as intended audience)
 
-        In all cases, metax code execution stops at the middleware where authentication failed.print(user_projects)
+        In all cases, metax code execution stops at the middleware where authentication failed.
         """
         self._mock_token_validation_fails()
         response = self.client.get('/rest/datasets/1')
