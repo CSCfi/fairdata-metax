@@ -121,6 +121,9 @@ if executing_in_test_case or executing_in_travis:
                 "get_minimal_dataset_template": { "use": ["all"] },
                 "set_preservation_identifier": { "use": ["metax", "tpas"] }
             },
+            "files": {
+                "delete_project": { "use": ["testuser", "metax"] }
+            },
             "statistics": {
                 "something": { "use": ["all"] }
             }
