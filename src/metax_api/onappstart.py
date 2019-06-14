@@ -14,8 +14,7 @@ from time import sleep
 from django.apps import AppConfig
 from django.conf import settings
 
-from metax_api.utils import json_logger
-
+from metax_api.utils import executing_test_case, json_logger, ReferenceDataLoader
 
 _logger = logging.getLogger(__name__)
 
@@ -37,15 +36,18 @@ class OnAppStart(AppConfig):
         once. The key 'on_app_start_executing' in the cache is set to true by the fastest process,
         informing other processes to not proceed further.
         """
+
+        # some imports from metax_api cannot be done at the beginning of the file,
+        # because the "django apps" have not been loaded yet.
+        from metax_api.services import RedisCacheService as cache, RabbitMQService as rabbitmq
+
         json_logger.info(
             event='process_started',
             process_id=self._pid
         )
-        if any(cmd in sys.argv for cmd in ['manage.py']):
-            return
 
-        from metax_api.services import RedisCacheService as cache, RabbitMQService as rabbitmq
-        from metax_api.utils import executing_test_case, ReferenceDataLoader
+        if not executing_test_case() and any(cmd in sys.argv for cmd in ['manage.py']):
+            return
 
         # ex = expiration in seconds
         if not cache.get_or_set('on_app_start_executing', True, ex=120):
