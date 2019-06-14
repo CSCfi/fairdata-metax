@@ -7,6 +7,7 @@
 
 import json
 import logging
+
 from django.conf import settings
 
 
@@ -20,24 +21,26 @@ class AuthService():
         Fetches users file projects from local file and from
         token. On local file values must be a list of strings.
         """
-        user_projects = set()
+        user_projects = AuthService.extract_file_projects_from_token(request.user.token)
         username = request.user.token.get('CSCUserName', '')
 
         try:
             with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'r') as file:
                 file_projects = json.load(file)
+        except:
+            _logger.info("Unable to read projects from file")
+            return user_projects
 
+        try:
             if isinstance(file_projects[username], list) and isinstance(file_projects[username][0], str):
                 for project in file_projects[username]:
                     user_projects.add(project)
+            else:
+                _logger.info("Projects on file are not list of strings")
         except:
-            _logger.debug("Unable to read projects from file.")
+            _logger.info("No projects for user '%s' on local file" % username)
 
-        finally:
-            for project in AuthService.extract_file_projects_from_token(request.user.token):
-                user_projects.add(project)
-
-            return user_projects
+        return user_projects
 
     @staticmethod
     def extract_file_projects_from_token(token):
