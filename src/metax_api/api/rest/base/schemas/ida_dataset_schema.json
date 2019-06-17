@@ -1015,8 +1015,11 @@
                     "format":"uri"
                 }
             },
-            "required":[
-                "identifier"
+            "anyOf":[
+                {"required":
+                  ["identifier"]},
+                {"required":
+                  ["license"]}
             ],
             "additionalProperties": false
         },
