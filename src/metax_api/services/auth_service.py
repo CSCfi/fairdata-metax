@@ -27,8 +27,12 @@ class AuthService():
         try:
             with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'r') as file:
                 file_projects = json.load(file)
-        except:
-            _logger.info("Unable to read projects from file")
+        except Exception as e:
+            if isinstance(e, FileNotFoundError):
+                _logger.info("No local file for user projects")
+            else:
+                _logger.error(e)
+
             return user_projects
 
         try:
@@ -36,7 +40,7 @@ class AuthService():
                 for project in file_projects[username]:
                     user_projects.add(project)
             else:
-                _logger.info("Projects on file are not list of strings")
+                _logger.error("Projects on file are not list of strings")
         except:
             _logger.info("No projects for user '%s' on local file" % username)
 

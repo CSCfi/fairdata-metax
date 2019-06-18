@@ -182,6 +182,19 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     @responses.activate
+    def test_no_file_permission(self):
+        """
+        Ensures user's file projects are also fetched from local file.
+        """
+        testdata = { "testuser": ["project_x"] }
+        with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'w+') as testfile:
+            json.dump(testdata, testfile, indent=4)
+            os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o100)
+
+        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    @responses.activate
     def test_no_file(self):
         """
         Projects are fetched from token when local file is not available.
