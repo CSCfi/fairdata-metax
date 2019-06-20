@@ -5,12 +5,19 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import json
+import logging
+import os
+
+from django.conf import settings
 import responses
 from rest_framework import status
 
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import get_test_oidc_token
 
+
+_logger = logging.getLogger(__name__)
 
 class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
 
@@ -142,3 +149,94 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
     def test_removing_bearer_from_allowed_auth_methods_disables_oidc(self):
         pass
         # ALLOWED_AUTH_METHODS
+
+class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
+
+    """
+    Test reading additional permissions from local file
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._use_http_authorization(method='bearer', token=get_test_oidc_token(new_proxy=True))
+        self._mock_token_validation_succeeds()
+
+    def tearDown(self):
+        super().tearDown()
+        try:
+            os.remove(settings.ADDITIONAL_USER_PROJECTS_PATH)
+        except:
+            _logger.info("error removing file from %s" % settings.ADDITIONAL_USER_PROJECTS_PATH)
+
+    @responses.activate
+    def test_successful_read(self):
+        """
+        Ensures user's file projects are also fetched from local file.
+        """
+        testdata = { "testuser": ["some_project", "project_x"] }
+        with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'w+') as testfile:
+            json.dump(testdata, testfile, indent=4)
+            os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
+
+        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @responses.activate
+    def test_no_file_permission(self):
+        """
+        Ensures user's file projects are also fetched from local file.
+        """
+        testdata = { "testuser": ["project_x"] }
+        with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'w+') as testfile:
+            json.dump(testdata, testfile, indent=4)
+            os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o100)
+
+        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    @responses.activate
+    def test_no_file(self):
+        """
+        Projects are fetched from token when local file is not available.
+        """
+        response = self.client.get('/rest/files?project_identifier=2001036', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @responses.activate
+    def test_bad_file_keys(self):
+        """
+        Must return forbidden which indicates that code is run properly despite the bad local file.
+        """
+        testdata = { 123445: "project_x" }
+        with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'w+') as testfile:
+            json.dump(testdata, testfile, indent=4)
+            os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
+
+        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    @responses.activate
+    def test_bad_file_values(self):
+        """
+        Returns forbidden since values on local file are not list of strings.
+        """
+        testdata = { "testuser": "project_x" }
+        with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'w+') as testfile:
+            json.dump(testdata, testfile, indent=4)
+            os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
+
+        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    @responses.activate
+    def test_bad_file_successful(self):
+        """
+        Ensures that projects are read from token despite file reading is failed.
+        """
+        testdata = { "testuser": [151342, 236314] }
+        with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'w+') as testfile:
+            json.dump(testdata, testfile, indent=4)
+            os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
+
+        response = self.client.get('/rest/files?project_identifier=2001036', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
