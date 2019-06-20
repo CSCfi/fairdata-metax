@@ -1019,6 +1019,37 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+    def test_missing_license_identifier_ok(self):
+        """
+        Missing license identifier is ok if url is provided.
+        Works on att and ida datasets
+        """
+        rd_ida = self.cr_full_ida_test_data['research_dataset']
+        rd_ida['access_rights']['license'] = [{
+            'license': "http://a.very.nice.custom/url"
+        }]
+        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(len(response.data['research_dataset']['access_rights']['license'][0]), 1, response.data)
+
+        rd_att = self.cr_full_att_test_data['research_dataset']
+        rd_att['access_rights']['license'] = [{
+            'license': "http://also.fine.custom/uri",
+            'description': {
+                'en': "This is very informative description of this custom license."
+            }
+        }]
+        rd_att['remote_resources'][0]['license'] = [{
+            'license': "http://cool.remote.uri",
+            'description': {
+                'en': "Proof that also remote licenses can be used with custom urls."
+            }
+        }]
+        response = self.client.post('/rest/datasets', self.cr_full_att_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(len(response.data['research_dataset']['access_rights']['license'][0]), 2, response.data)
+        self.assertEqual(len(response.data['research_dataset']['remote_resources'][0]['license'][0]), 2, response.data)
+
     def test_create_catalog_record_with_invalid_reference_data(self):
         rd_ida = self.cr_full_ida_test_data['research_dataset']
         rd_ida['theme'][0]['identifier'] = 'nonexisting'
