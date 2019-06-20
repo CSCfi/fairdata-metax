@@ -1340,7 +1340,7 @@ class CatalogRecord(Common):
         project_changes = projects_added.union(projects_removed)
 
         from metax_api.services import AuthService
-        user_projects = AuthService.extract_file_projects_from_token(self.request.user.token)
+        user_projects = AuthService.get_user_projects(self.request)
 
         invalid_project_perms = [ proj for proj in project_changes if proj not in user_projects ]
 

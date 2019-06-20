@@ -5,8 +5,45 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import json
+import logging
+
+from django.conf import settings
+
+
+_logger = logging.getLogger(__name__)
 
 class AuthService():
+
+    @staticmethod
+    def get_user_projects(request):
+        """
+        Fetches users file projects from local file and from
+        token. On local file values must be a list of strings.
+        """
+        user_projects = AuthService.extract_file_projects_from_token(request.user.token)
+        username = request.user.token.get('CSCUserName', '')
+
+        try:
+            with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'r') as file:
+                file_projects = json.load(file)
+        except FileNotFoundError:
+            _logger.info("No local file for user projects")
+            return user_projects
+        except Exception as e:
+            _logger.error(e)
+            return user_projects
+
+        try:
+            if isinstance(file_projects[username], list) and isinstance(file_projects[username][0], str):
+                for project in file_projects[username]:
+                    user_projects.add(project)
+            else:
+                _logger.error("Projects on file are not list of strings")
+        except:
+            _logger.info("No projects for user '%s' on local file" % username)
+
+        return user_projects
 
     @staticmethod
     def extract_file_projects_from_token(token):
