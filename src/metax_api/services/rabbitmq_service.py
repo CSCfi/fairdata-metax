@@ -137,6 +137,9 @@ class _RabbitMQServiceDummy():
     def publish(self, body, routing_key='', exchange='datasets', persistent=True):
         pass
 
+    def init_exchanges(self, *args, **kwargs):
+        pass
+
 
 if executing_travis() or executing_test_case():
     RabbitMQService = _RabbitMQServiceDummy()

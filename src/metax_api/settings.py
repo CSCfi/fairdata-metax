@@ -121,6 +121,9 @@ if executing_in_test_case or executing_in_travis:
                 "get_minimal_dataset_template": { "use": ["all"] },
                 "set_preservation_identifier": { "use": ["metax", "tpas"] }
             },
+            "files": {
+                "delete_project": { "use": ["testuser", "metax"] }
+            },
             "statistics": {
                 "something": { "use": ["all"] }
             }
@@ -200,6 +203,14 @@ if not os.getenv('TRAVIS', None):
     USE_X_FORWARDED_HOST = True
     for allowed_host in app_config_dict['ALLOWED_HOSTS']:
         ALLOWED_HOSTS.append(allowed_host)
+
+if executing_in_travis:
+    SERVER_DOMAIN_NAME = 'not set'
+    AUTH_SERVER_LOGOUT_URL = 'not set'
+else:
+    SERVER_DOMAIN_NAME = app_config_dict['SERVER_DOMAIN_NAME']
+    AUTH_SERVER_LOGOUT_URL = app_config_dict['AUTH_SERVER_LOGOUT_URL']
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if executing_in_travis:
