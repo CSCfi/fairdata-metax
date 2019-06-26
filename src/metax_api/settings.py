@@ -191,10 +191,6 @@ else:
     # location to store information about exceptions occurred during api requests
     ERROR_FILES_PATH = '/var/log/metax-api/errors'
 
-# Consider enabling these
-#CSRF_COOKIE_SECURE = True
-#SECURE_SSL_REDIRECT = True
-#SESSION_COOKIE_SECURE = True
 
 # Allow only specific hosts to access the app
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
@@ -254,11 +250,11 @@ MIDDLEWARE = [
 if not (executing_in_test_case or executing_in_travis):
     # security settings
     CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    X_FRAME_OPTIONS = 'DENY'
+    # SECURE_BROWSER_XSS_FILTER = True   # is set in nginx
+    # SECURE_CONTENT_TYPE_NOSNIFF = True # is set in nginx
+    # SECURE_SSL_REDIRECT = True         # is set in nginx
+    # SESSION_COOKIE_SECURE = True       # is set in nginx
+    # X_FRAME_OPTIONS = 'DENY'           # is set in nginx
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
