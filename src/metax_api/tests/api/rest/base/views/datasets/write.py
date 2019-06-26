@@ -256,6 +256,14 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual('is not valid' in response.data['research_dataset'][0], True, response.data)
         self.assertEqual('was_associated_with' in response.data['research_dataset'][0], True, response.data)
 
+    def test_create_catalog_record_allowed_projects_ok(self):
+        response = self.client.post('/rest/datasets?allowed_projects=project_x', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_create_catalog_record_allowed_projects_fail(self):
+        response = self.client.post('/rest/datasets?allowed_projects=no,permission', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
     #
     # create list operations
     #
@@ -683,6 +691,23 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         new_contract_id = CatalogRecord.objects.get(pk=cr.id).contract.id
         self.assertNotEqual(old_contract_id, new_contract_id, 'Contract should have changed')
+
+    def test_catalog_record_update_allowed_projects_ok(self):
+        cr_11 = self.client.get('/rest/datasets/11').data
+        cr_11['preservation_state'] = 0
+        cr_11_dir_len = len(cr_11['research_dataset']['directories'])
+        cr_11['research_dataset']['directories'].pop(1)
+
+        response = self.client.put('/rest/datasets/11?allowed_projects=project_x', cr_11, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['research_dataset']['directories']), cr_11_dir_len - 1)
+
+    def test_catalog_record_update_allowed_projects_fail(self):
+        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1['research_dataset']['files'].pop(0)
+
+        response = self.client.put('/rest/datasets/1?allowed_projects=no,projects', cr_1, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     #
     # update list operations PUT

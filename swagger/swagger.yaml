@@ -846,6 +846,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecord'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '201':
@@ -865,6 +866,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecordList'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -886,6 +888,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecordList'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -1030,6 +1033,7 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -1058,6 +1062,7 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -1368,6 +1373,12 @@ parameters:
     description: execute the operation normally, returning the same response as normally, but do not save anything to db, or publish anything to remote services.
     required: false
     type: boolean
+  allowed_projects:
+    name: allowed_projects
+    in: query
+    description: ensures that all files and directories are part of intended projects.
+    required: false
+    type: string
 
 definitions:
   CatalogRecord:
