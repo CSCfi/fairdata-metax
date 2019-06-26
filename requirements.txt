@@ -2,7 +2,7 @@ coveralls==1.7.0 # code coverage reportin in travis
 datacite==1.0.1 # BSD-license. convert datasets to datacite xml. datacite metadata store api wrappers
 dicttoxml==1.7.4
 python-dateutil==2.8.0
-Django==2.1.2  # BSD-license
+Django==2.1.9  # BSD-license
 elasticsearch<6.0.0
 hiredis==1.0.0 # Used by redis (redis-py) for parser
 djangorestframework==3.9.2  # BSD-license
@@ -29,4 +29,4 @@ sphinx-rtd-theme==0.4.3 # MIT-license
 strict-rfc3339==0.7 # GPLv3
 structlog==19.1.0 # Apache 2.0-license, MIT
 simplejson==3.16.0  # MIT-license
-urllib3==1.24.1
+urllib3==1.24.2
