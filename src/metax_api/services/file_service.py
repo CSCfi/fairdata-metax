@@ -890,6 +890,19 @@ class FileService(CommonService, ReferenceDataMixin):
         return res
 
     @classmethod
+    def verify_allowed_projects(cls, allowed_projects, file_identifiers=[]):
+        if file_identifiers:
+            project_ids = [ pid for pid in File.objects
+                            .filter(identifier__in=file_identifiers)
+                            .values_list('project_identifier', flat=True)
+                            .distinct('project_identifier') ]
+
+            if all(pid in allowed_projects for pid in project_ids):
+                return True
+
+        return False
+
+    @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
         """
         Override the original _create_bulk from CommonService to also create directories,

@@ -175,6 +175,7 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/FileList'
+      - $ref: "#/parameters/allowed_projects"
       - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -196,6 +197,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/FileList'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':

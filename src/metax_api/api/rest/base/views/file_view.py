@@ -92,6 +92,49 @@ class FileViewSet(CommonViewSet):
             self.queryset_search_params['project_identifier__in'] = user_projects
         return super().list(request, *args, **kwargs)
 
+    def update_bulk(self, request, *args, **kwargs):
+        """
+        Checks that all files belongs to project in allowed_projects query parameter
+        if given.
+        """
+        allowed_projects = request.query_params.get('allowed_projects', False)
+
+        if allowed_projects:
+            if not isinstance(request.data, list):
+                return Response(data={ 'detail': 'request.data is not a list'}, status=status.HTTP_400_BAD_REQUEST)
+
+            file_ids = [f['identifier'] for f in request.data]
+            allowed_projects = set( project.strip() for project in allowed_projects.split(',') )
+
+            if not FileService.verify_allowed_projects(allowed_projects, file_identifiers=file_ids):
+                return Response(data={"detail": "You do not have permission to update these files"},
+                                status=status.HTTP_403_FORBIDDEN)
+
+        return super().update_bulk(request, *args, **kwargs)
+
+    def partial_update_bulk(self, request, *args, **kwargs):
+        """
+        Checks that all files belongs to project in allowed_projects query parameter
+        if given.
+        """
+        allowed_projects = request.query_params.get('allowed_projects', False)
+
+        if allowed_projects:
+            if not isinstance(request.data, list):
+                return Response(data={ 'detail': 'request.data is not a list'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                file_ids = [f['identifier'] for f in request.data]
+            except KeyError:
+                return Response(data={"detail": "File identifier is missing"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            allowed_projects = set( project.strip() for project in allowed_projects.split(',') )
+            if not FileService.verify_allowed_projects(allowed_projects, file_identifiers=file_ids):
+                return Response(data={"detail": "You do not have permission to update these files"},
+                                status=status.HTTP_403_FORBIDDEN)
+
+        return super().partial_update_bulk(request, *args, **kwargs)
+
     @list_route(methods=['post'], url_path="datasets")
     def datasets(self, request):
         """
