@@ -749,6 +749,14 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         response = self.client.put('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
+    def test_file_update_list_allowed_projects_not_list(self):
+        new_data_1 = {}
+        new_data_1['identifier'] = "pid:urn:1"
+        new_data_1['file_name'] = 'Nice_new_name'
+
+        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', new_data_1, format="json")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
+
 
 class FileApiWritePartialUpdateTests(FileApiWriteCommon):
     """
@@ -804,6 +812,14 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', [new_data_1, new_data_2], format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK, res.data)
         self.assertEqual(res.data['success'][0]['object']['file_name'], 'Nice_new_name', res.data)
+
+    def test_file_partial_update_list_allowed_projects_fail(self):
+        # Files in projects 'project_x' and 'research_project_112'
+        f1 = self.client.get('/rest/files/1').data
+        f2 = self.client.get('/rest/files/39').data
+
+        response = self.client.patch('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_file_partial_update_list_allowed_projects_not_list(self):
         new_data_1 = {}
