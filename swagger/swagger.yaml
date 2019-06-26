@@ -848,6 +848,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecord'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '201':
@@ -867,6 +868,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecordList'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -888,6 +890,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecordList'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -1032,6 +1035,7 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -1060,6 +1064,7 @@ paths:
           description: Persistent ID of dataset OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
