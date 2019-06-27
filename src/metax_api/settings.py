@@ -121,6 +121,9 @@ if executing_in_test_case or executing_in_travis:
                 "get_minimal_dataset_template": { "use": ["all"] },
                 "set_preservation_identifier": { "use": ["metax", "tpas"] }
             },
+            "files": {
+                "delete_project": { "use": ["testuser", "metax"] }
+            },
             "statistics": {
                 "something": { "use": ["all"] }
             }
@@ -145,6 +148,12 @@ if executing_in_travis:
 else:
     # Basic for services, Bearer for end users. Disabling Bearer auth method disables end user access
     ALLOWED_AUTH_METHODS = app_config_dict['ALLOWED_AUTH_METHODS']
+
+# path to local file projects
+if executing_in_test_case or executing_in_travis:
+    ADDITIONAL_USER_PROJECTS_PATH = "/tmp/user_projects.json"
+else:
+    ADDITIONAL_USER_PROJECTS_PATH = app_config_dict.get('ADDITIONAL_USER_PROJECTS_PATH', '')
 
 if executing_in_test_case or executing_in_travis:
     IDA_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ida"
@@ -182,10 +191,6 @@ else:
     # location to store information about exceptions occurred during api requests
     ERROR_FILES_PATH = '/var/log/metax-api/errors'
 
-# Consider enabling these
-#CSRF_COOKIE_SECURE = True
-#SECURE_SSL_REDIRECT = True
-#SESSION_COOKIE_SECURE = True
 
 # Allow only specific hosts to access the app
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
@@ -194,6 +199,14 @@ if not os.getenv('TRAVIS', None):
     USE_X_FORWARDED_HOST = True
     for allowed_host in app_config_dict['ALLOWED_HOSTS']:
         ALLOWED_HOSTS.append(allowed_host)
+
+if executing_in_travis:
+    SERVER_DOMAIN_NAME = 'not set'
+    AUTH_SERVER_LOGOUT_URL = 'not set'
+else:
+    SERVER_DOMAIN_NAME = app_config_dict['SERVER_DOMAIN_NAME']
+    AUTH_SERVER_LOGOUT_URL = app_config_dict['AUTH_SERVER_LOGOUT_URL']
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if executing_in_travis:
@@ -237,11 +250,11 @@ MIDDLEWARE = [
 if not (executing_in_test_case or executing_in_travis):
     # security settings
     CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    X_FRAME_OPTIONS = 'DENY'
+    # SECURE_BROWSER_XSS_FILTER = True   # is set in nginx
+    # SECURE_CONTENT_TYPE_NOSNIFF = True # is set in nginx
+    # SECURE_SSL_REDIRECT = True         # is set in nginx
+    # SESSION_COOKIE_SECURE = True       # is set in nginx
+    # X_FRAME_OPTIONS = 'DENY'           # is set in nginx
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

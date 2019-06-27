@@ -7,4 +7,5 @@
 
 from .common_rpc import *
 from .dataset_rpc import *
+from .file_rpc import *
 from .statistic_rpc import *

@@ -6,9 +6,11 @@
 # :license: MIT
 
 from django.conf.urls import url
+
 from metax_api.views.secure import secure_view
 
 
 view_urlpatterns = [
+    url(r'^logout?', secure_view.SecureLogoutView.as_view()),
     url(r'^secure/login?', secure_view.SecureLoginView.as_view()),
 ]
