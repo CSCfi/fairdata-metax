@@ -97,9 +97,9 @@ class FileViewSet(CommonViewSet):
         Checks that all files belongs to project in allowed_projects query parameter
         if given.
         """
-        allowed_projects = request.query_params.get('allowed_projects', False)
+        allowed_projects = request.query_params.get('allowed_projects', None)
 
-        if allowed_projects:
+        if allowed_projects is not None:
             if not isinstance(request.data, list):
                 return Response(data={ 'detail': 'request.data is not a list'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -117,9 +117,9 @@ class FileViewSet(CommonViewSet):
         Checks that all files belongs to project in allowed_projects query parameter
         if given.
         """
-        allowed_projects = request.query_params.get('allowed_projects', False)
+        allowed_projects = request.query_params.get('allowed_projects', None)
 
-        if allowed_projects:
+        if allowed_projects is not None:
             if not isinstance(request.data, list):
                 return Response(data={ 'detail': 'request.data is not a list'}, status=status.HTTP_400_BAD_REQUEST)
             try:

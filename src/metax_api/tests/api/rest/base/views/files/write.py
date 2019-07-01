@@ -749,6 +749,11 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         response = self.client.put('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
+    def test_file_update_list_allowed_projects_empty_value(self):
+        f1 = self.client.get('/rest/files/1').data
+        response = self.client.put('/rest/files?allowed_projects=', [f1], format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
     def test_file_update_list_allowed_projects_not_list(self):
         new_data_1 = {}
         new_data_1['identifier'] = "pid:urn:1"
