@@ -1331,16 +1331,27 @@ class CatalogRecord(Common):
             assert executing_test_case(), 'only permitted when setting up testing conditions'
             return
 
-        if self.request.user.is_service:
-            # assumed the service knows what it is doing
-            return
-
         projects_added = file_changes['changed_projects'].get('files_added', set())
         projects_removed = file_changes['changed_projects'].get('files_removed', set())
         project_changes = projects_added.union(projects_removed)
 
+        from metax_api.services import CommonService
+        allowed_projects = CommonService.get_list_query_param(self.request, 'allowed_projects')
+
+        if allowed_projects is not None:
+
+            if not all(p in allowed_projects for p in project_changes):
+                raise Http403({'detail': [
+                    'Unable to update dataset %s. You do not have permissions to all of the files and directories.'
+                    % self.identifier
+                ]})
+
+        if self.request.user.is_service:
+            # assumed the service knows what it is doing
+            return
+
         from metax_api.services import AuthService
-        user_projects = AuthService.extract_file_projects_from_token(self.request.user.token)
+        user_projects = AuthService.get_user_projects(self.request)
 
         invalid_project_perms = [ proj for proj in project_changes if proj not in user_projects ]
 

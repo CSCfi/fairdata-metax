@@ -16,11 +16,13 @@
         <p>{{ email }}</p>
 
         {% if idm_account_exists and home_org_exists %}
-        <h3>Your token (id_token) is:</h3>
+        <h3>Your token is:</h3>
         <p>{{ token_string }}</p>
 
         <h3>Valid until:</h3>
         <p>{{ token_valid_until }}</p>
+        <h3>Terms of Use</h3>
+        <p>By using Metax End User API the user agrees that he or she has asked consent from all persons whose personal information the user will add to the descriptive data and informed them of how they can get their personal data removed. By using the API the user agrees to the <a href="https://www.fairdata.fi/hyodyntaminen/kayttopolitiikat-ja-ehdot/">Terms of Usage.</a></p>
         {% elif not idm_account_exists %}
         <h3>How to get an API authentication token?</h3>
         <p>
@@ -30,6 +32,16 @@
         <h3>How to get an API authentication token?</h3>
         <p>
             You currently do not have a home organization set. In order to get an authentication token and interact directly with the Metax API, contact CSC helpdesk to get your home organization sorted out and come back to this page.
+        </p>
+        {% endif %}
+
+        <p>
+            <a href="/secure/redirect_uri?logout=https%3A%2F%2F{{ logout_redirect_domain }}%2Flogout">Logout</a>
+        </p>
+
+        {% if haka_exists %}
+        <p>
+            <u>IF LOGGED IN USING HAKA, CLOSE BROWSER IN ORDER TO COMPLETELY CLOSE CURRENT SESSION!</u>
         </p>
         {% endif %}
 

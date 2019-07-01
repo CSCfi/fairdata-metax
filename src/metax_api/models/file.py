@@ -45,7 +45,7 @@ class File(Common):
     file_deleted = models.DateTimeField(null=True)
     file_frozen = models.DateTimeField()
     file_format = models.CharField(max_length=200, null=True)
-    file_modified = models.DateTimeField(auto_now=True)
+    file_modified = models.DateTimeField()
     file_name = models.TextField()
     file_path = models.TextField()
     file_storage = models.ForeignKey('metax_api.FileStorage', on_delete=models.DO_NOTHING)
@@ -72,7 +72,7 @@ class File(Common):
         if request.user.is_service:
             return True
         from metax_api.services import AuthService
-        return self.project_identifier in AuthService.extract_file_projects_from_token(request.user.token)
+        return self.project_identifier in AuthService.get_user_projects(request)
 
     def __repr__(self):
         return '<%s: %d, removed: %s, project_identifier: %s, identifier: %s, file_path: %s >' % (

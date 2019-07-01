@@ -64,7 +64,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
     @staticmethod
     def check_user_belongs_to_project(request, project_identifier):
-        if project_identifier not in AuthService.extract_file_projects_from_token(request.user.token):
+        if project_identifier not in AuthService.get_user_projects(request):
             raise Http403({ 'detail': [ 'You do not have access to this project.' ]})
 
     @classmethod
@@ -306,6 +306,31 @@ class FileService(CommonService, ReferenceDataMixin):
         ))
 
         _logger.info('Marked %d files as deleted from project %s' % (deleted_files_count, project_identifier))
+        return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
+
+    @classmethod
+    def delete_project(cls, project_id):
+        """
+        Marks files deleted, deprecates related datasets and removes all directories.
+
+        This method is called by FileRPC
+        """
+        _logger.info('Begin to delete project from database...')
+
+        file_ids = [ id for id in File.objects.filter(project_identifier=project_id).values_list('id', flat=True) ]
+
+        deleted_files_count = 0
+
+        if file_ids:
+            deleted_files_count = cls._mark_files_as_deleted(file_ids)[0]
+            cls._find_and_delete_empty_directories(project_id)
+            cls.calculate_project_directory_byte_sizes_and_file_counts(project_id)
+            cls._mark_datasets_as_deprecated(file_ids)
+        else:
+            _logger.info('Project %s contained no files' % project_id)
+
+        _logger.info('Deleted project %s successfully. %d files deleted' % (project_id, deleted_files_count))
+
         return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
 
     @staticmethod
@@ -863,6 +888,19 @@ class FileService(CommonService, ReferenceDataMixin):
         _logger.info('Created 1 new files')
 
         return res
+
+    @classmethod
+    def verify_allowed_projects(cls, allowed_projects, file_identifiers=[]):
+        if file_identifiers:
+            project_ids = [ pid for pid in File.objects
+                            .filter(identifier__in=file_identifiers)
+                            .values_list('project_identifier', flat=True)
+                            .distinct('project_identifier') ]
+
+            if all(pid in allowed_projects for pid in project_ids):
+                return True
+
+        return False
 
     @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):

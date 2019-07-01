@@ -49,7 +49,8 @@ def get_test_oidc_token(new_proxy=False):
         "iss": "https://fd-auth.csc.fi",
         "group_names": [
             "fairdata:TAITO01",
-            "fairdata:TAITO01:2002013"
+            "fairdata:TAITO01:2002013",
+            "IDA01:2001036"
         ],
         "schacHomeOrganizationType": "urn:schac:homeOrganizationType:fi:other",
         "given_name": "Teppo",

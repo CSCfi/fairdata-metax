@@ -733,6 +733,35 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         updated_file = File.objects.get(pk=1)
         self.assertEqual(updated_file.file_format, new_file_format)
 
+    def test_file_update_list_allowed_projects_ok(self):
+        # Both files in project 'project_x'
+        f1 = self.client.get('/rest/files/1').data
+        f2 = self.client.get('/rest/files/2').data
+
+        response = self.client.put('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_file_update_list_allowed_projects_fail(self):
+        # Files in projects 'project_x' and 'research_project_112'
+        f1 = self.client.get('/rest/files/1').data
+        f2 = self.client.get('/rest/files/39').data
+
+        response = self.client.put('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_file_update_list_allowed_projects_empty_value(self):
+        f1 = self.client.get('/rest/files/1').data
+        response = self.client.put('/rest/files?allowed_projects=', [f1], format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_file_update_list_allowed_projects_not_list(self):
+        new_data_1 = {}
+        new_data_1['identifier'] = "pid:urn:1"
+        new_data_1['file_name'] = 'Nice_new_name'
+
+        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', new_data_1, format="json")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
+
 
 class FileApiWritePartialUpdateTests(FileApiWriteCommon):
     """
@@ -775,6 +804,46 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
 
         updated_file = File.objects.get(pk=1)
         self.assertEqual(updated_file.project_identifier, new_project_identifier, 'project_identifier did not update')
+
+    def test_file_partial_update_list_allowed_projects_ok(self):
+        new_data_1 = {}
+        new_data_1['identifier'] = "pid:urn:1"
+        new_data_1['file_name'] = 'Nice_new_name'
+
+        new_data_2 = {}
+        new_data_2['identifier'] = "pid:urn:2"
+        new_data_2['file_name'] = 'Not_so_nice_name'
+
+        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', [new_data_1, new_data_2], format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK, res.data)
+        self.assertEqual(res.data['success'][0]['object']['file_name'], 'Nice_new_name', res.data)
+
+    def test_file_partial_update_list_allowed_projects_fail(self):
+        # Files in projects 'project_x' and 'research_project_112'
+        f1 = self.client.get('/rest/files/1').data
+        f2 = self.client.get('/rest/files/39').data
+
+        response = self.client.patch('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_file_partial_update_list_allowed_projects_not_list(self):
+        new_data_1 = {}
+        new_data_1['identifier'] = "pid:urn:1"
+        new_data_1['file_name'] = 'Nice_new_name'
+
+        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', new_data_1, format="json")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
+
+    def test_file_partial_update_list_allowed_projects_no_identifier(self):
+        new_data_1 = {}
+        new_data_1['file_name'] = 'Nice_new_name'
+
+        new_data_2 = {}
+        new_data_2['id'] = 23
+        new_data_2['file_name'] = 'Not_so_nice_name'
+
+        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', [new_data_1, new_data_2], format="json")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
 
 
 class FileApiWriteDeleteTests(FileApiWriteCommon):
@@ -1119,19 +1188,58 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @responses.activate
-    def test_user_cant_update_files(self):
+    def test_user_can_only_update_permitted_file_fields(self):
         '''
-        Ensure users are unable to modify existing files.
+        Ensure users are only able to modify permitted fields.
         '''
-
         # ensure user belongs to same project
         proj = File.objects.get(pk=1).project_identifier
         self.token['group_names'].append('fairdata:IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
         response = self.client.get('/rest/files/1', format="json")
-        response = self.client.put('/rest/files/1', response.data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        file = response.data
+        original_file = deepcopy(file)
+        file['byte_size'] = 200
+        file['checksum']['value'] = 'changed'
+        file['parent_directory'] = 1
+        file['file_frozen'] = '3' + file['file_frozen'][1:]
+        file['file_format'] = 'changed'
+        file['file_name'] = 'changed'
+        file['file_path'] = '/oh/no'
+        file['file_storage'] = 2
+        file['file_uploaded'] = '3' + file['file_uploaded'][1:]
+        file['identifier'] = 'changed'
+        file['open_access'] = True
+        file['project_identifier'] = 'changed'
+        file['service_modified'] = 'changed'
+        file['service_created'] = 'changed'
+        file['removed'] = True
+
+        # the only field that should be changed
+        file['file_characteristics'] = { 'title': 'new title'}
+
+        response = self.client.put('/rest/files/1', file, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['file_characteristics']['title'], 'new title', response.data)
+
+        for key, value in response.data.items():
+            try:
+                if key in ('date_modified', 'file_modified'):
+                    # these fields are changed by metax
+                    continue
+                elif key == 'file_characteristics':
+                    # the field that should have been changed by the user
+                    self.assertNotEqual(original_file[key], response.data[key])
+                else:
+                    # must not have changed
+                    self.assertEqual(original_file[key], response.data[key])
+            except KeyError as e:
+                if e.args[0] == 'user_modified':
+                    # added by metax
+                    continue
+                raise
+
 
 class FileApiWriteDryrunTest(FileApiWriteCommon):
 
