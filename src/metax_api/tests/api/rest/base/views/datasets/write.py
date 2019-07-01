@@ -264,6 +264,10 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/datasets?allowed_projects=no,permission', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
+    def test_create_catalog_record_allowed_projects_empty_value(self):
+        response = self.client.post('/rest/datasets?allowed_projects=', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
     #
     # create list operations
     #

@@ -1336,7 +1336,8 @@ class CatalogRecord(Common):
         project_changes = projects_added.union(projects_removed)
 
         allowed_projects = self.request.query_params.get('allowed_projects', None)
-        if allowed_projects:
+
+        if allowed_projects is not None:
             if not all(p in allowed_projects for p in project_changes):
                 raise Http403({'detail': [
                     'Unable to update dataset %s. You do not have permissions to all of the files and directories.'
