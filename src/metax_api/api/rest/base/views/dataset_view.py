@@ -327,7 +327,7 @@ class DatasetViewSet(CommonViewSet):
         Delete all catalog records and files. Requires a password
         """
         with open('/home/metax-user/app_config') as app_config:
-            app_config_dict = yaml.load(app_config)
+            app_config_dict = yaml.load(app_config, Loader=yaml.FullLoader)
             for host in app_config_dict['ALLOWED_HOSTS']:
                 if 'metax.csc.local' in host or 'metax-test' in host or 'metax-stable' in host:
 
