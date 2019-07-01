@@ -1335,8 +1335,11 @@ class CatalogRecord(Common):
         projects_removed = file_changes['changed_projects'].get('files_removed', set())
         project_changes = projects_added.union(projects_removed)
 
-        allowed_projects = self.request.query_params.get('allowed_projects', None)
-        if allowed_projects:
+        from metax_api.services import CommonService
+        allowed_projects = CommonService.get_list_query_param(self.request, 'allowed_projects')
+
+        if allowed_projects is not None:
+
             if not all(p in allowed_projects for p in project_changes):
                 raise Http403({'detail': [
                     'Unable to update dataset %s. You do not have permissions to all of the files and directories.'
