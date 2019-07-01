@@ -97,14 +97,13 @@ class FileViewSet(CommonViewSet):
         Checks that all files belongs to project in allowed_projects query parameter
         if given.
         """
-        allowed_projects = request.query_params.get('allowed_projects', None)
+        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
 
         if allowed_projects is not None:
             if not isinstance(request.data, list):
                 return Response(data={ 'detail': 'request.data is not a list'}, status=status.HTTP_400_BAD_REQUEST)
 
             file_ids = [f['identifier'] for f in request.data]
-            allowed_projects = set( project.strip() for project in allowed_projects.split(',') )
 
             if not FileService.verify_allowed_projects(allowed_projects, file_identifiers=file_ids):
                 return Response(data={"detail": "You do not have permission to update these files"},
@@ -117,7 +116,7 @@ class FileViewSet(CommonViewSet):
         Checks that all files belongs to project in allowed_projects query parameter
         if given.
         """
-        allowed_projects = request.query_params.get('allowed_projects', None)
+        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
 
         if allowed_projects is not None:
             if not isinstance(request.data, list):
@@ -128,7 +127,6 @@ class FileViewSet(CommonViewSet):
                 return Response(data={"detail": "File identifier is missing"},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            allowed_projects = set( project.strip() for project in allowed_projects.split(',') )
             if not FileService.verify_allowed_projects(allowed_projects, file_identifiers=file_ids):
                 return Response(data={"detail": "You do not have permission to update these files"},
                                 status=status.HTTP_403_FORBIDDEN)
