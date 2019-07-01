@@ -70,6 +70,23 @@ class CommonService():
                 'boolean value must be true or false. received value was %s' % value
             ]})
 
+    @staticmethod
+    def get_list_query_param(request, param_name):
+        """
+        Retrieve an optional comma-separated list of string values from a query param.
+
+        Note: Returns set, not a list!
+
+        Note: In case method is needed before dispatch() is called, see what is done in
+        method get_boolean_query_param().
+        """
+        value = request.query_params.get(param_name, None)
+        if value is not None:
+            values_list = set( v.strip() for v in value.split(',') )
+            if values_list:
+                return values_list
+        return None
+
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):
         """
