@@ -15,7 +15,7 @@ script to listen for messages sent when someone accesses /rest/datasets/pid/rabb
 """
 
 with open('/home/metax-user/app_config') as app_config:
-    settings = yaml.load(app_config)['RABBITMQ']
+    settings = yaml.load(app_config, Loader=yaml.FullLoader)['RABBITMQ']
 
 
 def get_test_user():
