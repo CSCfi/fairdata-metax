@@ -81,11 +81,18 @@ class CommonService():
         method get_boolean_query_param().
         """
         value = request.query_params.get(param_name, None)
-        if value is not None:
-            values_list = set( v.strip() for v in value.split(',') )
-            if values_list:
-                return values_list
-        return None
+
+        if value is None:
+            return None
+        elif value in ('', ','):
+            return set()
+
+        values_set = set( v.strip() for v in value.split(',') )
+
+        if values_set:
+            return values_set
+
+        return set()
 
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):

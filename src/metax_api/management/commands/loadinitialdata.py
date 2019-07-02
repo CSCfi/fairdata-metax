@@ -63,7 +63,7 @@ class Command(BaseCommand):
         self._metax_api_root = 'https://localhost'
         try:
             with open('/home/metax-user/app_config') as app_config:
-                app_config = yaml.load(app_config)
+                app_config = yaml.load(app_config, Loader=yaml.FullLoader)
         except FileNotFoundError:
             raise CommandError('app_config does not exist?')
 
