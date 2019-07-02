@@ -10,9 +10,9 @@ from collections import defaultdict
 from os.path import dirname, join
 
 import simplexquery as sxq
-from dicttoxml import dicttoxml
 from django.db.models import Q
 from rest_framework.serializers import ValidationError
+import xmltodict
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
@@ -229,29 +229,23 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             return DataciteService().convert_catalog_record_to_datacite_xml(catalog_records_json,
                                                                             include_xml_declaration, False)
 
-        def item_func(parent_name):
+        def _preprocess_list(key, value):
             """
-            Enable using other element names than 'item', depending on parent element name
-            However, since many one2many relation element names are already in singular form,
-            coming up with nice singular element names for childre is difficult.
+            Helper function to get right structure for list values. This function is called recursively.
             """
-            return {
-                'researchdatasets': 'researchdataset'
-            }.get(parent_name, 'item')
+            if key not in ['item', 'researchdataset'] and isinstance(value, list) and len(value) > 1:
+                value = {'item': value}
+            return key, value
 
         if isinstance(catalog_records_json, dict):
-            is_list = False
-            content_to_transform = catalog_records_json['research_dataset']
+            content_to_transform = { 'researchdataset': catalog_records_json['research_dataset'] }
         else:
-            is_list = True
-            content_to_transform = (cr['research_dataset'] for cr in catalog_records_json)
+            rd_list = { 'researchdataset': (cr['research_dataset'] for cr in catalog_records_json) }
+            content_to_transform = { 'researchdatasets': rd_list }
 
-        xml_str = dicttoxml(
-            content_to_transform,
-            custom_root='researchdatasets' if is_list else 'researchdataset',
-            attr_type=False,
-            item_func=item_func
-        ).decode('utf-8')
+        xml_str = xmltodict.unparse(content_to_transform, preprocessor=_preprocess_list)
+        xml_str = xml_str.replace('\n', '', 1)
+
         # This is a bit ugly way to put the metax data to the datacite namespace,
         # which allows us to use the default namespace in xquery files.
         xml_str = xml_str.replace('<researchdataset>',
