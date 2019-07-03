@@ -636,6 +636,13 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         self.assertEqual('<identifier identifierType="DOI">%s' % doi[len('doi:'):] in response.data,
                          True, response.data)
 
+    def test_read_dataset_format_datacite_odd_lang_abbrevation(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.research_dataset['publisher'] = {'@type': 'Organization', 'name': {'zk': 'Testiorganisaatio'}}
+        cr.force_save()
+        response = self.client.get('/rest/datasets/1?dataset_format=fairdata_datacite')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
     def _check_dataset_xml_format_response(self, response, element_name):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('content-type' in response._headers, True, response._headers)
