@@ -92,6 +92,30 @@ class FileViewSet(CommonViewSet):
             self.queryset_search_params['project_identifier__in'] = user_projects
         return super().list(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
+        if allowed_projects is not None:
+            if not isinstance(request.data, dict):
+                return Response(data={ 'detail': 'request.data is not a json' }, status=status.HTTP_400_BAD_REQUEST)
+
+            if not self.get_object().project_identifier in allowed_projects:
+                return Response(data={"detail": "You do not have permission to update this file"},
+                                status=status.HTTP_403_FORBIDDEN)
+
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
+        if allowed_projects is not None:
+            if not isinstance(request.data, dict):
+                return Response(data={ 'detail': 'request.data is not a json' }, status=status.HTTP_400_BAD_REQUEST)
+
+            if not self.get_object().project_identifier in allowed_projects:
+                return Response(data={"detail": "You do not have permission to update this file"},
+                                status=status.HTTP_403_FORBIDDEN)
+
+        return super().partial_update(request, *args, **kwargs)
+
     def update_bulk(self, request, *args, **kwargs):
         """
         Checks that all files belongs to project in allowed_projects query parameter

@@ -35,6 +35,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
         call_command('loaddata', test_data_file_path, verbosity=0)
         file_from_test_data = self._get_object_from_test_data('file')
         self.identifier = file_from_test_data['identifier']
+        self.pidentifier = file_from_test_data['project_identifier']
         self.file_name = file_from_test_data['file_name']
 
         """
@@ -675,6 +676,19 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         response = self.client.put('/rest/files/doesnotexist', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_update_file_allowed_projects_ok(self):
+        f = self.client.get('/rest/files/1').data
+        id = f['identifier']
+        pid = f['project_identifier']
+        response = self.client.put('/rest/files/%s?allowed_projects=%s' % (id, pid), f, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_file_allowed_projects_fail(self):
+        f = self.client.get('/rest/files/1').data
+        id = f['identifier']
+        response = self.client.put('/rest/files/%s?allowed_projects=nopermission' % id, f, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     #
     # update list operations PUT
     #
@@ -778,6 +792,26 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         self.assertEqual('file_name' in response.data.keys(), True)
         self.assertEqual('file_path' in response.data.keys(), True, 'PATCH operation should return full content')
         self.assertEqual(response.data['file_name'], 'new_file_name', 'Field file_name was not updated')
+
+    def test_update_partial_allowed_projects_ok(self):
+        new_data = {
+            "file_name": "new_file_name",
+        }
+        response = self.client.patch('/rest/files/%s?allowed_projects=%s' % (self.identifier, self.pidentifier),
+            new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['file_name'], 'new_file_name', response.data)
+
+    def test_update_partial_allowed_projects_fail(self):
+        new_data = {
+            "file_name": "new_file_name",
+        }
+        response = self.client.patch('/rest/files/%s?allowed_projects=noproject' % (self.identifier, self.pidentifier),
+            new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertNotEqual(response.data['file_name'], 'new_file_name', response.data)
 
     #
     # update list operations PATCH
