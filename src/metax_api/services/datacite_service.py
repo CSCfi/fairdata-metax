@@ -312,7 +312,7 @@ class _DataciteService(CommonService):
                     return field[lang]
                 except:
                     pass
-            return field[field.keys()[0]]
+            return field[list(field.keys())[0]]
         else:
             return field
 
