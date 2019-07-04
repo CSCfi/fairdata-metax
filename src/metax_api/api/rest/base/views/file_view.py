@@ -93,6 +93,9 @@ class FileViewSet(CommonViewSet):
         return super().list(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
+        """
+        Checks that file belongs to allowed_projects if parameter is given.
+        """
         allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
         if allowed_projects is not None:
             if not isinstance(request.data, dict):
@@ -105,6 +108,9 @@ class FileViewSet(CommonViewSet):
         return super().update(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
+        """
+        Checks that file belongs to allowed_projects if parameter is given.
+        """
         allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
         if allowed_projects is not None:
             if not isinstance(request.data, dict):
