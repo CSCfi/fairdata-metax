@@ -2948,8 +2948,14 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         response = self.client.get('/rest/datasets/1', format="json")
         modified_data = response.data
         modified_data['research_dataset']['value'] = 112233
+
         response = self.client.put('/rest/datasets/1', modified_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response = self.client.put('/rest/datasets', [modified_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # ^ individual errors do not have error codes, only the general request
+        # has an error code for a failed request.
 
     @responses.activate
     def test_user_can_delete_dataset(self):

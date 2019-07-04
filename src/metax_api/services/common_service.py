@@ -228,7 +228,7 @@ class CommonService():
 
         for row in request.data:
 
-            instance = cls._get_object_for_update(model_obj, row, results,
+            instance = cls._get_object_for_update(request, model_obj, row, results,
                                                   cls._request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'))
 
             if not instance:
@@ -337,7 +337,7 @@ class CommonService():
             results['failed'].append({ 'object': serializer.initial_data, 'errors': str(error) })
 
     @staticmethod
-    def _get_object_for_update(model_obj, row, results, check_unmodified_since):
+    def _get_object_for_update(request, model_obj, row, results, check_unmodified_since):
         """
         Find the target object being updated using a row from the request payload.
 
@@ -356,6 +356,25 @@ class CommonService():
             results['failed'].append({ 'object': row, 'errors': { 'detail': ['object not found'] }})
         except ValidationError as e:
             results['failed'].append({ 'object': row, 'errors': { 'detail': e.detail } })
+
+        if instance and not instance.user_has_access(request):
+
+            # dont reveal anything from the actual instance
+            ret = {}
+
+            if 'id' in row:
+                ret['id'] = row['id']
+            if 'identifier' in row:
+                ret['identifier'] = row['identifier']
+
+            results['failed'].append({
+                'object': ret,
+                'errors': {
+                    'detail': ['You are not permitted to access this resource.']
+                }
+            })
+
+            instance = None
 
         if instance and check_unmodified_since:
             if 'date_modified' not in row:
