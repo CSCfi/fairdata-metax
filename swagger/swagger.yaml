@@ -1380,7 +1380,7 @@ parameters:
   allowed_projects:
     name: allowed_projects
     in: query
-    description: ensures that all files and directories are part of intended projects.
+    description: ensures that content is part of intended projects.
     required: false
     type: string
 
