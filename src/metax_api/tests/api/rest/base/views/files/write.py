@@ -1291,6 +1291,48 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
                     continue
                 raise
 
+    @responses.activate
+    def test_user_can_update_files_in_their_projects(self):
+        '''
+        Ensure users can edit files in projects they are a member of.
+        '''
+        proj = File.objects.only('project_identifier').get(pk=1).project_identifier
+
+        response = self.client.get('/rest/files?project_identifier=%s' % proj,
+            format="json")
+
+        file = response.data['results'][0]
+
+        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.put('/rest/files/%s' % file['id'], file, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.put('/rest/files', [file], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @responses.activate
+    def test_user_cant_update_files_in_others_projects(self):
+        '''
+        Ensure users can not edit files in projects they are not a member of.
+        '''
+        proj = File.objects.only('project_identifier').get(pk=1).project_identifier
+
+        response = self.client.get('/rest/files?project_identifier=%s' % proj,
+            format="json")
+
+        file = response.data['results'][0]
+
+        self.token['group_names'] = ['no_files_for_this_project']
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.put('/rest/files/%s' % file['id'], file, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        response = self.client.put('/rest/files', [file], format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class FileApiWriteDryrunTest(FileApiWriteCommon):
 
