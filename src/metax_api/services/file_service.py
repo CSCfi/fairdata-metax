@@ -464,15 +464,14 @@ class FileService(CommonService, ReferenceDataMixin):
         current_time = get_tz_aware_now_without_micros()
         for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False).distinct('id'):
             cr.deprecate(current_time)
-            deprecated_records.append(CatalogRecordSerializer(cr).data)
-
+            deprecated_records.append(cr)
         if not deprecated_records:
             _logger.info('Files were not associated with any datasets.')
             return
 
-        _logger.info('Publishing %d deprecated datasets to rabbitmq update queues...' % len(deprecated_records))
-        from metax_api.services import RabbitMQService as rabbitmq
-        rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
+        from metax_api.models.catalog_record import RabbitMQPublishRecord
+        for cr in deprecated_records:
+            CallableService.add_post_request_callable(RabbitMQPublishRecord(cr, 'update'))
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
