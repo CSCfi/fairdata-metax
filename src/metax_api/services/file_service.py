@@ -40,11 +40,6 @@ multiple times in itself isnt bad, but using this function-replacement
 -mechanic, so that the imports are not littered in several methods in
 FileService where they would otherwise be needed.
 """
-def CatalogRecordSerializer(*args, **kwargs):
-    from metax_api.api.rest.base.serializers import CatalogRecordSerializer as CRS
-    CatalogRecordSerializer = CRS
-    return CatalogRecordSerializer(*args, **kwargs)
-
 def DirectorySerializer(*args, **kwargs):
     from metax_api.api.rest.base.serializers import DirectorySerializer as DS
     DirectorySerializer = DS
