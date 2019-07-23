@@ -44,6 +44,18 @@ class FileApiReadBasicTests(FileApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], file_count)
 
+    def test_read_file_list_filter_by_project_and_path(self):
+        proj = File.objects.get(pk=1).project_identifier
+        path = "/project_x_FROZEN/Experiment_X/Phase_1/2017/01"
+        file_count = File.objects.filter(file_path__contains=path).count()
+        response = self.client.get('/rest/files?project_identifier=%s&file_path=%s' % (proj, path))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], file_count)
+
+        response = self.client.get('/rest/files?file_path=%s' % path)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(response.data['count'], file_count)
+
     def test_read_file_details_by_pk(self):
         response = self.client.get('/rest/files/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
