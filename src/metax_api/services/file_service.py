@@ -890,17 +890,25 @@ class FileService(CommonService, ReferenceDataMixin):
         return res
 
     @classmethod
-    def verify_allowed_projects(cls, allowed_projects, file_identifiers=[]):
-        if file_identifiers:
+    def check_allowed_projects(cls, request):
+        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
+
+        if allowed_projects is not None:
+            if not isinstance(request.data, list):
+                raise Http400({ 'detail': [ 'request.data is not a list' ] })
+
+            try:
+                file_ids = [f['identifier'] for f in request.data]
+            except KeyError:
+                raise Http400({ 'detail': [ 'File identifier is missing' ] })
+
             project_ids = [ pid for pid in File.objects
-                            .filter(identifier__in=file_identifiers)
+                            .filter(identifier__in=file_ids)
                             .values_list('project_identifier', flat=True)
                             .distinct('project_identifier') ]
 
-            if all(pid in allowed_projects for pid in project_ids):
-                return True
-
-        return False
+            if not all(pid in allowed_projects for pid in project_ids):
+                raise Http403({ 'detail': [ 'You do not have permission to update this file' ] })
 
     @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
