@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 import responses
 
+from metax_api.models import CatalogRecord
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 
@@ -103,3 +104,11 @@ class DatasetRPCTests(APITestCase, TestClassUtils):
         response2 = self.client.get(f'/rest/datasets/{identifier}')
         self.assertEqual(response2.status_code, status.HTTP_200_OK, response2.data)
         self.assertEqual(response.data, response2.data['preservation_identifier'], response2.data)
+
+        # Return 400 if request is not correct datacite format
+        response2.data['research_dataset'].pop('issued')
+        response = self.client.put(f'/rest/datasets/{identifier}', response2.data, format="json")
+        self.assertEqual(response2.status_code, status.HTTP_200_OK, response2.data)
+
+        response = self.client.post(f'/rpc/datasets/set_preservation_identifier?identifier={identifier}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
