@@ -11,7 +11,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 import responses
 
-from metax_api.models import CatalogRecord
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 
