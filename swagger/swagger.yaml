@@ -822,6 +822,7 @@ paths:
           description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
           required: false
           type: string
+        - $ref: '#/parameters/actor_filter'
       responses:
         "200":
           description: successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. when using query parameters, search result can be an empty list.
@@ -1379,6 +1380,12 @@ parameters:
     name: allowed_projects
     in: query
     description: ensures that all files and directories are part of intended projects.
+    required: false
+    type: string
+  actor_filter:
+    name: actor_filter
+    in: query
+    description: includes filtering according to the name of creator, curator, publisher or rights_holder. The name can be organisation or person. Multiple actor_filters can be applied simultaneously (AND) or separately (OR) by using 'condition_separator'. Default separator is AND. Examples 'creator_person=person_name', 'publisher_organization=some organisation&creator_person=person_name&condition_separator=or'. 
     required: false
     type: string
 

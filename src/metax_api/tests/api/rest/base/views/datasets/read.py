@@ -370,6 +370,64 @@ class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
                          'Error should say letter a is not an integer')
 
 
+class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
+
+    def test_agents_and_actors(self):
+        # set test conditions
+        cr = CatalogRecord.objects.get(pk=11)
+        cr.research_dataset['curator'] = []
+        cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Tarmo Termiitti' })
+        cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Keijo Kottarainen' })
+        cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Janus Järvinen' })
+        cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Laina Sakkonen' })
+        cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Kaisa Kuraattori' })
+        cr.research_dataset['creator'] = []
+        cr.research_dataset['creator'].append({ '@type': 'Organization', 'name': { 'en': 'Unique Organization'} })
+        cr.research_dataset['creator'].append({ '@type': 'Organization', 'name': { 'en': 'Happy Organization'} })
+        cr.research_dataset['creator'].append({ '@type': 'Organization', 'name': { 'en': 'Sad Organization'} })
+        cr.research_dataset['creator'].append({ '@type': 'Organization', 'name': { 'en': 'Brilliant Organization'} })
+        cr.research_dataset['creator'].append({ '@type': 'Organization', 'name': {'en': 'Wonderful Organization'} })
+        cr.research_dataset['publisher']['name'] = {}
+        cr.research_dataset['publisher']['name'] = { 'fi': 'Originaali Organisaatio' }
+        cr.force_save()
+
+        response = self.client.get('/rest/datasets?creator_organization=happy')
+        self.assertEqual(len(response.data['results']), 1, response.data)
+
+        response = self.client.get('/rest/datasets?creator_organization=Brilliant Organization')
+        self.assertEqual(len(response.data['results']), 1, response.data)
+
+        response = self.client.get('/rest/datasets?curator_person=termiitti')
+        self.assertEqual(len(response.data['results']), 1, response.data)
+
+        response = self.client.get('/rest/datasets?curator_person=Laina Sakkonen')
+        self.assertEqual(len(response.data['results']), 1, response.data)
+
+        response = self.client.get('/rest/datasets?publisher_organization=originaali Organisaatio')
+        self.assertEqual(len(response.data['results']), 1, response.data)
+
+        query = 'curator_person=notfound&creator_organization=sad organ&condition_separator=AND'
+        response = self.client.get('/rest/datasets?%s' % query)
+        self.assertEqual(len(response.data['results']), 0, response.data)
+
+        query = 'curator_person=notfound&creator_organization=sad organ&condition_separator=OR'
+        response = self.client.get('/rest/datasets?%s' % query)
+        self.assertEqual(len(response.data['results']), 1, response.data)
+
+        # test filter with pas filter
+        """
+        Both organization and pas filters use internally Q-filters which are supposed to be AND'ed together.
+        """
+        metax_user = settings.API_METAX_USER
+        self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
+
+        response = self.client.get('/rest/datasets?pas_filter=janus&creator_organization=sad organization')
+        self.assertEqual(len(response.data['results']), 1)
+
+        response = self.client.get('/rest/datasets?state=10&pas_filter=kaisa&creator_organization=notfound')
+        self.assertEqual(len(response.data['results']), 0)
+
+
 class CatalogRecordApiReadPASFilter(CatalogRecordApiReadCommon):
 
     def test_pas_filter(self):

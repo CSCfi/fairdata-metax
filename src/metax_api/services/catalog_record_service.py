@@ -98,11 +98,72 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('pas_filter', False):
             cls.set_pas_filter(queryset_search_params, request)
 
+        if CommonService.has_research_agent_query_params(request):
+            cls.set_actor_filters(queryset_search_params, request)
+
         if request.query_params.get('data_catalog', False):
             queryset_search_params['data_catalog__catalog_json__identifier__iregex'] = \
                 request.query_params['data_catalog']
 
         return queryset_search_params
+
+    @staticmethod
+    def set_actor_filters(queryset_search_params, request):
+        """
+        Set complex queries for filtering datasets by creator, curator, publisher and/or rights_holder.
+        'condition_separator' -parameter defines if these are OR'ed or AND'ed (Default=AND) together.
+        Q-filters from multiple queries are AND'ed together eventually.
+        """
+        def _get_person_filter(agent, person):
+            name_filter = Q()
+            # only one publisher possible
+            if agent == 'publisher':
+                name_filter |= Q(**{ f'research_dataset__{agent}__name__iregex':  person })
+            else:
+                # having same problem as in set_pas_filter below..
+                for i in range(3):
+                    name_filter |= Q(**{ f'research_dataset__{agent}__{i}__name__iregex':  person })
+
+                name_filter |= Q(**{ f'research_dataset__{agent}__contains': [{ 'name': person }] })
+
+            # regex will find matches from organization name fields so have to disable it
+            person_filter = Q(**{ f'research_dataset__{agent}__contains': [{ '@type': "Person" }] })
+            name_filter.add(person_filter, 'AND')
+
+            return name_filter
+
+        def _get_org_filter(agent, org):
+            name_filter = Q()
+            # only one publisher possible
+            if agent == 'publisher':
+                name_filter |= (Q(**{ f'research_dataset__{agent}__name__en__iregex':  org }))
+                name_filter |= (Q(**{ f'research_dataset__{agent}__name__fi__iregex':  org }))
+            else:
+                for i in range(3):
+                    name_filter |= (Q(**{ f'research_dataset__{agent}__{i}__name__en__iregex':  org }))
+                    name_filter |= (Q(**{ f'research_dataset__{agent}__{i}__name__fi__iregex':  org }))
+
+                name_filter |= (Q(**{ f'research_dataset__{agent}__contains':  [{ 'name': {'en': org} }] }))
+                name_filter |= (Q(**{ f'research_dataset__{agent}__contains':  [{ 'name': {'fi': org} }] }))
+
+            return name_filter
+
+        q_filter = Q()
+        separator = 'OR' if request.query_params.get('condition_separator', '').upper() == 'OR' else 'AND'
+
+        for agent in ['creator', 'curator', 'publisher', 'rights_holder']:
+            if request.query_params.get(f'{agent}_person'):
+                person = urllib.parse.unquote(request.query_params[f'{agent}_person'])
+                q_filter.add(_get_person_filter(agent, person), separator)
+
+            if request.query_params.get(f'{agent}_organization'):
+                org = urllib.parse.unquote(request.query_params[f'{agent}_organization'])
+                q_filter.add(_get_org_filter(agent, org), separator)
+
+        if 'q_filters' in queryset_search_params: # pragma: no cover
+            queryset_search_params['q_filters'].append(q_filter)
+        else:
+            queryset_search_params['q_filters'] = [q_filter]
 
     @staticmethod
     def set_pas_filter(queryset_search_params, request):
