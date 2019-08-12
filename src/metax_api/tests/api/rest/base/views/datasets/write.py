@@ -823,6 +823,18 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/%s' % ds_id, cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
+    def test_catalog_record_deprecation_updates_date_modified(self):
+        cr = CatalogRecord.objects.filter(files__id=1)
+        cr_id = cr[0].identifier
+
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr_depr = CatalogRecord.objects.get(identifier=cr_id)
+        self.assertTrue(cr_depr.deprecated)
+        self.assertTrue(cr_depr.date_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
+            'date_modified should be updated')
+
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
     #
