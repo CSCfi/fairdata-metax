@@ -92,7 +92,7 @@ class Common(models.Model):
         Mark record as removed, never delete from db.
         """
         self._set_removed()
-        super().save(update_fields=['removed', 'date_removed'])
+        super().save(update_fields=['removed', 'date_removed', 'date_modified'])
         self._update_tracked_field_values()
 
     def user_has_access(self, request):
@@ -151,6 +151,7 @@ class Common(models.Model):
     def _set_removed(self):
         self.removed = True
         self.date_removed = get_tz_aware_now_without_micros()
+        self.date_modified = get_tz_aware_now_without_micros()
 
     def _unset_removed(self):
         self.removed = False

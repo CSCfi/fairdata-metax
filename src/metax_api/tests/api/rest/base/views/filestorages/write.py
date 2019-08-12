@@ -5,10 +5,13 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from datetime import timedelta
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from metax_api.models import FileStorage
+from metax_api.utils import get_tz_aware_now_without_micros
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -42,3 +45,11 @@ class FileStorageApiWriteBasicTests(FileStorageApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('already exists' in response.data['file_storage_json']['identifier'][0],
             True, response.data)
+
+    def test_delete(self):
+        response = self.client.delete('/rest/filestorages/1')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        fs = FileStorage.objects_unfiltered.get(pk=1)
+        self.assertEqual(fs.removed, True, 'should be deleted')
+        self.assertEqual(fs.date_removed >= get_tz_aware_now_without_micros() - timedelta(seconds=30), True)
+        self.assertEqual(fs.date_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=30), True)

@@ -776,6 +776,7 @@ class CatalogRecord(Common):
         else:
             super().delete(*args, **kwargs)
             log_args['catalogrecord']['date_removed'] = datetime_to_str(self.date_removed)
+            log_args['catalogrecord']['date_modified'] = datetime_to_str(self.date_modified)
 
         self.add_post_request_callable(DelayedLog(**log_args))
 

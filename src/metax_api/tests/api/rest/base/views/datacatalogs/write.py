@@ -5,11 +5,14 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from datetime import timedelta
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from metax_api.models import DataCatalog
 from metax_api.services import RedisCacheService as cache
+from metax_api.utils import get_tz_aware_now_without_micros
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -60,6 +63,17 @@ class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('already exists' in response.data['catalog_json']['identifier'][0],
             True, response.data)
+
+    def test_delete(self):
+        response = self.client.delete('/rest/datacatalogs/1')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        dc_deleted = DataCatalog.objects_unfiltered.get(pk=1)
+        self.assertEqual(dc_deleted.removed, True)
+        self.assertEqual(dc_deleted.date_removed >=
+        get_tz_aware_now_without_micros() - timedelta(seconds=30), True, 'date_removed should be updated')
+        self.assertEqual(dc_deleted.date_modified >=
+            get_tz_aware_now_without_micros() - timedelta(seconds=30), True, 'date_modified should be updated')
 
 
 class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):

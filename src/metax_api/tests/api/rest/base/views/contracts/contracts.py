@@ -5,11 +5,13 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from datetime import timedelta
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import Contract, CatalogRecord
+from metax_api.utils import get_tz_aware_now_without_micros
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -123,6 +125,8 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
             raise Exception('Deleted contract should not be deleted from the db')
 
         self.assertEqual(deleted_contract.removed, True, 'Deleted contract should be marked removed in the db')
+        self.assertTrue(deleted_contract.date_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=30),
+            'date_modified should be updated')
 
     def test_delete_contract_catalog_records_are_marked_removed(self):
         # add two new records to contract
