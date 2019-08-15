@@ -9,6 +9,7 @@ import json
 import logging
 
 from django.conf import settings
+from django.http import Http404
 
 
 _logger = logging.getLogger(__name__)
@@ -27,6 +28,10 @@ class AuthService():
             return request.user.user_projects
 
         user_projects = AuthService.extract_file_projects_from_token(request.user.token)
+
+        if request.user.token is None:
+            raise Http404
+
         username = request.user.token.get('CSCUserName', '')
         file_projects = None
 
