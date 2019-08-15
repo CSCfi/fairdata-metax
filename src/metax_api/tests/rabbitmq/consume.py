@@ -42,7 +42,6 @@ queue_3 = 'testaaja-delete'
 
 # note: requires write permission to exchanges
 # channel.exchange_declare(exchange=exchange, type='fanout')
-
 channel.queue_declare(queue_1, durable=True)
 channel.queue_declare(queue_2, durable=True)
 channel.queue_declare(queue_3, durable=True)
@@ -64,9 +63,9 @@ def callback_3(ch, method, properties, body):
     print(" [ delete ] %r" % body)
 
 
-channel.basic_consume(callback_1, queue=queue_1, no_ack=True)
-channel.basic_consume(callback_2, queue=queue_2, no_ack=True)
-channel.basic_consume(callback_3, queue=queue_3, no_ack=True)
+channel.basic_consume(queue_1, callback_1, auto_ack=True)
+channel.basic_consume(queue_2, callback_2, auto_ack=True)
+channel.basic_consume(queue_3, callback_3, auto_ack=True)
 
 print('[*] Waiting for logs. To exit press CTRL+C')
 channel.start_consuming()
