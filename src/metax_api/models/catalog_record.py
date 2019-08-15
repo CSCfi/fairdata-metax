@@ -1774,6 +1774,7 @@ class DataciteDOIUpdate():
                 format(self.cr.identifier, doi)
             )
 
+        from metax_api.services.datacite_service import DataciteException
         try:
             if self.action == 'create':
                 try:
@@ -1788,6 +1789,9 @@ class DataciteDOIUpdate():
                 # If metadata is in "findable" state, the operation below should transition the DOI to "registered"
                 # state
                 self.dcs.delete_doi_metadata(doi)
+        except DataciteException as e:
+            _logger.error(e)
+            raise Http400(str(e))
         except Exception as e:
             _logger.error(e)
             _logger.exception('Datacite API interaction failed')
