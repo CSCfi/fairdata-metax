@@ -61,11 +61,19 @@ class MetaxOAIServer(ResumptionOAIPMH):
         records = proxy.objects_unfiltered.filter(active=True)
 
         if from_ and until:
-            records = proxy.objects.filter(date_modified__gte=from_, date_modified__lte=until)
+            records = records.filter(date_modified__gte=from_, date_modified__lte=until)
         elif from_:
-            records = proxy.objects.filter(date_modified__gte=from_)
+            records = records.filter(date_modified__gte=from_)
         elif until:
-            records = proxy.objects.filter(date_modified__lte=until)
+            records = records.filter(date_modified__lte=until)
+
+        # Fetch only needed values as dict to increase performance.
+        records = records.values(
+            'identifier',
+            'date_created',
+            'date_modified',
+            'data_catalog__catalog_json',
+            'research_dataset')
 
         data = []
         for record in records:
@@ -102,7 +110,6 @@ class MetaxOAIServer(ResumptionOAIPMH):
                     data_catalog__catalog_json__identifier__in=settings.OAI['SET_MAPPINGS'][set])
         else:
             query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
-
         data = []
         for record in query_set:
             if verb == 'ListRecords':
@@ -145,10 +152,14 @@ class MetaxOAIServer(ResumptionOAIPMH):
         """
         metadatas = []
 
-        if isinstance(record, CatalogRecord):
-            pref_id = record.research_dataset.get('preferred_identifier')
-            dc_id = record.data_catalog.catalog_json.get('identifier')
-            other_ids = record.research_dataset.get('other_identifier', [])
+        if isinstance(record, dict):
+            pref_id = record['research_dataset'].get('preferred_identifier')
+            dc_id = record['data_catalog__catalog_json'].get('identifier')
+            is_harvested = record['data_catalog__catalog_json'].get('harvested', False) is True
+            if record['research_dataset'].get('other_identifier') is not None:
+                other_ids = record['research_dataset'].get('other_identifier')
+            else:
+                other_ids = []
 
             if dc_id == 'urn:nbn:fi:att:data-catalog-harvest-syke':
                 for id_obj in other_ids:
@@ -157,9 +168,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
                         break
 
             elif dc_id not in settings.LEGACY_CATALOGS:
-                resolution_url = settings.OAI['ETSIN_URL_TEMPLATE'] % record.identifier
-                if not record.catalog_is_harvested() and (pref_id.startswith('urn:nbn:fi:att:') or
-                                                          pref_id.startswith('urn:nbn:fi:csc')):
+                resolution_url = settings.OAI['ETSIN_URL_TEMPLATE'] % record['identifier']
+                if not is_harvested and (pref_id.startswith('urn:nbn:fi:att:') or
+                                         pref_id.startswith('urn:nbn:fi:csc')):
                     metadatas.append({'identifier': [resolution_url, pref_id]})
 
                 for id_obj in other_ids:
@@ -321,10 +332,14 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return self._fix_metadata(meta)
 
     def _get_header_timestamp(self, record):
-        if record.date_modified:
-            timestamp = record.date_modified
+        """
+        Can handle record as json or object.
+        """
+        if isinstance(record, dict):
+            modified = record.get('date_modified', None)
+            timestamp = modified if modified is not None else record['date_created']
         else:
-            timestamp = record.date_created
+            timestamp = record.date_modified if record.date_modified else record.date_created
         return timezone.make_naive(timestamp)
 
     def _get_oai_item(self, identifier, record, metadata_prefix):
@@ -344,10 +359,13 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return metadata
 
     def _get_record_identifier(self, record, set):
+        """
+        Can handle record as json or object.
+        """
         if set == DATACATALOGS_SET:
-            return record.catalog_json['identifier']
+            return record['catalog_json__identifier'] if isinstance(record, dict) else record.catalog_json['identifier']
         else:
-            return record.identifier
+            return record['identifier'] if isinstance(record, dict) else record.identifier
 
 # OAI-PMH VERBS
 
@@ -414,7 +432,6 @@ class MetaxOAIServer(ResumptionOAIPMH):
             data = self._get_urnresolver_record_data(set, cursor, batch_size, from_, until)
         else:
             data = self._get_filtered_records_data('ListRecords', metadataPrefix, set, cursor, batch_size, from_, until)
-
         return data
 
     def getRecord(self, metadataPrefix, identifier):
