@@ -781,8 +781,7 @@ class CatalogRecord(Common):
 
     def deprecate(self, timestamp=None):
         self.deprecated = True
-        self.date_deprecated = timestamp or get_tz_aware_now_without_micros()
-        self.date_modified = timestamp or get_tz_aware_now_without_micros()
+        self.date_deprecated = self.date_modified = timestamp or get_tz_aware_now_without_micros()
         super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
             event='dataset_deprecated',

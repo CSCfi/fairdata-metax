@@ -832,8 +832,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
 
         cr_depr = CatalogRecord.objects.get(identifier=cr_id)
         self.assertTrue(cr_depr.deprecated)
-        self.assertTrue(cr_depr.date_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
-            'date_modified should be updated')
+        self.assertEqual(cr_depr.date_modified, cr_depr.date_deprecated, 'date_modified should be updated')
 
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
