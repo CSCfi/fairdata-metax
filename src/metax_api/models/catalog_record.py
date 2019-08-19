@@ -790,8 +790,8 @@ class CatalogRecord(Common):
 
     def deprecate(self, timestamp=None):
         self.deprecated = True
-        self.date_deprecated = timestamp or get_tz_aware_now_without_micros()
-        super().save(update_fields=['deprecated', 'date_deprecated'])
+        self.date_deprecated = self.date_modified = timestamp or get_tz_aware_now_without_micros()
+        super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
             event='dataset_deprecated',
             catalogrecord={
@@ -1784,6 +1784,7 @@ class DataciteDOIUpdate():
                 format(self.cr.identifier, doi)
             )
 
+        from metax_api.services.datacite_service import DataciteException
         try:
             if self.action == 'create':
                 try:
@@ -1798,6 +1799,9 @@ class DataciteDOIUpdate():
                 # If metadata is in "findable" state, the operation below should transition the DOI to "registered"
                 # state
                 self.dcs.delete_doi_metadata(doi)
+        except DataciteException as e:
+            _logger.error(e)
+            raise Http400(str(e))
         except Exception as e:
             _logger.error(e)
             _logger.exception('Datacite API interaction failed')
