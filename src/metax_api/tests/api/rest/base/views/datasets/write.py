@@ -947,6 +947,8 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
 
         self.assertEqual(deleted_catalog_record.removed, True)
         self.assertEqual(deleted_catalog_record.identifier, self.identifier)
+        self.assertEqual(deleted_catalog_record.date_modified, deleted_catalog_record.date_removed,
+                        'date_modified should be updated')
 
     def test_delete_catalog_record_error_using_preferred_identifier(self):
         url = '/rest/datasets/%s' % self.preferred_identifier
