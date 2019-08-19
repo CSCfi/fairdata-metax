@@ -806,6 +806,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue('date_deprecated' not in response.data)
 
     def test_catalog_record_date_deprecated_and_date_deprecated_lifecycle(self):
+        # if dataset is deprecated, updating dataset creates new version
         ds = CatalogRecord.objects.filter(files__id=1)
         ds_id = ds[0].identifier
 
@@ -817,11 +818,24 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue(cr['deprecated'])
         self.assertTrue(cr['date_deprecated'].startswith('2'))
 
+        # the deprecation and date_deprecated are actually silently ignored
         cr['deprecated'] = False
         cr.pop('date_deprecated', None)
         cr['research_dataset']['files'].pop(0)
         response = self.client.put('/rest/datasets/%s' % ds_id, cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(CatalogRecord.objects.get(identifier=ds_id).next_dataset_version.deprecated, False)
+
+    def test_catalog_record_deprecation_updates_date_modified(self):
+        cr = CatalogRecord.objects.filter(files__id=1)
+        cr_id = cr[0].identifier
+
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr_depr = CatalogRecord.objects.get(identifier=cr_id)
+        self.assertTrue(cr_depr.deprecated)
+        self.assertEqual(cr_depr.date_modified, cr_depr.date_deprecated, 'date_modified should be updated')
 
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
@@ -933,6 +947,8 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
 
         self.assertEqual(deleted_catalog_record.removed, True)
         self.assertEqual(deleted_catalog_record.identifier, self.identifier)
+        self.assertEqual(deleted_catalog_record.date_modified, deleted_catalog_record.date_removed,
+                        'date_modified should be updated')
 
     def test_delete_catalog_record_error_using_preferred_identifier(self):
         url = '/rest/datasets/%s' % self.preferred_identifier
@@ -1784,6 +1800,48 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(CatalogRecord.objects.get(pk=1).next_dataset_version.deprecated, False)
+
+    def test_deprecated_dataset_versioning(self):
+        # add directory to dataset
+        cr = self.client.get('/rest/datasets/1').data
+        cr_id = cr['identifier']
+        dir_id = self.client.get('/rest/directories/1').data['identifier']
+        new_dir = {
+            "identifier": dir_id,
+            "title": "dir title",
+            "use_category": {
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
+            }
+        }
+        cr['research_dataset']['directories'] = []
+        cr['research_dataset']['directories'].append(new_dir)
+
+        response = self.client.put(f'/rest/datasets/{cr_id}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertTrue('directories' in response.data['research_dataset'], 'directories should be present')
+
+        # delete directory from database and ensure that dataset is deprecated and files/dirs are deleted
+        files = self.client.get(f'/rest/directories/{dir_id}/files?recursive=true&depth=*').data
+        file_ids = [f['identifier'] for f in files]
+        response = self.client.delete('/rest/files', file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        response = self.client.get(f'/rest/files/{file_ids[0]}')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+
+        response = self.client.get(f'/rest/directories/{dir_id}')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+
+        cr = self.client.get(f'/rest/datasets/{cr_id}').data
+        self.assertEqual(cr['deprecated'], True, 'dataset should be deprecated')
+
+        # after the dataset is deprecated, updating should create a new dataset
+        cr['research_dataset'].pop('directories')
+        cr['research_dataset'].pop('files')
+
+        response = self.client.put(f'/rest/datasets/{cr_id}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['dataset_version_set']), 2)
 
     def test_dataset_version_lists_removed_records(self):
         # create new version

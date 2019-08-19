@@ -63,7 +63,7 @@ class OnAppStart(AppConfig):
             if settings.ELASTICSEARCH['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART']:
                 cache.set('reference_data', None)
 
-            if not cache.get('reference_data', master=True):
+            if not cache.get('reference_data', master=True) or not cache.get('ref_data_up_to_date', master=True):
                 ReferenceDataLoader.populate_cache_reference_data(cache)
                 json_logger.info(
                     event='reference_data_loaded',

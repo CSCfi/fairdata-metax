@@ -37,6 +37,15 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         response = self.client.get('/rest/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_read_access_fail(self):
+        """
+        Anonymous user should not be able to access files and should not have any information
+        about the existence of requested file.
+        """
+        self.client._credentials = {}
+        response = self.client.get('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_create_access_ok(self):
         """
         User api_auth_user should have create access to datasets api.
