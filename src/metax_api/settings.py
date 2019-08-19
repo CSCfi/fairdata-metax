@@ -562,5 +562,6 @@ else:
         'USERNAME': app_config_dict['DATACITE']['USERNAME'],
         'PASSWORD': app_config_dict['DATACITE']['PASSWORD'],
         'ETSIN_URL_TEMPLATE': app_config_dict['DATACITE']['ETSIN_URL_TEMPLATE'],
-        'PREFIX': app_config_dict['DATACITE']['PREFIX']
+        'PREFIX': app_config_dict['DATACITE']['PREFIX'],
+        'URL': app_config_dict['DATACITE']['URL'],
     }
