@@ -663,13 +663,14 @@ class CatalogRecord(Common):
         """
         assert 'directories' in file_description_changes
 
-        dir_identifiers = list(file_description_changes['directories']['removed']) + \
-            list(file_description_changes['directories']['added'])
+        dir_identifiers = list(file_description_changes['directories']['added']) +\
+            list(file_description_changes['directories']['removed'])
 
         dir_details = Directory.objects.filter(identifier__in=dir_identifiers) \
             .values('project_identifier', 'identifier', 'directory_path')
 
-        if len(dir_identifiers) != len(dir_details):
+        # skip deprecated datasets, since there might be deleted directories
+        if len(dir_identifiers) != len(dir_details) and not self.deprecated:
             existig_dirs = set( d['identifier'] for d in dir_details )
             missing_identifiers = [ d for d in dir_identifiers if d not in existig_dirs ]
             raise ValidationError({'detail': ['the following directory identifiers were not found:\n%s'
@@ -705,16 +706,23 @@ class CatalogRecord(Common):
         """
         assert 'files' in file_description_changes
 
-        file_identifiers = list(file_description_changes['files']['removed']) + \
-            list(file_description_changes['files']['added']) + \
-            list(file_description_changes['files']['keep'])
+        add_and_keep_ids = list(file_description_changes['files']['added']) \
+            + list(file_description_changes['files']['keep'])
 
-        file_details = File.objects.filter(identifier__in=file_identifiers) \
+        add_and_keep = File.objects.filter(identifier__in=add_and_keep_ids) \
             .values('id', 'project_identifier', 'identifier', 'file_path')
 
-        if len(file_identifiers) != len(file_details):
+        removed_ids = list(file_description_changes['files']['removed'])
+
+        removed = File.objects_unfiltered.filter(identifier__in=removed_ids) \
+            .values('id', 'project_identifier', 'identifier', 'file_path')
+
+        file_details = add_and_keep | removed
+
+        if len(add_and_keep_ids) + len(removed_ids) != len(file_details):
             existig_files = set( f['identifier'] for f in file_details )
-            missing_identifiers = [ f for f in file_identifiers if f not in existig_files ]
+            missing_identifiers = [ f for f in add_and_keep_ids if f not in existig_files ]
+            missing_identifiers += [ f for f in removed_ids if f not in existig_files ]
             raise ValidationError({'detail': ['the following file identifiers were not found:\n%s'
                 % '\n'.join(missing_identifiers) ]})
 
@@ -1090,7 +1098,7 @@ class CatalogRecord(Common):
         """
         Find out if this update is the first time files are being added/changed since the dataset's creation.
         """
-        if self.files.exists():
+        if self.files(manager='objects_unfiltered').exists():
             # current version already has files
             return False
 
@@ -1227,7 +1235,8 @@ class CatalogRecord(Common):
             .values('project_identifier', 'directory_path', 'identifier') \
             .order_by('project_identifier', 'directory_path')
 
-        if len(dirs) != len(dir_identifiers):
+        # skip deprecated datasets, since there might be deleted directories
+        if len(dirs) != len(dir_identifiers) and not self.deprecated:
             missing_identifiers = [ pid for pid in dir_identifiers if pid not in set(d['identifier'] for d in dirs)]
             raise ValidationError({ 'detail': [
                 'some requested directories were not found. directory identifiers not found:\n%s'
