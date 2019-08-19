@@ -5,7 +5,6 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from datetime import timedelta
 from copy import deepcopy
 from os.path import dirname
 
@@ -17,7 +16,6 @@ import responses
 
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services import RedisCacheService as cache
-from metax_api.utils import get_tz_aware_now_without_micros
 from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
 
@@ -865,9 +863,9 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self.assertEqual(response.data['deleted_files_count'], 1, response.data)
         dir_count_after = Directory.objects.all().count()
         self.assertEqual(dir_count_before, dir_count_after, 'no dirs should have been deleted')
-        self._check_project_root_byte_size_and_file_count(File.objects_unfiltered.get(pk=1).project_identifier)
-        self.assertEqual(File.objects_unfiltered.get(pk=1).date_modified >=
-            get_tz_aware_now_without_micros() - timedelta(seconds=30), True, 'date_modified should be updated')
+        deleted_file = File.objects_unfiltered.get(pk=1)
+        self._check_project_root_byte_size_and_file_count(deleted_file.project_identifier)
+        self.assertEqual(deleted_file.date_modified, deleted_file.file_deleted, 'date_modified should be updated')
 
     def test_delete_single_file_ok_destroy_leading_dirs(self):
         project_identifier = 'project_z'
