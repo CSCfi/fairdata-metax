@@ -123,6 +123,8 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
             raise Exception('Deleted contract should not be deleted from the db')
 
         self.assertEqual(deleted_contract.removed, True, 'Deleted contract should be marked removed in the db')
+        self.assertEqual(deleted_contract.date_modified, deleted_contract.date_removed,
+                        'date_modified should be updated')
 
     def test_delete_contract_catalog_records_are_marked_removed(self):
         # add two new records to contract

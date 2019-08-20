@@ -649,6 +649,24 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['data_catalog']['identifier'], dc_id)
 
+    def test_filter_by_deprecated(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.deprecated = True
+        cr.force_save()
+
+        response = self.client.get('/rest/datasets?deprecated=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1, response.data['results'])
+        self.assertTrue(response.data['results'][0]['deprecated'], response.data)
+
+        response = self.client.get('/rest/datasets?deprecated=false')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'][0]['id'], 2, response.data)
+        self.assertFalse(response.data['results'][0]['deprecated'], response.data)
+
+        response = self.client.get('/rest/datasets?deprecated=badbool')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
     """

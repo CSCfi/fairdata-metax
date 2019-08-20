@@ -49,26 +49,26 @@ def retrieve_and_update_all_datasets_in_db(headers):
     if response.status_code != 200:
         raise Exception(response.content)
 
-    records = []
-    count = 0
-
-    records = response.json()
+    records = response.json() if isinstance(response.json(), list) else []
+    n = 100
     print('received %d datasets' % len(records))
-    print('updating %d datasets using bulk update...' % count)
+    print('updating datasets in batches of %d using bulk update...' % n)
 
     # dont want to create new versions from datasets for this operation,
     # so use parameter preserve_version
-    response = requests.put('https://localhost/rest/datasets?preserve_version',
-        headers=headers, data=dumps(records), verify=False)
+    # using loop to spare our dear test server
+    for i in range(0, len(records), n):
+        response = requests.put('https://localhost/rest/datasets?preserve_version',
+            headers=headers, data=dumps(records[i:i + n]), verify=False)
 
-    if response.status_code not in (200, 201, 204):
-        print(response.status_code)
-        raise Exception(response.text)
-    elif response.text and len(response.json().get('failed', [])) > 0:
-        for fail in response.json().get('failed'):
-            raise Exception(fail)
-    else:
-        print('-- done --')
+        if response.status_code not in (200, 201, 204):
+            print(response.status_code)
+            raise Exception(response.text)
+        elif response.text and len(response.json().get('failed', [])) > 0:
+            for fail in response.json().get('failed'):
+                raise Exception(fail)
+
+    print('-- done --')
 
 
 def retrieve_and_update_all_data_catalogs_in_db(headers):

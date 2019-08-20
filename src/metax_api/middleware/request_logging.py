@@ -72,7 +72,7 @@ class RequestLogging():
 
         try:
             _logger.info(
-                '%s - [%s] %s - "%s %s" %d %s'
+                '%s - [%s] %s - "%s %s" %d %s - %.3fs'
                 % (
                     request.environ['HTTP_X_REAL_IP'],
                     user_type,
@@ -80,7 +80,8 @@ class RequestLogging():
                     request.method,
                     request.get_full_path(),
                     response.status_code,
-                    response._headers.get('content-length', ['-', '-'])[1]
+                    response._headers.get('content-length', ['-', '-'])[1],
+                    time() - start_time
                 )
             )
         except:
