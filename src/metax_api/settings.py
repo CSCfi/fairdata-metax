@@ -500,6 +500,9 @@ else:
         'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': app_config_dict['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART'],
     }
 
+# given in seconds. Used only if ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART=false
+ELASTICSEARCH['REFERENCE_DATA_RELOAD_INTERVAL'] = 86400
+
 if not executing_in_travis:
     RABBITMQ = {
         'HOSTS':    app_config_dict['RABBITMQ']['HOSTS'],
@@ -559,5 +562,6 @@ else:
         'USERNAME': app_config_dict['DATACITE']['USERNAME'],
         'PASSWORD': app_config_dict['DATACITE']['PASSWORD'],
         'ETSIN_URL_TEMPLATE': app_config_dict['DATACITE']['ETSIN_URL_TEMPLATE'],
-        'PREFIX': app_config_dict['DATACITE']['PREFIX']
+        'PREFIX': app_config_dict['DATACITE']['PREFIX'],
+        'URL': app_config_dict['DATACITE']['URL'],
     }
