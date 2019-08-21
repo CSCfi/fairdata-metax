@@ -95,14 +95,14 @@ class FileViewSet(CommonViewSet):
     def update(self, request, *args, **kwargs):
         #This have to be checked before updating common info
         if not isinstance(self.request.data, dict):
-            raise Http400('request.data is not a json')
+            raise Http400('request message body must be a single json object')
 
         return super().update(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
         #This have to be checked before updating common info
         if not isinstance(self.request.data, dict):
-            raise Http400('request.data is not a json')
+            raise Http400('request message body must be a single json object')
 
         return super().partial_update(request, *args, **kwargs)
 

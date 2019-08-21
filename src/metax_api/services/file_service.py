@@ -894,7 +894,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if allowed_projects is not None:
             if not isinstance(request.data, list):
-                raise Http400({ 'detail': [ 'request.data is not a list' ] })
+                raise Http400({ 'detail': [ 'request message body must be a single json object' ] })
 
             try:
                 file_ids = [f['identifier'] for f in request.data]

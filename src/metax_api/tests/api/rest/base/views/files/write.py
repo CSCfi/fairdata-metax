@@ -678,22 +678,19 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
 
     def test_update_file_allowed_projects_ok(self):
         f = self.client.get('/rest/files/1').data
-        id = f['identifier']
-        pid = f['project_identifier']
-        response = self.client.put('/rest/files/%s?allowed_projects=%s' % (id, pid), f, format="json")
+        response = self.client.put('/rest/files/%s?allowed_projects=%s' % (f['identifier'], f['project_identifier']),
+                                f, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_file_allowed_projects_fail(self):
         f = self.client.get('/rest/files/1').data
-        id = f['identifier']
-        response = self.client.put('/rest/files/%s?allowed_projects=nopermission' % id, f, format="json")
+        response = self.client.put('/rest/files/%s?allowed_projects=nopermission' % f['identifier'], f, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_file_allowed_projects_not_dict(self):
         f = self.client.get('/rest/files/1').data
-        id = f['identifier']
-        pid = f['project_identifier']
-        response = self.client.put('/rest/files/%s?allowed_projects=%s' % (id, pid), [f], format="json")
+        response = self.client.put('/rest/files/%s?allowed_projects=%s' % (f['identifier'], f['project_identifier']),
+                                [f], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('json' in response.data['detail'], True, 'Error regarding datatype')
 
