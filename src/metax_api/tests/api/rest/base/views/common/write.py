@@ -6,6 +6,7 @@
 # :license: MIT
 
 from copy import deepcopy
+from time import sleep
 
 from django.core.management import call_command
 from rest_framework import status
@@ -99,8 +100,9 @@ class ApiWriteCommonFieldsTests(ApiWriteCommon):
         cr_id = response.data['id']
         response = self.client.delete('/rest/datasets/%d' % cr_id)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-
         rd = self.client.get('/rest/datasets/%d?removed' % cr_id).data
+        rd_date_rem = rd['date_removed']
+        sleep(1) # ensure that next request happens with different timestamp
         response = self.client.put('/rest/datasets/%d?removed' % cr_id, rd, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
@@ -108,6 +110,7 @@ class ApiWriteCommonFieldsTests(ApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data['removed'] is False)
         self.assertTrue(response.data.get('date_removed') is None)
+        self.assertTrue(response.data.get('date_modified') != rd_date_rem, 'date_modified should be updated')
 
 
 class ApiWriteHTTPHeaderTests(CatalogRecordApiWriteCommon):
