@@ -124,7 +124,7 @@ paths:
           type: string
         - name: file_path
           in: query
-          description: filters files by path. requires project_identifier.
+          description: filters files by path. requires query parameter project_identifier.
           required: false
           type: string
         - name: offset
