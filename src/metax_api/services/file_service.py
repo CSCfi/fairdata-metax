@@ -79,6 +79,11 @@ class FileService(CommonService, ReferenceDataMixin):
                 cls.check_user_belongs_to_project(request, project)
             queryset_search_params['project_identifier'] = project
 
+        if request.query_params.get('file_path', False):
+            if not request.query_params.get('project_identifier', False):
+                raise Http400('query parameter project_identifier is required when using file_path filter')
+            queryset_search_params['file_path__contains'] = request.query_params['file_path']
+
         return queryset_search_params
 
     @classmethod
