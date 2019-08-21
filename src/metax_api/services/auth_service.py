@@ -39,18 +39,17 @@ class AuthService():
             with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'r') as file:
                 file_projects = json.load(file)
         except FileNotFoundError:
-            msg = "No local file for user projects"
+            _logger.info("No local file for user projects")
         except Exception as e:
-            msg = e
+            _logger.error(e)
 
-        if file_projects is None:
-            _logger.info(msg) if isinstance(msg, str) else _logger.error(msg)
-        elif not file_projects.get(username, False):
-            _logger.info("No projects for user '%s' on local file" % username)
-        elif not isinstance(file_projects[username], list) or not isinstance(file_projects[username][0], str):
-            _logger.error("Projects on file are not list of strings")
-        else:
-            user_projects.update(p for p in file_projects[username])
+        if file_projects:
+            if not file_projects.get(username, False):
+                _logger.info("No projects for user '%s' on local file" % username)
+            elif not isinstance(file_projects[username], list) or not isinstance(file_projects[username][0], str):
+                _logger.error("Projects on file are not list of strings")
+            else:
+                user_projects.update(p for p in file_projects[username])
 
         request.user.user_projects = user_projects
         return user_projects
