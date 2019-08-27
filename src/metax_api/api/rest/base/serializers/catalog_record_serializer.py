@@ -74,7 +74,10 @@ class CatalogRecordSerializer(CommonSerializer):
             'next_dataset_version',
             'previous_dataset_version',
             'mets_object_identifier',
-            'editor'
+            'editor',
+            'cumulative_state',
+            'date_cumulation_started',
+            'date_cumulation_ended'
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -255,6 +258,15 @@ class CatalogRecordSerializer(CommonSerializer):
                 'preferred_identifier': instance.next_dataset_version.preferred_identifier,
                 'version_type': 'dataset'
             }
+
+        if 'cumulative_status' in res:
+            res['cumulative_status'] = instance.cumulative_status
+
+        if 'date_cumulation_started' in res:
+            res['date_cumulation_started'] = instance.date_cumulation_started
+
+        if 'date_cumulation_ended' in res:
+            res['date_cumulation_ended'] = instance.date_cumulation_ended
 
         # Do the population of file_details here, since if it was done in the view, it might not know the file/dir
         # identifiers any longer, since the potential stripping of file/dir fields takes away identifier fields from

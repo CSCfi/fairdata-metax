@@ -202,6 +202,16 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_IN_DISSEMINATION, 'in dissemination'),
     )
 
+    CUMULATIVE_STATE_NO = 0
+    CUMULATIVE_STATE_YES = 1
+    CUMULATIVE_STATE_CLOSED = 2
+
+    CUMULATIVE_STATE_CHOICES = (
+        (CUMULATIVE_STATE_NO, 'no'),
+        (CUMULATIVE_STATE_YES, 'yes'),
+        (CUMULATIVE_STATE_CLOSED, 'closed')
+    )
+
     # MODEL FIELD DEFINITIONS #
 
     alternate_record_set = models.ForeignKey(
@@ -263,6 +273,12 @@ class CatalogRecord(Common):
         DatasetVersionSet, on_delete=models.SET_NULL, null=True, related_name='records',
         help_text='Records which are different dataset versions of each other.')
 
+    cumulative_state = models.IntegerField(choices=CUMULATIVE_STATE_CHOICES, default=CUMULATIVE_STATE_NO)
+
+    date_cumulation_started = models.DateTimeField(null=True, help_text='Date when cumulative_state was set to YES.')
+
+    date_cumulation_ended = models.DateTimeField(null=True, help_text='Date when cumulative_state was set to CLOSED.')
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """
@@ -291,6 +307,7 @@ class CatalogRecord(Common):
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
+            'cumulative_state',
             'date_deprecated',
             'deprecated',
             'identifier',
@@ -889,6 +906,15 @@ class CatalogRecord(Common):
         if 'remote_resources' in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
+        if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
+            raise Http400('Cannot create cumulative dataset with state closed')
+
+        if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+            if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED:
+                raise Http400('Dataset cannot be cumulative if it is in PAS process')
+
+            self.date_cumulation_started = get_tz_aware_now_without_micros()
+
     def _post_create_operations(self):
         if self.catalog_versions_datasets():
             dvs = DatasetVersionSet()
@@ -975,6 +1001,8 @@ class CatalogRecord(Common):
                 self.research_dataset.pop('total_remote_resources_byte_size')
 
         if self.field_changed('preservation_state'):
+            if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                raise Http400('Changing preservation state is not allowed while dataset has cumulative_status 1')
             self.preservation_state_modified = get_tz_aware_now_without_micros()
 
         if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
@@ -1007,13 +1035,35 @@ class CatalogRecord(Common):
         else:
             self.update_datacite = False
 
-        if self.catalog_versions_datasets() and not self.preserve_version:
+        if self.field_changed('cumulative_state'):
+            if self._initial_data['cumulative_state'] in [self.CUMULATIVE_STATE_YES, self.CUMULATIVE_STATE_CLOSED] and \
+                    self.cumulative_state == self.CUMULATIVE_STATE_NO:
+                raise Http400('Cumulative dataset cannot be set to non-cumulative dataset')
+
+            if self._initial_data['cumulative_state'] == self.CUMULATIVE_STATE_NO and \
+                    self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
+                raise Http400('Non-cumulative dataset cannot be set to closed cumulative dataset')
+
+            if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED and \
+                    self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                raise Http400('Cumulative datasets are not allowed in PAS process. Change preservation_state '
+                            'to 0 in order to change the dataset to cumulative.')
+
+            if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                self.date_cumulation_started = get_tz_aware_now_without_micros()
+
+            if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
+                self.date_cumulation_ended = get_tz_aware_now_without_micros()
+
+        if self.catalog_versions_datasets() and \
+                (not self.preserve_version or self.cumulative_state == self.CUMULATIVE_STATE_YES):
 
             if not self.field_changed('research_dataset'):
                 # proceed directly to updating current record without any extra measures...
                 return
 
-            if self._files_changed():
+            actual_files_changed, file_changes = self._files_changed()
+            if actual_files_changed:
 
                 if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED: # state > 0
                     raise Http400({ 'detail': [
@@ -1022,7 +1072,15 @@ class CatalogRecord(Common):
                         'back to 0.' % self.preservation_state
                     ]})
 
-                if self._files_added_for_first_time():
+                if self.cumulative_state == self.CUMULATIVE_STATE_YES and not self.field_changed('cumulative_state'):
+                    # initial cumulative_state has to be 1 also, since we want new version to be created
+                    # whenever state is changed from NO/CLOSED to YES.
+                    if file_changes['files_to_remove'] or file_changes['dirs_to_remove_by_project']:
+                        raise Http400('Cannot delete files or directories from cumulative dataset. '
+                                    'In order to remove files, set cumulative_state to closed.')
+                    self._handle_cumulative_file_addition(file_changes)
+
+                elif self._files_added_for_first_time():
                     # first update from 0 to n files should not create a dataset version. all later updates
                     # will create new dataset versions normally.
                     self.files.add(*self._get_dataset_selected_file_ids())
@@ -1094,6 +1152,72 @@ class CatalogRecord(Common):
                 convert_cr_to_datacite_cr_json(self), True)
         except DataciteException as e:
             raise Http400(str(e))
+
+    def _handle_cumulative_file_addition(self, file_changes):
+        """
+        This function adds files to dataset only if they are explicitly mentioned in research_dataset.
+        Changes in already included directories are not checked.
+        """
+        sql_select_and_insert_files_by_dir_path = '''
+            insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+            select %s as catalogrecord_id, f.id
+            from metax_api_file as f
+            where f.active = true and f.removed = false
+            and (
+                COMPARE_PROJECT_AND_FILE_PATHS
+            )
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+            returning id
+        '''
+        sql_params_insert_dirs = [self.id]
+        add_dirs_sql = []
+
+        for project, dir_paths in file_changes['dirs_to_add_by_project'].items():
+            for dir_path in dir_paths:
+                add_dirs_sql.append("(f.project_identifier = %s and f.file_path like (%s || '/%%'))")
+                sql_params_insert_dirs.extend([project, dir_path])
+
+        sql_select_and_insert_files_by_dir_path = sql_select_and_insert_files_by_dir_path.replace(
+            'COMPARE_PROJECT_AND_FILE_PATHS',
+            ' or '.join(add_dirs_sql)
+        )
+        sql_params_insert_dirs.extend([self.id])
+
+        sql_insert_single_files = '''
+            insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+            select %s as catalogrecord_id, f.id
+            from metax_api_file as f
+            where f.active = true and f.removed = false
+            and f.id in %s
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+            returning id
+            '''
+        sql_params_insert_single = [self.id, tuple(file_changes['files_to_add']), self.id]
+
+        with connection.cursor() as cr:
+            n_files_added = []
+            if file_changes['files_to_add']:
+                cr.execute(sql_insert_single_files, sql_params_insert_single)
+                n_files_added.extend(cr.fetchall())
+
+            if file_changes['dirs_to_add_by_project']:
+                cr.execute(sql_select_and_insert_files_by_dir_path, sql_params_insert_dirs)
+                n_files_added.extend(cr.fetchall())
+
+        if DEBUG:
+            _logger.debug('Added %d files to dataset %s' % (len(n_files_added), self.id))
+
+        self._calculate_total_files_byte_size()
+        self._handle_metadata_versioning()
+        self.calculate_directory_byte_sizes_and_file_counts()
 
     def _files_added_for_first_time(self):
         """
@@ -1284,9 +1408,9 @@ class CatalogRecord(Common):
 
         if not file_changes['changed_projects']:
             # no changes in directory or file entries were detected.
-            return False
+            return False, None
         elif self._files_added_for_first_time():
-            return True
+            return True, None
 
         # there are changes in directory or file entries. it may be that those changes can be
         # considered to be only "metadata description changes", and no real file changes have happened.
@@ -1298,6 +1422,7 @@ class CatalogRecord(Common):
         # but the metadata descriptions do not.
 
         self._check_changed_files_permissions(file_changes)
+        actual_files_changed = False
 
         try:
             with transaction.atomic():
@@ -1312,19 +1437,22 @@ class CatalogRecord(Common):
                 temp_record.identifier = generate_uuid_identifier()
                 temp_record.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
                 temp_record.preservation_identifier = None
+                temp_record.cumulative_state = self.cumulative_state
                 super(Common, temp_record).save()
                 actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
-
-                if actual_files_changed:
+                if actual_files_changed and (self.cumulative_state != self.CUMULATIVE_STATE_YES or
+                        self._initial_data['cumulative_state'] != self.CUMULATIVE_STATE_YES):
                     self._new_version = temp_record
-                    return True
                 else:
-                    _logger.debug('no real file changes detected, discarding the temporary record...')
+                    if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                        _logger.debug('cumulative dataset, discarding the temporary record...')
+                    else:
+                        _logger.debug('no real file changes detected, discarding the temporary record...')
                     raise DiscardRecord()
         except DiscardRecord:
             # rolled back
             pass
-        return False
+        return actual_files_changed, file_changes
 
     def _check_changed_files_permissions(self, file_changes):
         '''
