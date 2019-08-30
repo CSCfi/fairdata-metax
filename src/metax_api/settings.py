@@ -125,7 +125,14 @@ if executing_in_test_case or executing_in_travis:
                 "delete_project": { "use": ["testuser", "metax"] }
             },
             "statistics": {
-                "something": { "use": ["all"] }
+                "count_datasets": { "use": ["all"] },
+                "all_datasets_cumulative": { "use": ["all"] },
+                "catalog_datasets_cumulative": { "use": ["all"] },
+                "end_user_datasets_cumulative": { "use": ["all"] },
+                "harvested_datasets_cumulative": { "use": ["all"] },
+                "deprecated_datasets_cumulative": { "use": ["all"] },
+                "organization_datasets_cumulative": { "use": ["all"] },
+                "unused_files": { "use": ["all"] },
             }
         }
     }

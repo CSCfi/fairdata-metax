@@ -1342,14 +1342,136 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
-  # /rpc/statistics/something:
-  #   get:
-  #     summary: Statistics api will be described here.
-  #     responses:
-  #       '200':
-  #         description: successful operation.
-  #     tags:
-  #       - Statistics RPC
+  /rpc/statistics/count_datasets:
+    get:
+      summary: Get the total number of datasets and file sizes.
+      description: Calculates the total number of datasets and file sizes.
+      parameters:
+        - $ref: "#/parameters/from_date_non_required"
+        - $ref: "#/parameters/to_date_non_required"
+        - $ref: "#/parameters/access_type_filter"
+        - $ref: "#/parameters/data_catalog_filter"
+        - $ref: "#/parameters/deprecated_filter"
+        - $ref: "#/parameters/harvested_filter"
+        - $ref: "#/parameters/latest_filter"
+        - $ref: "#/parameters/metadata_owner_org_filter"
+        - $ref: "#/parameters/metadata_provider_org_filter"
+        - $ref: "#/parameters/metadata_provider_user_filter"
+        - $ref: "#/parameters/preservation_state_filter"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/count_datasets"
+      tags:
+        - Statistics RPC
+  /rpc/statistics/all_datasets_cumulative:
+    get:
+      summary: Get cumulative list of dataset information in given interval.
+      description: Retrieve dataset count and byte size per month and monthly cumulative from all datasets.
+      parameters:
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/all_datasets_cumulative"
+        '400':
+          description: required parameters missing.
+      tags:
+        - Statistics RPC
+  /rpc/statistics/catalog_datasets_cumulative:
+    get:
+      summary: Get cumulative list of datacatalog information in given interval.
+      description: Lists datacatalogs and groups their content by access type and by month. Each month contains how many datasets have been added and total size of files. These are calculated both for current month and cumulatively from from_date.
+      parameters:
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+        - $ref: "#/parameters/data_catalog_filter"
+      responses:
+        '200':
+          description: successful operation, return json of requested data catalogs.
+          schema:
+            $ref: "#/examples/catalog_datasets_cumulative"
+        '400':
+          description: required parameters missing.
+      tags:
+        - Statistics RPC
+  /rpc/statistics/deprecated_datasets_cumulative:
+    get:
+      summary: Get cumulative list of deprecated dataset information in given interval.
+      description: Retrieve dataset count per month and monthly cumulative for deprecated datasets.
+      parameters:
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/deprecated_datasets_cumulative"
+      tags:
+        - Statistics RPC
+  /rpc/statistics/end_user_datasets_cumulative:
+    get:
+      summary: Get cumulative list of dataset information in given interval added by end users.
+      description: Retrieve dataset count per month and monthly cumulative for datasets which have been created by end users using End User API.
+      parameters:
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/end_user_datasets_cumulative"
+        '400':
+          description: required parameters missing.
+      tags:
+        - Statistics RPC
+  /rpc/statistics/harvested_datasets_cumulative:
+    get:
+      summary: Get cumulative list of harvested dataset information in given interval.
+      description: For harvested datasets, retrieve dataset count per month and monthly cumulative, and grouped by access_type.
+      parameters:
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/harvested_datasets_cumulative"
+        '400':
+          description: required parameters missing.
+      tags:
+        - Statistics RPC
+  /rpc/statistics/organization_datasets_cumulative:
+    get:
+      summary: Get cumulative list of dataset information in given interval added by organizations.
+      description: Retrieve dataset count and byte size per month and monthly cumulative for all organizations, or a given single organization, grouped by catalog.
+      parameters:
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+        - $ref: "#/parameters/metadata_owner_org_filter"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/organization_datasets_cumulative"
+        '400':
+          description: required parameters missing.
+      tags:
+        - Statistics RPC
+  /rpc/statistics/unused_files:
+    get:
+      summary: Get files that are not part of any datasets.
+      description: Retrieving total counts of files and project identifiers which are not part of any datasets.
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/unused_files"
+      tags:
+        - Statistics RPC
   /rpc/files/delete_project:
     post:
       summary: Deletes given project from the database.
@@ -1368,6 +1490,7 @@ paths:
       tags:
         - File RPC
 
+
 parameters:
   dryrun:
     name: dryrun
@@ -1375,12 +1498,109 @@ parameters:
     description: execute the operation normally, returning the same response as normally, but do not save anything to db, or publish anything to remote services.
     required: false
     type: boolean
+
   allowed_projects:
     name: allowed_projects
     in: query
     description: ensures that all files and directories are part of intended projects.
     required: false
     type: string
+
+  from_date:
+    name: from_date
+    in: query
+    description: Query returns objects that are created after this date. to_date parameter is required with this.
+    required: true
+    type: string
+    format: date
+
+  from_date_non_required:
+    name: from_date
+    in: query
+    description: Query returns objects that are created after this date. to_date parameter is required with this.
+    required: false
+    type: string
+    format: date
+
+  to_date:
+    name: to_date
+    in: query
+    description: Query returns objects that are created before this date. from_date parameter is required with this.
+    required: true
+    type: string
+    format: date
+
+  to_date_non_required:
+    name: to_date
+    in: query
+    description: Query returns objects that are created before this date. from_date parameter is required with this.
+    required: false
+    type: string
+    format: date
+
+  data_catalog_filter:
+    name: data_catalog
+    in: query
+    description: Filter by data catalog identifier
+    type: string
+    required: false
+
+  access_type_filter:
+    name: access_type
+    in: query
+    description: Filter by access type
+    type: string
+    required: false
+
+  preservation_state_filter:
+    name: state
+    in: query
+    description: TPAS state (field preservation_state). multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+    required: false
+    type: string
+
+  metadata_owner_org_filter:
+    name: metadata_owner_org
+    in: query
+    description: Filter by dataset field metadata_owner_org
+    required: false
+    type: string
+
+  metadata_provider_org_filter:
+    name: metadata_provider_org
+    in: query
+    description: Filter by dataset field metadata_provider_org
+    required: false
+    type: string
+
+  metadata_provider_user_filter:
+    name: metadata_provider_user
+    in: query
+    description: Filter by dataset field metadata_provider_user
+    required: false
+    type: string
+
+  latest_filter:
+    name: latest
+    in: query
+    description: only return latest versions
+    required: false
+    type: boolean
+
+  harvested_filter:
+    name: harvested
+    in: query
+    description: only return harvested datasets
+    required: false
+    type: boolean
+
+  deprecated_filter:
+    name: deprecated
+    in: query
+    description: only return deprecated datasets
+    required: false
+    type: boolean
+
 
 definitions:
   CatalogRecord:
@@ -1404,3 +1624,93 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/File'
+  CumulativeElementWFiles:
+    type: object
+    properties:
+      month:
+        type: string
+        format: date
+      count:
+        type: integer
+      count_cumulative:
+        type: number
+        format: float
+      ida_byte_size:
+        type: number
+        format: float
+      ida_byte_size_cumulative:
+        type: number
+        format: float
+  CumulativeElementWOFiles:
+    type: object
+    properties:
+      month:
+        type: string
+        format: date
+      count:
+        type: integer
+      count_cumulative:
+        type: number
+        format: float
+
+
+examples:
+  count_datasets:
+    type: object
+    properties:
+      count:
+        type: integer
+      ida_byte_size:
+        type: number
+        format: float
+  all_datasets_cumulative:
+    type: array
+    items:
+      $ref: '#/definitions/CumulativeElementWFiles'
+  catalog_datasets_cumulative:
+    type: object
+    properties:
+      identifier:
+        type: object
+        properties:
+          access_type:
+            type: array
+            items:
+              $ref: '#/definitions/CumulativeElementWFiles'
+  deprecated_datasets_cumulative:
+    type: array
+    items:
+      $ref: '#/definitions/CumulativeElementWOFiles'
+  end_user_datasets_cumulative:
+    type: array
+    items:
+      $ref: '#/definitions/CumulativeElementWOFiles'
+  harvested_datasets_cumulative:
+    type: object
+    properties:
+      identifier:
+        type: object
+        properties:
+          access_type:
+            type: array
+            items:
+              $ref: '#/definitions/CumulativeElementWOFiles'
+  organization_datasets_cumulative:
+    type: object
+    properties:
+      organization_name:
+        type: object
+        properties:
+          identifier:
+            type: array
+            items:
+              $ref: '#/definitions/CumulativeElementWFiles'
+  unused_files:
+    type: array
+    items:
+      type: object
+      properties:
+        count:
+          type: integer
+        project_identifier:
+          type: string
