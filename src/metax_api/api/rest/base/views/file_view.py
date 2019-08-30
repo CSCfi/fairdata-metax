@@ -17,7 +17,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from metax_api.exceptions import Http400
+from metax_api.exceptions import Http400, Http403
 from metax_api.models import File, XmlMetadata
 from metax_api.renderers import XMLRenderer
 from metax_api.services import AuthService, CommonService, FileService
@@ -92,22 +92,40 @@ class FileViewSet(CommonViewSet):
             self.queryset_search_params['project_identifier__in'] = user_projects
         return super().list(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        #This have to be checked before updating common info
+        if not isinstance(self.request.data, dict):
+            raise Http400('request message body must be a single json object')
+
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        #This have to be checked before updating common info
+        if not isinstance(self.request.data, dict):
+            raise Http400('request message body must be a single json object')
+
+        return super().partial_update(request, *args, **kwargs)
+
+    def get_object(self, search_params=None):
+        """
+        Deals with allowed_projects query parameter. This is done here to avoid multiple
+        get_object calls in single request.
+        """
+        obj = super().get_object(search_params)
+        if self.request.user.is_service:
+            allowed_projects = CommonService.get_list_query_param(self.request, 'allowed_projects')
+            if allowed_projects is not None and obj.project_identifier not in allowed_projects:
+                raise Http403('You do not have permission to update this file')
+
+        return obj
+
     def update_bulk(self, request, *args, **kwargs):
         """
         Checks that all files belongs to project in allowed_projects query parameter
         if given.
         """
-        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
-
-        if allowed_projects is not None:
-            if not isinstance(request.data, list):
-                return Response(data={ 'detail': 'request.data is not a list'}, status=status.HTTP_400_BAD_REQUEST)
-
-            file_ids = [f['identifier'] for f in request.data]
-
-            if not FileService.verify_allowed_projects(allowed_projects, file_identifiers=file_ids):
-                return Response(data={"detail": "You do not have permission to update these files"},
-                                status=status.HTTP_403_FORBIDDEN)
+        if self.request.user.is_service:
+            FileService.check_allowed_projects(request)
 
         return super().update_bulk(request, *args, **kwargs)
 
@@ -116,20 +134,8 @@ class FileViewSet(CommonViewSet):
         Checks that all files belongs to project in allowed_projects query parameter
         if given.
         """
-        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
-
-        if allowed_projects is not None:
-            if not isinstance(request.data, list):
-                return Response(data={ 'detail': 'request.data is not a list'}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                file_ids = [f['identifier'] for f in request.data]
-            except KeyError:
-                return Response(data={"detail": "File identifier is missing"},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-            if not FileService.verify_allowed_projects(allowed_projects, file_identifiers=file_ids):
-                return Response(data={"detail": "You do not have permission to update these files"},
-                                status=status.HTTP_403_FORBIDDEN)
+        if self.request.user.is_service:
+            FileService.check_allowed_projects(request)
 
         return super().partial_update_bulk(request, *args, **kwargs)
 

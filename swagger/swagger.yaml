@@ -122,6 +122,11 @@ paths:
           description: filter files by project
           required: false
           type: string
+        - name: file_path
+          in: query
+          description: filters files by path. requires query parameter project_identifier.
+          required: false
+          type: string
         - name: offset
           in: query
           description: offset for paging
@@ -262,6 +267,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/File'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -286,6 +292,7 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/File'
+        - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
         '200':
@@ -820,6 +827,21 @@ paths:
         - name: ordering
           in: query
           description: specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
+        - name: actor_filter
+          in: query
+          description: |
+            actor_filters are a collection of filter parameters for filtering according to the name
+            of creator, curator, publisher or rights_holder actors. Actor type must be defined as
+            a suffix in the filter name ('_person' or '_organization'). Multiple actor_filters can
+            be applied simultaneously (AND) or separately (OR) by using 'condition_separator'.
+            Default separator is AND.
+
+            Examples&#58;
+
+            '?creator_person=person_name'
+            '?publisher_organization=some organisation&creator_person=person_name&condition_separator=or'
           required: false
           type: string
       responses:
@@ -1502,7 +1524,7 @@ parameters:
   allowed_projects:
     name: allowed_projects
     in: query
-    description: ensures that all files and directories are part of intended projects.
+    description: ensures that content is part of intended projects.
     required: false
     type: string
 

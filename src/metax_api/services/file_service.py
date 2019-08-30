@@ -40,11 +40,6 @@ multiple times in itself isnt bad, but using this function-replacement
 -mechanic, so that the imports are not littered in several methods in
 FileService where they would otherwise be needed.
 """
-def CatalogRecordSerializer(*args, **kwargs):
-    from metax_api.api.rest.base.serializers import CatalogRecordSerializer as CRS
-    CatalogRecordSerializer = CRS
-    return CatalogRecordSerializer(*args, **kwargs)
-
 def DirectorySerializer(*args, **kwargs):
     from metax_api.api.rest.base.serializers import DirectorySerializer as DS
     DirectorySerializer = DS
@@ -83,6 +78,11 @@ class FileService(CommonService, ReferenceDataMixin):
             if not request.user.is_service:
                 cls.check_user_belongs_to_project(request, project)
             queryset_search_params['project_identifier'] = project
+
+        if request.query_params.get('file_path', False):
+            if not request.query_params.get('project_identifier', False):
+                raise Http400('query parameter project_identifier is required when using file_path filter')
+            queryset_search_params['file_path__contains'] = request.query_params['file_path']
 
         return queryset_search_params
 
@@ -464,15 +464,14 @@ class FileService(CommonService, ReferenceDataMixin):
         current_time = get_tz_aware_now_without_micros()
         for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False).distinct('id'):
             cr.deprecate(current_time)
-            deprecated_records.append(CatalogRecordSerializer(cr).data)
-
+            deprecated_records.append(cr)
         if not deprecated_records:
             _logger.info('Files were not associated with any datasets.')
             return
 
-        _logger.info('Publishing %d deprecated datasets to rabbitmq update queues...' % len(deprecated_records))
-        from metax_api.services import RabbitMQService as rabbitmq
-        rabbitmq.publish(deprecated_records, routing_key='update', exchange='datasets')
+        from metax_api.models.catalog_record import RabbitMQPublishRecord
+        for cr in deprecated_records:
+            CallableService.add_post_request_callable(RabbitMQPublishRecord(cr, 'update'))
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
@@ -890,17 +889,25 @@ class FileService(CommonService, ReferenceDataMixin):
         return res
 
     @classmethod
-    def verify_allowed_projects(cls, allowed_projects, file_identifiers=[]):
-        if file_identifiers:
+    def check_allowed_projects(cls, request):
+        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
+
+        if allowed_projects is not None:
+            if not isinstance(request.data, list):
+                raise Http400({ 'detail': [ 'request message body must be a single json object' ] })
+
+            try:
+                file_ids = [f['identifier'] for f in request.data]
+            except KeyError:
+                raise Http400({ 'detail': [ 'File identifier is missing' ] })
+
             project_ids = [ pid for pid in File.objects
-                            .filter(identifier__in=file_identifiers)
+                            .filter(identifier__in=file_ids)
                             .values_list('project_identifier', flat=True)
                             .distinct('project_identifier') ]
 
-            if all(pid in allowed_projects for pid in project_ids):
-                return True
-
-        return False
+            if not all(pid in allowed_projects for pid in project_ids):
+                raise Http403({ 'detail': [ 'You do not have permission to update this file' ] })
 
     @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):

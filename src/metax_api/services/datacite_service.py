@@ -9,6 +9,7 @@ import re
 from os.path import dirname, join
 
 import jsonschema
+import requests
 from datacite import schema41 as datacite_schema41, DataCiteMDSClient
 from django.conf import settings as django_settings
 
@@ -67,12 +68,13 @@ class _DataciteService(CommonService):
 
         self.user = settings['USERNAME']
         self.pw = settings['PASSWORD']
+        self.url = settings['URL']
 
         self.mds = DataCiteMDSClient(
             username=self.user,
             password=self.pw,
             prefix=settings['PREFIX'],
-            test_mode=False)
+            url=self.url)
 
     def create_doi_metadata(self, datacite_xml_metadata):
         """
@@ -114,12 +116,15 @@ class _DataciteService(CommonService):
         :param doi:
         :return:
         """
-        from requests import delete
         try:
-            delete('https://mds.datacite.org/doi/{0}'.format(doi),
-                   headers={'Content-Type': 'application/plain;charset=UTF-8'}, auth=(self.user, self.pw))
-        except:
-            pass
+            requests.delete(
+                '{0}/doi/{1}'.format(self.url, doi),
+                headers={'Content-Type': 'application/plain;charset=UTF-8'},
+                auth=(self.user, self.pw)
+            )
+        except Exception as e:
+            _logger.warning('Could not delete doi in draft state')
+            _logger.warning(e)
 
     def get_validated_datacite_json(self, cr_json, is_strict):
         if isinstance(cr_json, list):
