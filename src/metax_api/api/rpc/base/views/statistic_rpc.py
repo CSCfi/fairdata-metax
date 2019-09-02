@@ -11,6 +11,7 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from .common_rpc import CommonRPC
+from metax_api.exceptions import Http400
 from metax_api.services import StatisticService, CommonService as CS
 
 
@@ -21,6 +22,9 @@ class StatisticRPC(CommonRPC):
 
     @list_route(methods=['get'], url_path='all_datasets_cumulative')
     def all_datasets_cumulative(self, request):
+        if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
+            raise Http400('from_date and to_date parameters are required')
+
         params = {
             'from_date': request.query_params.get('from_date', None),
             'to_date':   request.query_params.get('to_date', None),
@@ -29,6 +33,9 @@ class StatisticRPC(CommonRPC):
 
     @list_route(methods=['get'], url_path='catalog_datasets_cumulative')
     def catalog_datasets_cumulative(self, request):
+        if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
+            raise Http400('from_date and to_date parameters are required')
+
         params = {
             'from_date':    request.query_params.get('from_date', None),
             'to_date':      request.query_params.get('to_date', None),
@@ -59,6 +66,9 @@ class StatisticRPC(CommonRPC):
 
     @list_route(methods=['get'], url_path='deprecated_datasets_cumulative')
     def deprecated_datasets_cumulative(self, request):
+        if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
+            raise Http400('from_date and to_date parameters are required')
+
         params = {
             'from_date': request.query_params.get('from_date', None),
             'to_date':   request.query_params.get('to_date', None),
@@ -67,6 +77,9 @@ class StatisticRPC(CommonRPC):
 
     @list_route(methods=['get'], url_path='end_user_datasets_cumulative')
     def end_user_datasets_cumulative(self, request):
+        if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
+            raise Http400('from_date and to_date parameters are required')
+
         params = {
             'from_date': request.query_params.get('from_date', None),
             'to_date':   request.query_params.get('to_date', None),
@@ -75,6 +88,9 @@ class StatisticRPC(CommonRPC):
 
     @list_route(methods=['get'], url_path='harvested_datasets_cumulative')
     def harvested_datasets_cumulative(self, request):
+        if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
+            raise Http400('from_date and to_date parameters are required')
+
         params = {
             'from_date': request.query_params.get('from_date', None),
             'to_date':   request.query_params.get('to_date', None),
@@ -83,6 +99,9 @@ class StatisticRPC(CommonRPC):
 
     @list_route(methods=['get'], url_path='organization_datasets_cumulative')
     def organization_datasets_cumulative(self, request):
+        if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
+            raise Http400('from_date and to_date parameters are required')
+
         params = {
             'from_date':          request.query_params.get('from_date', None),
             'to_date':            request.query_params.get('to_date', None),

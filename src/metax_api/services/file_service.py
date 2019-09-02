@@ -79,6 +79,11 @@ class FileService(CommonService, ReferenceDataMixin):
                 cls.check_user_belongs_to_project(request, project)
             queryset_search_params['project_identifier'] = project
 
+        if request.query_params.get('file_path', False):
+            if not request.query_params.get('project_identifier', False):
+                raise Http400('query parameter project_identifier is required when using file_path filter')
+            queryset_search_params['file_path__contains'] = request.query_params['file_path']
+
         return queryset_search_params
 
     @classmethod
@@ -884,17 +889,25 @@ class FileService(CommonService, ReferenceDataMixin):
         return res
 
     @classmethod
-    def verify_allowed_projects(cls, allowed_projects, file_identifiers=[]):
-        if file_identifiers:
+    def check_allowed_projects(cls, request):
+        allowed_projects = CommonService.get_list_query_param(request, 'allowed_projects')
+
+        if allowed_projects is not None:
+            if not isinstance(request.data, list):
+                raise Http400({ 'detail': [ 'request message body must be a single json object' ] })
+
+            try:
+                file_ids = [f['identifier'] for f in request.data]
+            except KeyError:
+                raise Http400({ 'detail': [ 'File identifier is missing' ] })
+
             project_ids = [ pid for pid in File.objects
-                            .filter(identifier__in=file_identifiers)
+                            .filter(identifier__in=file_ids)
                             .values_list('project_identifier', flat=True)
                             .distinct('project_identifier') ]
 
-            if all(pid in allowed_projects for pid in project_ids):
-                return True
-
-        return False
+            if not all(pid in allowed_projects for pid in project_ids):
+                raise Http403({ 'detail': [ 'You do not have permission to update this file' ] })
 
     @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):

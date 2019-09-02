@@ -94,6 +94,21 @@ class CommonService():
 
         return set()
 
+    @staticmethod
+    def has_research_agent_query_params(request):
+        """
+        Defines if request has query parameters for creator, curator, publisher or rights_holder.
+        Queries are for example 'creator_person' or 'publisher_organization'
+        Returns boolean
+        """
+        fields = ['creator', 'curator', 'publisher', 'rights_holder']
+        types = ['organization', 'person']
+        for field in fields:
+            if any(request.query_params.get(f'{field}_{type}') for type in types):
+                return True
+
+        return False
+
     @classmethod
     def create_bulk(cls, request, serializer_class, **kwargs):
         """
