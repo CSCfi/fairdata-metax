@@ -21,33 +21,37 @@ class AuthService():
         """
         Fetches users file projects from local file and from
         token. On local file values must be a list of strings.
+        Projects are cached to request.user.user_projects to increase performance.
         """
+
+        if hasattr(request.user, 'user_projects'):
+            return request.user.user_projects
+
         user_projects = AuthService.extract_file_projects_from_token(request.user.token)
 
         if request.user.token is None:
             raise Http404
 
         username = request.user.token.get('CSCUserName', '')
+        file_projects = None
 
         try:
             with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'r') as file:
                 file_projects = json.load(file)
         except FileNotFoundError:
             _logger.info("No local file for user projects")
-            return user_projects
         except Exception as e:
             _logger.error(e)
-            return user_projects
 
-        try:
-            if isinstance(file_projects[username], list) and isinstance(file_projects[username][0], str):
-                for project in file_projects[username]:
-                    user_projects.add(project)
-            else:
+        if file_projects:
+            if not file_projects.get(username, False):
+                _logger.info("No projects for user '%s' on local file" % username)
+            elif not isinstance(file_projects[username], list) or not isinstance(file_projects[username][0], str):
                 _logger.error("Projects on file are not list of strings")
-        except:
-            _logger.info("No projects for user '%s' on local file" % username)
+            else:
+                user_projects.update(p for p in file_projects[username])
 
+        request.user.user_projects = user_projects
         return user_projects
 
     @staticmethod
