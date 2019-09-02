@@ -424,10 +424,11 @@ class CatalogRecord(Common):
         dirs_to_remove_by_project = file_changes['dirs_to_remove_by_project']
         dirs_to_keep_by_project   = file_changes['dirs_to_keep_by_project']
 
-        if files_to_add or files_to_remove or dirs_to_add_by_project or dirs_to_remove_by_project:
+        if files_to_add or files_to_remove or files_to_keep or dirs_to_add_by_project or \
+                dirs_to_remove_by_project or dirs_to_keep_by_project:
 
-            # note: if only files_to_keep and dirs_to_keep_by_project contained entries,
-            # it means there were no file changes. this block is then not executed.
+            # note: files_to_keep and dirs_to_keep_by_project are also included because we
+            # want to create new version on some cumulative_state changes.
 
             if DEBUG:
                 _logger.debug('Detected the following file changes:')
@@ -909,11 +910,11 @@ class CatalogRecord(Common):
         if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
             raise Http400('Cannot create cumulative dataset with state closed')
 
-        if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+        elif self.cumulative_state == self.CUMULATIVE_STATE_YES:
             if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED:
                 raise Http400('Dataset cannot be cumulative if it is in PAS process')
 
-            self.date_cumulation_started = get_tz_aware_now_without_micros()
+            self.date_cumulation_started = self.date_created
 
     def _post_create_operations(self):
         if self.catalog_versions_datasets():
@@ -1002,7 +1003,7 @@ class CatalogRecord(Common):
 
         if self.field_changed('preservation_state'):
             if self.cumulative_state == self.CUMULATIVE_STATE_YES:
-                raise Http400('Changing preservation state is not allowed while dataset has cumulative_status 1')
+                raise Http400('Changing preservation state is not allowed while dataset cumulation is active')
             self.preservation_state_modified = get_tz_aware_now_without_micros()
 
         if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
@@ -1036,24 +1037,8 @@ class CatalogRecord(Common):
             self.update_datacite = False
 
         if self.field_changed('cumulative_state'):
-            if self._initial_data['cumulative_state'] in [self.CUMULATIVE_STATE_YES, self.CUMULATIVE_STATE_CLOSED] and \
-                    self.cumulative_state == self.CUMULATIVE_STATE_NO:
-                raise Http400('Cumulative dataset cannot be set to non-cumulative dataset')
-
-            if self._initial_data['cumulative_state'] == self.CUMULATIVE_STATE_NO and \
-                    self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
-                raise Http400('Non-cumulative dataset cannot be set to closed cumulative dataset')
-
-            if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED and \
-                    self.cumulative_state == self.CUMULATIVE_STATE_YES:
-                raise Http400('Cumulative datasets are not allowed in PAS process. Change preservation_state '
-                            'to 0 in order to change the dataset to cumulative.')
-
-            if self.cumulative_state == self.CUMULATIVE_STATE_YES:
-                self.date_cumulation_started = get_tz_aware_now_without_micros()
-
-            if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
-                self.date_cumulation_ended = get_tz_aware_now_without_micros()
+            # there is a RPC api for changing the state
+            self.cumulative_state = self._initial_data['cumulative_state']
 
         if self.catalog_versions_datasets() and \
                 (not self.preserve_version or self.cumulative_state == self.CUMULATIVE_STATE_YES):
@@ -1072,12 +1057,10 @@ class CatalogRecord(Common):
                         'back to 0.' % self.preservation_state
                     ]})
 
-                if self.cumulative_state == self.CUMULATIVE_STATE_YES and not self.field_changed('cumulative_state'):
-                    # initial cumulative_state has to be 1 also, since we want new version to be created
-                    # whenever state is changed from NO/CLOSED to YES.
+                if self.cumulative_state == self.CUMULATIVE_STATE_YES:
                     if file_changes['files_to_remove'] or file_changes['dirs_to_remove_by_project']:
                         raise Http400('Cannot delete files or directories from cumulative dataset. '
-                                    'In order to remove files, set cumulative_state to closed.')
+                                    'In order to remove files, close dataset cumulation.')
                     self._handle_cumulative_file_addition(file_changes)
 
                 elif self._files_added_for_first_time():
@@ -1155,7 +1138,7 @@ class CatalogRecord(Common):
 
     def _handle_cumulative_file_addition(self, file_changes):
         """
-        This function adds files to dataset only if they are explicitly mentioned in research_dataset.
+        This method adds files to dataset only if they are explicitly mentioned in research_dataset.
         Changes in already included directories are not checked.
         """
         sql_select_and_insert_files_by_dir_path = '''
@@ -1422,13 +1405,18 @@ class CatalogRecord(Common):
         # but the metadata descriptions do not.
 
         self._check_changed_files_permissions(file_changes)
+        actual_files_changed = self._create_temp_record(file_changes)
+
+        return actual_files_changed, file_changes
+
+    def _create_temp_record(self, file_changes, cumulative_change=False):
         actual_files_changed = False
 
         try:
             with transaction.atomic():
                 # create a temporary record to perform the file changes on, to see if there were real file changes.
                 # if no, discard it. if yes, the temp_record will be transformed into the new dataset version record.
-
+                # New version is also created when cumulative state is changed from no/closed to yes.
                 temp_record = CatalogRecord.objects.get(pk=self.id)
                 temp_record.id = None
                 temp_record.next_dataset_version = None
@@ -1437,11 +1425,10 @@ class CatalogRecord(Common):
                 temp_record.identifier = generate_uuid_identifier()
                 temp_record.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
                 temp_record.preservation_identifier = None
-                temp_record.cumulative_state = self.cumulative_state
                 super(Common, temp_record).save()
                 actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
-                if actual_files_changed and (self.cumulative_state != self.CUMULATIVE_STATE_YES or
-                        self._initial_data['cumulative_state'] != self.CUMULATIVE_STATE_YES):
+                if (actual_files_changed and not self.cumulative_state == self.CUMULATIVE_STATE_YES)\
+                        or cumulative_change:
                     self._new_version = temp_record
                 else:
                     if self.cumulative_state == self.CUMULATIVE_STATE_YES:
@@ -1452,7 +1439,8 @@ class CatalogRecord(Common):
         except DiscardRecord:
             # rolled back
             pass
-        return actual_files_changed, file_changes
+
+        return actual_files_changed
 
     def _check_changed_files_permissions(self, file_changes):
         '''
@@ -1527,7 +1515,7 @@ class CatalogRecord(Common):
         )
         new_rdv.save()
 
-    def _create_new_dataset_version(self):
+    def _create_new_dataset_version(self, cumulative_state=None):
         """
         Create a new dataset version of the record who calls this method.
         """
@@ -1607,6 +1595,14 @@ class CatalogRecord(Common):
             if 'identifier' in old_editor:
                 # todo this probably does not make sense... ?
                 new_version.editor['identifier'] = old_editor['identifier']
+
+        if cumulative_state:
+            new_version.cumulative_state = cumulative_state
+            if cumulative_state == self.CUMULATIVE_STATE_YES:
+                new_version.date_cumulation_started = new_version.date_created
+                new_version.date_cumulation_ended = None
+        else:
+            new_version.cumulative_state = old_version.cumulative_state
 
         super(Common, new_version).save()
 
@@ -1777,6 +1773,40 @@ class CatalogRecord(Common):
             pid_type = IdentifierType.URN
         return pid_type
 
+    def change_cumulative_state(self, new_value):
+        if self.next_dataset_version:
+            raise Http400('Cannot change old dataset version')
+
+        if self.cumulative_state is not self.CUMULATIVE_STATE_NO and new_value == self.CUMULATIVE_STATE_NO:
+            raise Http400('Cumulative dataset cannot be set to non-cumulative dataset. '
+                        'If you want to stop active cumulation, set cumulative status to closed.')
+
+        if self.cumulative_state == self.CUMULATIVE_STATE_NO and new_value == self.CUMULATIVE_STATE_CLOSED:
+            raise Http400('Cumulation cannot be closed for non-cumulative dataset')
+
+        if new_value == self.CUMULATIVE_STATE_YES and self.preservation_state > self.PRESERVATION_STATE_INITIALIZED:
+            raise Http400('Cumulative datasets are not allowed in PAS process. Change preservation_state '
+                        'to 0 in order to change the dataset to cumulative.')
+
+        self.date_modified = get_tz_aware_now_without_micros()
+
+        if new_value == self.CUMULATIVE_STATE_CLOSED:
+            self.date_cumulation_ended = self.date_modified
+
+        if self.cumulative_state != self.CUMULATIVE_STATE_YES and new_value == self.CUMULATIVE_STATE_YES:
+            # create new version
+            file_changes = self._find_file_changes()
+            self._create_temp_record(file_changes, cumulative_change=True)
+            self._create_new_dataset_version(new_value)
+            self.next_dataset_version = self._new_version
+            super().save()
+        else:
+            self.cumulative_state = new_value
+            super().save(update_fields=['cumulative_state',
+                                    'date_cumulation_ended',
+                                    'date_modified'])
+
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
 class RabbitMQPublishRecord():
 

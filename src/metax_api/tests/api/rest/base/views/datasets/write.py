@@ -2264,8 +2264,8 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
 class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCommon):
 
     """
-    Tests for adding files and directories to dataset which is marked cumulative.
-    Makes sure that adding files or directories does not create new dataset version
+    Tests for different creation situations and adding files and directories to successfully
+    created datasets. Makes sure that adding files or directories does not create new dataset version
     and removing any files or directories is forbidden.
     """
 
@@ -2279,9 +2279,6 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual(response.data['cumulative_state'], 1, response.data)
-        self.assert_file_count(response.data, 2)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
 
         return response.data # i.e. the dataset
 
@@ -2304,33 +2301,14 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue(response.data['date_cumulation_started'] is not None, response.data)
-
-    def test_create_cumulative_dataset_with_multiple_projects(self):
-        """
-        Add directories from two different projects, ensure both projects' top-level dirs
-        are handled properly, and none of the projects interferes with each other.
-        """
-        self._add_directory(self.cr_test_data, '/SecondExperiment/Directory_1/Group_1')
-        self.cr_test_data['cumulative_state'] = 1
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 2)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
-        cr = response.data
-
-        # add a new directory. this is a top-level of the previous dir, which contains two files.
-        # files are added
-        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
-        response = self.update_record(cr)
-        self.assert_preferred_identifier_changed(response, False)
-        self.assert_file_count(response.data, 6)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
+        self.assertEqual(response.data['date_cumulation_started'], response.data['date_created'], response.data)
+        self.assertTrue('date_cumulation_ended' not in response.data, response.data)
 
     def test_adding_files_to_cumulative_dataset_creates_no_new_versions(self):
+        """
+        Tests the basic idea of cumulative dataset: add files with no new version
+        """
         cr = self._create_cumulative_dataset_with_files()
-        # basic idea of cumulative dataset: add files with no new version
         self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
         self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_02.txt')
 
@@ -2347,7 +2325,6 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         response = self.update_record(cr)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        # four + four is eight
         self.assert_file_count(response.data, 8)
         self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 8)
         self.assertEqual('new_dataset_version' in response.data, False, 'New version should not be created')
@@ -2373,11 +2350,17 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
     def test_single_common_root_directory(self):
         """
-        A very simple "there is a single common root directory" test.
+        A very simple "there is a single common root directory" test. When root directory is
+        added, all the sub-directories are also included so adding them later do not add files.
         """
         cr = self._create_cumulative_dataset_with_files()
 
         self._add_directory(cr, '/TestExperiment/Directory_2')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assert_file_count(response.data, 10)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
+
         self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
         self._add_directory(cr, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
         response = self.update_record(cr)
@@ -2392,7 +2375,6 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
         Ensure preferred_identifier changes and file counts and byte sizes change as expected.
         """
-
         cr = self._create_cumulative_dataset_with_files()
         # add one directory, which holds a two files and one sub directory which also holds two files.
         # four new files are added
@@ -2458,42 +2440,46 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         self.assert_file_count(response.data, 11)
         self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 11)
 
-    def test_add_non_existent_file(self):
-        cr = self._create_cumulative_dataset_with_files()
+    def test_metadata_changes_do_not_add_later_frozen_files(self):
+        """
+        Ensure simple metadata updates do not automatically also include new frozen files.
+        New frozen files should only be searched when those new files or directories are
+        specifically added in the update.
+        """
+        # create the original record with just one directory
+        self.cr_test_data['cumulative_state'] = 1
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 8)
+        original_version = response.data
 
-        self._add_nonexisting_file(cr)
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self._freeze_new_files()
 
-    def test_add_non_existent_directory(self):
-        cr = self._create_cumulative_dataset_with_files()
-
-        self._add_nonexisting_directory(cr)
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        original_version['research_dataset']['version_notes'] = [str(datetime.now())]
+        response = self.update_record(original_version)
+        self.assert_file_count(response.data, 8)
 
     def test_add_files_with_preserve_version_flag(self):
         """
         Normally, preserve_version flag would skip the whole file/directory update process and complain
         about updating files while trying to preserve version. But in case of cumulative dataset we want
-        to enable updating with same version.
+        to allow adding with same version.
         """
         cr = self._create_cumulative_dataset_with_files()
         self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
         response = self.client.put('/rest/datasets/%s?preserve_version' % cr['identifier'], cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        # closed(2) cumulative dataset works like non-cumulative dataset,
-        # so trying to preserve version while adding files should fail.
-        cr = response.data
-        cr['cumulative_state'] = 2
-        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_02.txt')
-        response = self.client.put('/rest/datasets/%s?preserve_version' % cr['identifier'], cr, format="json")
+    def test_change_preservation_state(self):
+        cr = self._create_cumulative_dataset_with_files()
+        cr['preservation_state'] = 10
+        response = self.client.put('/rest/datasets/%s' % cr['identifier'], cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_remove_files_from_cumulative_dataset(self):
         cr = self._create_cumulative_dataset_with_files()
-        # removing is forbidden
+
         self._remove_file(cr, '/TestExperiment/Directory_1/file_06.txt')
         response = self.update_record(cr)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
@@ -2506,12 +2492,10 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
     def test_remove_directory_from_cumulative_dataset(self):
         cr = self._create_cumulative_dataset_with_files()
-        # add directory
         self._add_directory(cr, '/TestExperiment/Directory_2')
         response = self.update_record(cr)
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        # try to remove it
         self._remove_directory(cr, '/TestExperiment/Directory_2')
         response = self.update_record(cr)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
@@ -2521,67 +2505,6 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assert_file_count(response.data, 10)
         self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
-
-    def test_closed_cumulative_dataset(self):
-        """
-        Closed cumulative dataset behaves like non-cumulative dataset. Versions are created when
-        files or directories are added and removing files and directories is also possible.
-        When closed cumulative dataset is changed to active cumulative dataset(1), new version is created.
-        """
-        cr = self._create_cumulative_dataset_with_files()
-
-        # closing cumulative dataset does not create new version
-        cr['cumulative_state'] = 2
-        response = self.update_record(cr)
-        self.assert_preferred_identifier_changed(response, False)
-        self.assertEqual(response.data['cumulative_state'], 2, 'cumulative_state should be changed')
-        self.assertTrue(response.data['date_cumulation_ended'] is not None, 'cumulation ending date should be set')
-
-        # removing files are allowed and it creates a new dataset version
-        self._remove_file(response.data, '/TestExperiment/Directory_1/file_05.txt')
-        response = self.update_record(response.data)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 1)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 1)
-
-        # directory contains two files
-        self._add_directory(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.update_record(new_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 3)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 3)
-
-        # changing the cumulative_status back to 1 allows file additions with same request, but new version is created
-        # because of the state transition
-        new_version['cumulative_state'] = 1
-        self._add_file(new_version, '/TestExperiment/Directory_1/file_05.txt')
-        response = self.update_record(new_version)
-        self.assert_preferred_identifier_changed(response, True)
-        cumulative_cr = self.get_next_version(response.data)
-        self.assertEqual(cumulative_cr['cumulative_state'], 1)
-        self.assert_file_count(cumulative_cr, 4)
-        self.assert_total_files_byte_size(cumulative_cr, self._single_file_byte_size * 4)
-
-    def test_status_changes_behavior(self):
-        """
-        Changing the status is possible for transitions YES->CLOSED, CLOSED->NO/YES and NO->YES.
-        New version is created when transition CLOSED/NO->YES happens.
-        """
-
-        # transition YES->CLOSED with file additions
-        cr = self._create_cumulative_dataset_with_files()
-
-        cr['cumulative_state'] = 2
-        # directory contains two files
-        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.update_record(cr)
-        self.assert_preferred_identifier_changed(response, True)
-        cr = self.get_next_version(response.data)
-        self.assertEqual(cr['cumulative_state'], 2)
-        self.assert_file_count(cr, 4)
-        self.assert_total_files_byte_size(cr, self._single_file_byte_size * 4)
 
 
 class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFilesCommon):

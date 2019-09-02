@@ -118,6 +118,7 @@ if executing_in_test_case or executing_in_travis:
         },
         "rpc": {
             "datasets": {
+                "change_cumulative_state": { "use": ["all"] },
                 "get_minimal_dataset_template": { "use": ["all"] },
                 "set_preservation_identifier": { "use": ["metax", "tpas"] }
             },

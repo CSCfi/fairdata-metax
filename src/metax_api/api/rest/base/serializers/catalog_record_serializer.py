@@ -259,15 +259,6 @@ class CatalogRecordSerializer(CommonSerializer):
                 'version_type': 'dataset'
             }
 
-        if 'cumulative_status' in res:
-            res['cumulative_status'] = instance.cumulative_status
-
-        if 'date_cumulation_started' in res:
-            res['date_cumulation_started'] = instance.date_cumulation_started
-
-        if 'date_cumulation_ended' in res:
-            res['date_cumulation_ended'] = instance.date_cumulation_ended
-
         # Do the population of file_details here, since if it was done in the view, it might not know the file/dir
         # identifiers any longer, since the potential stripping of file/dir fields takes away identifier fields from
         # File and Directory objects, which are needed in populating file_details
