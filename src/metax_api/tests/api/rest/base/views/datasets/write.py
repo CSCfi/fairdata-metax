@@ -2865,7 +2865,10 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         metadata_provider_org = self.token['schacHomeOrganization']
         metadata_owner_org = self.token['schacHomeOrganization']
 
-        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0] # ida
+        self.cr_test_data['data_catalog'] = {
+            "id": 1,
+            "identifier": END_USER_ALLOWED_DATA_CATALOGS[0] # ida
+        }
         self.cr_test_data['contract'] = 1
         self.cr_test_data['editor'] = { 'nope': 'discarded by metax' }
         self.cr_test_data['preservation_description'] = 'discarded by metax'
