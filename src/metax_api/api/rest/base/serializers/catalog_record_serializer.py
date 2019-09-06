@@ -193,7 +193,10 @@ class CatalogRecordSerializer(CommonSerializer):
             dc_identifier = validated_data['data_catalog'].catalog_json['identifier']
         except:
             try:
-                dc_identifier = validated_data['data_catalog']
+                if isinstance(validated_data['data_catalog'], dict):
+                    dc_identifier = validated_data['data_catalog']['identifier']
+                else:
+                    dc_identifier = validated_data['data_catalog']
             except KeyError:
                 # an error is raise later about missing required field
                 return
