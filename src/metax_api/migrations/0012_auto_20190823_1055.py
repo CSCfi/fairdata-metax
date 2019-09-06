@@ -25,4 +25,9 @@ class Migration(migrations.Migration):
             name='date_cumulation_started',
             field=models.DateTimeField(help_text='Date when cumulative_state was set to YES.', null=True),
         ),
+        migrations.AddField(
+            model_name='catalogrecord',
+            name='date_last_cumulative_addition',
+            field=models.DateTimeField(null=True, default=None, help_text='Date of last file addition while actively cumulative.')
+        ),
     ]

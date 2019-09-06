@@ -129,7 +129,7 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
 
         return response.data
 
-    def _update_cr(self, identifier, state, result=status.HTTP_204_NO_CONTENT):
+    def _update_cr_cumulative_state(self, identifier, state, result=status.HTTP_204_NO_CONTENT):
         url = '/rpc/datasets/change_cumulative_state?identifier=%s&cumulative_state=%d'
 
         response = self.client.post(url % (identifier, state), format="json")
@@ -149,9 +149,9 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         cr_orig = self._create_cumulative_dataset(0)
         orig_preferred_identifier = cr_orig['research_dataset']['preferred_identifier']
         orig_record_count = CatalogRecord.objects.all().count()
-        self._update_cr(cr_orig['identifier'], 2, status.HTTP_400_BAD_REQUEST)
+        self._update_cr_cumulative_state(cr_orig['identifier'], 2, status.HTTP_400_BAD_REQUEST)
 
-        self._update_cr(cr_orig['identifier'], 1, status.HTTP_204_NO_CONTENT)
+        self._update_cr_cumulative_state(cr_orig['identifier'], 1)
         self.assertEqual(CatalogRecord.objects.all().count(), orig_record_count + 1)
 
         # get updated dataset
@@ -160,7 +160,7 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         self.assertTrue('next_dataset_version' in old_version, 'should have new dataset')
 
         # cannot change old dataset cumulative_status
-        self._update_cr(old_version['identifier'], 2, status.HTTP_400_BAD_REQUEST)
+        self._update_cr_cumulative_state(old_version['identifier'], 2, status.HTTP_400_BAD_REQUEST)
 
         # new version of the dataset should have new cumulative state
         new_version = self._get_cr(old_version['next_dataset_version']['identifier'])
@@ -170,25 +170,25 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
     def test_transitions_from_YES(self):
         cr = self._create_cumulative_dataset(1)
         orig_record_count = CatalogRecord.objects.all().count()
-        self._update_cr(cr['identifier'], 0, status.HTTP_400_BAD_REQUEST)
+        self._update_cr_cumulative_state(cr['identifier'], 0, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(CatalogRecord.objects.all().count(), orig_record_count)
 
         # active to non-active cumulation is legal
-        self._update_cr(cr['identifier'], 2, status.HTTP_204_NO_CONTENT)
+        self._update_cr_cumulative_state(cr['identifier'], 2)
         cr = self._get_cr(cr['identifier'])
         self.assertEqual(cr['cumulative_state'], 2, 'dataset should have changed status')
 
     def test_transitions_from_CLOSED(self):
         cr = self._create_cumulative_dataset(1)
         orig_record_count = CatalogRecord.objects.all().count()
-        self._update_cr(cr['identifier'], 2, status.HTTP_204_NO_CONTENT)
+        self._update_cr_cumulative_state(cr['identifier'], 2)
         cr = self._get_cr(cr['identifier'])
         self.assertEqual(cr['date_cumulation_ended'], cr['date_modified'], cr)
 
-        self._update_cr(cr['identifier'], 0, status.HTTP_400_BAD_REQUEST)
+        self._update_cr_cumulative_state(cr['identifier'], 0, status.HTTP_400_BAD_REQUEST)
 
         # changing to active cumulative dataset creates a new version
-        self._update_cr(cr['identifier'], 1, status.HTTP_204_NO_CONTENT)
+        self._update_cr_cumulative_state(cr['identifier'], 1)
         self.assertEqual(CatalogRecord.objects.all().count(), orig_record_count + 1)
         old_version = self._get_cr(cr['identifier'])
 
@@ -199,3 +199,4 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         # new data
         new_version = self._get_cr(old_version['next_dataset_version']['identifier'])
         self.assertEqual(new_version['cumulative_state'], 1, 'new version should have changed status')
+        self.assertTrue('date_cumulation_ended' not in new_version, new_version)

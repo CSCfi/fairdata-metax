@@ -7,6 +7,7 @@
 
 from copy import deepcopy
 from datetime import datetime, timedelta
+from time import sleep
 
 import responses
 from django.conf import settings as django_settings
@@ -2303,6 +2304,7 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['date_cumulation_started'], response.data['date_created'], response.data)
         self.assertTrue('date_cumulation_ended' not in response.data, response.data)
+        self.assertTrue('date_last_cumulative_addition' not in response.data, response.data)
 
     def test_adding_files_to_cumulative_dataset_creates_no_new_versions(self):
         """
@@ -2328,6 +2330,15 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         self.assert_file_count(response.data, 8)
         self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 8)
         self.assertEqual('new_dataset_version' in response.data, False, 'New version should not be created')
+
+    def test_adding_files_to_cumulative_dataset_changes_date_last_cumulative_addition(self):
+        cr = self._create_cumulative_dataset_with_files()
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+        sleep(1) # ensure that next request happens with different timestamp
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertTrue(response.data['date_last_cumulative_addition'] != response.data['date_created'], response.data)
 
     def test_add_single_sub_directory(self):
         """

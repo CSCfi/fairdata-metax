@@ -101,7 +101,7 @@ class DatasetRPC(CommonRPC):
         try:
             cr = CatalogRecord.objects.get(identifier=identifier)
         except CatalogRecord.DoesNotExist:
-            raise Http400('CatalogRecord \'%s\' could not be found' % identifier)
+            raise Http404('CatalogRecord \'%s\' could not be found' % identifier)
 
         if not cr.user_has_access(request):
             raise Http403('You do not have permissions to modify this dataset')

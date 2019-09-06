@@ -77,7 +77,8 @@ class CatalogRecordSerializer(CommonSerializer):
             'editor',
             'cumulative_state',
             'date_cumulation_started',
-            'date_cumulation_ended'
+            'date_cumulation_ended',
+            'date_last_cumulative_addition'
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {

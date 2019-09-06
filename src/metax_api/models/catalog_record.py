@@ -279,6 +279,9 @@ class CatalogRecord(Common):
 
     date_cumulation_ended = models.DateTimeField(null=True, help_text='Date when cumulative_state was set to CLOSED.')
 
+    date_last_cumulative_addition = models.DateTimeField(null=True, default=None,
+        help_text='Date of last file addition while actively cumulative.')
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """
@@ -930,6 +933,9 @@ class CatalogRecord(Common):
             super().save(update_fields=['research_dataset']) # save byte size calculation
             self.calculate_directory_byte_sizes_and_file_counts()
 
+            if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                self.date_last_cumulative_addition = self.date_created
+
         other_record = self._check_alternate_records()
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
@@ -1037,8 +1043,8 @@ class CatalogRecord(Common):
             self.update_datacite = False
 
         if self.field_changed('cumulative_state'):
-            # there is a RPC api for changing the state
-            self.cumulative_state = self._initial_data['cumulative_state']
+            raise Http400("Cannot change cumulative state on dataset update. "
+                        "use api /rpc/datasets/change_cumulative_state to change cumulative state.")
 
         if self.catalog_versions_datasets() and \
                 (not self.preserve_version or self.cumulative_state == self.CUMULATIVE_STATE_YES):
@@ -1186,21 +1192,22 @@ class CatalogRecord(Common):
         sql_params_insert_single = [self.id, tuple(file_changes['files_to_add']), self.id]
 
         with connection.cursor() as cr:
-            n_files_added = []
+            n_files_added = 0
             if file_changes['files_to_add']:
                 cr.execute(sql_insert_single_files, sql_params_insert_single)
-                n_files_added.extend(cr.fetchall())
+                n_files_added += cr.rowcount
 
             if file_changes['dirs_to_add_by_project']:
                 cr.execute(sql_select_and_insert_files_by_dir_path, sql_params_insert_dirs)
-                n_files_added.extend(cr.fetchall())
+                n_files_added += cr.rowcount
 
         if DEBUG:
-            _logger.debug('Added %d files to dataset %s' % (len(n_files_added), self.id))
+            _logger.debug('Added %d files to dataset %s' % (n_files_added, self.id))
 
         self._calculate_total_files_byte_size()
         self._handle_metadata_versioning()
         self.calculate_directory_byte_sizes_and_file_counts()
+        self.date_last_cumulative_addition = get_tz_aware_now_without_micros()
 
     def _files_added_for_first_time(self):
         """
@@ -1515,7 +1522,7 @@ class CatalogRecord(Common):
         )
         new_rdv.save()
 
-    def _create_new_dataset_version(self, cumulative_state=None):
+    def _create_new_dataset_version(self):
         """
         Create a new dataset version of the record who calls this method.
         """
@@ -1595,14 +1602,6 @@ class CatalogRecord(Common):
             if 'identifier' in old_editor:
                 # todo this probably does not make sense... ?
                 new_version.editor['identifier'] = old_editor['identifier']
-
-        if cumulative_state:
-            new_version.cumulative_state = cumulative_state
-            if cumulative_state == self.CUMULATIVE_STATE_YES:
-                new_version.date_cumulation_started = new_version.date_created
-                new_version.date_cumulation_ended = None
-        else:
-            new_version.cumulative_state = old_version.cumulative_state
 
         super(Common, new_version).save()
 
@@ -1777,7 +1776,10 @@ class CatalogRecord(Common):
         if self.next_dataset_version:
             raise Http400('Cannot change old dataset version')
 
-        if self.cumulative_state is not self.CUMULATIVE_STATE_NO and new_value == self.CUMULATIVE_STATE_NO:
+        if self.cumulative_state == new_value:
+            return
+
+        if new_value == self.CUMULATIVE_STATE_NO:
             raise Http400('Cumulative dataset cannot be set to non-cumulative dataset. '
                         'If you want to stop active cumulation, set cumulative status to closed.')
 
@@ -1793,11 +1795,14 @@ class CatalogRecord(Common):
         if new_value == self.CUMULATIVE_STATE_CLOSED:
             self.date_cumulation_ended = self.date_modified
 
-        if self.cumulative_state != self.CUMULATIVE_STATE_YES and new_value == self.CUMULATIVE_STATE_YES:
+        if new_value == self.CUMULATIVE_STATE_YES:
             # create new version
             file_changes = self._find_file_changes()
             self._create_temp_record(file_changes, cumulative_change=True)
-            self._create_new_dataset_version(new_value)
+            self._new_version.cumulative_state = new_value
+            self._new_version.date_cumulation_started = self._new_version.date_created
+            self._new_version.date_cumulation_ended = None
+            self._create_new_dataset_version()
             self.next_dataset_version = self._new_version
             super().save()
         else:
