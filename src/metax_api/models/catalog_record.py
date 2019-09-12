@@ -1868,6 +1868,46 @@ class CatalogRecord(Common):
 
         return True if new_state == self.CUMULATIVE_STATE_YES else False
 
+    def fix_deprecated(self):
+        """
+        Deletes all removed files and directories from research_dataset and creates new, non-deprecated version.
+        """
+        # ensures that there are removed files or directories in dataset
+        actual_changes = False
+
+        if self.research_dataset.get('files'):
+            pid_list = [ f['identifier'] for f in self.research_dataset['files'] ]
+            pid_list_fixed = File.objects.filter(identifier__in=pid_list).values_list('identifier', flat=True)
+
+            if len(pid_list_fixed) != len(pid_list):
+                self.research_dataset['files'] = [
+                    f for f in self.research_dataset['files'] if f['identifier'] in pid_list_fixed
+                ]
+                if not self.research_dataset['files']:
+                    del self.research_dataset['files']
+                actual_changes = True
+
+        if self.research_dataset.get('directories'):
+            pid_list = [ d['identifier'] for d in self.research_dataset['directories'] ]
+            pid_list_fixed = Directory.objects.filter(identifier__in=pid_list).values_list('identifier', flat=True)
+
+            if len(pid_list_fixed) != len(pid_list):
+                self.research_dataset['directories'] = [
+                    d for d in self.research_dataset['directories'] if d['identifier'] in pid_list_fixed
+                ]
+                if not self.research_dataset['directories']:
+                    del self.research_dataset['directories']
+                actual_changes = True
+
+        if actual_changes:
+            # create new dataset version without removed files and directories
+            file_changes = self._find_file_changes()
+            self._create_temp_record(file_changes)
+            self._create_new_dataset_version()
+            self.next_dataset_version = self._new_version
+            super().save()
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
 class RabbitMQPublishRecord():
 
     """

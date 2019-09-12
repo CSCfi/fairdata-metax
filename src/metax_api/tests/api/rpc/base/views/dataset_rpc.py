@@ -12,7 +12,7 @@ from rest_framework.test import APITestCase
 import responses
 
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, File
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 
@@ -226,3 +226,119 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         new_cr = self._get_cr(new_version_identifier)
         return_data = self._update_cr_cumulative_state(new_cr['identifier'], 2)
         self.assertEqual(return_data, None, 'when new version is not created, return should be None')
+
+
+class FixDeprecatedTests(APITestCase, TestClassUtils):
+    """
+    Tests for fix_deprecated api. Tests remove files/directories from database and then checks that
+    fix_deprecated api removes those files/directories from the given dataset.
+    """
+
+    def setUp(self):
+        super().setUp()
+        call_command('loaddata', test_data_file_path, verbosity=0)
+        self._use_http_authorization()
+
+    def _get_next_dataset_version(self, identifier):
+        """
+        Returns next dataset version for dataset <identifier>
+        """
+        response = self.client.get('/rest/datasets/%s' % identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertTrue('next_dataset_version' in response.data, 'new dataset should be created')
+        response = self.client.get('/rest/datasets/%s' % response.data['next_dataset_version']['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        return response.data
+
+    def test_fix_deprecated_files(self):
+        file_count_before = CatalogRecord.objects.get(pk=1).files.count()
+
+        # delete file from dataset
+        deleted_file = File.objects.get(pk=1)
+        response = self.client.delete('/rest/files/%s' % deleted_file.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['deprecated'], 'dataset should be deprecated')
+        identifier = response.data['identifier']
+
+        # fix deprecated dataset
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % identifier)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # ensure that new dataset version is not deprecated, removed file is deleted from research_dataset
+        # and dataset files contain only the non-removed file
+        new_cr_version = self._get_next_dataset_version(identifier)
+        file_count_after = CatalogRecord.objects.get(pk=new_cr_version['id']).files.count()
+        self.assertEqual(new_cr_version['deprecated'], False, 'deprecated flag should be fixed')
+        self.assertEqual(file_count_after, file_count_before - 1, 'new file count should be smaller than before delete')
+        self.assertTrue(deleted_file.identifier not in
+            [ f['identifier'] for f in new_cr_version['research_dataset']['files'] ])
+
+    def test_fix_deprecated_directories(self):
+        """
+        This test performs following steps:
+        1. Freeze a new file and add the parent directory of this file to a dataset
+        2. Unfreeze the new file, which makes the directory to be deleted and the dataset to be deprecated
+        3. When calling the fix_deprecated api, new dataset version is created with deprecated flag False
+            and deleted directory is removed from research_dataset. Ensures that file count is correct.
+        """
+        # freeze a new file
+        new_file = self._get_object_from_test_data('file', requested_index=0)
+        new_file.update({
+            "checksum": {
+                "value": "checksumvalue",
+                "algorithm": "sha2",
+                "checked": "2017-05-23T10:07:22.559656Z",
+            },
+            "file_name": "totally_new.tiff",
+            "file_path": "/world_class_experiment/totally_new.tiff",
+            "project_identifier": "testirojekti",
+            "identifier": "test:file:tiff",
+            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
+        })
+        response = self.client.post('/rest/files', new_file, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        file_in_dir_identifier = response.data['identifier']
+        response = self.client.get('/rest/directories/%s' % response.data['parent_directory']['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        dir_identifier = response.data['identifier']
+
+        # add/describe the parent directory of the newly added file to the dataset
+        response = self.client.get('/rest/datasets/1')
+        response.data['research_dataset']['directories'] = [
+            {
+                "identifier": dir_identifier,
+                "title": "new dir for this dataset",
+                "use_category": {
+                    "identifier": "method"
+                }
+            }
+        ]
+        response = self.client.put('/rest/datasets/1', response.data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr_with_dir = self._get_next_dataset_version(response.data['identifier'])
+        file_count_with_dir = CatalogRecord.objects.get(identifier=cr_with_dir['identifier']).files.count()
+
+        # delete/unfreeze the file contained by described directory
+        response = self.client.delete('/rest/files/%s' % file_in_dir_identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # fix deprecated dataset
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % cr_with_dir['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # ensure old dataset is unchanged
+        response = self.client.get('/rest/datasets/%s' % cr_with_dir['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['directories']), 1,
+            'old dataset version directories should still contain the removed directory')
+        self.assertTrue(response.data['deprecated'], 'old dataset version deprecated flag should not be changed')
+
+        # ensure the new dataset is correct
+        new_cr_version = self._get_next_dataset_version(cr_with_dir['identifier'])
+        file_count_wo_dir = CatalogRecord.objects.get(identifier=new_cr_version['identifier']).files.count()
+        self.assertEqual(new_cr_version['deprecated'], False, 'deprecated flag should be fixed')
+        self.assertEqual(file_count_wo_dir, file_count_with_dir - 1, 'new file count should be on smaller than before')
+        self.assertTrue('directories' not in new_cr_version['research_dataset'])

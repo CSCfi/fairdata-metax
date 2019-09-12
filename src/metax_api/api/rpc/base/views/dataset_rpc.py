@@ -116,6 +116,23 @@ class DatasetRPC(CommonRPC):
 
         return Response(data=data, status=return_status)
 
+    @list_route(methods=['post'], url_path="fix_deprecated")
+    def fix_deprecated(self, request):
+        if not request.query_params.get('identifier', False):
+            raise Http400('Query param \'identifier\' missing. Please specify ?identifier=<catalog record identifier>')
+
+        try:
+            cr = CatalogRecord.objects.get(identifier=request.query_params['identifier'])
+        except CatalogRecord.DoesNotExist:
+            raise Http404
+
+        if not cr.deprecated:
+            raise Http400('Requested catalog record is not deprecated')
+
+        cr.fix_deprecated()
+
+        return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+
     def _save_and_publish_dataset(self, cr, action):
         try:
             DataciteService().get_validated_datacite_json(
