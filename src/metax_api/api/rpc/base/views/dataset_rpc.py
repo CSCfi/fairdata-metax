@@ -18,6 +18,7 @@ from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord
 from metax_api.models.catalog_record import DataciteDOIUpdate
+from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.services.datacite_service import DataciteException, DataciteService, convert_cr_to_datacite_cr_json
 from metax_api.utils import generate_doi_identifier, is_metax_generated_doi_identifier
 from .common_rpc import CommonRPC
@@ -130,8 +131,9 @@ class DatasetRPC(CommonRPC):
             raise Http400('Requested catalog record is not deprecated')
 
         cr.fix_deprecated()
+        data = { 'new_version_created': self.get_serializer(cr).data['new_version_created'] }
 
-        return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        return Response(data=data, status=status.HTTP_200_OK)
 
     def _save_and_publish_dataset(self, cr, action):
         try:
