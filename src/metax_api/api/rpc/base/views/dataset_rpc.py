@@ -93,19 +93,14 @@ class DatasetRPC(CommonRPC):
             raise Http400('Query param \'cumulative_state\' missing')
 
         try:
-            state_value = int(state_value)
-            assert state_value in [0, 1, 2]
-        except:
-            raise Http400('cumulative_state must be 0, 1 or 2')
-
-        try:
             cr = CatalogRecord.objects.get(identifier=identifier)
         except CatalogRecord.DoesNotExist:
-            raise Http404('CatalogRecord \'%s\' could not be found' % identifier)
+            raise Http404
 
         if not cr.user_has_access(request):
             raise Http403('You do not have permissions to modify this dataset')
 
+        cr.request = request
         cr.change_cumulative_state(state_value)
 
         return Response(data=None, status=status.HTTP_204_NO_CONTENT)

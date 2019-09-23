@@ -114,7 +114,9 @@ class DatasetRPCTests(APITestCase, TestClassUtils):
         response = self.client.post(f'/rpc/datasets/set_preservation_identifier?identifier={identifier}')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
+
 class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
+
     """
     This class tests different cumulative state transitions. Different parent class is needed
     to get use of cr_test_data.
@@ -141,6 +143,11 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
 
         return response.data
 
+    def _assert_file_counts(self, new_version):
+        new_count = CatalogRecord.objects.get(pk=new_version['id']).files.count()
+        old_count = CatalogRecord.objects.get(pk=new_version['previous_dataset_version']['id']).files.count()
+        self.assertEqual(new_count, old_count, 'file count between versions should match')
+
     def test_transitions_from_NO(self):
         """
         Transition from non-cumulative to active is allowed but to closed it is not.
@@ -166,6 +173,7 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         new_version = self._get_cr(old_version['next_dataset_version']['identifier'])
         self.assertTrue(new_version['research_dataset']['preferred_identifier'] != orig_preferred_identifier)
         self.assertEqual(new_version['cumulative_state'], 1, 'new version should have changed status')
+        self._assert_file_counts(new_version)
 
     def test_transitions_from_YES(self):
         cr = self._create_cumulative_dataset(1)
@@ -200,3 +208,4 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         new_version = self._get_cr(old_version['next_dataset_version']['identifier'])
         self.assertEqual(new_version['cumulative_state'], 1, 'new version should have changed status')
         self.assertTrue('date_cumulation_ended' not in new_version, new_version)
+        self._assert_file_counts(new_version)

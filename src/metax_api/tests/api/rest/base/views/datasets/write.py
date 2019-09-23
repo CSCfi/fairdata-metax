@@ -2517,6 +2517,22 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         self.assert_file_count(response.data, 10)
         self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
 
+    def test_removing_files_from_in_directory_is_detected(self):
+        cr = self._create_cumulative_dataset_with_files()
+        self._add_directory(cr, '/TestExperiment/Directory_2')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self._remove_file(cr, '/TestExperiment/Directory_2')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # ensure that there are no changes
+        response = self.client.get('/rest/datasets/%s' % cr['identifier'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assert_file_count(response.data, 10)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
+
 
 class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFilesCommon):
 
