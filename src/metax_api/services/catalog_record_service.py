@@ -115,6 +115,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         """
         Set complex queries for filtering datasets by creator, curator, publisher and/or rights_holder.
         'condition_separator' -parameter defines if these are OR'ed or AND'ed (Default=AND) together.
+        Organization filters also search matches from person's "member_of" field.
         Q-filters from multiple queries are AND'ed together eventually.
         """
         def _get_person_filter(agent, person):
@@ -141,13 +142,23 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             if agent == 'publisher':
                 name_filter |= (Q(**{ f'research_dataset__{agent}__name__en__iregex':  org }))
                 name_filter |= (Q(**{ f'research_dataset__{agent}__name__fi__iregex':  org }))
+                name_filter |= (Q(**{ f'research_dataset__{agent}__member_of__name__en__iregex':  org }))
+                name_filter |= (Q(**{ f'research_dataset__{agent}__member_of__name__fi__iregex':  org }))
             else:
                 for i in range(3):
                     name_filter |= (Q(**{ f'research_dataset__{agent}__{i}__name__en__iregex':  org }))
                     name_filter |= (Q(**{ f'research_dataset__{agent}__{i}__name__fi__iregex':  org }))
+                    name_filter |= (Q(**{ f'research_dataset__{agent}__{i}__member_of__name__en__iregex':  org }))
+                    name_filter |= (Q(**{ f'research_dataset__{agent}__{i}__member_of__name__fi__iregex':  org }))
 
-                name_filter |= (Q(**{ f'research_dataset__{agent}__contains':  [{ 'name': {'en': org} }] }))
-                name_filter |= (Q(**{ f'research_dataset__{agent}__contains':  [{ 'name': {'fi': org} }] }))
+                name_filter |= (Q(**{ f'research_dataset__{agent}__contains': [{ 'name': {'en': org} }] }))
+                name_filter |= (Q(**{ f'research_dataset__{agent}__contains': [{ 'name': {'fi': org} }] }))
+                name_filter |= (
+                    Q(**{ f'research_dataset__{agent}__contains': [{ 'member_of': {'name': {'en': org}} }] })
+                )
+                name_filter |= (
+                    Q(**{ f'research_dataset__{agent}__contains': [{ 'member_of': {'name': {'fi': org}} }] })
+                )
 
             return name_filter
 
