@@ -376,11 +376,29 @@ class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
         # set test conditions
         cr = CatalogRecord.objects.get(pk=11)
         cr.research_dataset['curator'] = []
-        cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Tarmo Termiitti' })
+        cr.research_dataset['curator'].append({
+            '@type': 'Person',
+            'name': 'Tarmo Termiitti',
+            'member_of': {
+                'identifier': 'org_identifier',
+                'name': {
+                    'en': 'Unique Organization'
+                }
+            }
+        })
         cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Keijo Kottarainen' })
         cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Janus Järvinen' })
         cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Laina Sakkonen' })
-        cr.research_dataset['curator'].append({ '@type': 'Person', 'name': 'Kaisa Kuraattori' })
+        cr.research_dataset['curator'].append({
+            '@type': 'Person',
+            'name': 'Kaisa Kuraattori',
+            'member_of': {
+                'identifier': 'org_identifier',
+                'name': {
+                    'en': 'Happy Organization'
+                }
+            }
+        })
         cr.research_dataset['creator'] = []
         cr.research_dataset['creator'].append({ '@type': 'Organization', 'name': { 'en': 'Unique Organization'} })
         cr.research_dataset['creator'].append({ '@type': 'Organization', 'name': { 'en': 'Happy Organization'} })
@@ -401,6 +419,12 @@ class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data['results']), 1, response.data)
 
         response = self.client.get('/rest/datasets?curator_person=Laina Sakkonen')
+        self.assertEqual(len(response.data['results']), 1, response.data)
+
+        response = self.client.get('/rest/datasets?curator_organization=uniqu')
+        self.assertEqual(len(response.data['results']), 1, response.data)
+
+        response = self.client.get('/rest/datasets?curator_organization=Happy Organization')
         self.assertEqual(len(response.data['results']), 1, response.data)
 
         response = self.client.get('/rest/datasets?publisher_organization=originaali Organisaatio')
