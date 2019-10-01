@@ -137,6 +137,8 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         response = self.client.post(url % (identifier, state), format="json")
         self.assertEqual(response.status_code, result, response.data)
 
+        return response.data
+
     def _get_cr(self, identifier):
         response = self.client.get('/rest/datasets/%s' % identifier, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -158,7 +160,7 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         orig_record_count = CatalogRecord.objects.all().count()
         self._update_cr_cumulative_state(cr_orig['identifier'], 2, status.HTTP_400_BAD_REQUEST)
 
-        self._update_cr_cumulative_state(cr_orig['identifier'], 1)
+        self._update_cr_cumulative_state(cr_orig['identifier'], 1, status.HTTP_200_OK)
         self.assertEqual(CatalogRecord.objects.all().count(), orig_record_count + 1)
 
         # get updated dataset
@@ -196,7 +198,7 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         self._update_cr_cumulative_state(cr['identifier'], 0, status.HTTP_400_BAD_REQUEST)
 
         # changing to active cumulative dataset creates a new version
-        self._update_cr_cumulative_state(cr['identifier'], 1)
+        self._update_cr_cumulative_state(cr['identifier'], 1, status.HTTP_200_OK)
         self.assertEqual(CatalogRecord.objects.all().count(), orig_record_count + 1)
         old_version = self._get_cr(cr['identifier'])
 
@@ -209,3 +211,18 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         self.assertEqual(new_version['cumulative_state'], 1, 'new version should have changed status')
         self.assertTrue('date_cumulation_ended' not in new_version, new_version)
         self._assert_file_counts(new_version)
+
+    def test_correct_response_data(self):
+        """
+        Tests that correct information is set to response.
+        """
+        cr = self._create_cumulative_dataset(0)
+        return_data = self._update_cr_cumulative_state(cr['identifier'], 1, status.HTTP_200_OK)
+        self.assertTrue('new_version_created' in return_data, 'new_version_created should be returned')
+        new_version_identifier = return_data['new_version_created']['identifier']
+        cr = self._get_cr(cr['identifier'])
+        self.assertEqual(cr['next_dataset_version']['identifier'], new_version_identifier)
+
+        new_cr = self._get_cr(new_version_identifier)
+        return_data = self._update_cr_cumulative_state(new_cr['identifier'], 2)
+        self.assertEqual(return_data, None, 'when new version is not created, return should be None')

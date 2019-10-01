@@ -14,6 +14,7 @@ from rest_framework import status
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
+from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord
 from metax_api.models.catalog_record import DataciteDOIUpdate
@@ -25,6 +26,9 @@ _logger = logging.getLogger(__name__)
 
 
 class DatasetRPC(CommonRPC):
+
+    serializer_class = CatalogRecordSerializer
+    object = CatalogRecord
 
     @list_route(methods=['get'], url_path="get_minimal_dataset_template")
     def get_minimal_dataset_template(self, request):
@@ -101,9 +105,16 @@ class DatasetRPC(CommonRPC):
             raise Http403('You do not have permissions to modify this dataset')
 
         cr.request = request
-        cr.change_cumulative_state(state_value)
 
-        return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        if cr.change_cumulative_state(state_value):
+            # new version is created
+            return_status = status.HTTP_200_OK
+            data = { 'new_version_created': self.get_serializer(cr).data['new_version_created'] }
+        else:
+            return_status = status.HTTP_204_NO_CONTENT
+            data = None
+
+        return Response(data=data, status=return_status)
 
     def _save_and_publish_dataset(self, cr, action):
         try:

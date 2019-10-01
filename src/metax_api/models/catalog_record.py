@@ -1791,7 +1791,7 @@ class CatalogRecord(Common):
     def change_cumulative_state(self, new_state):
         """
         Change field cumulative_state to new_state. Creates a new dataset version when
-        a new cumulative period is started.
+        a new cumulative period is started. Returns True if new dataset version is created, otherwise False.
         """
 
         if self.next_dataset_version:
@@ -1811,7 +1811,7 @@ class CatalogRecord(Common):
 
         if self.cumulative_state == new_state:
             _logger.info('No change in cumulative_state')
-            return
+            return False
 
         self.date_modified = get_tz_aware_now_without_micros()
         self.service_modified = self.request.user.username if self.request.user.is_service else None
@@ -1865,6 +1865,8 @@ class CatalogRecord(Common):
             super().save()
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+        return True if new_state == self.CUMULATIVE_STATE_YES else False
 
 class RabbitMQPublishRecord():
 
