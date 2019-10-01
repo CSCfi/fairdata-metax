@@ -116,6 +116,34 @@ class DatasetRPC(CommonRPC):
 
         return Response(data=data, status=return_status)
 
+    @list_route(methods=['post'], url_path="refresh_directory_content")
+    def refresh_directory_content(self, request):
+        cr_identifier = request.query_params.get('cr_identifier', False)
+        dir_identifier = request.query_params.get('dir_identifier', False)
+        if not cr_identifier:
+            raise Http400('Query param \'cr_identifier\' missing.')
+        if not dir_identifier:
+            raise Http400('Query param \'dir_identifier\' missing.')
+
+        try:
+            cr = CatalogRecord.objects.get(identifier=cr_identifier)
+        except CatalogRecord.DoesNotExist:
+            raise Http404(f'CatalogRecord \'{cr_identifier}\' could not be found')
+
+        if not cr.user_has_access(request):
+            raise Http403('You do not have permissions to modify this dataset')
+
+        cr.request = request
+
+        if cr.refresh_directory_content(dir_identifier):
+            return_status = status.HTTP_200_OK
+            data = { 'new_version_created': self.get_serializer(cr).data['new_version_created'] }
+        else:
+            return_status = status.HTTP_204_NO_CONTENT
+            data = None
+
+        return Response(data=data, status=return_status)
+
     def _save_and_publish_dataset(self, cr, action):
         try:
             DataciteService().get_validated_datacite_json(

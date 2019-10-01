@@ -11,7 +11,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 import responses
 
-from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
+from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteAssignFilesCommon, \
+    CatalogRecordApiWriteCommon
 from metax_api.models import CatalogRecord
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
@@ -226,3 +227,104 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         new_cr = self._get_cr(new_version_identifier)
         return_data = self._update_cr_cumulative_state(new_cr['identifier'], 2)
         self.assertEqual(return_data, None, 'when new version is not created, return should be None')
+
+
+class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
+
+    url = '/rpc/datasets/refresh_directory_content?cr_identifier=%s&dir_identifier=%s'
+
+    def test_refresh_adds_new_files(self):
+        self._add_directory(self.cr_test_data, '/TestExperiment')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+
+        # freeze two files to /TestExperiment/Directory_2
+        self._freeze_files_to_root()
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
+
+        # freeze two files to /TestExperiment/Directory_2/Group_3
+        self._freeze_new_files()
+        response = self.client.post(self.url % (new_version.identifier, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
+
+    def test_refresh_adds_new_files_multiple_locations(self):
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+
+        self._freeze_new_files()
+        self._freeze_files_to_root()
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 4)
+
+    def test_refresh_adds_no_new_files_from_upper_dirs(self):
+        """
+        Include parent/subdir and freeze files to parent. Should be no changes in the dataset.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+        file_count_before = CatalogRecord.objects.get(identifier=cr_id).files.count()
+
+        self._freeze_files_to_root()
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        cr_after = CatalogRecord.objects.get(identifier=cr_id)
+        self.assertEqual(cr_after.next_dataset_version, None, 'should not have new dataset version')
+        self.assertEqual(cr_after.files.count(), file_count_before, 'No new files should be added')
+
+    def test_refresh_with_cumulative_state_yes(self):
+        """
+        When dataset has cumulation active, files are added to dataset but no new version is created.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        self.cr_test_data['cumulative_state'] = 1
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+        file_count_before = CatalogRecord.objects.get(identifier=cr_id).files.count()
+
+        self._freeze_new_files()
+        self._freeze_files_to_root()
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        cr_after = CatalogRecord.objects.get(identifier=cr_id)
+        self.assertEqual(cr_after.next_dataset_version, None, 'should not have new dataset version')
+        self.assertEqual(cr_after.files.count(), file_count_before + 4)
+
+    def test_refreshing_deprecated_dataset_is_not_allowed(self):
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+
+        removed_file_id = CatalogRecord.objects.get(identifier=cr_id).files.all()[0].id
+        response = self.client.delete(f'/rest/files/{removed_file_id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get(f'/rest/datasets/{cr_id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        depr_cr = response.data
+        self._freeze_new_files()
+        response = self.client.post(self.url % (depr_cr['identifier'], dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)

@@ -1868,6 +1868,72 @@ class CatalogRecord(Common):
 
         return True if new_state == self.CUMULATIVE_STATE_YES else False
 
+    def refresh_directory_content(self, dir_identifier):
+        """
+        Checks if there are new files frozen to given directory and adds those files to dataset.
+        Creates new version on file addition if dataset is not cumulative.
+        Returns True if new dataset version is created, False otherwise.
+        """
+
+        if self.deprecated:
+            raise Http400('Cannot update files on deprecated dataset. '
+                        'You can remove all deleted files from dataset using API /rpc/datasets/fix_deprecated.')
+        try:
+            dir = Directory.objects.get(identifier=dir_identifier)
+        except Directory.DoesNotExist:
+            raise Http404(f'Directory \'{dir_identifier}\' could not be found')
+
+        added_file_ids = self._find_new_files_added_to_dir(dir)
+
+        if not added_file_ids:
+            _logger.info('no change in directory content')
+            return False
+
+        _logger.info(f'refreshing directory adds {len(added_file_ids)} files to dataset')
+        self.date_modified = get_tz_aware_now_without_micros()
+        self.service_modified = self.request.user.username if self.request.user.is_service else None
+
+        if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+            self.files.add(*added_file_ids)
+            self.date_last_cumulative_addition = self.date_modified
+
+        else:
+            new_version = self._create_new_dataset_version_template()
+            super(Common, new_version).save()
+
+            # add all files from previous version in addition to new ones
+            new_version.files.add(*added_file_ids, *self.files.values_list('id', flat=True))
+
+            self._new_version = new_version
+            self._create_new_dataset_version()
+
+        super().save()
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+        return True if self.cumulative_state != self.CUMULATIVE_STATE_YES else False
+
+    def _find_new_files_added_to_dir(self, dir):
+        sql_insert_newly_frozen_files_by_dir_path = '''
+            select f.id
+            from metax_api_file as f
+            where f.active = true and f.removed = false
+            and f.project_identifier = %s
+            and f.file_path like (%s || '/%%')
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+        '''
+        sql_params_insert_new_files = [dir.project_identifier, dir.directory_path, self.id]
+
+        with connection.cursor() as cr:
+            cr.execute(sql_insert_newly_frozen_files_by_dir_path, sql_params_insert_new_files)
+            added_file_ids = [ v[0] for v in cr.fetchall() ]
+
+        return added_file_ids
+
+
 class RabbitMQPublishRecord():
 
     """
