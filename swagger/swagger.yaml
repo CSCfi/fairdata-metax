@@ -834,9 +834,9 @@ paths:
           description: |
             actor_filters are a collection of filter parameters for filtering according to the name
             of creator, curator, publisher or rights_holder actors. Actor type must be defined as
-            a suffix in the filter name ('_person' or '_organization'). Multiple actor_filters can
-            be applied simultaneously (AND) or separately (OR) by using 'condition_separator'.
-            Default separator is AND.
+            a suffix in the filter name ('_person' or '_organization'). Actor type '_organization' finds matches
+            from "is_member_of" -field if actor is a person. Multiple actor_filters can be applied simultaneously (AND)
+            or separately (OR) by using 'condition_separator'. Default separator is AND.
 
             Examples&#58;
 
