@@ -1420,50 +1420,21 @@ class CatalogRecord(Common):
 
         return actual_files_changed, file_changes
 
-<<<<<<< HEAD
     def _create_temp_record(self, file_changes):
         """
         Create a temporary record to perform the file changes on, to see if there were real file changes.
         If no, discard it. If yes, the temp_record will be transformed into the new dataset version record.
         """
-=======
-    def _create_temp_record(self, file_changes=None, cumulative_change=False, fix_deprecated=False):
->>>>>>> CSCMETAX-650: [FIX] new implementation and more tests
         actual_files_changed = False
-
-        # this method is called in various cases, ensure caller knows what it is doing
-        assert file_changes is not None or fix_deprecated, 'one of these should be applied'
 
         try:
             with transaction.atomic():
-<<<<<<< HEAD
 
                 temp_record = self._create_new_dataset_version_template()
 
                 actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
 
                 if actual_files_changed:
-=======
-                # create a temporary record to perform the file changes on, to see if there were real file changes.
-                # if no, discard it. if yes, the temp_record will be transformed into the new dataset version record.
-                # New version is also created when cumulative state is changed from no/closed to yes.
-                temp_record = CatalogRecord.objects.get(pk=self.id)
-                temp_record.id = None
-                temp_record.next_dataset_version = None
-                temp_record.previous_dataset_version = None
-                temp_record.dataset_version_set = None
-                temp_record.identifier = generate_uuid_identifier()
-                temp_record.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
-                temp_record.preservation_identifier = None
-                super(Common, temp_record).save()
-                if fix_deprecated:
-                    actual_files_changed = True
-                else:
-                    actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
-
-                if (actual_files_changed and not self.cumulative_state == self.CUMULATIVE_STATE_YES)\
-                        or cumulative_change:
->>>>>>> CSCMETAX-650: [FIX] new implementation and more tests
                     self._new_version = temp_record
                 else:
                     _logger.debug('no real file changes detected, discarding the temporary record...')
@@ -1901,11 +1872,11 @@ class CatalogRecord(Common):
         """
         Deletes all removed files and directories from dataset and creates new, non-deprecated version.
         """
-        self._create_temp_record(fix_deprecated=True)
+        new_version = self._create_new_dataset_version_template()
+        self._new_version = new_version
         self._fix_deprecated_research_dataset()
         self._copy_undeleted_files_from_old_version()
         self._create_new_dataset_version()
-        self.next_dataset_version = self._new_version
         super().save()
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
