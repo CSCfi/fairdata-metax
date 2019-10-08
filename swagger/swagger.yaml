@@ -1382,6 +1382,19 @@ paths:
           description: successful operation. Files were added and new dataset version was created. Returns information about the new dataset version.
         '204':
           description: successful operation. Files were added and new dataset version was not created or no new files were found. Returns no content.
+  /rpc/datasets/fix_deprecated:
+    post:
+      summary: Fixes deprecated dataset
+      description: Deletes all removed files from dataset and creates new version which will be non-deprecated.
+      parameters:
+        - name: identifier
+          in: query
+          description: Identifier of the catalog record to be fixed.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, returns information about the new dataset version.
       tags:
         - Dataset RPC
   # /rpc/statistics/count_datasets:

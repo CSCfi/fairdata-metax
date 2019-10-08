@@ -1940,6 +1940,65 @@ class CatalogRecord(Common):
 
         return added_file_ids
 
+    def fix_deprecated(self):
+        """
+        Deletes all removed files and directories from dataset and creates new, non-deprecated version.
+        """
+        new_version = self._create_new_dataset_version_template()
+        self._new_version = new_version
+        self._fix_deprecated_research_dataset()
+        self._copy_undeleted_files_from_old_version()
+        self._create_new_dataset_version()
+        super().save()
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+    def _fix_deprecated_research_dataset(self):
+        if self.research_dataset.get('files'):
+            pid_list = [ f['identifier'] for f in self.research_dataset['files'] ]
+            pid_list_fixed = File.objects.filter(identifier__in=pid_list).values_list('identifier', flat=True)
+
+            if len(pid_list_fixed) != len(pid_list):
+                self.research_dataset['files'] = [
+                    f for f in self.research_dataset['files'] if f['identifier'] in pid_list_fixed
+                ]
+                if not self.research_dataset['files']:
+                    del self.research_dataset['files']
+
+        if self.research_dataset.get('directories'):
+            pid_list = [ d['identifier'] for d in self.research_dataset['directories'] ]
+            pid_list_fixed = Directory.objects.filter(identifier__in=pid_list).values_list('identifier', flat=True)
+
+            if len(pid_list_fixed) != len(pid_list):
+                self.research_dataset['directories'] = [
+                    d for d in self.research_dataset['directories'] if d['identifier'] in pid_list_fixed
+                ]
+                if not self.research_dataset['directories']:
+                    del self.research_dataset['directories']
+
+    def _copy_undeleted_files_from_old_version(self):
+        copy_undeleted_files_sql = '''
+            insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+            select %s as catalogrecord_id, file_id
+            from metax_api_catalogrecord_files as cr_f
+            inner join metax_api_file as f on f.id = cr_f.file_id
+            where catalogrecord_id = %s
+            and f.active = true and f.removed = false
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+            returning file_id
+        '''
+        sql_params_copy_undeleted = [self._new_version.id, self.id, self._new_version.id]
+
+        with connection.cursor() as cr:
+            cr.execute(copy_undeleted_files_sql, sql_params_copy_undeleted)
+            n_files_copied = cr.rowcount
+
+        if DEBUG:
+            _logger.debug('Added %d files to dataset %s' % (n_files_copied, self._new_version.id))
+
 
 class RabbitMQPublishRecord():
 
