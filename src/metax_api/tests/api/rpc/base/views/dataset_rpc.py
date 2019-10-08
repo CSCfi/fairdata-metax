@@ -13,7 +13,7 @@ import responses
 
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteAssignFilesCommon, \
     CatalogRecordApiWriteCommon
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, Directory
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 
@@ -256,6 +256,24 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
         self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
 
+    def test_adding_parent_dir_allows_refreshes_to_child_dirs(self):
+        """
+        When parent directory is added to dataset, refreshes to child directories are also possible.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+
+        self._freeze_new_files()
+        frozen_dir = Directory.objects.filter(directory_path='/TestExperiment/Directory_2/Group_3').first()
+
+        response = self.client.post(self.url % (cr_id, frozen_dir.identifier), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
+
     def test_refresh_adds_new_files_multiple_locations(self):
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
@@ -328,3 +346,22 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         self._freeze_new_files()
         response = self.client.post(self.url % (depr_cr['identifier'], dir_id), format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_adding_files_from_non_assigned_dir_is_not_allowed(self):
+        """
+        Only allow adding files from directories which paths are included in the research dataset.
+        """
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+
+        # create another dataset so that dir /SecondExperiment/Data_Config will be created
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data_Config')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        dir_id = response.data['research_dataset']['directories'][1]['identifier']
+
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('not included' in response.data['detail'], response.data)

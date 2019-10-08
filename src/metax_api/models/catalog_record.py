@@ -1883,6 +1883,13 @@ class CatalogRecord(Common):
         except Directory.DoesNotExist:
             raise Http404(f'Directory \'{dir_identifier}\' could not be found')
 
+        dir_identifiers = [ d['identifier'] for d in self.research_dataset['directories'] ]
+        base_paths = Directory.objects.filter(identifier__in=dir_identifiers).values_list('directory_path', flat=True)
+
+        if dir.directory_path not in base_paths and \
+                not any([ dir.directory_path.startswith(f'{p}/') for p in base_paths ]):
+            raise Http400(f'Directory \'{dir_identifier}\' is not included in this dataset')
+
         added_file_ids = self._find_new_files_added_to_dir(dir)
 
         if not added_file_ids:

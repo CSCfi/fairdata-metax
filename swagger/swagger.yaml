@@ -1364,6 +1364,26 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
+  /rpc/datasets/refresh_directory_content:
+    post:
+      summary: Search for new frozen files from directory and add them to dataset
+      description: Find all new frozen files from given directory and add them to given dataset following normal versioning rules. Not allowed for deprecated datasets. Returns information about new dataset version if one is created. You must have rights to modify the record.
+      parameteres:
+        - name: cr_identifier
+          in: query
+          description: Catalog record identifier where the files will be added.
+          required: true
+          type: string
+        - name: dir_identifier
+          in: query
+          description: Directory identifier from where the new files will be searched.
+      responses:
+        '200':
+          description: successful operation. Files were added and new dataset version was created. Returns information about the new dataset version.
+        '204':
+          description: successful operation. Files were added and new dataset version was not created or no new files were found. Returns no content.
+      tags:
+        - Dataset RPC
   # /rpc/statistics/count_datasets:
   #   get:
   #     summary: Get the total number of datasets and file sizes.
