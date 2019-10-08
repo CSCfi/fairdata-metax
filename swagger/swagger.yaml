@@ -1364,6 +1364,21 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
+  /rpc/datasets/fix_deprecated:
+    post:
+      summary: Fixes deprecated dataset
+      description: Deletes all removed files from dataset and creates new version which will be non-deprecated.
+      parameters:
+        - name: identifier
+          in: query
+          description: Identifier of the catalog record to be fixed.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, returns information about the new dataset version.
+      tags:
+        - Dataset RPC
   # /rpc/statistics/count_datasets:
   #   get:
   #     summary: Get the total number of datasets and file sizes.
