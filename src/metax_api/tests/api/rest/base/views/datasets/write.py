@@ -863,11 +863,11 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
     def test_catalog_record_partial_update_list(self):
         test_data = {}
         test_data['id'] = 1
-        test_data['preservation_state'] = 10
+        test_data['preservation_description'] = 'description'
 
         second_test_data = {}
         second_test_data['id'] = 2
-        second_test_data['preservation_state'] = 20
+        second_test_data['preservation_description'] = 'description 2'
 
         response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -877,12 +877,12 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
                          'response.data should contain full objects')
 
         updated_cr = CatalogRecord.objects.get(pk=1)
-        self.assertEqual(updated_cr.preservation_state, 10, 'preservation state should have changed to 1')
+        self.assertEqual(updated_cr.preservation_description, 'description')
 
     def test_catalog_record_partial_update_list_error_one_fails(self):
         test_data = {}
         test_data['id'] = 1
-        test_data['preservation_state'] = 10
+        test_data['preservation_description'] = 'description'
 
         second_test_data = {}
         second_test_data['preservation_state'] = 555  # value not allowed
@@ -962,26 +962,34 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
     Field preservation_state related tests.
     """
 
+    def _create_pas_dataset_from_id(self, id):
+        """
+        Helper method to create a pas dataset by updating the given dataset's
+        preservation_state to 80.
+        """
+        cr_data = self.client.get('/rest/datasets/%d' % id, format="json").data
+        self.assertEqual(cr_data['preservation_state'], 0)
+
+        # update state to "accepted to pas" -> should create pas version
+        cr_data['preservation_state'] = 80
+        response = self.client.put('/rest/datasets/%d' % id, cr_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        return response.data
+
+    def setUp(self):
+        super().setUp()
+        dc = DataCatalog.objects.get(pk=1)
+        catalog_json = dc.catalog_json
+        catalog_json['identifier'] = django_settings.PAS_DATA_CATALOG_IDENTIFIER
+        catalog_json['dataset_versioning'] = False
+        dc = DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+
     def test_update_catalog_record_pas_state_allowed_value(self):
         cr = self.client.get('/rest/datasets/1').data
         cr['preservation_state'] = 30
         response = self.client.put('/rest/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_update_catalog_record_pas_state_unallowed_value(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['preservation_state'] = 111
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
-                         'HTTP status should be 400 due to invalid value')
-        self.assertEqual('preservation_state' in response.data.keys(), True,
-                         'The error should mention the field preservation_state')
-
-    def test_update_catalog_record_preservation_state_modified_is_updated(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['preservation_state'] = 40
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         cr = CatalogRecord.objects.get(pk=1)
         self.assertEqual(cr.preservation_state_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
                          True, 'Timestamp should have been updated during object update')
@@ -1020,6 +1028,136 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         response = self.client.put('/rest/datasets/1', cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('PAS process' in response.data['detail'][0], True, response.data)
+
+    def test_non_pas_dataset_unallowed_preservation_state_values(self):
+        # update non-pas dataset
+        cr = self.client.get('/rest/datasets/1').data
+
+        values = [
+            11, # not one of known values
+            90, # value not allowed for non-pas datasets
+        ]
+
+        for invalid_value in values:
+            cr['preservation_state'] = invalid_value
+            response = self.client.put('/rest/datasets/1', cr, format="json")
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_pas_dataset_unallowed_preservation_state_values(self):
+        # create pas dataset and update with invalid values
+        cr = self.client.get('/rest/datasets/1').data
+        cr['preservation_state'] = 80
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+        cr = self.client.get('/rest/datasets/%d' % response.data['preservation_dataset_version']['id']).data
+
+        values = [
+            70,  # value not allowed for non-pas datasets
+            111, # not one of known values
+            150  # not one of known values
+        ]
+
+        for invalid_value in values:
+            cr['preservation_state'] = invalid_value
+            response = self.client.put('/rest/datasets/1', cr, format="json")
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_pas_version_is_created_on_preservation_state_80(self):
+        """
+        When preservation_state is updated to 'accepted to pas', a copy should be created into
+        designated PAS catalog.
+        """
+        cr_data = self.client.get('/rest/datasets/1', format="json").data
+        self.assertEqual(cr_data['preservation_state'], 0)
+
+        origin_dataset = self._create_pas_dataset_from_id(1)
+        self.assertEqual(origin_dataset['preservation_state'], 0)
+        self.assertEqual('new_version_created' in origin_dataset, True)
+        self.assertEqual(origin_dataset['new_version_created']['version_type'], 'pas')
+        self.assertEqual('preservation_dataset_version' in origin_dataset, True)
+        self.assertEqual('other_identifier' in origin_dataset['research_dataset'], True)
+        self.assertEqual(origin_dataset['research_dataset']['other_identifier'][0]['notation'].startswith('doi'), True)
+
+        # get pas version and verify links and other signature values are there
+        pas_dataset = self.client.get(
+            '/rest/datasets/%d' % origin_dataset['preservation_dataset_version']['id'], format="json"
+        ).data
+        self.assertEqual(pas_dataset['data_catalog']['identifier'], django_settings.PAS_DATA_CATALOG_IDENTIFIER)
+        self.assertEqual(pas_dataset['preservation_state'], 80)
+        self.assertEqual(pas_dataset['preservation_dataset_origin_version']['id'], origin_dataset['id'])
+        self.assertEqual(
+            pas_dataset['preservation_dataset_origin_version']['preferred_identifier'],
+            origin_dataset['research_dataset']['preferred_identifier']
+        )
+        self.assertEqual('deprecated' in pas_dataset['preservation_dataset_origin_version'], True)
+        self.assertEqual('other_identifier' in pas_dataset['research_dataset'], True)
+        self.assertEqual(pas_dataset['research_dataset']['other_identifier'][0]['notation'].startswith('urn'), True)
+
+        # when pas copy is created, origin_dataset preservation_state should have been set back to 0
+        cr_data = self.client.get('/rest/datasets/1', format="json").data
+        self.assertEqual(cr_data['preservation_state'], 0)
+
+    def test_origin_dataset_cant_have_multiple_pas_versions(self):
+        """
+        If state is update to 'accepted to pas', and relation preservation_dataset_version
+        is detected, an error should be raised.
+        """
+        self._create_pas_dataset_from_id(1)
+
+        cr_data = { 'preservation_state': 80 }
+        response = self.client.patch('/rest/datasets/1', cr_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('already has a PAS version' in response.data['detail'][0], True, response.data)
+
+    def test_dataset_can_be_created_directly_into_pas_catalog(self):
+        """
+        Datasets that are created directly into PAS catalog should not have any enforced
+        rules about changing preservation_state value.
+        """
+        self.cr_test_data['data_catalog'] = django_settings.PAS_DATA_CATALOG_IDENTIFIER
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # when created directly into pas catalog, preservation_state can be updated
+        # to whatever, whenever
+        ps_values = [ v[0] for v in CatalogRecord.PRESERVATION_STATE_CHOICES ]
+        for ps in ps_values:
+            cr_data = { 'preservation_state': ps }
+            response = self.client.patch('/rest/datasets/%d' % response.data['id'], cr_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr_data = { 'preservation_state': 0 }
+        response = self.client.patch('/rest/datasets/%d' % response.data['id'], cr_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_dataset_files_can_not_be_changed_in_pas_catalog(self):
+        """
+        PAS catalog does not support versioning, but it also should not permit altering
+        files, which could result in the dataset being different from the origin dataset.
+        """
+        cr = self._create_pas_dataset_from_id(1)
+
+        pas_dataset = self.client.get(
+            '/rest/datasets/%d' % cr['preservation_dataset_version']['id'], format="json"
+        ).data
+        pas_dataset['research_dataset']['files'].pop(0)
+
+        response = self.client.put('/rest/datasets/%d' % pas_dataset['id'], pas_dataset, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('Cannot change files in' in response.data['detail'], True)
+
+    def test_unfreezing_files_does_not_deprecate_pas_dataset(self):
+        """
+        Even if the origin dataset is deprecated as a result of unfreezing its files,
+        the PAS dataset should be safe from being deprecated, as the files have already
+        been stored in PAS.
+        """
+        cr = self._create_pas_dataset_from_id(1)
+        response = self.client.delete('/rest/files/1', format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        response = self.client.get('/rest/datasets/%d' % cr['preservation_dataset_version']['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['deprecated'], False)
 
 
 class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
@@ -3300,4 +3438,53 @@ class CatalogRecordApiEndUserAccessV2(CatalogRecordApiEndUserAccess):
         self._use_http_authorization(method='bearer', token=self.token)
 
         response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+    @responses.activate
+    def test_user_projects_are_checked_when_writing_into_protected_data_catalog(self):
+        '''
+        If a data catalog has field catalog_record_group_create defined, ensure
+        user's projects are checked when user tries to create or edit dataset in that catalog.
+        '''
+        permitted_create_group = 'some_permitted_create_group'
+        permitted_edit_group = 'some_permitted_edit_group'
+
+        # add limiting groups to catalog creators and editors
+        dc_identifier = END_USER_ALLOWED_DATA_CATALOGS[0] # ida
+        dc = DataCatalog.objects.get(catalog_json__identifier=dc_identifier)
+        dc.catalog_record_group_create = permitted_create_group
+        dc.catalog_record_group_edit = permitted_edit_group
+        dc.save()
+
+        # try creating without proper permisisons
+        self.cr_test_data['data_catalog'] = dc_identifier
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+        # add project membership to user's token and try again
+        # - file project, so that files may be added...
+        self.token['group_names'].append(
+            'IDA01:%s' % File.objects.get(
+                identifier=self.cr_test_data['research_dataset']['files'][0]['identifier']
+            ).project_identifier
+        )
+        # - data catalog group
+        self.token['group_names'].append(permitted_create_group)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
+
+        # attempt to modify record - should fail, since user does not have group
+        # that allows editing.
+        cr_data = response.data
+        response = self.client.put('/rest/datasets/%d' % cr_data['id'], cr_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
+
+        # add approriate editing group to token
+        self.token['group_names'].append(permitted_edit_group)
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        # try editing again - should be ok
+        response = self.client.put('/rest/datasets/%d' % cr_data['id'], cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)

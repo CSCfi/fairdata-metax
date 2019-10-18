@@ -4523,8 +4523,6 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4638,8 +4636,6 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4753,8 +4749,6 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4868,8 +4862,6 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4983,8 +4975,6 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5098,8 +5088,6 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5213,8 +5201,6 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5328,8 +5314,6 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
-            "catalog_record_group_create": "default-record-create-group",
-            "catalog_record_group_edit": "default-record-edit-group",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5682,6 +5666,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -5690,6 +5675,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d1",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d1",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -5789,6 +5780,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -5797,6 +5789,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d2",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d2",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -5896,6 +5894,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -5904,6 +5903,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d3",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d3",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6003,6 +6008,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -6011,6 +6017,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d4",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d4",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6110,6 +6122,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -6118,6 +6131,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d5",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d5",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6217,6 +6236,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -6225,6 +6245,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d6",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d6",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6324,6 +6350,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -6332,6 +6359,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d7",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d7",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6428,6 +6461,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -6436,6 +6470,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d8",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d8",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6529,6 +6569,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -6537,6 +6578,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f96d9",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f96d9",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -6631,6 +6678,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -6639,6 +6687,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -9025,6 +9079,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9033,6 +9088,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9614",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9614",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 7168,
@@ -9127,6 +9188,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9135,6 +9197,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9615",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9615",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 7680,
@@ -9229,6 +9297,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9237,6 +9306,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9616",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9616",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 8192,
@@ -9331,6 +9406,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9339,6 +9415,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9617",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9617",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 8704,
@@ -9433,6 +9515,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9441,6 +9524,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9618",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9618",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 9216,
@@ -9535,6 +9624,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9543,6 +9633,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9619",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9619",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 9728,
@@ -9635,6 +9731,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9643,6 +9740,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9620",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9620",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 10240,
@@ -9735,6 +9838,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9743,6 +9847,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9621",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9621",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 10752,
@@ -9835,6 +9945,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9843,6 +9954,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9622",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9622",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 11264,
@@ -9935,6 +10052,7 @@
                 "description": {
                     "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
                 },
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -9943,6 +10061,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9623",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9623",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "remote_resources": [
                     {
                         "byte_size": 11776,
@@ -12261,6 +12385,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -12269,6 +12394,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-1",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
@@ -12356,6 +12487,7 @@
                         }
                     }
                 ],
+                "issued": "2019-01-01",
                 "language": [
                     {
                         "identifier": "http://lexvo.org/id/iso639-3/eng"
@@ -12364,6 +12496,12 @@
                 "metadata_version_identifier": "1955e904-e3dd-4d7e-99f1-3fed446f9610-alt-2",
                 "modified": "2014-01-17T08:19:58Z",
                 "preferred_identifier": "urn:nbn:fi:att:1955e904-e3dd-4d7e-99f1-3fed446f9610",
+                "publisher": {
+                    "@type": "Organization",
+                    "name": {
+                        "fi": "Mysteeriorganisaatio"
+                    }
+                },
                 "title": {
                     "en": "Wonderful Title"
                 },
