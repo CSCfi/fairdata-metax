@@ -901,7 +901,11 @@ class CatalogRecord(Common):
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create):
             raise Http403({ 'detail': [ 'You are not permitted to create datasets in this data catalog.' ]})
 
-        pref_id_type = pid_type or self._get_preferred_identifier_type_from_request()
+        if self.catalog_is_pas():
+            # todo: default identifier type could probably be a parameter of the data catalog
+            pref_id_type = IdentifierType.DOI
+        else:
+            pref_id_type = pid_type or self._get_preferred_identifier_type_from_request()
 
         if self.catalog_is_harvested():
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.

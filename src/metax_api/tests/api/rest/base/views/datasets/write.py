@@ -1116,6 +1116,11 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         self.cr_test_data['data_catalog'] = django_settings.PAS_DATA_CATALOG_IDENTIFIER
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(
+            response.data['research_dataset']['preferred_identifier'].startswith('doi'),
+            True,
+            response.data['research_dataset']['preferred_identifier']
+        )
 
         # when created directly into pas catalog, preservation_state can be updated
         # to whatever, whenever
