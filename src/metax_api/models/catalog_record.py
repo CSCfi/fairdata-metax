@@ -1066,14 +1066,6 @@ class CatalogRecord(Common):
                         'back to 0.' % self.preservation_state
                     ]})
 
-                if self.cumulative_state == self.CUMULATIVE_STATE_YES:
-                    if file_changes['files_to_remove'] or file_changes['dirs_to_remove_by_project']:
-                        raise Http400(
-                            'Cannot delete files or directories from cumulative dataset. '
-                            'In order to remove files, close dataset cumulation.'
-                        )
-                    self._handle_cumulative_file_addition(file_changes)
-
                 elif self._files_added_for_first_time():
                     # first update from 0 to n files should not create a dataset version. all later updates
                     # will create new dataset versions normally.
@@ -1081,6 +1073,15 @@ class CatalogRecord(Common):
                     self._calculate_total_files_byte_size()
                     self._handle_metadata_versioning()
                     self.calculate_directory_byte_sizes_and_file_counts()
+
+                elif self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                    if file_changes['files_to_remove'] or file_changes['dirs_to_remove_by_project']:
+                        raise Http400(
+                            'Cannot delete files or directories from cumulative dataset. '
+                            'In order to remove files, close dataset cumulation.'
+                        )
+                    self._handle_cumulative_file_addition(file_changes)
+
                 else:
                     self._create_new_dataset_version()
 

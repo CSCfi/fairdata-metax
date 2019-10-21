@@ -2283,6 +2283,17 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
         return response.data # i.e. the dataset
 
+    def _create_cumulative_dataset_without_files(self):
+        """
+        Create cumulative dataset without any files.
+        """
+        self.cr_test_data['cumulative_state'] = 1 # YES
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        return response.data
+
     def test_create_cumulative_dataset_with_state_closed(self):
         self.cr_test_data['cumulative_state'] = 2 # CLOSED
 
@@ -2305,6 +2316,13 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         self.assertEqual(response.data['date_cumulation_started'], response.data['date_created'], response.data)
         self.assertTrue('date_cumulation_ended' not in response.data, response.data)
         self.assertTrue('date_last_cumulative_addition' not in response.data, response.data)
+
+    def test_add_files_to_empty_cumulative_dataset(self):
+        cr = self._create_cumulative_dataset_without_files()
+
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_adding_files_to_cumulative_dataset_creates_no_new_versions(self):
         """
