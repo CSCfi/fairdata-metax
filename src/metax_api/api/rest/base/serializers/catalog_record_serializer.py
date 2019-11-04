@@ -65,6 +65,8 @@ class CatalogRecordSerializer(CommonSerializer):
             'metadata_provider_org',
             'metadata_provider_user',
             'research_dataset',
+            'preservation_dataset_version',
+            'preservation_dataset_origin_version',
             'preservation_state',
             'preservation_state_modified',
             'preservation_description',
@@ -80,13 +82,14 @@ class CatalogRecordSerializer(CommonSerializer):
         extra_kwargs = {
             # these values are generated automatically or provide default values on creation.
             # some fields can be later updated by the user, some are generated
-            'identifier':       { 'required': False },
-            'preservation_state':       { 'required': False },
-            'preservation_description': { 'required': False },
-            'preservation_state_modified':    { 'required': False },
-            'mets_object_identifier':   { 'required': False },
-            'next_dataset_version':             { 'required': False },
-            'previous_dataset_version':         { 'required': False },
+            'identifier':                  { 'required': False },
+            'preservation_state':          { 'required': False },
+            'preservation_description':    { 'required': False },
+            'preservation_state_modified': { 'required': False },
+            'mets_object_identifier':      { 'required': False },
+            'next_dataset_version':        { 'required': False },
+            'previous_dataset_version':    { 'required': False },
+            'preservation_dataset_origin_version': { 'required': False },
         }
 
         extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
@@ -111,6 +114,8 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('deprecated', None)
         self.initial_data.pop('date_deprecated', None)
         self.initial_data.pop('preservation_identifier', None)
+        self.initial_data.pop('preservation_dataset_version', None)
+        self.initial_data.pop('preservation_dataset_origin_version', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
@@ -238,26 +243,23 @@ class CatalogRecordSerializer(CommonSerializer):
             res['dataset_version_set'] = instance.dataset_version_set.get_listing()
 
         if 'next_dataset_version' in res:
-            res['next_dataset_version'] = {
-                'id': instance.next_dataset_version.id,
-                'identifier': instance.next_dataset_version.identifier,
-                'preferred_identifier': instance.next_dataset_version.preferred_identifier,
-            }
+            res['next_dataset_version'] = instance.next_dataset_version.identifiers_dict
 
         if 'previous_dataset_version' in res:
-            res['previous_dataset_version'] = {
-                'id': instance.previous_dataset_version.id,
-                'identifier': instance.previous_dataset_version.identifier,
-                'preferred_identifier': instance.previous_dataset_version.preferred_identifier,
-            }
+            res['previous_dataset_version'] = instance.previous_dataset_version.identifiers_dict
+
+        if 'preservation_dataset_version' in res:
+            res['preservation_dataset_version'] = instance.preservation_dataset_version.identifiers_dict
+            res['preservation_dataset_version']['preservation_state'] = \
+                instance.preservation_dataset_version.preservation_state
+
+        elif 'preservation_dataset_origin_version' in res:
+            res['preservation_dataset_origin_version'] = instance.preservation_dataset_origin_version.identifiers_dict
+            res['preservation_dataset_origin_version']['deprecated'] = \
+                instance.preservation_dataset_origin_version.deprecated
 
         if instance.new_dataset_version_created:
-            res['new_version_created'] = {
-                'id': instance.next_dataset_version.id,
-                'identifier': instance.next_dataset_version.identifier,
-                'preferred_identifier': instance.next_dataset_version.preferred_identifier,
-                'version_type': 'dataset'
-            }
+            res['new_version_created'] = instance.new_dataset_version_created
 
         # Do the population of file_details here, since if it was done in the view, it might not know the file/dir
         # identifiers any longer, since the potential stripping of file/dir fields takes away identifier fields from
