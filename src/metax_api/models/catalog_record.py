@@ -1281,8 +1281,8 @@ class CatalogRecord(Common):
         _logger.info('Added %d files to cumulative dataset %s' % (n_files_added, self.identifier))
 
         self._calculate_total_files_byte_size()
-        self._handle_metadata_versioning()
         self.calculate_directory_byte_sizes_and_file_counts()
+        self._handle_metadata_versioning()
         self.date_last_cumulative_addition = self.date_modified
 
     def _files_added_for_first_time(self):
@@ -1749,7 +1749,6 @@ class CatalogRecord(Common):
     def calculate_directory_byte_sizes_and_file_counts(self):
         """
         Calculate directory byte_sizes and file_counts for all dirs selected for this cr.
-        Since file changes will create a new dataset version, these values will never change.
         """
         if not self.research_dataset.get('directories', None):
             return
@@ -2103,6 +2102,142 @@ class CatalogRecord(Common):
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
         return True if new_state == self.CUMULATIVE_STATE_YES else False
+
+    def refresh_directory_content(self, dir_identifier):
+        """
+        Checks if there are new files frozen to given directory and adds those files to dataset.
+        Creates new version on file addition if dataset is not cumulative.
+        Returns True if new dataset version is created, False otherwise.
+        """
+
+        if self.deprecated:
+            raise Http400('Cannot update files on deprecated dataset. '
+                        'You can remove all deleted files from dataset using API /rpc/datasets/fix_deprecated.')
+        try:
+            dir = Directory.objects.get(identifier=dir_identifier)
+        except Directory.DoesNotExist:
+            raise Http404(f'Directory \'{dir_identifier}\' could not be found')
+
+        dir_identifiers = [ d['identifier'] for d in self.research_dataset['directories'] ]
+        base_paths = Directory.objects.filter(identifier__in=dir_identifiers).values_list('directory_path', flat=True)
+
+        if dir.directory_path not in base_paths and \
+                not any([ dir.directory_path.startswith(f'{p}/') for p in base_paths ]):
+            raise Http400(f'Directory \'{dir_identifier}\' is not included in this dataset')
+
+        added_file_ids = self._find_new_files_added_to_dir(dir)
+
+        if not added_file_ids:
+            _logger.info('no change in directory content')
+            return False
+
+        _logger.info(f'refreshing directory adds {len(added_file_ids)} files to dataset')
+        self.date_modified = get_tz_aware_now_without_micros()
+        self.service_modified = self.request.user.username if self.request.user.is_service else None
+
+        if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+            self.files.add(*added_file_ids)
+            self._calculate_total_files_byte_size()
+            self.calculate_directory_byte_sizes_and_file_counts()
+            self._handle_metadata_versioning()
+
+            self.date_last_cumulative_addition = self.date_modified
+
+        else:
+            new_version = self._create_new_dataset_version_template()
+            super(Common, new_version).save()
+
+            # add all files from previous version in addition to new ones
+            new_version.files.add(*added_file_ids, *self.files.values_list('id', flat=True))
+
+            self._new_version = new_version
+            self._create_new_dataset_version()
+
+        super().save()
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+        return True if self.cumulative_state != self.CUMULATIVE_STATE_YES else False
+
+    def _find_new_files_added_to_dir(self, dir):
+        sql_insert_newly_frozen_files_by_dir_path = '''
+            select f.id
+            from metax_api_file as f
+            where f.active = true and f.removed = false
+            and f.project_identifier = %s
+            and f.file_path like (%s || '/%%')
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+        '''
+        sql_params_insert_new_files = [dir.project_identifier, dir.directory_path, self.id]
+
+        with connection.cursor() as cr:
+            cr.execute(sql_insert_newly_frozen_files_by_dir_path, sql_params_insert_new_files)
+            added_file_ids = [ v[0] for v in cr.fetchall() ]
+
+        return added_file_ids
+
+    def fix_deprecated(self):
+        """
+        Deletes all removed files and directories from dataset and creates new, non-deprecated version.
+        """
+        new_version = self._create_new_dataset_version_template()
+        self._new_version = new_version
+        self._fix_deprecated_research_dataset()
+        self._copy_undeleted_files_from_old_version()
+        self._create_new_dataset_version()
+        super().save()
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+    def _fix_deprecated_research_dataset(self):
+        if self.research_dataset.get('files'):
+            pid_list = [ f['identifier'] for f in self.research_dataset['files'] ]
+            pid_list_fixed = File.objects.filter(identifier__in=pid_list).values_list('identifier', flat=True)
+
+            if len(pid_list_fixed) != len(pid_list):
+                self.research_dataset['files'] = [
+                    f for f in self.research_dataset['files'] if f['identifier'] in pid_list_fixed
+                ]
+                if not self.research_dataset['files']:
+                    del self.research_dataset['files']
+
+        if self.research_dataset.get('directories'):
+            pid_list = [ d['identifier'] for d in self.research_dataset['directories'] ]
+            pid_list_fixed = Directory.objects.filter(identifier__in=pid_list).values_list('identifier', flat=True)
+
+            if len(pid_list_fixed) != len(pid_list):
+                self.research_dataset['directories'] = [
+                    d for d in self.research_dataset['directories'] if d['identifier'] in pid_list_fixed
+                ]
+                if not self.research_dataset['directories']:
+                    del self.research_dataset['directories']
+
+    def _copy_undeleted_files_from_old_version(self):
+        copy_undeleted_files_sql = '''
+            insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+            select %s as catalogrecord_id, file_id
+            from metax_api_catalogrecord_files as cr_f
+            inner join metax_api_file as f on f.id = cr_f.file_id
+            where catalogrecord_id = %s
+            and f.active = true and f.removed = false
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+            returning file_id
+        '''
+        sql_params_copy_undeleted = [self._new_version.id, self.id, self._new_version.id]
+
+        with connection.cursor() as cr:
+            cr.execute(copy_undeleted_files_sql, sql_params_copy_undeleted)
+            n_files_copied = cr.rowcount
+
+        if DEBUG:
+            _logger.debug('Added %d files to dataset %s' % (n_files_copied, self._new_version.id))
+
 
 class RabbitMQPublishRecord():
 

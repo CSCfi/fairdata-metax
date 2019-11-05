@@ -11,8 +11,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 import responses
 
-from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
-from metax_api.models import CatalogRecord
+from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteAssignFilesCommon, \
+    CatalogRecordApiWriteCommon
+from metax_api.models import CatalogRecord, Directory, File
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 
@@ -226,3 +227,338 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         new_cr = self._get_cr(new_version_identifier)
         return_data = self._update_cr_cumulative_state(new_cr['identifier'], 2)
         self.assertEqual(return_data, None, 'when new version is not created, return should be None')
+
+
+class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
+
+    url = '/rpc/datasets/refresh_directory_content?cr_identifier=%s&dir_identifier=%s'
+
+    def _assert_rd_total_byte_size(self, file_size_before, file_size_after, expected_addition):
+        self.assertEqual(file_size_after, file_size_before + expected_addition)
+
+    def test_refresh_adds_new_files(self):
+        self._add_directory(self.cr_test_data, '/TestExperiment')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+        file_byte_size_before = response.data['research_dataset']['total_files_byte_size']
+
+        # freeze two files to /TestExperiment/Directory_2
+        self._freeze_files_to_root()
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        file_size_after = new_version.research_dataset['total_files_byte_size']
+        self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
+        self._assert_rd_total_byte_size(file_byte_size_before, file_size_after, self._single_file_byte_size * 2)
+
+        # freeze two files to /TestExperiment/Directory_2/Group_3
+        self._freeze_new_files()
+        response = self.client.post(self.url % (new_version.identifier, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
+
+    def test_adding_parent_dir_allows_refreshes_to_child_dirs(self):
+        """
+        When parent directory is added to dataset, refreshes to child directories are also possible.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+
+        self._freeze_new_files()
+        frozen_dir = Directory.objects.filter(directory_path='/TestExperiment/Directory_2/Group_3').first()
+
+        response = self.client.post(self.url % (cr_id, frozen_dir.identifier), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
+
+    def test_refresh_adds_new_files_multiple_locations(self):
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+
+        self._freeze_new_files()
+        self._freeze_files_to_root()
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 4)
+
+    def test_refresh_adds_no_new_files_from_upper_dirs(self):
+        """
+        Include parent/subdir and freeze files to parent. Should be no changes in the dataset.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+        file_count_before = CatalogRecord.objects.get(identifier=cr_id).files.count()
+
+        self._freeze_files_to_root()
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        cr_after = CatalogRecord.objects.get(identifier=cr_id)
+        self.assertEqual(cr_after.next_dataset_version, None, 'should not have new dataset version')
+        self.assertEqual(cr_after.files.count(), file_count_before, 'No new files should be added')
+
+    def test_refresh_with_cumulative_state_yes(self):
+        """
+        When dataset has cumulation active, files are added to dataset but no new version is created.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        self.cr_test_data['cumulative_state'] = 1
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+        file_count_before = CatalogRecord.objects.get(identifier=cr_id).files.count()
+        file_byte_size_before = response.data['research_dataset']['total_files_byte_size']
+
+        self._freeze_new_files()
+        self._freeze_files_to_root()
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        cr_after = CatalogRecord.objects.get(identifier=cr_id)
+        file_size_after = cr_after.research_dataset['total_files_byte_size']
+        self.assertEqual(cr_after.next_dataset_version, None, 'should not have new dataset version')
+        self.assertEqual(len(cr_after.get_metadata_version_listing()), 2, 'new metadata version should be created')
+        self.assertEqual(cr_after.files.count(), file_count_before + 4)
+        self._assert_rd_total_byte_size(file_byte_size_before, file_size_after, self._single_file_byte_size * 4)
+
+        # check that added sub dir is found in catalog records internal variables
+        new_dir = \
+            Directory.objects\
+            .filter(directory_path__startswith='/TestExperiment/Directory_2/Group_3')\
+            .first()
+
+        self.assertTrue(str(new_dir.id) in cr_after._directory_data, 'New dir id should be found in cr')
+        self.assertEqual(new_dir.byte_size, self._single_file_byte_size * 2)
+
+    def test_refreshing_deprecated_dataset_is_not_allowed(self):
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+        dir_id = response.data['research_dataset']['directories'][0]['identifier']
+
+        removed_file_id = CatalogRecord.objects.get(identifier=cr_id).files.all()[0].id
+        response = self.client.delete(f'/rest/files/{removed_file_id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get(f'/rest/datasets/{cr_id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        depr_cr = response.data
+        self._freeze_new_files()
+        response = self.client.post(self.url % (depr_cr['identifier'], dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_adding_files_from_non_assigned_dir_is_not_allowed(self):
+        """
+        Only allow adding files from directories which paths are included in the research dataset.
+        """
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data['identifier']
+
+        # create another dataset so that dir /SecondExperiment/Data_Config will be created
+        self._add_directory(self.cr_test_data, '/SecondExperiment/Data_Config')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        dir_id = response.data['research_dataset']['directories'][1]['identifier']
+
+        response = self.client.post(self.url % (cr_id, dir_id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('not included' in response.data['detail'], response.data)
+
+
+class FixDeprecatedTests(CatalogRecordApiWriteAssignFilesCommon):
+    """
+    Tests for fix_deprecated api. Tests remove files/directories from database and then checks that
+    fix_deprecated api removes those files/directories from the given dataset.
+    """
+
+    def _get_next_dataset_version(self, identifier):
+        """
+        Returns next dataset version for dataset <identifier>
+        """
+        response = self.client.get('/rest/datasets/%s' % identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertTrue('next_dataset_version' in response.data, 'new dataset should be created')
+        response = self.client.get('/rest/datasets/%s' % response.data['next_dataset_version']['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        return response.data
+
+    def _check_new_dataset_version(self, identifier, file_count_before, deleted_file_ids):
+        """
+        Ensures that next dataset version for dataset <identifier> has correct deprecated state and right
+        files included. Research_dataset must be checked separately.
+        """
+        new_cr_version = self._get_next_dataset_version(identifier)
+        new_version_files = CatalogRecord.objects.get(pk=new_cr_version['id']).files.all()
+        self.assertEqual(new_cr_version['deprecated'], False, 'deprecated flag should be fixed')
+        self.assertEqual(new_version_files.count(), file_count_before - len(deleted_file_ids),
+            'new file count should be on smaller than before')
+        self.assertTrue(all(d not in new_version_files.values_list('id', flat=True) for d in deleted_file_ids),
+            'Deleted files should not be found in new version')
+
+        return new_cr_version
+
+    def _delete_files_from_directory_path(self, path):
+        """
+        Deletes files from sub directories as well
+        """
+        deleted_file_ids = [ id for id in File.objects
+            .filter(file_path__startswith=path)
+            .values_list('id', flat=True) ]
+        response = self.client.delete('/rest/files', deleted_file_ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        return deleted_file_ids
+
+    def test_fix_deprecated_files(self):
+        file_count_before = CatalogRecord.objects.get(pk=1).files.count()
+
+        # delete file from dataset
+        deleted_file = File.objects.get(pk=1)
+        response = self.client.delete('/rest/files/%s' % deleted_file.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['deprecated'], 'dataset should be deprecated')
+        identifier = response.data['identifier']
+
+        # fix deprecated dataset
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure that new dataset version is not deprecated, dataset files contain only the non-removed file
+        # and removed file is deleted from research_dataset
+        new_cr_version = self._check_new_dataset_version(identifier, file_count_before, [deleted_file.id])
+        rd_filenames = [ f['identifier'] for f in new_cr_version['research_dataset']['files'] ]
+        self.assertTrue(deleted_file.identifier not in rd_filenames, 'deleted file should not be in research_dataset')
+
+    def test_fix_deprecated_directories(self):
+        """
+        This test adds parent directory of two files to a dataset and deletes the files
+        """
+        # add/describe the parent directory of the newly added file to the dataset
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_with_dir = response.data
+        file_count_before = CatalogRecord.objects.get(identifier=cr_with_dir['identifier']).files.count()
+
+        # delete/unfreeze the files contained by described directory
+        deleted_file_ids = self._delete_files_from_directory_path('/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+
+        # fix deprecated dataset
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % cr_with_dir['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure old dataset is unchanged
+        response = self.client.get('/rest/datasets/%s' % cr_with_dir['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['research_dataset']['directories']), 1,
+            'old dataset version directories should still contain the removed directory')
+        self.assertTrue(response.data['deprecated'], 'old dataset version deprecated flag should not be changed')
+
+        # ensure the new dataset is correct
+        new_cr_version = self._check_new_dataset_version(cr_with_dir['identifier'], file_count_before,
+            deleted_file_ids)
+        self.assertTrue('directories' not in new_cr_version['research_dataset'])
+
+    def test_fix_deprecated_nested_directories_1(self):
+        """
+        This test adds parent directory to dataset and then deletes all files from sub directory.
+        research_dataset should be unchanged and file count should be smaller for new version.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_before = response.data
+        file_count_before = CatalogRecord.objects.get(identifier=cr_before['identifier']).files.count()
+
+        # delete/unfreeze the files contained by described directory
+        deleted_file_ids = self._delete_files_from_directory_path('/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+
+        # fix deprecated dataset
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % cr_before['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure the new dataset is correct
+        new_cr_version = self._check_new_dataset_version(cr_before['identifier'], file_count_before, deleted_file_ids)
+        self.assertEqual(cr_before['research_dataset'].get('files'),
+            new_cr_version['research_dataset'].get('files'), 'should be no difference in research_dataset.files')
+        self.assertEqual(cr_before['research_dataset'].get('directories'),
+            new_cr_version['research_dataset'].get('directories'), 'should be no difference in research_dataset.dirs')
+
+    def test_fix_deprecated_nested_directories_2(self):
+        """
+        This test adds parent and sub directory to dataset and then deletes all files from sub directory.
+        research_dataset and file count should change for new version.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_before = response.data
+        file_count_before = CatalogRecord.objects.get(identifier=cr_before['identifier']).files.count()
+
+        deleted_file_ids = self._delete_files_from_directory_path('/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+
+        # fix deprecated dataset
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % cr_before['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure the new dataset is correct
+        new_cr_version = self._check_new_dataset_version(cr_before['identifier'], file_count_before, deleted_file_ids)
+        # description field conveniently has the dir path for directories which are saved by _add_directory
+        rd_dirpaths = [ d['description'] for d in new_cr_version['research_dataset']['directories'] ]
+        self.assertTrue('/TestExperiment/Directory_2/Group_2/Group_2_deeper' not in rd_dirpaths)
+
+    def test_fix_deprecated_nested_directories_3(self):
+        """
+        This test adds parent and sub directory to dataset and then deletes all files from sub directory.
+        research_dataset and file count should change for new version.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_12.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/file_09.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/file_10.txt')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_before = response.data
+        file_count_before = CatalogRecord.objects.get(identifier=cr_before['identifier']).files.count()
+
+        # delete/unfreeze the files contained by described directory
+        deleted_file_ids = self._delete_files_from_directory_path('/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+
+        # fix deprecated dataset
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % cr_before['identifier'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure the new dataset is correct
+        new_cr_version = self._check_new_dataset_version(cr_before['identifier'], file_count_before, deleted_file_ids)
+        rd_dirpaths = [ d['description'] for d in new_cr_version['research_dataset']['directories'] ]
+        rd_filepaths = [ f['description'] for f in new_cr_version['research_dataset']['files'] ]
+        self.assertTrue('/TestExperiment/Directory_2/Group_2/Group_2_deeper' not in rd_dirpaths)
+        self.assertTrue('/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt' not in rd_filepaths)
+        self.assertTrue('/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_12.txt' not in rd_filepaths)
