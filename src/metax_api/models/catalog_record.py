@@ -1209,8 +1209,8 @@ class CatalogRecord(Common):
         _logger.info('Added %d files to cumulative dataset %s' % (n_files_added, self.identifier))
 
         self._calculate_total_files_byte_size()
-        self._handle_metadata_versioning()
         self.calculate_directory_byte_sizes_and_file_counts()
+        self._handle_metadata_versioning()
         self.date_last_cumulative_addition = self.date_modified
 
     def _files_added_for_first_time(self):
@@ -1672,7 +1672,6 @@ class CatalogRecord(Common):
     def calculate_directory_byte_sizes_and_file_counts(self):
         """
         Calculate directory byte_sizes and file_counts for all dirs selected for this cr.
-        Since file changes will create a new dataset version, these values will never change.
         """
         if not self.research_dataset.get('directories', None):
             return
@@ -1902,6 +1901,10 @@ class CatalogRecord(Common):
 
         if self.cumulative_state == self.CUMULATIVE_STATE_YES:
             self.files.add(*added_file_ids)
+            self._calculate_total_files_byte_size()
+            self.calculate_directory_byte_sizes_and_file_counts()
+            self._handle_metadata_versioning()
+
             self.date_last_cumulative_addition = self.date_modified
 
         else:
