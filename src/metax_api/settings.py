@@ -166,18 +166,22 @@ else:
 if executing_in_test_case or executing_in_travis:
     IDA_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ida"
     ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
+    PAS_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-pas"
     LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
 else:
     IDA_DATA_CATALOG_IDENTIFIER = app_config_dict['IDA_DATACATALOG_IDENTIFIER']
     ATT_DATA_CATALOG_IDENTIFIER = app_config_dict['ATT_DATACATALOG_IDENTIFIER']
+    PAS_DATA_CATALOG_IDENTIFIER = app_config_dict['PAS_DATACATALOG_IDENTIFIER']
     LEGACY_DATA_CATALOG_IDENTIFIER = app_config_dict['LEGACY_DATACATALOG_IDENTIFIER']
 
 if executing_in_test_case or executing_in_travis:
     END_USER_ALLOWED_DATA_CATALOGS = [
         IDA_DATA_CATALOG_IDENTIFIER,
         ATT_DATA_CATALOG_IDENTIFIER,
+        PAS_DATA_CATALOG_IDENTIFIER,
         LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
+
     LEGACY_CATALOGS = [
         LEGACY_DATA_CATALOG_IDENTIFIER,
     ]
