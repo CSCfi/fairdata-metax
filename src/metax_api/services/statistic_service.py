@@ -7,6 +7,7 @@
 
 import logging
 
+from django.conf import settings
 from django.db import connection
 
 from metax_api.exceptions import Http400
@@ -33,17 +34,19 @@ class StatisticService():
 
     @classmethod
     def count_datasets(cls,
-            from_date=None,
-            to_date=None,
             access_type=None,
             data_catalog=None,
             deprecated=None,
+            from_date=None,
+            harvested=None,
+            latest=True,
+            legacy=None,
             metadata_owner_org=None,
             metadata_provider_org=None,
             metadata_provider_user=None,
-            harvested=None,
-            latest=None,
-            preservation_state=None):
+            preservation_state=None,
+            removed=None,
+            to_date=None):
         """
         Get simple total record count and total byte size according to given filters.
         """
@@ -95,8 +98,8 @@ class StatisticService():
             where_args.append("and dc.catalog_json->>'harvested' = %s")
             sql_args.append(harvested)
 
-        if latest is not None:
-            where_args.append('and next_dataset_version_id is %s null' % ('' if latest is True else 'not'))
+        if latest:
+            where_args.append('and next_dataset_version_id is null')
 
         if metadata_owner_org:
             where_args.append('and metadata_owner_org = %s')
@@ -113,6 +116,14 @@ class StatisticService():
         if preservation_state:
             where_args.append('and preservation_state = %s')
             sql_args.append(preservation_state)
+
+        if removed is not None:
+            where_args.append('and cr.removed = %s')
+            sql_args.append(removed)
+
+        if legacy is not None:
+            where_args.append(''.join(["and dc.catalog_json->>'identifier'", " = " if legacy else " != ", "any(%s)"]))
+            sql_args.append(settings.LEGACY_CATALOGS)
 
         sql = sql % '\n'.join(where_args)
 
