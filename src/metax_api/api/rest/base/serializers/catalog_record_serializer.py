@@ -76,7 +76,11 @@ class CatalogRecordSerializer(CommonSerializer):
             'next_dataset_version',
             'previous_dataset_version',
             'mets_object_identifier',
-            'editor'
+            'editor',
+            'cumulative_state',
+            'date_cumulation_started',
+            'date_cumulation_ended',
+            'date_last_cumulative_addition'
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
