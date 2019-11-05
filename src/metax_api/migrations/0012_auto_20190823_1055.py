@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0010_auto_20190627_1032'),
+        ('metax_api', '0011_catalogrecord_preservation_dataset_version'),
     ]
 
     operations = [
