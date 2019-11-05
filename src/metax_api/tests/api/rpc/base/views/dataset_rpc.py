@@ -233,12 +233,16 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
 
     url = '/rpc/datasets/refresh_directory_content?cr_identifier=%s&dir_identifier=%s'
 
+    def _assert_rd_total_byte_size(self, file_size_before, file_size_after, expected_addition):
+        self.assertEqual(file_size_after, file_size_before + expected_addition)
+
     def test_refresh_adds_new_files(self):
         self._add_directory(self.cr_test_data, '/TestExperiment')
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         cr_id = response.data['identifier']
         dir_id = response.data['research_dataset']['directories'][0]['identifier']
+        file_byte_size_before = response.data['research_dataset']['total_files_byte_size']
 
         # freeze two files to /TestExperiment/Directory_2
         self._freeze_files_to_root()
@@ -246,7 +250,9 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
+        file_size_after = new_version.research_dataset['total_files_byte_size']
         self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
+        self._assert_rd_total_byte_size(file_byte_size_before, file_size_after, self._single_file_byte_size * 2)
 
         # freeze two files to /TestExperiment/Directory_2/Group_3
         self._freeze_new_files()
@@ -319,6 +325,7 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         cr_id = response.data['identifier']
         dir_id = response.data['research_dataset']['directories'][0]['identifier']
         file_count_before = CatalogRecord.objects.get(identifier=cr_id).files.count()
+        file_byte_size_before = response.data['research_dataset']['total_files_byte_size']
 
         self._freeze_new_files()
         self._freeze_files_to_root()
@@ -326,8 +333,20 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
         cr_after = CatalogRecord.objects.get(identifier=cr_id)
+        file_size_after = cr_after.research_dataset['total_files_byte_size']
         self.assertEqual(cr_after.next_dataset_version, None, 'should not have new dataset version')
+        self.assertEqual(len(cr_after.get_metadata_version_listing()), 2, 'new metadata version should be created')
         self.assertEqual(cr_after.files.count(), file_count_before + 4)
+        self._assert_rd_total_byte_size(file_byte_size_before, file_size_after, self._single_file_byte_size * 4)
+
+        # check that added sub dir is found in catalog records internal variables
+        new_dir = \
+            Directory.objects\
+            .filter(directory_path__startswith='/TestExperiment/Directory_2/Group_3')\
+            .first()
+
+        self.assertTrue(str(new_dir.id) in cr_after._directory_data, 'New dir id should be found in cr')
+        self.assertEqual(new_dir.byte_size, self._single_file_byte_size * 2)
 
     def test_refreshing_deprecated_dataset_is_not_allowed(self):
         self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
