@@ -462,7 +462,13 @@ class FileService(CommonService, ReferenceDataMixin):
         deprecated_records = []
 
         current_time = get_tz_aware_now_without_micros()
-        for cr in CatalogRecord.objects.filter(files__in=file_ids, deprecated=False).distinct('id'):
+
+        records = CatalogRecord.objects \
+            .filter(files__in=file_ids, deprecated=False) \
+            .exclude(data_catalog__catalog_json__identifier=settings.PAS_DATA_CATALOG_IDENTIFIER) \
+            .distinct('id')
+
+        for cr in records:
             cr.deprecate(current_time)
             deprecated_records.append(cr)
         if not deprecated_records:
