@@ -46,19 +46,19 @@ class StatisticRPC(CommonRPC):
     @list_route(methods=['get'], url_path='count_datasets')
     def count_datasets(self, request):
         str_params = [
-            'from_date',
-            'to_date',
             'access_type',
             'data_catalog',
+            'from_date',
             'metadata_owner_org',
             'metadata_provider_org',
             'metadata_provider_user',
-            'preservation_state'
+            'preservation_state',
+            'to_date'
         ]
 
         params = { param: request.query_params.get(param, None) for param in str_params }
 
-        for boolean_param in ['deprecated', 'latest', 'harvested']:
+        for boolean_param in ['deprecated', 'harvested', 'latest', 'legacy', 'removed']:
             if boolean_param in request.query_params:
                 params[boolean_param] = CS.get_boolean_query_param(request, boolean_param)
 
