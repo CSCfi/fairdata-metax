@@ -43,6 +43,7 @@ ACCESS_TYPES = {
 
 LEGACY_CATALOGS = settings.LEGACY_CATALOGS
 IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
+PAS_CATALOG = settings.PAS_DATA_CATALOG_IDENTIFIER
 
 
 class DiscardRecord(Exception):
@@ -248,6 +249,10 @@ class CatalogRecord(Common):
 
     editor = JSONField(null=True, help_text='Editor specific fields, such as owner_id, modified, record_identifier')
 
+    preservation_dataset_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+        related_name='preservation_dataset_origin_version',
+        help_text='Link between a PAS-stored dataset and the originating dataset.')
+
     preservation_description = models.CharField(
         max_length=200, blank=True, null=True, help_text='Reason for accepting or rejecting PAS proposal.')
 
@@ -294,9 +299,10 @@ class CatalogRecord(Common):
     preserve_version = False
 
     """
-    Signals to the serializer the need to populate field 'new_version_created'.
+    Signals to the serializer the need to populate field 'new_version_created'. Includes information of
+    the new version as value when a new version is being created.
     """
-    new_dataset_version_created = False
+    new_dataset_version_created = None
 
     objects = CatalogRecordManager()
 
@@ -372,6 +378,31 @@ class CatalogRecord(Common):
             # unknown user
             return False
 
+    def _check_catalog_permissions(self, catalog_groups):
+        """
+        Some data catalogs can only allow writing datasets from a specific group of users.
+        Check if user has group/project which permits creating or editing datasets in
+        dataset's selected data catalog.
+
+        Note that there is also parameter END_USER_ALLOWED_DATA_CATALOGS in
+        settings.py which dictates which catalogs are open for end users.
+        """
+        if not self.request: # pragma: no cover
+            # should only only happen when setting up test cases
+            assert executing_test_case(), 'only permitted when setting up testing conditions'
+            return True
+
+        if not catalog_groups:
+            return True
+
+        if self.request.user.is_service:
+            return True
+
+        allowed_groups = catalog_groups.split(',')
+
+        from metax_api.services import AuthService
+        return AuthService.check_user_groups_against_groups(self.request, allowed_groups)
+
     def _access_type_is_open(self):
         from metax_api.services import CatalogRecordService as CRS
         return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['open']
@@ -400,7 +431,7 @@ class CatalogRecord(Common):
 
     def save(self, *args, **kwargs):
         if self._operation_is_create():
-            self._pre_create_operations()
+            self._pre_create_operations(pid_type=kwargs.pop('pid_type', None))
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_create_operations()
         else:
@@ -822,6 +853,17 @@ class CatalogRecord(Common):
         ))
 
     @property
+    def identifiers_dict(self):
+        try:
+            return {
+                'id': self.id,
+                'identifier': self.identifier,
+                'preferred_identifier': self.research_dataset['preferred_identifier'],
+            }
+        except:
+            return {}
+
+    @property
     def preferred_identifier(self):
         try:
             return self.research_dataset['preferred_identifier']
@@ -835,6 +877,15 @@ class CatalogRecord(Common):
         except:
             return None
 
+    def preservation_dataset_origin_version_exists(self):
+        """
+        Helper method due to field preservation_dataset_origin_version being
+        the "related" field of field preservation_dataset_version, and the
+        attribute does not exist on the instance at all, until the field has
+        a proper value. Django weirdness?
+        """
+        return hasattr(self, 'preservation_dataset_origin_version')
+
     def catalog_versions_datasets(self):
         return self.data_catalog.catalog_json.get('dataset_versioning', False) is True
 
@@ -846,6 +897,9 @@ class CatalogRecord(Common):
 
     def catalog_is_ida(self):
         return self.data_catalog.catalog_json['identifier'] == IDA_CATALOG
+
+    def catalog_is_pas(self):
+        return self.data_catalog.catalog_json['identifier'] == PAS_CATALOG
 
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
@@ -863,8 +917,17 @@ class CatalogRecord(Common):
                 entries[-1]['stored_to_pas'] = entry.stored_to_pas
         return entries
 
-    def _pre_create_operations(self):
-        pref_id_type = self._get_preferred_identifier_type_from_request()
+    def _pre_create_operations(self, pid_type=None):
+
+        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create):
+            raise Http403({ 'detail': [ 'You are not permitted to create datasets in this data catalog.' ]})
+
+        if self.catalog_is_pas():
+            # todo: default identifier type could probably be a parameter of the data catalog
+            pref_id_type = IdentifierType.DOI
+        else:
+            pref_id_type = pid_type or self._get_preferred_identifier_type_from_request()
+
         if self.catalog_is_harvested():
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
             # do not overwrite.
@@ -888,13 +951,13 @@ class CatalogRecord(Common):
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
             elif pref_id_type == IdentifierType.DOI:
-                if not self.catalog_is_ida():
-                    raise Http400("Cannot create DOI for other than datasets in IDA catalog")
+                if not (self.catalog_is_ida() or self.catalog_is_pas()):
+                    raise Http400("Cannot create DOI for other than datasets in IDA or PAS catalog")
 
+                _logger.debug('pref_id_type == %s, generating doi' % pref_id_type)
                 doi_id = generate_doi_identifier()
                 self.research_dataset['preferred_identifier'] = doi_id
-                if self.catalog_is_ida():
-                    self.preservation_identifier = doi_id
+                self.preservation_identifier = doi_id
             else:
                 _logger.debug("Identifier type not specified in the request. Using URN identifier for pref id")
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -978,6 +1041,9 @@ class CatalogRecord(Common):
         self.add_post_request_callable(DelayedLog(**log_args))
 
     def _pre_update_operations(self):
+        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit):
+            raise Http403({ 'detail': [ 'You are not permitted to edit datasets in this data catalog.' ]})
+
         if self.field_changed('identifier'):
             # read-only
             self.identifier = self._initial_data['identifier']
@@ -1010,7 +1076,7 @@ class CatalogRecord(Common):
         if self.field_changed('preservation_state'):
             if self.cumulative_state == self.CUMULATIVE_STATE_YES:
                 raise Http400('Changing preservation state is not allowed while dataset cumulation is active')
-            self.preservation_state_modified = get_tz_aware_now_without_micros()
+            self._handle_preservation_state_changed()
 
         if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
             raise Http400("Cannot change dataset deprecation state from true to false")
@@ -1038,6 +1104,14 @@ class CatalogRecord(Common):
             pass
 
         if self.field_changed('research_dataset'):
+            if self.preservation_state in (
+                    self.PRESERVATION_STATE_INVALID_METADATA,           # 40
+                    self.PRESERVATION_STATE_METADATA_VALIDATION_FAILED, # 50
+                    self.PRESERVATION_STATE_VALID_METADATA):            # 70
+                # notifies the user in Hallintaliittyma that the metadata needs to be re-validated
+                self.preservation_state = self.PRESERVATION_STATE_VALIDATED_METADATA_UPDATED # 60
+                self.preservation_state_modified = self.date_modified
+
             self.update_datacite = True
         else:
             self.update_datacite = False
@@ -1047,6 +1121,12 @@ class CatalogRecord(Common):
                 "Cannot change cumulative state using REST API. "
                 "use API /rpc/datasets/change_cumulative_state to change cumulative state."
             )
+
+        if self.catalog_is_pas():
+            actual_files_changed, _ = self._files_changed()
+            if actual_files_changed:
+                _logger.info('File changes detected in PAS catalog dataset - aborting')
+                raise Http400({ 'detail': ['File changes not permitted in PAS catalog' ]})
 
         if self.catalog_versions_datasets() and \
                 (not self.preserve_version or self.cumulative_state == self.CUMULATIVE_STATE_YES):
@@ -1061,7 +1141,7 @@ class CatalogRecord(Common):
 
                 if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED: # state > 0
                     raise Http400({ 'detail': [
-                        'Changing files is not allowed when dataset is in a PAS process. Current '
+                        'Changing files is not allowed when dataset is in PAS process. Current '
                         'preservation_state = %d. In order to alter associated files, change preservation_state '
                         'back to 0.' % self.preservation_state
                     ]})
@@ -1086,14 +1166,6 @@ class CatalogRecord(Common):
                     self._create_new_dataset_version()
 
             else:
-                if self.preservation_state in (
-                        self.PRESERVATION_STATE_INVALID_METADATA,           # 40
-                        self.PRESERVATION_STATE_METADATA_VALIDATION_FAILED, # 50
-                        self.PRESERVATION_STATE_VALID_METADATA):            # 70
-                    # notifies the user in Hallintaliittyma that the metadata needs to be re-validated
-                    self.preservation_state = self.PRESERVATION_STATE_VALIDATED_METADATA_UPDATED # 60
-                    self.preservation_state_modified = get_tz_aware_now_without_micros()
-
                 self._handle_metadata_versioning()
 
         else:
@@ -1436,6 +1508,10 @@ class CatalogRecord(Common):
                 actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
 
                 if actual_files_changed:
+
+                    if self.catalog_is_pas():
+                        raise Http400('Cannot change files in a dataset in PAS catalog.')
+
                     self._new_version = temp_record
                 else:
                     _logger.debug('no real file changes detected, discarding the temporary record...')
@@ -1472,7 +1548,7 @@ class CatalogRecord(Common):
 
         Raises 403 on error.
         '''
-        if not self.request:
+        if not self.request: # pragma: no cover
             # when files associated with a dataset have been changed, the user should be
             # always known, i.e. the http request object is present. if its not, the code
             # is not being executed as a result of a api request. in that case, only allow
@@ -1631,7 +1707,8 @@ class CatalogRecord(Common):
 
         new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
 
-        old_version.new_dataset_version_created = True
+        old_version.new_dataset_version_created = new_version.identifiers_dict
+        old_version.new_dataset_version_created['version_type'] = 'dataset'
 
         _logger.info('New dataset version created, identifier %s' % new_version.identifier)
         _logger.debug('New dataset version preferred identifer %s' % new_version.preferred_identifier)
@@ -1702,6 +1779,165 @@ class CatalogRecord(Common):
 
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
+
+    def _handle_preservation_state_changed(self):
+        """
+        Check if change of value in preservation_state should lead to creating a new PAS version.
+        """
+        self.preservation_state_modified = self.date_modified
+
+        old_value = self._initial_data['preservation_state']
+        new_value = self.preservation_state
+
+        _logger.info('preservation_state changed from %d to %d' % (old_value, new_value))
+
+        if not self.preservation_dataset_origin_version_exists() and self.preservation_dataset_version is None \
+                and self.catalog_is_pas():
+            # dataset was created directly into PAS catalog. do nothing, no rules
+            # are enforced (for now)
+            _logger.info(
+                'preservation_state changed from %d to %d. (native PAS catalog dataset)'
+                % (old_value, new_value)
+            )
+            return
+
+        # standard cases where IDA catalog is involved ->
+
+        if new_value == 0 and self.catalog_is_pas():
+
+            _logger.info('Tried to set preservation_state to 0 on a PAS dataset. Aborting')
+
+            raise Http400({ 'detail': [
+                'Can\'t set preservation_state to 0 on a PAS version. Set to %d or %d in order to conclude PAS process.'
+                % (self.PRESERVATION_STATE_IN_PAS, self.PRESERVATION_STATE_REJECTED_FROM_PAS)
+            ]})
+
+        elif new_value <= self.PRESERVATION_STATE_ACCEPTED_TO_PAS and self.catalog_is_pas():
+            raise Http400({ 'detail': [
+                'preservation_state values in PAS catalog should be over 80 (accepted to PAS)'
+            ]})
+
+        elif new_value > self.PRESERVATION_STATE_ACCEPTED_TO_PAS and not self.catalog_is_pas():
+            raise Http400({ 'detail': [
+                'Maximum value of preservation_state in a non-PAS catalog is 80 (accepted to PAS)'
+            ]})
+
+        elif new_value == self.PRESERVATION_STATE_ACCEPTED_TO_PAS:
+
+            if self.catalog_is_pas():
+                raise Http400({ 'detail': [
+                    'Dataset is already in PAS catalog'
+                ]})
+            elif self.preservation_dataset_version:
+                raise Http400({ 'detail': [
+                    'Dataset already has a PAS version. Identifier: %s' % self.preservation_dataset_version.identifier
+                ]})
+            else:
+                self._create_pas_version(self)
+
+                _logger.info('Resetting preservation_state of original dataset to 0')
+                self.preservation_state = self.PRESERVATION_STATE_INITIALIZED
+                self.preservation_description = None
+                self.preservation_reason_description = None
+
+        elif new_value in (self.PRESERVATION_STATE_IN_PAS, self.PRESERVATION_STATE_REJECTED_FROM_PAS):
+            _logger.info('PAS-process concluded')
+        else:
+            _logger.debug('preservation_state change not handled for these values')
+
+    def _create_pas_version(self, origin_version):
+        """
+        Create PAS version to PAS catalog and add related links.
+        """
+        _logger.info('Creating new PAS dataset version...')
+
+        if origin_version.preservation_dataset_version_id:
+
+            msg = 'Dataset already has a PAS version. Identifier of PAS dataset: %s' \
+                % origin_version.preservation_dataset_version.identifier
+
+            _logger.info(msg)
+
+            raise Http400({ 'detail': [msg] })
+
+        try:
+            pas_catalog = DataCatalog.objects.only('id').get(
+                catalog_json__identifier=settings.PAS_DATA_CATALOG_IDENTIFIER
+            )
+        except DataCatalog.DoesNotExist:
+
+            msg = 'PAS catalog %s does not exist' % settings.PAS_DATA_CATALOG_IDENTIFIER
+
+            _logger.info(msg)
+
+            raise Http400({ 'detail': [msg] })
+
+        research_dataset = deepcopy(origin_version.research_dataset)
+        research_dataset.pop('preferred_identifier', None)
+        research_dataset.pop('metadata_version_identifier', None)
+
+        params = {
+            'data_catalog':           pas_catalog,
+            'research_dataset':       research_dataset,
+            'contract':               origin_version.contract,
+            'date_created':           origin_version.date_modified,
+            'service_created':        origin_version.service_modified,
+            'user_created':           origin_version.user_modified,
+            'metadata_owner_org':     origin_version.metadata_owner_org,
+            'metadata_provider_org':  origin_version.metadata_provider_org,
+            'metadata_provider_user': origin_version.metadata_provider_user,
+            'preservation_state':     origin_version.preservation_state,
+            'preservation_description':            origin_version.preservation_description,
+            'preservation_reason_description':     origin_version.preservation_reason_description,
+            'preservation_dataset_origin_version': origin_version,
+        }
+
+        # add information about other identifiers for this dataset
+        other_identifiers_info_origin = {
+            'notation': origin_version.preferred_identifier,
+            'type': {
+                'identifier': get_identifier_type(origin_version.preferred_identifier).value,
+            }
+        }
+
+        try:
+            params['research_dataset']['other_identifier'].append(other_identifiers_info_origin)
+        except KeyError:
+            params['research_dataset']['other_identifier'] = [other_identifiers_info_origin]
+
+        # validate/populate fields according to reference data
+        from metax_api.services import CatalogRecordService as CRS, RedisCacheService as cache
+        CRS.validate_reference_data(params['research_dataset'], cache)
+
+        # finally create the pas copy dataset
+        pas_version = CatalogRecord(**params)
+        pas_version.request = origin_version.request
+        pas_version.save(pid_type=IdentifierType.DOI)
+
+        # link origin_version and pas copy
+        origin_version.preservation_dataset_version = pas_version
+        origin_version.new_dataset_version_created = pas_version.identifiers_dict
+        origin_version.new_dataset_version_created['version_type'] = 'pas'
+
+        # add information about other identifiers for origin_dataset
+        other_identifiers_info_pas = {
+            'notation': pas_version.preferred_identifier,
+            'type': {
+                'identifier': get_identifier_type(pas_version.preferred_identifier).value,
+            }
+        }
+
+        try:
+            origin_version.research_dataset['other_identifier'].append(other_identifiers_info_pas)
+        except KeyError:
+            origin_version.research_dataset['other_identifier'] = [other_identifiers_info_pas]
+
+        # need to validate ref data again for origin_version
+        CRS.validate_reference_data(origin_version.research_dataset, cache)
+
+        self.add_post_request_callable(RabbitMQPublishRecord(pas_version, 'create'))
+
+        _logger.info('PAS dataset version created with identifier: %s' % pas_version.identifier)
 
     def _check_alternate_records(self):
         """

@@ -14,11 +14,19 @@
     "version_notes": [
       "This version contains changes to x and y."
     ],
+    "issued": "2019-01-01",
+
     "title": {
       "en": "Wonderful Title"
     },
     "description": {
       "en": "A descriptive description describing the contents of this dataset. Must be descriptive."
+    },
+    "publisher": {
+        "name": {
+            "fi": "Mysteeriorganisaatio"
+        },
+        "@type": "Organization"
     },
     "creator": [
       {
