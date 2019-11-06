@@ -807,7 +807,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue('date_deprecated' not in response.data)
 
     def test_catalog_record_date_deprecated_and_date_deprecated_lifecycle(self):
-        # if dataset is deprecated, updating dataset creates new version
+        # if dataset is deprecated, fixing dataset creates new version
         ds = CatalogRecord.objects.filter(files__id=1)
         ds_id = ds[0].identifier
 
@@ -819,11 +819,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue(cr['deprecated'])
         self.assertTrue(cr['date_deprecated'].startswith('2'))
 
-        # the deprecation and date_deprecated are actually silently ignored
-        cr['deprecated'] = False
-        cr.pop('date_deprecated', None)
-        cr['research_dataset']['files'].pop(0)
-        response = self.client.put('/rest/datasets/%s' % ds_id, cr, format="json")
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % ds_id, cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(CatalogRecord.objects.get(identifier=ds_id).next_dataset_version.deprecated, False)
 
@@ -1930,63 +1926,6 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         self.assertEqual('new_version_created' in response.data, True)
         self.assertEqual('dataset_version_set' in response.data, True)
 
-    def test_new_dataset_version_fixes_deprecated(self):
-        """
-        A dataset is marked as deprecated when some of its files have been deleted. Creating
-        a new version should fix it.
-        """
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.deprecated = True
-        cr.force_save()
-
-        cr = self.client.get('/rest/datasets/1').data
-        cr['research_dataset']['files'].pop(0)
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(CatalogRecord.objects.get(pk=1).next_dataset_version.deprecated, False)
-
-    def test_deprecated_dataset_versioning(self):
-        # add directory to dataset
-        cr = self.client.get('/rest/datasets/1').data
-        cr_id = cr['identifier']
-        dir_id = self.client.get('/rest/directories/1').data['identifier']
-        new_dir = {
-            "identifier": dir_id,
-            "title": "dir title",
-            "use_category": {
-                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
-            }
-        }
-        cr['research_dataset']['directories'] = []
-        cr['research_dataset']['directories'].append(new_dir)
-
-        response = self.client.put(f'/rest/datasets/{cr_id}', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertTrue('directories' in response.data['research_dataset'], 'directories should be present')
-
-        # delete directory from database and ensure that dataset is deprecated and files/dirs are deleted
-        files = self.client.get(f'/rest/directories/{dir_id}/files?recursive=true&depth=*').data
-        file_ids = [f['identifier'] for f in files]
-        response = self.client.delete('/rest/files', file_ids, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        response = self.client.get(f'/rest/files/{file_ids[0]}')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
-
-        response = self.client.get(f'/rest/directories/{dir_id}')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
-
-        cr = self.client.get(f'/rest/datasets/{cr_id}').data
-        self.assertEqual(cr['deprecated'], True, 'dataset should be deprecated')
-
-        # after the dataset is deprecated, updating should create a new dataset
-        cr['research_dataset'].pop('directories')
-        cr['research_dataset'].pop('files')
-
-        response = self.client.put(f'/rest/datasets/{cr_id}', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data['dataset_version_set']), 2)
-
     def test_dataset_version_lists_removed_records(self):
         # create new version
         cr = self.client.get('/rest/datasets/1').data
@@ -2072,6 +2011,54 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
                 new_pref_id
             )
         return self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json")
+
+    def test_allow_metadata_changes_after_deprecation(self):
+        """
+        For deprecated datasets, file and directory additions/removals are forbidden but
+        metadata changes are allowed.
+        """
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr = response.data
+
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # after the dataset is deprecated, metadata updates should be ok
+        cr['research_dataset']['description'] = {
+            "en": "Updating new description for deprecated dataset should not create any problems"
+        }
+        cr['research_dataset']['files'][0]['title'] = 'Brand new title 1'
+
+        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertTrue('new description' in response.data['research_dataset']['description']['en'],
+            'description field should be updated')
+        self.assertTrue('Brand new' in response.data['research_dataset']['files'][0]['title'],
+            'title field for file should be updated')
+
+    def test_prevent_adding_removed_file_to_deprecated_dataset(self):
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr = response.data
+
+        # deprecates the dataset
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # the file to add to data
+        response = self.client.delete('/rest/files/4')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr['research_dataset']['files'].append({
+            "identifier": "pid:urn:4",
+            "title": "File Title",
+            "use_category": {
+                "identifier": "method"
+            }
+        })
+        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 
 class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
@@ -3087,6 +3074,20 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFiles
             response.data['research_dataset']['directories'][0]['title'] not in orig_titles,
             response.data['research_dataset']['directories'][0]['title']
         )
+
+    def test_prevent_non_existent_additions_to_deprecated_dataset(self):
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr = response.data
+
+        file_id = cr['research_dataset']['files'][0]['identifier']
+
+        response = self.client.delete('/rest/files/%s' % file_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._add_nonexisting_directory(cr)
+        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 
 class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
