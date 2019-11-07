@@ -651,6 +651,19 @@ class CatalogRecord(Common):
         """
         file_description_changes = self._get_metadata_file_changes()
 
+        # not allowing file/dir updates via rest api for deprecated datasets will (hopefully) make
+        # the versioning more robust
+        if self.deprecated and any(
+                file_description_changes['files']['removed'] or
+                file_description_changes['files']['added'] or
+                file_description_changes['directories']['removed'] or
+                file_description_changes['directories']['added']):
+
+            raise Http400(
+                'Cannot add or remove files/directories from deprecated dataset. '
+                'Please use API /rpc/fix_deprecated to fix deprecation and to allow file modifications.'
+            )
+
         # after copying files from the previous version to the new version, these arrays hold any new
         # individual files and new directories that should be separately added as well.
         #
@@ -771,7 +784,7 @@ class CatalogRecord(Common):
 
         file_details = add_and_keep | removed
 
-        if len(add_and_keep_ids) + len(removed_ids) != len(file_details):
+        if len(add_and_keep_ids) + len(removed_ids) != len(file_details) and not self.deprecated:
             existig_files = set( f['identifier'] for f in file_details )
             missing_identifiers = [ f for f in add_and_keep_ids if f not in existig_files ]
             missing_identifiers += [ f for f in removed_ids if f not in existig_files ]
@@ -1282,8 +1295,8 @@ class CatalogRecord(Common):
         _logger.info('Added %d files to cumulative dataset %s' % (n_files_added, self.identifier))
 
         self._calculate_total_files_byte_size()
-        self._handle_metadata_versioning()
         self.calculate_directory_byte_sizes_and_file_counts()
+        self._handle_metadata_versioning()
         self.date_last_cumulative_addition = self.date_modified
 
     def _files_added_for_first_time(self):
@@ -1750,7 +1763,6 @@ class CatalogRecord(Common):
     def calculate_directory_byte_sizes_and_file_counts(self):
         """
         Calculate directory byte_sizes and file_counts for all dirs selected for this cr.
-        Since file changes will create a new dataset version, these values will never change.
         """
         if not self.research_dataset.get('directories', None):
             return
@@ -2139,8 +2151,10 @@ class CatalogRecord(Common):
 
         if self.cumulative_state == self.CUMULATIVE_STATE_YES:
             self.files.add(*added_file_ids)
+            self._calculate_total_files_byte_size()
+            self.calculate_directory_byte_sizes_and_file_counts()
+            self._handle_metadata_versioning()
             self.date_last_cumulative_addition = self.date_modified
-
         else:
             new_version = self._create_new_dataset_version_template()
             super(Common, new_version).save()

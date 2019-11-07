@@ -1385,7 +1385,7 @@ paths:
   /rpc/datasets/fix_deprecated:
     post:
       summary: Fixes deprecated dataset
-      description: Deletes all removed files from dataset and creates new version which will be non-deprecated.
+      description: Deletes all removed files from dataset and creates new version which will be non-deprecated. This api is the only way to recover deprecated dataset.
       parameters:
         - name: identifier
           in: query
