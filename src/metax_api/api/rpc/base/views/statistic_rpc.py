@@ -6,29 +6,48 @@
 # :license: MIT
 
 import logging
+import re
 
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from .common_rpc import CommonRPC
 from metax_api.exceptions import Http400
+from metax_api.models import CatalogRecord
+from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.services import StatisticService, CommonService as CS
 
 
 _logger = logging.getLogger(__name__)
 
+date_re = re.compile(
+    r'^\d{4}-\d{2}$'
+)
 
 class StatisticRPC(CommonRPC):
+
+    serializer_class = CatalogRecordSerializer
+    object = CatalogRecord
 
     @list_route(methods=['get'], url_path='all_datasets_cumulative')
     def all_datasets_cumulative(self, request):
         if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
             raise Http400('from_date and to_date parameters are required')
 
-        params = {
+        str_params = {
             'from_date': request.query_params.get('from_date', None),
             'to_date':   request.query_params.get('to_date', None),
         }
+
+        if not date_re.match(str_params['from_date']) or not date_re.match(str_params['to_date']):
+            raise Http400('date parameter format is \'YYYY-MM\'')
+
+        params = { param: request.query_params.get(param, None) for param in str_params }
+
+        for boolean_param in ['latest', 'legacy', 'removed']:
+            if boolean_param in request.query_params:
+                params[boolean_param] = CS.get_boolean_query_param(request, boolean_param)
+
         return Response(StatisticService.total_datasets(**params))
 
     @list_route(methods=['get'], url_path='catalog_datasets_cumulative')

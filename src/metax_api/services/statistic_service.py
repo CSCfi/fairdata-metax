@@ -142,7 +142,7 @@ class StatisticService():
         return results
 
     @classmethod
-    def total_datasets(cls, from_date, to_date):
+    def total_datasets(cls, from_date, to_date, latest=True, legacy=None, removed=None):
         """
         Retrieve dataset count and byte size per month and monthly cumulative from all datasets.
         """
@@ -154,16 +154,17 @@ class StatisticService():
                     date_trunc('month', cr.date_created) AS mon,
                     SUM(COALESCE((cr.research_dataset->>'total_files_byte_size')::bigint, 0)) AS mon_ida_byte_size
                 FROM metax_api_catalogrecord cr
+                JOIN metax_api_datacatalog AS dc on dc.id = cr.data_catalog_id
+                WHERE 1=1
+                OPTIONAL_WHERE_FILTERS
                 GROUP BY mon
             )
             SELECT
                 to_char(mon, 'YYYY-MM') as month,
                 COALESCE(count, 0) as count,
-                COALESCE(SUM(cr.count) over (partition by to_char(mon, 'YYYY') ORDER BY mon), 0)
-                    AS count_cumulative,
+                COALESCE(SUM(cr.count) OVER (ORDER BY mon), 0) AS count_cumulative,
                 COALESCE(SUM(c.mon_ida_byte_size), 0) AS ida_byte_size,
-                COALESCE(SUM(c.mon_ida_byte_size) over (partition by to_char(mon, 'YYYY') ORDER BY mon), 0)
-                    AS ida_byte_size_cumulative
+                COALESCE(SUM(c.mon_ida_byte_size) OVER (ORDER BY mon), 0) AS ida_byte_size_cumulative
             FROM generate_series(%s::date, %s::date, interval '1 month') AS mon
             LEFT JOIN cte c USING (mon)
             LEFT JOIN (
@@ -171,14 +172,37 @@ class StatisticService():
                     count(cr.id) AS count,
                     date_trunc('month', cr.date_created) AS mon
                 FROM metax_api_catalogrecord AS cr
+                JOIN metax_api_datacatalog AS dc ON dc.id = cr.data_catalog_id
+                WHERE 1=1
+                OPTIONAL_WHERE_FILTERS
                 GROUP BY mon
             ) cr USING (mon)
             GROUP BY mon, c.mon_ida_byte_size, count
             ORDER BY mon;
         '''
 
+        filter_sql = []
+        filter_args = []
+
+        if latest:
+            filter_sql.append('and next_dataset_version_id is null')
+
+        if removed is not None:
+            filter_sql.append('and cr.removed = %s')
+            filter_args.append(removed)
+
+        if legacy is not None:
+            filter_sql.append(''.join(["and dc.catalog_json->>'identifier'", " = " if legacy else " != ", "any(%s)"]))
+            filter_args.append(settings.LEGACY_CATALOGS)
+
+        sql_all_datasets = sql_all_datasets.replace(
+            'OPTIONAL_WHERE_FILTERS',
+            '\n'.join(filter_sql))
+
+        sql_args = filter_args + [from_date + '-01', to_date + '-01'] + filter_args
+
         with connection.cursor() as cr:
-            cr.execute(sql_all_datasets, [from_date, to_date])
+            cr.execute(sql_all_datasets, sql_args)
             results = [
                 dict(zip([col[0] for col in cr.description], row))
                 for row in cr.fetchall()
