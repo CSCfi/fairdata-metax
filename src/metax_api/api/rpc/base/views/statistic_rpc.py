@@ -13,8 +13,6 @@ from rest_framework.response import Response
 
 from .common_rpc import CommonRPC
 from metax_api.exceptions import Http400
-from metax_api.models import CatalogRecord
-from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.services import StatisticService, CommonService as CS
 
 
@@ -25,9 +23,6 @@ date_re = re.compile(
 )
 
 class StatisticRPC(CommonRPC):
-
-    serializer_class = CatalogRecordSerializer
-    object = CatalogRecord
 
     @list_route(methods=['get'], url_path='all_datasets_cumulative')
     def all_datasets_cumulative(self, request):

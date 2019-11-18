@@ -14,8 +14,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from metax_api.exceptions import Http400
-from metax_api.models import File
-from metax_api.api.rest.base.serializers import FileSerializer
 from metax_api.services import FileService
 from .common_rpc import CommonRPC
 
@@ -23,9 +21,6 @@ _logger = logging.getLogger(__name__)
 
 
 class FileRPC(CommonRPC):
-
-    serializer_class = FileSerializer
-    object = File
 
     @list_route(methods=['post'], url_path="delete_project")
     def delete_project(self, request):

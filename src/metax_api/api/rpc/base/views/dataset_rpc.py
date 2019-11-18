@@ -28,7 +28,6 @@ _logger = logging.getLogger(__name__)
 class DatasetRPC(CommonRPC):
 
     serializer_class = CatalogRecordSerializer
-    object = CatalogRecord
 
     @list_route(methods=['get'], url_path="get_minimal_dataset_template")
     def get_minimal_dataset_template(self, request):
