@@ -1425,15 +1425,40 @@ paths:
       summary: Get cumulative list of dataset information in given interval.
       description: Retrieve dataset count and byte size per month and monthly cumulative from all datasets.
       parameters:
-        - $ref: "#/parameters/from_date"
-        - $ref: "#/parameters/to_date"
+        - name: from_date
+          in: query
+          description: Includes datasets that are created after this date. Given in format 'YYYY-MM'.
+          required: true
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        - name: to_date
+          in: query
+          description: Includes datasets that are created before (including) this date. Given in format 'YYYY-MM'.
+          required: true
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        - name: latest
+          in: query
+          description: Only return latest versions. Default value is true.
+          required: false
+          type: boolean
+        - name: removed
+          in: query
+          description: Only return removed datasets. If set to false, return non-removed datasets. When parameter is not given, return both removed and non-removed datasets.
+          required: false
+          type: boolean
+        - name: legacy
+          in: query
+          description: Only return legacy datasets. If set to false, return non-legacy datasets. When parameter is not given, return both legacy and non-legacy datasets.
+          required: false
+          type: boolean
       responses:
         '200':
           description: successful operation.
           schema:
             $ref: "#/examples/all_datasets_cumulative"
         '400':
-          description: required parameters missing.
+          description: parameters contained errors, response includes details
       tags:
         - Statistics RPC
   # /rpc/statistics/catalog_datasets_cumulative:
@@ -1684,7 +1709,8 @@ definitions:
     properties:
       month:
         type: string
-        format: date
+        pattern: '^\d{4}-\d{2}$'
+        example: 2019-11
       count:
         type: integer
       count_cumulative:
