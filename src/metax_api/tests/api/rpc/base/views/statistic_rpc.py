@@ -194,6 +194,13 @@ class StatisticRPCCommon(APITestCase, TestClassUtils):
 
         return response.data['id']
 
+    def _create_new_dataset(self, dataset_json):
+        response = self.client.post('/rest/datasets', dataset_json, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        new_cr_id = response.data['id']
+
+        return new_cr_id
+
     def _create_new_dataset_version(self, id=1):
         """
         Finds the latest version of given dataset, deletes one file from it and updates.
@@ -209,6 +216,56 @@ class StatisticRPCCommon(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         return response.data['next_dataset_version']['id']
+
+    def _set_dataset_creation_date(self, cr_id, date):
+        """
+        Forcibly changes the creation date for easier testing. Date-parameter is in form 'YYYY-MM-DD'
+        """
+
+        cr = CatalogRecord.objects_unfiltered.get(id=cr_id)
+        cr.date_created = parse_timestamp_string_to_tz_aware_datetime(date)
+        cr.force_save()
+
+    def _get_catalog_record_size(self, id):
+        """
+        Returns the size of given record id
+        """
+        size = CatalogRecord\
+            .objects_unfiltered\
+            .get(id=id)\
+            .research_dataset.get('total_files_byte_size', 0)
+
+        return size
+
+    def _get_byte_size_of_month(self, date):
+        """
+        Returns the byte size for given date. date is in format 'YYYY-MM'
+        """
+        query = CatalogRecord.objects_unfiltered.filter(date_created__startswith=date)
+        list_of_sizes = [ cr.research_dataset.get('total_files_byte_size', 0) for cr in query ]
+
+        return sum(list_of_sizes)
+
+    def _get_total_byte_size(self):
+        """
+        Returns byte size of all datasets in database
+        """
+        query = CatalogRecord.objects_unfiltered.all()
+        list_of_sizes = [cr.research_dataset.get('total_files_byte_size', 0) for cr in query]
+
+        return sum(list_of_sizes)
+
+    def _get_dataset_count_of_month(self, date):
+        """
+        Returns the count for given date. date is in format 'YYYY-MM'
+        """
+        return CatalogRecord.objects_unfiltered.filter(date_created__startswith=date).count()
+
+    def _get_total_dataset_count(self):
+        """
+        Returns dataset count of entire database
+        """
+        return CatalogRecord.objects_unfiltered.count()
 
 
 class StatisticRPCCountDatasets(StatisticRPCCommon, CatalogRecordApiWriteCommon):
@@ -307,3 +364,313 @@ class StatisticRPCCountDatasets(StatisticRPCCommon, CatalogRecordApiWriteCommon)
         self.assertEqual(leg_lat['count'], 1)
         self.assertEqual(leg_not_lat['count'], 3)
         self.assertEqual(not_leg_not_lat['count'], total_count - 3)
+
+
+class StatisticRPCAllDatasetsCumulative(StatisticRPCCommon, CatalogRecordApiWriteCommon):
+    """
+    Test suite for all_datasets_cumulative. Test only optional parameters removed, legacy and latest for now.
+    """
+
+    url = '/rpc/statistics/all_datasets_cumulative'
+    dateparam_all = 'from_date=2018-06&to_date=2019-03'
+
+    def test_all_datasets_cumulative(self):
+        """
+        Basic tests for all_datasets_cumulative including parameter checks and basic functionality.
+
+        Return values for each interval:
+        count: Number of datasets created in this month
+        ida_byte_size: size of all files in datasets created this month
+        count_cumulative: number of datasets from from_date to this month (including)
+        ida_byte_size_cumulative: size of all files in datasets created from from_date to this month (including)
+        """
+
+        # test bad query parameters
+        response = self.client.get(f'{self.url}')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'from_date and to_date are required')
+
+        response = self.client.get(f'{self.url}?from_date=2019-11&to_date=bad_parameter')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'date format is YYYY-MM')
+
+        response = self.client.get(f'{self.url}?from_date=2019-11&to_date=2019-11-15')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'date format is YYYY-MM')
+
+        # test the basic functionality
+        june_size = self._get_byte_size_of_month('2018-06')
+        june_count = self._get_dataset_count_of_month('2018-06')
+
+        july_size = self._get_byte_size_of_month('2018-07')
+        july_count = self._get_dataset_count_of_month('2018-07')
+
+        march_size = self._get_byte_size_of_month('2019-03')
+        march_count = self._get_dataset_count_of_month('2019-03')
+
+        total_count = self._get_total_dataset_count()
+        total_size = self._get_total_byte_size()
+
+        response = self.client.get(f'{self.url}?{self.dateparam_all}').data
+        # ensure the counts and byte sizes are calculated correctly
+        self.assertEqual(response[0]['count'],                      june_count, response)
+        self.assertEqual(response[0]['ida_byte_size'],              june_size, response)
+        self.assertEqual(response[0]['count_cumulative'],           june_count, response)
+        self.assertEqual(response[0]['ida_byte_size_cumulative'],   june_size, response)
+
+        self.assertEqual(response[1]['count'],                      july_count, response)
+        self.assertEqual(response[1]['ida_byte_size'],              july_size, response)
+        self.assertEqual(response[1]['count_cumulative'],           june_count + july_count, response)
+        self.assertEqual(response[1]['ida_byte_size_cumulative'],   june_size + july_size, response)
+
+        self.assertEqual(response[-1]['count'],                     march_count, response)
+        self.assertEqual(response[-1]['ida_byte_size'],             march_size, response)
+        self.assertEqual(response[-1]['count_cumulative'],          total_count, response)
+        self.assertEqual(response[-1]['ida_byte_size_cumulative'],  total_size, response)
+
+        # test that only datasets from beginning of from_date is counted
+        response = self.client.get(f'{self.url}?from_date=2018-07&to_date=2019-03').data
+
+        self.assertEqual(response[-1]['count_cumulative'],          total_count - june_count, response)
+        self.assertEqual(response[-1]['ida_byte_size_cumulative'],  total_size - june_size, response)
+
+    def test_all_datasets_cumulative_single(self):
+        """
+        Tests single parameters for api. Empty removed and legacy parameters returns true AND false matches
+        """
+        total_count = self._get_total_dataset_count()
+        total_size = self._get_total_byte_size()
+
+        # test removed -parameter
+        june_size = self._get_byte_size_of_month('2018-06')
+        june_count = self._get_dataset_count_of_month('2018-06')
+
+        self._set_removed_dataset(id=8) # belongs to 2018-06, i.e. the first interval
+        removed_size = self._get_catalog_record_size(id=8)
+
+        response = self.client.get(f'{self.url}?{self.dateparam_all}&removed=true').data
+        # ensure that only the first month (2018-06) contains dataset and that cumulative is calculated correctly
+        self.assertEqual(response[0]['count'],                      1, response)
+        self.assertEqual(response[0]['ida_byte_size'],              removed_size, response)
+        self.assertEqual(response[0]['count_cumulative'],           1, response)
+        self.assertEqual(response[0]['ida_byte_size_cumulative'],   removed_size, response)
+
+        self.assertEqual(response[-1]['count_cumulative'],          1, response)
+        self.assertEqual(response[-1]['ida_byte_size_cumulative'],  removed_size, response)
+
+        response = self.client.get(f'{self.url}?{self.dateparam_all}&removed=false').data
+        # ensure that the correct dataset is missing from results
+        self.assertEqual(response[0]['count'],                      june_count - 1, response)
+        self.assertEqual(response[0]['ida_byte_size'],              june_size - removed_size, response)
+        self.assertEqual(response[-1]['count_cumulative'],          total_count - 1, response)
+        self.assertEqual(response[-1]['ida_byte_size_cumulative'],  total_size - removed_size, response)
+
+        # test legacy -parameter
+        leg_cr = self._create_legacy_dataset()  # legacy cr belongs to 2019-03, i.e. the last interval
+        self._set_dataset_creation_date(leg_cr, '2019-03-13')
+
+        legacy_size = self._get_catalog_record_size(id=leg_cr)
+
+        total_count = self._get_total_dataset_count()
+        total_size = self._get_total_byte_size()
+
+        march_size = self._get_byte_size_of_month('2019-03')
+        march_count = self._get_dataset_count_of_month('2019-03')
+
+        response = self.client.get(f'{self.url}?{self.dateparam_all}&legacy=true').data
+
+        self.assertEqual(response[-1]['count'],                     1, response)
+        self.assertEqual(response[-1]['ida_byte_size'],             legacy_size, response)
+        self.assertEqual(response[-1]['count_cumulative'],          1, response)
+        self.assertEqual(response[-1]['ida_byte_size_cumulative'],  legacy_size, response)
+
+        response = self.client.get(f'{self.url}?{self.dateparam_all}&legacy=false').data
+
+        self.assertEqual(response[-1]['count'],                     march_count - 1, response)
+        self.assertEqual(response[-1]['ida_byte_size'],             march_size - legacy_size, response)
+        self.assertEqual(response[-1]['count_cumulative'],          total_count - 1, response)
+        self.assertEqual(response[-1]['ida_byte_size_cumulative'],  total_size - legacy_size, response)
+
+        # test latest -parameter
+        # new versions will belong to 2019-03, i.e. the last interval
+        second = self._create_new_dataset_version()
+        self._set_dataset_creation_date(second, '2019-03-17')
+
+        old_ver_size = self._get_catalog_record_size(id=1)
+
+        total_count = self._get_total_dataset_count()
+        total_size = self._get_total_byte_size()
+
+        march_size = self._get_byte_size_of_month('2019-03')
+        march_count = self._get_dataset_count_of_month('2019-03')
+
+        response = self.client.get(f'{self.url}?{self.dateparam_all}&latest=false').data # returns all
+        self.assertEqual(response[-1]['count'],                     march_count, response)
+        self.assertEqual(response[-1]['ida_byte_size'],             march_size, response)
+        self.assertEqual(response[-1]['count_cumulative'],          total_count, response)
+        self.assertEqual(response[-1]['ida_byte_size_cumulative'],  total_size, response)
+
+        with_param = self.client.get(f'{self.url}?{self.dateparam_all}&latest=true').data
+        self.assertEqual(with_param[-1]['count'],                    march_count - 1, with_param)
+        self.assertEqual(with_param[-1]['ida_byte_size'],            march_size - old_ver_size, with_param)
+        self.assertEqual(with_param[-1]['count_cumulative'],         total_count - 1, with_param)
+        self.assertEqual(with_param[-1]['ida_byte_size_cumulative'], total_size - old_ver_size, response)
+
+        # ensure that default value(true) is working as expected
+        without_param = self.client.get(f'{self.url}?{self.dateparam_all}').data
+        self.assertEqual(with_param[-1]['count'],               without_param[-1]['count'], with_param)
+        self.assertEqual(with_param[-1]['ida_byte_size'],       without_param[-1]['ida_byte_size'], with_param)
+        self.assertEqual(with_param[-1]['count_cumulative'],    without_param[-1]['count_cumulative'], with_param)
+        self.assertEqual(
+            with_param[-1]['ida_byte_size_cumulative'], without_param[-1]['ida_byte_size_cumulative'], with_param
+        )
+
+    def test_all_datasets_cumulative_removed_latest(self):
+        second = self._create_new_dataset_version()
+        self._set_dataset_creation_date(second, '2019-03-11')
+
+        self._set_removed_dataset(id=1)
+        self._set_removed_dataset(id=second)
+
+        latest_size = self._get_catalog_record_size(id=second)
+        removed_size = self._get_catalog_record_size(id=1) + latest_size
+        removed_count = 2
+
+        rem_lat = self.client.get(f'{self.url}?{self.dateparam_all}&removed=true&latest=true').data
+
+        self.assertEqual(rem_lat[-1]['count'],                      1, rem_lat) # id=second
+        self.assertEqual(rem_lat[-1]['ida_byte_size'],              latest_size, rem_lat)
+        self.assertEqual(rem_lat[-1]['count_cumulative'],           1, rem_lat)
+        self.assertEqual(rem_lat[-1]['ida_byte_size_cumulative'],   latest_size, rem_lat)
+
+        rem_not_lat = self.client.get(f'{self.url}?{self.dateparam_all}&removed=true&latest=false').data
+
+        self.assertEqual(rem_not_lat[-1]['count'],                      removed_count, rem_not_lat) # id=second
+        self.assertEqual(rem_not_lat[-1]['ida_byte_size'],              removed_size, rem_not_lat)
+        self.assertEqual(rem_not_lat[-1]['count_cumulative'],           removed_count, rem_not_lat)
+        self.assertEqual(rem_not_lat[-1]['ida_byte_size_cumulative'],   removed_size, rem_not_lat)
+
+        # create new dataset with two versions, which will not be deleted
+        new_cr_id = self._create_new_dataset(self.cr_test_data)
+        self._set_dataset_creation_date(new_cr_id, '2019-01-02')
+
+        new_cr_ver = self._create_new_dataset_version(new_cr_id)
+        self._set_dataset_creation_date(new_cr_ver, '2019-01-06')
+
+        old_version_size = self._get_catalog_record_size(id=new_cr_id)
+
+        jan_count = self._get_dataset_count_of_month('2019-01')
+        jan_size = self._get_byte_size_of_month('2019-01')
+
+        total_count = self._get_total_dataset_count()
+        total_size = self._get_total_byte_size()
+
+        not_rem_lat = self.client.get(f'{self.url}?{self.dateparam_all}&removed=false&latest=true').data
+
+        # missing the removed dataset from before and dataset id='new_cr_id'
+        self.assertEqual(not_rem_lat[-3]['count'],                      jan_count - 1, not_rem_lat)
+        self.assertEqual(not_rem_lat[-3]['ida_byte_size'],              jan_size - old_version_size, not_rem_lat)
+        self.assertEqual(not_rem_lat[-1]['count_cumulative'],           total_count - removed_count - 1, not_rem_lat)
+        self.assertEqual(not_rem_lat[-1]['ida_byte_size_cumulative'],   total_size - removed_size - old_version_size,
+            not_rem_lat)
+
+        not_rem_not_lat = self.client.get(f'{self.url}?{self.dateparam_all}&removed=false&latest=false').data
+
+        self.assertEqual(not_rem_not_lat[-3]['count'],                      jan_count, not_rem_not_lat)
+        self.assertEqual(not_rem_not_lat[-3]['ida_byte_size'],              jan_size, not_rem_not_lat)
+        self.assertEqual(not_rem_not_lat[-1]['count_cumulative'],           total_count - removed_count,
+            not_rem_not_lat)
+        self.assertEqual(not_rem_not_lat[-1]['ida_byte_size_cumulative'],   total_size - removed_size, not_rem_not_lat)
+
+    def test_all_datasets_cumulative_removed_legacy(self):
+        leg_cr_1 = self._create_legacy_dataset()
+        self._set_dataset_creation_date(leg_cr_1, '2018-07-03')
+
+        leg_cr_2 = self._create_legacy_dataset()
+        self._set_dataset_creation_date(leg_cr_2, '2019-02-08')
+        self._set_removed_dataset(leg_cr_2)
+
+        self._set_removed_dataset(id=8) # belongs to first interval, i.e. 2018-06
+
+        leg_non_rem_size = self._get_catalog_record_size(leg_cr_1)
+        leg_removed_size = self._get_catalog_record_size(leg_cr_2)
+        removed_size = self._get_catalog_record_size(8)
+
+        rem_leg_count = 3
+        rem_leg_size = leg_non_rem_size + leg_removed_size + removed_size
+
+        total_count = self._get_total_dataset_count()
+        total_size = self._get_total_byte_size()
+
+        june_count = self._get_dataset_count_of_month('2018-06')
+        june_size = self._get_byte_size_of_month('2018-06')
+
+        feb_count = self._get_dataset_count_of_month('2019-02')
+        feb_size = self._get_byte_size_of_month('2019-02')
+
+        rem_leg = self.client.get(f'{self.url}?{self.dateparam_all}&removed=true&legacy=true').data
+
+        self.assertEqual(rem_leg[-2]['count'],                      1, rem_leg)
+        self.assertEqual(rem_leg[-2]['ida_byte_size'],              leg_removed_size, rem_leg)
+        self.assertEqual(rem_leg[-1]['count_cumulative'],           1, rem_leg)
+        self.assertEqual(rem_leg[-1]['ida_byte_size_cumulative'],   leg_removed_size, rem_leg)
+
+        rem_not_leg = self.client.get(f'{self.url}?{self.dateparam_all}&removed=true&legacy=false').data
+
+        self.assertEqual(rem_not_leg[0]['count'],                       1, rem_not_leg)
+        self.assertEqual(rem_not_leg[0]['ida_byte_size'],               removed_size, rem_not_leg)
+        self.assertEqual(rem_not_leg[-1]['count_cumulative'],           1, rem_not_leg)
+        self.assertEqual(rem_not_leg[-1]['ida_byte_size_cumulative'],   removed_size, rem_not_leg)
+
+        not_rem_leg = self.client.get(f'{self.url}?{self.dateparam_all}&removed=false&legacy=true').data
+
+        self.assertEqual(not_rem_leg[1]['count'],                       1, not_rem_leg)
+        self.assertEqual(not_rem_leg[1]['ida_byte_size'],               leg_non_rem_size, not_rem_leg)
+        self.assertEqual(not_rem_leg[-1]['count_cumulative'],           1, not_rem_leg)
+        self.assertEqual(not_rem_leg[-1]['ida_byte_size_cumulative'],   leg_non_rem_size, not_rem_leg)
+
+        not_rem_not_leg = self.client.get(f'{self.url}?{self.dateparam_all}&removed=false&legacy=false').data
+
+        self.assertEqual(not_rem_not_leg[0]['count'],                      june_count - 1, not_rem_not_leg)
+        self.assertEqual(not_rem_not_leg[0]['ida_byte_size'],              june_size - removed_size, not_rem_not_leg)
+        self.assertEqual(not_rem_not_leg[-2]['count'],                     feb_count - 1, not_rem_not_leg)
+        self.assertEqual(not_rem_not_leg[-2]['ida_byte_size'],             feb_size - leg_removed_size, not_rem_not_leg)
+        self.assertEqual(not_rem_not_leg[-1]['count_cumulative'],          total_count - rem_leg_count, not_rem_not_leg)
+        self.assertEqual(not_rem_not_leg[-1]['ida_byte_size_cumulative'],  total_size - rem_leg_size, not_rem_not_leg)
+
+    def test_all_datasets_cumulative_latest_legacy(self):
+        leg_cr = self._create_legacy_dataset()
+        self._set_dataset_creation_date(leg_cr, '2019-03-08')
+
+        second = self._create_new_dataset_version(leg_cr)
+        self._set_dataset_creation_date(second, '2019-03-12')
+
+        leg_cr_size = self._get_catalog_record_size(id=leg_cr)
+        second_size = self._get_catalog_record_size(id=second)
+
+        legacy_count = 2
+        legacy_size = leg_cr_size + second_size
+
+        total_count = self._get_total_dataset_count()
+        total_size = self._get_total_byte_size()
+
+        march_count = self._get_dataset_count_of_month('2019-03')
+        march_size = self._get_byte_size_of_month('2019-03')
+
+        leg_lat = self.client.get(f'{self.url}?{self.dateparam_all}&legacy=true&latest=true').data
+
+        self.assertEqual(leg_lat[-1]['count'],                      1, leg_lat)
+        self.assertEqual(leg_lat[-1]['ida_byte_size'],              second_size, leg_lat)
+        self.assertEqual(leg_lat[-1]['count_cumulative'],           1, leg_lat)
+        self.assertEqual(leg_lat[-1]['ida_byte_size_cumulative'],   second_size, leg_lat)
+
+        leg_not_lat = self.client.get(f'{self.url}?{self.dateparam_all}&legacy=true&latest=false').data
+
+        self.assertEqual(leg_not_lat[-1]['count'],                      legacy_count, leg_not_lat)
+        self.assertEqual(leg_not_lat[-1]['ida_byte_size'],              legacy_size, leg_not_lat)
+        self.assertEqual(leg_not_lat[-1]['count_cumulative'],           legacy_count, leg_not_lat)
+        self.assertEqual(leg_not_lat[-1]['ida_byte_size_cumulative'],   legacy_size, leg_not_lat)
+
+        not_leg_not_lat = self.client.get(f'{self.url}?{self.dateparam_all}&legacy=false&latest=false').data
+
+        self.assertEqual(not_leg_not_lat[-1]['count'],                      march_count - legacy_count, not_leg_not_lat)
+        self.assertEqual(not_leg_not_lat[-1]['ida_byte_size'],              march_size - legacy_size, not_leg_not_lat)
+        self.assertEqual(not_leg_not_lat[-1]['count_cumulative'],           total_count - legacy_count, not_leg_not_lat)
+        self.assertEqual(not_leg_not_lat[-1]['ida_byte_size_cumulative'],   total_size - legacy_size, not_leg_not_lat)
