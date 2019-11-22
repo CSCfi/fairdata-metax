@@ -288,6 +288,12 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.assertEqual(len(response.data['success']), 2)
         self._check_project_root_byte_size_and_file_count(response.data['success'][0]['object']['project_identifier'])
 
+        # ensure structure of some specific fields is the same as when single files are created
+        self.assertEqual('identifier' in response.data['success'][0]['object']['file_storage'], True)
+        self.assertEqual('identifier' in response.data['success'][0]['object']['parent_directory'], True)
+        self.assertEqual('checksum' in response.data['success'][0]['object'], True)
+        self.assertEqual('value' in response.data['success'][0]['object']['checksum'], True)
+
     def test_create_file_list_error_one_fails(self):
         newly_created_file_name = 'newly_created_file_name'
         self.test_new_data['file_name'] = newly_created_file_name
@@ -477,7 +483,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             f['identifier'] = '%s-%d' % (f['file_path'], i)
 
         response = self.client.post('/rest/files', experiment_2_file_list, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual(len(response.data['failed']), 0, response.data['failed'])
         self.assertEqual(len(response.data['success']), 5)

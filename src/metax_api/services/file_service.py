@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403
-from metax_api.models import CatalogRecord, Directory, File
+from metax_api.models import CatalogRecord, Directory, File, FileStorage
 from metax_api.services import AuthService
 from metax_api.utils.utils import get_tz_aware_now_without_micros, DelayedLog
 from .callable_service import CallableService
@@ -950,14 +950,24 @@ class FileService(CommonService, ReferenceDataMixin):
         """
         The actual part where the list is iterated and objects validated, and created.
         """
+        project_identifier = initial_data_list[0]['project_identifier']
 
         # pre-fetch all file_paths in the project, to spare an individual db fetch for each file
         # in serializer.save(), where they otherwise would check for path presence.
         project_file_paths = File.objects.filter(
-            project_identifier=initial_data_list[0]['project_identifier']).values_list('file_path', flat=True)
+            project_identifier=project_identifier).values_list('file_path', flat=True)
         project_file_paths = set(project_file_paths)
 
+        project_dir_paths = set(dirname(f['file_path']) for f in initial_data_list)
+
+        project_dir_data_list = Directory.objects \
+            .filter(project_identifier=project_identifier, directory_path__in=project_dir_paths) \
+            .values_list('id', 'identifier')
+
+        project_dir_data = { dr[0]: dr[1] for dr in project_dir_data_list }
+
         file_storage_id = None
+        file_storage_identifier = None
         entries = []
 
         def to_model_format(entry, common_info):
@@ -971,17 +981,27 @@ class FileService(CommonService, ReferenceDataMixin):
             del entry['parent_directory']
             entry.update(**common_info) # add date_created, service_created etc fields
 
-        def to_repr(entry, common_info):
+        def to_repr(entry, common_info, project_dir_data, file_storage_identifier):
             """
             Format that is returned in the response.
             """
-            entry['file_storage'] = { 'id': entry['file_storage_id'] }
-            entry['parent_directory'] = { 'id': entry['parent_directory_id'] }
+            entry['file_storage'] = {
+                'id': entry['file_storage_id'],
+                'identifier': file_storage_identifier,
+            }
+            entry['parent_directory'] = {
+                'id': entry['parent_directory_id'],
+                'identifier': project_dir_data[entry['parent_directory_id']],
+            }
+
             del entry['file_storage_id']
             del entry['parent_directory_id']
+
             for field in common_info.keys():
                 # cast datetime objects into strings
                 entry[field] = str(entry[field])
+
+            entry['checksum'] = serializer_class.form_checksum(entry)
 
         if DEBUG:
             start = time()
@@ -1022,7 +1042,12 @@ class FileService(CommonService, ReferenceDataMixin):
                 entries.append(File(**entry))
                 file_storage_id = entry['file_storage_id'] # re-used for following loops
 
-                to_repr(entry, common_info)
+                if file_storage_identifier is None:
+                    # re-used for following loops
+                    file_storage_identifier = FileStorage.objects \
+                        .get(pk=file_storage_id).file_storage_json['identifier']
+
+                to_repr(entry, common_info, project_dir_data, file_storage_identifier)
                 results['success'].append({ 'object': entry })
 
                 if i % 1000 == 0:
