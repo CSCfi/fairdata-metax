@@ -2450,9 +2450,13 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
     def test_add_files_to_empty_cumulative_dataset(self):
         cr = self._create_cumulative_dataset_without_files()
 
+        total_record_count_beginning = CatalogRecord.objects_unfiltered.all().count()
+
         self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
         response = self.update_record(cr)
+        current_record_count = CatalogRecord.objects_unfiltered.all().count()
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
 
     def test_adding_files_to_cumulative_dataset_creates_no_new_versions(self):
         """
@@ -2462,8 +2466,11 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
         self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_02.txt')
 
+        total_record_count_beginning = CatalogRecord.objects_unfiltered.all().count()
         response = self.update_record(cr)
+        current_record_count = CatalogRecord.objects_unfiltered.all().count()
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
 
         # two + two is four, quik mafs
         self.assert_file_count(response.data, 4)
@@ -2473,7 +2480,9 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
         cr = response.data
         self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
         response = self.update_record(cr)
+        current_record_count = CatalogRecord.objects_unfiltered.all().count()
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
 
         self.assert_file_count(response.data, 8)
         self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 8)
