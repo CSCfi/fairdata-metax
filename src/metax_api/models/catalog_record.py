@@ -1522,7 +1522,11 @@ class CatalogRecord(Common):
 
                 if actual_files_changed:
 
-                    if self.catalog_is_pas():
+                    if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                        _logger.info('Files changed, but dataset is cumulative')
+                        raise DiscardRecord()
+
+                    elif self.catalog_is_pas():
                         raise Http400('Cannot change files in a dataset in PAS catalog.')
 
                     self._new_version = temp_record
