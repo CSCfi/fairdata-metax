@@ -126,7 +126,7 @@ class _DataciteService(CommonService):
             _logger.warning('Could not delete doi in draft state')
             _logger.warning(e)
 
-    def get_validated_datacite_json(self, cr_json, is_strict):
+    def get_validated_datacite_json(self, cr_json, is_strict, dummy_doi=False):
         if isinstance(cr_json, list):
             raise DataciteException('Datacite conversion can only be done to individual datasets, not lists.')
 
@@ -187,6 +187,9 @@ class _DataciteService(CommonService):
 
         if is_metax_doi:
             identifier_value = extract_doi_from_doi_identifier(identifier)
+            identifier_type = 'DOI'
+        elif dummy_doi:
+            identifier_value = '10.0/%s' % identifier
             identifier_type = 'DOI'
         elif not is_strict and is_metax_urn:
             identifier_value = identifier
@@ -288,14 +291,14 @@ class _DataciteService(CommonService):
 
         return datacite_json
 
-    def convert_catalog_record_to_datacite_xml(self, cr_json, include_xml_declaration, is_strict):
+    def convert_catalog_record_to_datacite_xml(self, cr_json, include_xml_declaration, is_strict, dummy_doi=False):
         """
         Convert dataset from catalog record data model to datacite json data model. Validate the json against datacite
         schema. On success, convert and return as XML. Raise exceptions on errors.
 
         Currently only supports datacite version 4.1.
         """
-        datacite_json = self.get_validated_datacite_json(cr_json, is_strict)
+        datacite_json = self.get_validated_datacite_json(cr_json, is_strict, dummy_doi=dummy_doi)
 
         # generate and return datacite xml
         output_xml = datacite_schema41.tostring(datacite_json)

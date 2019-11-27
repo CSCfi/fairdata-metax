@@ -1000,9 +1000,23 @@ paths:
           type: string
         - name: dataset_format
           in: query
-          description: Name of the format the dataset should be returned in. <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
+          description: |
+            Format the dataset should be returned in.
+            Possible formats are:
+            - datacite (Datacite XML)
+            - fairdata_datacite (a less strict version of official Datacite XML. research_dataset.issued and research_dataset.publisher are not required, and identifierType can be URN, if the dataset does not have a real DOI identifier.)
+            - metax (a simple json -> xml transformation)
+            <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
           required: false
           type: string
+        - name: dummy_doi
+          in: path
+          description: |
+            Can be used with query parameter dataset_format, when dataset_format value is either datacite, or fairdata_datacite.
+            If specified to true, and the dataset does not have a real DOI identifier, then a dummy DOI is used in place, using the form 10.0/<preferred_identifier>.
+            If the dataset does already have a valid DOI, then the real DOI is used instead, and this parameter has no effect.
+          required: false
+          type: boolean
         - name: file_details
           in: query
           description: |
