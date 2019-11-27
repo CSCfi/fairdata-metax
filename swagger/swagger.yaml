@@ -1006,6 +1006,7 @@ paths:
             - datacite (Datacite XML)
             - fairdata_datacite (a less strict version of official Datacite XML. research_dataset.issued and research_dataset.publisher are not required, and identifierType can be URN, if the dataset does not have a real DOI identifier.)
             - metax (a simple json -> xml transformation)
+
             <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
           required: false
           type: string
