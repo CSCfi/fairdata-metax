@@ -56,7 +56,8 @@ class DatasetViewSet(CommonViewSet):
 
         if 'dataset_format' in request.query_params:
             try:
-                res.data = CRS.transform_datasets_to_format(res.data, request.query_params['dataset_format'])
+                res.data = CRS.transform_datasets_to_format(
+                    res.data, request.query_params['dataset_format'], request=request)
             except DataciteException as e:
                 raise Http400(str(e))
             request.accepted_renderer = XMLRenderer()
