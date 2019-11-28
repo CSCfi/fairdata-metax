@@ -120,7 +120,7 @@ class FileSerializer(CommonSerializer):
                 }
 
         if not self.requested_fields or 'checksum' in self.requested_fields:
-            res['checksum'] = self._form_checksum(res)
+            res['checksum'] = self.form_checksum(res)
 
         return res
 
@@ -200,13 +200,14 @@ class FileSerializer(CommonSerializer):
             if key in checksum:
                 self.initial_data['checksum_%s' % key] = checksum[key]
 
-    def _form_checksum(self, file_data):
+    @classmethod
+    def form_checksum(cls, file_data):
         """
         Do the opposite of _flatten_checksum(). Take model-level checksum-fields
         and form a "relation checksum" to return from the api.
         """
         checksum = {}
-        for key in self.checksum_fields:
+        for key in cls.checksum_fields:
             checksum_field = 'checksum_%s' % key
             if checksum_field in file_data:
                 checksum[key] = file_data[checksum_field]

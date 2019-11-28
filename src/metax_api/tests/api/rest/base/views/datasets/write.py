@@ -7,6 +7,7 @@
 
 from copy import deepcopy
 from datetime import datetime, timedelta
+from time import sleep
 
 import responses
 from django.conf import settings as django_settings
@@ -806,7 +807,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue('date_deprecated' not in response.data)
 
     def test_catalog_record_date_deprecated_and_date_deprecated_lifecycle(self):
-        # if dataset is deprecated, updating dataset creates new version
+        # if dataset is deprecated, fixing dataset creates new version
         ds = CatalogRecord.objects.filter(files__id=1)
         ds_id = ds[0].identifier
 
@@ -818,11 +819,7 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue(cr['deprecated'])
         self.assertTrue(cr['date_deprecated'].startswith('2'))
 
-        # the deprecation and date_deprecated are actually silently ignored
-        cr['deprecated'] = False
-        cr.pop('date_deprecated', None)
-        cr['research_dataset']['files'].pop(0)
-        response = self.client.put('/rest/datasets/%s' % ds_id, cr, format="json")
+        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % ds_id, cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(CatalogRecord.objects.get(identifier=ds_id).next_dataset_version.deprecated, False)
 
@@ -1929,63 +1926,6 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         self.assertEqual('new_version_created' in response.data, True)
         self.assertEqual('dataset_version_set' in response.data, True)
 
-    def test_new_dataset_version_fixes_deprecated(self):
-        """
-        A dataset is marked as deprecated when some of its files have been deleted. Creating
-        a new version should fix it.
-        """
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.deprecated = True
-        cr.force_save()
-
-        cr = self.client.get('/rest/datasets/1').data
-        cr['research_dataset']['files'].pop(0)
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(CatalogRecord.objects.get(pk=1).next_dataset_version.deprecated, False)
-
-    def test_deprecated_dataset_versioning(self):
-        # add directory to dataset
-        cr = self.client.get('/rest/datasets/1').data
-        cr_id = cr['identifier']
-        dir_id = self.client.get('/rest/directories/1').data['identifier']
-        new_dir = {
-            "identifier": dir_id,
-            "title": "dir title",
-            "use_category": {
-                "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
-            }
-        }
-        cr['research_dataset']['directories'] = []
-        cr['research_dataset']['directories'].append(new_dir)
-
-        response = self.client.put(f'/rest/datasets/{cr_id}', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertTrue('directories' in response.data['research_dataset'], 'directories should be present')
-
-        # delete directory from database and ensure that dataset is deprecated and files/dirs are deleted
-        files = self.client.get(f'/rest/directories/{dir_id}/files?recursive=true&depth=*').data
-        file_ids = [f['identifier'] for f in files]
-        response = self.client.delete('/rest/files', file_ids, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        response = self.client.get(f'/rest/files/{file_ids[0]}')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
-
-        response = self.client.get(f'/rest/directories/{dir_id}')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
-
-        cr = self.client.get(f'/rest/datasets/{cr_id}').data
-        self.assertEqual(cr['deprecated'], True, 'dataset should be deprecated')
-
-        # after the dataset is deprecated, updating should create a new dataset
-        cr['research_dataset'].pop('directories')
-        cr['research_dataset'].pop('files')
-
-        response = self.client.put(f'/rest/datasets/{cr_id}', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data['dataset_version_set']), 2)
-
     def test_dataset_version_lists_removed_records(self):
         # create new version
         cr = self.client.get('/rest/datasets/1').data
@@ -2072,13 +2012,58 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
             )
         return self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json")
 
+    def test_allow_metadata_changes_after_deprecation(self):
+        """
+        For deprecated datasets, file and directory additions/removals are forbidden but
+        metadata changes are allowed.
+        """
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr = response.data
 
-class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
+        # after the dataset is deprecated, metadata updates should be ok
+        cr['research_dataset']['description'] = {
+            "en": "Updating new description for deprecated dataset should not create any problems"
+        }
+        cr['research_dataset']['files'][0]['title'] = 'Brand new title 1'
+
+        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertTrue('new description' in response.data['research_dataset']['description']['en'],
+            'description field should be updated')
+        self.assertTrue('Brand new' in response.data['research_dataset']['files'][0]['title'],
+            'title field for file should be updated')
+
+    def test_prevent_adding_removed_file_to_deprecated_dataset(self):
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr = response.data
+
+        # deprecates the dataset
+        response = self.client.delete('/rest/files/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # the file to add to data
+        response = self.client.delete('/rest/files/4')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr['research_dataset']['files'].append({
+            "identifier": "pid:urn:4",
+            "title": "File Title",
+            "use_category": {
+                "identifier": "method"
+            }
+        })
+        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+
+class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
     """
-    Test assigning files and directories to datasets and related functionality,
-    except: Tests related to file updates/versioning are handled in the
-    CatalogRecordApiWriteDatasetVersioning -suite.
+    Helper class to test file assignment in Metax. Does not include any tests itself.
     """
 
     def _get_file_from_test_data(self):
@@ -2351,13 +2336,39 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/files', files, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def _freeze_files_to_root(self):
+        file_data = [
+            {
+                "file_name": "file_56.txt",
+                "file_path": "/TestExperiment/Directory_2/file_56.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_57.txt",
+                "file_path": "/TestExperiment/Directory_2/file_57.txt",
+                'project_identifier': 'testproject',
+            },
+        ]
+
+        file_template = self._get_file_from_test_data()
+        del file_template['id']
+        self._single_file_byte_size = file_template['byte_size']
+        files = []
+
+        for i, f in enumerate(file_data):
+            file = deepcopy(file_template)
+            file.update(f, identifier='frozen:later:file:%s' % f['file_name'][-6:-4])
+            files.append(file)
+        response = self.client.post('/rest/files', files, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def setUp(self):
         """
         For each test:
         - remove files and dirs from the metadata record that is being created
         - create 12 new files in a new project
         """
-        super(CatalogRecordApiWriteAssignFilesToDataset, self).setUp()
+        super().setUp()
         self.cr_test_data['research_dataset'].pop('id', None)
         self.cr_test_data['research_dataset'].pop('preferred_identifier', None)
         self.cr_test_data['research_dataset'].pop('files', None)
@@ -2380,6 +2391,297 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
 
     def assert_total_files_byte_size(self, cr, expected_size):
         self.assertEqual(cr['research_dataset']['total_files_byte_size'], expected_size)
+
+class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCommon):
+
+    """
+    Tests for different creation situations and adding files and directories to successfully
+    created datasets. Makes sure that adding files or directories does not create new dataset version
+    and removing any files or directories is forbidden.
+    """
+
+    def _create_cumulative_dataset_with_files(self):
+        """
+        Create cumulative dataset with two files that will be updated.
+        """
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_06.txt')
+        self.cr_test_data['cumulative_state'] = 1 # YES
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        return response.data # i.e. the dataset
+
+    def _create_cumulative_dataset_without_files(self):
+        """
+        Create cumulative dataset without any files.
+        """
+        self.cr_test_data['cumulative_state'] = 1 # YES
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        return response.data
+
+    def test_create_cumulative_dataset_with_state_closed(self):
+        self.cr_test_data['cumulative_state'] = 2 # CLOSED
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_create_cumulative_dataset_with_preservation_state(self):
+        self.cr_test_data['cumulative_state'] = 1
+        self.cr_test_data['preservation_state'] = 10
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('PAS' in response.data['detail'], 'error message should concern PAS process')
+
+    def test_create_cumulative_dataset_sets_date_cumulation_started(self):
+        self.cr_test_data['cumulative_state'] = 1
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['date_cumulation_started'], response.data['date_created'], response.data)
+        self.assertTrue('date_cumulation_ended' not in response.data, response.data)
+        self.assertTrue('date_last_cumulative_addition' not in response.data, response.data)
+
+    def test_add_files_to_empty_cumulative_dataset(self):
+        cr = self._create_cumulative_dataset_without_files()
+
+        total_record_count_beginning = CatalogRecord.objects_unfiltered.all().count()
+
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        response = self.update_record(cr)
+        current_record_count = CatalogRecord.objects_unfiltered.all().count()
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
+
+    def test_adding_files_to_cumulative_dataset_creates_no_new_versions(self):
+        """
+        Tests the basic idea of cumulative dataset: add files with no new version
+        """
+        cr = self._create_cumulative_dataset_with_files()
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+
+        total_record_count_beginning = CatalogRecord.objects_unfiltered.all().count()
+        response = self.update_record(cr)
+        current_record_count = CatalogRecord.objects_unfiltered.all().count()
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
+
+        # two + two is four, quik mafs
+        self.assert_file_count(response.data, 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
+        self.assertEqual('new_dataset_version' in response.data, False, 'New version should not be created')
+
+        cr = response.data
+        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
+        response = self.update_record(cr)
+        current_record_count = CatalogRecord.objects_unfiltered.all().count()
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
+
+        self.assert_file_count(response.data, 8)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 8)
+        self.assertEqual('new_dataset_version' in response.data, False, 'New version should not be created')
+
+    def test_adding_files_to_cumulative_dataset_changes_date_last_cumulative_addition(self):
+        cr = self._create_cumulative_dataset_with_files()
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+        sleep(1) # ensure that next request happens with different timestamp
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertTrue(response.data['date_last_cumulative_addition'] != response.data['date_created'], response.data)
+
+    def test_add_single_sub_directory(self):
+        """
+        A very simple "there is a single common root directory" test.
+        """
+        cr = self._create_cumulative_dataset_with_files()
+
+        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assert_file_count(response.data, 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
+
+        cr = response.data
+        self._add_directory(response.data, '/TestExperiment/Directory_2/Group_2')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assert_file_count(response.data, 6)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
+
+    def test_single_common_root_directory(self):
+        """
+        A very simple "there is a single common root directory" test. When root directory is
+        added, all the sub-directories are also included so adding them later do not add files.
+        """
+        cr = self._create_cumulative_dataset_with_files()
+
+        self._add_directory(cr, '/TestExperiment/Directory_2')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assert_file_count(response.data, 10)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
+
+        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
+        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assert_file_count(response.data, 10)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
+
+    def test_add_multiple_files_and_directories(self):
+        """
+        Multiple add file/add directory updates. Some of the updates add new files since
+        the path was not already included by other directories, and some dont.
+
+        Ensure preferred_identifier changes and file counts and byte sizes change as expected.
+        """
+        cr = self._create_cumulative_dataset_with_files()
+        # add one directory, which holds a two files and one sub directory which also holds two files.
+        # four new files are added
+        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
+        response = self.update_record(cr)
+        self.assert_file_count(response.data, 6)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
+
+        # separately add (describe) a child directory of the previous dir.
+        # no new files are added
+        self._add_directory(response.data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
+        response = self.update_record(response.data)
+        self.assert_file_count(response.data, 6)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
+
+        # add a single new file not included by the previously added directories.
+        # new files are added
+        self._add_file(response.data, '/TestExperiment/Directory_2/file_14.txt')
+        response = self.update_record(response.data)
+        self.assert_file_count(response.data, 7)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 7)
+
+        # add a single new file already included by the previously added directories.
+        # new files are not added
+        self._add_file(response.data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
+        response = self.update_record(response.data)
+        self.assert_file_count(response.data, 7)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 7)
+
+    def test_add_files_which_were_frozen_later(self):
+        """
+        It is possible to append files to a directory by freezing new files later.
+        Such new files or directories can specifically be added to a dataset only by
+        explicitly selecting/describing them, even if their path is already included
+        by another directory.
+
+        Ensure that file counts and byte sizes change as expected.
+        """
+        cr = self._create_cumulative_dataset_with_files()
+
+        # add new root directory which holds eight files
+        self._add_directory(cr, '/TestExperiment/Directory_2')
+        response = self.update_record(cr)
+        self.assert_preferred_identifier_changed(response, False)
+        self.assert_file_count(response.data, 10)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
+
+        # freeze two files to /TestExperiment/Directory_2
+        self._freeze_files_to_root()
+
+        # freezing files should not affect to the dataset file count
+        response = self.update_record(response.data)
+        self.assert_file_count(response.data, 10)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
+
+        # freeze two files to /TestExperiment/Directory_2/Group_3
+        self._freeze_new_files()
+
+        # only added files are included in the dataset
+        self._add_file(response.data, '/TestExperiment/Directory_2/Group_3/file_90.txt')
+        response = self.update_record(response.data)
+        self.assert_preferred_identifier_changed(response, False)
+        self.assert_file_count(response.data, 11)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 11)
+
+    def test_metadata_changes_do_not_add_later_frozen_files(self):
+        """
+        Ensure simple metadata updates do not automatically also include new frozen files.
+        New frozen files should only be searched when those new files or directories are
+        specifically added in the update.
+        """
+        # create the original record with just one directory
+        self.cr_test_data['cumulative_state'] = 1
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 8)
+        original_version = response.data
+
+        self._freeze_new_files()
+
+        original_version['research_dataset']['version_notes'] = [str(datetime.now())]
+        response = self.update_record(original_version)
+        self.assert_file_count(response.data, 8)
+
+    def test_add_files_with_preserve_version_flag(self):
+        """
+        Normally, preserve_version flag would skip the whole file/directory update process and complain
+        about updating files while trying to preserve version. But in case of cumulative dataset we want
+        to allow adding with same version.
+        """
+        cr = self._create_cumulative_dataset_with_files()
+        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        response = self.client.put('/rest/datasets/%s?preserve_version' % cr['identifier'], cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_change_preservation_state(self):
+        cr = self._create_cumulative_dataset_with_files()
+        cr['preservation_state'] = 10
+        response = self.client.put('/rest/datasets/%s' % cr['identifier'], cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_remove_files_from_cumulative_dataset(self):
+        cr = self._create_cumulative_dataset_with_files()
+
+        self._remove_file(cr, '/TestExperiment/Directory_1/file_06.txt')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # ensure that there are no changes
+        response = self.client.get('/rest/datasets/%s' % cr['identifier'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assert_file_count(response.data, 2)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
+
+    def test_remove_directory_from_cumulative_dataset(self):
+        cr = self._create_cumulative_dataset_with_files()
+        self._add_directory(cr, '/TestExperiment/Directory_2')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self._remove_directory(cr, '/TestExperiment/Directory_2')
+        response = self.update_record(cr)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # ensure that there are no changes
+        response = self.client.get('/rest/datasets/%s' % cr['identifier'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assert_file_count(response.data, 10)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
+
+
+class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFilesCommon):
+
+    """
+    Test assigning files and directories to datasets and related functionality,
+    except: Tests related to file updates/versioning are handled in the
+    CatalogRecordApiWriteDatasetVersioning -suite.
+    """
 
     def test_adding_filesystem_root_dir_not_permitted(self):
         """
@@ -2799,6 +3101,20 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteCommon):
             response.data['research_dataset']['directories'][0]['title'] not in orig_titles,
             response.data['research_dataset']['directories'][0]['title']
         )
+
+    def test_prevent_non_existent_additions_to_deprecated_dataset(self):
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr = response.data
+
+        file_id = cr['research_dataset']['files'][0]['identifier']
+
+        response = self.client.delete('/rest/files/%s' % file_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._add_nonexisting_directory(cr)
+        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 
 class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):

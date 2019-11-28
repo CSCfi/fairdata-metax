@@ -10,10 +10,12 @@ import logging
 
 from django.conf import settings as django_settings
 from django.http import Http404
+from rest_framework import status
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
-from metax_api.exceptions import Http400
+from metax_api.api.rest.base.serializers import CatalogRecordSerializer
+from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord
 from metax_api.models.catalog_record import DataciteDOIUpdate
 from metax_api.services.datacite_service import DataciteException, DataciteService, convert_cr_to_datacite_cr_json
@@ -24,6 +26,8 @@ _logger = logging.getLogger(__name__)
 
 
 class DatasetRPC(CommonRPC):
+
+    serializer_class = CatalogRecordSerializer
 
     @list_route(methods=['get'], url_path="get_minimal_dataset_template")
     def get_minimal_dataset_template(self, request):
@@ -80,6 +84,82 @@ class DatasetRPC(CommonRPC):
             self._save_and_publish_dataset(cr, action)
 
         return Response(cr.preservation_identifier)
+
+    @list_route(methods=['post'], url_path="change_cumulative_state")
+    def change_cumulative_state(self, request):
+        identifier = request.query_params.get('identifier', False)
+        state_value = request.query_params.get('cumulative_state', False)
+
+        if not identifier:
+            raise Http400('Query param \'identifier\' missing')
+        if not state_value:
+            raise Http400('Query param \'cumulative_state\' missing')
+
+        try:
+            cr = CatalogRecord.objects.get(identifier=identifier)
+        except CatalogRecord.DoesNotExist:
+            raise Http404
+
+        if not cr.user_has_access(request):
+            raise Http403('You do not have permissions to modify this dataset')
+
+        cr.request = request
+
+        if cr.change_cumulative_state(state_value):
+            # new version is created
+            return_status = status.HTTP_200_OK
+            data = { 'new_version_created': self.get_serializer(cr).data['new_version_created'] }
+        else:
+            return_status = status.HTTP_204_NO_CONTENT
+            data = None
+
+        return Response(data=data, status=return_status)
+
+    @list_route(methods=['post'], url_path="refresh_directory_content")
+    def refresh_directory_content(self, request):
+        cr_identifier = request.query_params.get('cr_identifier', False)
+        dir_identifier = request.query_params.get('dir_identifier', False)
+        if not cr_identifier:
+            raise Http400('Query param \'cr_identifier\' missing.')
+        if not dir_identifier:
+            raise Http400('Query param \'dir_identifier\' missing.')
+
+        try:
+            cr = CatalogRecord.objects.get(identifier=cr_identifier)
+        except CatalogRecord.DoesNotExist:
+            raise Http404(f'CatalogRecord \'{cr_identifier}\' could not be found')
+
+        if not cr.user_has_access(request):
+            raise Http403('You do not have permissions to modify this dataset')
+
+        cr.request = request
+
+        if cr.refresh_directory_content(dir_identifier):
+            return_status = status.HTTP_200_OK
+            data = { 'new_version_created': self.get_serializer(cr).data['new_version_created'] }
+        else:
+            return_status = status.HTTP_204_NO_CONTENT
+            data = None
+
+        return Response(data=data, status=return_status)
+
+    @list_route(methods=['post'], url_path="fix_deprecated")
+    def fix_deprecated(self, request):
+        if not request.query_params.get('identifier', False):
+            raise Http400('Query param \'identifier\' missing. Please specify ?identifier=<catalog record identifier>')
+
+        try:
+            cr = CatalogRecord.objects.get(identifier=request.query_params['identifier'])
+        except CatalogRecord.DoesNotExist:
+            raise Http404
+
+        if not cr.deprecated:
+            raise Http400('Requested catalog record is not deprecated')
+
+        cr.fix_deprecated()
+        data = { 'new_version_created': self.get_serializer(cr).data['new_version_created'] }
+
+        return Response(data=data, status=status.HTTP_200_OK)
 
     def _save_and_publish_dataset(self, cr, action):
         try:

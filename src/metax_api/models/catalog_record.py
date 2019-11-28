@@ -203,6 +203,16 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_IN_DISSEMINATION, 'in dissemination'),
     )
 
+    CUMULATIVE_STATE_NO = 0
+    CUMULATIVE_STATE_YES = 1
+    CUMULATIVE_STATE_CLOSED = 2
+
+    CUMULATIVE_STATE_CHOICES = (
+        (CUMULATIVE_STATE_NO, 'no'),
+        (CUMULATIVE_STATE_YES, 'yes'),
+        (CUMULATIVE_STATE_CLOSED, 'closed')
+    )
+
     # MODEL FIELD DEFINITIONS #
 
     alternate_record_set = models.ForeignKey(
@@ -268,6 +278,15 @@ class CatalogRecord(Common):
         DatasetVersionSet, on_delete=models.SET_NULL, null=True, related_name='records',
         help_text='Records which are different dataset versions of each other.')
 
+    cumulative_state = models.IntegerField(choices=CUMULATIVE_STATE_CHOICES, default=CUMULATIVE_STATE_NO)
+
+    date_cumulation_started = models.DateTimeField(null=True, help_text='Date when cumulative_state was set to YES.')
+
+    date_cumulation_ended = models.DateTimeField(null=True, help_text='Date when cumulative_state was set to CLOSED.')
+
+    date_last_cumulative_addition = models.DateTimeField(null=True, default=None,
+        help_text='Date of last file addition while actively cumulative.')
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """
@@ -297,6 +316,7 @@ class CatalogRecord(Common):
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
+            'cumulative_state',
             'date_deprecated',
             'deprecated',
             'identifier',
@@ -438,10 +458,11 @@ class CatalogRecord(Common):
         dirs_to_remove_by_project = file_changes['dirs_to_remove_by_project']
         dirs_to_keep_by_project   = file_changes['dirs_to_keep_by_project']
 
-        if files_to_add or files_to_remove or dirs_to_add_by_project or dirs_to_remove_by_project:
+        if files_to_add or files_to_remove or files_to_keep or dirs_to_add_by_project or \
+                dirs_to_remove_by_project or dirs_to_keep_by_project:
 
-            # note: if only files_to_keep and dirs_to_keep_by_project contained entries,
-            # it means there were no file changes. this block is then not executed.
+            # note: files_to_keep and dirs_to_keep_by_project are also included because we
+            # want to create new version on some cumulative_state changes.
 
             if DEBUG:
                 _logger.debug('Detected the following file changes:')
@@ -630,6 +651,19 @@ class CatalogRecord(Common):
         """
         file_description_changes = self._get_metadata_file_changes()
 
+        # not allowing file/dir updates via rest api for deprecated datasets will (hopefully) make
+        # the versioning more robust
+        if self.deprecated and any(
+                file_description_changes['files']['removed'] or
+                file_description_changes['files']['added'] or
+                file_description_changes['directories']['removed'] or
+                file_description_changes['directories']['added']):
+
+            raise Http400(
+                'Cannot add or remove files/directories from deprecated dataset. '
+                'Please use API /rpc/fix_deprecated to fix deprecation and to allow file modifications.'
+            )
+
         # after copying files from the previous version to the new version, these arrays hold any new
         # individual files and new directories that should be separately added as well.
         #
@@ -750,7 +784,7 @@ class CatalogRecord(Common):
 
         file_details = add_and_keep | removed
 
-        if len(add_and_keep_ids) + len(removed_ids) != len(file_details):
+        if len(add_and_keep_ids) + len(removed_ids) != len(file_details) and not self.deprecated:
             existig_files = set( f['identifier'] for f in file_details )
             missing_identifiers = [ f for f in add_and_keep_ids if f not in existig_files ]
             missing_identifiers += [ f for f in removed_ids if f not in existig_files ]
@@ -952,6 +986,15 @@ class CatalogRecord(Common):
         if 'remote_resources' in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
+        if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
+            raise Http400('Cannot create cumulative dataset with state closed')
+
+        elif self.cumulative_state == self.CUMULATIVE_STATE_YES:
+            if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED:
+                raise Http400('Dataset cannot be cumulative if it is in PAS process')
+
+            self.date_cumulation_started = self.date_created
+
     def _post_create_operations(self):
         if self.catalog_versions_datasets():
             dvs = DatasetVersionSet()
@@ -965,6 +1008,9 @@ class CatalogRecord(Common):
             self._calculate_total_files_byte_size()
             super().save(update_fields=['research_dataset']) # save byte size calculation
             self.calculate_directory_byte_sizes_and_file_counts()
+
+            if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                self.date_last_cumulative_addition = self.date_created
 
         other_record = self._check_alternate_records()
         if other_record:
@@ -1041,6 +1087,8 @@ class CatalogRecord(Common):
                 self.research_dataset.pop('total_remote_resources_byte_size')
 
         if self.field_changed('preservation_state'):
+            if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                raise Http400('Changing preservation state is not allowed while dataset cumulation is active')
             self._handle_preservation_state_changed()
 
         if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
@@ -1081,18 +1129,28 @@ class CatalogRecord(Common):
         else:
             self.update_datacite = False
 
+        if self.field_changed('cumulative_state'):
+            raise Http400(
+                "Cannot change cumulative state using REST API. "
+                "use API /rpc/datasets/change_cumulative_state to change cumulative state."
+            )
+
         if self.catalog_is_pas():
-            if self._files_changed():
+            actual_files_changed, _ = self._files_changed()
+            if actual_files_changed:
                 _logger.info('File changes detected in PAS catalog dataset - aborting')
                 raise Http400({ 'detail': ['File changes not permitted in PAS catalog' ]})
 
-        elif self.catalog_versions_datasets() and not self.preserve_version:
+        if self.catalog_versions_datasets() and \
+                (not self.preserve_version or self.cumulative_state == self.CUMULATIVE_STATE_YES):
 
             if not self.field_changed('research_dataset'):
                 # proceed directly to updating current record without any extra measures...
                 return
 
-            if self._files_changed():
+            actual_files_changed, file_changes = self._files_changed()
+
+            if actual_files_changed:
 
                 if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED: # state > 0
                     raise Http400({ 'detail': [
@@ -1101,13 +1159,22 @@ class CatalogRecord(Common):
                         'back to 0.' % self.preservation_state
                     ]})
 
-                if self._files_added_for_first_time():
+                elif self._files_added_for_first_time():
                     # first update from 0 to n files should not create a dataset version. all later updates
                     # will create new dataset versions normally.
                     self.files.add(*self._get_dataset_selected_file_ids())
                     self._calculate_total_files_byte_size()
                     self._handle_metadata_versioning()
                     self.calculate_directory_byte_sizes_and_file_counts()
+
+                elif self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                    if file_changes['files_to_remove'] or file_changes['dirs_to_remove_by_project']:
+                        raise Http400(
+                            'Cannot delete files or directories from cumulative dataset. '
+                            'In order to remove files, close dataset cumulation.'
+                        )
+                    self._handle_cumulative_file_addition(file_changes)
+
                 else:
                     self._create_new_dataset_version()
 
@@ -1165,6 +1232,72 @@ class CatalogRecord(Common):
                 convert_cr_to_datacite_cr_json(self), True)
         except DataciteException as e:
             raise Http400(str(e))
+
+    def _handle_cumulative_file_addition(self, file_changes):
+        """
+        This method adds files to dataset only if they are explicitly mentioned in research_dataset.
+        Changes in already included directories are not checked.
+        """
+        sql_select_and_insert_files_by_dir_path = '''
+            insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+            select %s as catalogrecord_id, f.id
+            from metax_api_file as f
+            where f.active = true and f.removed = false
+            and (
+                COMPARE_PROJECT_AND_FILE_PATHS
+            )
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+            returning id
+        '''
+        sql_params_insert_dirs = [self.id]
+        add_dirs_sql = []
+
+        for project, dir_paths in file_changes['dirs_to_add_by_project'].items():
+            for dir_path in dir_paths:
+                add_dirs_sql.append("(f.project_identifier = %s and f.file_path like (%s || '/%%'))")
+                sql_params_insert_dirs.extend([project, dir_path])
+
+        sql_select_and_insert_files_by_dir_path = sql_select_and_insert_files_by_dir_path.replace(
+            'COMPARE_PROJECT_AND_FILE_PATHS',
+            ' or '.join(add_dirs_sql)
+        )
+        sql_params_insert_dirs.extend([self.id])
+
+        sql_insert_single_files = '''
+            insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+            select %s as catalogrecord_id, f.id
+            from metax_api_file as f
+            where f.active = true and f.removed = false
+            and f.id in %s
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+            returning id
+            '''
+        sql_params_insert_single = [self.id, tuple(file_changes['files_to_add']), self.id]
+
+        with connection.cursor() as cr:
+            n_files_added = 0
+            if file_changes['files_to_add']:
+                cr.execute(sql_insert_single_files, sql_params_insert_single)
+                n_files_added += cr.rowcount
+
+            if file_changes['dirs_to_add_by_project']:
+                cr.execute(sql_select_and_insert_files_by_dir_path, sql_params_insert_dirs)
+                n_files_added += cr.rowcount
+
+        _logger.info('Added %d files to cumulative dataset %s' % (n_files_added, self.identifier))
+
+        self._calculate_total_files_byte_size()
+        self.calculate_directory_byte_sizes_and_file_counts()
+        self._handle_metadata_versioning()
+        self.date_last_cumulative_addition = self.date_modified
 
     def _files_added_for_first_time(self):
         """
@@ -1355,9 +1488,9 @@ class CatalogRecord(Common):
 
         if not file_changes['changed_projects']:
             # no changes in directory or file entries were detected.
-            return False
+            return False, None
         elif self._files_added_for_first_time():
-            return True
+            return True, None
 
         # there are changes in directory or file entries. it may be that those changes can be
         # considered to be only "metadata description changes", and no real file changes have happened.
@@ -1369,39 +1502,62 @@ class CatalogRecord(Common):
         # but the metadata descriptions do not.
 
         self._check_changed_files_permissions(file_changes)
+        actual_files_changed = self._create_temp_record(file_changes)
+
+        return actual_files_changed, file_changes
+
+    def _create_temp_record(self, file_changes):
+        """
+        Create a temporary record to perform the file changes on, to see if there were real file changes.
+        If no, discard it. If yes, the temp_record will be transformed into the new dataset version record.
+        """
+        actual_files_changed = False
 
         try:
             with transaction.atomic():
-                # create a temporary record to perform the file changes on, to see if there were real file changes.
-                # if no, discard it. if yes, the temp_record will be transformed into the new dataset version record.
 
-                temp_record = CatalogRecord.objects.get(pk=self.id)
-                temp_record.id = None
-                temp_record.next_dataset_version = None
-                temp_record.previous_dataset_version = None
-                temp_record.dataset_version_set = None
-                temp_record.preservation_dataset_version = None
-                temp_record.preservation_dataset_origin_version = None
-                temp_record.identifier = generate_uuid_identifier()
-                temp_record.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
-                temp_record.preservation_identifier = None
-                super(Common, temp_record).save()
+                temp_record = self._create_new_dataset_version_template()
+
                 actual_files_changed = self._process_file_changes(file_changes, temp_record.id, self.id)
 
                 if actual_files_changed:
 
-                    if self.catalog_is_pas():
+                    if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                        _logger.info('Files changed, but dataset is cumulative')
+                        raise DiscardRecord()
+
+                    elif self.catalog_is_pas():
                         raise Http400('Cannot change files in a dataset in PAS catalog.')
 
                     self._new_version = temp_record
-                    return True
                 else:
                     _logger.debug('no real file changes detected, discarding the temporary record...')
                     raise DiscardRecord()
         except DiscardRecord:
             # rolled back
             pass
-        return False
+
+        return actual_files_changed
+
+    def _create_new_dataset_version_template(self):
+        """
+        Create a new version of current record, with unique fields and some relation fields
+        popped, and new identifiers generated, so that the record can be used as a template
+        for any kind of new version of the dataset.
+
+        The record is saved once immediately, so that it will have a proper db id for later changes,
+        such as adding relations.
+        """
+        new_version_template = CatalogRecord.objects.get(pk=self.id)
+        new_version_template.id = None
+        new_version_template.next_dataset_version = None
+        new_version_template.previous_dataset_version = None
+        new_version_template.dataset_version_set = None
+        new_version_template.identifier = generate_uuid_identifier()
+        new_version_template.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+        new_version_template.preservation_identifier = None
+        super(Common, new_version_template).save()
+        return new_version_template
 
     def _check_changed_files_permissions(self, file_changes):
         '''
@@ -1541,7 +1697,7 @@ class CatalogRecord(Common):
         # nothing must change in the now old version of research_dataset, so copy
         # from _initial_data so that super().save() does not change it later.
         old_version.research_dataset = deepcopy(old_version._initial_data['research_dataset'])
-        old_version.next_dataset_version_id = new_version.id
+        old_version.next_dataset_version = new_version
 
         if new_version.editor:
             # some of the old editor fields cant be true in the new version, so keep
@@ -1611,7 +1767,6 @@ class CatalogRecord(Common):
     def calculate_directory_byte_sizes_and_file_counts(self):
         """
         Calculate directory byte_sizes and file_counts for all dirs selected for this cr.
-        Since file changes will create a new dataset version, these values will never change.
         """
         if not self.research_dataset.get('directories', None):
             return
@@ -1885,6 +2040,219 @@ class CatalogRecord(Common):
         elif pid_type == IdentifierType.URN.value:
             pid_type = IdentifierType.URN
         return pid_type
+
+    def change_cumulative_state(self, new_state):
+        """
+        Change field cumulative_state to new_state. Creates a new dataset version when
+        a new cumulative period is started. Returns True if new dataset version is created, otherwise False.
+        """
+
+        if self.next_dataset_version:
+            raise Http400('Cannot change cumulative_state on old dataset version')
+
+        cumulative_state_valid_values = [ choice[0] for choice in self.CUMULATIVE_STATE_CHOICES ]
+
+        try:
+            new_state = int(new_state)
+            assert new_state in cumulative_state_valid_values
+        except:
+            raise Http400(
+                'cumulative_state must be one of: %s' % ', '.join(str(x) for x in cumulative_state_valid_values)
+            )
+
+        _logger.info('Changing cumulative_state from %d to %d' % (self.cumulative_state, new_state))
+
+        if self.cumulative_state == new_state:
+            _logger.info('No change in cumulative_state')
+            return False
+
+        self.date_modified = get_tz_aware_now_without_micros()
+        self.service_modified = self.request.user.username if self.request.user.is_service else None
+
+        if not self.user_modified:
+            # for now this will probably be true enough, since dataset ownership can not change
+            self.user_modified = self.user_created
+
+        if new_state == self.CUMULATIVE_STATE_NO:
+            raise Http400(
+                'Cumulative dataset cannot be set to non-cumulative dataset. '
+                'If you want to stop active cumulation, set cumulative status to closed.'
+            )
+
+        elif new_state == self.CUMULATIVE_STATE_CLOSED:
+
+            if self.cumulative_state == self.CUMULATIVE_STATE_NO:
+                raise Http400('Cumulation cannot be closed for non-cumulative dataset')
+
+            self.date_cumulation_ended = self.date_modified
+
+            self.cumulative_state = new_state
+
+            super().save(update_fields=[
+                'cumulative_state',
+                'date_cumulation_ended',
+                'date_modified'
+            ])
+
+        elif new_state == self.CUMULATIVE_STATE_YES:
+
+            if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED:
+                raise Http400(
+                    'Cumulative datasets are not allowed in PAS process. Change preservation_state '
+                    'to 0 in order to change the dataset to cumulative.'
+                )
+
+            new_version = self._create_new_dataset_version_template()
+            new_version.date_cumulation_started = self.date_modified
+            new_version.date_cumulation_ended = None
+            new_version.cumulative_state = new_state
+            super(Common, new_version).save()
+
+            # add all files from previous version to new version
+            new_version.files.add(*self.files.values_list('id', flat=True))
+
+            self._new_version = new_version
+
+            self._create_new_dataset_version()
+
+            super().save()
+
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+        return True if new_state == self.CUMULATIVE_STATE_YES else False
+
+    def refresh_directory_content(self, dir_identifier):
+        """
+        Checks if there are new files frozen to given directory and adds those files to dataset.
+        Creates new version on file addition if dataset is not cumulative.
+        Returns True if new dataset version is created, False otherwise.
+        """
+
+        if self.deprecated:
+            raise Http400('Cannot update files on deprecated dataset. '
+                        'You can remove all deleted files from dataset using API /rpc/datasets/fix_deprecated.')
+        try:
+            dir = Directory.objects.get(identifier=dir_identifier)
+        except Directory.DoesNotExist:
+            raise Http404(f'Directory \'{dir_identifier}\' could not be found')
+
+        dir_identifiers = [ d['identifier'] for d in self.research_dataset['directories'] ]
+        base_paths = Directory.objects.filter(identifier__in=dir_identifiers).values_list('directory_path', flat=True)
+
+        if dir.directory_path not in base_paths and \
+                not any([ dir.directory_path.startswith(f'{p}/') for p in base_paths ]):
+            raise Http400(f'Directory \'{dir_identifier}\' is not included in this dataset')
+
+        added_file_ids = self._find_new_files_added_to_dir(dir)
+
+        if not added_file_ids:
+            _logger.info('no change in directory content')
+            return False
+
+        _logger.info(f'refreshing directory adds {len(added_file_ids)} files to dataset')
+        self.date_modified = get_tz_aware_now_without_micros()
+        self.service_modified = self.request.user.username if self.request.user.is_service else None
+
+        if self.cumulative_state == self.CUMULATIVE_STATE_YES:
+            self.files.add(*added_file_ids)
+            self._calculate_total_files_byte_size()
+            self.calculate_directory_byte_sizes_and_file_counts()
+            self._handle_metadata_versioning()
+            self.date_last_cumulative_addition = self.date_modified
+        else:
+            new_version = self._create_new_dataset_version_template()
+            super(Common, new_version).save()
+
+            # add all files from previous version in addition to new ones
+            new_version.files.add(*added_file_ids, *self.files.values_list('id', flat=True))
+
+            self._new_version = new_version
+            self._create_new_dataset_version()
+
+        super().save()
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+        return True if self.cumulative_state != self.CUMULATIVE_STATE_YES else False
+
+    def _find_new_files_added_to_dir(self, dir):
+        sql_insert_newly_frozen_files_by_dir_path = '''
+            select f.id
+            from metax_api_file as f
+            where f.active = true and f.removed = false
+            and f.project_identifier = %s
+            and f.file_path like (%s || '/%%')
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+        '''
+        sql_params_insert_new_files = [dir.project_identifier, dir.directory_path, self.id]
+
+        with connection.cursor() as cr:
+            cr.execute(sql_insert_newly_frozen_files_by_dir_path, sql_params_insert_new_files)
+            added_file_ids = [ v[0] for v in cr.fetchall() ]
+
+        return added_file_ids
+
+    def fix_deprecated(self):
+        """
+        Deletes all removed files and directories from dataset and creates new, non-deprecated version.
+        """
+        new_version = self._create_new_dataset_version_template()
+        self._new_version = new_version
+        self._fix_deprecated_research_dataset()
+        self._copy_undeleted_files_from_old_version()
+        self._create_new_dataset_version()
+        super().save()
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+    def _fix_deprecated_research_dataset(self):
+        if self.research_dataset.get('files'):
+            pid_list = [ f['identifier'] for f in self.research_dataset['files'] ]
+            pid_list_fixed = File.objects.filter(identifier__in=pid_list).values_list('identifier', flat=True)
+
+            if len(pid_list_fixed) != len(pid_list):
+                self.research_dataset['files'] = [
+                    f for f in self.research_dataset['files'] if f['identifier'] in pid_list_fixed
+                ]
+                if not self.research_dataset['files']:
+                    del self.research_dataset['files']
+
+        if self.research_dataset.get('directories'):
+            pid_list = [ d['identifier'] for d in self.research_dataset['directories'] ]
+            pid_list_fixed = Directory.objects.filter(identifier__in=pid_list).values_list('identifier', flat=True)
+
+            if len(pid_list_fixed) != len(pid_list):
+                self.research_dataset['directories'] = [
+                    d for d in self.research_dataset['directories'] if d['identifier'] in pid_list_fixed
+                ]
+                if not self.research_dataset['directories']:
+                    del self.research_dataset['directories']
+
+    def _copy_undeleted_files_from_old_version(self):
+        copy_undeleted_files_sql = '''
+            insert into metax_api_catalogrecord_files (catalogrecord_id, file_id)
+            select %s as catalogrecord_id, file_id
+            from metax_api_catalogrecord_files as cr_f
+            inner join metax_api_file as f on f.id = cr_f.file_id
+            where catalogrecord_id = %s
+            and f.active = true and f.removed = false
+            and f.id not in (
+                select file_id from
+                metax_api_catalogrecord_files cr_f
+                where catalogrecord_id = %s
+            )
+            returning file_id
+        '''
+        sql_params_copy_undeleted = [self._new_version.id, self.id, self._new_version.id]
+
+        with connection.cursor() as cr:
+            cr.execute(copy_undeleted_files_sql, sql_params_copy_undeleted)
+            n_files_copied = cr.rowcount
+
+        if DEBUG:
+            _logger.debug('Added %d files to dataset %s' % (n_files_copied, self._new_version.id))
 
 
 class RabbitMQPublishRecord():
