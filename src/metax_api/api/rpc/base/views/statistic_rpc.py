@@ -6,6 +6,7 @@
 # :license: MIT
 
 import logging
+import re
 
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -17,6 +18,9 @@ from metax_api.services import StatisticService, CommonService as CS
 
 _logger = logging.getLogger(__name__)
 
+date_re = re.compile(
+    r'^\d{4}-\d{2}$'
+)
 
 class StatisticRPC(CommonRPC):
 
@@ -25,10 +29,20 @@ class StatisticRPC(CommonRPC):
         if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
             raise Http400('from_date and to_date parameters are required')
 
-        params = {
+        str_params = {
             'from_date': request.query_params.get('from_date', None),
             'to_date':   request.query_params.get('to_date', None),
         }
+
+        if not date_re.match(str_params['from_date']) or not date_re.match(str_params['to_date']):
+            raise Http400('date parameter format is \'YYYY-MM\'')
+
+        params = { param: request.query_params.get(param, None) for param in str_params }
+
+        for boolean_param in ['latest', 'legacy', 'removed']:
+            if boolean_param in request.query_params:
+                params[boolean_param] = CS.get_boolean_query_param(request, boolean_param)
+
         return Response(StatisticService.total_datasets(**params))
 
     @list_route(methods=['get'], url_path='catalog_datasets_cumulative')
@@ -46,19 +60,19 @@ class StatisticRPC(CommonRPC):
     @list_route(methods=['get'], url_path='count_datasets')
     def count_datasets(self, request):
         str_params = [
-            'from_date',
-            'to_date',
             'access_type',
             'data_catalog',
+            'from_date',
             'metadata_owner_org',
             'metadata_provider_org',
             'metadata_provider_user',
-            'preservation_state'
+            'preservation_state',
+            'to_date'
         ]
 
         params = { param: request.query_params.get(param, None) for param in str_params }
 
-        for boolean_param in ['deprecated', 'latest', 'harvested']:
+        for boolean_param in ['deprecated', 'harvested', 'latest', 'legacy', 'removed']:
             if boolean_param in request.query_params:
                 params[boolean_param] = CS.get_boolean_query_param(request, boolean_param)
 

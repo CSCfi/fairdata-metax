@@ -1000,9 +1000,24 @@ paths:
           type: string
         - name: dataset_format
           in: query
-          description: Name of the format the dataset should be returned in. <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
+          description: |
+            Format the dataset should be returned in.
+            Possible formats are:
+            - datacite (Datacite XML)
+            - fairdata_datacite (a less strict version of official Datacite XML. research_dataset.issued and research_dataset.publisher are not required, and identifierType can be URN, if the dataset does not have a real DOI identifier.)
+            - metax (a simple json -> xml transformation)
+
+            <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
           required: false
           type: string
+        - name: dummy_doi
+          in: path
+          description: |
+            Can be used with query parameter dataset_format, when dataset_format value is either datacite, or fairdata_datacite.
+            If specified to true, and the dataset does not have a real DOI identifier, then a dummy DOI is used in place, using the form 10.0/<preferred_identifier>.
+            If the dataset does already have a valid DOI, then the real DOI is used instead, and this parameter has no effect.
+          required: false
+          type: boolean
         - name: file_details
           in: query
           description: |
@@ -1364,6 +1379,39 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
+  /rpc/datasets/refresh_directory_content:
+    post:
+      summary: Search for new frozen files from directory and add them to dataset
+      description: Find all new frozen files from given directory and add them to given dataset following normal versioning rules. Not allowed for deprecated datasets. Returns information about new dataset version if one is created. You must have rights to modify the record.
+      parameteres:
+        - name: cr_identifier
+          in: query
+          description: Catalog record identifier where the files will be added.
+          required: true
+          type: string
+        - name: dir_identifier
+          in: query
+          description: Directory identifier from where the new files will be searched.
+      responses:
+        '200':
+          description: successful operation. Files were added and new dataset version was created. Returns information about the new dataset version.
+        '204':
+          description: successful operation. Files were added and new dataset version was not created or no new files were found. Returns no content.
+  /rpc/datasets/fix_deprecated:
+    post:
+      summary: Fixes deprecated dataset
+      description: Deletes all removed files from dataset and creates new version which will be non-deprecated. This api is the only way to recover deprecated dataset.
+      parameters:
+        - name: identifier
+          in: query
+          description: Identifier of the catalog record to be fixed.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation, returns information about the new dataset version.
+      tags:
+        - Dataset RPC
   # /rpc/statistics/count_datasets:
   #   get:
   #     summary: Get the total number of datasets and file sizes.
@@ -1392,15 +1440,40 @@ paths:
       summary: Get cumulative list of dataset information in given interval.
       description: Retrieve dataset count and byte size per month and monthly cumulative from all datasets.
       parameters:
-        - $ref: "#/parameters/from_date"
-        - $ref: "#/parameters/to_date"
+        - name: from_date
+          in: query
+          description: Includes datasets that are created after this date. Given in format 'YYYY-MM'.
+          required: true
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        - name: to_date
+          in: query
+          description: Includes datasets that are created before (including) this date. Given in format 'YYYY-MM'.
+          required: true
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        - name: latest
+          in: query
+          description: Only return latest versions. Default value is true.
+          required: false
+          type: boolean
+        - name: removed
+          in: query
+          description: Only return removed datasets. If set to false, return non-removed datasets. When parameter is not given, return both removed and non-removed datasets.
+          required: false
+          type: boolean
+        - name: legacy
+          in: query
+          description: Only return legacy datasets. If set to false, return non-legacy datasets. When parameter is not given, return both legacy and non-legacy datasets.
+          required: false
+          type: boolean
       responses:
         '200':
           description: successful operation.
           schema:
             $ref: "#/examples/all_datasets_cumulative"
         '400':
-          description: required parameters missing.
+          description: parameters contained errors, response includes details
       tags:
         - Statistics RPC
   # /rpc/statistics/catalog_datasets_cumulative:
@@ -1651,7 +1724,8 @@ definitions:
     properties:
       month:
         type: string
-        format: date
+        pattern: '^\d{4}-\d{2}$'
+        example: 2019-11
       count:
         type: integer
       count_cumulative:

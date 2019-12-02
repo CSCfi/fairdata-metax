@@ -693,25 +693,12 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
 
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
+
     """
     dataset xml transformations
     """
 
-    def test_read_dataset_xml_format_metax(self):
-        response = self.client.get('/rest/datasets/1?dataset_format=metax')
-        self._check_dataset_xml_format_response(response, '<researchdataset')
-
-    def test_read_dataset_xml_format_datacite(self):
-        for id in CatalogRecord.objects.all().values_list('id', flat=True):
-            response = self.client.get('/rest/datasets/%d?dataset_format=fairdata_datacite' % id)
-            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self._check_dataset_xml_format_response(response, '<resource')
-
-    def test_read_dataset_xml_format_error_unknown_format(self):
-        response = self.client.get('/rest/datasets/1?dataset_format=doesnotexist')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_read_datacite_xml_format_identifier(self):
+    def _create_dataset_with_doi(self):
         # Create ida data catalog
         dc = self._get_object_from_test_data('datacatalog', requested_index=0)
         dc_id = settings.IDA_DATA_CATALOG_IDENTIFIER
@@ -728,10 +715,28 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         cr_json['data_catalog'] = dc_id
         response = self.client.post('/rest/datasets?pid_type=doi', cr_json, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        doi = response.data['preservation_identifier']
+        return response.data
+
+    def test_read_dataset_xml_format_metax(self):
+        response = self.client.get('/rest/datasets/1?dataset_format=metax')
+        self._check_dataset_xml_format_response(response, '<researchdataset')
+
+    def test_read_dataset_xml_format_datacite(self):
+        for id in CatalogRecord.objects.all().values_list('id', flat=True):
+            response = self.client.get('/rest/datasets/%d?dataset_format=fairdata_datacite' % id)
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self._check_dataset_xml_format_response(response, '<resource')
+
+    def test_read_dataset_xml_format_error_unknown_format(self):
+        response = self.client.get('/rest/datasets/1?dataset_format=doesnotexist')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_read_datacite_xml_format_identifier(self):
+        cr = self._create_dataset_with_doi()
+        doi = cr['preservation_identifier']
 
         # Datacite xml should contain the doi created
-        response = self.client.get('/rest/datasets/%s?dataset_format=datacite' % response.data['identifier'])
+        response = self.client.get('/rest/datasets/%s?dataset_format=datacite' % cr['identifier'])
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('<identifier identifierType="DOI">%s' % doi[len('doi:'):] in response.data,
                          True, response.data)
@@ -742,6 +747,29 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         cr.force_save()
         response = self.client.get('/rest/datasets/1?dataset_format=fairdata_datacite')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_read_dataset_format_dummy_datacite_doi(self):
+        """
+        Ensure query parameter ?dummy_doi=true returns datacite xml with identifierType=DOI
+        and identifier value prefixed with 10.0/<preferred_identifier>. If a real DOI is
+        available in the dataset, then dummy should NOT be returned.
+        """
+        pid = self.client.get('/rest/datasets/12').data['research_dataset']['preferred_identifier']
+        self.assertEqual(pid.startswith('doi:'), False, pid)
+
+        for dataset_format in ['datacite', 'fairdata_datacite']:
+            response = self.client.get('/rest/datasets/12?dataset_format=%s&dummy_doi=true' % dataset_format)
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual('<identifier identifierType="DOI">' in response.data, True, response.data)
+            self.assertEqual('10.0/%s' % pid in response.data, True, response.data)
+
+        # ensure if a real doi exists, then dummy should never be returned
+        cr = self._create_dataset_with_doi()
+        response = self.client.get('/rest/datasets/%d?dataset_format=datacite&dummy_doi=true' % cr['id'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('<identifier identifierType="DOI">' in response.data, True, response.data)
+        self.assertEqual(cr['preservation_identifier'][len('doi:'):] in response.data, True, response.data)
+        self.assertEqual('10.0/%s' % pid in response.data, False, response.data)
 
     def _check_dataset_xml_format_response(self, response, element_name):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -829,6 +857,25 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.data['research_dataset']['directories'][1]['details']['byte_size'], 21000)
         self.assertEqual(response.data['research_dataset']['directories'][0]['details']['file_count'], 20)
         self.assertEqual(response.data['research_dataset']['directories'][1]['details']['file_count'], 20)
+
+    def test_file_details_for_deprecated_datasets(self):
+        """
+        When a dataset is deprecated, it is possible that some of its directories no longer exist.
+        Ensure populating file details takes that into account.
+        """
+
+        # id 11 is one of the example datasets with full details. they should have a couple
+        # of directories attached.
+        cr = CatalogRecord.objects.get(pk=11)
+
+        file_identifiers = File.objects.filter(
+            project_identifier=cr.files.all()[0].project_identifier).values_list('identifier', flat=True)
+
+        response = self.client.delete('/rest/files', data=file_identifiers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/rest/datasets/11?file_details', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiReadCommon):

@@ -279,6 +279,12 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 .get(pk=cr_json['id'])
 
             for dr in rd['directories']:
+
+                if 'details' not in dr:
+                    # probably the directory did not have its details populated
+                    # because the dataset is deprecated and the directory no longer exists
+                    continue
+
                 FileService.retrieve_directory_byte_sizes_and_file_counts_for_cr(dr['details'],
                     cr_json['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
 
@@ -292,17 +298,22 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 del f['details']['identifier']
 
     @classmethod
-    def transform_datasets_to_format(cls, catalog_records_json, target_format, include_xml_declaration=True):
+    def transform_datasets_to_format(cls, catalog_records_json, target_format,
+            include_xml_declaration=True, request=None):
         """
         params:
         catalog_records: a list of catalog record dicts, or a single dict
         """
-        if target_format == 'datacite':
-            return DataciteService().convert_catalog_record_to_datacite_xml(catalog_records_json,
-                                                                            include_xml_declaration, True)
-        elif target_format == 'fairdata_datacite':
-            return DataciteService().convert_catalog_record_to_datacite_xml(catalog_records_json,
-                                                                            include_xml_declaration, False)
+        if target_format in ('datacite', 'fairdata_datacite'):
+
+            is_strict = target_format == 'datacite'
+            dummy_doi = False
+
+            if request:
+                dummy_doi = CommonService.get_boolean_query_param(request, 'dummy_doi')
+
+            return DataciteService().convert_catalog_record_to_datacite_xml(
+                catalog_records_json, include_xml_declaration, is_strict, dummy_doi=dummy_doi)
 
         def _preprocess_list(key, value):
             """
