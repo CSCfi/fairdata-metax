@@ -858,6 +858,25 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.data['research_dataset']['directories'][0]['details']['file_count'], 20)
         self.assertEqual(response.data['research_dataset']['directories'][1]['details']['file_count'], 20)
 
+    def test_file_details_for_deprecated_datasets(self):
+        """
+        When a dataset is deprecated, it is possible that some of its directories no longer exist.
+        Ensure populating file details takes that into account.
+        """
+
+        # id 11 is one of the example datasets with full details. they should have a couple
+        # of directories attached.
+        cr = CatalogRecord.objects.get(pk=11)
+
+        file_identifiers = File.objects.filter(
+            project_identifier=cr.files.all()[0].project_identifier).values_list('identifier', flat=True)
+
+        response = self.client.delete('/rest/files', data=file_identifiers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/rest/datasets/11?file_details', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiReadCommon):
     """
