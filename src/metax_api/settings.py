@@ -579,3 +579,12 @@ else:
         'PREFIX': app_config_dict['DATACITE']['PREFIX'],
         'URL': app_config_dict['DATACITE']['URL'],
     }
+
+REMS = {
+    'API_KEY': app_config_dict['REMS']['API_KEY'],
+    'BASE_URL': app_config_dict['REMS']['BASE_URL'],
+    'ETSIN_URL_TEMPLATE': app_config_dict['REMS']['ETSIN_URL_TEMPLATE'],
+    'METAX_USER': app_config_dict['REMS']['METAX_USER'],
+    'AUTO_APPROVER': app_config_dict['REMS']['AUTO_APPROVER'],
+    'FORM_ID': int(app_config_dict['REMS']['FORM_ID']),
+}

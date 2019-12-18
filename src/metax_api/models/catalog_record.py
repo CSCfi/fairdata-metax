@@ -5,8 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from base64 import urlsafe_b64decode
 from collections import defaultdict
 from copy import deepcopy
+import json
 import logging
 
 from django.conf import settings
@@ -287,6 +289,9 @@ class CatalogRecord(Common):
     date_last_cumulative_addition = models.DateTimeField(null=True, default=None,
         help_text='Date of last file addition while actively cumulative.')
 
+    _access_granter = JSONField(null=True, default=None,
+        help_text='Stores data of REMS user who is currently granting access to this dataset')
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """
@@ -414,6 +419,10 @@ class CatalogRecord(Common):
     def _access_type_is_embargo(self):
         from metax_api.services import CatalogRecordService as CRS
         return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['embargo']
+
+    def _access_type_is_permit(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['permit']
 
     def _embargo_is_available(self):
         if not self.research_dataset.get('access_rights', {}).get('available', False):
@@ -930,6 +939,39 @@ class CatalogRecord(Common):
                 entries[-1]['stored_to_pas'] = entry.stored_to_pas
         return entries
 
+    def _get_user_info_for_rems(self):
+        """
+        Parses query parameter or token to fetch needed information for REMS user
+        """
+        if self.request.user.is_service:
+            b64_access_granter = self.request.query_params.get('access_granter')
+            user_info = json.loads(urlsafe_b64decode(f'{b64_access_granter}===').decode('utf-8'))
+        else:
+            # end user api
+            user_info = {
+                'userid':   self.request.user.token.get('CSCUserName'),
+                'name':     self.request.user.token.get('displayName'),
+                'email':    self.request.user.token.get('email')
+            }
+
+        if any([v is None for v in user_info.values()]):
+            raise Http400('Could not find the needed user information for REMS')
+
+        if not all([isinstance(v, str) for v in user_info.values()]):
+            raise Http400('user information fields must be string')
+
+        return user_info
+
+    def _validate_for_rems(self):
+        """
+        Ensures that all necessary information for REMS access
+        """
+        if self._access_type_is_permit() and not self.research_dataset['access_rights'].get('license', False):
+            raise Http400('You must define license for dataset in order to make it REMS manageable')
+
+        if self.request.user.is_service and not self.request.query_params.get('access_granter', False):
+            raise Http400('Missing query parameter access_granter')
+
     def _pre_create_operations(self, pid_type=None):
 
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create):
@@ -1021,8 +1063,11 @@ class CatalogRecord(Common):
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'create'))
 
-        if self._dataset_is_access_restricted():
-            self.add_post_request_callable(REMSUpdate(self), 'create')
+        if self._dataset_has_rems_managed_access():
+            self._validate_for_rems()
+            user_info = self._get_user_info_for_rems()
+            self._access_granter = user_info
+            self.add_post_request_callable(REMSUpdate(self, 'create', user_info))
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1322,11 +1367,11 @@ class CatalogRecord(Common):
         # creating a new dataset version already occurred once
         return not metadata_versions_with_files_exist
 
-    def _dataset_is_access_restricted(self):
+    def _dataset_has_rems_managed_access(self):
         """
         Check using logic x and y if dataset uses REMS for managing access.
         """
-        return False
+        return True if self.catalog_is_ida() and self._access_type_is_permit() else False
 
     def _dataset_restricted_access_changed(self):
         """
@@ -2309,10 +2354,13 @@ class REMSUpdate():
     Handles managing REMS resources when creating, updating and deleting datasets.
     """
 
-    def __init__(self, cr, action):
+    def __init__(self, cr, action, user_info):
+        from metax_api.services.rems_service import REMSService
         assert action in ('create', 'update', 'delete'), 'invalid value for action'
         self.cr = cr
+        self.user_info = user_info
         self.action = action
+        self.rems = REMSService()
 
     def __call__(self):
         """
@@ -2323,13 +2371,17 @@ class REMSUpdate():
             % (self.cr.identifier, self.action)
         )
 
+        from metax_api.services.rems_service import REMSException
         try:
-            # todo do_stuff()
-            pass
-        except:
-            _logger.exception('REMS interaction failed')
+            if self.action == 'create':
+                self.rems.create_rems_entity(self.cr, self.user_info)
+
+        except REMSException as e:
+            _logger.error(e)
+            raise Http400(e)
+        except Exception as e:
             raise Http503({ 'detail': [
-                'failed to publish updates to rems. request is aborted.'
+                f'failed to publish updates to rems. request is aborted. Error: {e}'
             ]})
 
 
