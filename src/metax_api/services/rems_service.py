@@ -56,7 +56,7 @@ class REMSService():
         body = {
             "organization": self.cr.metadata_owner_org,
             "title": self.cr.research_dataset['preferred_identifier'],
-            "type": 'dynamic',
+            "type": 'workflow/default',
             "handlers": [user_id]
         }
 
@@ -69,7 +69,7 @@ class REMSService():
         Checks if license is already found from REMS before creating new one
         """
         license = self.cr.research_dataset['access_rights']['license'][0]
-        license_url = license['identifier'] if license.get('identifier', False) else license['license']
+        license_url = license.get('identifier') or license['license']
 
         # no search parameter provided for license so have to check by hand
         rems_licenses = self._get_rems('license', 'disabled=true&archived=true')
