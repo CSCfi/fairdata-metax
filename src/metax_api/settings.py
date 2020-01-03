@@ -580,11 +580,21 @@ else:
         'URL': app_config_dict['DATACITE']['URL'],
     }
 
-REMS = {
-    'API_KEY': app_config_dict['REMS']['API_KEY'],
-    'BASE_URL': app_config_dict['REMS']['BASE_URL'],
-    'ETSIN_URL_TEMPLATE': app_config_dict['REMS']['ETSIN_URL_TEMPLATE'],
-    'METAX_USER': app_config_dict['REMS']['METAX_USER'],
-    'AUTO_APPROVER': app_config_dict['REMS']['AUTO_APPROVER'],
-    'FORM_ID': int(app_config_dict['REMS']['FORM_ID']),
-}
+if executing_in_travis:
+    REMS = {
+        'API_KEY': 'key',
+        'BASE_URL': 'https://rems.instance.fi',
+        'ETSIN_URL_TEMPLATE': 'https://etsin.something.fi/dataset/%s',
+        'METAX_USER': 'muser',
+        'AUTO_APPROVER': 'aappr',
+        'FORM_ID': 0,
+    }
+else:
+    REMS = {
+        'API_KEY': app_config_dict['REMS']['API_KEY'],
+        'BASE_URL': app_config_dict['REMS']['BASE_URL'],
+        'ETSIN_URL_TEMPLATE': app_config_dict['REMS']['ETSIN_URL_TEMPLATE'],
+        'METAX_USER': app_config_dict['REMS']['METAX_USER'],
+        'AUTO_APPROVER': app_config_dict['REMS']['AUTO_APPROVER'],
+        'FORM_ID': int(app_config_dict['REMS']['FORM_ID']),
+    }
