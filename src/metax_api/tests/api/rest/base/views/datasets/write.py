@@ -5,9 +5,12 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from base64 import urlsafe_b64encode
 from copy import deepcopy
 from datetime import datetime, timedelta
+import json
 from time import sleep
+import unittest
 
 import responses
 from django.conf import settings as django_settings
@@ -3809,3 +3812,314 @@ class CatalogRecordApiEndUserAccessV2(CatalogRecordApiEndUserAccess):
         # try editing again - should be ok
         response = self.client.put('/rest/datasets/%d' % cr_data['id'], cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+@unittest.skipIf(django_settings.REMS['ENABLED'] is not True, 'Only run if REMS is enabled')
+class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
+    rf = RDM.get_reference_data(cache)
+    # get by code to prevent failures if list ordering changes
+    access_permit = [type for type in rf['reference_data']['access_type'] if type['code'] == 'permit'][0]
+    access_open = [type for type in rf['reference_data']['access_type'] if type['code'] == 'open'][0]
+
+    permit_rights = {
+        # license type does not matter
+        "license": [
+            {
+                "title": rf['reference_data']['license'][0]['label'],
+                "identifier": rf['reference_data']['license'][0]['uri']
+            }
+        ],
+        "access_type": {
+            "in_scheme": access_permit['scheme'],
+            "identifier": access_permit['uri'],
+            "pref_label": access_permit['label']
+        }
+    }
+
+    open_rights = {
+        "access_type": {
+            "in_scheme": access_open['scheme'],
+            "identifier": access_open['uri'],
+            "pref_label": access_open['label']
+        }
+    }
+
+    def setUp(self):
+        super().setUp()
+        # Create ida data catalog
+        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc_id = IDA_CATALOG
+        dc['catalog_json']['identifier'] = dc_id
+        self.client.post('/rest/datacatalogs', dc, format="json")
+
+        # token for end user access
+        self.token = get_test_oidc_token(new_proxy=True)
+
+        # mock successful rems access, add fails later if needed. Not using regex to allow certain access failures
+        self._mock_rems_write_access_succeeds('POST', 'user',             'create')
+        self._mock_rems_write_access_succeeds('POST', 'workflow',         'create')
+        self._mock_rems_write_access_succeeds('POST', 'license',          'create')
+        self._mock_rems_write_access_succeeds('POST', 'resource',         'create')
+        self._mock_rems_write_access_succeeds('POST', 'catalogue-item',   'create')
+        self._mock_rems_read_access_succeeds('license')
+
+    def _get_access_granter(self, malformed=False):
+        """
+        Returns encoded user information
+        """
+        access_granter = {
+            "userid": "testcaseuser" if not malformed else 1234,
+            "name": "Test User",
+            "email": "testcase@user.com"
+        }
+
+        ag_bytes = json.dumps(access_granter).encode('utf-8')
+
+        return urlsafe_b64encode(ag_bytes).decode('utf-8')
+
+    def _mock_rems_write_access_succeeds(self, method, entity, action):
+        """
+        method: HTTP method to be mocked [PUT, POST]
+        entity: REMS entity [application, workflow, resource, license, catalogue-item, user]
+        action: Action taken to entity [create, edit, archived, enabled]
+        """
+        req_type = responses.POST if method == 'POST' else responses.PUT
+
+        responses.add(
+            req_type,
+            f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}",
+            json={"success": True, "id": 6},
+            status=200
+        )
+
+    def _mock_rems_read_access_succeeds(self, entity):
+        if entity == 'license':
+            resp = [
+                {
+                    "id": 7,
+                    "licensetype": "link",
+                    "enabled": True,
+                    "archived": False,
+                    "localizations": {
+                        "fi": {
+                            "title": self.rf['reference_data']['license'][0]['label']['fi'],
+                            "textcontent": self.rf['reference_data']['license'][0]['uri']
+                        },
+                        "und": {
+                            "title": self.rf['reference_data']['license'][0]['label']['und'],
+                            "textcontent": self.rf['reference_data']['license'][0]['uri']
+                        }
+                    }
+                },
+                {
+                    "id": 8,
+                    "licensetype": "link",
+                    "enabled": True,
+                    "archived": False,
+                    "localizations": {
+                        "en": {
+                            "title": self.rf['reference_data']['license'][1]['label']['en'],
+                            "textcontent": self.rf['reference_data']['license'][1]['uri']
+                        }
+                    }
+                }
+            ]
+
+        responses.add(
+            responses.GET,
+            f"{django_settings.REMS['BASE_URL']}/{entity}s",
+            json=resp,
+            status=200
+        )
+
+    def _mock_rems_access_return_403(self, method, entity, action=''):
+        """
+        Works also for GET method since failure responses from rems are identical for write and read operations
+        """
+        req_type = responses.POST if method == 'POST' else responses.PUT if method == 'PUT' else responses.GET
+
+        responses.replace(
+            req_type,
+            f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}",
+            status=403 # anything else than 200 is a fail
+        )
+
+    def _mock_rems_access_return_error(self, method, entity, action=''):
+        """
+        operation status is defined in the body so 200 response can also be failure.
+        error messages are not consistent throughout the api. this is only on form returned from POST resources.
+        Works for GET also
+        """
+        req_type = responses.POST if method == 'POST' else responses.PUT if method == 'PUT' else responses.GET
+
+        errors = [
+            {
+                "type": "some kind of identifier of this error",
+                "somedetail": "entity identifier the error is conserning"
+            }
+        ]
+
+        responses.replace(
+            req_type,
+            f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}",
+            json={"success": False, "errors": errors},
+            status=200
+        )
+
+    def _mock_rems_access_crashes(self, method, entity, action=''):
+        """
+        Crash happens for example if there is a network error. Can be used for GET also
+        """
+        req_type = responses.POST if method == 'POST' else responses.PUT if method == 'PUT' else responses.GET
+
+        responses.replace(
+            req_type,
+            f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}",
+            body=Exception('REMS_service should catch this one also')
+        )
+
+    @responses.activate
+    def test_creating_permit_dataset_creates_catalogue_item_service_succeeds(self):
+        """
+        Tests that catalogue item in REMS is created correctly on permit dataset creation
+        """
+
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        granter = self._get_access_granter()
+
+        response = self.client.post(
+            f'/rest/datasets?access_granter={granter}',
+            self.cr_test_data,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    @responses.activate
+    def test_creating_permit_dataset_creates_catalogue_item_service_fails_1(self):
+        """
+        Test unsuccessful rems access
+        """
+        self._mock_rems_access_return_403('POST', 'workflow', 'create')
+
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        granter = self._get_access_granter()
+
+        response = self.client.post(
+            f'/rest/datasets?access_granter={granter}',
+            self.cr_test_data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('bad status while creating workflow' in response.data['detail'], response.data)
+
+    @responses.activate
+    def test_creating_permit_dataset_creates_catalogue_item_service_fails_2(self):
+        """
+        Test unsuccessful rems access
+        """
+        self._mock_rems_access_return_error('POST', 'catalogue-item', 'create')
+
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        granter = self._get_access_granter()
+
+        response = self.client.post(
+            f'/rest/datasets?access_granter={granter}',
+            self.cr_test_data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('Could not create catalogue-item' in response.data['detail'], response.data)
+
+    @responses.activate
+    def test_creating_permit_dataset_creates_catalogue_item_service_fails_3(self):
+        """
+        Test unsuccessful rems access
+        """
+        self._mock_rems_access_crashes('POST', 'resource', 'create')
+
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        granter = self._get_access_granter()
+
+        response = self.client.post(
+            f'/rest/datasets?access_granter={granter}',
+            self.cr_test_data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
+        self.assertTrue('failed to publish updates' in response.data['detail'][0], response.data)
+
+    @responses.activate
+    def test_creating_permit_dataset_creates_catalogue_item_end_user(self):
+        """
+        Tests that catalogue item in REMS is created correctly on permit dataset creation.
+        User information is fetch'd from token.
+        """
+        self._set_http_authorization('owner')
+
+        # modify catalog record
+        self.cr_test_data['user_created']                       = self.token['CSCUserName']
+        self.cr_test_data['metadata_provider_user']             = self.token['CSCUserName']
+        self.cr_test_data['metadata_provider_org']              = self.token['schacHomeOrganization']
+        self.cr_test_data['metadata_owner_org']                 = self.token['schacHomeOrganization']
+        self.cr_test_data['research_dataset']['access_rights']  = self.permit_rights
+        self.cr_test_data['data_catalog']                       = IDA_CATALOG
+
+        # end user doesn't have permissions to the files and they are also not needed in this test
+        del self.cr_test_data['research_dataset']['files']
+
+        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_missing_access_granter_parameter(self):
+        """
+        Access_granter parameter is required when user is service
+        """
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('access_granter' in response.data['detail'], response.data)
+
+    def test_bad_access_granter_parameter(self):
+        """
+        Access_granter values must be strings
+        """
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        granter = self._get_access_granter(malformed=True)
+
+        response = self.client.post(
+            f'/rest/datasets?access_granter={granter}',
+            self.cr_test_data,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('must be string' in response.data['detail'], response.data)
+
+    def test_missing_license_in_dataset(self):
+        """
+        License is required when dataset is REMS managed
+        """
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        del self.cr_test_data['research_dataset']['access_rights']['license']
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        response = self.client.post(
+            f'/rest/datasets?access_granter={self._get_access_granter()}',
+            self.cr_test_data,
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('must define license' in response.data['detail'], response.data)
