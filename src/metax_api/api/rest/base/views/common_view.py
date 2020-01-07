@@ -128,6 +128,13 @@ class CommonViewSet(ModelViewSet):
     def paginate_queryset(self, queryset):
         if CS.get_boolean_query_param(self.request, 'no_pagination'):
             return None
+
+        if self.request.query_params.get('ordering'):
+            # for some reason ordering is not taken into account when using pagination.
+            # ensure queryset is ordered.
+            ordering = self.request.query_params.get('ordering').split(',')
+            queryset.order_by(*ordering)
+
         return super(CommonViewSet, self).paginate_queryset(queryset)
 
     def get_queryset(self):
