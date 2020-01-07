@@ -3814,6 +3814,10 @@ class CatalogRecordApiEndUserAccessV2(CatalogRecordApiEndUserAccess):
 
 class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
     rf = RDM.get_reference_data(cache)
+    # get by code to prevent failures if list ordering changes
+    access_permit = [type for type in rf['reference_data']['access_type'] if type['code'] == 'permit'][0]
+    access_open = [type for type in rf['reference_data']['access_type'] if type['code'] == 'open'][0]
+
     permit_rights = {
         # license type does not matter
         "license": [
@@ -3823,25 +3827,17 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             }
         ],
         "access_type": {
-            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/access_type",
-            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/permit",
-            "pref_label": {
-                "en": "User needs permit",
-                "fi": "Käyttäjän täytyy anoa lupaa käyttää aineistoa",
-                "und": "Käyttäjän täytyy anoa lupaa käyttää aineistoa"
-            }
+            "in_scheme": access_permit['scheme'],
+            "identifier": access_permit['uri'],
+            "pref_label": access_permit['label']
         }
     }
 
     open_rights = {
         "access_type": {
-            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/access_type",
-            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
-            "pref_label": {
-                "en": "Free usage",
-                "fi": "Aineistolla vapaa käyttö",
-                "und": "Aineistolla vapaa käyttö"
-            }
+            "in_scheme": access_open['scheme'],
+            "identifier": access_open['uri'],
+            "pref_label": access_open['label']
         }
     }
 
@@ -3856,7 +3852,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # token for end user access
         self.token = get_test_oidc_token(new_proxy=True)
 
-        # mock successful rems access, add fails later if needed
+        # mock successful rems access, add fails later if needed. Not using regex to allow certain access failures
         self._mock_rems_write_access_succeeds('POST', 'user',             'create')
         self._mock_rems_write_access_succeeds('POST', 'workflow',         'create')
         self._mock_rems_write_access_succeeds('POST', 'license',          'create')
@@ -3939,12 +3935,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         req_type = responses.POST if method == 'POST' else responses.PUT if method == 'PUT' else responses.GET
 
-        responses.remove(
-            req_type,
-            f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}"
-        )
-
-        responses.add(
+        responses.replace(
             req_type,
             f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}",
             status=403 # anything else than 200 is a fail
@@ -3965,12 +3956,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             }
         ]
 
-        responses.remove(
-            req_type,
-            f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}"
-        )
-
-        responses.add(
+        responses.replace(
             req_type,
             f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}",
             json={"success": False, "errors": errors},
@@ -3983,12 +3969,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         req_type = responses.POST if method == 'POST' else responses.PUT if method == 'PUT' else responses.GET
 
-        responses.remove(
-            req_type,
-            f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}"
-        )
-
-        responses.add(
+        responses.replace(
             req_type,
             f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}",
             body=Exception('REMS_service should catch this one also')
