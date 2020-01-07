@@ -1063,7 +1063,7 @@ class CatalogRecord(Common):
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'create'))
 
-        if self._dataset_has_rems_managed_access():
+        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
             self._validate_for_rems()
             user_info = self._get_user_info_for_rems()
             self._access_granter = user_info

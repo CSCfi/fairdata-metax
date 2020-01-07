@@ -10,6 +10,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 import json
 from time import sleep
+import unittest
 
 import responses
 from django.conf import settings as django_settings
@@ -3812,6 +3813,7 @@ class CatalogRecordApiEndUserAccessV2(CatalogRecordApiEndUserAccess):
         response = self.client.put('/rest/datasets/%d' % cr_data['id'], cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
+@unittest.skipIf(django_settings.REMS['ENABLED'] is not True, 'Only run if REMS is enabled')
 class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
     rf = RDM.get_reference_data(cache)
     # get by code to prevent failures if list ordering changes

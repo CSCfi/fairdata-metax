@@ -582,6 +582,7 @@ else:
 
 if executing_in_travis:
     REMS = {
+        'ENABLED': True,
         'API_KEY': 'key',
         'BASE_URL': 'https://rems.instance.fi',
         'ETSIN_URL_TEMPLATE': 'https://etsin.something.fi/dataset/%s',
@@ -591,6 +592,7 @@ if executing_in_travis:
     }
 else:
     REMS = {
+        'ENABLED': app_config_dict['REMS'].get('ENABLED'),
         'API_KEY': app_config_dict['REMS']['API_KEY'],
         'BASE_URL': app_config_dict['REMS']['BASE_URL'],
         'ETSIN_URL_TEMPLATE': app_config_dict['REMS']['ETSIN_URL_TEMPLATE'],
