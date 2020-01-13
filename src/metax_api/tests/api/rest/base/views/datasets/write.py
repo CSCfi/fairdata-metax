@@ -4059,6 +4059,52 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertTrue('failed to publish updates' in response.data['detail'][0], response.data)
 
     @responses.activate
+    def test_changing_dataset_to_permit_creates_new_catalogue_item_succeeds(self):
+        """
+        Test that changing access type to permit invokes the REMS update
+        """
+
+        # create dataset without rems managed access
+        self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # change to rems managed
+        cr = response.data
+        cr['research_dataset']['access_rights'] = self.permit_rights
+
+        granter = self._get_access_granter()
+
+        response = self.client.put(f'/rest/datasets/{cr["id"]}?access_granter={granter}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @responses.activate
+    def test_changing_dataset_to_permit_creates_new_catalogue_item_fails(self):
+        """
+        Test error handling on metax update operation
+        """
+        self._mock_rems_access_return_error('POST', 'user', 'create')
+
+        # create dataset without rems managed access
+        self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # change to rems managed
+        cr = response.data
+        cr['research_dataset']['access_rights'] = self.permit_rights
+
+        granter = self._get_access_granter()
+
+        response = self.client.put(f'/rest/datasets/{cr["id"]}?access_granter={granter}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('Could not create user' in response.data['detail'], response.data)
+
+    @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_end_user(self):
         """
         Tests that catalogue item in REMS is created correctly on permit dataset creation.
@@ -4084,10 +4130,23 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         Access_granter parameter is required when user is service
         """
+
+        # test on create
         self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
 
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('access_granter' in response.data['detail'], response.data)
+
+        # test on update
+        self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
+        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+        cr['research_dataset']['access_rights'] = self.permit_rights
+        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertTrue('access_granter' in response.data['detail'], response.data)
 
