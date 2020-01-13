@@ -424,6 +424,10 @@ class CatalogRecord(Common):
         from metax_api.services import CatalogRecordService as CRS
         return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['permit']
 
+    def _access_type_was_permit(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self._initial_data['research_dataset']) == ACCESS_TYPES['permit']
+
     def _embargo_is_available(self):
         if not self.research_dataset.get('access_rights', {}).get('available', False):
             return False
@@ -1157,9 +1161,12 @@ class CatalogRecord(Common):
             # read-only after creating
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
-        if self._dataset_restricted_access_changed():
-            # todo check if restriction_grounds and access_type changed
-            pass
+        if self._dataset_rems_access_changed() and settings.REMS['ENABLED']:
+            if self._dataset_has_rems_managed_access():
+                self._validate_for_rems()
+                user_info = self._get_user_info_for_rems()
+                self._access_granter = user_info
+                self.add_post_request_callable(REMSUpdate(self, 'create', user_info))
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -1369,15 +1376,15 @@ class CatalogRecord(Common):
 
     def _dataset_has_rems_managed_access(self):
         """
-        Check using logic x and y if dataset uses REMS for managing access.
+        Check if dataset uses REMS for managing access.
         """
-        return True if self.catalog_is_ida() and self._access_type_is_permit() else False
+        return self.catalog_is_ida() and self._access_type_is_permit()
 
-    def _dataset_restricted_access_changed(self):
+    def _dataset_rems_access_changed(self):
         """
-        Check using logic x and y if dataset uses REMS for managing access.
+        Check if dataset is updated so that REMS needs to be updated.
         """
-        return False
+        return self.catalog_is_ida() and self._access_type_is_permit() != self._access_type_was_permit()
 
     def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
