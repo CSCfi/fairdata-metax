@@ -96,10 +96,10 @@ class DatasetVersionSet(models.Model):
             for r in self.records(manager='objects_unfiltered').all().order_by('-date_created')
         ]
 
-        versions = [{key:value for (key, value) in i.items() if value is not None} for i in versions]
+        versions = [{key: value for (key, value) in i.items() if value is not None} for i in versions]
 
         return versions
-        
+
     def print_records(self): # pragma: no cover
         for r in self.records.all():
             print(r.__repr__())

@@ -1950,10 +1950,11 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         cr['research_dataset']['files'].pop(0)
         response = self.client.put('/rest/datasets/1', cr, format="json")
 
-        cr_new_version = self.client.get('/rest/datasets/%d' % response.data['next_dataset_version']['id']).data
+        res_id = response.data['next_dataset_version']['id']
+        cr_new_version = self.client.get('/rest/datasets/%d' % res_id).data
         cr_new_version['research_dataset']['files'].pop(0)
-        new_response = self.client.put('/rest/datasets/%d' % response.data['next_dataset_version']['id'], cr_new_version, format="json")
-        
+        self.client.put('/rest/datasets/%d' % res_id, cr_new_version, format="json")
+
         # delete the new version
         new_ver = response.data['next_dataset_version']
         response = self.client.delete('/rest/datasets/%d' % new_ver['id'], format="json")
