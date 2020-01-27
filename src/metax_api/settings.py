@@ -587,16 +587,18 @@ if executing_in_travis:
         'BASE_URL': 'https://rems.instance.fi',
         'ETSIN_URL_TEMPLATE': 'https://etsin.something.fi/dataset/%s',
         'METAX_USER': 'muser',
+        'REPORTER_USER': 'ruser',
         'AUTO_APPROVER': 'aappr',
         'FORM_ID': 0,
     }
 else:
     REMS = {
-        'ENABLED': app_config_dict['REMS'].get('ENABLED'),
-        'API_KEY': app_config_dict['REMS']['API_KEY'],
-        'BASE_URL': app_config_dict['REMS']['BASE_URL'],
-        'ETSIN_URL_TEMPLATE': app_config_dict['REMS']['ETSIN_URL_TEMPLATE'],
-        'METAX_USER': app_config_dict['REMS']['METAX_USER'],
-        'AUTO_APPROVER': app_config_dict['REMS']['AUTO_APPROVER'],
-        'FORM_ID': int(app_config_dict['REMS']['FORM_ID']),
+        'ENABLED':              app_config_dict.get('REMS', {}).get('ENABLED'),
+        'API_KEY':              app_config_dict.get('REMS', {}).get('API_KEY'),
+        'BASE_URL':             app_config_dict.get('REMS', {}).get('BASE_URL'),
+        'ETSIN_URL_TEMPLATE':   app_config_dict.get('REMS', {}).get('ETSIN_URL_TEMPLATE'),
+        'METAX_USER':           app_config_dict.get('REMS', {}).get('METAX_USER'),
+        'REPORTER_USER':        app_config_dict.get('REMS', {}).get('REPORTER_USER'),
+        'AUTO_APPROVER':        app_config_dict.get('REMS', {}).get('AUTO_APPROVER'),
+        'FORM_ID':          int(app_config_dict.get('REMS', {}).get('FORM_ID')),
     }

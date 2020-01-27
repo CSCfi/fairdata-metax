@@ -3872,13 +3872,27 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # token for end user access
         self.token = get_test_oidc_token(new_proxy=True)
 
-        # mock successful rems access, add fails later if needed. Not using regex to allow certain access failures
-        self._mock_rems_write_access_succeeds('POST', 'user',             'create')
-        self._mock_rems_write_access_succeeds('POST', 'workflow',         'create')
-        self._mock_rems_write_access_succeeds('POST', 'license',          'create')
-        self._mock_rems_write_access_succeeds('POST', 'resource',         'create')
-        self._mock_rems_write_access_succeeds('POST', 'catalogue-item',   'create')
+        # mock successful rems access for creation, add fails later if needed.
+        # Not using regex to allow individual access failures
+        for entity in ['user', 'workflow', 'license', 'resource', 'catalogue-item']:
+            self._mock_rems_write_access_succeeds('POST', entity, 'create')
+
         self._mock_rems_read_access_succeeds('license')
+
+        # mock successful rems access for deletion. Add fails later
+        for entity in ['catalogue-item', 'workflow', 'resource']:
+            self._mock_rems_write_access_succeeds(method='PUT', entity=entity, action='archived')
+            self._mock_rems_write_access_succeeds(method='PUT', entity=entity, action='enabled')
+
+        self._mock_rems_read_access_succeeds('catalogue-item')
+        self._mock_rems_write_access_succeeds(method='POST', entity='application', action='close')
+
+        responses.add(
+            responses.GET,
+            f"{django_settings.REMS['BASE_URL']}/health",
+            json={'healthy': True},
+            status=200
+        )
 
     def _get_access_granter(self, malformed=False):
         """
@@ -3897,19 +3911,25 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
     def _mock_rems_write_access_succeeds(self, method, entity, action):
         """
         method: HTTP method to be mocked [PUT, POST]
-        entity: REMS entity [application, workflow, resource, license, catalogue-item, user]
-        action: Action taken to entity [create, edit, archived, enabled]
+        entity: REMS entity [application, catalogue-item, license, resource, user, workflow]
+        action: Action taken to entity [archived, close, create, edit, enabled]
         """
         req_type = responses.POST if method == 'POST' else responses.PUT
+
+        body = {"success": True}
+
+        if method == 'POST' and action != 'close':
+            # action condition needed because applications are closed with POST method
+            body['id'] = 6
 
         responses.add(
             req_type,
             f"{django_settings.REMS['BASE_URL']}/{entity}s/{action}",
-            json={"success": True, "id": 6},
+            json=body,
             status=200
         )
 
-    def _mock_rems_read_access_succeeds(self, entity):
+    def _mock_rems_read_access_succeeds(self, entity, pref_id=''):
         if entity == 'license':
             resp = [
                 {
@@ -3942,6 +3962,104 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
                 }
             ]
 
+        elif entity == 'catalogue-item':
+            resp = [
+                {
+                    "archived": False,
+                    "localizations": {
+                        "en": {
+                            "id": 18,
+                            "langcode": "en",
+                            "title": "Removal test",
+                            "infourl": "https://url.to.etsin.fi"
+                        }
+                    },
+                    "resource-id": 19,
+                    "start": "2020-01-02T14:06:13.496Z",
+                    "wfid": 15,
+                    "resid": "preferred identifier",
+                    "formid": 3,
+                    "id": 18,
+                    "expired": False,
+                    "end": None,
+                    "enabled": True
+                }
+            ]
+
+        elif entity == 'application':
+            # only mock relevant data
+            resp = [
+                {
+                    'application/workflow': {
+                        'workflow.dynamic/handlers': [
+                            {
+                                'userid': 'somehandler'
+                            }
+                        ]
+                    },
+                    "application/id": 3,
+                    'application/applicant': {
+                        'userid': 'someapplicant'
+                    },
+                    "application/resources": [
+                        {
+                            "catalogue-item/title": {
+                                "en": "Removal test"
+                            },
+                            "resource/ext-id": pref_id,
+                            "catalogue-item/id": 5
+                        }
+                    ],
+                    "application/state": 'application.state/draft'
+                },
+                {
+                    'application/workflow': {
+                        'workflow.dynamic/handlers': [
+                            {
+                                'userid': 'someid'
+                            }
+                        ]
+                    },
+                    "application/id": 2,
+                    'application/applicant': {
+                        'userid': 'someotherapplicant'
+                    },
+                    "application/resources": [
+                        {
+                            "catalogue-item/title": {
+                                "en": "Removal test"
+                            },
+                            "resource/ext-id": pref_id,
+                            "catalogue-item/id": 5
+                        }
+                    ],
+                    "application/state": 'application.state/approved'
+                },
+                {
+                    'application/workflow': {
+                        'workflow.dynamic/handlers': [
+                            {
+                                'userid': 'remsuid'
+                            }
+                        ]
+                    },
+                    "application/id": 1,
+                    'application/applicant': {
+                        'userid': 'someapplicant'
+                    },
+                    "application/resources": [
+                        {
+                            "catalogue-item/title": {
+                                "en": "Removal test"
+                            },
+                            "resource/ext-id": 'Same:title:with:different:catalogue:item',
+                            "catalogue-item/id": 18
+                        }
+                    ],
+                    "application/state": 'application.state/draft'
+                }
+            ]
+
         responses.add(
             responses.GET,
             f"{django_settings.REMS['BASE_URL']}/{entity}s",
@@ -3964,8 +4082,6 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
     def _mock_rems_access_return_error(self, method, entity, action=''):
         """
         operation status is defined in the body so 200 response can also be failure.
-        error messages are not consistent throughout the api. this is only on form returned from POST resources.
-        Works for GET also
         """
         req_type = responses.POST if method == 'POST' else responses.PUT if method == 'PUT' else responses.GET
 
@@ -4031,8 +4147,8 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             format="json"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('bad status while creating workflow' in response.data['detail'], response.data)
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
+        self.assertTrue('failed to publish updates' in response.data['detail'][0], response.data)
 
     @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_service_fails_2(self):
@@ -4052,8 +4168,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             format="json"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('Could not create catalogue-item' in response.data['detail'], response.data)
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_service_fails_3(self):
@@ -4119,8 +4234,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         granter = self._get_access_granter()
 
         response = self.client.put(f'/rest/datasets/{cr["id"]}?access_granter={granter}', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('Could not create user' in response.data['detail'], response.data)
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_end_user(self):
@@ -4143,6 +4257,44 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    @responses.activate
+    def test_deleting_permit_dataset_removes_catalogue_item_succeeds(self):
+        # create permit dataset
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        granter = self._get_access_granter()
+
+        response = self.client.post(f'/rest/datasets?access_granter={granter}', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        pref_id = response.data['research_dataset']['preferred_identifier']
+        self._mock_rems_read_access_succeeds('application', pref_id=pref_id)
+
+        # delete dataset
+        response = self.client.delete(f'/rest/datasets/{response.data["id"]}')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+    @responses.activate
+    def test_deleting_permit_dataset_removes_catalogue_item_fails(self):
+        # create permit dataset
+        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+
+        granter = self._get_access_granter()
+
+        response = self.client.post(f'/rest/datasets?access_granter={granter}', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        pref_id = response.data['research_dataset']['preferred_identifier']
+        self._mock_rems_read_access_succeeds('application', pref_id=pref_id)
+
+        # delete dataset
+        self._mock_rems_access_return_error('PUT', 'catalogue-item', 'enabled')
+
+        response = self.client.delete(f'/rest/datasets/{response.data["id"]}')
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     def test_missing_access_granter_parameter(self):
         """

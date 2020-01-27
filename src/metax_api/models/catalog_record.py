@@ -851,6 +851,10 @@ class CatalogRecord(Common):
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'delete'))
+
+        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+            self.add_post_request_callable(REMSUpdate(self, 'close'))
+
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
 
         log_args = {
@@ -2367,9 +2371,9 @@ class REMSUpdate():
     Handles managing REMS resources when creating, updating and deleting datasets.
     """
 
-    def __init__(self, cr, action, user_info):
+    def __init__(self, cr, action, user_info={}):
         from metax_api.services.rems_service import REMSService
-        assert action in ('create', 'update', 'delete'), 'invalid value for action'
+        assert action in ('close', 'create', 'update'), 'invalid value for action'
         self.cr = cr
         self.user_info = user_info
         self.action = action
@@ -2384,17 +2388,16 @@ class REMSUpdate():
             % (self.cr.identifier, self.action)
         )
 
-        from metax_api.services.rems_service import REMSException
         try:
             if self.action == 'create':
                 self.rems.create_rems_entity(self.cr, self.user_info)
+            if self.action == 'close':
+                self.rems.close_rems_entity(self.cr)
 
-        except REMSException as e:
-            _logger.error(e)
-            raise Http400(e)
         except Exception as e:
+            _logger.error(e)
             raise Http503({ 'detail': [
-                f'failed to publish updates to rems. request is aborted. Error: {e}'
+                f'failed to publish updates to rems. request is aborted.'
             ]})
 
 
