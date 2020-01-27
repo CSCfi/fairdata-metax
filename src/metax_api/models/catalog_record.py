@@ -84,15 +84,21 @@ class DatasetVersionSet(models.Model):
         Return a list of record preferred_identifiers that belong in the same dataset version chain.
         Latest first.
         """
-        return [
+
+        versions = [
             {
                 'identifier': r.identifier,
                 'preferred_identifier': r.preferred_identifier,
                 'removed': r.removed,
-                'date_created': r.date_created.astimezone().isoformat()
+                'date_created': r.date_created.astimezone().isoformat(),
+                'date_removed': r.date_removed.astimezone().isoformat() if r.date_removed else None
             }
             for r in self.records(manager='objects_unfiltered').all().order_by('-date_created')
         ]
+
+        versions = [{key: value for (key, value) in i.items() if value is not None} for i in versions]
+
+        return versions
 
     def print_records(self): # pragma: no cover
         for r in self.records.all():
