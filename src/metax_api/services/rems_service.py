@@ -48,6 +48,14 @@ class REMSService():
             "Content-Type": "application/json"
         }
 
+        try:
+            response = requests.get(f"{self.base_url}/health", headers=self.headers)
+        except Exception as e:
+            raise Exception(f'Cannot connect to rems while checking its health. Error {e}')
+
+        if not response.json()['healthy'] is True:
+            raise REMSException('Rems is not healthy, request is aborted')
+
     def create_rems_entity(self, cr, user_info):
         """
         Creates all the necessary elements to create catalogue-item for the dataset in REMS
@@ -93,28 +101,24 @@ class REMSService():
         Application state determines which user (applicant or handler) can close the application.
         Furthermore, closed, rejected or revoked applications cannot be closed.
         """
-        # REMS only allow reporter_user to get all applications
+        # REMS only allows reporter_user to get all applications
         self.headers['x-rems-user-id'] = self.reporter_user
 
-        # Only title-based query is possible for now. Must do pref_id matching below.
-        applications = self._get_rems('application', f'query=resource:\"{title}\"')
+        applications = self._get_rems('application', f'query=resource:\"{pref_id}\"')
 
         for application in applications:
-            # Only one resource per application
-            if application['application/resources'][0]['resource/ext-id'] == pref_id:
+            if application['application/state'] in HANDLER_CLOSEABLE_APPLICATIONS:
+                closing_user = application['application/workflow']['workflow.dynamic/handlers'][0]['userid']
+            elif application['application/state'] in APPLICANT_CLOSEABLE_APPLICATIONS:
+                closing_user = application['application/applicant']['userid']
+            else:
+                continue
 
-                if application['application/state'] in HANDLER_CLOSEABLE_APPLICATIONS:
-                    closing_user = application['application/workflow']['workflow.dynamic/handlers'][0]['userid']
-                elif application['application/state'] in APPLICANT_CLOSEABLE_APPLICATIONS:
-                    closing_user = application['application/applicant']['userid']
-                else:
-                    continue
+            self.headers['x-rems-user-id'] = closing_user
 
-                self.headers['x-rems-user-id'] = closing_user
+            body = {"application-id": application['application/id'], "comment": "Closed due to dataset removal"}
 
-                body = {"application-id": application['application/id'], "comment": "Closed due dataset removal"}
-
-                self._post_rems('application', body, 'close')
+            self._post_rems('application', body, 'close')
 
         self.headers['x-rems-user-id'] = self.metax_user
 
@@ -209,8 +213,7 @@ class REMSService():
             response = requests.post(f"{self.base_url}/{entity}s/{action}", json=body, headers=self.headers)
 
         except Exception as e:
-            _logger.error(f'Connection to REMS failed while creating {entity}. Error: {e}')
-            raise Exception(e)
+            raise Exception(f'Connection to REMS failed while creating {entity}. Error: {e}')
 
         if response.status_code != 200:
             raise REMSException(f'REMS returned bad status while creating {entity}. Error: {response.text}')
@@ -231,8 +234,7 @@ class REMSService():
             response = requests.put(f"{self.base_url}/{entity}s/{action}", json=body, headers=self.headers)
 
         except Exception as e:
-            _logger.error(f'Connection to REMS failed while updating {entity}. Error: {e}')
-            raise Exception(e)
+            raise Exception(f'Connection to REMS failed while updating {entity}. Error: {e}')
 
         if response.status_code != 200:
             raise REMSException(f'REMS returned bad status while updating {entity}. Error: {response.text}')
@@ -250,8 +252,7 @@ class REMSService():
             response = requests.get(f"{self.base_url}/{entity}s?{params}", headers=self.headers)
 
         except Exception as e:
-            _logger.error(f'Connection to REMS failed while getting {entity}. Error: {e}')
-            raise Exception(e)
+            raise Exception(f'Connection to REMS failed while getting {entity}. Error: {e}')
 
         if response.status_code != 200:
             raise REMSException(f'REMS returned bad status while getting {entity}. Error: {response.text}')

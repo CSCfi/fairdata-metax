@@ -3885,7 +3885,14 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             self._mock_rems_write_access_succeeds(method='PUT', entity=entity, action='enabled')
 
         self._mock_rems_read_access_succeeds('catalogue-item')
-        self._mock_rems_write_access_succeeds(method='POST',    entity='application',       action='close')
+        self._mock_rems_write_access_succeeds(method='POST', entity='application', action='close')
+
+        responses.add(
+            responses.GET,
+            f"{django_settings.REMS['BASE_URL']}/health",
+            json={'healthy': True},
+            status=200
+        )
 
     def _get_access_granter(self, malformed=False):
         """
@@ -4140,8 +4147,8 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             format="json"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('bad status while creating workflow' in response.data['detail'], response.data)
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
+        self.assertTrue('failed to publish updates' in response.data['detail'][0], response.data)
 
     @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_service_fails_2(self):
@@ -4161,8 +4168,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             format="json"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('Could not create catalogue-item' in response.data['detail'], response.data)
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_service_fails_3(self):
@@ -4228,8 +4234,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         granter = self._get_access_granter()
 
         response = self.client.put(f'/rest/datasets/{cr["id"]}?access_granter={granter}', cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('Could not create user' in response.data['detail'], response.data)
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_end_user(self):
@@ -4289,8 +4294,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self._mock_rems_access_return_error('PUT', 'catalogue-item', 'enabled')
 
         response = self.client.delete(f'/rest/datasets/{response.data["id"]}')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('Could not update catalogue-item' in response.data['detail'], response.data)
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     def test_missing_access_granter_parameter(self):
         """

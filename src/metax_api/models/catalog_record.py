@@ -2388,19 +2388,16 @@ class REMSUpdate():
             % (self.cr.identifier, self.action)
         )
 
-        from metax_api.services.rems_service import REMSException
         try:
             if self.action == 'create':
                 self.rems.create_rems_entity(self.cr, self.user_info)
             if self.action == 'close':
                 self.rems.close_rems_entity(self.cr)
 
-        except REMSException as e:
-            _logger.error(e)
-            raise Http400(e)
         except Exception as e:
+            _logger.error(e)
             raise Http503({ 'detail': [
-                f'failed to publish updates to rems. request is aborted. Error: {e}'
+                f'failed to publish updates to rems. request is aborted.'
             ]})
 
 
