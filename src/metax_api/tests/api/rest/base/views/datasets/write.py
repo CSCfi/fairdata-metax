@@ -1944,6 +1944,24 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data['dataset_version_set'][0].get('removed', None), True,
             response.data['dataset_version_set'])
 
+    def test_dataset_version_lists_date_removed(self):
+        # get catalog record
+        cr = self.client.get('/rest/datasets/1').data
+        # create version2
+        cr['research_dataset']['files'].pop(0)
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+
+        # delete version2
+        version2 = response.data['next_dataset_version']
+        response = self.client.delete('/rest/datasets/%d' % version2['id'], format="json")
+
+        # check date_removed is listed and not None in deleted version
+        response = self.client.get('/rest/datasets/1', format="json")
+
+        self.assertTrue(response.data['dataset_version_set'][0].get('date_removed'))
+        self.assertTrue(response.data['dataset_version_set'][0].get('date_removed') is not None)
+        self.assertFalse(response.data['dataset_version_set'][1].get('date_removed'))
+
     def test_new_dataset_version_pref_id_type_stays_same_as_previous_dataset_version_pref_id_type(self):
         # Create ida data catalog
         dc = self._get_object_from_test_data('datacatalog', requested_index=0)
