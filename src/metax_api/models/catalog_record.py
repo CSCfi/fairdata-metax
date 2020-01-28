@@ -879,6 +879,10 @@ class CatalogRecord(Common):
     def deprecate(self, timestamp=None):
         self.deprecated = True
         self.date_deprecated = self.date_modified = timestamp or get_tz_aware_now_without_micros()
+
+        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+            self.add_post_request_callable(REMSUpdate(self, 'close'))
+
         super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
             event='dataset_deprecated',

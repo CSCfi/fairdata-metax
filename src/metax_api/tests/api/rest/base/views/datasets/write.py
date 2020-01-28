@@ -3885,6 +3885,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             self._mock_rems_write_access_succeeds(method='PUT', entity=entity, action='enabled')
 
         self._mock_rems_read_access_succeeds('catalogue-item')
+        self._mock_rems_read_access_succeeds('application')
         self._mock_rems_write_access_succeeds(method='POST', entity='application', action='close')
 
         responses.add(
@@ -3929,7 +3930,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             status=200
         )
 
-    def _mock_rems_read_access_succeeds(self, entity, pref_id=''):
+    def _mock_rems_read_access_succeeds(self, entity):
         if entity == 'license':
             resp = [
                 {
@@ -4006,7 +4007,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
                             "catalogue-item/title": {
                                 "en": "Removal test"
                             },
-                            "resource/ext-id": pref_id,
+                            "resource/ext-id": "some:pref:id",
                             "catalogue-item/id": 5
                         }
                     ],
@@ -4029,7 +4030,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
                             "catalogue-item/title": {
                                 "en": "Removal test"
                             },
-                            "resource/ext-id": pref_id,
+                            "resource/ext-id": "some:pref:id",
                             "catalogue-item/id": 5
                         }
                     ],
@@ -4111,22 +4112,25 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             body=Exception('REMS_service should catch this one also')
         )
 
-    @responses.activate
-    def test_creating_permit_dataset_creates_catalogue_item_service_succeeds(self):
+    def _create_new_rems_dataset(self):
         """
-        Tests that catalogue item in REMS is created correctly on permit dataset creation
+        Modifies catalog record to be REMS managed and post it to Metax
         """
-
         self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
 
         granter = self._get_access_granter()
 
-        response = self.client.post(
-            f'/rest/datasets?access_granter={granter}',
-            self.cr_test_data,
-            format="json"
-        )
+        response = self.client.post(f'/rest/datasets?access_granter={granter}', self.cr_test_data, format="json")
+
+        return response
+
+    @responses.activate
+    def test_creating_permit_dataset_creates_catalogue_item_service_succeeds(self):
+        """
+        Tests that catalogue item in REMS is created correctly on permit dataset creation
+        """
+        response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     @responses.activate
@@ -4136,17 +4140,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         self._mock_rems_access_return_403('POST', 'workflow', 'create')
 
-        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
-        self.cr_test_data['data_catalog'] = IDA_CATALOG
-
-        granter = self._get_access_granter()
-
-        response = self.client.post(
-            f'/rest/datasets?access_granter={granter}',
-            self.cr_test_data,
-            format="json"
-        )
-
+        response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
         self.assertTrue('failed to publish updates' in response.data['detail'][0], response.data)
 
@@ -4157,17 +4151,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         self._mock_rems_access_return_error('POST', 'catalogue-item', 'create')
 
-        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
-        self.cr_test_data['data_catalog'] = IDA_CATALOG
-
-        granter = self._get_access_granter()
-
-        response = self.client.post(
-            f'/rest/datasets?access_granter={granter}',
-            self.cr_test_data,
-            format="json"
-        )
-
+        response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
@@ -4177,17 +4161,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         self._mock_rems_access_crashes('POST', 'resource', 'create')
 
-        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
-        self.cr_test_data['data_catalog'] = IDA_CATALOG
-
-        granter = self._get_access_granter()
-
-        response = self.client.post(
-            f'/rest/datasets?access_granter={granter}',
-            self.cr_test_data,
-            format="json"
-        )
-
+        response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
         self.assertTrue('failed to publish updates' in response.data['detail'][0], response.data)
 
@@ -4260,17 +4234,8 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
     @responses.activate
     def test_deleting_permit_dataset_removes_catalogue_item_succeeds(self):
-        # create permit dataset
-        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
-        self.cr_test_data['data_catalog'] = IDA_CATALOG
-
-        granter = self._get_access_granter()
-
-        response = self.client.post(f'/rest/datasets?access_granter={granter}', self.cr_test_data, format="json")
+        response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        pref_id = response.data['research_dataset']['preferred_identifier']
-        self._mock_rems_read_access_succeeds('application', pref_id=pref_id)
 
         # delete dataset
         response = self.client.delete(f'/rest/datasets/{response.data["id"]}')
@@ -4278,23 +4243,35 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
     @responses.activate
     def test_deleting_permit_dataset_removes_catalogue_item_fails(self):
-        # create permit dataset
-        self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
-        self.cr_test_data['data_catalog'] = IDA_CATALOG
-
-        granter = self._get_access_granter()
-
-        response = self.client.post(f'/rest/datasets?access_granter={granter}', self.cr_test_data, format="json")
+        response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        pref_id = response.data['research_dataset']['preferred_identifier']
-        self._mock_rems_read_access_succeeds('application', pref_id=pref_id)
 
         # delete dataset
         self._mock_rems_access_return_error('PUT', 'catalogue-item', 'enabled')
 
         response = self.client.delete(f'/rest/datasets/{response.data["id"]}')
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
+
+    @responses.activate
+    def test_deprecating_permit_dataset_removes_catalogue_item_succeeds(self):
+        response = self._create_new_rems_dataset()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # deprecate dataset
+        response = self.client.delete(f"/rest/files/{response.data['research_dataset']['files'][0]['identifier']}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @responses.activate
+    def test_deprecating_permit_dataset_removes_catalogue_item_fails(self):
+        response = self._create_new_rems_dataset()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # deprecate dataset
+        self._mock_rems_access_crashes('PUT', 'workflow', 'archived')
+
+        response = self.client.delete(f"/rest/files/{response.data['research_dataset']['files'][0]['identifier']}")
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
+        self.assertTrue('failed to publish' in response.data['detail'][0], response.data)
 
     def test_missing_access_granter_parameter(self):
         """
