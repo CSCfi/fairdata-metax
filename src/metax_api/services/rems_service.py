@@ -71,7 +71,7 @@ class REMSService():
 
         self._create_catalogue_item(res_id, wf_id)
 
-    def close_rems_entity(self, cr):
+    def close_rems_entity(self, cr, reason):
         """
         Closes all applications and archives and disables all related entities
         """
@@ -88,16 +88,15 @@ class REMSService():
             _logger.error(f'Could not find catalogue-item for {cr.identifier} in REMS.')
             return
 
-        self._close_applications(title, pref_id)
+        self._close_applications(title, pref_id, reason)
 
         self._close_entity('catalogue-item',    rems_ci[0]['id'])
         self._close_entity('workflow',          rems_ci[0]['wfid'])
         self._close_entity('resource',          rems_ci[0]['resource-id'])
 
-    def _close_applications(self, title, pref_id):
+    def _close_applications(self, title, pref_id, reason):
         """
-        Get all applications that are related to dataset and close them. Query is based on the dataset name
-        so also ensure that application resource is correct.
+        Get all applications that are related to dataset and close them.
         Application state determines which user (applicant or handler) can close the application.
         Furthermore, closed, rejected or revoked applications cannot be closed.
         """
@@ -116,7 +115,7 @@ class REMSService():
 
             self.headers['x-rems-user-id'] = closing_user
 
-            body = {"application-id": application['application/id'], "comment": "Closed due to dataset removal"}
+            body = {"application-id": application['application/id'], "comment": f"Closed due to dataset {reason}"}
 
             self._post_rems('application', body, 'close')
 
