@@ -4256,6 +4256,30 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
+    def test_changing_access_type_to_other_closes_rems_entities_succeeds(self):
+        response = self._create_new_rems_dataset()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+        cr['research_dataset']['access_rights'] = self.open_rights
+
+        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    @responses.activate
+    def test_changing_access_type_to_other_closes_rems_entities_fails(self):
+        response = self._create_new_rems_dataset()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self._mock_rems_access_return_error('POST', 'application', 'close')
+
+        cr = response.data
+        cr['research_dataset']['access_rights'] = self.open_rights
+
+        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
+
+    @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_end_user(self):
         """
         Tests that catalogue item in REMS is created correctly on permit dataset creation.

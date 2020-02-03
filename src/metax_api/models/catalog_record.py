@@ -853,7 +853,7 @@ class CatalogRecord(Common):
                                                              'delete'))
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self.add_post_request_callable(REMSUpdate(self, 'close'))
+            self.add_post_request_callable(REMSUpdate(self, 'close', reason='deletion'))
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
 
@@ -881,7 +881,7 @@ class CatalogRecord(Common):
         self.date_deprecated = self.date_modified = timestamp or get_tz_aware_now_without_micros()
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self.add_post_request_callable(REMSUpdate(self, 'close'))
+            self.add_post_request_callable(REMSUpdate(self, 'close', reason='deprecation'))
 
         super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
@@ -1085,7 +1085,7 @@ class CatalogRecord(Common):
             self._validate_for_rems()
             user_info = self._get_user_info_for_rems()
             self._access_granter = user_info
-            self.add_post_request_callable(REMSUpdate(self, 'create', user_info))
+            self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1180,7 +1180,10 @@ class CatalogRecord(Common):
                 self._validate_for_rems()
                 user_info = self._get_user_info_for_rems()
                 self._access_granter = user_info
-                self.add_post_request_callable(REMSUpdate(self, 'create', user_info))
+                self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+
+            else:
+                self.add_post_request_callable(REMSUpdate(self, 'close', reason='access type change'))
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -2380,11 +2383,13 @@ class REMSUpdate():
     Handles managing REMS resources when creating, updating and deleting datasets.
     """
 
-    def __init__(self, cr, action, user_info={}):
+    def __init__(self, cr, action, user_info={}, reason=''):
+        # user_info is used on creation, reason on close
         from metax_api.services.rems_service import REMSService
         assert action in ('close', 'create', 'update'), 'invalid value for action'
         self.cr = cr
         self.user_info = user_info
+        self.reason = reason
         self.action = action
         self.rems = REMSService()
 
@@ -2401,7 +2406,7 @@ class REMSUpdate():
             if self.action == 'create':
                 self.rems.create_rems_entity(self.cr, self.user_info)
             if self.action == 'close':
-                self.rems.close_rems_entity(self.cr)
+                self.rems.close_rems_entity(self.cr, self.reason)
 
         except Exception as e:
             _logger.error(e)
