@@ -1999,6 +1999,11 @@ class CatalogRecord(Common):
         pas_version.request = origin_version.request
         pas_version.save(pid_type=IdentifierType.DOI)
 
+        # ensure pas dataset contains exactly the same files as origin dataset. clear the result
+        # that was achieved by calling save(), which processed research_dataset.files and research_dataset.directories
+        pas_version.files.clear()
+        pas_version.files.add(*origin_version.files.filter().values_list('id', flat=True))
+
         # link origin_version and pas copy
         origin_version.preservation_dataset_version = pas_version
         origin_version.new_dataset_version_created = pas_version.identifiers_dict

@@ -1150,6 +1150,49 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('Cannot change files in' in response.data['detail'], True)
 
+    def test_pas_dataset_files_equal_origin_dataset(self):
+        """
+        Ensure set of files in original and pas datasets match exactly, even if more files have
+        been frozen in between.
+        """
+        test_file = self._get_object_from_test_data('file', requested_index=0)
+
+        response = self.client.get(
+            '/rest/directories/files?project=%s&path=/' % test_file['project_identifier'], format="json")
+
+        dir_identifier = response.data['directories'][0]['identifier']
+
+        # create dataset where directory along with all of its files are included
+        cr_data = self.client.get('/rest/datasets/1', format="json").data
+        cr_data['research_dataset']['directories'] = [{
+            'identifier': dir_identifier,
+            'use_category': { 'identifier': 'documentation' }
+        }]
+
+        response = self.client.put('/rest/datasets/1', cr_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr_id = response.data['next_dataset_version']['id']
+
+        # now freeze more files into same directory
+        test_file.update({
+            'file_name': '%s_new' % test_file['file_name'],
+            'file_path': '%s_new' % test_file['file_path'],
+            'identifier': '%s_new' % test_file['identifier'],
+        })
+        response = self.client.post('/rest/files', test_file, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # more files have been frozen in the directory, but pas dataset should not have the new frozen file,
+        # since it is not part of the origin dataset either.
+        self._create_pas_dataset_from_id(cr_id)
+
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr_files = cr.files.filter().order_by('id').values_list('id', flat=True)
+        cr_pas_files = cr.preservation_dataset_version.files.filter().order_by('id').values_list('id', flat=True)
+
+        # note: trying to assert querysets will result in failure. must evaluate the querysets first by iterating them
+        self.assertEqual([f for f in cr_files], [f for f in cr_pas_files])
+
     def test_unfreezing_files_does_not_deprecate_pas_dataset(self):
         """
         Even if the origin dataset is deprecated as a result of unfreezing its files,
@@ -3831,8 +3874,10 @@ class CatalogRecordApiEndUserAccessV2(CatalogRecordApiEndUserAccess):
         response = self.client.put('/rest/datasets/%d' % cr_data['id'], cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
+
 @unittest.skipIf(django_settings.REMS['ENABLED'] is not True, 'Only run if REMS is enabled')
 class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
+
     rf = RDM.get_reference_data(cache)
     # get by code to prevent failures if list ordering changes
     access_permit = [type for type in rf['reference_data']['access_type'] if type['code'] == 'permit'][0]
