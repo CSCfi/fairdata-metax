@@ -76,6 +76,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'next_dataset_version',
             'previous_dataset_version',
             'mets_object_identifier',
+            'state',
             'editor',
             'cumulative_state',
             'date_cumulation_started',
@@ -117,6 +118,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('previous_dataset_version', None)
         self.initial_data.pop('deprecated', None)
         self.initial_data.pop('date_deprecated', None)
+        self.initial_data.pop('state', None)
         self.initial_data.pop('preservation_identifier', None)
         self.initial_data.pop('preservation_dataset_version', None)
         self.initial_data.pop('preservation_dataset_origin_version', None)

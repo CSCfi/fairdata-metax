@@ -12,6 +12,12 @@
             "title":"Catalog Record",
             "description":"A record in a data catalog, describing a single dataset.",
             "properties":{
+                "state":{
+                    "title":"state",
+                    "description":"Publishing state (published / draft) of the dataset.",
+                    "type":"string",
+                    "readonly": true
+                },
                 "identifier":{
                     "title":"Identifier",
                     "description":"Internal identifier of the record. Required by API write operations.",

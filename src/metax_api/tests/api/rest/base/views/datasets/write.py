@@ -154,6 +154,30 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         return cr_from_test_data
 
 
+class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
+    """
+    Tests related to draft dataset creation:
+    - when requesting data through API, field 'state' is returned
+    - the value of field 'state' can't be modified through API
+    """
+
+    def test_field_exists(self):
+        """Try fetching any dataset, field 'state' should be returned'"""
+
+        cr = self.client.get('/rest/datasets/13').data
+        self.assertEqual('state' in cr, True)
+
+    def test_change_state_field_through_API(self):
+        """Fetch a dataset and change its state.
+        Value should remain: 'published' """
+
+        cr = self.client.get('/rest/datasets/1').data
+        cr['state'] = 'changed value'
+        response = self.client.put('/rest/datasets/1', cr, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertFalse(response.data['state'] == 'changed value')
+
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
     #
