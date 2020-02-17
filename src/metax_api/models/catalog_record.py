@@ -2236,7 +2236,7 @@ class CatalogRecord(Common):
 
         if not added_file_ids:
             _logger.info('no change in directory content')
-            return False
+            return (False, 0)
 
         _logger.info(f'refreshing directory adds {len(added_file_ids)} files to dataset')
         self.date_modified = get_tz_aware_now_without_micros()
@@ -2261,7 +2261,7 @@ class CatalogRecord(Common):
         super().save()
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
-        return True if self.cumulative_state != self.CUMULATIVE_STATE_YES else False
+        return (self.cumulative_state != self.CUMULATIVE_STATE_YES, len(added_file_ids))
 
     def _find_new_files_added_to_dir(self, dir):
         sql_insert_newly_frozen_files_by_dir_path = '''
