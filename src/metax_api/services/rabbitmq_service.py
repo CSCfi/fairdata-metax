@@ -87,9 +87,8 @@ class _RabbitMQService():
                 if isinstance(message, dict):
                     message = json_dumps(
                         message,
-                        sort_keys=True,
-                        indent=1,
                         cls=DjangoJSONEncoder)
+                    print(message)
                 self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
         except Exception as e:
             _logger.error(e)
