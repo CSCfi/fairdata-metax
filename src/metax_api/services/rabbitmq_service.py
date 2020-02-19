@@ -12,6 +12,7 @@ from time import sleep
 
 import pika
 from django.conf import settings as django_settings
+from django.core.serializers.json import DjangoJSONEncoder
 
 from metax_api.utils.utils import executing_test_case, executing_travis
 
@@ -84,7 +85,9 @@ class _RabbitMQService():
         try:
             for message in messages:
                 if isinstance(message, dict):
-                    message = json_dumps(message)
+                    message = json_dumps(
+                        message,
+                        cls=DjangoJSONEncoder)
                 self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
         except Exception as e:
             _logger.error(e)
