@@ -880,11 +880,11 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
     def test_update_partial_allowed_checksum_algorithm(self):
         new_data = {
             "checksum": {
-                "algorithm": "sha-512"
+                "algorithm": "sha256"
             }
         }
-        response = self.client.patch('/rest/files/{}'.format(self.pidentifier),
-            [new_data], format="json")
+        response = self.client.patch('/rest/files/{}'.format(self.identifier),
+            new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['checksum']['algorithm'], 'sha256')
@@ -895,8 +895,8 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
                 "algorithm": "sha2"
             }
         }
-        response = self.client.patch('/rest/files/{}'.format(self.pidentifier),
-            [new_data], format="json")
+        response = self.client.patch('/rest/files/{}'.format(self.identifier),
+            new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
