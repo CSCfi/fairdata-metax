@@ -292,6 +292,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         response = self.client.post('/rest/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('checksum_algorithm' in response.data, True)
 
     #
     # create list operations
@@ -730,7 +731,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         f['checksum']['algorithm'] = "sha-512"
 
         response = self.client.put('/rest/files/{}'.format(f['identifier']),
-            f['checksum']['algorithm'], format="json")
+            f, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['checksum']['algorithm'], 'sha-512')
@@ -740,9 +741,10 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         f['checksum']['algorithm'] = "sha2"
 
         response = self.client.put('/rest/files/{}'.format(f['identifier']),
-            f['checksum']['algorithm'], format="json")
+            f, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('checksum_algorithm' in response.data, True)
 
     #
     # update list operations PUT
@@ -899,6 +901,7 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
             new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('checksum_algorithm' in response.data, True)
 
     #
     # update list operations PATCH
