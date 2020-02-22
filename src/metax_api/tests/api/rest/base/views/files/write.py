@@ -51,7 +51,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
         from_test_data.update({
             "checksum": {
                 "value": "habeebit",
-                "algorithm": "sha2",
+                "algorithm": "sha256",
                 "checked": "2017-05-23T10:07:22.559656Z",
             },
             "file_name": "file_name_1",
