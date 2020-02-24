@@ -502,7 +502,7 @@ if not executing_in_travis:
 
 if executing_in_travis:
     ELASTICSEARCH = {
-        'HOSTS': ['metax-test.csc.fi/es'],
+        'HOSTS': ['metax.fairdata.fi/es'],
         'USE_SSL': True,
         'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
     }
@@ -578,4 +578,27 @@ else:
         'ETSIN_URL_TEMPLATE': app_config_dict['DATACITE']['ETSIN_URL_TEMPLATE'],
         'PREFIX': app_config_dict['DATACITE']['PREFIX'],
         'URL': app_config_dict['DATACITE']['URL'],
+    }
+
+if executing_in_travis:
+    REMS = {
+        'ENABLED': True,
+        'API_KEY': 'key',
+        'BASE_URL': 'https://rems.instance.fi',
+        'ETSIN_URL_TEMPLATE': 'https://etsin.something.fi/dataset/%s',
+        'METAX_USER': 'muser',
+        'REPORTER_USER': 'ruser',
+        'AUTO_APPROVER': 'aappr',
+        'FORM_ID': 0,
+    }
+else:
+    REMS = {
+        'ENABLED':              app_config_dict.get('REMS', {}).get('ENABLED'),
+        'API_KEY':              app_config_dict.get('REMS', {}).get('API_KEY'),
+        'BASE_URL':             app_config_dict.get('REMS', {}).get('BASE_URL'),
+        'ETSIN_URL_TEMPLATE':   app_config_dict.get('REMS', {}).get('ETSIN_URL_TEMPLATE'),
+        'METAX_USER':           app_config_dict.get('REMS', {}).get('METAX_USER'),
+        'REPORTER_USER':        app_config_dict.get('REMS', {}).get('REPORTER_USER'),
+        'AUTO_APPROVER':        app_config_dict.get('REMS', {}).get('AUTO_APPROVER'),
+        'FORM_ID':          int(app_config_dict.get('REMS', {}).get('FORM_ID')),
     }

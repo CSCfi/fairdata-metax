@@ -248,6 +248,7 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         self._freeze_files_to_root()
         response = self.client.post(self.url % (cr_id, dir_id), format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['number_of_files_added'], 2)
 
         new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
         file_size_after = new_version.research_dataset['total_files_byte_size']
@@ -258,6 +259,7 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         self._freeze_new_files()
         response = self.client.post(self.url % (new_version.identifier, dir_id), format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['number_of_files_added'], 2)
 
         new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
         self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
@@ -276,6 +278,7 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
 
         response = self.client.post(self.url % (cr_id, frozen_dir.identifier), format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['number_of_files_added'], 2)
 
         new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
         self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 2)
@@ -291,6 +294,7 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         self._freeze_files_to_root()
         response = self.client.post(self.url % (cr_id, dir_id), format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['number_of_files_added'], 4)
 
         new_version = CatalogRecord.objects.get(id=response.data['new_version_created']['id'])
         self.assertEqual(new_version.files.count(), new_version.previous_dataset_version.files.count() + 4)
@@ -308,7 +312,8 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
 
         self._freeze_files_to_root()
         response = self.client.post(self.url % (cr_id, dir_id), format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['number_of_files_added'], 0)
 
         cr_after = CatalogRecord.objects.get(identifier=cr_id)
         self.assertEqual(cr_after.next_dataset_version, None, 'should not have new dataset version')
@@ -330,7 +335,8 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         self._freeze_new_files()
         self._freeze_files_to_root()
         response = self.client.post(self.url % (cr_id, dir_id), format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['number_of_files_added'], 4)
 
         cr_after = CatalogRecord.objects.get(identifier=cr_id)
         file_size_after = cr_after.research_dataset['total_files_byte_size']
