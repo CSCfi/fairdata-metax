@@ -216,24 +216,23 @@ class FileService(CommonService, ReferenceDataMixin):
         """
         _logger.info('Retrieving list of datasets where files belong to')
 
-        if not isinstance(file_identifiers, list):
-            raise Http400('identifiers must be passed as a list')
+        file_ids = cls._file_identifiers_to_ids(file_identifiers)
 
         _logger.info('Looking datasets for the following files (printing first 10):\n%s'
                      % '\n'.join(str(id) for id in file_identifiers[:10]))
 
-        file_ids = cls._file_identifiers_to_ids(file_identifiers)
-
         sql_select_related_records = """
-            select research_dataset->>'preferred_identifier' as preferred_identifier
-            from metax_api_catalogrecord cr
-            inner join metax_api_catalogrecord_files cr_f on catalogrecord_id = cr.id
-            where cr_f.file_id in %s and cr.removed = false and cr.active = true
-            group by preferred_identifier
+            SELECT research_dataset->>'preferred_identifier' AS preferred_identifier
+            FROM metax_api_catalogrecord cr
+            INNER JOIN metax_api_catalogrecord_files cr_f
+                ON catalogrecord_id = cr.id
+            WHERE cr_f.file_id IN %s
+                AND cr.removed = false AND cr.active = true
+            GROUP BY preferred_identifier
             """
 
         with connection.cursor() as cr:
-            cr.execute(sql_select_related_records, [tuple(file_ids)])
+            cr.execute(sql_select_related_records, [(tuple(file_ids))])
             if cr.rowcount == 0:
                 preferred_identifiers = []
                 _logger.info('No datasets found for files')
@@ -242,6 +241,44 @@ class FileService(CommonService, ReferenceDataMixin):
                 _logger.info('Found following datasets:\n%s' % '\n'.join(preferred_identifiers))
 
         return Response(preferred_identifiers, status=status.HTTP_200_OK)
+
+    @classmethod
+    def get_detailed_datasets_where_file_belongs_to(cls, file_identifiers):
+        """
+        Find out which (non-deprecated) datasets a list of files belongs to, and return
+        their preferred_identifiers per file as a list in json format.
+
+        Parameter file_identifiers can be a list of pk's (integers), or file identifiers (strings).
+        """
+        _logger.info('Retrieving detailed list of datasets where files belong to')
+
+        file_ids = cls._file_identifiers_to_ids(file_identifiers)
+
+        _logger.info('Looking datasets for the following files (printing first 10):\n%s'
+                     % '\n'.join(str(id) for id in file_identifiers[:10]))
+
+        sql_select_related_records = """
+            SELECT f.identifier, json_agg(cr.research_dataset->>'preferred_identifier')
+            FROM metax_api_file f
+            JOIN metax_api_catalogrecord_files cr_f
+                ON f.id=cr_f.file_id
+            JOIN metax_api_catalogrecord cr
+                ON cr.id=cr_f.catalogrecord_id
+            WHERE f.id IN %s
+                AND cr.removed = false AND cr.active = true
+            GROUP BY f.id
+            ORDER BY f.id ASC;
+            """
+
+        with connection.cursor() as cr:
+            cr.execute(sql_select_related_records, [tuple(file_ids)])
+            if cr.rowcount == 0:
+                preferred_identifiers = []
+                _logger.info('No datasets found for files')
+            else:
+                preferred_identifiers = cr.fetchall()
+                _logger.info('Found following datasets:\n%s' % preferred_identifiers)
+        return Response(dict(preferred_identifiers), status=status.HTTP_200_OK)
 
     @classmethod
     def destroy_single(cls, file):

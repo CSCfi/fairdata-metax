@@ -359,7 +359,7 @@
                     "readonly": true,
                     "enum":[
                         "dataset",
-                        "pas",
+                        "pas"
                     ]
                 }
             },
