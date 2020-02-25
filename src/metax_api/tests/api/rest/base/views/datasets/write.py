@@ -156,10 +156,23 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
 
 class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
     """
-    Tests related to draft dataset creation:
-    - when requesting data through API, field 'state' is returned
-    - the value of field 'state' can't be modified through API
+    Tests related to draft datasets
     """
+    def setUp(self):
+        super().setUp()
+
+        self.token = get_test_oidc_token(new_proxy=True)
+        self._mock_token_validation_succeeds()
+        # Create published record with owner: testuser and pk 1
+        # Create draft records with owner: testuser, pk: 2 and owner: 'some owner who is not you', pk 3
+        self._set_cr_owner_and_state(1, 'published', self.token['CSCUserName']) # Published dataset
+        self.assertEqual(CatalogRecord.objects.get(pk=1).metadata_provider_user, 'testuser')
+
+        self._set_cr_owner_and_state(2, 'draft', self.token['CSCUserName']) # testusers' draft
+        self.assertEqual(CatalogRecord.objects.get(pk=2).metadata_provider_user, 'testuser')
+
+        self._set_cr_owner_and_state(3, 'draft', '#### Some owner who is not you ####') # Draft dataset for some user
+        self.assertNotEqual(CatalogRecord.objects.get(pk=3).metadata_provider_user, 'testuser')
 
     def test_field_exists(self):
         """Try fetching any dataset, field 'state' should be returned'"""
@@ -177,6 +190,69 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertFalse(response.data['state'] == 'changed value')
+
+    def _set_cr_owner_and_state(self, cr_id, state, owner):
+        ''' helper method for testing user accessibility for draft datasets '''
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.state = state
+        cr.user_created = owner
+        cr.metadata_provider_user = owner
+        cr.editor = None # pretend the record was created by user directly
+        cr.force_save()
+
+    @responses.activate
+    def test_endusers_access_to_draft_datasets(self):
+        ''' End user should get published data and his/her drafts '''
+        # Test access as end user
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        # Test access for owner of dataset
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
+        response = self.client.get('/rest/datasets/2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
+        response = self.client.get('/rest/datasets/3')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.status_code)
+        # Test for multiple datasets
+        response = self.client.get('/rest/datasets', format="json")
+        # Returned list of datasets should not have owner "#### Some owner who is not you ####"
+        owners = [cr['metadata_provider_user'] for cr in response.data['results']]
+        self.assertEqual('#### Some owner who is not you ####' not in owners, True, response.data)
+
+    def test_service_users_access_to_draft_datasets(self):
+        ''' Service users should get all data '''
+        # test access as a service-user
+        self._use_http_authorization(method='basic', username='metax')
+
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
+        response = self.client.get('/rest/datasets/2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
+        response = self.client.get('/rest/datasets/3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
+        # test for multiple datasets
+        response = self.client.get('/rest/datasets', format="json")
+        # Returned list of datasets should have owner "#### Some owner who is not you ####"
+        owners = [cr['metadata_provider_user'] for cr in response.data['results']]
+        self.assertEqual('#### Some owner who is not you ####' in owners, True, response.data)
+
+    def test_anonymous_users_access_to_draft_datasets(self):
+        ''' Unauthenticated user should get only published datasets '''
+        # Test access as unauthenticated user
+        self.client._credentials = {}
+
+        response = self.client.get('/rest/datasets/1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/rest/datasets/2')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+        response = self.client.get('/rest/datasets/3')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+        # test for multiple datasets
+        response = self.client.get('/rest/datasets', format="json")
+        # Returned list of datasets should not have drafts
+        states = [cr['state'] for cr in response.data['results']]
+        self.assertEqual('draft' not in states, True, response.data)
+
 
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
@@ -3658,7 +3734,6 @@ class CatalogRecordApiEndUserAccessV2(CatalogRecordApiEndUserAccess):
 
     """
     End User Access -related permission testing for new auth proxy.
-
     These will eventually be removed. These are basically a bunch of
     dull copypasted tests.
     """
