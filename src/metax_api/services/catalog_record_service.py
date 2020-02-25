@@ -52,11 +52,12 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         Get and validate parameters from request.query_params that will be used for filtering
         in view.get_queryset()
         """
+        queryset_search_params = {}
 
         if not request.query_params:
-            return {}
+            return cls.filter_by_state(request, queryset_search_params)
 
-        queryset_search_params = {}
+        queryset_search_params = cls.filter_by_state(request, queryset_search_params)
 
         if request.query_params.get('state', False):
             state_vals = request.query_params['state'].split(',')
@@ -107,6 +108,30 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('data_catalog', False):
             queryset_search_params['data_catalog__catalog_json__identifier__iregex'] = \
                 request.query_params['data_catalog']
+
+        return queryset_search_params
+
+    @staticmethod
+    def filter_by_state(request, queryset_search_params):
+        '''
+        Helper method to filter returning data by state: unauthenticated
+        users get only published data, and end users get only published &
+        their own drafts
+        '''
+        state_filter = None
+
+        if request.user.username is None: # unauthenticated user
+            state_filter = Q(state='published')
+        elif request.user.is_service:  # service account
+            pass
+        else: # enduser api
+            state_filter = Q(state='published') | Q(state='draft', metadata_provider_user=request.user.username)
+
+        if state_filter:
+            if 'q_filters' in queryset_search_params:
+                queryset_search_params['q_filters'].append(state_filter)
+            else:
+                queryset_search_params['q_filters'] = [state_filter]
 
         return queryset_search_params
 

@@ -372,7 +372,18 @@ class CatalogRecord(Common):
             return True
 
         elif request.method in READ_METHODS:
-            return True
+            if request.user.username is None: # unauthenticated user
+                if self.state == self.STATE_PUBLISHED:
+                    return True
+                else:
+                    raise Http404
+            else: # enduser
+                if self.state == self.STATE_PUBLISHED:
+                    return True
+                elif self.state == self.STATE_DRAFT and self.metadata_provider_user == request.user.username:
+                    return True
+                else:
+                    raise Http404
 
         # write operation
         return self.user_is_owner(request)
