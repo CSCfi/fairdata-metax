@@ -287,26 +287,37 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.assertEqual(response.data['checksum']['algorithm'], 'MD5')
 
     def test_create_file_not_allowed_checksum_algorithm(self):
+        from django.db import transaction, IntegrityError
         self.test_new_data['checksum']['algorithm'] = "sha2"
+        try:
+            with transaction.atomic():
+                response = self.client.post('/rest/files', self.test_new_data, format="json")
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('checksum_algorithm' in response.data, True)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+                self.assertEqual('checksum_algorithm' in response.data, True)
+        except IntegrityError:
+            pass
 
         self.test_new_data['checksum']['algorithm'] = "sha256"
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        try:
+            with transaction.atomic():
+                response = self.client.post('/rest/files', self.test_new_data, format="json")
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('checksum_algorithm' in response.data, True)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+                self.assertEqual('checksum_algorithm' in response.data, True)
+        except IntegrityError:
+            pass
 
         self.test_new_data['checksum']['algorithm'] = "sha-256"
+        try:
+            with transaction.atomic():
+                response = self.client.post('/rest/files', self.test_new_data, format="json")
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('checksum_algorithm' in response.data, True)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+                self.assertEqual('checksum_algorithm' in response.data, True)
+        except IntegrityError:
+            pass
 
     #
     # create list operations
