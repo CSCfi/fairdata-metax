@@ -166,11 +166,9 @@ class FileSerializer(CommonSerializer):
         Ensure that used checksum_algorithm is one of the configured in settings file.
         """
 
-        checksum_algorithm = value.lower().replace('-', '')
-
-        if checksum_algorithm not in CHECKSUM_ALGORITHMS:
+        if value not in CHECKSUM_ALGORITHMS:
             raise ValidationError('file checksum_algorithm {} is not acceptable. Checksum algorithm sould be one of {}.'
-                .format(checksum_algorithm, CHECKSUM_ALGORITHMS))
+                .format(value, CHECKSUM_ALGORITHMS))
 
         return value
 

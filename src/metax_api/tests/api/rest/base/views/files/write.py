@@ -51,7 +51,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
         from_test_data.update({
             "checksum": {
                 "value": "habeebit",
-                "algorithm": "sha256",
+                "algorithm": "SHA-256",
                 "checked": "2017-05-23T10:07:22.559656Z",
             },
             "file_name": "file_name_1",
@@ -288,6 +288,20 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
 
     def test_create_file_not_allowed_checksum_algorithm(self):
         self.test_new_data['checksum']['algorithm'] = "sha2"
+
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('checksum_algorithm' in response.data, True)
+
+        self.test_new_data['checksum']['algorithm'] = "sha256"
+
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('checksum_algorithm' in response.data, True)
+
+        self.test_new_data['checksum']['algorithm'] = "sha-256"
 
         response = self.client.post('/rest/files', self.test_new_data, format="json")
 
@@ -726,26 +740,6 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('json' in response.data['detail'], True, 'Error regarding datatype')
 
-    def test_put_allowed_checksum_algorithm(self):
-        f = self.client.get('/rest/files/1').data
-        f['checksum']['algorithm'] = "sha-512"
-
-        response = self.client.put('/rest/files/{}'.format(f['identifier']),
-            f, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['checksum']['algorithm'], 'sha-512')
-
-    def test_put_not_allowed_checksum_algorithm(self):
-        f = self.client.get('/rest/files/1').data
-        f['checksum']['algorithm'] = "sha2"
-
-        response = self.client.put('/rest/files/{}'.format(f['identifier']),
-            f, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('checksum_algorithm' in response.data, True)
-
     #
     # update list operations PUT
     #
@@ -878,30 +872,6 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('json' in response.data['detail'], True, 'Error regarding datatype')
-
-    def test_update_partial_allowed_checksum_algorithm(self):
-        new_data = {
-            "checksum": {
-                "algorithm": "sha256"
-            }
-        }
-        response = self.client.patch('/rest/files/{}'.format(self.identifier),
-            new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['checksum']['algorithm'], 'sha256')
-
-    def test_update_partial_not_allowed_checksum_algorithm(self):
-        new_data = {
-            "checksum": {
-                "algorithm": "sha2"
-            }
-        }
-        response = self.client.patch('/rest/files/{}'.format(self.identifier),
-            new_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('checksum_algorithm' in response.data, True)
 
     #
     # update list operations PATCH
