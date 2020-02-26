@@ -207,7 +207,10 @@ else:
 # endpoint in localhost where bearer tokens should be sent for validation
 VALIDATE_TOKEN_URL = 'https://127.0.0.1/secure/validate_token'
 
-CHECKSUM_ALGORITHMS = app_config_dict['CHECKSUM_ALGORITHMS']
+if executing_in_test_case or executing_in_travis:
+    CHECKSUM_ALGORITHMS = ['SHA-256', 'MD5', 'SHA-512']
+else:
+    CHECKSUM_ALGORITHMS = app_config_dict['CHECKSUM_ALGORITHMS']
 
 if executing_in_test_case or executing_in_travis:
     ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
