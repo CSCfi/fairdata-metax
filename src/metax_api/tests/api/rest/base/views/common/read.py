@@ -71,6 +71,7 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
 
 
 class ApiReadPaginationTests(CatalogRecordApiReadCommon):
+
     """
     pagination
     """
@@ -92,6 +93,28 @@ class ApiReadPaginationTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('next' not in response.data, True)
         self.assertEqual('results' not in response.data, True)
+
+    def test_pagination_ordering(self):
+        limit = 5
+
+        for order in ('preservation_state', '-preservation_state'):
+
+            # vary offset from 0 to 20, in increments of 5
+            for offset in range(0, 20, 5):
+
+                response = self.client.get(f'/rest/datasets?limit={limit}&offset={offset}&ordering={order}')
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                from_api = [cr['preservation_state'] for cr in response.data['results']]
+
+                from_db = [
+                    r for r in CatalogRecord.objects
+                    .filter()
+                    .order_by(order)
+                    .values_list('preservation_state', flat=True)[offset:offset + limit]
+                ]
+
+                self.assertEqual(from_api, from_db)
 
 
 class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):

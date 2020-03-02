@@ -5,8 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from base64 import urlsafe_b64decode
 from collections import defaultdict
 from copy import deepcopy
+import json
 import logging
 
 from django.conf import settings
@@ -82,15 +84,21 @@ class DatasetVersionSet(models.Model):
         Return a list of record preferred_identifiers that belong in the same dataset version chain.
         Latest first.
         """
-        return [
+
+        versions = [
             {
                 'identifier': r.identifier,
                 'preferred_identifier': r.preferred_identifier,
                 'removed': r.removed,
-                'date_created': r.date_created.astimezone().isoformat()
+                'date_created': r.date_created.astimezone().isoformat(),
+                'date_removed': r.date_removed.astimezone().isoformat() if r.date_removed else None
             }
             for r in self.records(manager='objects_unfiltered').all().order_by('-date_created')
         ]
+
+        versions = [{key: value for (key, value) in i.items() if value is not None} for i in versions]
+
+        return versions
 
     def print_records(self): # pragma: no cover
         for r in self.records.all():
@@ -213,6 +221,14 @@ class CatalogRecord(Common):
         (CUMULATIVE_STATE_CLOSED, 'closed')
     )
 
+    STATE_PUBLISHED = 'published'
+    STATE_DRAFT = 'draft'
+
+    STATE_CHOICES = (
+        (STATE_PUBLISHED, 'published'),
+        (STATE_DRAFT, 'draft')
+    )
+
     # MODEL FIELD DEFINITIONS #
 
     alternate_record_set = models.ForeignKey(
@@ -222,6 +238,13 @@ class CatalogRecord(Common):
     contract = models.ForeignKey(Contract, null=True, on_delete=models.DO_NOTHING, related_name='records')
 
     data_catalog = models.ForeignKey(DataCatalog, on_delete=models.DO_NOTHING, related_name='records')
+
+    state = models.CharField(
+        choices=STATE_CHOICES,
+        default=STATE_PUBLISHED,
+        max_length=200,
+        help_text='Publishing state (published / draft) of the dataset.'
+    )
 
     dataset_group_edit = models.CharField(
         max_length=200, blank=True, null=True,
@@ -286,6 +309,9 @@ class CatalogRecord(Common):
 
     date_last_cumulative_addition = models.DateTimeField(null=True, default=None,
         help_text='Date of last file addition while actively cumulative.')
+
+    _access_granter = JSONField(null=True, default=None,
+        help_text='Stores data of REMS user who is currently granting access to this dataset')
 
     # END OF MODEL FIELD DEFINITIONS #
 
@@ -414,6 +440,14 @@ class CatalogRecord(Common):
     def _access_type_is_embargo(self):
         from metax_api.services import CatalogRecordService as CRS
         return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['embargo']
+
+    def _access_type_is_permit(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self.research_dataset) == ACCESS_TYPES['permit']
+
+    def _access_type_was_permit(self):
+        from metax_api.services import CatalogRecordService as CRS
+        return CRS.get_research_dataset_access_type(self._initial_data['research_dataset']) == ACCESS_TYPES['permit']
 
     def _embargo_is_available(self):
         if not self.research_dataset.get('access_rights', {}).get('available', False):
@@ -832,6 +866,10 @@ class CatalogRecord(Common):
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'delete'))
+
+        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+            self.add_post_request_callable(REMSUpdate(self, 'close', reason='deletion'))
+
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
 
         log_args = {
@@ -856,6 +894,10 @@ class CatalogRecord(Common):
     def deprecate(self, timestamp=None):
         self.deprecated = True
         self.date_deprecated = self.date_modified = timestamp or get_tz_aware_now_without_micros()
+
+        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+            self.add_post_request_callable(REMSUpdate(self, 'close', reason='deprecation'))
+
         super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
             event='dataset_deprecated',
@@ -929,6 +971,39 @@ class CatalogRecord(Common):
                 # dont include null values
                 entries[-1]['stored_to_pas'] = entry.stored_to_pas
         return entries
+
+    def _get_user_info_for_rems(self):
+        """
+        Parses query parameter or token to fetch needed information for REMS user
+        """
+        if self.request.user.is_service:
+            b64_access_granter = self.request.query_params.get('access_granter')
+            user_info = json.loads(urlsafe_b64decode(f'{b64_access_granter}===').decode('utf-8'))
+        else:
+            # end user api
+            user_info = {
+                'userid':   self.request.user.token.get('CSCUserName'),
+                'name':     self.request.user.token.get('displayName'),
+                'email':    self.request.user.token.get('email')
+            }
+
+        if any([v is None for v in user_info.values()]):
+            raise Http400('Could not find the needed user information for REMS')
+
+        if not all([isinstance(v, str) for v in user_info.values()]):
+            raise Http400('user information fields must be string')
+
+        return user_info
+
+    def _validate_for_rems(self):
+        """
+        Ensures that all necessary information for REMS access
+        """
+        if self._access_type_is_permit() and not self.research_dataset['access_rights'].get('license', False):
+            raise Http400('You must define license for dataset in order to make it REMS manageable')
+
+        if self.request.user.is_service and not self.request.query_params.get('access_granter', False):
+            raise Http400('Missing query parameter access_granter')
 
     def _pre_create_operations(self, pid_type=None):
 
@@ -1021,8 +1096,11 @@ class CatalogRecord(Common):
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'create'))
 
-        if self._dataset_is_access_restricted():
-            self.add_post_request_callable(REMSUpdate(self), 'create')
+        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+            self._validate_for_rems()
+            user_info = self._get_user_info_for_rems()
+            self._access_granter = user_info
+            self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1112,9 +1190,15 @@ class CatalogRecord(Common):
             # read-only after creating
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
-        if self._dataset_restricted_access_changed():
-            # todo check if restriction_grounds and access_type changed
-            pass
+        if self._dataset_rems_access_changed() and settings.REMS['ENABLED']:
+            if self._dataset_has_rems_managed_access():
+                self._validate_for_rems()
+                user_info = self._get_user_info_for_rems()
+                self._access_granter = user_info
+                self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+
+            else:
+                self.add_post_request_callable(REMSUpdate(self, 'close', reason='access type change'))
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -1322,17 +1406,17 @@ class CatalogRecord(Common):
         # creating a new dataset version already occurred once
         return not metadata_versions_with_files_exist
 
-    def _dataset_is_access_restricted(self):
+    def _dataset_has_rems_managed_access(self):
         """
-        Check using logic x and y if dataset uses REMS for managing access.
+        Check if dataset uses REMS for managing access.
         """
-        return False
+        return self.catalog_is_ida() and self._access_type_is_permit()
 
-    def _dataset_restricted_access_changed(self):
+    def _dataset_rems_access_changed(self):
         """
-        Check using logic x and y if dataset uses REMS for managing access.
+        Check if dataset is updated so that REMS needs to be updated.
         """
-        return False
+        return self.catalog_is_ida() and self._access_type_is_permit() != self._access_type_was_permit()
 
     def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
@@ -1930,6 +2014,11 @@ class CatalogRecord(Common):
         pas_version.request = origin_version.request
         pas_version.save(pid_type=IdentifierType.DOI)
 
+        # ensure pas dataset contains exactly the same files as origin dataset. clear the result
+        # that was achieved by calling save(), which processed research_dataset.files and research_dataset.directories
+        pas_version.files.clear()
+        pas_version.files.add(*origin_version.files.filter().values_list('id', flat=True))
+
         # link origin_version and pas copy
         origin_version.preservation_dataset_version = pas_version
         origin_version.new_dataset_version_created = pas_version.identifiers_dict
@@ -2147,7 +2236,7 @@ class CatalogRecord(Common):
 
         if not added_file_ids:
             _logger.info('no change in directory content')
-            return False
+            return (False, 0)
 
         _logger.info(f'refreshing directory adds {len(added_file_ids)} files to dataset')
         self.date_modified = get_tz_aware_now_without_micros()
@@ -2172,7 +2261,7 @@ class CatalogRecord(Common):
         super().save()
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
-        return True if self.cumulative_state != self.CUMULATIVE_STATE_YES else False
+        return (self.cumulative_state != self.CUMULATIVE_STATE_YES, len(added_file_ids))
 
     def _find_new_files_added_to_dir(self, dir):
         sql_insert_newly_frozen_files_by_dir_path = '''
@@ -2309,10 +2398,15 @@ class REMSUpdate():
     Handles managing REMS resources when creating, updating and deleting datasets.
     """
 
-    def __init__(self, cr, action):
-        assert action in ('create', 'update', 'delete'), 'invalid value for action'
+    def __init__(self, cr, action, user_info={}, reason=''):
+        # user_info is used on creation, reason on close
+        from metax_api.services.rems_service import REMSService
+        assert action in ('close', 'create', 'update'), 'invalid value for action'
         self.cr = cr
+        self.user_info = user_info
+        self.reason = reason
         self.action = action
+        self.rems = REMSService()
 
     def __call__(self):
         """
@@ -2324,12 +2418,15 @@ class REMSUpdate():
         )
 
         try:
-            # todo do_stuff()
-            pass
-        except:
-            _logger.exception('REMS interaction failed')
+            if self.action == 'create':
+                self.rems.create_rems_entity(self.cr, self.user_info)
+            if self.action == 'close':
+                self.rems.close_rems_entity(self.cr, self.reason)
+
+        except Exception as e:
+            _logger.error(e)
             raise Http503({ 'detail': [
-                'failed to publish updates to rems. request is aborted.'
+                f'failed to publish updates to rems. request is aborted.'
             ]})
 
 

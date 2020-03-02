@@ -119,6 +119,7 @@ class DatasetRPC(CommonRPC):
     def refresh_directory_content(self, request):
         cr_identifier = request.query_params.get('cr_identifier', False)
         dir_identifier = request.query_params.get('dir_identifier', False)
+
         if not cr_identifier:
             raise Http400('Query param \'cr_identifier\' missing.')
         if not dir_identifier:
@@ -134,14 +135,14 @@ class DatasetRPC(CommonRPC):
 
         cr.request = request
 
-        if cr.refresh_directory_content(dir_identifier):
-            return_status = status.HTTP_200_OK
-            data = { 'new_version_created': self.get_serializer(cr).data['new_version_created'] }
-        else:
-            return_status = status.HTTP_204_NO_CONTENT
-            data = None
+        new_version, n_added_files = cr.refresh_directory_content(dir_identifier)
 
-        return Response(data=data, status=return_status)
+        data = { 'number_of_files_added': n_added_files }
+
+        if new_version:
+            data['new_version_created'] = self.get_serializer(cr).data['new_version_created']
+
+        return Response(data=data, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], url_path="fix_deprecated")
     def fix_deprecated(self, request):
