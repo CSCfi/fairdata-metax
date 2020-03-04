@@ -394,6 +394,8 @@ class CatalogRecord(Common):
         elif self.metadata_provider_user:
             return request.user.username == self.metadata_provider_user
 
+        if self.state == self.STATE_DRAFT and self.metadata_provider_user != request.user.username:
+            raise Http404
         # note: once access control plans evolve, user_created may not be a legit field ever
         # to check access from. but until then ...
         return request.user.username == self.user_created

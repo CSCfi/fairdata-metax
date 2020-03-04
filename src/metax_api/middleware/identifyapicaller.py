@@ -103,6 +103,7 @@ class _IdentifyApiCaller():
 
         Valid service users and authentication methods are listed in app_config.
         """
+
         http_auth_header = request.META.get('HTTP_AUTHORIZATION', None)
 
         if not http_auth_header:
