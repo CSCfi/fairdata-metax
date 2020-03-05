@@ -102,5 +102,7 @@
     "research_dataset_schema": null,
     "dataset_versioning": true
   },
-  "service_created": "metax"
+  "service_created": "metax",
+  "catalog_record_services_create": "testuser,api_auth_user,metax",
+  "catalog_record_services_edit": "testuser,api_auth_user,metax"
 }

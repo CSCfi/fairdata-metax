@@ -34,6 +34,18 @@
                     "maxItems":1,
                     "type":"string"
                 },
+                "catalog_record_services_edit":{
+                    "title":"Editor services",
+                    "description":"Comma-separated list of services which are allowed to edit catalog records in the catalog.",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "catalog_record_services_create":{
+                    "title":"Creator services",
+                    "description":"Comma-separated list of services which are allowed to add new catalog records to the catalog.",
+                    "maxItems":1,
+                    "type":"string"
+                },
                 "date_modified":{
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",

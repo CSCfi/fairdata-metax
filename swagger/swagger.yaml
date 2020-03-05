@@ -811,7 +811,7 @@ paths:
           type: string
         - name: data_catalog
           in: query
-          description: Filter by data catalog identifier
+          description: Filter by data catalog urn identifier
           type: string
         - name: offset
           in: query
