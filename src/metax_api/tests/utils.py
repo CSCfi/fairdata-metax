@@ -112,7 +112,12 @@ class TestClassUtils():
         catalog_json = dc.catalog_json
         for identifier in django_settings.END_USER_ALLOWED_DATA_CATALOGS:
             catalog_json['identifier'] = identifier
-            DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+            DataCatalog.objects.create(
+                catalog_json=catalog_json,
+                date_created=get_tz_aware_now_without_micros(),
+                catalog_record_services_create='testuser,api_auth_user,metax',
+                catalog_record_services_edit='testuser,api_auth_user,metax'
+            )
 
     def _set_http_authorization(self, credentials_type):
         # Deactivate credentials

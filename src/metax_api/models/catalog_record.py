@@ -369,6 +369,11 @@ class CatalogRecord(Common):
         In the future, will probably be more involved checking...
         """
         if request.user.is_service:
+            if request.method == 'GET':
+                return True
+            if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
+                    self.data_catalog.catalog_record_services_edit, request):
+                return False
             return True
 
         elif request.method in READ_METHODS:
@@ -418,7 +423,7 @@ class CatalogRecord(Common):
             # unknown user
             return False
 
-    def _check_catalog_permissions(self, catalog_groups):
+    def _check_catalog_permissions(self, catalog_groups, catalog_services, request=None):
         """
         Some data catalogs can only allow writing datasets from a specific group of users.
         Check if user has group/project which permits creating or editing datasets in
@@ -427,21 +432,34 @@ class CatalogRecord(Common):
         Note that there is also parameter END_USER_ALLOWED_DATA_CATALOGS in
         settings.py which dictates which catalogs are open for end users.
         """
+        # populates self.request if not existing; happens with DELETE-request when self.request object is empty
+        if request:
+            self.request = request
+
         if not self.request: # pragma: no cover
             # should only only happen when setting up test cases
             assert executing_test_case(), 'only permitted when setting up testing conditions'
             return True
 
-        if not catalog_groups:
-            return True
-
         if self.request.user.is_service:
+            if catalog_services:
+                allowed_services = [i.lower() for i in catalog_services.split(',')]
+                from metax_api.services import AuthService
+                return AuthService.check_services_against_allowed_services(self.request, allowed_services)
+            return False
+
+        elif not self.request.user.is_service:
+            if catalog_groups:
+                allowed_groups = catalog_groups.split(',')
+
+                from metax_api.services import AuthService
+                return AuthService.check_user_groups_against_groups(self.request, allowed_groups)
             return True
 
-        allowed_groups = catalog_groups.split(',')
-
-        from metax_api.services import AuthService
-        return AuthService.check_user_groups_against_groups(self.request, allowed_groups)
+        _logger.info(
+            'Catalog {} is not belonging to any service or group '.format(self.data_catalog.catalog_json['identifier'])
+        )
+        return False
 
     def _access_type_is_open(self):
         from metax_api.services import CatalogRecordService as CRS
@@ -1026,7 +1044,8 @@ class CatalogRecord(Common):
 
     def _pre_create_operations(self, pid_type=None):
 
-        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create):
+        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create,
+                self.data_catalog.catalog_record_services_create):
             raise Http403({ 'detail': [ 'You are not permitted to create datasets in this data catalog.' ]})
 
         if self.catalog_is_pas():
@@ -1039,6 +1058,7 @@ class CatalogRecord(Common):
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
             # do not overwrite.
             pass
+
         elif self.catalog_is_legacy():
             if 'preferred_identifier' not in self.research_dataset:
                 raise ValidationError({
@@ -1151,7 +1171,9 @@ class CatalogRecord(Common):
         self.add_post_request_callable(DelayedLog(**log_args))
 
     def _pre_update_operations(self):
-        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit):
+
+        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
+                self.data_catalog.catalog_record_services_edit):
             raise Http403({ 'detail': [ 'You are not permitted to edit datasets in this data catalog.' ]})
 
         if self.field_changed('identifier'):

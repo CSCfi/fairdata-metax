@@ -29,6 +29,7 @@ VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
+EXT_CATALOG = django_settings.EXT_DATA_CATALOG_IDENTIFIER
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -166,7 +167,12 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         catalog_json = dc.catalog_json
         for identifier in END_USER_ALLOWED_DATA_CATALOGS:
             catalog_json['identifier'] = identifier
-            dc = DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+            dc = DataCatalog.objects.create(
+                catalog_json=catalog_json,
+                date_created=get_tz_aware_now_without_micros(),
+                catalog_record_services_create='testuser,api_auth_user,metax',
+                catalog_record_services_edit='testuser,api_auth_user,metax'
+            )
 
         self.token = get_test_oidc_token(new_proxy=True)
         self._mock_token_validation_succeeds()
@@ -1198,7 +1204,12 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         catalog_json = dc.catalog_json
         catalog_json['identifier'] = django_settings.PAS_DATA_CATALOG_IDENTIFIER
         catalog_json['dataset_versioning'] = False
-        dc = DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+        dc = DataCatalog.objects.create(
+            catalog_json=catalog_json,
+            date_created=get_tz_aware_now_without_micros(),
+            catalog_record_services_create='testuser,api_auth_user,metax',
+            catalog_record_services_edit='testuser,api_auth_user,metax'
+        )
 
     def test_update_catalog_record_pas_state_allowed_value(self):
         cr = self.client.get('/rest/datasets/1').data
@@ -2077,6 +2088,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         self.assertEqual(records[1].alternate_record_set.id, ars_id)
         self.assertEqual(records[2].alternate_record_set.id, ars_id)
 
+
 class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
 
     """
@@ -2234,6 +2246,7 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         cr_v1 = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json").data
         cr_v1['research_dataset']['files'].pop(0)
         cr_v2 = self.client.put('/rest/datasets/{0}?pid_type=doi'.format(cr_v1['identifier']), cr_v1, format="json")
+        self.assertEqual(cr_v2.status_code, status.HTTP_200_OK, cr_v2.data)
         self.assertEqual('new_version_created' in cr_v2.data, True)
         self.assertTrue(
             get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.URN)
@@ -2671,6 +2684,7 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
 
     def assert_total_files_byte_size(self, cr, expected_size):
         self.assertEqual(cr['research_dataset']['total_files_byte_size'], expected_size)
+
 
 class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCommon):
 
@@ -3568,7 +3582,12 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         catalog_json = dc.catalog_json
         for identifier in END_USER_ALLOWED_DATA_CATALOGS:
             catalog_json['identifier'] = identifier
-            dc = DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+            dc = DataCatalog.objects.create(
+                catalog_json=catalog_json,
+                date_created=get_tz_aware_now_without_micros(),
+                catalog_record_services_create='testuser,api_auth_user,metax',
+                catalog_record_services_edit='testuser,api_auth_user,metax'
+            )
 
         self.token = get_test_oidc_token()
 
@@ -3731,12 +3750,15 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.cr_test_data['editor'] = { 'owner_id': self.token['sub'] }
 
         self._use_http_authorization() # create cr as a service-user to ensure editor-field is set
+
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
+        self._use_http_authorization(method='bearer', token=self.token)
         response = self.client.get('/rest/datasets/%d' % response.data['id'], format="json")
         modified_data = response.data
         modified_data['research_dataset']['value'] = 112233
+
         response = self.client.put('/rest/datasets/%d' % response.data['id'], modified_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -4088,6 +4110,84 @@ class CatalogRecordApiEndUserAccessV2(CatalogRecordApiEndUserAccess):
         # try editing again - should be ok
         response = self.client.put('/rest/datasets/%d' % cr_data['id'], cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
+
+
+class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
+
+    """
+    Testing access of services to external catalogs with harvested flag and vice versa.
+    """
+
+    def setUp(self):
+        """
+        Create a test-datacatalog that plays the role as a external catalog.
+        """
+        super().setUp()
+
+        self.dc = DataCatalog.objects.filter(catalog_json__research_dataset_schema='att').first()
+        self.dc.catalog_json['identifier'] = EXT_CATALOG
+        self.dc.catalog_json['harvested'] = True
+        self.dc.catalog_record_services_create = 'external'
+        self.dc.catalog_record_services_edit = 'external'
+        self.dc.force_save()
+
+        del self.cr_test_data['research_dataset']['files']
+        del self.cr_test_data['research_dataset']['total_files_byte_size']
+
+        self._use_http_authorization(username=django_settings.API_EXT_USER['username'],
+            password=django_settings.API_EXT_USER['password'])
+
+    def test_external_service_can_add_catalog_record_to_own_catalog(self):
+        self.cr_test_data['data_catalog'] = EXT_CATALOG
+        self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], '123456')
+
+    def test_external_service_can_update_catalog_record_in_own_catalog(self):
+        self.cr_test_data['data_catalog'] = EXT_CATALOG
+        self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], '123456')
+
+        cr_id = response.data['id']
+        self.cr_test_data['research_dataset']['preferred_identifier'] = '654321'
+        response = self.client.put('/rest/datasets/{}'.format(cr_id), self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['research_dataset']['preferred_identifier'], '654321')
+
+    def test_external_service_can_delete_catalog_record_from_own_catalog(self):
+        self.cr_test_data['data_catalog'] = EXT_CATALOG
+        self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        cr_id = response.data['id']
+        response = self.client.delete('/rest/datasets/{}'.format(cr_id))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        response = self.client.get('/rest/datasets/{}'.format(cr_id), format="json")
+        self.assertEqual('not found' in response.json()['detail'].lower(), True)
+
+    def test_external_service_can_not_add_catalog_record_to_other_catalog(self):
+        dc = self._get_object_from_test_data('datacatalog', requested_index=1)
+        self.cr_test_data['data_catalog'] = dc['catalog_json']['identifier']
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_external_service_can_not_update_catalog_record_in_other_catalog(self):
+        response = self.client.put('/rest/datasets/1', {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_external_service_can_not_delete_catalog_record_from_other_catalog(self):
+        response = self.client.delete('/rest/datasets/1')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
 
 @unittest.skipIf(django_settings.REMS['ENABLED'] is not True, 'Only run if REMS is enabled')

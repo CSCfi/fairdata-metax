@@ -65,10 +65,16 @@ if executing_in_test_case or executing_in_travis:
         'password': 'password'
     }
 
+    API_EXT_USER = {
+        'username': 'external',
+        'password': 'externalpassword'
+    }
+
     API_TEST_USERS = [
         API_TEST_USER,
         API_METAX_USER,
         API_AUTH_TEST_USER,
+        API_EXT_USER
     ]
 
     API_ACCESS = {
@@ -93,9 +99,9 @@ if executing_in_test_case or executing_in_travis:
             },
             "datasets":     {
                 "read": ["all"],
-                "create": ["testuser", "metax", "api_auth_user", "endusers"],
-                "update": ["testuser", "metax", "api_auth_user", "endusers"],
-                "delete": ["testuser", "metax", "api_auth_user", "endusers"]
+                "create": ["testuser", "metax", "api_auth_user", "endusers", "external"],
+                "update": ["testuser", "metax", "api_auth_user", "endusers", "external"],
+                "delete": ["testuser", "metax", "api_auth_user", "endusers", "external"]
             },
             "directories":  {
                 "read": ["testuser", "metax", "endusers"],
@@ -170,6 +176,8 @@ if executing_in_test_case or executing_in_travis:
     ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
     PAS_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-pas"
     LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
+    EXT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ext"
+
 else:
     IDA_DATA_CATALOG_IDENTIFIER = app_config_dict['IDA_DATACATALOG_IDENTIFIER']
     ATT_DATA_CATALOG_IDENTIFIER = app_config_dict['ATT_DATACATALOG_IDENTIFIER']

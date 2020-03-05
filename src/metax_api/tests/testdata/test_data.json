@@ -4523,6 +4523,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4636,6 +4638,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4749,6 +4753,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4862,6 +4868,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4975,6 +4983,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5088,6 +5098,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5201,6 +5213,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5314,6 +5328,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"

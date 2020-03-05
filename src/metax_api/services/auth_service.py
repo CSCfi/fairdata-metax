@@ -132,3 +132,20 @@ class AuthService():
                 return True
 
         return False
+
+    @classmethod
+    def check_services_against_allowed_services(cls, request, service_list):
+        """
+        Get username of authenticating service
+        and check it against the given list of services.
+
+        Return True if there is a match, otherwise False.
+        """
+        assert request.user.username is not None, 'request.user.username is None'
+
+        authenticated_service = request.user.username
+
+        if authenticated_service in service_list:
+            return True
+
+        return False

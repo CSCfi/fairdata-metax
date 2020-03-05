@@ -18,12 +18,20 @@ class DataCatalog(Common):
     catalog_json = JSONField()
 
     catalog_record_group_edit = models.CharField(
-        max_length=200, blank=True, null=True,
+        max_length=200, blank=False, null=True,
         help_text='Group which is allowed to edit catalog records in the catalog.')
 
     catalog_record_group_create = models.CharField(
-        max_length=200, blank=True, null=True,
+        max_length=200, blank=False, null=True,
         help_text='Group which is allowed to add new catalog records to the catalog.')
+
+    catalog_record_services_edit = models.CharField(
+        max_length=200, blank=False, null=True,
+        help_text='Services which are allowed to edit catalog records in the catalog.')
+
+    catalog_record_services_create = models.CharField(
+        max_length=200, blank=False, null=True,
+        help_text='Services which are allowed to edit catalog records in the catalog.')
 
     # END OF MODEL FIELD DEFINITIONS #
 
