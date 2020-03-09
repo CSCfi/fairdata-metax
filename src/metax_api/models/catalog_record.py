@@ -896,6 +896,11 @@ class CatalogRecord(Common):
         )
 
     def delete(self, *args, **kwargs):
+        if self.state == self.STATE_DRAFT:
+            # delete permanently instead of only marking as 'removed'
+            super(Common, self).delete()
+            return
+
         if self.has_alternate_records():
             self._remove_from_alternate_record_set()
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:

@@ -349,6 +349,32 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
             response = update_request('/rest/datasets', data, format="json")
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.status_code)
 
+    ###
+    # Tests for deleting drafts
+    ###
+
+    def test_draft_is_permanently_deleted_by_service_user(self):
+        '''Draft datasets should be permanently deleted from the database.
+        Only the dataset owner is able to delete draft datasets.'''
+        # Set service-user
+        self._use_http_authorization(method='basic', username='metax')
+
+        for cr_id in (2, 3):
+            response = self.client.delete('/rest/datasets/%d' % cr_id)
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+            self.assertFalse(CatalogRecord.objects_unfiltered.filter(pk=cr_id).exists())
+
+    @responses.activate
+    def test_draft_is_permanently_deleted_by_enduser(self):
+        # Set end user
+        self._use_http_authorization(method='bearer', token=self.token)
+
+        response = self.client.delete('/rest/datasets/2')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.status_code)
+        self.assertFalse(CatalogRecord.objects_unfiltered.filter(pk=2).exists())
+        response = self.client.delete('/rest/datasets/3')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.status_code)
+
 
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
