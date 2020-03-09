@@ -4771,6 +4771,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertTrue('must define license' in response.data['detail'], response.data)
 
+    @responses.activate
     def test_only_return_rems_identifier_to_privileged(self):
         self._set_http_authorization('service')
 
