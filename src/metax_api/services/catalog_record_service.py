@@ -743,3 +743,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
     @staticmethod
     def get_research_dataset_embargo_available(rd):
         return rd.get('access_rights', {}).get('available', '')
+
+    @staticmethod
+    def get_research_dataset_license_url(rd):
+        """
+        Return identifier of the first license if there is a license at all
+        """
+        if not rd.get('access_rights', {}).get('license'):
+            return {}
+
+        license = rd['access_rights']['license'][0]
+
+        return license.get('identifier') or license.get('license')
