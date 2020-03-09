@@ -611,4 +611,7 @@ else:
         'FORM_ID':          int(app_config_dict.get('REMS', {}).get('FORM_ID')),
     }
 
-DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)
+if executing_in_travis:
+    DRAFT_ENABLED = 'DRAFT_ENABLED'
+else:
+    DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)
