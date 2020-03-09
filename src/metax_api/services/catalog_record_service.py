@@ -71,6 +71,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if CommonService.get_boolean_query_param(request, 'latest'):
             queryset_search_params['next_dataset_version_id'] = None
 
+        if request.query_params.get('draft', None) is not None:
+            queryset_search_params['draft'] = CommonService.get_boolean_query_param(request, 'draft')
+
         if request.query_params.get('deprecated', None) is not None:
             queryset_search_params['deprecated'] = CommonService.get_boolean_query_param(request, 'deprecated')
 

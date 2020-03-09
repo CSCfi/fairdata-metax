@@ -610,3 +610,5 @@ else:
         'AUTO_APPROVER':        app_config_dict.get('REMS', {}).get('AUTO_APPROVER'),
         'FORM_ID':          int(app_config_dict.get('REMS', {}).get('FORM_ID')),
     }
+
+DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)

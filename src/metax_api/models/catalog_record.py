@@ -996,6 +996,13 @@ class CatalogRecord(Common):
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
+    def state_is_draft(self, request):
+        from metax_api.services import CommonService
+        if request.query_params.get('draft', None) is not None:
+            return bool(CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED)
+        else:
+            pass
+
     def get_metadata_version_listing(self):
         entries = []
         for entry in self.research_dataset_versions.all():
@@ -1074,6 +1081,8 @@ class CatalogRecord(Common):
                 'Catalog %s is a legacy catalog - not generating pid'
                 % self.data_catalog.catalog_json['identifier']
             )
+        elif self.state_is_draft(self.request):
+            self.state = self.STATE_DRAFT
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -1130,18 +1139,19 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-            self._validate_cr_against_datacite_schema()
-            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
-                                                             'create'))
+        if not self.state_is_draft(self.request):
+            if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
+                self._validate_cr_against_datacite_schema()
+                self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                                'create'))
 
-        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self._validate_for_rems()
-            user_info = self._get_user_info_for_rems()
-            self._access_granter = user_info
-            self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+            if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+                self._validate_for_rems()
+                user_info = self._get_user_info_for_rems()
+                self._access_granter = user_info
+                self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
         _logger.info(
             'Created a new <CatalogRecord id: %d, '
