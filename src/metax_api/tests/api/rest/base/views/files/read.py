@@ -130,7 +130,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         datasets = set(sum(response.data.values(), []))
         self.assertEqual(len(datasets), 5, response.data)
 
-        # check if 
+        # check if identifiers work
         file_identifiers = ['pid:urn:1', 'pid:urn:2', 'pid:urn:3', 'pid:urn:4', 'pid:urn:5']
 
         response = self.client.post('/rest/files/datasets?detailed=true', file_identifiers, format='json')
