@@ -150,7 +150,7 @@ class FileViewSet(CommonViewSet):
         requests to query parameters, so using POST instead is more guaranteed to work.
         """
 
-        if request.query_params and request.query_params['detailed'] == 'true':
+        if CommonService.get_boolean_query_param(request, 'detailed'):
             return FileService.get_detailed_datasets_where_file_belongs_to(request.data)
 
         return FileService.get_datasets_where_file_belongs_to(request.data)

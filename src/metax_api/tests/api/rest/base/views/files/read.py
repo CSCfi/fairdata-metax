@@ -127,8 +127,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         self._assert_results_length(response, 5)
 
         # set of all returned datasets
-        datasets = set(sum(response.data.values(), []))
-        self.assertEqual(len(datasets), 5, response.data)
+        self.assertEqual(len(set(sum(response.data.values(), []))), 5, response.data)
 
         # check if identifiers work
         file_identifiers = ['pid:urn:1', 'pid:urn:2', 'pid:urn:3', 'pid:urn:4', 'pid:urn:5']
@@ -138,8 +137,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         self._assert_results_length(response, 5)
 
         # set of all returned datasets
-        datasets = set(sum(response.data.values(), []))
-        self.assertEqual(len(datasets), 5, response.data)
+        self.assertEqual(len(set(sum(response.data.values(), []))), 5, response.data)
 
     def test_get_related_datasets_files_not_found(self):
         """
