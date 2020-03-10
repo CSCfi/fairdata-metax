@@ -287,37 +287,22 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.assertEqual(response.data['checksum']['algorithm'], 'MD5')
 
     def test_create_file_not_allowed_checksum_algorithm(self):
-        from django.db import transaction, IntegrityError
-        self.test_new_data['checksum']['algorithm'] = "sha2"
-        try:
-            with transaction.atomic():
-                response = self.client.post('/rest/files', self.test_new_data, format="json")
+        from django.db import transaction
 
+        for algo in ['sha2', 'sha256', 'sha-256']:
+            # run POST requests inside db transaction to ensure django testcase transactions
+            # work correctly. https://stackoverflow.com/a/23326971/1201945 this probably has
+            # somethind to do with the fact that POST requests to /rest/files do not normally
+            # execute inside a db transaction like all other requests to metax api do. see
+            # file_view.py for details.
+            #
+            # alternative for below would be to use optional query param ?dryrun=true, which
+            # causes the request to be executed inside a transaction too.
+            with transaction.atomic():
+                self.test_new_data['checksum']['algorithm'] = algo
+                response = self.client.post('/rest/files', self.test_new_data, format="json")
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
                 self.assertEqual('checksum_algorithm' in response.data, True)
-        except IntegrityError:
-            pass
-
-        self.test_new_data['checksum']['algorithm'] = "sha256"
-
-        try:
-            with transaction.atomic():
-                response = self.client.post('/rest/files', self.test_new_data, format="json")
-
-                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-                self.assertEqual('checksum_algorithm' in response.data, True)
-        except IntegrityError:
-            pass
-
-        self.test_new_data['checksum']['algorithm'] = "sha-256"
-        try:
-            with transaction.atomic():
-                response = self.client.post('/rest/files', self.test_new_data, format="json")
-
-                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-                self.assertEqual('checksum_algorithm' in response.data, True)
-        except IntegrityError:
-            pass
 
     #
     # create list operations
