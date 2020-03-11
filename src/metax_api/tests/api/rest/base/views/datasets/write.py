@@ -375,6 +375,28 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         response = self.client.delete('/rest/datasets/3')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.status_code)
 
+    ###
+    # Tests for saving drafts
+    ###
+
+    def test_service_users_can_save_draft_datasets(self):
+        ''' Drafts should be saved without preferred identifier '''
+        # test access as a service-user
+        self._use_http_authorization(method='basic', username='metax')
+
+        response = self.client.post('/rest/datasets?draft', self.cr_test_data, format="json")
+
+        pid = response.data['research_dataset']['preferred_identifier']
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue(pid == response.data['identifier'], response.data)
+        self.assertTrue('urn' not in pid, response.data)
+        self.assertTrue('doi' not in pid, response.data)
+        self.assertTrue(response.data['state'] == 'draft', response.data)
+
+        for queryparam in ('', '?draft=false'):
+            response = self.client.post('/rest/datasets{}'.format(queryparam), self.cr_test_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+            self.assertTrue(response.data['state'] == 'published', response.data)
 
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
