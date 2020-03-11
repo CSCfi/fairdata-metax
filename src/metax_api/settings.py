@@ -612,6 +612,6 @@ else:
     }
 
 if executing_in_travis:
-    DRAFT_ENABLED = 'DRAFT_ENABLED'
+    DRAFT_ENABLED = True
 else:
     DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)

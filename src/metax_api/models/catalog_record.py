@@ -996,12 +996,9 @@ class CatalogRecord(Common):
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
-    def state_is_draft(self, request):
+    def _save_as_draft(self, request):
         from metax_api.services import CommonService
-        if request.query_params.get('draft', None) is not None:
-            return bool(CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED)
-        else:
-            pass
+        return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
 
     def get_metadata_version_listing(self):
         entries = []
@@ -1055,6 +1052,9 @@ class CatalogRecord(Common):
                 self.data_catalog.catalog_record_services_create):
             raise Http403({ 'detail': [ 'You are not permitted to create datasets in this data catalog.' ]})
 
+        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+        self.identifier = generate_uuid_identifier()
+
         if self.catalog_is_pas():
             # todo: default identifier type could probably be a parameter of the data catalog
             pref_id_type = IdentifierType.DOI
@@ -1081,8 +1081,9 @@ class CatalogRecord(Common):
                 'Catalog %s is a legacy catalog - not generating pid'
                 % self.data_catalog.catalog_json['identifier']
             )
-        elif self.state_is_draft(self.request):
+        elif self._save_as_draft(self.request):
             self.state = self.STATE_DRAFT
+            self.research_dataset['preferred_identifier'] = self.identifier
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -1097,9 +1098,6 @@ class CatalogRecord(Common):
             else:
                 _logger.debug("Identifier type not specified in the request. Using URN identifier for pref id")
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
-
-        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
-        self.identifier = generate_uuid_identifier()
 
         if not self.metadata_owner_org:
             # field metadata_owner_org is optional, but must be set. in case it is omitted,
@@ -1119,10 +1117,6 @@ class CatalogRecord(Common):
             self.date_cumulation_started = self.date_created
 
     def _post_create_operations(self):
-        if self.catalog_versions_datasets():
-            dvs = DatasetVersionSet()
-            dvs.save()
-            dvs.records.add(self)
 
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
@@ -1139,7 +1133,15 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if not self.state_is_draft(self.request):
+        if self._save_as_draft(self.request):
+            # do nothing
+            pass
+        else:
+            if self.catalog_versions_datasets():
+                dvs = DatasetVersionSet()
+                dvs.save()
+                dvs.records.add(self)
+
             if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
                 self._validate_cr_against_datacite_schema()
                 self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
