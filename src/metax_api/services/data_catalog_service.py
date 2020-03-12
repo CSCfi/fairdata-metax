@@ -10,6 +10,7 @@ from collections import defaultdict
 from rest_framework.serializers import ValidationError
 
 from .reference_data_mixin import ReferenceDataMixin
+from metax_api.models import DataCatalog
 
 
 class DataCatalogService(ReferenceDataMixin):
@@ -74,3 +75,7 @@ class DataCatalogService(ReferenceDataMixin):
 
         if errors:
             raise ValidationError(errors)
+
+    @staticmethod
+    def is_harvested(data_catalog):
+        return getattr(DataCatalog.objects.get(id=data_catalog), 'catalog_json').get('harvested', False)
