@@ -208,6 +208,11 @@ else:
 VALIDATE_TOKEN_URL = 'https://127.0.0.1/secure/validate_token'
 
 if executing_in_test_case or executing_in_travis:
+    CHECKSUM_ALGORITHMS = ['SHA-256', 'MD5', 'SHA-512']
+else:
+    CHECKSUM_ALGORITHMS = app_config_dict['CHECKSUM_ALGORITHMS']
+
+if executing_in_test_case or executing_in_travis:
     ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
 else:
     # location to store information about exceptions occurred during api requests
