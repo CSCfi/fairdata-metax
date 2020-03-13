@@ -232,7 +232,7 @@ class FileService(CommonService, ReferenceDataMixin):
             """
 
         with connection.cursor() as cr:
-            cr.execute(sql_select_related_records, [(tuple(file_ids))])
+            cr.execute(sql_select_related_records, [tuple(file_ids)])
             if cr.rowcount == 0:
                 preferred_identifiers = []
                 _logger.info('No datasets found for files')
