@@ -1,8 +1,7 @@
-
 {
     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#",
     "title":"Metax Research Datasets",
-    "modified":"Fri, 17 Aug 2018 11:50:11 GMT",
+    "modified":"Wed, 11 Mar 2020 12:36:38 GMT",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "allOf":[
@@ -14,9 +13,9 @@
         "Activity":{
             "title":"Activity",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://www.w3.org/ns/prov#Activity",
             "description":"An activity is something that occurs over a period of time and acts upon or with entities; it may include consuming, processing, transforming, modifying, relocating, using, or generating entities.",
+            "minProperties":1,
             "properties":{
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -29,7 +28,7 @@
                 "description":{
                     "@id":"http://purl.org/dc/terms/description",
                     "title":"Description",
-                    "description":"The description of the activity",
+                    "description":"Generic description of the activity or the event",
                     "@type":"http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
                     "type":"object",
                     "$ref":"#/definitions/langString"
@@ -122,13 +121,14 @@
             "type":"object",
             "@id":"http://www.w3.org/ns/dcat#CatalogRecord",
             "description":"A record in a data catalog, describing a single dataset.",
+            "minProperties":1,
             "properties":{
                 "data_catalog":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#catalogidentifier",
                     "title":"Research data catalog",
                     "description":"Research Data Catalog identifier or embedded object to data_catalog property in embedded object.",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -137,7 +137,7 @@
                     "title":"Date Created",
                     "description":"Date of creation of the resource.",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -146,7 +146,7 @@
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -163,7 +163,7 @@
                     "title":"Contract",
                     "description":"Contract identifier or embedded contract object",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "preservation_state":{
@@ -172,14 +172,21 @@
                     "description":"state of dataset in PAS cycle: 0 = Not in PAS, 1 = Proposed for midtterm, 2 = Proposed for long term, 3, =in packaging service, 4 = in dissemination, 5 = in midterm preservation, 6 = in longterm preservation, 7 = Rejected long-term preservation, 8 = Rejected mid-term preservation",
                     "enum":[
                         "0",
-                        "1",
-                        "2",
-                        "3",
-                        "4",
-                        "5",
-                        "6",
-                        "7",
-                        "8"
+                        "10",
+                        "20",
+                        "30",
+                        "40",
+                        "50",
+                        "60",
+                        "70",
+                        "75",
+                        "80",
+                        "90",
+                        "100",
+                        "110",
+                        "120",
+                        "130",
+                        "140"
                     ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"
@@ -191,9 +198,7 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"array",
                     "items":{
-                        "minLength": 1,
-                        "type":"string",
-                        "minLength": 1
+                        "type":"string"
                     }
                 },
                 "preservation_description":{
@@ -201,7 +206,7 @@
                     "title":"Preservation system description",
                     "description":"Preservation status described for the user",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "preservation_reason_description":{
@@ -209,7 +214,7 @@
                     "title":"Preservation reason description",
                     "description":"Reason for the preservation from the user",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "preservation_state_modified":{
@@ -217,7 +222,7 @@
                     "title":"Preservation status modified",
                     "description":"Date when status was modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -228,10 +233,10 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#boolean",
                     "type":"boolean"
                 },
-                "alternate_record":{
+                "alternate_record_set":{
                     "@id":"http://www.w3.org/ns/prov#alternateOf",
-                    "title":"Alternate record",
-                    "description":"Refers to alternate catalog record in different catalog. This reference is created if two datasets in different catalogs have the same preferred identifier",
+                    "title":"Alternate records",
+                    "description":"Refers to alternate catalog records in different catalogs. This reference is created if two datasets in different catalogs have the same preferred identifier.",
                     "@type":"@id",
                     "type":"array",
                     "items":{
@@ -239,7 +244,7 @@
                         "$ref":"#/definitions/CatalogRecord"
                     }
                 },
-                "next":{
+                "next_dataset_version":{
                     "@id":"http://www.w3.org/ns/adms#next",
                     "title":"Next version",
                     "description":"A link to the next version of the catalog record",
@@ -260,7 +265,7 @@
                     "title":"Identifier",
                     "description":"Catalog record identifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -269,9 +274,16 @@
                     "title":"Preservation identifier",
                     "description":"PAS identifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
+                },
+                "previous_dataset_version":{
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#previous_dataset_version",
+                    "title":"Previous version",
+                    "@type":"@id",
+                    "type":"object",
+                    "$ref":"#/definitions/CatalogRecord"
                 }
             },
             "required":[
@@ -284,16 +296,16 @@
         "Concept":{
             "title":"Concept",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://www.w3.org/2004/02/skos/core#Concept",
             "description":"An idea or notion; a unit of thought.",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"This is the IRI identifier for the concept",
                     "@type":"@id",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -318,7 +330,7 @@
                     "title":"In scheme",
                     "description":"Relates a resource (for example a concept) to a concept scheme in which it is included.",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 }
@@ -329,23 +341,20 @@
             "additionalProperties": false
         },
         "Directory":{
-            "title":"Directory in IDA",
+            "title":"Directory in file storage",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://www.w3.org/ns/dcat#Distribution",
             "description":"Directory that links to its contained resources.",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Unique identifier for the distribution",
                     "@type":"@id",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
-                    "format":"uri",
-                    "example":[
-                        ""
-                    ]
+                    "format":"uri"
                 },
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -360,7 +369,7 @@
                     "title":"Description",
                     "description":"Free-text account of the file.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "use_category":{
@@ -382,16 +391,16 @@
         "Document":{
             "title":"Documented link",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://xmlns.com/foaf/0.1/Document",
             "description":"A documented link to a document in the Web.",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"URL",
                     "description":"URL of the homepage",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -414,15 +423,14 @@
             },
             "required":[
                 "identifier"
-            ],
-            "additionalProperties": false
+            ]
         },
         "Editor":{
             "title":"Editor",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://uri.suomi.fi/datamodel/ns/mrd#Editor",
-            "description":"Software or service that is used to modify the catalog record and the dataset",
+            "description":"Software or service that is used to modify the catalog record and the dataset.",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
@@ -432,6 +440,7 @@
                         "QVAIN"
                     ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "owner_id":{
@@ -439,7 +448,7 @@
                     "title":"Owner identifier",
                     "description":"owner of the resource",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "creator_id":{
@@ -447,7 +456,7 @@
                     "title":"Creator identifier",
                     "description":"creator of the resource",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "record_id":{
@@ -455,7 +464,7 @@
                     "title":"Record identifier",
                     "description":"local record identifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 }
             },
@@ -464,9 +473,9 @@
         "EntityRelation":{
             "title":"Entity relation",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://www.w3.org/ns/prov#EntityInfluence",
             "description":"Description of a the dataset influence upon any other kind of entity. In Metax RelationType is used from reference data: https://wiki.eduuni.fi/pages/viewpage.action?spaceKey=CSCMETAX&title=Reference+Data",
+            "minProperties":1,
             "properties":{
                 "entity":{
                     "@id":"http://www.w3.org/ns/prov#entity",
@@ -491,30 +500,27 @@
             "additionalProperties": false
         },
         "File":{
-            "title":"File in IDA",
+            "title":"File in file storage",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://www.w3.org/ns/dcat#Distribution",
-            "description":"File in IDA",
+            "description":"File in file storage",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Unique identifier for the distribution",
                     "@type":"@id",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
-                    "format":"uri",
-                    "example":[
-                        ""
-                    ]
+                    "format":"uri"
                 },
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
                     "title":"Title",
                     "description":"A name given to the file.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "description":{
@@ -522,7 +528,7 @@
                     "title":"Description",
                     "description":"Free-text account of the file.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "file_type":{
@@ -552,9 +558,9 @@
         "LinguisticSystem":{
             "title":"Linguistic System",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://purl.org/dc/terms/LinguisticSystem",
             "description":"Examples include written, spoken, sign, and computer languages.\n\nA system of signs, symbols, sounds, gestures, or rules used in communication.",
+            "minProperties":1,
             "properties":{
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -579,16 +585,16 @@
         "Location":{
             "title":"Location",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://purl.org/dc/terms/Location",
             "description":"A spatial region or named place.",
+            "minProperties":1,
             "properties":{
                 "geographic_name":{
                     "@id":"http://www.w3.org/ns/locn#geographicName",
                     "title":"Geographic name",
                     "description":"A geographic name is a proper noun applied to a spatial object. Taking the example used in the relevant INSPIRE data specification (page 18), the following are all valid geographic names for the Greek capital:\n- Αθήνα (the Greek endonym written in the Greek script)\n- Athína (the standard Romanisation of the endonym)\n- Athens (the English language exonym)\nFor INSPIRE-conformant data, provide the metadata for the geographic name using a skos:Concept as a datatype.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "alt":{
@@ -596,7 +602,7 @@
                     "title":"Altitude",
                     "description":"The WGS84 altitude of a SpatialThing (decimal meters \nabove the local reference ellipsoid).",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "full_address":{
@@ -604,7 +610,7 @@
                     "title":"Full address",
                     "description":"The complete address written as a string, with or without formatting.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "as_wkt":{
@@ -635,9 +641,9 @@
         "Organization":{
             "title":"Organization",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://xmlns.com/foaf/0.1/Organization",
             "description":"An organization.",
+            "minProperties":1,
             "properties":{
                 "@type":{
                     "type":"string",
@@ -648,7 +654,7 @@
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
                     "@type":"@id",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri",
                     "example":[
@@ -718,15 +724,15 @@
         "PeriodOfTime":{
             "title":"Period of Time",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://purl.org/dc/terms/PeriodOfTime",
             "description":"An interval of time that is named or defined by its start and end dates.",
+            "minProperties":1,
             "properties":{
                 "start_date":{
                     "@id":"http://schema.org/startDate",
                     "title":"Start of the pediod",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -734,7 +740,7 @@
                     "@id":"http://schema.org/endDate",
                     "title":"End of the period",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -743,18 +749,17 @@
                     "title":"Temporal coverage",
                     "description":"Period of time expressed as ISO 8601 compliant string",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 }
-            },
-            "additionalProperties": false
+            }
         },
         "Person":{
             "title":"Person",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://xmlns.com/foaf/0.1/Person",
             "description":"A person.",
+            "minProperties":1,
             "properties":{
                 "@type":{
                     "type":"string",
@@ -765,7 +770,7 @@
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
                     "@type":"@id",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri",
                     "example":[
@@ -777,7 +782,7 @@
                     "title":"Name",
                     "description":"This property contains a name of the agent. This property can be repeated for different versions of the name (e.g. the name in different languages)",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "email":{
@@ -785,9 +790,8 @@
                     "title":"Email",
                     "description":"Email address.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
-                    "type":"string",
-                    "format":"email"
+                    "minLength":1,
+                    "type":"string"
                 },
                 "telephone":{
                     "@id":"http://schema.org/telephone",
@@ -796,7 +800,6 @@
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"array",
                     "items":{
-                        "minLength": 1,
                         "type":"string"
                     }
                 },
@@ -848,9 +851,9 @@
         "Project":{
             "title":"Project",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://xmlns.com/foaf/0.1/Project",
             "description":"A project (a collective endeavour of some kind).",
+            "minProperties":1,
             "properties":{
                 "name":{
                     "@id":"http://xmlns.com/foaf/0.1/name",
@@ -865,7 +868,7 @@
                     "title":"Identifier",
                     "description":"Recommended best practice is to identify the resource by means of a string conforming to a formal identification system.  An unambiguous reference to the resource within a given context.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "has_funder_identifier":{
@@ -873,7 +876,7 @@
                     "title":"Project funding identifier",
                     "description":"Unique identifier for the project that is being used by the project funder",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "homepage":{
@@ -923,9 +926,9 @@
         "RelatedEntity":{
             "title":"Related Entity",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://www.w3.org/ns/prov#Entity",
             "description":"Related entity",
+            "minProperties":1,
             "properties":{
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -948,7 +951,7 @@
                     "title":"Identifier",
                     "description":"Recommended best practice is to identify the resource by means of a string conforming to a formal identification system.  An unambiguous reference to the resource within a given context.",
                     "@type":"@id",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -976,16 +979,16 @@
         "ResearchDataLicenseDocument":{
             "title":"License Document",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://purl.org/dc/terms/LicenseDocument",
             "description":"A legal document giving official permission to do something with a Resource.",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"License identifier from the reference data.",
                     "@type":"@id",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -1010,7 +1013,7 @@
                     "title":"Licence URL",
                     "description":"A referenced license document that applies to this content",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 }
@@ -1026,16 +1029,16 @@
         "ResearchDataset":{
             "title":"Research Dataset",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://www.w3.org/ns/dcat#Dataset",
             "description":"A collection of data, published or curated by a single source, and available for access or download in one or more formats",
+            "minProperties":1,
             "properties":{
                 "metadata_version_identifier":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#datasetidentifier",
                     "title":"Metadata version identifier",
                     "description":"Dataset metadata version identifier in form of http://urn.fi{URN}:version:{number}",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri",
                     "readOnly": true
@@ -1045,17 +1048,16 @@
                     "title":"Preferred identifier",
                     "description":"Unique identifier for the dataset. URN or URI.",
                     "@type":"@id",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
-                    "format":"uri",
-                    "readOnly": true
+                    "format":"uri"
                 },
                 "modified":{
                     "@id":"http://purl.org/dc/terms/modified",
                     "title":"Dataset modification date",
                     "description":"Last known time when a research dataset or metadata about the research dataset has been significantly modified. This field is usually modified by the user or harvested from other source.",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -1064,7 +1066,7 @@
                     "title":"Version",
                     "description":"This property contains a version number or other version designation of the Dataset.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "version_notes":{
@@ -1083,9 +1085,9 @@
                     "title":"Release date",
                     "description":"Date of formal issuance (e.g., publication) of the resource.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
-                    "format": "date"
+                    "format":"date"
                 },
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -1128,7 +1130,7 @@
                     "title":"Preferred Bibliographic Citation",
                     "description":"Preferred bibliographic reference for the resource.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "other_identifier":{
@@ -1333,8 +1335,8 @@
                     }
                 },
                 "total_files_byte_size":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#totalidabytesize",
-                    "title":"Total ida byte size",
+                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#totalfilesbytesize",
+                    "title":"Total files byte size",
                     "description":"Byte size sum of all Fairdata managed files. Read only field.",
                     "@type":"http://www.w3.org/2001/XMLSchema#integer",
                     "type":"integer",
@@ -1352,9 +1354,9 @@
         "RightsStatement":{
             "title":"Rights Statement",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://purl.org/dc/terms/RightsStatement",
             "description":"A statement about the intellectual property rights (IPR) held in or over a Resource, a legal document giving official permission to do something with a resource, or a statement about access rights.",
+            "minProperties":1,
             "properties":{
                 "description":{
                     "@id":"http://purl.org/dc/terms/description",
@@ -1369,9 +1371,9 @@
                     "title":"Date Available",
                     "description":"Date (often a range) that the resource became or will become available.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
-                    "format": "date"
+                    "format":"date"
                 },
                 "access_type":{
                     "@id":"http://purl.org/dc/terms/type",
@@ -1432,16 +1434,16 @@
         "StructuredIdentifier":{
             "title":"Identifier",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://www.w3.org/ns/adms#Identifier",
             "description":"Structured identifier",
+            "minProperties":1,
             "properties":{
                 "notation":{
                     "@id":"http://www.w3.org/2004/02/skos/core#notation",
                     "title":"Identifier value",
                     "description":"Literal value of the identifier",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "local_identifier_type":{
@@ -1449,7 +1451,7 @@
                     "title":"Local identifier type",
                     "description":"Local identifier type defines use of the identifier in given context.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string"
                 },
                 "provider":{
@@ -1477,9 +1479,9 @@
         "Variable":{
             "title":"Variable",
             "type":"object",
-            "minProperties": 1,
             "@id":"http://rdf-vocabulary.ddialliance.org/discovery#Variable",
             "description":"",
+            "minProperties":1,
             "properties":{
                 "pref_label":{
                     "@id":"http://www.w3.org/2004/02/skos/core#prefLabel",
@@ -1518,7 +1520,7 @@
                     "title":"Representation",
                     "description":"Defines reference to a Concept Scheme that includes the possible values of a variable.",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
-                    "minLength": 1,
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 }
