@@ -4806,6 +4806,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data.get('rems_identifier') is None, 'rems_identifier should not be returned to Anon')
 
+    @responses.activate
     def test_rems_identifier_cannot_be_changed(self):
         response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
