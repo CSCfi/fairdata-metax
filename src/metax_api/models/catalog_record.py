@@ -912,6 +912,7 @@ class CatalogRecord(Common):
                 REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='dataset deletion')
             )
             self.rems_identifier = None
+            super().save(update_fields=['rems_identifier'])
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
 
@@ -943,6 +944,7 @@ class CatalogRecord(Common):
                 REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='dataset deprecation')
             )
             self.rems_identifier = None
+            super().save(update_fields=['rems_identifier'])
 
         super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
@@ -1158,6 +1160,7 @@ class CatalogRecord(Common):
 
             if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
                 self._handle_rems_managed_access()
+                super().save(update_fields=['rems_identifier'])
 
             self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1481,7 +1484,8 @@ class CatalogRecord(Common):
 
     def _handle_rems_managed_access(self):
         """
-        Handles stuff before creating rems entity
+        Ensure that all necessary information is avaliable for REMS access
+        and save post request callable to create correspoding REMS entity.
         """
         self._validate_for_rems()
         user_info = self._get_user_info_for_rems()

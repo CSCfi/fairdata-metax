@@ -77,9 +77,6 @@ class REMSService():
         """
         rems_ci = self._get_catalogue_item(old_rems_id)
 
-        if rems_ci is None: # pragma: no cover
-            return
-
         self._close_applications(old_rems_id, reason)
 
         self._close_entity('catalogue-item',    rems_ci[0]['id'])
@@ -97,9 +94,6 @@ class REMSService():
 
         rems_ci = self._get_catalogue_item(old_rems_id)
 
-        if rems_ci is None: # pragma: no cover
-            return
-
         self._close_applications(old_rems_id, reason)
 
         self._close_entity('catalogue-item',    rems_ci[0]['id'])
@@ -116,9 +110,8 @@ class REMSService():
         )
 
         if len(rems_ci) < 1: # pragma: no cover
-            # this should not happen but do not block the metax dataset removal
-            _logger.error(f'Could not find catalogue-item for {rems_id} in REMS.')
-            return None
+            # this should not happen
+            raise REMSException(f'Could not find catalogue-item for {rems_id} in REMS.')
 
         return rems_ci
 

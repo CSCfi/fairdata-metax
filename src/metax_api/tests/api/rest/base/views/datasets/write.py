@@ -4805,3 +4805,15 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         response = self.client.get(f'/rest/datasets/{response.data["id"]}')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data.get('rems_identifier') is None, 'rems_identifier should not be returned to Anon')
+
+    def test_rems_identifier_cannot_be_changed(self):
+        response = self._create_new_rems_dataset()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+
+        cr['rems_identifier'] = 'some:new:identifier'
+
+        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertNotEqual(response.data['rems_identifier'], 'some:new:identifier', 'rems_id should not be changed')
