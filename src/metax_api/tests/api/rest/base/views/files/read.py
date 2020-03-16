@@ -196,7 +196,7 @@ class FileApiReadEndUserAccess(FileApiReadCommon):
         self.assertEqual(len(response.data), 0, 'should return 200 OK, but user projects has no files')
 
         # set user to same project as previous files and try again. should now succeed
-        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self.token['group_names'].append('IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
         response = self.client.get('/rest/files')

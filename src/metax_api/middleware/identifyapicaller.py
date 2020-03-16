@@ -185,11 +185,7 @@ class _IdentifyApiCaller():
             _logger.exception('Failed to extract token from id_token string')
             raise Http403
 
-        # todo temporary. eventually only CSCUsername will be supported
-        # (or make field configurable, but for now support both)
-        if token.get('sub', '').endswith('@fairdataid'):
-            request.user.username = token['sub']
-        elif len(token.get('CSCUserName', '')) > 0:
+        if len(token.get('CSCUserName', '')) > 0:
             request.user.username = token['CSCUserName']
         else:
             _logger.warning('id_token does not contain valid user id: fairdataid or cscusername')

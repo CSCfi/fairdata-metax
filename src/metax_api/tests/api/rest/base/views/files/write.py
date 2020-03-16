@@ -1273,7 +1273,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         '''
 
         # ensure user belongs to same project
-        self.token['group_names'].append('fairdata:IDA01:%s' % self.test_new_data['project_identifier'])
+        self.token['group_names'].append('IDA01:%s' % self.test_new_data['project_identifier'])
         self._use_http_authorization(method='bearer', token=self.token)
 
         response = self.client.post('/rest/files', self.test_new_data, format="json")
@@ -1286,7 +1286,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         '''
         # ensure user belongs to same project
         proj = File.objects.get(pk=1).project_identifier
-        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self.token['group_names'].append('IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
         response = self.client.get('/rest/files/1', format="json")
@@ -1344,7 +1344,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
 
         file = response.data['results'][0]
 
-        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self.token['group_names'].append('IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
         response = self.client.put('/rest/files/%s' % file['id'], file, format="json")
