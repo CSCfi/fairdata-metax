@@ -314,7 +314,7 @@ class CatalogRecord(Common):
         help_text='Stores data of REMS user who is currently granting access to this dataset')
 
     rems_identifier = models.CharField(max_length=200, null=True, default=None,
-        help_text='Defines corresponding item in REMS service')
+        help_text='Defines corresponding catalog item in REMS service')
 
     # END OF MODEL FIELD DEFINITIONS #
 
@@ -1005,6 +1005,10 @@ class CatalogRecord(Common):
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
+    def _save_as_draft(self, request):
+        from metax_api.services import CommonService
+        return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
+
     def get_metadata_version_listing(self):
         entries = []
         for entry in self.research_dataset_versions.all():
@@ -1057,6 +1061,9 @@ class CatalogRecord(Common):
                 self.data_catalog.catalog_record_services_create):
             raise Http403({ 'detail': [ 'You are not permitted to create datasets in this data catalog.' ]})
 
+        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+        self.identifier = generate_uuid_identifier()
+
         if self.catalog_is_pas():
             # todo: default identifier type could probably be a parameter of the data catalog
             pref_id_type = IdentifierType.DOI
@@ -1083,6 +1090,9 @@ class CatalogRecord(Common):
                 'Catalog %s is a legacy catalog - not generating pid'
                 % self.data_catalog.catalog_json['identifier']
             )
+        elif self._save_as_draft(self.request):
+            self.state = self.STATE_DRAFT
+            self.research_dataset['preferred_identifier'] = self.identifier
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -1097,9 +1107,6 @@ class CatalogRecord(Common):
             else:
                 _logger.debug("Identifier type not specified in the request. Using URN identifier for pref id")
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
-
-        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
-        self.identifier = generate_uuid_identifier()
 
         if not self.metadata_owner_org:
             # field metadata_owner_org is optional, but must be set. in case it is omitted,
@@ -1119,10 +1126,6 @@ class CatalogRecord(Common):
             self.date_cumulation_started = self.date_created
 
     def _post_create_operations(self):
-        if self.catalog_versions_datasets():
-            dvs = DatasetVersionSet()
-            dvs.save()
-            dvs.records.add(self)
 
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
@@ -1139,15 +1142,24 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-            self._validate_cr_against_datacite_schema()
-            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
-                                                             'create'))
+        if self._save_as_draft(self.request):
+            # do nothing
+            pass
+        else:
+            if self.catalog_versions_datasets():
+                dvs = DatasetVersionSet()
+                dvs.save()
+                dvs.records.add(self)
 
-        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self._handle_rems_managed_access()
+            if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
+                self._validate_cr_against_datacite_schema()
+                self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                                'create'))
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+            if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+                self._handle_rems_managed_access()
+
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
         _logger.info(
             'Created a new <CatalogRecord id: %d, '

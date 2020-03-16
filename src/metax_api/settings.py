@@ -208,6 +208,11 @@ else:
 VALIDATE_TOKEN_URL = 'https://127.0.0.1/secure/validate_token'
 
 if executing_in_test_case or executing_in_travis:
+    CHECKSUM_ALGORITHMS = ['SHA-256', 'MD5', 'SHA-512']
+else:
+    CHECKSUM_ALGORITHMS = app_config_dict['CHECKSUM_ALGORITHMS']
+
+if executing_in_test_case or executing_in_travis:
     ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
 else:
     # location to store information about exceptions occurred during api requests
@@ -610,3 +615,8 @@ else:
         'AUTO_APPROVER':        app_config_dict.get('REMS', {}).get('AUTO_APPROVER'),
         'FORM_ID':          int(app_config_dict.get('REMS', {}).get('FORM_ID')),
     }
+
+if executing_in_travis:
+    DRAFT_ENABLED = True
+else:
+    DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)

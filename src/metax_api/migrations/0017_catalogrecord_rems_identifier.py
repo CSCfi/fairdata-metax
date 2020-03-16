@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0015_auto_20200218_1607'),
+        ('metax_api', '0016_auto_20200310_1341'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='catalogrecord',
             name='rems_identifier',
-            field=models.CharField(default=None, help_text='Defines corresponding item in REMS service', max_length=200, null=True),
+            field=models.CharField(default=None, help_text='Defines corresponding catalog item in REMS service', max_length=200, null=True),
         ),
     ]

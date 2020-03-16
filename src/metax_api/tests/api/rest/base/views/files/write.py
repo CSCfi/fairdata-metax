@@ -51,7 +51,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
         from_test_data.update({
             "checksum": {
                 "value": "habeebit",
-                "algorithm": "sha2",
+                "algorithm": "SHA-256",
                 "checked": "2017-05-23T10:07:22.559656Z",
             },
             "file_name": "file_name_1",
@@ -267,6 +267,42 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
                          'The error should contain the name of the erroneous field')
         self.assertEqual('Json path:' in response.data['file_characteristics'][0], True,
                          'The error should contain the json path')
+
+    def test_create_file_allowed_checksum_algorithm(self):
+        self.test_new_data['checksum']['algorithm'] = 'SHA-512'
+
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['checksum']['algorithm'], 'SHA-512')
+
+        self.test_new_data['identifier'] = 'urn:nbn:fi:csc-md5'
+        self.test_new_data['file_path'] = '/md5/filepath/md5-filename'
+        self.test_new_data['file_name'] = 'md5-filename'
+        self.test_new_data['checksum']['algorithm'] = 'MD5'
+
+        response = self.client.post('/rest/files', self.test_new_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data['checksum']['algorithm'], 'MD5')
+
+    def test_create_file_not_allowed_checksum_algorithm(self):
+        from django.db import transaction
+
+        for algo in ['sha2', 'sha256', 'sha-256']:
+            # run POST requests inside db transaction to ensure django testcase transactions
+            # work correctly. https://stackoverflow.com/a/23326971/1201945 this probably has
+            # somethind to do with the fact that POST requests to /rest/files do not normally
+            # execute inside a db transaction like all other requests to metax api do. see
+            # file_view.py for details.
+            #
+            # alternative for below would be to use optional query param ?dryrun=true, which
+            # causes the request to be executed inside a transaction too.
+            with transaction.atomic():
+                self.test_new_data['checksum']['algorithm'] = algo
+                response = self.client.post('/rest/files', self.test_new_data, format="json")
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+                self.assertEqual('checksum_algorithm' in response.data, True)
 
     #
     # create list operations
