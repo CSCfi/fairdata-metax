@@ -3907,6 +3907,7 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
         self.dc.catalog_record_services_edit = 'external'
         self.dc.force_save()
 
+        self.cr_test_data['data_catalog'] = self.dc.catalog_json['identifier']
         del self.cr_test_data['research_dataset']['files']
         del self.cr_test_data['research_dataset']['total_files_byte_size']
 
@@ -3914,7 +3915,6 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
             password=django_settings.API_EXT_USER['password'])
 
     def test_external_service_can_add_catalog_record_to_own_catalog(self):
-        self.cr_test_data['data_catalog'] = EXT_CATALOG
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
 
@@ -3922,7 +3922,6 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], '123456')
 
     def test_external_service_can_update_catalog_record_in_own_catalog(self):
-        self.cr_test_data['data_catalog'] = EXT_CATALOG
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
 
@@ -3937,7 +3936,6 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], '654321')
 
     def test_external_service_can_delete_catalog_record_from_own_catalog(self):
-        self.cr_test_data['data_catalog'] = EXT_CATALOG
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
 
@@ -3951,6 +3949,7 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
     def test_external_service_can_not_add_catalog_record_to_other_catalog(self):
         dc = self._get_object_from_test_data('datacatalog', requested_index=1)
         self.cr_test_data['data_catalog'] = dc['catalog_json']['identifier']
+        self.cr_test_data['research_dataset']['preferred_identifier'] = 'temp-pid'
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
@@ -3964,6 +3963,22 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
         response = self.client.delete('/rest/datasets/1')
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_harvested_catalogs_must_have_preferred_identifier_create(self):
+        # create without preferred identifier
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('must have preferred identifier' in
+                response.data['research_dataset']['preferred_identifier'][0], True)
+
+        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('must have preferred identifier' in
+                response.data['research_dataset']['preferred_identifier'][0], True)
 
 
 @unittest.skipIf(django_settings.REMS['ENABLED'] is not True, 'Only run if REMS is enabled')

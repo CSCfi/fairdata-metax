@@ -13,7 +13,7 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord, DataCatalog, Directory, Contract, Common, File
-from metax_api.services import CatalogRecordService as CRS, CommonService
+from metax_api.services import CatalogRecordService as CRS, CommonService, DataCatalogService
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
 from .data_catalog_serializer import DataCatalogSerializer
@@ -150,7 +150,7 @@ class CatalogRecordSerializer(CommonSerializer):
     def create(self, validated_data):
         if self._migration_override_requested():
 
-            # any custom stuff before create that my be necessary for migration purposes
+            # any custom stuff before create that might be necessary for migration purposes
             pid = ''
             if validated_data['research_dataset'].get('preferred_identifier', False):
                 # store pid, since it will be overwritten during create otherwise
@@ -161,7 +161,6 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._migration_override_requested():
 
             # any custom stuff after create that my be necessary for migration purposes
-
             if pid:
                 # save original pid provided by the requestor
                 res.research_dataset['preferred_identifier'] = pid
@@ -373,6 +372,10 @@ class CatalogRecordSerializer(CommonSerializer):
 
         if self._operation_is_create:
             if not value.get('preferred_identifier', None):
+                if DataCatalogService.is_harvested(self.initial_data['data_catalog']):
+                    raise ValidationError({ 'preferred_identifier':
+                        ['harvested catalog record must have preferred identifier']})
+
                 # normally not present, but may be set by harvesters. if missing,
                 # use temporary value and remove after schema validation.
                 value['preferred_identifier'] = 'temp'
@@ -557,7 +560,7 @@ class CatalogRecordSerializer(CommonSerializer):
             elif isinstance(dc, dict):
                 return dc['identifier'] != self.instance.catalog_json['identifier']
             else: # pragma: no cover
-                raise ValidationError({ 'detail': ['cant figure out the type of data_catalog'] })
+                raise ValidationError({ 'detail': ['can not figure out the type of data_catalog'] })
 
     def _preferred_identifier_is_changed(self):
         """
