@@ -68,6 +68,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     raise Http400({ 'state': ['Value \'%s\' is not an integer' % val] })
             queryset_search_params['preservation_state__in'] = state_vals
 
+        if request.query_params.get('preservation_state', False):
+            state_vals = request.query_params['preservation_state'].split(',')
+            for val in state_vals:
+                try:
+                    int(val)
+                except ValueError:
+                    raise Http400({ 'preservation_state': ['Value \'%s\' is not an integer' % val] })
+            queryset_search_params['preservation_state__in'] = state_vals
+
         if CommonService.get_boolean_query_param(request, 'latest'):
             queryset_search_params['next_dataset_version_id'] = None
 
