@@ -175,7 +175,7 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
         self.test_new_data['file_characteristics']['file_format'] = self.ff_without_version['input_file_format']
         self.test_new_data['file_characteristics']['format_version'] = ''
         response = self.client.post('/rest/files', self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_file_format_version_with_valid_file_format_and_valid_file_version_1(self):
         self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
