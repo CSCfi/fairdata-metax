@@ -1,8 +1,7 @@
-
 {
     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#",
     "title":"Metax Data Storage Metadata",
-    "modified":"Thu, 08 Mar 2018 11:51:24 GMT",
+    "modified":"Wed, 11 Mar 2020 12:01:59 GMT",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "anyOf":[
@@ -17,12 +16,14 @@
             "type":"object",
             "@id":"http://spdx.org/rdf/terms#Checksum",
             "description":"Checksum of the file",
+            "minProperties":1,
             "properties":{
                 "value":{
                     "@id":"http://spdx.org/rdf/terms#checksumValue",
                     "title":"Checksum value",
                     "description":"Value of the checksum. xsd:hexBinary",
                     "@type":"http://www.w3.org/2001/XMLSchema#hexBinary",
+                    "minLength":1,
                     "type":"string"
                 },
                 "algorithm":{
@@ -34,6 +35,7 @@
                         "sha2"
                     ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "checked":{
@@ -41,6 +43,7 @@
                     "title":"Checksum checked",
                     "description":"Last time the file checksum is validated",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 }
@@ -57,22 +60,22 @@
             "type":"object",
             "@id":"http://uri.suomi.fi/datamodel/ns/mfs#Directory",
             "description":"Container for folders",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Local directory identifier",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "type":"string",
-                    "example":[
-                        ""
-                    ]
+                    "@type":"@id",
+                    "minLength":1,
+                    "type":"string"
                 },
                 "directory_name":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#fileName",
                     "title":"Directory name",
                     "description":"Directory name",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "directory_path":{
@@ -80,36 +83,13 @@
                     "title":"Directory Path",
                     "description":"Path to the directory",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
-                },
-                "directory_uploaded":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#dateUploaded",
-                    "title":"Date uploaded",
-                    "description":"date when data was uploaded",
-                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "type":"string",
-                    "format":"date-time"
                 },
                 "directory_modified":{
                     "@id":"http://purl.org/dc/terms/modified",
                     "title":"Date modified",
                     "description":"Date on which the resource was changed.",
-                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "type":"string",
-                    "format":"date-time"
-                },
-                "directory_frozen":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#datefrozen",
-                    "title":"Date frozen",
-                    "description":"date when the file is frozen",
-                    "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
-                    "type":"string",
-                    "format":"date-time"
-                },
-                "directory_deleted":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mfs#datedeleted",
-                    "title":"Date deleted",
-                    "description":"date when the frozen file was deleted",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
                     "type":"string",
                     "format":"date-time"
@@ -126,6 +106,7 @@
                     "title":"Project identifier",
                     "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "contains":{
@@ -155,23 +136,21 @@
                     "type":"object",
                     "$ref":"#/definitions/FileStorage"
                 },
-                "number_of_files":{
+                "file_count":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#numberOfFiles",
-                    "title":"Number of files",
+                    "title":"File count",
                     "description":"Number of files in adirectory",
                     "@type":"http://www.w3.org/2001/XMLSchema#integer",
                     "type":"integer"
                 }
             },
             "required":[
+                "file_count",
                 "identifier",
                 "byte_size",
                 "directory_path",
-                "directory_uploaded",
                 "directory_modified",
                 "file_storage",
-                "number_of_files",
-                "directory_frozen",
                 "directory_name",
                 "project_identifier"
             ],
@@ -182,12 +161,14 @@
             "type":"object",
             "@id":"http://www.w3.org/2000/01/rdf-schema#Resource",
             "description":"The class of File",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"A persistent identifier (PID) in urn: scheme",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -196,6 +177,7 @@
                     "title":"File name",
                     "description":"File name including the extension",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "file_path":{
@@ -203,6 +185,7 @@
                     "title":"File Path",
                     "description":"Path to the item as file: URI",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "file_uploaded":{
@@ -210,6 +193,7 @@
                     "title":"Date uploaded",
                     "description":"date when data was uploaded",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -218,6 +202,7 @@
                     "title":"Date modified",
                     "description":"Date on which the resource was changed.",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -226,6 +211,7 @@
                     "title":"Date frozen",
                     "description":"date when the file is frozen",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -234,6 +220,7 @@
                     "title":"Date deleted",
                     "description":"date when the frozen file was deleted",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -248,8 +235,9 @@
                 "file_format":{
                     "@id":"http://schema.org/fileFormat",
                     "title":"File format",
-                    "description":"File format, must usually IANA mediatype",
+                    "description":"File format, usually IANA mediatype/mimetype automatically detected from the file.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "byte_size":{
@@ -272,6 +260,7 @@
                     "title":"Project identifier",
                     "description":"Group that is used to restrict the access to the files. In IDA this is the same as Project identifier.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "checksum":{
@@ -317,12 +306,14 @@
             "type":"object",
             "@id":"http://www.loc.gov/premis/rdf/v1#ObjectCharacteristics",
             "description":"This class is used as extension point to additional file charasteristics",
+            "minProperties":1,
             "properties":{
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
                     "title":"Title",
                     "description":"A name given to the file",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "description":{
@@ -330,6 +321,7 @@
                     "title":"Description",
                     "description":"Free-text account of the distribution.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "encoding":{
@@ -337,19 +329,21 @@
                     "title":"Text encoding",
                     "description":"Used text encoding",
                     "enum":[
-                        "ISO-8859-15",
                         "UTF-8",
                         "UTF-16",
-                        "UTF-32"
+                        "UTF-32",
+                        "ISO-8859-15"
                     ],
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "file_format":{
                     "@id":"http://schema.org/fileFormat",
                     "title":"File format",
-                    "description":"File format, must usually IANA mediatype",
+                    "description":"Format of the file. Usually IANA mediatype but can be custom type defined by the user.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "format_version":{
@@ -364,6 +358,7 @@
                     "title":"Application name",
                     "description":"A designation for the name of the software program that created the object",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string",
                     "example":[
                         "MSWord"
@@ -374,6 +369,7 @@
                     "title":"File Created",
                     "description":"Original creation date of the file",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -382,6 +378,7 @@
                     "title":"Metadata Modified",
                     "description":"Date on which the File Charasteristics have been last updated",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minLength":1,
                     "type":"string",
                     "format":"date-time"
                 },
@@ -397,18 +394,21 @@
                     "title":"CSV delimiter",
                     "description":"",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "csv_record_separator":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#csv_record_separator",
                     "title":"CSV record separator",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "csv_quoting_char":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#csv_quoting_char",
                     "title":"CSV quoting char",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "csv_has_header":{
@@ -420,17 +420,26 @@
             },
             "additionalProperties": false
         },
+        "FileCharacteristicsExtension":{
+            "title":"File characteristics extension",
+            "type":"object",
+            "@id":"http://uri.suomi.fi/datamodel/ns/mfs#FileCharacteristicsExtension",
+            "description":"Arbitary extension to file characteristics",
+            "minProperties":1
+        },
         "FileStorage":{
             "title":"File storage",
             "type":"object",
             "@id":"http://uri.suomi.fi/datamodel/ns/mfs#FileStorage",
             "description":"File storage system",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Persistent identifier for the storage system",
-                    "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "@type":"@id",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -439,6 +448,7 @@
                     "title":"Title",
                     "description":"A name given to the resource.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "url":{
@@ -446,6 +456,7 @@
                     "title":"Access url",
                     "description":"URL of the storage system",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 }
