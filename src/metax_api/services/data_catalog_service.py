@@ -78,4 +78,4 @@ class DataCatalogService(ReferenceDataMixin):
 
     @staticmethod
     def is_harvested(data_catalog):
-        return getattr(DataCatalog.objects.get(id=data_catalog), 'catalog_json').get('harvested', False)
+        return DataCatalog.objects.get(id=data_catalog).catalog_json['harvested']
