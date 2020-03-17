@@ -17,8 +17,8 @@
                 },
                 "algorithm":{
                     "enum":[
-                        "md5",
-                        "sha2"
+                        "MD5",
+                        "SHA-256"
                     ],
                     "type":"string"
                 },
