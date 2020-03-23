@@ -1,9 +1,8 @@
-
 {
     "description":"This is a subset of https://tietomallit.suomi.fi/model/att that defines API to describe Research Data Catalogs in METAX",
     "@id":"http://uri.suomi.fi/datamodel/ns/mdc#",
     "title":"Metax Research Data Catalogs",
-    "modified":"Wed, 30 May 2018 07:39:45 GMT",
+    "modified":"Wed, 11 Mar 2020 11:53:03 GMT",
     "$schema":"http://json-schema.org/draft-04/schema#",
     "type":"object",
     "allOf":[
@@ -17,12 +16,14 @@
             "type":"object",
             "@id":"http://www.w3.org/ns/dcat#Catalog",
             "description":"A curated collection of metadata about datasets",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"Recommended best practice is to identify the resource by means of a string conforming to a formal identification system. \n\nAn unambiguous reference to the resource within a given context.",
                     "@type":"@id",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -39,6 +40,7 @@
                     "title":"Description",
                     "description":"A free-text account of the catalog",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "modified":{
@@ -46,16 +48,18 @@
                     "title":"Date Modified",
                     "description":"Date on which the Catalogue was last modified",
                     "@type":"http://www.w3.org/2001/XMLSchema#dateTime",
+                    "minLength":1,
                     "type":"string",
-                    "format": "date-time"
+                    "format":"date-time"
                 },
                 "issued":{
                     "@id":"http://purl.org/dc/terms/issued",
                     "title":"Date Issued",
                     "description":"Date of formal issuance (e.g., publication, release date) of the catalogue.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
+                    "minLength":1,
                     "type":"string",
-                    "format": "date"
+                    "format":"date"
                 },
                 "language":{
                     "@id":"http://purl.org/dc/terms/language",
@@ -122,6 +126,7 @@
                     "title":"Schema name",
                     "description":"Name of the schema used by the catalog records",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string"
                 },
                 "logo":{
@@ -129,6 +134,7 @@
                     "title":"Logo",
                     "description":"Small symbol that represents the organization",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -155,12 +161,14 @@
             "type":"object",
             "@id":"http://www.w3.org/2004/02/skos/core#Concept",
             "description":"An idea or notion; a unit of thought.",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"This is the IRI identifier for the concept",
                     "@type":"@id",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -183,12 +191,14 @@
             "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Document",
             "description":"Documented link",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"URL",
                     "description":"URL of the homepage",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -220,6 +230,7 @@
             "type":"object",
             "@id":"http://purl.org/dc/terms/LinguisticSystem",
             "description":"Examples include written, spoken, sign, and computer languages.\n\nA system of signs, symbols, sounds, gestures, or rules used in communication.",
+            "minProperties":1,
             "properties":{
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -237,6 +248,7 @@
                     "title":"Identifier",
                     "description":"Language identifier. URI from http://publications.europa.eu/mdr/authority/language/",
                     "@type":"@id",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 }
@@ -251,17 +263,16 @@
             "type":"object",
             "@id":"http://xmlns.com/foaf/0.1/Organization",
             "description":"Organization that distributes or publishes datasets",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
                     "@type":"@id",
+                    "minLength":1,
                     "type":"string",
-                    "format":"uri",
-                    "example":[
-                        ""
-                    ]
+                    "format":"uri"
                 },
                 "name":{
                     "@id":"http://xmlns.com/foaf/0.1/name",
@@ -276,6 +287,7 @@
                     "title":"Email",
                     "description":"Email address.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
+                    "minLength":1,
                     "type":"string",
                     "format":"email"
                 },
@@ -318,12 +330,14 @@
             "type":"object",
             "@id":"http://purl.org/dc/terms/LicenseDocument",
             "description":"A legal document giving official permission to do something with a Resource.",
+            "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
                     "description":"An unambiguous reference to the resource within a given context.",
                     "@type":"@id",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 },
@@ -348,6 +362,7 @@
                     "title":"Licence URL",
                     "description":"A referenced license document that applies to this content",
                     "@type":"http://www.w3.org/2001/XMLSchema#anyURI",
+                    "minLength":1,
                     "type":"string",
                     "format":"uri"
                 }
@@ -362,6 +377,7 @@
             "type":"object",
             "@id":"http://purl.org/dc/terms/RightsStatement",
             "description":"A statement about the intellectual property rights (IPR) held in or over a Resource, a legal document giving official permission to do something with a resource, or a statement about access rights.",
+            "minProperties":1,
             "properties":{
                 "description":{
                     "@id":"http://purl.org/dc/terms/description",
@@ -376,8 +392,9 @@
                     "title":"Date Available",
                     "description":"Date (often a range) that the resource became or will become available.",
                     "@type":"http://www.w3.org/2001/XMLSchema#date",
+                    "minLength":1,
                     "type":"string",
-                    "format": "date"
+                    "format":"date"
                 },
                 "access_type":{
                     "@id":"http://purl.org/dc/terms/type",

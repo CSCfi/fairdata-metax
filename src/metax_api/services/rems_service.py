@@ -71,30 +71,51 @@ class REMSService():
 
         self._create_catalogue_item(res_id, wf_id)
 
-    def close_rems_entity(self, cr, reason):
+    def close_rems_entity(self, old_rems_id, reason):
         """
         Closes all applications and archives and disables all related entities
         """
-        pref_id = cr.research_dataset['preferred_identifier']
-        title = cr.research_dataset['title'].get('en') or cr.research_dataset['title'].get('fi')
+        rems_ci = self._get_catalogue_item(old_rems_id)
 
-        rems_ci = self._get_rems(
-            'catalogue-item',
-            f'resource={pref_id}&archived=true&disabled=true'
-        )
-
-        if len(rems_ci) < 1:
-            # this should not happen but do not block the metax dataset removal
-            _logger.error(f'Could not find catalogue-item for {cr.identifier} in REMS.')
-            return
-
-        self._close_applications(title, pref_id, reason)
+        self._close_applications(old_rems_id, reason)
 
         self._close_entity('catalogue-item',    rems_ci[0]['id'])
         self._close_entity('workflow',          rems_ci[0]['wfid'])
         self._close_entity('resource',          rems_ci[0]['resource-id'])
 
-    def _close_applications(self, title, pref_id, reason):
+    def update_rems_entity(self, cr, old_rems_id, reason):
+        """
+        Archives and disables related catalogue_item and resource, closes all applications and
+        creates new resource and catalogue_item with correct license. cr contains new rems_identifier
+        and old identifier is given as parameter because dataset changed have been saved at this
+        point already.
+        """
+        self.cr = cr
+
+        rems_ci = self._get_catalogue_item(old_rems_id)
+
+        self._close_applications(old_rems_id, reason)
+
+        self._close_entity('catalogue-item',    rems_ci[0]['id'])
+        self._close_entity('resource',          rems_ci[0]['resource-id'])
+
+        license_id = self._create_license()
+        res_id = self._create_resource(license_id)
+        self._create_catalogue_item(res_id, rems_ci[0]['wfid'])
+
+    def _get_catalogue_item(self, rems_id):
+        rems_ci = self._get_rems(
+            'catalogue-item',
+            f'resource={rems_id}&archived=true&disabled=true'
+        )
+
+        if len(rems_ci) < 1: # pragma: no cover
+            # this should not happen
+            raise REMSException(f'Could not find catalogue-item for {rems_id} in REMS.')
+
+        return rems_ci
+
+    def _close_applications(self, rems_id, reason):
         """
         Get all applications that are related to dataset and close them.
         Application state determines which user (applicant or handler) can close the application.
@@ -103,7 +124,7 @@ class REMSService():
         # REMS only allows reporter_user to get all applications
         self.headers['x-rems-user-id'] = self.reporter_user
 
-        applications = self._get_rems('application', f'query=resource:\"{pref_id}\"')
+        applications = self._get_rems('application', f'query=resource:\"{rems_id}\"')
 
         for application in applications:
             if application['application/state'] in HANDLER_CLOSEABLE_APPLICATIONS:
@@ -172,7 +193,7 @@ class REMSService():
 
     def _create_resource(self, license_id):
         body = {
-            "resid": self.cr.research_dataset['preferred_identifier'],
+            "resid": self.cr.rems_identifier,
             "organization": self.cr.metadata_owner_org,
             "licenses": [license_id]
         }

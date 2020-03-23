@@ -28,7 +28,7 @@
     {
         "fields": {
             "byte_size": 100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -61,7 +61,7 @@
     {
         "fields": {
             "byte_size": 200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -94,7 +94,7 @@
     {
         "fields": {
             "byte_size": 300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -127,7 +127,7 @@
     {
         "fields": {
             "byte_size": 400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -160,7 +160,7 @@
     {
         "fields": {
             "byte_size": 500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -193,7 +193,7 @@
     {
         "fields": {
             "byte_size": 600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -226,7 +226,7 @@
     {
         "fields": {
             "byte_size": 700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -259,7 +259,7 @@
     {
         "fields": {
             "byte_size": 800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -292,7 +292,7 @@
     {
         "fields": {
             "byte_size": 900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -325,7 +325,7 @@
     {
         "fields": {
             "byte_size": 1000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -358,7 +358,7 @@
     {
         "fields": {
             "byte_size": 1100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -391,7 +391,7 @@
     {
         "fields": {
             "byte_size": 1200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -424,7 +424,7 @@
     {
         "fields": {
             "byte_size": 1300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -457,7 +457,7 @@
     {
         "fields": {
             "byte_size": 1400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -490,7 +490,7 @@
     {
         "fields": {
             "byte_size": 1500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -523,7 +523,7 @@
     {
         "fields": {
             "byte_size": 1600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -556,7 +556,7 @@
     {
         "fields": {
             "byte_size": 1700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -589,7 +589,7 @@
     {
         "fields": {
             "byte_size": 1800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -622,7 +622,7 @@
     {
         "fields": {
             "byte_size": 1900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -655,7 +655,7 @@
     {
         "fields": {
             "byte_size": 2000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -688,7 +688,7 @@
     {
         "fields": {
             "byte_size": 2100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -721,7 +721,7 @@
     {
         "fields": {
             "byte_size": 2200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -754,7 +754,7 @@
     {
         "fields": {
             "byte_size": 2300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -787,7 +787,7 @@
     {
         "fields": {
             "byte_size": 2400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -820,7 +820,7 @@
     {
         "fields": {
             "byte_size": 2500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -853,7 +853,7 @@
     {
         "fields": {
             "byte_size": 2600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -886,7 +886,7 @@
     {
         "fields": {
             "byte_size": 2700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -919,7 +919,7 @@
     {
         "fields": {
             "byte_size": 2800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -952,7 +952,7 @@
     {
         "fields": {
             "byte_size": 2900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -985,7 +985,7 @@
     {
         "fields": {
             "byte_size": 3000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1018,7 +1018,7 @@
     {
         "fields": {
             "byte_size": 3100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1051,7 +1051,7 @@
     {
         "fields": {
             "byte_size": 3200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1084,7 +1084,7 @@
     {
         "fields": {
             "byte_size": 3300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1117,7 +1117,7 @@
     {
         "fields": {
             "byte_size": 3400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1150,7 +1150,7 @@
     {
         "fields": {
             "byte_size": 3500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1183,7 +1183,7 @@
     {
         "fields": {
             "byte_size": 3600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1216,7 +1216,7 @@
     {
         "fields": {
             "byte_size": 3700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1249,7 +1249,7 @@
     {
         "fields": {
             "byte_size": 3800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1282,7 +1282,7 @@
     {
         "fields": {
             "byte_size": 3900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1315,7 +1315,7 @@
     {
         "fields": {
             "byte_size": 4000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1348,7 +1348,7 @@
     {
         "fields": {
             "byte_size": 4100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1381,7 +1381,7 @@
     {
         "fields": {
             "byte_size": 4200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1414,7 +1414,7 @@
     {
         "fields": {
             "byte_size": 4300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1447,7 +1447,7 @@
     {
         "fields": {
             "byte_size": 4400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1480,7 +1480,7 @@
     {
         "fields": {
             "byte_size": 4500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1513,7 +1513,7 @@
     {
         "fields": {
             "byte_size": 4600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1546,7 +1546,7 @@
     {
         "fields": {
             "byte_size": 4700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1579,7 +1579,7 @@
     {
         "fields": {
             "byte_size": 4800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1612,7 +1612,7 @@
     {
         "fields": {
             "byte_size": 4900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1645,7 +1645,7 @@
     {
         "fields": {
             "byte_size": 5000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1678,7 +1678,7 @@
     {
         "fields": {
             "byte_size": 5100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1711,7 +1711,7 @@
     {
         "fields": {
             "byte_size": 5200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1744,7 +1744,7 @@
     {
         "fields": {
             "byte_size": 5300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1777,7 +1777,7 @@
     {
         "fields": {
             "byte_size": 5400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1810,7 +1810,7 @@
     {
         "fields": {
             "byte_size": 5500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1843,7 +1843,7 @@
     {
         "fields": {
             "byte_size": 5600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1876,7 +1876,7 @@
     {
         "fields": {
             "byte_size": 5700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1909,7 +1909,7 @@
     {
         "fields": {
             "byte_size": 5800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1942,7 +1942,7 @@
     {
         "fields": {
             "byte_size": 5900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -1975,7 +1975,7 @@
     {
         "fields": {
             "byte_size": 6000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2008,7 +2008,7 @@
     {
         "fields": {
             "byte_size": 6100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2041,7 +2041,7 @@
     {
         "fields": {
             "byte_size": 6200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2074,7 +2074,7 @@
     {
         "fields": {
             "byte_size": 6300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2107,7 +2107,7 @@
     {
         "fields": {
             "byte_size": 6400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2140,7 +2140,7 @@
     {
         "fields": {
             "byte_size": 6500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2173,7 +2173,7 @@
     {
         "fields": {
             "byte_size": 6600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2206,7 +2206,7 @@
     {
         "fields": {
             "byte_size": 6700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2239,7 +2239,7 @@
     {
         "fields": {
             "byte_size": 6800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2272,7 +2272,7 @@
     {
         "fields": {
             "byte_size": 6900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2305,7 +2305,7 @@
     {
         "fields": {
             "byte_size": 7000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2338,7 +2338,7 @@
     {
         "fields": {
             "byte_size": 7100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2371,7 +2371,7 @@
     {
         "fields": {
             "byte_size": 7200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2404,7 +2404,7 @@
     {
         "fields": {
             "byte_size": 7300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2437,7 +2437,7 @@
     {
         "fields": {
             "byte_size": 7400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2470,7 +2470,7 @@
     {
         "fields": {
             "byte_size": 7500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2503,7 +2503,7 @@
     {
         "fields": {
             "byte_size": 7600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2536,7 +2536,7 @@
     {
         "fields": {
             "byte_size": 7700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2569,7 +2569,7 @@
     {
         "fields": {
             "byte_size": 7800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2602,7 +2602,7 @@
     {
         "fields": {
             "byte_size": 7900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2635,7 +2635,7 @@
     {
         "fields": {
             "byte_size": 8000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2668,7 +2668,7 @@
     {
         "fields": {
             "byte_size": 8100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2701,7 +2701,7 @@
     {
         "fields": {
             "byte_size": 8200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2734,7 +2734,7 @@
     {
         "fields": {
             "byte_size": 8300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2767,7 +2767,7 @@
     {
         "fields": {
             "byte_size": 8400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2800,7 +2800,7 @@
     {
         "fields": {
             "byte_size": 8500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2833,7 +2833,7 @@
     {
         "fields": {
             "byte_size": 8600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2866,7 +2866,7 @@
     {
         "fields": {
             "byte_size": 8700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2899,7 +2899,7 @@
     {
         "fields": {
             "byte_size": 8800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2932,7 +2932,7 @@
     {
         "fields": {
             "byte_size": 8900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2965,7 +2965,7 @@
     {
         "fields": {
             "byte_size": 9000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -2998,7 +2998,7 @@
     {
         "fields": {
             "byte_size": 9100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3031,7 +3031,7 @@
     {
         "fields": {
             "byte_size": 9200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3064,7 +3064,7 @@
     {
         "fields": {
             "byte_size": 9300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3097,7 +3097,7 @@
     {
         "fields": {
             "byte_size": 9400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3130,7 +3130,7 @@
     {
         "fields": {
             "byte_size": 9500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3163,7 +3163,7 @@
     {
         "fields": {
             "byte_size": 9600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3196,7 +3196,7 @@
     {
         "fields": {
             "byte_size": 9700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3229,7 +3229,7 @@
     {
         "fields": {
             "byte_size": 9800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3262,7 +3262,7 @@
     {
         "fields": {
             "byte_size": 9900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3295,7 +3295,7 @@
     {
         "fields": {
             "byte_size": 10000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3328,7 +3328,7 @@
     {
         "fields": {
             "byte_size": 10100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3361,7 +3361,7 @@
     {
         "fields": {
             "byte_size": 10200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3394,7 +3394,7 @@
     {
         "fields": {
             "byte_size": 10300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3427,7 +3427,7 @@
     {
         "fields": {
             "byte_size": 10400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3460,7 +3460,7 @@
     {
         "fields": {
             "byte_size": 10500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3493,7 +3493,7 @@
     {
         "fields": {
             "byte_size": 10600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3526,7 +3526,7 @@
     {
         "fields": {
             "byte_size": 10700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3559,7 +3559,7 @@
     {
         "fields": {
             "byte_size": 10800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3592,7 +3592,7 @@
     {
         "fields": {
             "byte_size": 10900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3625,7 +3625,7 @@
     {
         "fields": {
             "byte_size": 11000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3658,7 +3658,7 @@
     {
         "fields": {
             "byte_size": 11100,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3691,7 +3691,7 @@
     {
         "fields": {
             "byte_size": 11200,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3724,7 +3724,7 @@
     {
         "fields": {
             "byte_size": 11300,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3757,7 +3757,7 @@
     {
         "fields": {
             "byte_size": 11400,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3790,7 +3790,7 @@
     {
         "fields": {
             "byte_size": 11500,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3823,7 +3823,7 @@
     {
         "fields": {
             "byte_size": 11600,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3856,7 +3856,7 @@
     {
         "fields": {
             "byte_size": 11700,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3889,7 +3889,7 @@
     {
         "fields": {
             "byte_size": 11800,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3922,7 +3922,7 @@
     {
         "fields": {
             "byte_size": 11900,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -3955,7 +3955,7 @@
     {
         "fields": {
             "byte_size": 12000,
-            "checksum_algorithm": "sha2",
+            "checksum_algorithm": "SHA-256",
             "checksum_checked": "2017-06-23T14:41:59Z",
             "checksum_value": "habeebit",
             "date_created": "2017-05-23T10:07:22Z",
@@ -4523,6 +4523,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4636,6 +4638,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4749,6 +4753,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4862,6 +4868,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -4975,6 +4983,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5088,6 +5098,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5201,6 +5213,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"
@@ -5314,6 +5328,8 @@
                     "fi": "Testidatakatalogin nimi"
                 }
             },
+            "catalog_record_services_create": "testuser,api_auth_user,metax",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax",
             "date_created": "2017-05-15T10:07:22Z",
             "date_modified": "2017-06-15T10:07:22Z",
             "service_created": "metax"

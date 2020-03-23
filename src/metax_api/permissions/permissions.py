@@ -146,7 +146,11 @@ class MetaxAPIPermissions(BasePermission):
         return has_perm
 
     def has_object_permission(self, request, view, obj):
-        raise NotImplementedError
+        has_perm = obj.user_has_access(request)
+
+        if not has_perm:
+            self.message = 'You are not permitted to access this resource.'
+        return has_perm
 
 
 class EndUserPermissions(MetaxAPIPermissions):
@@ -163,15 +167,6 @@ class EndUserPermissions(MetaxAPIPermissions):
 
     def _check_user_rpc_perms(self, request, api_name, rpc_method_name):
         return 'endusers' in self.perms['rpc'][api_name][rpc_method_name]['use']
-
-    def has_object_permission(self, request, view, obj):
-        """
-        For end users, check permission according to object and operation.
-        """
-        has_perm = obj.user_has_access(request)
-        if not has_perm:
-            self.message = 'You are not permitted to access this resource.'
-        return has_perm
 
 
 class ServicePermissions(MetaxAPIPermissions):
@@ -195,9 +190,3 @@ class ServicePermissions(MetaxAPIPermissions):
 
     def _check_user_rpc_perms(self, request, api_name, rpc_method_name):
         return request.user.username in self.perms['rpc'][api_name][rpc_method_name]['use']
-
-    def has_object_permission(self, request, view, obj):
-        """
-        For service users, always returns True, since it is assumed they know what they are doing.
-        """
-        return True

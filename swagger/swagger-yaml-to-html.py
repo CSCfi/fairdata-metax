@@ -2,7 +2,11 @@
 """
 Usage:
 
-    python swagger-yaml-to-html.py < /path/to/api.yaml > doc.html
+python swagger-yaml-to-html.py < swagger.yaml > index.html
+
+Note: The index.html file does not need to be manually updated in the repository. There is an ansible role in
+metax-ops/ansible/roles/docs, which automatically generates the index.html swagger page. For development it may
+be useful to manully run the above script
 
 Credits:
 
@@ -77,5 +81,5 @@ window.onload = function() {
 </html>
 """
 
-spec = yaml.load(sys.stdin)
+spec = yaml.load(sys.stdin, Loader=yaml.FullLoader)
 sys.stdout.write(TEMPLATE % json.dumps(spec))

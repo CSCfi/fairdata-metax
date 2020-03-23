@@ -65,10 +65,16 @@ if executing_in_test_case or executing_in_travis:
         'password': 'password'
     }
 
+    API_EXT_USER = {
+        'username': 'external',
+        'password': 'externalpassword'
+    }
+
     API_TEST_USERS = [
         API_TEST_USER,
         API_METAX_USER,
         API_AUTH_TEST_USER,
+        API_EXT_USER
     ]
 
     API_ACCESS = {
@@ -93,9 +99,9 @@ if executing_in_test_case or executing_in_travis:
             },
             "datasets":     {
                 "read": ["all"],
-                "create": ["testuser", "metax", "api_auth_user", "endusers"],
-                "update": ["testuser", "metax", "api_auth_user", "endusers"],
-                "delete": ["testuser", "metax", "api_auth_user", "endusers"]
+                "create": ["testuser", "metax", "api_auth_user", "endusers", "external"],
+                "update": ["testuser", "metax", "api_auth_user", "endusers", "external"],
+                "delete": ["testuser", "metax", "api_auth_user", "endusers", "external"]
             },
             "directories":  {
                 "read": ["testuser", "metax", "endusers"],
@@ -170,6 +176,8 @@ if executing_in_test_case or executing_in_travis:
     ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
     PAS_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-pas"
     LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
+    EXT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ext"
+
 else:
     IDA_DATA_CATALOG_IDENTIFIER = app_config_dict['IDA_DATACATALOG_IDENTIFIER']
     ATT_DATA_CATALOG_IDENTIFIER = app_config_dict['ATT_DATACATALOG_IDENTIFIER']
@@ -198,6 +206,11 @@ else:
 
 # endpoint in localhost where bearer tokens should be sent for validation
 VALIDATE_TOKEN_URL = 'https://127.0.0.1/secure/validate_token'
+
+if executing_in_test_case or executing_in_travis:
+    CHECKSUM_ALGORITHMS = ['SHA-256', 'MD5', 'SHA-512']
+else:
+    CHECKSUM_ALGORITHMS = app_config_dict['CHECKSUM_ALGORITHMS']
 
 if executing_in_test_case or executing_in_travis:
     ERROR_FILES_PATH = '/tmp/metax-api-tests/errors'
@@ -594,7 +607,7 @@ if executing_in_travis:
 else:
     REMS = {
         'ENABLED':              app_config_dict.get('REMS', {}).get('ENABLED'),
-        'API_KEY':              app_config_dict.get('REMS', {}).get('API_KEY'),
+        'API_KEY':          str(app_config_dict.get('REMS', {}).get('API_KEY')),
         'BASE_URL':             app_config_dict.get('REMS', {}).get('BASE_URL'),
         'ETSIN_URL_TEMPLATE':   app_config_dict.get('REMS', {}).get('ETSIN_URL_TEMPLATE'),
         'METAX_USER':           app_config_dict.get('REMS', {}).get('METAX_USER'),
@@ -602,3 +615,8 @@ else:
         'AUTO_APPROVER':        app_config_dict.get('REMS', {}).get('AUTO_APPROVER'),
         'FORM_ID':          int(app_config_dict.get('REMS', {}).get('FORM_ID')),
     }
+
+if executing_in_test_case or executing_in_travis:
+    DRAFT_ENABLED = True
+else:
+    DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)

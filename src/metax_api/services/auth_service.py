@@ -48,30 +48,21 @@ class AuthService():
         ida projects, is expected to contain a claim that looks like the following:
 
         "group_names": [
-            "fairdata:IDA01",
-            "fairdata:TAITO01",
-            "fairdata:TAITO01:1234567",
-            "fairdata:IDA01:2001036"
+            "CPOUTA01:2000123"
+            "TAITO01:2000124",
+            "IDA01:2001125",
+            "IDA01:2001126",
+            "IDA01:2001127"
         ]
 
-        Of these, only the groups that look like the last line are interesting:
-        - Consists of three parts, separated by a ':' character
-        - Middle part (some sort of namespace) is 'IDA01' (it may be interesting
-          to parameterize this part in settings.py in the future)
-        - Third part is the actual project identifier, as it appears in file metadata
-          field 'project_identifier'.
-
-        As a temporary solution, support also an alternative representation of group names,
-        where valid group names look like: IDA01:2001036. This kind of group names are to
-        be expected when the key CSCUserName is present in the authentication token.
-        Eventually, only this form of group names will be supported (and configurable... proabably).
+        Valid group names for IDA projects look like: IDA01:2001036.
         '''
         if not token:
             return set()
 
         user_projects = set()
 
-        project_prefix = 'fairdata:IDA01:' if token.get('sub', '').endswith('@fairdataid') else 'IDA01:'
+        project_prefix = 'IDA01:'
 
         user_projects = set(
             group.split(':')[-1]
@@ -130,5 +121,22 @@ class AuthService():
         for proj in user_projects:
             if proj in group_list:
                 return True
+
+        return False
+
+    @classmethod
+    def check_services_against_allowed_services(cls, request, service_list):
+        """
+        Get username of authenticating service
+        and check it against the given list of services.
+
+        Return True if there is a match, otherwise False.
+        """
+        assert request.user.username is not None, 'request.user.username is None'
+
+        authenticated_service = request.user.username
+
+        if authenticated_service in service_list:
+            return True
 
         return False
