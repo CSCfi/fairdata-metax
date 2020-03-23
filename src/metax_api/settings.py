@@ -607,7 +607,7 @@ if executing_in_travis:
 else:
     REMS = {
         'ENABLED':              app_config_dict.get('REMS', {}).get('ENABLED'),
-        'API_KEY':              app_config_dict.get('REMS', {}).get('API_KEY'),
+        'API_KEY':          str(app_config_dict.get('REMS', {}).get('API_KEY')),
         'BASE_URL':             app_config_dict.get('REMS', {}).get('BASE_URL'),
         'ETSIN_URL_TEMPLATE':   app_config_dict.get('REMS', {}).get('ETSIN_URL_TEMPLATE'),
         'METAX_USER':           app_config_dict.get('REMS', {}).get('METAX_USER'),

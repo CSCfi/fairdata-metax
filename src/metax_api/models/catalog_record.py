@@ -313,6 +313,9 @@ class CatalogRecord(Common):
     _access_granter = JSONField(null=True, default=None,
         help_text='Stores data of REMS user who is currently granting access to this dataset')
 
+    rems_identifier = models.CharField(max_length=200, null=True, default=None,
+        help_text='Defines corresponding catalog item in REMS service')
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """
@@ -905,7 +908,11 @@ class CatalogRecord(Common):
                                                              'delete'))
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self.add_post_request_callable(REMSUpdate(self, 'close', reason='deletion'))
+            self.add_post_request_callable(
+                REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='dataset deletion')
+            )
+            self.rems_identifier = None
+            super().save(update_fields=['rems_identifier'])
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
 
@@ -933,7 +940,11 @@ class CatalogRecord(Common):
         self.date_deprecated = self.date_modified = timestamp or get_tz_aware_now_without_micros()
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self.add_post_request_callable(REMSUpdate(self, 'close', reason='deprecation'))
+            self.add_post_request_callable(
+                REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='dataset deprecation')
+            )
+            self.rems_identifier = None
+            super().save(update_fields=['rems_identifier'])
 
         super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
@@ -1148,10 +1159,8 @@ class CatalogRecord(Common):
                                                                 'create'))
 
             if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-                self._validate_for_rems()
-                user_info = self._get_user_info_for_rems()
-                self._access_granter = user_info
-                self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+                self._handle_rems_managed_access()
+                super().save(update_fields=['rems_identifier'])
 
             self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1243,15 +1252,29 @@ class CatalogRecord(Common):
             # read-only after creating
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
-        if self._dataset_rems_access_changed() and settings.REMS['ENABLED']:
-            if self._dataset_has_rems_managed_access():
-                self._validate_for_rems()
-                user_info = self._get_user_info_for_rems()
-                self._access_granter = user_info
-                self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+        if settings.REMS['ENABLED']:
+            if self._dataset_rems_changed():
+                if self._dataset_rems_access_type_changed():
+                    if self._dataset_has_rems_managed_access():
+                        self._handle_rems_managed_access()
+                    else:
+                        self.add_post_request_callable(
+                            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='access type change')
+                        )
+                        self.rems_identifier = None
 
-            else:
-                self.add_post_request_callable(REMSUpdate(self, 'close', reason='access type change'))
+                elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
+                    if self._dataset_has_license():
+                        self.add_post_request_callable(
+                            REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
+                        )
+                        self.rems_identifier = generate_uuid_identifier()
+
+                    else:
+                        self.add_post_request_callable(
+                            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='license deletion')
+                        )
+                        self.rems_identifier = None
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -1459,17 +1482,51 @@ class CatalogRecord(Common):
         # creating a new dataset version already occurred once
         return not metadata_versions_with_files_exist
 
+    def _handle_rems_managed_access(self):
+        """
+        Ensure that all necessary information is avaliable for REMS access
+        and save post request callable to create correspoding REMS entity.
+        """
+        self._validate_for_rems()
+        user_info = self._get_user_info_for_rems()
+        self._access_granter = user_info
+        self.rems_identifier = generate_uuid_identifier()
+        self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+
     def _dataset_has_rems_managed_access(self):
         """
         Check if dataset uses REMS for managing access.
         """
         return self.catalog_is_ida() and self._access_type_is_permit()
 
-    def _dataset_rems_access_changed(self):
+    def _dataset_rems_access_type_changed(self):
+        """
+        Check if access type has changed so that REMS needs updating
+        """
+        return self._access_type_is_permit() != self._access_type_was_permit()
+
+    def _dataset_rems_changed(self):
         """
         Check if dataset is updated so that REMS needs to be updated.
         """
-        return self.catalog_is_ida() and self._access_type_is_permit() != self._access_type_was_permit()
+        return self.catalog_is_ida() and (self._dataset_rems_access_type_changed() or self._dataset_license_changed())
+
+    def _dataset_has_license(self):
+        """
+        Check if dataset has license defined
+        """
+        from metax_api.services import CatalogRecordService as CRS
+
+        return bool(CRS.get_research_dataset_license_url(self.research_dataset))
+
+    def _dataset_license_changed(self):
+        """
+        Check if datasets license is changed. Only consider the first license in the license list
+        """
+        from metax_api.services import CatalogRecordService as CRS
+
+        return CRS.get_research_dataset_license_url(self.research_dataset) != \
+            CRS.get_research_dataset_license_url(self._initial_data['research_dataset'])
 
     def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
@@ -2451,19 +2508,24 @@ class REMSUpdate():
     Handles managing REMS resources when creating, updating and deleting datasets.
     """
 
-    def __init__(self, cr, action, user_info={}, reason=''):
-        # user_info is used on creation, reason on close
+    def __init__(self, cr, action, **kwargs):
         from metax_api.services.rems_service import REMSService
         assert action in ('close', 'create', 'update'), 'invalid value for action'
         self.cr = cr
-        self.user_info = user_info
-        self.reason = reason
+        self.user_info = kwargs.get('user_info')
+        self.reason = kwargs.get('reason')
+        self.rems_id = kwargs.get('rems_id')
+
         self.action = action
         self.rems = REMSService()
 
     def __call__(self):
         """
         The actual code that gets executed during CommonService.run_post_request_callables().
+
+        rems_id is needed when rems entities are closed because saving operations have been done
+        before this method is called. This is why the rems_id is saved to REMSUpdate so that
+        it can be changed before saving and rems_service still knows what the resource identifier is.
         """
         _logger.info(
             'Publishing CatalogRecord %s update to REMS... action: %s'
@@ -2473,8 +2535,10 @@ class REMSUpdate():
         try:
             if self.action == 'create':
                 self.rems.create_rems_entity(self.cr, self.user_info)
-            if self.action == 'close':
-                self.rems.close_rems_entity(self.cr, self.reason)
+            elif self.action == 'close':
+                self.rems.close_rems_entity(self.rems_id, self.reason)
+            elif self.action == 'update':
+                self.rems.update_rems_entity(self.cr, self.rems_id, self.reason)
 
         except Exception as e:
             _logger.error(e)

@@ -81,7 +81,8 @@ class CatalogRecordSerializer(CommonSerializer):
             'cumulative_state',
             'date_cumulation_started',
             'date_cumulation_ended',
-            'date_last_cumulative_addition'
+            'date_last_cumulative_addition',
+            'rems_identifier'
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -122,6 +123,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('preservation_identifier', None)
         self.initial_data.pop('preservation_dataset_version', None)
         self.initial_data.pop('preservation_dataset_origin_version', None)
+        self.initial_data.pop('rems_identifier', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
@@ -298,6 +300,9 @@ class CatalogRecordSerializer(CommonSerializer):
             if not instance.user_is_privileged(self.context['request']):
                 res['research_dataset'] = CRS.check_and_remove_metadata_based_on_access_type(
                     CRS.remove_contact_info_metadata(res['research_dataset']))
+
+                res.pop('rems_identifier', None)
+
         return res
 
     def _populate_dir_titles(self, ds):
