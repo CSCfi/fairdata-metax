@@ -27,8 +27,8 @@ class DataCatalogService(ReferenceDataMixin):
 
         - uri (usually to object's field 'identifier')
         - label (usually to object's field 'pref_label')
-
         """
+
         reference_data = cls.get_reference_data(cache)
         refdata = reference_data['reference_data']
         orgdata = reference_data['organization_data']

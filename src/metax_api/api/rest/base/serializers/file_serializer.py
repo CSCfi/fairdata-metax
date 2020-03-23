@@ -167,8 +167,8 @@ class FileSerializer(CommonSerializer):
         """
 
         if value not in CHECKSUM_ALGORITHMS:
-            raise ValidationError('file checksum_algorithm {} is not acceptable. Checksum algorithm sould be one of {}.'
-                .format(value, CHECKSUM_ALGORITHMS))
+            raise ValidationError('file checksum_algorithm should be one of {}, now {}'
+                .format(CHECKSUM_ALGORITHMS, value))
 
         return value
 
