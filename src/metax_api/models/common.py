@@ -100,6 +100,8 @@ class Common(models.Model):
         Inheriting objects should override to check permission by checking project affiliation,
         group membership, etc...
         """
+        if request.user.is_service:
+            return True
         return False
 
     def modified_since(self, timestamp):

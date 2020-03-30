@@ -238,12 +238,11 @@ class ApiWriteAtomicBulkOperations(CatalogRecordApiWriteCommon):
         record_count_before = CatalogRecord.objects.all().count()
 
         response = self.client.post('/rest/datasets?atomic=true', [cr, cr2, cr3], format="json")
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.content)
-        self.assertEqual(len(response.data['success']) == 0, True)
-        self.assertEqual(len(response.data['failed']) == 1, True)
-        self.assertEqual('detail' in response.data, True)
-        self.assertEqual('atomic' in response.data['detail'][0], True)
+        self.assertEqual(len(response.data['success']) == 0, True, response.data)
+        self.assertEqual(len(response.data['failed']) == 1, True, response.data)
+        self.assertEqual('detail' in response.data, True, response.data)
+        self.assertEqual('atomic' in response.data['detail'][0], True, response.data)
         self.assertEqual(record_count_before, CatalogRecord.objects.all().count(), 'shouldnt create new records')
 
     def test_atomic_update(self):

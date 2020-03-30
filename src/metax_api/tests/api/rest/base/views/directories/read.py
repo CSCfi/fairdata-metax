@@ -551,7 +551,7 @@ class DirectoryApiReadEndUserAccess(DirectoryApiReadCommon):
 
     def _update_token_with_project_of_directory(self, dir_id):
         proj = Directory.objects.get(pk=dir_id).project_identifier
-        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self.token['group_names'].append('IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
     @responses.activate

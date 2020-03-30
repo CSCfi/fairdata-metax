@@ -36,20 +36,16 @@ def get_json_schema(model_name):
     with open(path.dirname(path.realpath(__file__)) + '/../api/rest/base/schemas/%s_schema.json' % model_name) as f:
         return json_load(f)
 
+
 def get_test_oidc_token(new_proxy=False):
-    token = {
-        "sub": "testuser123456@fairdataid",
-        "linkedIds": [
-            "testuser123456@fairdataid",
-            "testuser@csc.fi",
-            "testuser@cscuserid"
-        ],
+    # note: leaving new_proxy param in place for now to avoid conflicts.
+    return {
+        "sub": "randomstringhere",
         "displayName": "Teppo Testaaja",
         "eppn": "testuser@csc.fi",
         "iss": "https://fd-auth.csc.fi",
         "group_names": [
-            "fairdata:TAITO01",
-            "fairdata:TAITO01:2002013",
+            "TAITO01:2002013",
             "IDA01:2001036"
         ],
         "schacHomeOrganizationType": "urn:schac:homeOrganizationType:fi:other",
@@ -64,15 +60,11 @@ def get_test_oidc_token(new_proxy=False):
         "exp": 1535539191,
         "iat": 1535535591,
         "family_name": "Testaaja",
-        "email": "teppo.testaaja@csc.fi"
+        "email": "teppo.testaaja@csc.fi",
+        "CSCUserName": "testuser",
+        "CSCOrgNameFi": "IT Center for Science",
     }
 
-    if new_proxy:
-        token["sub"] = "randomstringhere"
-        token["CSCUserName"] = "testuser"
-        token["CSCOrgNameFi"] = "IT Center for Science"
-
-    return token
 
 def generate_test_identifier(itype, index, urn=True):
     '''
@@ -90,6 +82,7 @@ def generate_test_identifier(itype, index, urn=True):
     if urn:
         return 'urn:nbn:fi:att:%s' % (uuid[:-len(postfix)] + postfix)
     return uuid[:-len(postfix)] + postfix
+
 
 def generate_test_token(payload):
     '''
@@ -112,7 +105,12 @@ class TestClassUtils():
         catalog_json = dc.catalog_json
         for identifier in django_settings.END_USER_ALLOWED_DATA_CATALOGS:
             catalog_json['identifier'] = identifier
-            DataCatalog.objects.create(catalog_json=catalog_json, date_created=get_tz_aware_now_without_micros())
+            DataCatalog.objects.create(
+                catalog_json=catalog_json,
+                date_created=get_tz_aware_now_without_micros(),
+                catalog_record_services_create='testuser,api_auth_user,metax',
+                catalog_record_services_edit='testuser,api_auth_user,metax'
+            )
 
     def _set_http_authorization(self, credentials_type):
         # Deactivate credentials
@@ -213,8 +211,8 @@ class TestClassUtils():
         self.token = get_test_oidc_token()
         if 'editor' in data:
             data.pop('editor', None)
-        data['user_created'] = self.token['sub']
-        data['metadata_provider_user'] = self.token['sub']
+        data['user_created'] = self.token['CSCUserName']
+        data['metadata_provider_user'] = self.token['CSCUserName']
         data['metadata_provider_org'] = self.token['schacHomeOrganization']
         data['metadata_owner_org'] = self.token['schacHomeOrganization']
         data['data_catalog']['identifier'] = django_settings.END_USER_ALLOWED_DATA_CATALOGS[0]

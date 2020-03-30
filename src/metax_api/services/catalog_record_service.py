@@ -52,11 +52,12 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         Get and validate parameters from request.query_params that will be used for filtering
         in view.get_queryset()
         """
+        queryset_search_params = {}
 
         if not request.query_params:
-            return {}
+            return cls.filter_by_state(request, queryset_search_params)
 
-        queryset_search_params = {}
+        queryset_search_params = cls.filter_by_state(request, queryset_search_params)
 
         if request.query_params.get('state', False):
             state_vals = request.query_params['state'].split(',')
@@ -65,6 +66,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     int(val)
                 except ValueError:
                     raise Http400({ 'state': ['Value \'%s\' is not an integer' % val] })
+            queryset_search_params['preservation_state__in'] = state_vals
+
+        if request.query_params.get('preservation_state', False):
+            state_vals = request.query_params['preservation_state'].split(',')
+            for val in state_vals:
+                try:
+                    int(val)
+                except ValueError:
+                    raise Http400({ 'preservation_state': ['Value \'%s\' is not an integer' % val] })
             queryset_search_params['preservation_state__in'] = state_vals
 
         if CommonService.get_boolean_query_param(request, 'latest'):
@@ -107,6 +117,30 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('data_catalog', False):
             queryset_search_params['data_catalog__catalog_json__identifier__iregex'] = \
                 request.query_params['data_catalog']
+
+        return queryset_search_params
+
+    @staticmethod
+    def filter_by_state(request, queryset_search_params):
+        '''
+        Helper method to filter returning data by state: unauthenticated
+        users get only published data, and end users get only published &
+        their own drafts
+        '''
+        state_filter = None
+
+        if request.user.username is None: # unauthenticated user
+            state_filter = Q(state='published')
+        elif request.user.is_service:  # service account
+            pass
+        else: # enduser api
+            state_filter = Q(state='published') | Q(state='draft', metadata_provider_user=request.user.username)
+
+        if state_filter:
+            if 'q_filters' in queryset_search_params:
+                queryset_search_params['q_filters'].append(state_filter)
+            else:
+                queryset_search_params['q_filters'] = [state_filter]
 
         return queryset_search_params
 
@@ -718,3 +752,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
     @staticmethod
     def get_research_dataset_embargo_available(rd):
         return rd.get('access_rights', {}).get('available', '')
+
+    @staticmethod
+    def get_research_dataset_license_url(rd):
+        """
+        Return identifier of the first license if there is a license at all
+        """
+        if not rd.get('access_rights', {}).get('license'):
+            return {}
+
+        license = rd['access_rights']['license'][0]
+
+        return license.get('identifier') or license.get('license')

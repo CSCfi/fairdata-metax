@@ -107,11 +107,46 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
+    def test_get_detailed_related_datasets_ok_1(self):
+        """
+        File identifiers listed below should belong to 5 datasets
+        """
+        response = self.client.post('/rest/files/datasets?detailed=true', [1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 1)
+        self.assertEqual(len(list(response.data.values())[0]), 3, response.data)
+
+    def test_get_detailed_related_datasets_ok_2(self):
+        """
+        File identifiers listed below should belong to 5 datasets
+        """
+        file_identifiers = [1, 2, 3, 4, 5]
+
+        response = self.client.post('/rest/files/datasets?detailed=true', file_identifiers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 5)
+
+        # set of all returned datasets
+        self.assertEqual(len(set(sum(response.data.values(), []))), 5, response.data)
+
+        # check if identifiers work
+        file_identifiers = ['pid:urn:1', 'pid:urn:2', 'pid:urn:3', 'pid:urn:4', 'pid:urn:5']
+
+        response = self.client.post('/rest/files/datasets?detailed=true', file_identifiers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 5)
+
+        # set of all returned datasets
+        self.assertEqual(len(set(sum(response.data.values(), []))), 5, response.data)
+
     def test_get_related_datasets_files_not_found(self):
         """
         When the files themselves are not found, 404 should be returned
         """
         response = self.client.post('/rest/files/datasets', ['doesnotexist'], format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+
+        response = self.client.post('/rest/files/datasets?detailed=true', ['doesnotexist'], format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
 
     def test_get_related_datasets_records_not_found(self):
@@ -126,8 +161,12 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 0)
 
+        response = self.client.post('/rest/files/datasets?detailed=true', [1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 0)
+
     def _assert_results_length(self, response, length):
-        self.assertEqual(isinstance(response.data, list), True, response.data)
+        self.assertTrue(isinstance(response.data, dict) or isinstance(response.data, list), response.data)
         self.assertEqual(len(response.data), length)
 
 
@@ -157,7 +196,7 @@ class FileApiReadEndUserAccess(FileApiReadCommon):
         self.assertEqual(len(response.data), 0, 'should return 200 OK, but user projects has no files')
 
         # set user to same project as previous files and try again. should now succeed
-        self.token['group_names'].append('fairdata:IDA01:%s' % proj)
+        self.token['group_names'].append('IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
         response = self.client.get('/rest/files')

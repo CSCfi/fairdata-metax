@@ -149,6 +149,10 @@ class FileViewSet(CommonViewSet):
         parameters in GET. Also, some clients forcibly shove parameters in body in GET
         requests to query parameters, so using POST instead is more guaranteed to work.
         """
+
+        if CommonService.get_boolean_query_param(request, 'detailed'):
+            return FileService.get_detailed_datasets_where_file_belongs_to(request.data)
+
         return FileService.get_datasets_where_file_belongs_to(request.data)
 
     @list_route(methods=['post'], url_path="restore")

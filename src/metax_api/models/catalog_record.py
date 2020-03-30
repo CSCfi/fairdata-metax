@@ -313,6 +313,9 @@ class CatalogRecord(Common):
     _access_granter = JSONField(null=True, default=None,
         help_text='Stores data of REMS user who is currently granting access to this dataset')
 
+    rems_identifier = models.CharField(max_length=200, null=True, default=None,
+        help_text='Defines corresponding catalog item in REMS service')
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """
@@ -369,15 +372,34 @@ class CatalogRecord(Common):
         In the future, will probably be more involved checking...
         """
         if request.user.is_service:
+            if request.method == 'GET':
+                return True
+            if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
+                    self.data_catalog.catalog_record_services_edit, request):
+                return False
             return True
 
         elif request.method in READ_METHODS:
-            return True
+            if request.user.username is None: # unauthenticated user
+                if self.state == self.STATE_PUBLISHED:
+                    return True
+                else:
+                    raise Http404
+            else: # enduser
+                if self.state == self.STATE_PUBLISHED:
+                    return True
+                elif self.state == self.STATE_DRAFT and self.metadata_provider_user == request.user.username:
+                    return True
+                else:
+                    raise Http404
 
         # write operation
         return self.user_is_owner(request)
 
     def user_is_owner(self, request):
+        if self.state == self.STATE_DRAFT and self.metadata_provider_user != request.user.username:
+            raise Http404
+
         if self.editor and 'owner_id' in self.editor:
             return request.user.username == self.editor['owner_id']
         elif self.metadata_provider_user:
@@ -404,7 +426,7 @@ class CatalogRecord(Common):
             # unknown user
             return False
 
-    def _check_catalog_permissions(self, catalog_groups):
+    def _check_catalog_permissions(self, catalog_groups, catalog_services, request=None):
         """
         Some data catalogs can only allow writing datasets from a specific group of users.
         Check if user has group/project which permits creating or editing datasets in
@@ -413,21 +435,34 @@ class CatalogRecord(Common):
         Note that there is also parameter END_USER_ALLOWED_DATA_CATALOGS in
         settings.py which dictates which catalogs are open for end users.
         """
+        # populates self.request if not existing; happens with DELETE-request when self.request object is empty
+        if request:
+            self.request = request
+
         if not self.request: # pragma: no cover
             # should only only happen when setting up test cases
             assert executing_test_case(), 'only permitted when setting up testing conditions'
             return True
 
-        if not catalog_groups:
-            return True
-
         if self.request.user.is_service:
+            if catalog_services:
+                allowed_services = [i.lower() for i in catalog_services.split(',')]
+                from metax_api.services import AuthService
+                return AuthService.check_services_against_allowed_services(self.request, allowed_services)
+            return False
+
+        elif not self.request.user.is_service:
+            if catalog_groups:
+                allowed_groups = catalog_groups.split(',')
+
+                from metax_api.services import AuthService
+                return AuthService.check_user_groups_against_groups(self.request, allowed_groups)
             return True
 
-        allowed_groups = catalog_groups.split(',')
-
-        from metax_api.services import AuthService
-        return AuthService.check_user_groups_against_groups(self.request, allowed_groups)
+        _logger.info(
+            'Catalog {} is not belonging to any service or group '.format(self.data_catalog.catalog_json['identifier'])
+        )
+        return False
 
     def _access_type_is_open(self):
         from metax_api.services import CatalogRecordService as CRS
@@ -861,6 +896,11 @@ class CatalogRecord(Common):
         )
 
     def delete(self, *args, **kwargs):
+        if self.state == self.STATE_DRAFT:
+            # delete permanently instead of only marking as 'removed'
+            super(Common, self).delete()
+            return
+
         if self.has_alternate_records():
             self._remove_from_alternate_record_set()
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
@@ -868,7 +908,11 @@ class CatalogRecord(Common):
                                                              'delete'))
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self.add_post_request_callable(REMSUpdate(self, 'close', reason='deletion'))
+            self.add_post_request_callable(
+                REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='dataset deletion')
+            )
+            self.rems_identifier = None
+            super().save(update_fields=['rems_identifier'])
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
 
@@ -896,7 +940,11 @@ class CatalogRecord(Common):
         self.date_deprecated = self.date_modified = timestamp or get_tz_aware_now_without_micros()
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self.add_post_request_callable(REMSUpdate(self, 'close', reason='deprecation'))
+            self.add_post_request_callable(
+                REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='dataset deprecation')
+            )
+            self.rems_identifier = None
+            super().save(update_fields=['rems_identifier'])
 
         super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
@@ -959,6 +1007,10 @@ class CatalogRecord(Common):
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
+    def _save_as_draft(self, request):
+        from metax_api.services import CommonService
+        return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
+
     def get_metadata_version_listing(self):
         entries = []
         for entry in self.research_dataset_versions.all():
@@ -1007,8 +1059,12 @@ class CatalogRecord(Common):
 
     def _pre_create_operations(self, pid_type=None):
 
-        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create):
+        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create,
+                self.data_catalog.catalog_record_services_create):
             raise Http403({ 'detail': [ 'You are not permitted to create datasets in this data catalog.' ]})
+
+        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+        self.identifier = generate_uuid_identifier()
 
         if self.catalog_is_pas():
             # todo: default identifier type could probably be a parameter of the data catalog
@@ -1020,6 +1076,7 @@ class CatalogRecord(Common):
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
             # do not overwrite.
             pass
+
         elif self.catalog_is_legacy():
             if 'preferred_identifier' not in self.research_dataset:
                 raise ValidationError({
@@ -1035,6 +1092,9 @@ class CatalogRecord(Common):
                 'Catalog %s is a legacy catalog - not generating pid'
                 % self.data_catalog.catalog_json['identifier']
             )
+        elif self._save_as_draft(self.request):
+            self.state = self.STATE_DRAFT
+            self.research_dataset['preferred_identifier'] = self.identifier
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -1049,9 +1109,6 @@ class CatalogRecord(Common):
             else:
                 _logger.debug("Identifier type not specified in the request. Using URN identifier for pref id")
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
-
-        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
-        self.identifier = generate_uuid_identifier()
 
         if not self.metadata_owner_org:
             # field metadata_owner_org is optional, but must be set. in case it is omitted,
@@ -1071,10 +1128,6 @@ class CatalogRecord(Common):
             self.date_cumulation_started = self.date_created
 
     def _post_create_operations(self):
-        if self.catalog_versions_datasets():
-            dvs = DatasetVersionSet()
-            dvs.save()
-            dvs.records.add(self)
 
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
@@ -1091,18 +1144,25 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-            self._validate_cr_against_datacite_schema()
-            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
-                                                             'create'))
+        if self._save_as_draft(self.request):
+            # do nothing
+            pass
+        else:
+            if self.catalog_versions_datasets():
+                dvs = DatasetVersionSet()
+                dvs.save()
+                dvs.records.add(self)
 
-        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self._validate_for_rems()
-            user_info = self._get_user_info_for_rems()
-            self._access_granter = user_info
-            self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+            if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
+                self._validate_cr_against_datacite_schema()
+                self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                                'create'))
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+            if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+                self._handle_rems_managed_access()
+                super().save(update_fields=['rems_identifier'])
+
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
         _logger.info(
             'Created a new <CatalogRecord id: %d, '
@@ -1132,7 +1192,9 @@ class CatalogRecord(Common):
         self.add_post_request_callable(DelayedLog(**log_args))
 
     def _pre_update_operations(self):
-        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit):
+
+        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
+                self.data_catalog.catalog_record_services_edit):
             raise Http403({ 'detail': [ 'You are not permitted to edit datasets in this data catalog.' ]})
 
         if self.field_changed('identifier'):
@@ -1190,15 +1252,29 @@ class CatalogRecord(Common):
             # read-only after creating
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
-        if self._dataset_rems_access_changed() and settings.REMS['ENABLED']:
-            if self._dataset_has_rems_managed_access():
-                self._validate_for_rems()
-                user_info = self._get_user_info_for_rems()
-                self._access_granter = user_info
-                self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+        if settings.REMS['ENABLED']:
+            if self._dataset_rems_changed():
+                if self._dataset_rems_access_type_changed():
+                    if self._dataset_has_rems_managed_access():
+                        self._handle_rems_managed_access()
+                    else:
+                        self.add_post_request_callable(
+                            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='access type change')
+                        )
+                        self.rems_identifier = None
 
-            else:
-                self.add_post_request_callable(REMSUpdate(self, 'close', reason='access type change'))
+                elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
+                    if self._dataset_has_license():
+                        self.add_post_request_callable(
+                            REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
+                        )
+                        self.rems_identifier = generate_uuid_identifier()
+
+                    else:
+                        self.add_post_request_callable(
+                            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='license deletion')
+                        )
+                        self.rems_identifier = None
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -1406,17 +1482,51 @@ class CatalogRecord(Common):
         # creating a new dataset version already occurred once
         return not metadata_versions_with_files_exist
 
+    def _handle_rems_managed_access(self):
+        """
+        Ensure that all necessary information is avaliable for REMS access
+        and save post request callable to create correspoding REMS entity.
+        """
+        self._validate_for_rems()
+        user_info = self._get_user_info_for_rems()
+        self._access_granter = user_info
+        self.rems_identifier = generate_uuid_identifier()
+        self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+
     def _dataset_has_rems_managed_access(self):
         """
         Check if dataset uses REMS for managing access.
         """
         return self.catalog_is_ida() and self._access_type_is_permit()
 
-    def _dataset_rems_access_changed(self):
+    def _dataset_rems_access_type_changed(self):
+        """
+        Check if access type has changed so that REMS needs updating
+        """
+        return self._access_type_is_permit() != self._access_type_was_permit()
+
+    def _dataset_rems_changed(self):
         """
         Check if dataset is updated so that REMS needs to be updated.
         """
-        return self.catalog_is_ida() and self._access_type_is_permit() != self._access_type_was_permit()
+        return self.catalog_is_ida() and (self._dataset_rems_access_type_changed() or self._dataset_license_changed())
+
+    def _dataset_has_license(self):
+        """
+        Check if dataset has license defined
+        """
+        from metax_api.services import CatalogRecordService as CRS
+
+        return bool(CRS.get_research_dataset_license_url(self.research_dataset))
+
+    def _dataset_license_changed(self):
+        """
+        Check if datasets license is changed. Only consider the first license in the license list
+        """
+        from metax_api.services import CatalogRecordService as CRS
+
+        return CRS.get_research_dataset_license_url(self.research_dataset) != \
+            CRS.get_research_dataset_license_url(self._initial_data['research_dataset'])
 
     def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
@@ -2398,19 +2508,24 @@ class REMSUpdate():
     Handles managing REMS resources when creating, updating and deleting datasets.
     """
 
-    def __init__(self, cr, action, user_info={}, reason=''):
-        # user_info is used on creation, reason on close
+    def __init__(self, cr, action, **kwargs):
         from metax_api.services.rems_service import REMSService
         assert action in ('close', 'create', 'update'), 'invalid value for action'
         self.cr = cr
-        self.user_info = user_info
-        self.reason = reason
+        self.user_info = kwargs.get('user_info')
+        self.reason = kwargs.get('reason')
+        self.rems_id = kwargs.get('rems_id')
+
         self.action = action
         self.rems = REMSService()
 
     def __call__(self):
         """
         The actual code that gets executed during CommonService.run_post_request_callables().
+
+        rems_id is needed when rems entities are closed because saving operations have been done
+        before this method is called. This is why the rems_id is saved to REMSUpdate so that
+        it can be changed before saving and rems_service still knows what the resource identifier is.
         """
         _logger.info(
             'Publishing CatalogRecord %s update to REMS... action: %s'
@@ -2420,8 +2535,10 @@ class REMSUpdate():
         try:
             if self.action == 'create':
                 self.rems.create_rems_entity(self.cr, self.user_info)
-            if self.action == 'close':
-                self.rems.close_rems_entity(self.cr, self.reason)
+            elif self.action == 'close':
+                self.rems.close_rems_entity(self.rems_id, self.reason)
+            elif self.action == 'update':
+                self.rems.update_rems_entity(self.cr, self.rems_id, self.reason)
 
         except Exception as e:
             _logger.error(e)

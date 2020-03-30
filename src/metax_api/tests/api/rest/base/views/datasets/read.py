@@ -337,38 +337,45 @@ class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
         '''
         Various simple filtering requests
         '''
-        response = self.client.get('/rest/datasets?state=0')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']) > 2, True,
-            'There should have been multiple results for state=0 request')
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?{}=0'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']) > 2, True,
+                'There should have been multiple results for state=0 request')
 
-        response = self.client.get('/rest/datasets?state=10')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2)
+            response = self.client.get('/rest/datasets?{}=10'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 2)
 
-        response = self.client.get('/rest/datasets?state=40')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
+            response = self.client.get('/rest/datasets?{}=40'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 1)
 
     def test_read_catalog_record_search_by_preservation_state_666(self):
-        response = self.client.get('/rest/datasets?state=666')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 0, 'should return empty list')
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?{}=666'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 0, 'should return empty list')
 
     def test_read_catalog_record_search_by_preservation_state_many(self):
-        response = self.client.get('/rest/datasets?state=10,40')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 3)
-        self.assertEqual(response.data['results'][0]['preservation_state'], 10)
-        self.assertEqual(response.data['results'][1]['preservation_state'], 10)
-        self.assertEqual(response.data['results'][2]['preservation_state'], 40)
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?{}=10,40'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 3)
+            self.assertEqual(response.data['results'][0]['preservation_state'], 10)
+            self.assertEqual(response.data['results'][1]['preservation_state'], 10)
+            self.assertEqual(response.data['results'][2]['preservation_state'], 40)
 
     def test_read_catalog_record_search_by_preservation_state_invalid_value(self):
         response = self.client.get('/rest/datasets?state=1,a')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('is not an integer' in response.data['state'][0], True,
-                         'Error should say letter a is not an integer')
+                        'Error should say letter a is not an integer')
 
+        response = self.client.get('/rest/datasets?preservation_state=1,a')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('is not an integer' in response.data['preservation_state'][0], True,
+                        'Error should say letter a is not an integer')
 
 class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
 
@@ -448,9 +455,10 @@ class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets?pas_filter=janus&creator_organization=sad organization')
         self.assertEqual(len(response.data['results']), 1)
 
-        response = self.client.get('/rest/datasets?state=10&pas_filter=kaisa&creator_organization=notfound')
-        self.assertEqual(len(response.data['results']), 0)
-
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=kaisa&'
+            'creator_organization=notfound'.format(queryparam))
+            self.assertEqual(len(response.data['results']), 0)
 
 class CatalogRecordApiReadPASFilter(CatalogRecordApiReadCommon):
 
@@ -481,35 +489,37 @@ class CatalogRecordApiReadPASFilter(CatalogRecordApiReadCommon):
 
         # beging testing
 
-        response = self.client.get('/rest/datasets?state=10&pas_filter=if you')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=if you'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 1)
 
-        response = self.client.get('/rest/datasets?state=10&pas_filter=kiinni jos')
-        self.assertEqual(len(response.data['results']), 1)
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=kiinni jos'.format(queryparam))
+            self.assertEqual(len(response.data['results']), 1)
 
-        response = self.client.get('/rest/datasets?state=10&pas_filter=niemine')
-        self.assertEqual(len(response.data['results']), 1)
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=niemine'.format(queryparam))
+            self.assertEqual(len(response.data['results']), 1)
 
-        # more than 3 curators, requires typing exact case-sensitive name... see comments in related code
-        response = self.client.get('/rest/datasets?state=10&pas_filter=jokunen')
-        self.assertEqual(len(response.data['results']), 0)
-        response = self.client.get('/rest/datasets?state=10&pas_filter=Jaska Jokunen')
-        self.assertEqual(len(response.data['results']), 1)
+            # more than 3 curators, requires typing exact case-sensitive name... see comments in related code
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=jokunen'.format(queryparam))
+            self.assertEqual(len(response.data['results']), 0)
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=Jaska Jokunen'.format(queryparam))
+            self.assertEqual(len(response.data['results']), 1)
 
-        # contract_id 1 has several other associated test datasets
-        response = self.client.get('/rest/datasets?state=10&pas_filter=agreement')
-        self.assertEqual(len(response.data['results']), 3)
+            # contract_id 1 has several other associated test datasets
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=agreement'.format(queryparam))
+            self.assertEqual(len(response.data['results']), 3)
 
-        response = self.client.get('/rest/datasets?state=10&pas_filter=does not exist')
-        self.assertEqual(len(response.data['results']), 0)
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=does not exist'.format(queryparam))
+            self.assertEqual(len(response.data['results']), 0)
 
     def test_pas_filter_is_restricted(self):
         """
         Query param is permitted to users metax and tpas.
         """
-        response = self.client.get('/rest/datasets?state=10&pas_filter=hmmm')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?{}=10&pas_filter=hmmm'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
@@ -547,27 +557,30 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data['results']), 0)
 
     def test_read_catalog_record_search_by_curator_and_state_1(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=10')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 2)
-        self.assertEqual(response.data['results'][0]['id'], 2)
-        self.assertEqual(response.data['results'][0]['preservation_state'], 10)
-        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
-                         'Curator name is not matching')
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&{}=10'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 2)
+            self.assertEqual(response.data['results'][0]['id'], 2)
+            self.assertEqual(response.data['results'][0]['preservation_state'], 10)
+            self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
+                            'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_and_state_2(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=40')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['id'], 4)
-        self.assertEqual(response.data['results'][0]['preservation_state'], 40)
-        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
-                         'Curator name is not matching')
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&{}=40'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 1)
+            self.assertEqual(response.data['results'][0]['id'], 4)
+            self.assertEqual(response.data['results'][0]['preservation_state'], 40)
+            self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
+                            'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_and_state_not_found(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&state=55')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 0)
+        for queryparam in ('preservation_state', 'state'):
+            response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&{}=55'.format(queryparam))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 0)
 
     def test_read_catalog_record_search_by_owner_id(self):
         cr = CatalogRecord.objects.get(pk=1)

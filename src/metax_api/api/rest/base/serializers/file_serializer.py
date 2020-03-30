@@ -10,6 +10,7 @@ import logging
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
+from django.conf import settings
 
 from metax_api.models import Directory, File, FileStorage
 from metax_api.services import FileService as FS
@@ -31,7 +32,7 @@ END_USER_UPDATE_ALLOWED_FIELDS = [
     'service_modified',
     '__request'
 ]
-
+CHECKSUM_ALGORITHMS = settings.CHECKSUM_ALGORITHMS
 
 class FileSerializer(CommonSerializer):
 
@@ -157,6 +158,17 @@ class FileSerializer(CommonSerializer):
         else:
             # delete
             pass
+
+        return value
+
+    def validate_checksum_algorithm(self, value):
+        """
+        Ensure that used checksum_algorithm is one of the configured in settings file.
+        """
+
+        if value not in CHECKSUM_ALGORITHMS:
+            raise ValidationError('file checksum_algorithm should be one of {}, now {}'
+                .format(CHECKSUM_ALGORITHMS, value))
 
         return value
 
