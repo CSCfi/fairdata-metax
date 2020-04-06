@@ -729,8 +729,12 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if cr_id:
             try:
-                dirs, files = cls._get_directory_contents_for_catalog_record(directory_id, cr_id,
-                    dirs_only=dirs_only, directory_fields=directory_fields, file_fields=file_fields)
+                dirs, files = cls._get_directory_contents_for_catalog_record(
+                    directory_id,
+                    cr_id,
+                    dirs_only=dirs_only,
+                    directory_fields=directory_fields,
+                    file_fields=file_fields)
             except Http404:
                 if recursive:
                     return {'directories': []}

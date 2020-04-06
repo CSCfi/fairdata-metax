@@ -10,6 +10,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 import responses
+from django.db import transaction
 
 from metax_api.models import CatalogRecord, Directory
 from metax_api.models.catalog_record import ACCESS_TYPES
@@ -610,3 +611,172 @@ class DirectoryApiReadEndUserAccess(DirectoryApiReadCommon):
         self._use_http_authorization(method='bearer', token=self.token)
         response = self.client.get('/rest/directories/3/files?cr_identifier=%s' % cr_pk)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class DirectoryApiReadPaginationTests(DirectoryApiReadCommon):
+
+    """
+    Test paginated directory and file browsing.
+    Should return directories and/or files depending on limit and offset parameters. Defaul is ofcet is 10
+    """
+
+    def setUp(self):
+        self._use_http_authorization()
+        self._create_test_dirs()
+
+    def _create_test_dirs(self):
+        with transaction.atomic():
+            for n in range(1, 15):
+                f = self._get_new_file_data(str(n))
+                self.client.post('/rest/files', f, format="json")
+
+    def _get_dirs_files_ids(self, url):
+        file_data = self.client.get(url).data
+        if isinstance(file_data, dict):
+            return {key: [f['id'] for f in file_data[key]] for key in file_data.keys()}
+        else:
+            return [f['id'] for f in file_data]
+
+    def _get_new_file_data(self, file_n):
+        from_test_data = self._get_object_from_test_data('file', requested_index=0)
+
+        path = '/prj_112_root/science_data_C/phase_2/2017/10/dir' + file_n + '/file_' + file_n
+        identifier = 'urn:nbn:fi:100' + file_n
+
+        from_test_data.update({
+            "checksum": {
+                "value": "habeebit",
+                "algorithm": "SHA-256",
+                "checked": "2017-05-23T10:07:22.559656Z",
+            },
+            "file_name": "tiedosto_name_" + file_n,
+            "file_path": path,
+            "identifier": identifier,
+            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0),
+            'parent_directory': 24,
+            'project_identifier': 'research_project_112'
+        })
+        del from_test_data['id']
+        return from_test_data
+
+    def test_read_directory_with_default_limit_pagination(self):
+        """
+        Test browsing files with pagination
+        """
+        file_dict = self._get_dirs_files_ids('/rest/directories/24/files')
+
+        response = self.client.get('/rest/directories/24/files?pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 10)
+        self.assertEqual(len(response.data['results']['files']), 0)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict['directories'][0])
+        self.assertEqual(response.data['results']['directories'][9]['id'], file_dict['directories'][9])
+
+        next_link = response.data['next'].split('http://testserver')[1]
+        response = self.client.get(next_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 4)
+        self.assertEqual(len(response.data['results']['files']), 6)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict['directories'][10])
+        self.assertEqual(response.data['results']['directories'][3]['id'], file_dict['directories'][13])
+        self.assertEqual(response.data['results']['files'][0]['id'], file_dict['files'][0])
+        self.assertEqual(response.data['results']['files'][5]['id'], file_dict['files'][5])
+
+        next_link = response.data['next'].split('http://testserver')[1]
+        response = self.client.get(next_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 0)
+        self.assertEqual(len(response.data['results']['files']), 10)
+        self.assertEqual(response.data['results']['files'][0]['id'], file_dict['files'][6])
+        self.assertEqual(response.data['results']['files'][9]['id'], file_dict['files'][15])
+
+        prev_link = response.data['previous'].split('http://testserver')[1]
+        response = self.client.get(prev_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 4)
+        self.assertEqual(len(response.data['results']['files']), 6)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict['directories'][10])
+        self.assertEqual(response.data['results']['directories'][3]['id'], file_dict['directories'][13])
+        self.assertEqual(response.data['results']['files'][0]['id'], file_dict['files'][0])
+        self.assertEqual(response.data['results']['files'][5]['id'], file_dict['files'][5])
+
+    def test_read_directory_with_custom_limit_pagination(self):
+        file_dict = self._get_dirs_files_ids('/rest/directories/24/files')
+
+        response = self.client.get('/rest/directories/24/files?limit=4&offset=12&pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 2)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict['directories'][12])
+        self.assertEqual(response.data['results']['directories'][1]['id'], file_dict['directories'][13])
+        self.assertEqual(len(response.data['results']['files']), 2)
+        self.assertEqual(response.data['results']['files'][0]['id'], file_dict['files'][0])
+        self.assertEqual(response.data['results']['files'][1]['id'], file_dict['files'][1])
+
+        next_link = response.data['next'].split('http://testserver')[1]
+        prev_link = response.data['previous'].split('http://testserver')[1]
+
+        response = self.client.get(next_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 0)
+        self.assertEqual(len(response.data['results']['files']), 4)
+        self.assertEqual(response.data['results']['files'][0]['id'], file_dict['files'][2])
+        self.assertEqual(response.data['results']['files'][3]['id'], file_dict['files'][5])
+
+        response = self.client.get(prev_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 4)
+        self.assertEqual(len(response.data['results']['files']), 0)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict['directories'][8])
+        self.assertEqual(response.data['results']['directories'][3]['id'], file_dict['directories'][11])
+
+    def test_read_directory_with_recursive_and_pagination(self):
+        '''
+        Query with recursive flag must return only files as a list
+        '''
+        file_list = self._get_dirs_files_ids('/rest/directories/24/files?recursive')
+
+        response = self.client.get('/rest/directories/24/files?recursive&pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 10)
+        self.assertEqual(response.data['results'][0]['id'], file_list[0])
+        self.assertEqual(response.data['results'][9]['id'], file_list[9])
+
+        next_link = response.data['next'].split('http://testserver')[1]
+        response = self.client.get(next_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 10)
+        self.assertEqual(response.data['results'][0]['id'], file_list[10])
+        self.assertEqual(response.data['results'][9]['id'], file_list[19])
+
+        prev_link = response.data['previous'].split('http://testserver')[1]
+        response = self.client.get(prev_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 10)
+        self.assertEqual(response.data['results'][0]['id'], file_list[0])
+        self.assertEqual(response.data['results'][9]['id'], file_list[9])
+
+    def test_read_directory_with_dirs_only_and_pagination(self):
+        '''
+        Query with directories_only flag must return only directories
+        '''
+        file_dict = self._get_dirs_files_ids('/rest/directories/24/files?directories_only')['directories']
+
+        response = self.client.get('/rest/directories/24/files?directories_only&pagination=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 10)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict[0])
+        self.assertEqual(response.data['results']['directories'][9]['id'], file_dict[9])
+
+        next_link = response.data['next'].split('http://testserver')[1]
+        response = self.client.get(next_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 4)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict[10])
+        self.assertEqual(response.data['results']['directories'][3]['id'], file_dict[13])
+
+        prev_link = response.data['previous'].split('http://testserver')[1]
+        response = self.client.get(prev_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 10)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict[0])
+        self.assertEqual(response.data['results']['directories'][9]['id'], file_dict[9])
