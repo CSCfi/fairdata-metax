@@ -633,7 +633,8 @@ class DirectoryApiReadPaginationTests(DirectoryApiReadCommon):
     def _get_dirs_files_ids(self, url):
         file_data = self.client.get(url).data
         if isinstance(file_data, dict):
-            return {key: [f['id'] for f in file_data[key]] for key in file_data.keys()}
+            return {key: [f['id'] for f in file_data[key]] for key in file_data.keys()
+                if key in ['directories', 'files']}
         else:
             return [f['id'] for f in file_data]
 
@@ -780,3 +781,29 @@ class DirectoryApiReadPaginationTests(DirectoryApiReadCommon):
         self.assertEqual(len(response.data['results']['directories']), 10)
         self.assertEqual(response.data['results']['directories'][0]['id'], file_dict[0])
         self.assertEqual(response.data['results']['directories'][9]['id'], file_dict[9])
+
+    def test_read_directory_with_parent_and_pagination(self):
+        '''
+        Query with directories_only flag must return only directories
+        '''
+        file_dict = self._get_dirs_files_ids('/rest/directories/24/files?include_parent')
+
+        response = self.client.get('/rest/directories/24/files?include_parent&pagination=true')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 10)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict['directories'][0])
+        self.assertEqual(response.data['results']['directories'][9]['id'], file_dict['directories'][9])
+        self.assertEqual(response.data['results']['id'], 24)
+        self.assertEqual(response.data['results']['directory_name'], "10")
+
+        next_link = response.data['next'].split('http://testserver')[1]
+        response = self.client.get(next_link)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 4)
+        self.assertEqual(len(response.data['results']['files']), 6)
+        self.assertEqual(response.data['results']['directories'][0]['id'], file_dict['directories'][10])
+        self.assertEqual(response.data['results']['directories'][3]['id'], file_dict['directories'][13])
+        self.assertEqual(response.data['results']['files'][0]['id'], file_dict['files'][0])
+        self.assertEqual(response.data['results']['files'][5]['id'], file_dict['files'][5])
+        self.assertEqual(response.data['results']['id'], 24)
+        self.assertEqual(response.data['results']['directory_name'], "10")

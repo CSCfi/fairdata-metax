@@ -53,5 +53,6 @@ class DirectoryPagination(LimitOffsetPagination):
         """
         count = 0
         for q, v in queryset.items():
-            count = count + len(v)
+            if q in ['directories', 'files']:
+                count = count + len(v)
         return count

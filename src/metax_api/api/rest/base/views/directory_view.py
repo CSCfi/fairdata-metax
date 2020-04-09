@@ -92,8 +92,12 @@ class DirectoryViewSet(CommonViewSet):
 
         if paginate:
             if isinstance(files_and_dirs, dict):
-                a = self.paginate_queryset(files_and_dirs)
-                return self.get_paginated_response(a)
+                paginated = self.paginate_queryset(files_and_dirs)
+                if include_parent:
+                    for k, v in files_and_dirs.items():
+                        if k not in ['directories', 'files']:
+                            paginated[k] = v
+                return self.get_paginated_response(paginated)
             else:
                 paginator = LimitOffsetPagination()
                 context = paginator.paginate_queryset(files_and_dirs, request)
