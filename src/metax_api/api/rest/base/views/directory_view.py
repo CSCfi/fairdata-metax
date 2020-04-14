@@ -11,6 +11,8 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
 from metax_api.api.rest.base.serializers import DirectorySerializer
+from metax_api.services.pagination import DirectoryPagination
+from rest_framework.pagination import LimitOffsetPagination
 from metax_api.exceptions import Http400, Http403, Http501
 from metax_api.models import Directory
 from metax_api.services import CommonService, FileService
@@ -20,6 +22,7 @@ from .common_view import CommonViewSet
 class DirectoryViewSet(CommonViewSet):
 
     serializer_class = DirectorySerializer
+    pagination_class = DirectoryPagination
     object = Directory
     select_related = ['parent_directory']
     lookup_field_other = 'identifier'
@@ -56,6 +59,7 @@ class DirectoryViewSet(CommonViewSet):
         A wrapper to call FS to collect and validate parameters from the request,
         and then call FS.get_directory_contents().
         """
+        paginate = CommonService.get_boolean_query_param(request, 'pagination')
         include_parent = CommonService.get_boolean_query_param(request, 'include_parent')
         dirs_only = CommonService.get_boolean_query_param(request, 'directories_only')
         recursive = CommonService.get_boolean_query_param(request, 'recursive')
@@ -85,6 +89,19 @@ class DirectoryViewSet(CommonViewSet):
             cr_identifier=cr_identifier,
             request=request
         )
+
+        if paginate:
+            if isinstance(files_and_dirs, dict):
+                paginated = self.paginate_queryset(files_and_dirs)
+                if include_parent:
+                    for k, v in files_and_dirs.items():
+                        if k not in ['directories', 'files']:
+                            paginated[k] = v
+                return self.get_paginated_response(paginated)
+            else:
+                paginator = LimitOffsetPagination()
+                context = paginator.paginate_queryset(files_and_dirs, request)
+                return paginator.get_paginated_response(context)
 
         return Response(files_and_dirs)
 

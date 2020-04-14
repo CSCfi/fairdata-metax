@@ -34,7 +34,7 @@ class CommonViewSet(ModelViewSet):
 
     api_type = 'rest'
     authentication_classes = ()
-    permission_classes = (EndUserPermissions, ServicePermissions)
+    permission_classes = [EndUserPermissions, ServicePermissions]
 
     cache = RedisCacheService
 

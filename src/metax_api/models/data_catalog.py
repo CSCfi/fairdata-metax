@@ -35,6 +35,8 @@ class DataCatalog(Common):
 
     # END OF MODEL FIELD DEFINITIONS #
 
+    READ_METHODS = ('GET', 'HEAD', 'OPTIONS')
+
     def __init__(self, *args, **kwargs):
         super(DataCatalog, self).__init__(*args, **kwargs)
         self.track_fields('catalog_json.identifier')
@@ -60,3 +62,12 @@ class DataCatalog(Common):
             self.catalog_json['research_dataset_schema'],
             self.catalog_json['dataset_versioning'],
         )
+
+    def user_has_access(self, request):
+        """
+        Overriding inherited operation to check permissions for datacatalogs
+        """
+
+        if request.method in self.READ_METHODS or request.user.is_service:
+            return True
+        return False

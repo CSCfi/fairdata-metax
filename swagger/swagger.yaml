@@ -578,6 +578,22 @@ paths:
           description: Comma-separated list of field names to retrieve for directories
           required: false
           type: string
+        - name: pagination
+          in: query
+          description: Sets paging on with default limit of 10 
+          required: false
+          type: bolean
+        - name: offset
+          in: query
+          description: Offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit for paging
+          required: false
+          type: integer
+          default: 10
       responses:
         '200':
           description: |

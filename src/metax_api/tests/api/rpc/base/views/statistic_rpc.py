@@ -271,6 +271,21 @@ class StatisticRPCCommon(APITestCase, TestClassUtils):
         """
         return CatalogRecord.objects_unfiltered.count()
 
+    def _set_cr_datacatalog(self, cr_id, catalog_id):
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.data_catalog_id = DataCatalog.objects.get(catalog_json__identifier=catalog_id).id
+        cr.force_save()
+
+    def _set_dataset_as_draft(self, cr_id):
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.state = 'draft'
+        cr.force_save()
+
+    def _set_cr_organization(self, cr_id, org):
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.metadata_owner_org = org
+        cr.force_save()
+
 
 class StatisticRPCCountDatasets(StatisticRPCCommon, CatalogRecordApiWriteCommon):
     """
@@ -678,3 +693,90 @@ class StatisticRPCAllDatasetsCumulative(StatisticRPCCommon, CatalogRecordApiWrit
         self.assertEqual(not_leg_not_lat[-1]['ida_byte_size'],              march_size - legacy_size, not_leg_not_lat)
         self.assertEqual(not_leg_not_lat[-1]['count_cumulative'],           total_count - legacy_count, not_leg_not_lat)
         self.assertEqual(not_leg_not_lat[-1]['ida_byte_size_cumulative'],   total_size - legacy_size, not_leg_not_lat)
+
+
+class StatisticRPCforDrafts(StatisticRPCCommon, CatalogRecordApiWriteCommon):
+    """
+    Tests that drafts are not taken into account when calculating statistics
+    """
+    def test_count_datasets_api_for_drafts(self):
+        """
+        Tests that rpc/statistics/count_datasets returns only count of published datasets
+        """
+        response_1 = self.client.get('/rpc/statistics/count_datasets').data
+
+        self._set_dataset_as_draft(1)
+        self.assertEqual(CatalogRecord.objects.get(pk=1).state, 'draft',
+            'Dataset with id=1 should have changed state to draft')
+
+        response_2 = self.client.get('/rpc/statistics/count_datasets').data
+        self.assertNotEqual(response_1['count'], response_2['count'],
+            'Drafts should not be returned in count_datasets api')
+
+    def test_all_datasets_cumulative_for_drafts(self):
+        """
+        Tests that /rpc/statistics/all_datasets_cumulative returns only published datasets
+        """
+        url = '/rpc/statistics/all_datasets_cumulative?from_date=2019-06&to_date=2019-06'
+
+        self._set_dataset_creation_date(1, '2019-06-15')
+        response_1 = self.client.get(url).data
+
+        self._set_dataset_as_draft(1)
+        response_2 = self.client.get(url).data
+
+        # ensure the counts and byte sizes are calculated without drafts
+        self.assertNotEqual(response_1[0]['count'], response_2[0]['count'],
+            'Count for June should reduce by one as dataset id=1 was set as draft')
+        self.assertNotEqual(response_1[0]['ida_byte_size'], response_2[0]['ida_byte_size'],
+            'Byte size for June should reduce by one as dataset id=1 was set as draft')
+
+    def test_catalog_datasets_cumulative_for_drafts(self):
+        """
+        Tests that /rpc/statistics/catalog_datasets_cumulative returns only published datasets
+        """
+
+        url = '/rpc/statistics/catalog_datasets_cumulative?from_date=2019-06-01&to_date=2019-06-30'
+        catalog = "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d3"
+
+        self._set_dataset_creation_date(1, '2019-06-15')
+        self._set_cr_datacatalog(1, catalog) # Adds id=1 to catalog
+
+        count_1 = self.client.get(url).data[catalog]['open'][0]['count']
+        total_1 = self.client.get(url).data[catalog]['total']
+
+        self._set_dataset_as_draft(1)
+
+        count_2 = self.client.get(url).data[catalog]['open'][0]['count']
+        total_2 = self.client.get(url).data[catalog]['total']
+
+        # ensure the count and total are calculated without drafts
+        self.assertNotEqual(count_1, count_2, 'Count should reduce by one as dataset id=1 was set as draft')
+        self.assertNotEqual(total_1, total_2, 'Total should reduce by one as dataset id=1 was set as draft')
+
+    def test_end_user_datasets_cumulative_for_drafts(self):
+        ''' End user api should return only published data '''
+        url = '/rpc/statistics/end_user_datasets_cumulative?from_date=2019-06-01&to_date=2019-06-30'
+
+        self._set_dataset_creation_date(10, '2019-06-15')
+        count_1 = self.client.get(url).data[0]['count']
+
+        self._set_dataset_as_draft(10)
+        count_2 = self.client.get(url).data[0]['count']
+
+        # ensure the count are calculated without drafts
+        self.assertNotEqual(count_1, count_2, 'Count should be reduced by one after setting id=10 as draft')
+
+    def test_organization_datasets_cumulative_for_drafts(self):
+        ''' Organization api should return only published data '''
+        url = "/rpc/statistics/organization_datasets_cumulative?from_date=2019-06-01&to_date=2019-06-30"
+
+        self._set_dataset_creation_date(1, '2019-06-15')
+        self._set_cr_organization(1, 'org_2')
+        total_1 = self.client.get(url).data['org_2']['total']
+
+        self._set_dataset_as_draft(1)
+        total_2 = self.client.get(url).data['org_2']['total']
+
+        # ensure the totals are calculated without drafts
+        self.assertNotEqual(total_1, total_2, 'Count be reduced by one after setting id=1 as draft')

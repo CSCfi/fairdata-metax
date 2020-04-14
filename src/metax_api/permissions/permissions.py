@@ -112,16 +112,13 @@ class MetaxAPIPermissions(BasePermission):
         execute specific operation type on given API endpoint.
         """
         if request.method in METHOD_MAP:
-
             operation_type = METHOD_MAP[request.method]
-
             if 'all' in self.perms['rest'][api_name].get(operation_type, []):
                 has_perm = True
             else:
                 has_perm = self._check_user_rest_perms(request, api_name, operation_type)
         else:
             raise MethodNotAllowed
-
         return has_perm
 
     def _check_rpc_perms(self, request, api_name):
@@ -147,7 +144,6 @@ class MetaxAPIPermissions(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         has_perm = obj.user_has_access(request)
-
         if not has_perm:
             self.message = 'You are not permitted to access this resource.'
         return has_perm
