@@ -30,3 +30,13 @@ class DataCatalogApiReadBasicTests(APITestCase, TestClassUtils):
     def test_basic_get(self):
         response = self.client.get('/rest/datacatalogs/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_allowed_read_methods(self):
+        self.client._credentials = {}
+        for req in ['/rest/datacatalogs', '/rest/datacatalogs/1']:
+            response = self.client.get(req)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response = self.client.head(req)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            response = self.client.options(req)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)

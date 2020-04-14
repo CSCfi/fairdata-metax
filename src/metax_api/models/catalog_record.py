@@ -310,7 +310,7 @@ class CatalogRecord(Common):
     date_last_cumulative_addition = models.DateTimeField(null=True, default=None,
         help_text='Date of last file addition while actively cumulative.')
 
-    _access_granter = JSONField(null=True, default=None,
+    access_granter = JSONField(null=True, default=None,
         help_text='Stores data of REMS user who is currently granting access to this dataset')
 
     rems_identifier = models.CharField(max_length=200, null=True, default=None,
@@ -908,11 +908,8 @@ class CatalogRecord(Common):
                                                              'delete'))
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self.add_post_request_callable(
-                REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='dataset deletion')
-            )
-            self.rems_identifier = None
-            super().save(update_fields=['rems_identifier'])
+            self._pre_rems_deletion('dataset deletion')
+            super().save(update_fields=['rems_identifier', 'access_granter'])
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
 
@@ -940,11 +937,8 @@ class CatalogRecord(Common):
         self.date_deprecated = self.date_modified = timestamp or get_tz_aware_now_without_micros()
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self.add_post_request_callable(
-                REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='dataset deprecation')
-            )
-            self.rems_identifier = None
-            super().save(update_fields=['rems_identifier'])
+            self._pre_rems_deletion('dataset deprecation')
+            super().save(update_fields=['rems_identifier', 'access_granter'])
 
         super().save(update_fields=['deprecated', 'date_deprecated', 'date_modified'])
         self.add_post_request_callable(DelayedLog(
@@ -1159,8 +1153,8 @@ class CatalogRecord(Common):
                                                                 'create'))
 
             if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-                self._handle_rems_managed_access()
-                super().save(update_fields=['rems_identifier'])
+                self._pre_rems_creation()
+                super().save(update_fields=['rems_identifier', 'access_granter'])
 
             self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1256,12 +1250,9 @@ class CatalogRecord(Common):
             if self._dataset_rems_changed():
                 if self._dataset_rems_access_type_changed():
                     if self._dataset_has_rems_managed_access():
-                        self._handle_rems_managed_access()
+                        self._pre_rems_creation()
                     else:
-                        self.add_post_request_callable(
-                            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='access type change')
-                        )
-                        self.rems_identifier = None
+                        self._pre_rems_deletion(reason='access type change')
 
                 elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
                     if self._dataset_has_license():
@@ -1271,10 +1262,7 @@ class CatalogRecord(Common):
                         self.rems_identifier = generate_uuid_identifier()
 
                     else:
-                        self.add_post_request_callable(
-                            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='license deletion')
-                        )
-                        self.rems_identifier = None
+                        self._pre_rems_deletion(reason='license deletion')
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -1482,16 +1470,27 @@ class CatalogRecord(Common):
         # creating a new dataset version already occurred once
         return not metadata_versions_with_files_exist
 
-    def _handle_rems_managed_access(self):
+    def _pre_rems_creation(self):
         """
         Ensure that all necessary information is avaliable for REMS access
         and save post request callable to create correspoding REMS entity.
         """
         self._validate_for_rems()
         user_info = self._get_user_info_for_rems()
-        self._access_granter = user_info
+        self.access_granter = user_info
         self.rems_identifier = generate_uuid_identifier()
         self.add_post_request_callable(REMSUpdate(self, 'create', user_info=user_info))
+
+    def _pre_rems_deletion(self, reason):
+        """
+        Delete rems information and save post request callable to close
+        corresponding REMS entity.
+        """
+        self.add_post_request_callable(
+            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason=reason)
+        )
+        self.rems_identifier = None
+        self.access_granter = None
 
     def _dataset_has_rems_managed_access(self):
         """
