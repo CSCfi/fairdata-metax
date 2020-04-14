@@ -544,17 +544,17 @@ paths:
           type: string
         - name: pagination
           in: query
-          description: sets paging on with default limit of 10 
+          description: Sets paging on with default limit of 10 
           required: false
           type: bolean
         - name: offset
           in: query
-          description: offset for paging
+          description: Offset for paging
           required: false
           type: integer
         - name: limit
           in: query
-          description: limit for paging
+          description: Limit for paging
           required: false
           type: integer
           default: 10
