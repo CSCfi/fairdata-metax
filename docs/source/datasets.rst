@@ -308,6 +308,69 @@ Using the identifiers provided by the above fields, it's possible to retrieve in
 
 
 
+Datasets with access type of permit
+---------------------------------------
+
+
+**General**
+
+Downloads of files affiliated to dataset can be restricted individually. This means that selected user can decide who can get download access to the files in dataset. When this kind of functionality is wanted, dataset must have the following information:
+
+* ``access_type`` must be set to permit
+* Dataset must have at least one license
+* Query parameter ``access_granter`` on the POST/PUT/PATCH request which changes the ``access_type`` to permit. The parameter contains the information about the user who is deciding whether to grant the download access or not. More information of access_granter below.
+
+When this information is available, Metax creates an entity to REMS (Resource Entitlement Management System) which is used to manage the granting process. The entity in REMS is called ``catalogue-item`` and it contains information about the access granter, first described ``license``, ``preferred_identifier`` and the ``metadata_owner_org`` of the dataset.
+
+
+**Applications in REMS**
+
+When dataset is successfully added to REMS, logged-in users can ask permission to download the affiliated files in Etsin service. These applications are shown in REMS to the access granter declared in the ``access_granter`` parameter. The applications can have following statuses:
+
+* approved: the user can download the files and use them according to the license
+* closed: the user have had an access for this dataset but the dataset have been modified since. 
+* draft: the user have created the application but haven't sent it yet. 
+* rejected: the access granter have seen the application and decided not to give permission to the user to download the files. New application can be sent to ask permission.
+* returned: the access granter have sent the application back to the user for more information.
+* revoked: the user have had a permission to download the files but have later somehow broken the terms of usage and cannot download the files anymore. New applications are not allowed.
+* submitted: the user have sent the application successfully but the access granter haven't handeled it yet
+
+
+**Changing access type or license**
+
+If download accesses of the dataset are managed by REMS, it is important to notice below information for further changes in access type or license.
+
+On further changes to ``access_type`` from permit to non-permit, all existing applications are closed and users must request a new permission for downloading. Furthermore, the ``catalogue-item`` related to the dataset will also be disabled and cannot be used further.
+
+.. important:: After changing the access type of a dataset to non-permit, REMS will not be used anymore for this dataset.
+
+When changing the ``license`` of the dataset, similar closing and disabling operations happen in REMS. All the applications are closed and the corresponding ``catalogue-item`` is disabled. But in addition to these, a new ``catalogue-item`` will be created to match the changed license. This new ``catalogue-item`` will be used for further applications for this dataset.
+
+.. important:: After license change operation, REMS will still be used to manage the file downloads for this dataset but all the previous applications are closed and new applications are needed to get download access to the files of the dataset.
+
+
+**Access granter**
+
+``access_granter`` parameter is needed in requests that changes the access_type to permit. This will define the user, who will decide whether to give download access or not. The user cannot be changed after it is defined. The parameter value is base64 encoded JSON string with attributes of ``userid``, ``name`` and ``email`` containing fairdata userid, name and email of the access granter respectively. Example:
+
+.. code-block:: python
+
+    from base64 import urlsafe_b64encode
+    import json
+
+    access_granter = {
+        "userid": "jodoe1",
+        "name": "John Doe",
+        "email": "john.doe@example.com"
+    }
+
+    # dump JSON to string and further to bytes
+    granter_bytes = json.dumps(access_granter).encode('utf-8')
+
+    # encode the bytes and then transform it back to string
+    urlsafe_b64encode(granter_bytes).decode('utf-8')
+
+
 Uniqueness of datasets
 -----------------------
 
