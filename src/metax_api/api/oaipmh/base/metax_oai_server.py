@@ -110,6 +110,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
                     data_catalog__catalog_json__identifier__in=settings.OAI['SET_MAPPINGS'][set])
         else:
             query_set = query_set.filter(data_catalog__catalog_json__identifier__in=self._get_default_set_filter())
+            query_set = query_set.filter(state='published')
+
         data = []
         for record in query_set:
             if verb == 'ListRecords':
@@ -440,6 +442,8 @@ class MetaxOAIServer(ResumptionOAIPMH):
             if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
                 raise BadArgumentError('Invalid metadataPrefix value. It can be only used with ListRecords verb')
             record = CatalogRecord.objects.get(identifier__exact=identifier)
+            if record.state == 'draft':
+                raise IdDoesNotExistError("No record with identifier %s is available." % identifier)
         except CatalogRecord.DoesNotExist:
             try:
                 record = DataCatalog.objects.get(catalog_json__identifier__exact=identifier)
@@ -455,4 +459,4 @@ class MetaxOAIServer(ResumptionOAIPMH):
             raise NoRecordsMatchError
 
         return (common.Header('', identifier, self._get_header_timestamp(record), ['metax'], False),
-                common.Metadata('', metadata), None)
+            common.Metadata('', metadata), None)
