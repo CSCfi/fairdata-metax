@@ -49,6 +49,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         # some cr that has publisher set...
         cr = CatalogRecord.objects.filter(research_dataset__publisher__isnull=False).first()
         self.identifier = cr.identifier
+        self.id = cr.id
         self.preferred_identifier = cr.preferred_identifier
         self._use_http_authorization()
 
@@ -303,14 +304,22 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
     def test_get_record_for_drafts(self):
         ''' Tests that GetRecord doesn't return drafts '''
 
-        self._set_dataset_as_draft(1)
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc' % self.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        identifiers = self._get_results(response.content,
+            '//o:record/o:header/o:identifier[text()="%s"]' % self.identifier)
+        self.assertTrue(len(identifiers) == 1, response.content)
+
+        # Set same dataset as draft
+        self._set_dataset_as_draft(self.id)
 
         response = self.client.get(
             '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         identifiers = self._get_results(response.content,
             '//o:record/o:header/o:identifier[text()="%s"]' % self.identifier)
-        self.assertFalse(len(identifiers) == 1, response.content)
+        self.assertTrue(len(identifiers) == 0, response.content)
 
     def test_get_record_non_existing(self):
         response = self.client.get('/oai/?verb=GetRecord&identifier=urn:non:existing&metadataPrefix=oai_dc')

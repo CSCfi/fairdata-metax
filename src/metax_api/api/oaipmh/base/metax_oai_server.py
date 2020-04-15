@@ -442,9 +442,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
             if metadataPrefix == OAI_DC_URNRESOLVER_MDPREFIX:
                 raise BadArgumentError('Invalid metadataPrefix value. It can be only used with ListRecords verb')
             record = CatalogRecord.objects.get(identifier__exact=identifier)
-            if record.state == 'published':
-                pass
-            else:
+            if record.state == 'draft':
                 raise IdDoesNotExistError("No record with identifier %s is available." % identifier)
         except CatalogRecord.DoesNotExist:
             try:
