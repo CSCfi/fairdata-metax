@@ -760,10 +760,17 @@ class FileService(CommonService, ReferenceDataMixin):
             # browsing from ALL files, not cr specific
             dirs = Directory.objects.filter(parent_directory_id=directory_id).values(*directory_fields)
 
+            # icontains returns exception on None and with empty string does unnecessary db hits
+            if directory_name:
+                dirs = dirs.filter(directory_name__icontains=directory_name)
+
             if dirs_only:
                 files = None
+
             else:
                 files = File.objects.filter(parent_directory_id=directory_id).values(*file_fields)
+                if file_name:
+                    files = files.filter(file_name__icontains=file_name)
 
         from metax_api.api.rest.base.serializers import LightDirectorySerializer
         contents = { 'directories': LightDirectorySerializer.serialize(dirs) }
@@ -866,6 +873,17 @@ class FileService(CommonService, ReferenceDataMixin):
             # for this specific version of the record, the requested directory either
             # didnt exist, or it was not selected
             raise Http404
+
+        dirs = Directory.objects.filter(id__in=directory_ids).values(*directory_fields)
+
+        # icontains returns exception on None and with empty string does unnecessary db hits
+        if directory_name:
+            dirs = dirs.filter(directory_name__icontains=directory_name)
+
+        files = None if dirs_only else File.objects.filter(id__in=file_ids).values(*file_fields)
+
+        if file_name:
+            files = files.filter(file_name__icontains=file_name)
 
         return dirs, files
 

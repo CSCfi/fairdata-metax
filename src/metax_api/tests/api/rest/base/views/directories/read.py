@@ -982,3 +982,148 @@ class DirectoryApiReadPaginationTests(DirectoryApiReadCommon):
         self.assertEqual(response.data['results']['files'][5]['id'], file_dict['files'][5])
         self.assertEqual(response.data['results']['id'], 24)
         self.assertEqual(response.data['results']['directory_name'], "10")
+
+
+class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
+    """
+    Test browsing files with queries on file and directory names.
+    """
+
+    def setUp(self):
+        self._use_http_authorization()
+        self._create_test_dirs(5)
+
+    def test_browsing_directory_with_file_name(self):
+
+        response = self.client.get('/rest/directories/24/files?file_name=')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['files']), 51)
+
+        response = self.client.get('/rest/directories/24/files?file_name=_name_1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['files']), 21)
+
+        response = self.client.get('/rest/directories/24/files?file_name=0')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['files']), 15)
+
+        response = self.client.get('/rest/directories/24/files?file_name=_name_118')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['files']), 1)
+
+    def test_browsing_directory_with_directory_name(self):
+
+        response = self.client.get('/rest/directories/24/files?directory_name=')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 5)
+
+        response = self.client.get('/rest/directories/24/files?directory_name=dir_1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 1)
+
+        response = self.client.get('/rest/directories/24/files?directory_name=dir')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 5)
+
+    def test_browsing_directory_with_directory_and_file_name(self):
+
+        response = self.client.get('/rest/directories/24/files?directory_name=&file_name=')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 5)
+        self.assertEqual(len(response.data['files']), 51)
+
+        response = self.client.get('/rest/directories/24/files?directory_name=dir_1&file_name=file_name_120')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(len(response.data['directories']), 1)
+
+        response = self.client.get('/rest/directories/24/files?directory_name=dir&file_name=not_existing')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 5)
+        self.assertEqual(len(response.data['files']), 0)
+
+    def test_browsing_directory_with_file_and_dir_name_and_pagination(self):
+        # second page should return last filtered files
+        response = self.client.get('/rest/directories/24/files?file_name=0&pagination&limit=10&offset=10')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 0)
+        self.assertEqual(len(response.data['results']['files']), 10)
+
+        # first page with limit of 3 should return first filtered directories
+        response = self.client.get('/rest/directories/24/files?directory_name=dir_&pagination&limit=3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 3)
+        self.assertEqual(len(response.data['results']['files']), 0)
+
+        # first page with limit of 3 should return first filtered directories
+        response = self.client.get('/rest/directories/24/files?directory_name=dir_1&file_name=0&pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']['directories']), 1)
+        self.assertEqual(len(response.data['results']['files']), 9)
+
+    def test_browsing_directory_with_directory_and_file_name_and_dirs_only(self):
+
+        response = self.client.get('/rest/directories/24/files?file_name=_name_11&directories_only')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['directories']), 5)
+        self.assertEqual(response.data.get('files'), None)
+
+        response = self.client.get('/rest/directories/24/files?directory_name=dir_5&directories_only')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(response.data.get('files'), None)
+
+    def test_browsing_directory_with_directory_and_file_name_and_recursive(self):
+
+        response = self.client.get('/rest/directories/24/files?file_name=_name_11&recursive')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 10)
+
+        # should have one file from directory with the rest of filtered files
+        response = self.client.get('/rest/directories/24/files?directory_name=dir_5&file_name=5&recursive&depth=*')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #print(response.data)
+        self.assertEqual(len(response.data), 6)
+
+    def test_browsing_directory_with_directory_and_file_name_and_cr_identifier_and_not_cr_identifier(self):
+        # tests for directory_name and cr_identifier
+        response = self.client.get('/rest/directories/17/files?directory_name=2&cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['directories']), 1)
+
+        response = self.client.get('/rest/directories/17/files?directory_name=phase&cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['directories']), 2)
+
+        response = self.client.get('/rest/directories/17/files?directory_name=&cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['directories']), 2)
+
+        # UNCOMMENT WHEN MERGED WITH CSCFAIRMETA-510-file-not-part-of-dataset-parameter
+        # tests for directory_name and not_cr_identifier
+        # response = self.client.get('/rest/directories/17/files?directory_name=phase&not_cr_identifier=13')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        # self.assertEqual(len(response.data['directories']), 0)
+
+        # tests for file_name and cr_identifier
+        response = self.client.get('/rest/directories/4/files?file_name=6&cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['files']), 1)
+
+        response = self.client.get('/rest/directories/4/files?file_name=name_&cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['files']), 2)
+
+        response = self.client.get('/rest/directories/4/files?file_name=&cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['files']), 2)
+
+        # UNCOMMENT WHEN MERGED WITH CSCFAIRMETA-510-file-not-part-of-dataset-parameter
+        # tests for file_name and not_cr_identifier
+        # response = self.client.get('/rest/directories/4/files?file_name=name&not_cr_identifier=13')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        # self.assertEqual(len(response.data['files']), 3)
+
+        # response = self.client.get('/rest/directories/4/files?file_name=name_9&not_cr_identifier=13')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        # self.assertEqual(len(response.data['files']), 1)

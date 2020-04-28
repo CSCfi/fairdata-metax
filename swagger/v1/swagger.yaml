@@ -605,6 +605,16 @@ paths:
           description: Comma-separated list of field names to retrieve for directories
           required: false
           type: string
+        - name: file_name
+          in: query
+          description: Substring search from file names in current directory. With recursive filter also matches files in subdirectories. Only matching files are returned.
+          required: false
+          type: string
+        - name: directory_name
+          in: query
+          description: Substring search from directory names in current directory. With recursive filter also matches subdirectories. Only matching directories are returned.
+          required: false
+          type: string
         - name: pagination
           in: query
           description: Sets paging on with default limit of 10 
