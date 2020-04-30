@@ -82,7 +82,8 @@ class CatalogRecordSerializer(CommonSerializer):
             'date_cumulation_started',
             'date_cumulation_ended',
             'date_last_cumulative_addition',
-            'rems_identifier'
+            'rems_identifier',
+            'access_granter'
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -124,6 +125,7 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('preservation_dataset_version', None)
         self.initial_data.pop('preservation_dataset_origin_version', None)
         self.initial_data.pop('rems_identifier', None)
+        self.initial_data.pop('access_granter', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
@@ -302,6 +304,7 @@ class CatalogRecordSerializer(CommonSerializer):
                     CRS.remove_contact_info_metadata(res['research_dataset']))
 
                 res.pop('rems_identifier', None)
+                res.pop('access_granter', None)
 
         return res
 
