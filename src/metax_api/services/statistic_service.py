@@ -64,6 +64,8 @@ class StatisticService():
         where_args = []
         sql_args = []
 
+        where_args.append("and state = 'published'")
+
         if from_date:
             where_args.append('and cr.date_created >= %s::date')
             sql_args.append(from_date)
@@ -156,6 +158,7 @@ class StatisticService():
                 FROM metax_api_catalogrecord cr
                 JOIN metax_api_datacatalog AS dc on dc.id = cr.data_catalog_id
                 WHERE 1=1
+                and state = 'published'
                 OPTIONAL_WHERE_FILTERS
                 GROUP BY mon
             )
@@ -174,6 +177,7 @@ class StatisticService():
                 FROM metax_api_catalogrecord AS cr
                 JOIN metax_api_datacatalog AS dc ON dc.id = cr.data_catalog_id
                 WHERE 1=1
+                and state = 'published'
                 OPTIONAL_WHERE_FILTERS
                 GROUP BY mon
             ) cr USING (mon)
@@ -258,6 +262,7 @@ class StatisticService():
                 FROM metax_api_catalogrecord cr
                 JOIN metax_api_datacatalog as dc on dc.id = cr.data_catalog_id
                 where dc.id = %s
+                and state = 'published'
                 and cr.research_dataset->'access_rights'->'access_type'->>'identifier' = %s
                 GROUP BY mon
             )
@@ -281,6 +286,7 @@ class StatisticService():
                 FROM metax_api_catalogrecord AS cr
                 JOIN metax_api_datacatalog as dc on dc.id = cr.data_catalog_id
                 where dc.id = %s
+                and state = 'published'
                 and cr.research_dataset->'access_rights'->'access_type'->>'identifier' = %s
                 GROUP BY mon, access_type
             ) cr USING (mon)
@@ -353,6 +359,7 @@ class StatisticService():
                 FROM metax_api_catalogrecord cr
                 JOIN metax_api_datacatalog as dc on dc.id = cr.data_catalog_id
                 where dc.id = %s
+                and state = 'published'
                 and cr.metadata_owner_org = %s
                 GROUP BY mon
             )
@@ -373,6 +380,7 @@ class StatisticService():
                 FROM metax_api_catalogrecord AS cr
                 JOIN metax_api_datacatalog as dc on dc.id = cr.data_catalog_id
                 where dc.id = %s
+                and state = 'published'
                 and cr.metadata_owner_org = %s
                 GROUP BY mon
             ) cr USING (mon)
@@ -535,6 +543,7 @@ class StatisticService():
                     date_trunc('month', cr.date_created) AS mon
                 FROM metax_api_catalogrecord AS cr
                 where service_created is null
+                and state = 'published'
                 GROUP BY mon
             ) cr USING (mon)
             GROUP BY mon, count

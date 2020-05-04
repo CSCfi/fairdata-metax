@@ -49,6 +49,7 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         # some cr that has publisher set...
         cr = CatalogRecord.objects.filter(research_dataset__publisher__isnull=False).first()
         self.identifier = cr.identifier
+        self.id = cr.id
         self.preferred_identifier = cr.preferred_identifier
         self._use_http_authorization()
 
@@ -62,10 +63,15 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         results = self._get_results(data, xpath)
         return results[0]
 
-# VERB: Identity
+    def _set_dataset_as_draft(self, cr_id):
+        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr.state = 'draft'
+        cr.force_save()
 
-    def test_identity(self):
-        response = self.client.get('/oai/?verb=Identity')
+# VERB: Identify
+
+    def test_identify(self):
+        response = self.client.get('/oai/?verb=Identify')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 # VERB: ListMetadataFormats
@@ -115,9 +121,23 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         errors = self._get_results(response.content, '//o:error[@code="badArgument"]')
         self.assertTrue(len(errors) == 1, response.content)
 
+    def test_list_identifiers_for_drafts(self):
+        ''' Tests that drafts are not returned from ListIdentifiers '''
+        ms = settings.OAI['BATCH_SIZE']
+        allRecords = CatalogRecord.objects.filter(
+            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter())[:ms]
+
+        self._set_dataset_as_draft(25)
+        self._set_dataset_as_draft(26)
+
+        # headers should be reduced when some datasets are set as drafts
+        response = self.client.get('/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        headers = self._get_results(response.content, '//o:header')
+        self.assertFalse(len(headers) == len(allRecords), len(headers))
+
     def test_list_identifiers_from_datacatalogs_set(self):
         allRecords = DataCatalog.objects.all()[:settings.OAI['BATCH_SIZE']]
-
         response = self.client.get('/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc&set=datacatalogs')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, '//o:header')
@@ -144,6 +164,20 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, '//o:record')
         self.assertTrue(len(records) == len(allRecords))
+
+    def test_list_records_for_drafts(self):
+        ''' Tests that drafts are not returned from ListRecords '''
+        ms = settings.OAI['BATCH_SIZE']
+        allRecords = CatalogRecord.objects.filter(
+            data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter())[:ms]
+
+        self._set_dataset_as_draft(25)
+        self._set_dataset_as_draft(26)
+
+        response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_fairdata_datacite')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        records = self._get_results(response.content, '//o:record')
+        self.assertFalse(len(records) == len(allRecords))
 
     def test_list_records_urnresolver_from_datacatalogs_set(self):
         response = self.client.get('/oai/?verb=ListRecords&metadataPrefix=oai_dc_urnresolver&set=datacatalogs')
@@ -266,6 +300,26 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         identifiers = self._get_results(response.content,
                                         '//o:record/o:header/o:identifier[text()="%s"]' % self.identifier)
         self.assertTrue(len(identifiers) == 1, response.content)
+
+    def test_get_record_for_drafts(self):
+        ''' Tests that GetRecord doesn't return drafts '''
+
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc' % self.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        identifiers = self._get_results(response.content,
+            '//o:record/o:header/o:identifier[text()="%s"]' % self.identifier)
+        self.assertTrue(len(identifiers) == 1, response.content)
+
+        # Set same dataset as draft
+        self._set_dataset_as_draft(self.id)
+
+        response = self.client.get(
+            '/oai/?verb=GetRecord&identifier=%s&metadataPrefix=oai_dc' % self.identifier)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        identifiers = self._get_results(response.content,
+            '//o:record/o:header/o:identifier[text()="%s"]' % self.identifier)
+        self.assertTrue(len(identifiers) == 0, response.content)
 
     def test_get_record_non_existing(self):
         response = self.client.get('/oai/?verb=GetRecord&identifier=urn:non:existing&metadataPrefix=oai_dc')
