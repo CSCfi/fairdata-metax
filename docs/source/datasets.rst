@@ -313,14 +313,14 @@ Using the identifiers provided by the above fields, it's possible to retrieve in
     -----------
 
 
-    REMS can be used to give access for downloading dataset files to individual users. When dataset access is REMS managed dataset owner can decide which users are able to download the files affiliated to the dataset.
+    REMS can be used to give access for downloading dataset files to individual users. When dataset access is REMS managed, dataset owner can decide which users are able to download the files affiliated to the dataset.
 
     To enable REMS, set ``access_type`` to ``permit`` and ensure that dataset belongs to IDA catalog and has at least one license defined. You can enable REMS when creating a new dataset or later while updating an existing dataset.
 
 
     **Changing access type**
 
-    When ``access_type`` is set to ``permit`` dataset downloads are managed by REMS. If this functionality is no longer wanted, simply changing the ``access_type`` to any other access type disables REMS for the dataset. Example of defining permit access type:
+    When ``access_type`` is set to ``permit``, dataset downloads are managed by REMS. If this functionality is no longer wanted, simply changing the ``access_type`` to any other access type disables REMS for the dataset. Example of defining permit access type:
 
     .. code-block:: python
 
@@ -359,8 +359,15 @@ Using the identifiers provided by the above fields, it's possible to retrieve in
 
     **Access granter**
 
-    Metax stores the necessary user information about the access granter in a separate field on CatalogRecord. When making dataset REMS managed *end users* do not need to worry about this because this information will be automatically gathered from the access token. *Service users* need to provide this information in the request body because this is required property when making dataset REMS managed. ``Access granter`` is visible via API only for the owner of the dataset.
+    Metax stores the necessary user information about the access granter in a separate field on CatalogRecord. When making dataset REMS managed, *end users* do not need to worry about this because this information will be automatically gathered from the access token. *Service users* need to provide this information in the request body because this is required property when making dataset REMS managed. Access granter is visible via API only for the owner of the dataset. Example:
 
+    .. code-block:: python
+
+        access_granter = {
+            "userid": "jodoe1",
+            "name": "John Doe",
+            "email": "john.doe@example.com"
+        }
 
 Uniqueness of datasets 
 -----------------------
