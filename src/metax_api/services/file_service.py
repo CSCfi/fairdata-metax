@@ -882,7 +882,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         files = None if dirs_only else File.objects.filter(id__in=file_ids).values(*file_fields)
 
-        if file_name:
+        if files and file_name:
             files = files.filter(file_name__icontains=file_name)
 
         return dirs, files

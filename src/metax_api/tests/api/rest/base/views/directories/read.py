@@ -1118,6 +1118,10 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['files']), 2)
 
+        response = self.client.get('/rest/directories/17/files?file_name=&cr_identifier=13&directories_only')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('files'), None)
+
         # UNCOMMENT WHEN MERGED WITH CSCFAIRMETA-510-file-not-part-of-dataset-parameter
         # tests for file_name and not_cr_identifier
         # response = self.client.get('/rest/directories/4/files?file_name=name&not_cr_identifier=13')
