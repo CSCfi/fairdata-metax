@@ -241,7 +241,7 @@ class CatalogRecord(Common):
 
     state = models.CharField(
         choices=STATE_CHOICES,
-        default=STATE_PUBLISHED,
+        default=STATE_DRAFT,
         max_length=200,
         help_text='Publishing state (published / draft) of the dataset.'
     )
@@ -1145,6 +1145,9 @@ class CatalogRecord(Common):
             # do nothing
             pass
         else:
+
+            self.state = self.STATE_PUBLISHED
+
             if self.catalog_versions_datasets():
                 dvs = DatasetVersionSet()
                 dvs.save()

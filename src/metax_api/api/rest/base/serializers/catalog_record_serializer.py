@@ -10,10 +10,16 @@ from os import path
 
 from django.conf import settings as django_settings
 from rest_framework.serializers import ValidationError
+from jsonschema.exceptions import ValidationError as JsonValidationError
 
 from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord, DataCatalog, Directory, Contract, Common, File
-from metax_api.services import CatalogRecordService as CRS, CommonService, DataCatalogService
+from metax_api.services import (
+    CatalogRecordService as CRS,
+    CommonService,
+    DataCatalogService,
+    RedisCacheService as cache,
+)
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
 from .data_catalog_serializer import DataCatalogSerializer
@@ -139,7 +145,7 @@ class CatalogRecordSerializer(CommonSerializer):
         # ensure any operation made on research_dataset during serializer.is_valid(),
         # is still compatible with the schema
         if 'research_dataset' in self.initial_data:
-            self._validate_json_schema(self.initial_data['research_dataset'])
+            self.validate_json_schema(self.initial_data['research_dataset'])
             self._validate_org_name_is_set(self.initial_data['research_dataset'])
 
     def update(self, instance, validated_data):
@@ -315,7 +321,14 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'directories' not in ds:
             return
 
-        dirs_to_populate = [ dr['identifier'] for dr in ds['directories'] if not dr.get('title', None) ]
+        # make sure to not populate title for entries that already contain other dataset-specific metadata
+        dirs_to_populate = [
+            dr['identifier'] for dr in ds['directories']
+            if dr.get('title', None) is None
+            and len(dr) > 1
+            and dr.get('exclude', False) is False
+            and dr.get('delete', False) is False
+        ]
 
         if dirs_to_populate:
 
@@ -338,7 +351,14 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'files' not in ds:
             return
 
-        files_to_populate = [ f['identifier'] for f in ds['files'] if not f.get('title', None) ]
+        # make sure to not populate title for entries that already contain other dataset-specific metadata
+        files_to_populate = [
+            f['identifier'] for f in ds['files']
+            if f.get('title', None) is None
+            and len(f) > 1
+            and f.get('exclude', False) is False
+            and f.get('delete', False) is False
+        ]
 
         if files_to_populate:
 
@@ -356,10 +376,61 @@ class CatalogRecordSerializer(CommonSerializer):
 
     def validate_research_dataset(self, value):
 
+        self._populate_file_and_dir_titles(value)
+
+        self.validate_json_schema(value)
+
+        if self._operation_is_create or self._preferred_identifier_is_changed():
+            self._validate_research_dataset_uniqueness(value)
+
+        CRS.validate_reference_data(value, cache)
+
+        return value
+
+    def validate_research_dataset_files(self, value):
+        """
+        Validate only files and directories of a research_dataset.
+        - populate titles of files and dirs
+        - validate and populate ref data
+        - validate received file and dir entries against schema
+            - there is a special schema file dataset_files_schema.json, which uses
+              objects defined in ida dataset schema. the RefResolver object is necessary
+              to make the json schema external file links work.
+        """
+        self._populate_file_and_dir_titles(value)
+
+        CRS.validate_reference_data(value, cache)
+
+        rd_files_schema = CommonService.get_json_schema(path.dirname(__file__) + '/../schemas', 'dataset_files')
+
+        from jsonschema import Draft4Validator, RefResolver
+
+        resolver = RefResolver(
+            # at some point when jsonschema package is updated, probably need to switch to
+            # using the below commented out parameter names instead
+            # schema_path='file:{}'.format(path.dirname(path.dirname(__file__)) + '/schemas/dataset_files_schema.json'),
+            # schema=rd_files_schema
+            base_uri='file:{}'.format(path.dirname(path.dirname(__file__)) + '/schemas/dataset_files_schema.json'),
+            referrer=rd_files_schema
+        )
+
+        # for debugging, below may be useful
+        # Draft4Validator.check_schema(rd_files_schema)
+
+        validator = Draft4Validator(rd_files_schema, resolver=resolver, format_checker=None)
+        try:
+            validator.validate(value)
+        except JsonValidationError as e:
+            raise ValidationError({ 'detail':
+                ['%s. Json path: %s. Schema: %s' % (e.message, [p for p in e.path], e.schema)]
+            })
+
+    def _populate_file_and_dir_titles(self, value):
         if 'directories' in value and not value['directories']:
             # remove if empty list
             del value['directories']
         else:
+
             self._populate_dir_titles(value)
 
         if 'files' in value and not value['files']:
@@ -368,14 +439,7 @@ class CatalogRecordSerializer(CommonSerializer):
         else:
             self._populate_file_titles(value)
 
-        self._validate_json_schema(value)
-        if self._operation_is_create or self._preferred_identifier_is_changed():
-            self._validate_research_dataset_uniqueness(value)
-        CRS.validate_reference_data(value, self.context['view'].cache)
-
-        return value
-
-    def _validate_json_schema(self, value):
+    def validate_json_schema(self, value):
         self._set_dataset_schema()
 
         if self._operation_is_create:

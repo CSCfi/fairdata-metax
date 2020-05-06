@@ -128,7 +128,9 @@ if executing_in_test_case or executing_in_travis:
                 "get_minimal_dataset_template": { "use": ["all"] },
                 "refresh_directory_content": { "use": ["all"]},
                 "fix_deprecated": { "use": ["all"] },
-                "set_preservation_identifier": { "use": ["metax", "tpas"] }
+                "set_preservation_identifier": { "use": ["metax", "tpas"] },
+                "create_new_version": { "use": ["all"] },
+                "publish_dataset": { "use": ["all"] },
             },
             "files": {
                 "delete_project": { "use": ["testuser", "metax"] }

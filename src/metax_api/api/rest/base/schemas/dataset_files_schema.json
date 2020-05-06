@@ -1,0 +1,34 @@
+{
+    "title": "Metax Research Datasets Files and Directories",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "#/definitions/FileChanges"
+        }
+    ],
+    "definitions":  {
+        "FileChanges":  {
+            "title": "File chnages",
+            "type": "object",
+            "description": "File and directory entries for changing files of a dataset or editing their metadata. Is essentially a subset of research_dataset object.",
+            "minProperties": 1,
+            "properties": {
+                "files":  {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "ida_dataset_schema.json#/definitions/File"
+                    }
+                },
+                "directories":  {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "$ref": "ida_dataset_schema.json#/definitions/Directory"
+                    }
+                }
+            }
+        }
+    }
+}
