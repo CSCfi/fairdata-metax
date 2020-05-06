@@ -398,6 +398,9 @@ class CatalogRecord(Common):
 
     def user_is_owner(self, request):
         if self.state == self.STATE_DRAFT and self.metadata_provider_user != request.user.username:
+            _logger.debug('404 due to state == draft and metadata_provider_user != request.user.username')
+            _logger.debug('metadata_provider_user =', self.metadata_provider_user)
+            _logger.debug('request.user.username =', request.user.username)
             raise Http404
 
         if self.editor and 'owner_id' in self.editor:
@@ -897,7 +900,7 @@ class CatalogRecord(Common):
 
     def delete(self, *args, **kwargs):
         if self.state == self.STATE_DRAFT:
-            # delete permanently instead of only marking as 'removed'
+            _logger.info('Deleting draft dataset %s permanently' % self.identifier)
             super(Common, self).delete()
             return
 
@@ -1001,7 +1004,7 @@ class CatalogRecord(Common):
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
-    def _save_as_draft(self, request):
+    def _save_as_draft(self):
         from metax_api.services import CommonService
         return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
 
@@ -1086,7 +1089,7 @@ class CatalogRecord(Common):
                 'Catalog %s is a legacy catalog - not generating pid'
                 % self.data_catalog.catalog_json['identifier']
             )
-        elif self._save_as_draft(self.request):
+        elif self._save_as_draft():
             self.state = self.STATE_DRAFT
             self.research_dataset['preferred_identifier'] = self.identifier
         else:
@@ -1138,7 +1141,7 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if self._save_as_draft(self.request):
+        if self._save_as_draft():
             # do nothing
             pass
         else:
@@ -1155,6 +1158,8 @@ class CatalogRecord(Common):
             if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
                 self._pre_rems_creation()
                 super().save(update_fields=['rems_identifier', 'access_granter'])
+
+            super().save()
 
             self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1530,7 +1535,7 @@ class CatalogRecord(Common):
     def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
         if 'files' in rd or 'directories' in rd:
-            rd['total_files_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum']
+            rd['total_files_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum'] or 0
         else:
             rd['total_files_byte_size'] = 0
 
@@ -1741,7 +1746,7 @@ class CatalogRecord(Common):
         The record is saved once immediately, so that it will have a proper db id for later changes,
         such as adding relations.
         """
-        new_version_template = CatalogRecord.objects.get(pk=self.id)
+        new_version_template = self.__class__.objects.get(pk=self.id)
         new_version_template.id = None
         new_version_template.next_dataset_version = None
         new_version_template.previous_dataset_version = None
@@ -2119,7 +2124,7 @@ class CatalogRecord(Common):
         CRS.validate_reference_data(params['research_dataset'], cache)
 
         # finally create the pas copy dataset
-        pas_version = CatalogRecord(**params)
+        pas_version = self.__class__(**params)
         pas_version.request = origin_version.request
         pas_version.save(pid_type=IdentifierType.DOI)
 

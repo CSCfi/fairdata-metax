@@ -38,14 +38,21 @@ class DatasetViewSet(CommonViewSet):
         super(DatasetViewSet, self).__init__(*args, **kwargs)
 
     def get_object(self):
+        cr = None
+
         try:
-            return super(DatasetViewSet, self).get_object()
+            cr = super(DatasetViewSet, self).get_object()
         except Http404:
             if CRS.is_primary_key(self.kwargs.get(self.lookup_field, False)):
                 # fail on pk search is clear...
                 raise
 
-        return self._search_using_dataset_identifiers()
+        if cr is None:
+            cr = self._search_using_dataset_identifiers()
+
+        cr.request = self.request
+
+        return cr
 
     def retrieve(self, request, *args, **kwargs):
         from metax_api.services.datacite_service import DataciteException
@@ -132,7 +139,7 @@ class DatasetViewSet(CommonViewSet):
         return Response(data=entries, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], url_path="files")
-    def files_get(self, request, pk=None):
+    def files_list(self, request, pk=None):
         """
         Get files associated to this dataset. Can be used to retrieve a list of only
         deleted files by providing the query parameter removed_files=true.
