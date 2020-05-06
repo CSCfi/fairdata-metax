@@ -26,6 +26,8 @@ ignore =
     E128
     # do not use bare except
     E722
+    # line break before binary operator
+    W503
     # line break after binary operator
     W504
 
