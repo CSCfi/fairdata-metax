@@ -438,8 +438,14 @@ class CatalogRecord(Common):
         :return:
         """
         if request.user.is_service:
-            # knows what they are doing
-            return True
+            if request.method == 'GET':
+                if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_read,
+                self.data_catalog.catalog_record_services_read, request):
+                    return False
+                else:
+                    return True
+            else:
+                return True
         elif self.user_is_owner(request):
             # can see sensitive fields
             return True

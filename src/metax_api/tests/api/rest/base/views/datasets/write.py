@@ -18,10 +18,9 @@ from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
 from metax_api.services import ReferenceDataMixin as RDM, RedisCacheService as cache
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
-from metax_api.tests.utils import get_test_oidc_token
-
+from metax_api.models.catalog_record import ACCESS_TYPES
 
 VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
@@ -169,7 +168,8 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
                 catalog_json=catalog_json,
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create='testuser,api_auth_user,metax',
-                catalog_record_services_edit='testuser,api_auth_user,metax'
+                catalog_record_services_edit='testuser,api_auth_user,metax',
+                catalog_record_services_read='testuser,api_auth_user,metax'
             )
 
         self.token = get_test_oidc_token(new_proxy=True)
@@ -259,6 +259,7 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
 
         response = self.client.get('/rest/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         response = self.client.get('/rest/datasets/2')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
         response = self.client.get('/rest/datasets/3')
@@ -1229,7 +1230,8 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
             catalog_json=catalog_json,
             date_created=get_tz_aware_now_without_micros(),
             catalog_record_services_create='testuser,api_auth_user,metax',
-            catalog_record_services_edit='testuser,api_auth_user,metax'
+            catalog_record_services_edit='testuser,api_auth_user,metax',
+            catalog_record_services_read='testuser,api_auth_user,metax'
         )
 
     def test_update_catalog_record_pas_state_allowed_value(self):
@@ -3607,7 +3609,8 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
                 catalog_json=catalog_json,
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create='testuser,api_auth_user,metax',
-                catalog_record_services_edit='testuser,api_auth_user,metax'
+                catalog_record_services_edit='testuser,api_auth_user,metax',
+                catalog_record_services_read='testuser,api_auth_user,metax'
             )
 
         self.token = get_test_oidc_token()
@@ -3885,8 +3888,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         _check_fields(response.data)
 
-
-class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
+class CatalogRecordExternalServicesAccess(CatalogRecordApiWriteCommon):
 
     """
     Testing access of services to external catalogs with harvested flag and vice versa.
@@ -3911,6 +3913,40 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
 
         self._use_http_authorization(username=django_settings.API_EXT_USER['username'],
             password=django_settings.API_EXT_USER['password'])
+
+    def test_external_service_can_not_read_all_metadata_in_other_catalog(self):
+        ''' External service should get the same output from someone elses catalog than anonymous user '''
+        # create a catalog that does not belong to our external service
+        dc2 = DataCatalog.objects.get(pk=2)
+        dc2.catalog_json['identifier'] = 'Some other catalog'
+        dc2.catalog_record_services_read = 'metax'
+        dc2.force_save()
+
+        # Create a catalog record that belongs to some other user & our catalog nr2
+        cr = CatalogRecord.objects.get(pk=12)
+        cr.user_created = '#### Some owner who is not you ####'
+        cr.metadata_provider_user = '#### Some owner who is not you ####'
+        cr.data_catalog = dc2
+        cr.editor = None
+        cr.research_dataset['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted']
+        cr.force_save()
+
+        # Let's try to return the data with our external services credentials
+        response_service_user = self.client.get('/rest/datasets/12')
+        self.assertEqual(response_service_user.status_code, status.HTTP_200_OK, response_service_user.data)
+
+        # Test access as unauthenticated user
+        self.client._credentials = {}
+        response_anonymous = self.client.get('/rest/datasets/12')
+        self.assertEqual(response_anonymous.status_code, status.HTTP_200_OK, response_anonymous.data)
+
+        self.assertEqual(response_anonymous.data, response_service_user.data,
+            "External service with no read-rights should not see any more metadata than anonymous user from a catalog")
+
+    def assert_catalog_record_not_open_access(self, cr):
+        from metax_api.models.catalog_record import ACCESS_TYPES
+        access_type = cr['research_dataset'].get('access_rights', {}).get('access_type', {}).get('identifier', '')
+        assert(access_type != ACCESS_TYPES['open'])
 
     def test_external_service_can_add_catalog_record_to_own_catalog(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
