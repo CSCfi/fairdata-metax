@@ -90,6 +90,7 @@ class ApiWriteCommonFieldsTests(ApiWriteCommon):
 
         # Verify date_removed got set
         response = self.client.get('/rest/datasets/%d?removed' % cr_id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data['removed'] is True)
         self.assertTrue(response.data.get('date_removed', '').startswith('2'))
 

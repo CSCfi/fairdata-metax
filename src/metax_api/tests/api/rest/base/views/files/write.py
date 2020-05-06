@@ -734,7 +734,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         response = self.client.put('/rest/files/%s?allowed_projects=%s' % (f['identifier'], f['project_identifier']),
                                 [f], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('json' in response.data['detail'], True, 'Error regarding datatype')
+        self.assertEqual('json' in response.data['detail'][0], True, 'Error regarding datatype')
 
     #
     # update list operations PUT
@@ -867,7 +867,7 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
             [new_data], format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('json' in response.data['detail'], True, 'Error regarding datatype')
+        self.assertEqual('json' in response.data['detail'][0], True, 'Error regarding datatype')
 
     #
     # update list operations PATCH

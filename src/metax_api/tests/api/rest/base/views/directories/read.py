@@ -154,7 +154,7 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
     def test_read_directory_get_project_root_directory_parameter_missing(self):
         response = self.client.get('/rest/directories/root')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('required' in response.data['detail'], True, response.data)
+        self.assertEqual('required' in response.data['detail'][0], True, response.data)
 
     def test_read_directory_get_files_by_path(self):
         dr = Directory.objects.get(pk=2)

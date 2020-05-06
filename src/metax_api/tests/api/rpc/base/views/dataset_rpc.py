@@ -389,7 +389,7 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
 
         response = self.client.post(self.url % (cr_id, dir_id), format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('not included' in response.data['detail'], response.data)
+        self.assertTrue('not included' in response.data['detail'][0], response.data)
 
 
 class FixDeprecatedTests(CatalogRecordApiWriteAssignFilesCommon):
