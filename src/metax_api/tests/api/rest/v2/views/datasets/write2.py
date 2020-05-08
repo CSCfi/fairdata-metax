@@ -668,6 +668,22 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
             response2.data.get('previous_dataset_version', {}).get('identifier'), response.data['identifier']
         )
 
+    def test_delete_new_version_draft(self):
+        """
+        Ensure a new version that is created into draft state can be deleted, and is permanently deleted.
+        """
+        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        next_version_identifier = response.data.get('identifier')
+
+        response = self.client.delete('/rest/v2/datasets/%s' % next_version_identifier, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        num_found = CR.objects_unfiltered.filter(identifier=next_version_identifier).count()
+        self.assertEqual(num_found, 0, 'draft should have been permanently deleted')
+        self.assertEqual(CR.objects.get(pk=1).next_dataset_version, None)
+
     def test_version_already_exists(self):
         """
         If a dataset already has a next version, then a new version cannot be created.
