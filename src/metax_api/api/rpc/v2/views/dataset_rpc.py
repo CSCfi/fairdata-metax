@@ -55,8 +55,6 @@ class DatasetRPC(DatasetRPC):
     @list_route(methods=['post'], url_path="create_new_version")
     def create_new_version(self, request):
 
-        # import ipdb; ipdb.set_trace()
-
         cr = self.get_object()
 
         cr.create_new_version()

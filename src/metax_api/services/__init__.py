@@ -8,6 +8,7 @@
 from .api_error_service import ApiErrorService
 from .auth_service import AuthService
 from .catalog_record_service import CatalogRecordService
+from .catalog_record_service_v2 import CatalogRecordServiceV2
 from .callable_service import CallableService
 from .common_service import CommonService
 from .data_catalog_service import DataCatalogService
