@@ -627,7 +627,7 @@ if executing_in_test_case or executing_in_travis:
 else:
     DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)
 
-if executing_in_test_case:
+if executing_in_test_case or executing_in_travis:
     API_VERSIONS_ENABLED = {
         "v1": True,
         "v2": True,
