@@ -15,7 +15,7 @@ from metax_api.services import CatalogRecordService as CRS, CommonService as CS
 _logger = logging.getLogger(__name__)
 
 
-class CatalogRecordSerializer(CatalogRecordSerializer):
+class CatalogRecordSerializerV2(CatalogRecordSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -31,7 +31,7 @@ class CatalogRecordSerializer(CatalogRecordSerializer):
                 if CS.get_boolean_query_param(self.context['request'], 'file_details'):
                     CRS.populate_file_details(res, self.context['request'])
             else:
-                res['research_dataset'].pop('files', None)
-                res['research_dataset'].pop('directories', None)
+                res.get('research_dataset', {}).pop('files', None)
+                res.get('research_dataset', {}).pop('directories', None)
 
         return res

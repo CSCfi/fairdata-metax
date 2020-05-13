@@ -16,7 +16,7 @@ from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecordV2
 from metax_api.api.rest.base.views import DatasetViewSet
 from metax_api.api.rest.base.serializers import LightFileSerializer
-from metax_api.api.rest.v2.serializers import CatalogRecordSerializer
+from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
 from metax_api.services import CommonService as CS, CatalogRecordServiceV2
 
 _logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ UNAUTHORIZED_TO_SEE_FILES_MSG = \
 class DatasetViewSet(DatasetViewSet):
 
     service_class = CatalogRecordServiceV2
-    serializer_class = CatalogRecordSerializer
+    serializer_class = CatalogRecordSerializerV2
     object = CatalogRecordV2
 
     @detail_route(methods=['get'], url_path="projects")

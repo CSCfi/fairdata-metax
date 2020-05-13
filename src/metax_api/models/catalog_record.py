@@ -333,6 +333,12 @@ class CatalogRecord(Common):
     """
     new_dataset_version_created = None
 
+    """
+    Serializer class to use withing this class, where needed. Allows inheriting classes
+    to define their own preference without hardcoding it everywhere.
+    """
+    serializer_class = None
+
     objects = CatalogRecordManager()
 
     class Meta:
@@ -362,6 +368,8 @@ class CatalogRecord(Common):
             'research_dataset.metadata_version_identifier',
             'research_dataset.preferred_identifier',
         )
+        from metax_api.api.rest.base.serializers import CatalogRecordSerializer
+        self.serializer_class = CatalogRecordSerializer
 
     def print_files(self): # pragma: no cover
         for f in self.files.all():
@@ -2508,8 +2516,8 @@ class RabbitMQPublishRecord():
             ]})
 
     def _to_json(self):
-        from metax_api.api.rest.base.serializers import CatalogRecordSerializer
-        return CatalogRecordSerializer(self.cr).data
+        serializer_class = self.cr.serializer_class
+        return serializer_class(self.cr).data
 
 
 class REMSUpdate():

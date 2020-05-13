@@ -5,4 +5,4 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from .catalog_record_serializer import CatalogRecordSerializer
+from .catalog_record_serializer import CatalogRecordSerializerV2

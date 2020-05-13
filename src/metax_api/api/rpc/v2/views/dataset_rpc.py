@@ -13,7 +13,7 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from metax_api.api.rpc.base.views import DatasetRPC
-from metax_api.api.rest.v2.serializers import CatalogRecordSerializer
+from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
 from metax_api.exceptions import Http400
 from metax_api.models import CatalogRecordV2
 
@@ -23,7 +23,7 @@ _logger = logging.getLogger(__name__)
 
 class DatasetRPC(DatasetRPC):
 
-    serializer_class = CatalogRecordSerializer
+    serializer_class = CatalogRecordSerializerV2
     object = CatalogRecordV2
 
     def get_object(self):

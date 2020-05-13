@@ -57,6 +57,11 @@ class CatalogRecordV2(CatalogRecord):
         # behaviour may differ from base class.
         proxy = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
+        self.serializer_class = CatalogRecordSerializerV2
+
     def save(self, *args, **kwargs):
         if self._operation_is_create():
             self._pre_create_operations()
@@ -530,8 +535,7 @@ class CatalogRecordV2(CatalogRecord):
             return
 
         # create an instance of the serializer for later validations
-        from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
-        serializer = CatalogRecordSerializerV2(self)
+        serializer = self.serializer_class(self)
 
         if operation_is_create:
             # todo: probably it would be best to leave this timestamp field empty on initial create
@@ -890,8 +894,7 @@ class CatalogRecordV2(CatalogRecord):
         """
         _logger.info('Updating dataset file metadata...')
 
-        from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
-        serializer = CatalogRecordSerializerV2(self)
+        serializer = self.serializer_class(self)
 
         # note: this does json schema validation, and its output from the api is not user friendly
         # at all, but its better than nothing...
