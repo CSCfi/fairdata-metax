@@ -1,23 +1,31 @@
 #!/usr/bin/python
+#
+#  Copyright 2017 Otto Seiskari
+#  Licensed under the Apache License, Version 2.0.
+#  See http://www.apache.org/licenses/LICENSE-2.0 for the full text.
+#
+#  This file is based on
+#  https://github.com/swagger-api/swagger-ui/blob/4f1772f6544699bc748299bd65f7ae2112777abc/dist/index.html
+#  (Copyright 2017 SmartBear Software, Licensed under Apache 2.0)
+#
 """
 Usage:
 
-python swagger-yaml-to-html.py < swagger.yaml > index.html
+    python swagger-yaml-to-html.py < /path/to/api.yaml > doc.html
+
+"""
+
+"""
+Metax Usage:
+
+python swagger-yaml-to-html.py < v1/swagger.yaml > v1/index.html
 
 Note: The index.html file does not need to be manually updated in the repository. There is an ansible role in
 metax-ops/ansible/roles/docs, which automatically generates the index.html swagger page. For development it may
 be useful to manully run the above script
-
-Credits:
-
-github.com/oseiskar
-https://gist.github.com/oseiskar/dbd51a3727fc96dcf5ed189fca491fb3
 """
 
-import json
-import sys
-import yaml
-
+import yaml, json, sys
 
 TEMPLATE = """
 <!DOCTYPE html>
@@ -26,7 +34,7 @@ TEMPLATE = """
   <meta charset="UTF-8">
   <title>Swagger UI</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.2.2/swagger-ui.css" >
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.24.2/swagger-ui.css" >
   <style>
     html
     {
@@ -51,8 +59,8 @@ TEMPLATE = """
 
 <div id="swagger-ui"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.2.2/swagger-ui-bundle.js"> </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.2.2/swagger-ui-standalone-preset.js"> </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.24.2/swagger-ui-bundle.js"> </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.24.2/swagger-ui-standalone-preset.js"> </script>
 <script>
 window.onload = function() {
 
