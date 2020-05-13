@@ -20,7 +20,13 @@ class CatalogRecordServiceV2(CatalogRecordService):
         v1 API has query params state and preservation_state doing the same thing. v2 API will properly
         use state to filter by field state.
         """
-        state = request.query_params.pop('state', None)
+        state = request.query_params.get('state', None)
+
+        if state:
+            # request.query_params is an immutable QueryDict object. replace request.query_params
+            # with a new, ordinary dict where state is missing
+            query_params = { k: v for k, v in request.query_params if k != 'state' }
+            request.query_params = query_params
 
         queryset_search_params = super().get_queryset_search_params(request)
 
