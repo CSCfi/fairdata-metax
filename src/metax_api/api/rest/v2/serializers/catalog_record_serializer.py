@@ -5,17 +5,30 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from os import path
 import logging
+
+from jsonschema import Draft4Validator, RefResolver
+from jsonschema.exceptions import ValidationError as JsonValidationError
+from rest_framework.serializers import ValidationError
 
 from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.models import CatalogRecordV2
-from metax_api.services import CatalogRecordService as CRS, CommonService as CS
+from metax_api.services import (
+    CatalogRecordService as CRS,
+    CommonService as CS,
+    RedisCacheService as cache,
+)
 
 
 _logger = logging.getLogger(__name__)
 
 
 class CatalogRecordSerializerV2(CatalogRecordSerializer):
+
+    # define separately for inherited class, so that schemas are searched
+    # from api/rest/v2/schemas, instead of api/rest/v1/schemas
+    _schemas_directory_path = path.join(path.dirname(path.dirname(__file__)), 'schemas')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,3 +48,40 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
                 res.get('research_dataset', {}).pop('directories', None)
 
         return res
+
+    def validate_research_dataset_files(self, value):
+        """
+        Validate only files and directories of a research_dataset.
+        - populate titles of files and dirs
+        - validate and populate ref data
+        - validate received file and dir entries against schema
+            - there is a special schema file dataset_files_schema.json, which uses
+              objects defined in ida dataset schema. the RefResolver object is necessary
+              to make the json schema external file links work.
+        """
+        self._populate_file_and_dir_titles(value)
+
+        CRS.validate_reference_data(value, cache)
+
+        rd_files_schema = CS.get_json_schema(self._schemas_directory_path, 'dataset_files')
+
+        resolver = RefResolver(
+            # at some point when jsonschema package is updated, probably need to switch to
+            # using the below commented out parameter names instead
+            # schema_path='file:{}'.format(path.dirname(path.dirname(__file__)) + '/schemas/dataset_files_schema.json'),
+            # schema=rd_files_schema
+            base_uri='file:{}'.format(path.join(self._schemas_directory_path, 'dataset_files_schema.json')),
+            referrer=rd_files_schema
+        )
+
+        # for debugging, below may be useful
+        # Draft4Validator.check_schema(rd_files_schema)
+
+        validator = Draft4Validator(rd_files_schema, resolver=resolver, format_checker=None)
+
+        try:
+            validator.validate(value)
+        except JsonValidationError as e:
+            raise ValidationError({ 'detail':
+                ['%s. Json path: %s. Schema: %s' % (e.message, [p for p in e.path], e.schema)]
+            })

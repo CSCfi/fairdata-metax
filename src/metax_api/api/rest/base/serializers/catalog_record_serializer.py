@@ -10,7 +10,6 @@ from os import path
 
 from django.conf import settings as django_settings
 from rest_framework.serializers import ValidationError
-from jsonschema.exceptions import ValidationError as JsonValidationError
 
 from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord, DataCatalog, Directory, Contract, Common, File
@@ -106,6 +105,9 @@ class CatalogRecordSerializer(CommonSerializer):
         }
 
         extra_kwargs.update(CommonSerializer.Meta.extra_kwargs)
+
+    # schemas dir is effectively ../schemas/
+    _schemas_directory_path = path.join(path.dirname(path.dirname(__file__)), 'schemas')
 
     def is_valid(self, raise_exception=False):
         if self._request_by_end_user():
@@ -386,44 +388,6 @@ class CatalogRecordSerializer(CommonSerializer):
         CRS.validate_reference_data(value, cache)
 
         return value
-
-    def validate_research_dataset_files(self, value):
-        """
-        Validate only files and directories of a research_dataset.
-        - populate titles of files and dirs
-        - validate and populate ref data
-        - validate received file and dir entries against schema
-            - there is a special schema file dataset_files_schema.json, which uses
-              objects defined in ida dataset schema. the RefResolver object is necessary
-              to make the json schema external file links work.
-        """
-        self._populate_file_and_dir_titles(value)
-
-        CRS.validate_reference_data(value, cache)
-
-        rd_files_schema = CommonService.get_json_schema(path.dirname(__file__) + '/../schemas', 'dataset_files')
-
-        from jsonschema import Draft4Validator, RefResolver
-
-        resolver = RefResolver(
-            # at some point when jsonschema package is updated, probably need to switch to
-            # using the below commented out parameter names instead
-            # schema_path='file:{}'.format(path.dirname(path.dirname(__file__)) + '/schemas/dataset_files_schema.json'),
-            # schema=rd_files_schema
-            base_uri='file:{}'.format(path.dirname(path.dirname(__file__)) + '/schemas/dataset_files_schema.json'),
-            referrer=rd_files_schema
-        )
-
-        # for debugging, below may be useful
-        # Draft4Validator.check_schema(rd_files_schema)
-
-        validator = Draft4Validator(rd_files_schema, resolver=resolver, format_checker=None)
-        try:
-            validator.validate(value)
-        except JsonValidationError as e:
-            raise ValidationError({ 'detail':
-                ['%s. Json path: %s. Schema: %s' % (e.message, [p for p in e.path], e.schema)]
-            })
 
     def _populate_file_and_dir_titles(self, value):
         if 'directories' in value and not value['directories']:
@@ -710,5 +674,4 @@ class CatalogRecordSerializer(CommonSerializer):
         else:
             schema_prefix = None
 
-        self.json_schema = CommonService.get_json_schema(
-            path.dirname(__file__) + '/../schemas', 'dataset', schema_prefix)
+        self.json_schema = CommonService.get_json_schema(self._schemas_directory_path, 'dataset', schema_prefix)

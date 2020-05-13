@@ -373,8 +373,8 @@
             },
             "required":[
                 "id",
-                "identifier",
+                "identifier"
             ]
-        },
+        }
     }
 }
