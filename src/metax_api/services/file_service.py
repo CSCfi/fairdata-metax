@@ -519,7 +519,7 @@ class FileService(CommonService, ReferenceDataMixin):
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
             recursive=False, max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None,
-            not_cr_identifier=None, request=None):
+            not_cr_identifier=None, file_name=None, directory_name=None, request=None):
         """
         Get files and directories contained by a directory.
 
@@ -723,7 +723,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
     @classmethod
     def _get_directory_contents(cls, directory_id, recursive=False, max_depth=1, depth=0, dirs_only=False,
-            cr_id=None, not_cr_id=None, directory_fields=[], file_fields=[]):
+            cr_id=None, not_cr_id=None, directory_fields=[], file_fields=[], file_name=None, directory_name=None):
         """
         Get files and directories contained by a directory.
 
@@ -804,8 +804,9 @@ class FileService(CommonService, ReferenceDataMixin):
 
         return contents
 
-    def _get_directory_contents_for_catalog_record(directory_id, cr_id, not_cr_id, dirs_only=False,
-            directory_fields=[], file_fields=[]):
+    @classmethod
+    def _get_directory_contents_for_catalog_record(cls, directory_id, cr_id, not_cr_id, file_name, directory_name,
+            dirs_only=False, directory_fields=[], file_fields=[]):
         """
         Browsing files in the context of a specific CR id.
         """
@@ -874,13 +875,9 @@ class FileService(CommonService, ReferenceDataMixin):
             # didnt exist, or it was not selected
             raise Http404
 
-        dirs = Directory.objects.filter(id__in=directory_ids).values(*directory_fields)
-
         # icontains returns exception on None and with empty string does unnecessary db hits
         if directory_name:
             dirs = dirs.filter(directory_name__icontains=directory_name)
-
-        files = None if dirs_only else File.objects.filter(id__in=file_ids).values(*file_fields)
 
         if files and file_name:
             files = files.filter(file_name__icontains=file_name)
