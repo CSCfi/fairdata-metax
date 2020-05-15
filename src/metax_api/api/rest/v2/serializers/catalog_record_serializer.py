@@ -34,6 +34,10 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
         super().__init__(*args, **kwargs)
         self.Meta.model = CatalogRecordV2
 
+    def is_valid(self, raise_exception=False):
+        self.initial_data.pop('editor', None)
+        super().is_valid(raise_exception=raise_exception)
+
     def to_representation(self, instance):
 
         res = super().to_representation(instance)
@@ -46,6 +50,8 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
             else:
                 res.get('research_dataset', {}).pop('files', None)
                 res.get('research_dataset', {}).pop('directories', None)
+
+        res.pop('editor', None)
 
         return res
 

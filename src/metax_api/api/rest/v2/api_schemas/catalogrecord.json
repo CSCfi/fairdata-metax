@@ -133,12 +133,6 @@
                     "maxItems":1,
                     "type":"string"
                 },
-                "editor":{
-                    "title":"Editor",
-                    "description":"The editor that is used to modify the record.",
-                    "type":"object",
-                    "$ref":"#/definitions/Editor"
-                },
                 "dataset_version_set":{
                     "title":"Dataset version set",
                     "description":"Information about the different related dataset versions.",
@@ -268,36 +262,6 @@
                 "research_dataset",
                 "metadata_provider_org",
                 "metadata_provider_user"
-            ]
-        },
-        "Editor":{
-            "title":"Editor",
-            "description":"An editor object, holds information related to an editor that is used to modify the record. Can contain other fields that are useful to the editor.",
-            "properties":{
-                "creator_id":{
-                    "title":"Creator id",
-                    "description":"Id of the creator in the editor. May (currently) be the same value as user_created in CatalogRecord, if the requestor has set that value.",
-                    "type":"string"
-                },
-                "owner_id":{
-                    "title":"Owner id",
-                    "description":"Id of the owner in the editor",
-                    "type":"string"
-                },
-                "record_id":{
-                    "title":"Record id",
-                    "description":"Internal id of the record in the editor's system",
-                    "type":"string"
-                },
-                "identifier":{
-                    "title":"identifier",
-                    "description":"Id of the editor, for example: qvain",
-                    "type":"string"
-                }
-            },
-            "required":[
-                "owner_id",
-                "identifier"
             ]
         },
         "CatalogRecordVersion":{
