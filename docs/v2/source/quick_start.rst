@@ -25,12 +25,12 @@ No chit-chat get a dataset published into Metax and see it in the Fairdata servi
 
     token = 'paste your token here'
 
-    response = requests.get('https://__METAX_ENV_DOMAIN__/rpc/datasets/get_minimal_dataset_template?type=enduser')
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rpc/v2/datasets/get_minimal_dataset_template?type=enduser')
     assert response.status_code == 200, response.content
 
     dataset_data = response.json()
     headers = { 'Authorization': 'Bearer %s' % token }
-    response = requests.post('https://__METAX_ENV_DOMAIN__/rest/datasets', json=dataset_data, headers=headers)
+    response = requests.post('https://__METAX_ENV_DOMAIN__/rest/v2/datasets', json=dataset_data, headers=headers)
     assert response.status_code == 201, response.content
     identifier = response.json()['identifier']
 
@@ -43,4 +43,4 @@ No chit-chat get a dataset published into Metax and see it in the Fairdata servi
 4) Execute the script.
 5) You should now have a published dataset, and you should be able to find it in the Fairdata service Etsin by using the identifier printed by the script in the following url: ``__ETSIN_ENV_BASE_URL__/dataset/<identifier>``
 
-In reality you will probably want to create a dataset with a little bit more interesting data in it, but using the example dataset from API ``GET /rpc/datasets/get_minimal_dataset_template`` is a good starting point for your modifications. For more involved examples, see the examples sections in topics :doc:`datasets` and :doc:`files`, or start browsing the various sections of the documentation to get to know what's what.
+In reality you will probably want to create a dataset with a little bit more interesting data in it, but using the example dataset from API ``GET /rpc/v2/datasets/get_minimal_dataset_template`` is a good starting point for your modifications. For more involved examples, see the examples sections in topics :doc:`datasets` and :doc:`files`, or start browsing the various sections of the documentation to get to know what's what.

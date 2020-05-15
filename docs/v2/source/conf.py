@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Metax API'
-copyright = '2018, csc.fi'
+copyright = '2020, csc.fi'
 author = 'csc.fi'
 
 # The short X.Y version
@@ -165,6 +165,9 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'MetaxAPI', 'Metax API Documentation',
-     author, 'MetaxAPI', 'One line description of project.',
+     author, 'MetaxAPI', 'Part of the Fairdata services.',
      'Miscellaneous'),
 ]
+
+def setup(app):
+    app.add_stylesheet('custom.css')

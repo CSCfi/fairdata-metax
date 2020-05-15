@@ -3,9 +3,13 @@ General API Information
 ========================
 
 
-This page contains general information and conventions used in all the Metax REST API's.
+This page contains general information and conventions used in version 2 of all the Metax REST and RPC API's.
 
 API root for latest version of the REST API is https://__METAX_ENV_DOMAIN__/rest/
+
+API root for latest version of the RPC API is https://__METAX_ENV_DOMAIN__/rpc/
+
+.. important:: v2 of the API is not considered to be backwards compatible with v1 API, even if some endpoints seemingly work fine when cross-using them. If a dataset is created or updated using the v2 API, then the dataset should never be modified again using the v1 API. A dataset can be retrieved from v1 API and modified using v2 API, but after that, v1 API should no longer be used. The biggest risk of cross-using the different API versions is accidentally adding or removing files from a dataset and causing new dataset versions to be created.
 
 
 
@@ -41,16 +45,17 @@ Models in tietomallit.suomi.fi are logical models expressing the 'fundamental re
 
 From the perspective of an API user, some fields or relations can be read-only for the user, can be modified only in certain situations, and the models can have additional implementation-specific fields added to them (such as ``user_created``, ``date_modified``, versioning related fields, etc.). To avoid writing lengthy API remarks in the tietomallit.suomi.fi schemas, the models in the swagger API documentation are described from the perspective of an API user, separately from the tietomallit.suomi.fi models. Since some models/relations are validated 1:1 against its tietomallit.suomi.fi schema file with very little special handling, some models are replaced with a link to tietomallit.suomi.fi, along with relevant information explained to the user about the handling of some fields in the model.
 
-The schemas in tietomallit.suomi.fi are not usable as such, since the actual schemas used have some manual modification made in them due to tietomallit.suomi.fi not supporting some json schema features yet, such as oneOf relations. Because of that, to validate any payloads being sent to Metax, the actual schema files should be downloaded from the Metax API ``GET /rest/schemas`` endpoint, or from Github from their respective branches. In the repositories, the schema files are located in src/metax_api/api/rest/base/schemas. For __METAX_ENV_DOMAIN__, the files are in https://github.com/CSCfi/metax-api/tree/__METAX_ENV_BRANCH__/src/metax_api/api/rest/base/schemas.
+The schemas in tietomallit.suomi.fi are not usable as such, since the actual schemas used have some manual modification made in them due to tietomallit.suomi.fi not supporting some json schema features yet, such as oneOf relations. Because of that, to validate any payloads being sent to Metax, the actual schema files should be downloaded from the Metax API ``GET /rest/v2/schemas`` endpoint, or from Github from their respective branches. In the repositories, the schema files are located in src/metax_api/api/rest/v2/base/schemas. For __METAX_ENV_DOMAIN__, the files are in https://github.com/CSCfi/metax-api/tree/__METAX_ENV_BRANCH__/src/metax_api/api/rest/v2/base/schemas.
 
 
 
 API versioning
 ---------------
 
-In times to come, other versions of the API can be accessed like https://__METAX_ENV_DOMAIN__/rest/v1/datasets or https://__METAX_ENV_DOMAIN__/rest/v2/datasets etc.
+Other versions of the API can be accessed like https://__METAX_ENV_DOMAIN__/rest/v1/datasets or https://__METAX_ENV_DOMAIN__/rest/v2/datasets etc.
 
-An URL of the form https://__METAX_ENV_DOMAIN__/rest/datasets always points to the latest version.
+An URL of the form https://__METAX_ENV_DOMAIN__/rest/datasets (no API version specified) always points to the latest version.
+
 
 API Authentication
 -------------------
@@ -112,11 +117,11 @@ On ``GET``, ``POST``, ``PUT`` and ``PATCH`` operations, a ``Last-Modified`` HTTP
 Error Reporting
 ----------------
 
-The API stores data about errors occurred during requests. The API ``GET /rest/apierrors`` can be browsed by administrative users to browse and retrieve error details.
+The API stores data about errors occurred during requests. The API ``GET /rest/v2/apierrors`` can be browsed by administrative users to browse and retrieve error details.
 
 Whenever the API returns an error, included in the response should be a field called error_identifier, which identifies the stored error details in the system. When asking for support in times of trouble, providing the mentioned ``error_identifier`` will help greatly.
 
-.. caution:: Administrative users: The error data contains the entire uploaded request payload data, as well as the response returned by the API. In monster bulk operations, those can amount to Very Big Files! Be sure to inspect the error first by browsing the list in ``GET /rest/apierrors``, and see if the error in question is a bulk operation (field ``bulk_request`` is present), and the amount of lines contained (field ``data_row_count``), in order to make a more educated decision on how you want to view the detailed error contents from ``GET /rest/apierrors/id`` (i.e. web browser vs some other tool...).
+.. caution:: Administrative users: The error data contains the entire uploaded request payload data, as well as the response returned by the API. In monster bulk operations, those can amount to Very Big Files! Be sure to inspect the error first by browsing the list in ``GET /rest/v2/apierrors``, and see if the error in question is a bulk operation (field ``bulk_request`` is present), and the amount of lines contained (field ``data_row_count``), in order to make a more educated decision on how you want to view the detailed error contents from ``GET /rest/v2/apierrors/id`` (i.e. web browser vs some other tool...).
 
 This API is readonly for all types of users.
 
@@ -161,7 +166,7 @@ By default the API returns only very minimal information about relation objects 
 Retrieving deleted objects
 ---------------------------
 
-All standard ``GET`` list and detail API's (such as ``GET /rest/datasets``, ``GET /rest/datasets/<pid>``) accept an optional query parameter ``?removed=bool``, which can be set to search results only from deleted records. More complex API's, such as ``GET /rest/datasets/<pid>/files`` accepts a different parameter to retrieve deleted files only, not to be confused with the general ``?removed=bool`` parameter.
+All standard ``GET`` list and detail API's (such as ``GET /rest/v2/datasets``, ``GET /rest/v2/datasets/<pid>``) accept an optional query parameter ``?removed=bool``, which can be set to search results only from deleted records. More complex API's, such as ``GET /rest/v2/datasets/<pid>/files`` accepts a different parameter to retrieve deleted files only, not to be confused with the general ``?removed=bool`` parameter.
 
 Restoring deleted objects is currently allowed by performing a ``PUT`` or a ``PATCH`` request together with ``?removed=true`` parameter. However, by applying the previously described operation on a removed object, the object *always* becomes non-removed, which effectively means a removed object cannot be updated without restoring it simultaneously. Enabling to do this is up to a client, but the actual action is not prohibited by Metax. Whether this will be denied or changed in the future or not will be seen.
 

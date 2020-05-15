@@ -102,7 +102,7 @@ Example payload to create a file in Metax (``POST /rest/files``).
 
 .. important::
 
-    The possibility to create new file metadata entries in Metax is reserved for selected Fairdata services only. Currently, the only service that can do this, is the IDA service (https://www.fairdata.fi/en/ida/).
+    The possibility to create new file metadata entries in Metax is reserved for selected Fairdata services only.
 
 .. code-block:: python
 
@@ -110,20 +110,19 @@ Example payload to create a file in Metax (``POST /rest/files``).
         "identifier": "abc123",
         "file_name": "file.pdf",
         "file_path": "/some/file/path/file.pdf",
-        "replication_path": "/path/of/replication/file.pdf",
         "file_uploaded": "2017-09-27T12:38:18.700Z",
         "file_modified": "2017-09-27T12:38:18.700Z",
         "file_frozen": "2017-09-27T12:38:18.700Z",
         "file_format": "string",
         "byte_size": 1024,
-        "file_storage": 1,
+        "file_storage": "urn:nbn:fi:att:file-storage-ida",
         "project_identifier": "string",
         "checksum": {
             "value": "string",
             "algorithm": "md5",
             "checked": "2017-09-27T12:38:18.701Z"
         },
-        "open_access": true,
+        "open_access": false,
         "user_created": "string",
         "service_created": "string"
     }
