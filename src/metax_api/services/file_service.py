@@ -518,7 +518,8 @@ class FileService(CommonService, ReferenceDataMixin):
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
-            recursive=False, max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None, request=None):
+            recursive=False, max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None,
+            not_cr_identifier=None, request=None):
         """
         Get files and directories contained by a directory.
 
@@ -526,8 +527,12 @@ class FileService(CommonService, ReferenceDataMixin):
 
         identifier: may be a pk, or an uuid value. Search using approriate fields.
 
-        cr_identifier: may be used to browse files in the context of the given
-        cr_identifier: Only those files and directories are retrieved, which have been
+        cr_identifier: may be used to browse files in the context of the given CatalogRecord id.
+        Only those files and directories are retrieved, which have been
+        selected for that CatalogRecord.
+
+        not_cr_identifier: may be used to browse files in the context of the given CatalogRecord id.
+        Only those files and directories are retrieved, which have NOT been
         selected for that CatalogRecord.
 
         path and project_identifier: may be specified to search directly by
@@ -573,39 +578,15 @@ class FileService(CommonService, ReferenceDataMixin):
         except Directory.DoesNotExist:
             raise Http404
 
-        # get cr if relevant
-
+        cr_id = not_cr_id = None
         if cr_identifier:
-            # browsing in the context of a cr
-            try:
-                cr_params = { 'id': int(cr_identifier) }
-            except ValueError:
-                cr_params = { 'identifier': cr_identifier }
-
-            try:
-                cr = CatalogRecord.objects.only('id', '_directory_data', 'editor', 'user_created', 'research_dataset').\
-                    get(**cr_params)
-            except CatalogRecord.DoesNotExist:
-                # raise 400 instead of 404, to distinguish from the error
-                # 'directory not found', which raises a 404
-                raise ValidationError({
-                    'detail': [ 'CatalogRecord with identifier %s does not exist' % cr_identifier ]
-                })
-
-            if not cr.authorized_to_see_catalog_record_files(request):
-                raise Http403({
-                    'detail': [
-                        'You do not have permission to see this information because the dataset access type is '
-                        'not open and you are not the owner of the catalog record.'
-                    ]
-                })
-
-            cr_id = cr.id
-            cr_directory_data = cr._directory_data or {}
+            cr_id, cr_directory_data = cls._get_cr_if_relevant(cr_identifier, directory, request)
+        elif not_cr_identifier:
+            not_cr_id, not_cr_directory_data = cls._get_cr_if_relevant(not_cr_identifier, directory, request)
         else:
             # generally browsing the directory - NOT in the context of a cr! check user permissions
             if not request.user.is_service:
-                FileService.check_user_belongs_to_project(request, directory['project_identifier'])
+                cls.check_user_belongs_to_project(request, directory['project_identifier'])
             cr_id = None
             cr_directory_data = {}
 
@@ -622,6 +603,7 @@ class FileService(CommonService, ReferenceDataMixin):
             max_depth=max_depth,
             dirs_only=dirs_only,
             cr_id=cr_id,
+            not_cr_id=not_cr_id,
             directory_fields=directory_fields,
             file_fields=file_fields
         )
@@ -646,6 +628,37 @@ class FileService(CommonService, ReferenceDataMixin):
                 directory_fields, cr_directory_data)
 
         return contents
+
+    @classmethod
+    def _get_cr_if_relevant(cls, cr_identifier, directory, request):
+        # browsing in the context of a cr
+        try:
+            cr_params = { 'id': int(cr_identifier) }
+        except ValueError:
+            cr_params = { 'identifier': cr_identifier }
+
+        try:
+            cr = CatalogRecord.objects.only('id', '_directory_data', 'editor', 'user_created', 'research_dataset').\
+                get(**cr_params)
+        except CatalogRecord.DoesNotExist:
+            # raise 400 instead of 404, to distinguish from the error
+            # 'directory not found', which raises a 404
+            raise ValidationError({
+                'detail': [ 'CatalogRecord with identifier %s does not exist' % cr_identifier ]
+            })
+
+        if not cr.authorized_to_see_catalog_record_files(request):
+            raise Http403({
+                'detail': [
+                    'You do not have permission to see this information because the dataset access type is '
+                    'not open and you are not the owner of the catalog record.'
+                ]
+            })
+
+        cr_id = cr.id
+        cr_directory_data = cr._directory_data or {}
+
+        return (cr_id, cr_directory_data)
 
     @classmethod
     def _get_requested_file_browsing_fields(cls, request):
@@ -710,13 +723,16 @@ class FileService(CommonService, ReferenceDataMixin):
 
     @classmethod
     def _get_directory_contents(cls, directory_id, recursive=False, max_depth=1, depth=0, dirs_only=False,
-            cr_id=None, directory_fields=[], file_fields=[]):
+            cr_id=None, not_cr_id=None, directory_fields=[], file_fields=[]):
         """
         Get files and directories contained by a directory.
 
         If recursively requested, collects all files and dirs below the directory.
 
         If cr_id is provided, only those files and directories are retrieved, which have been
+        selected for that CatalogRecord.
+
+        If not_cr_id is provided, only those files and directories are retrieved, which have not been
         selected for that CatalogRecord.
 
         If directory_fields and/or file_fields are specified, then only specified fields are retrieved
@@ -727,11 +743,12 @@ class FileService(CommonService, ReferenceDataMixin):
                 raise MaxRecursionDepthExceeded('max depth is %d' % max_depth)
             depth += 1
 
-        if cr_id:
+        if cr_id or not_cr_id:
             try:
                 dirs, files = cls._get_directory_contents_for_catalog_record(
                     directory_id,
                     cr_id,
+                    not_cr_id,
                     dirs_only=dirs_only,
                     directory_fields=directory_fields,
                     file_fields=file_fields)
@@ -767,6 +784,7 @@ class FileService(CommonService, ReferenceDataMixin):
                         depth=depth,
                         dirs_only=dirs_only,
                         cr_id=cr_id,
+                        not_cr_id=not_cr_id,
                         directory_fields=directory_fields,
                         file_fields=file_fields
                     )
@@ -779,7 +797,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         return contents
 
-    def _get_directory_contents_for_catalog_record(directory_id, cr_id, dirs_only=False,
+    def _get_directory_contents_for_catalog_record(directory_id, cr_id, not_cr_id, dirs_only=False,
             directory_fields=[], file_fields=[]):
         """
         Browsing files in the context of a specific CR id.
@@ -787,56 +805,67 @@ class FileService(CommonService, ReferenceDataMixin):
 
         # select dirs which are contained by the directory,
         # AND which contain files belonging to the cr <-> files m2m relation table,
-        # AND there exists files for CR which beging with the same path as the dir path,
+        # AND there exists files for CR which begin with the same path as the dir path,
         # to successfully also include files which did not DIRECTLY contain any files, but do
         # contain files further down the tree.
-        #
         # dirs which otherwise contained files, but not any files that were selected for
         # the cr, are not returned.
+
+        # directory_fields are validated in LightDirectorySerializer against allowed fields
+        # which is set(DirectorySerializer.Meta.fields). Should be safe to use in raw SQL,
+        # but considered to be more safe to sanitize here once more.
+
+        from metax_api.api.rest.base.serializers import DirectorySerializer
+
+        allowed_fields = set(DirectorySerializer.Meta.fields)
+
+        directory_fields_sql = []
+
+        for field in directory_fields:
+            if field in allowed_fields:
+                directory_fields_sql.append('d.' + field)
+            elif 'parent_directory__' in field and field.split('parent_directory__')[1] in allowed_fields:
+                directory_fields_sql.append(field.replace('parent_directory__', 'parent_d.'))
+
+        directory_fields_string_sql = ', '.join(directory_fields_sql)
+
         sql_select_dirs_for_cr = """
-            select d.id
-            from metax_api_directory d
-            where d.parent_directory_id = %s
-            and exists(
-                select 1
-                from metax_api_file f
-                inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
-                where f.file_path like (d.directory_path || '/%%')
-                and cr_f.catalogrecord_id = %s
-                and f.removed = false
-                and f.active = true
+            SELECT {}
+            FROM metax_api_directory d
+            JOIN metax_api_directory parent_d
+                ON d.parent_directory_id = parent_d.id
+            WHERE d.parent_directory_id = %s
+            AND EXISTS(
+                SELECT 1
+                FROM metax_api_file f
+                INNER JOIN metax_api_catalogrecord_files cr_f ON cr_f.file_id = f.id
+                WHERE f.file_path LIKE (d.directory_path || '/%%')
+                AND cr_f.catalogrecord_id {} %s
+                AND f.removed = false
+                AND f.active = true
             )
             """
 
-        # select files which are contained by the directory, and which
-        # belong to the cr <-> files m2m relation table
-        sql_select_files_for_cr = """
-            select f.id
-            from metax_api_file f
-            inner join metax_api_catalogrecord_files cr_f on cr_f.file_id = f.id
-            where f.parent_directory_id = %s
-            and cr_f.catalogrecord_id = %s
-            and f.removed = false
-            and f.active = true
-            """
-
         with connection.cursor() as cr:
-            cr.execute(sql_select_dirs_for_cr, [directory_id, cr_id])
-            directory_ids = [ row[0] for row in cr.fetchall() ]
+            if cr_id:
+                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, '=')
+                cr.execute(sql_select_dirs_for_cr, [directory_id, cr_id])
 
-            if dirs_only:
-                file_ids = []
-            else:
-                cr.execute(sql_select_files_for_cr, [directory_id, cr_id])
-                file_ids = [ row[0] for row in cr.fetchall() ]
+                files = None if dirs_only else File.objects \
+                    .filter(record__pk=cr_id, parent_directory=directory_id).values(*file_fields)
+            elif not_cr_id:
+                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, '!=')
+                cr.execute(sql_select_dirs_for_cr, [directory_id, not_cr_id])
 
-        if not directory_ids and not file_ids:
+                files = None if dirs_only else File.objects.exclude(record__pk=not_cr_id) \
+                    .filter(parent_directory=directory_id).values(*file_fields)
+
+            dirs = [dict(zip(directory_fields, row)) for row in cr.fetchall()]
+
+        if not dirs and not files:
             # for this specific version of the record, the requested directory either
             # didnt exist, or it was not selected
             raise Http404
-
-        dirs = Directory.objects.filter(id__in=directory_ids).values(*directory_fields)
-        files = None if dirs_only else File.objects.filter(id__in=file_ids).values(*file_fields)
 
         return dirs, files
 
@@ -848,6 +877,7 @@ class FileService(CommonService, ReferenceDataMixin):
         in the context of a specific catalog record.
         Note: Called recursively.
         """
+
         if not directory_fields:
             BYTE_SIZE = FILE_COUNT = True
         else:
@@ -872,7 +902,6 @@ class FileService(CommonService, ReferenceDataMixin):
                     directory['file_count'] = current_dir[1]
 
         elif 'id' in directory:
-
             # bottom dir - retrieve total byte_size and file_count for this cr
             current_dir = cr_directory_data.get(str(directory['id']), [0, 0])
 

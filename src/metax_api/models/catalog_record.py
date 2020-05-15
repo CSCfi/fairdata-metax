@@ -255,7 +255,7 @@ class CatalogRecord(Common):
 
     _directory_data = JSONField(null=True, help_text='Stores directory data related to browsing files and directories')
 
-    files = models.ManyToManyField(File)
+    files = models.ManyToManyField(File, related_query_name='record')
 
     identifier = models.CharField(max_length=200, unique=True, null=False)
 
