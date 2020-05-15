@@ -25,7 +25,6 @@ _logger = logging.getLogger(__name__)
 
 
 class DatasetViewSet(CommonViewSet):
-
     serializer_class = CatalogRecordSerializer
     object = CatalogRecord
     select_related = ['data_catalog', 'contract']
