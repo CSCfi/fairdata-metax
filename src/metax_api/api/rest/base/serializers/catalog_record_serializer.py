@@ -260,7 +260,15 @@ class CatalogRecordSerializer(CommonSerializer):
             res['dataset_version_set'] = instance.dataset_version_set.get_listing()
 
         if 'next_dataset_version' in res:
-            res['next_dataset_version'] = instance.next_dataset_version.identifiers_dict
+            if instance.next_dataset_version.state == CatalogRecord.STATE_PUBLISHED:
+                res['next_dataset_version'] = instance.next_dataset_version.identifiers_dict
+            elif instance.user_is_owner(self.context['request']):
+                # include additional information to show the owner this version is actually still just a draft
+                res['next_dataset_version'] = instance.next_dataset_version.identifiers_dict
+                res['next_dataset_version']['state'] = CatalogRecord.STATE_DRAFT
+            else:
+                # if the next dataset version is still just a draft, then unauthorized users dont need to know about it.
+                del res['next_dataset_version']
 
         if 'previous_dataset_version' in res:
             res['previous_dataset_version'] = instance.previous_dataset_version.identifiers_dict

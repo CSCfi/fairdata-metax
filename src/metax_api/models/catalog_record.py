@@ -84,6 +84,9 @@ class DatasetVersionSet(models.Model):
         Return a list of record preferred_identifiers that belong in the same dataset version chain.
         Latest first.
         """
+        records = self.records(manager='objects_unfiltered') \
+            .filter(state=CatalogRecord.STATE_PUBLISHED) \
+            .order_by('-date_created')
 
         versions = [
             {
@@ -93,9 +96,10 @@ class DatasetVersionSet(models.Model):
                 'date_created': r.date_created.astimezone().isoformat(),
                 'date_removed': r.date_removed.astimezone().isoformat() if r.date_removed else None
             }
-            for r in self.records(manager='objects_unfiltered').all().order_by('-date_created')
+            for r in records
         ]
 
+        # dont show the date_removed field at all if the value is None (record has not been removed)
         versions = [{key: value for (key, value) in i.items() if value is not None} for i in versions]
 
         return versions
