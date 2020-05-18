@@ -1275,28 +1275,7 @@ class CatalogRecord(Common):
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
         if settings.REMS['ENABLED']:
-            if self._dataset_rems_changed():
-                if self._dataset_rems_access_type_changed():
-                    if self._dataset_has_rems_managed_access():
-                        self._pre_rems_creation()
-                    else:
-                        self._pre_rems_deletion(reason='access type change')
-
-                elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
-                    if self._dataset_has_license():
-                        self.add_post_request_callable(
-                            REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
-                        )
-                        self.rems_identifier = generate_uuid_identifier()
-                        # make sure that access_granter is not changed during license update
-                        self.access_granter = self._initial_data['access_granter']
-
-                    else:
-                        self._pre_rems_deletion(reason='license deletion')
-
-            elif self.field_changed('access_granter'):
-                # do not allow access_granter changes if no real REMS changes occur
-                self.access_granter = self._initial_data['access_granter']
+            self._pre_update_handle_rems()
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -1414,6 +1393,30 @@ class CatalogRecord(Common):
                 convert_cr_to_datacite_cr_json(self), True)
         except DataciteException as e:
             raise Http400(str(e))
+
+    def _pre_update_handle_rems(self):
+        if self._dataset_rems_changed():
+            if self._dataset_rems_access_type_changed():
+                if self._dataset_has_rems_managed_access():
+                    self._pre_rems_creation()
+                else:
+                    self._pre_rems_deletion(reason='access type change')
+
+            elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
+                if self._dataset_has_license():
+                    self.add_post_request_callable(
+                        REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
+                    )
+                    self.rems_identifier = generate_uuid_identifier()
+                    # make sure that access_granter is not changed during license update
+                    self.access_granter = self._initial_data['access_granter']
+
+                else:
+                    self._pre_rems_deletion(reason='license deletion')
+
+        elif self.field_changed('access_granter'):
+            # do not allow access_granter changes if no real REMS changes occur
+            self.access_granter = self._initial_data['access_granter']
 
     def _handle_cumulative_file_addition(self, file_changes):
         """

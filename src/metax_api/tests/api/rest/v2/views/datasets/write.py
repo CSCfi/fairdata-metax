@@ -5,10 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from base64 import urlsafe_b64encode
 from copy import deepcopy
 from datetime import datetime, timedelta
-import json
 from time import sleep
 import unittest
 
@@ -4097,7 +4095,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
     def _get_access_granter(self, malformed=False):
         """
-        Returns encoded user information
+        Returns user information
         """
         access_granter = {
             "userid": "testcaseuser" if not malformed else 1234,
@@ -4105,9 +4103,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             "email": "testcase@user.com"
         }
 
-        ag_bytes = json.dumps(access_granter).encode('utf-8')
-
-        return urlsafe_b64encode(ag_bytes).decode('utf-8')
+        return access_granter
 
     def _mock_rems_write_access_succeeds(self, method, entity, action):
         """
@@ -4318,10 +4314,9 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
+        self.cr_test_data['access_granter'] = self._get_access_granter()
 
-        granter = self._get_access_granter()
-
-        response = self.client.post(f'/rest/datasets?access_granter={granter}', self.cr_test_data, format="json")
+        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
 
         return response
 
@@ -4333,6 +4328,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertTrue(response.data.get('rems_identifier') is not None, 'rems_identifier should be present')
+        self.assertTrue(response.data.get('access_granter') is not None, 'access_granter should be present')
 
     @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_service_fails_1(self):
@@ -4382,12 +4378,12 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # change to rems managed
         cr = response.data
         cr['research_dataset']['access_rights'] = self.permit_rights
+        cr['access_granter'] = self._get_access_granter()
 
-        granter = self._get_access_granter()
-
-        response = self.client.put(f'/rest/datasets/{cr["id"]}?access_granter={granter}', cr, format="json")
+        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data.get('rems_identifier') is not None, 'rems_identifier should be present')
+        self.assertTrue(response.data.get('access_granter') is not None, 'access_granter should be present')
 
     @responses.activate
     def test_changing_dataset_to_permit_creates_new_catalogue_item_fails(self):
@@ -4406,10 +4402,9 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # change to rems managed
         cr = response.data
         cr['research_dataset']['access_rights'] = self.permit_rights
+        cr['access_granter'] = self._get_access_granter()
 
-        granter = self._get_access_granter()
-
-        response = self.client.put(f'/rest/datasets/{cr["id"]}?access_granter={granter}', cr, format="json")
+        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
@@ -4462,6 +4457,30 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertNotEqual(rems_id_before, cr_after['rems_identifier'], 'REMS identifier should have been changed')
 
     @responses.activate
+    def test_changing_license_dont_allow_access_granter_changes(self):
+        """
+        Create REMS dataset and change it's license. Ensure that
+        request is successful and that dataset's access_granter is not changed.
+        """
+        response = self._create_new_rems_dataset()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_before = response.data
+
+        cr_before['access_granter']['userid'] = 'newid'
+        cr_before['research_dataset']['access_rights']['license'] = [
+            {
+                "identifier": self.other_license['uri']
+            }
+        ]
+
+        response = self.client.put(f'/rest/datasets/{cr_before["id"]}', cr_before, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr_after = response.data
+        self.assertNotEqual('newid', cr_after['access_granter']['userid'], 'userid should not have been changed')
+
+    @responses.activate
     def test_deleting_license_updates_rems(self):
         """
         Create REMS dataset and delete it's license. Ensure that rems_identifier is removed and no failures occur.
@@ -4478,6 +4497,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         cr_after = response.data
         self.assertTrue(cr_after.get('rems_identifier') is None, 'REMS identifier should have been deleted')
+        self.assertTrue(cr_after.get('access_granter') is None, 'access_granter should have been deleted')
 
     @responses.activate
     def test_creating_permit_dataset_creates_catalogue_item_end_user(self):
@@ -4514,6 +4534,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         cr = self.client.get(f'/rest/datasets/{cr_id}?removed').data
         self.assertTrue(cr.get('rems_identifier') is None, 'rems_identifier should not be present')
+        self.assertTrue(cr.get('access_granter') is None, 'access_granter should not be present')
 
     @responses.activate
     def test_deleting_permit_dataset_removes_catalogue_item_fails(self):
@@ -4538,6 +4559,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         cr_after = self.client.get(f'/rest/datasets/{cr_before["id"]}').data
         self.assertTrue(cr_after.get('rems_identifier') is None, 'rems_identifier should not be present')
+        self.assertTrue(cr_after.get('access_granter') is None, 'access_granter should not be present')
 
     @responses.activate
     def test_deprecating_permit_dataset_removes_catalogue_item_fails(self):
@@ -4551,9 +4573,10 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
         self.assertTrue('failed to publish' in response.data['detail'][0], response.data)
 
-    def test_missing_access_granter_parameter(self):
+    def test_missing_access_granter(self):
         """
-        Access_granter parameter is required when user is service
+        Access_granter field is required when dataset is made REMS managed and
+        user is service.
         """
 
         # test on create
@@ -4581,11 +4604,10 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
-
-        granter = self._get_access_granter(malformed=True)
+        self.cr_test_data['access_granter'] = self._get_access_granter(malformed=True)
 
         response = self.client.post(
-            f'/rest/datasets?access_granter={granter}',
+            f'/rest/datasets',
             self.cr_test_data,
             format="json"
         )
@@ -4609,27 +4631,31 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertTrue('must define license' in response.data['detail'][0], response.data)
 
     @responses.activate
-    def test_only_return_rems_identifier_to_privileged(self):
+    def test_only_return_rems_info_to_privileged(self):
         self._set_http_authorization('service')
 
         response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertTrue(response.data.get('rems_identifier') is not None, 'rems_identifier should be returned to owner')
+        self.assertTrue(response.data.get('access_granter') is not None, 'access_granter should be returned to owner')
 
         self._set_http_authorization('no')
         response = self.client.get(f'/rest/datasets/{response.data["id"]}')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data.get('rems_identifier') is None, 'rems_identifier should not be returned to Anon')
+        self.assertTrue(response.data.get('access_granter') is None, 'access_granter should not be returned to Anon')
 
     @responses.activate
-    def test_rems_identifier_cannot_be_changed(self):
+    def test_rems_info_cannot_be_changed(self):
         response = self._create_new_rems_dataset()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         cr = response.data
 
         cr['rems_identifier'] = 'some:new:identifier'
+        cr['access_granter']['name'] = 'New Name'
 
         response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertNotEqual(response.data['rems_identifier'], 'some:new:identifier', 'rems_id should not be changed')
+        self.assertNotEqual(response.data['access_granter'], 'New Name', 'access_granter should not be changed')

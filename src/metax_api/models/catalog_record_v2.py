@@ -30,7 +30,6 @@ from .catalog_record import (
     DataciteDOIUpdate,
     DatasetVersionSet,
     RabbitMQPublishRecord,
-    REMSUpdate,
 )
 
 
@@ -296,28 +295,7 @@ class CatalogRecordV2(CatalogRecord):
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
         if settings.REMS['ENABLED']:
-            if self._dataset_rems_changed():
-                if self._dataset_rems_access_type_changed():
-                    if self._dataset_has_rems_managed_access():
-                        self._handle_rems_managed_access()
-                    else:
-                        self.add_post_request_callable(
-                            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='access type change')
-                        )
-                        self.rems_identifier = None
-
-                elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
-                    if self._dataset_has_license():
-                        self.add_post_request_callable(
-                            REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
-                        )
-                        self.rems_identifier = generate_uuid_identifier()
-
-                    else:
-                        self.add_post_request_callable(
-                            REMSUpdate(self, 'close', rems_id=self.rems_identifier, reason='license deletion')
-                        )
-                        self.rems_identifier = None
+            self._pre_update_handle_rems()
 
         if self.field_changed('cumulative_state'):
             raise Http400(
