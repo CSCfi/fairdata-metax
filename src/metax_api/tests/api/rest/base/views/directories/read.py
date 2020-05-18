@@ -50,7 +50,7 @@ class DirectoryApiReadCommon(APITestCase, TestClassUtils):
     def _get_new_file_data(self, file_n):
         from_test_data = self._get_object_from_test_data('file', requested_index=0)
 
-        path = '/prj_112_root/science_data_C/phase_2/2017/10/dir' + file_n + '/file_' + file_n
+        path = '/prj_112_root/science_data_C/phase_2/2017/10/dir_' + file_n + '/file_' + file_n
         identifier = 'urn:nbn:fi:100' + file_n
 
         from_test_data.update({
@@ -1034,8 +1034,8 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
 
         response = self.client.get('/rest/directories/24/files?directory_name=dir_1&file_name=file_name_120')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['directories']), 1)
-        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(len(response.data['directories']), 1, response.data['directories'])
+        self.assertEqual(len(response.data['files']), 1, response.data['files'])
 
         response = self.client.get('/rest/directories/24/files?directory_name=dir&file_name=not_existing')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

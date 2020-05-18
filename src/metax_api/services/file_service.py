@@ -554,6 +554,12 @@ class FileService(CommonService, ReferenceDataMixin):
         includes the data about directory id 3 in the results. Normally its data would not be
         present, and instead would need to be retrieved by calling /directories/3.
 
+        file_name: substring search from file names. Only matching files are returned.
+        Can be used with directory_name.
+
+        directory_name: substring search from directory names. Only matching directories are returned.
+        Can be used with file_name.
+
         request: the web request object.
         """
         assert request is not None, 'kw parameter request must be specified'
@@ -605,7 +611,9 @@ class FileService(CommonService, ReferenceDataMixin):
             cr_id=cr_id,
             not_cr_id=not_cr_id,
             directory_fields=directory_fields,
-            file_fields=file_fields
+            file_fields=file_fields,
+            file_name=file_name,
+            directory_name=directory_name
         )
 
         if recursive:
@@ -751,7 +759,10 @@ class FileService(CommonService, ReferenceDataMixin):
                     not_cr_id,
                     dirs_only=dirs_only,
                     directory_fields=directory_fields,
-                    file_fields=file_fields)
+                    file_fields=file_fields,
+                    file_name=file_name,
+                    directory_name=directory_name
+                )
             except Http404:
                 if recursive:
                     return {'directories': []}
@@ -793,7 +804,9 @@ class FileService(CommonService, ReferenceDataMixin):
                         cr_id=cr_id,
                         not_cr_id=not_cr_id,
                         directory_fields=directory_fields,
-                        file_fields=file_fields
+                        file_fields=file_fields,
+                        file_name=file_name,
+                        directory_name=directory_name
                     )
                 except MaxRecursionDepthExceeded:
                     continue
@@ -837,12 +850,15 @@ class FileService(CommonService, ReferenceDataMixin):
 
         directory_fields_string_sql = ', '.join(directory_fields_sql)
 
+        dir_name_sql = '' if not directory_name else "AND d.directory_name LIKE ('%%' || %s || '%%')"
+
         sql_select_dirs_for_cr = """
             SELECT {}
             FROM metax_api_directory d
             JOIN metax_api_directory parent_d
                 ON d.parent_directory_id = parent_d.id
             WHERE d.parent_directory_id = %s
+                {}
             AND EXISTS(
                 SELECT 1
                 FROM metax_api_file f
@@ -856,14 +872,21 @@ class FileService(CommonService, ReferenceDataMixin):
 
         with connection.cursor() as cr:
             if cr_id:
-                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, '=')
-                cr.execute(sql_select_dirs_for_cr, [directory_id, cr_id])
+                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql, '=')
+
+                sql_params = [directory_id, directory_name, cr_id] if directory_name else [directory_id, cr_id]
+
+                cr.execute(sql_select_dirs_for_cr, sql_params)
 
                 files = None if dirs_only else File.objects \
                     .filter(record__pk=cr_id, parent_directory=directory_id).values(*file_fields)
+
             elif not_cr_id:
-                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, '!=')
-                cr.execute(sql_select_dirs_for_cr, [directory_id, not_cr_id])
+                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql, '!=')
+
+                sql_params = [directory_id, directory_name, cr_id] if directory_name else [directory_id, not_cr_id]
+
+                cr.execute(sql_select_dirs_for_cr, sql_params)
 
                 files = None if dirs_only else File.objects.exclude(record__pk=not_cr_id) \
                     .filter(parent_directory=directory_id).values(*file_fields)
@@ -876,9 +899,6 @@ class FileService(CommonService, ReferenceDataMixin):
             raise Http404
 
         # icontains returns exception on None and with empty string does unnecessary db hits
-        if directory_name:
-            dirs = dirs.filter(directory_name__icontains=directory_name)
-
         if files and file_name:
             files = files.filter(file_name__icontains=file_name)
 
