@@ -65,6 +65,8 @@ class DirectoryViewSet(CommonViewSet):
         recursive = CommonService.get_boolean_query_param(request, 'recursive')
         max_depth = request.query_params.get('depth', 1)
         project_identifier = request.query_params.get('project', None)
+        cr_identifier = request.query_params.get('cr_identifier', None)
+        not_cr_identifier = request.query_params.get('not_cr_identifier', None)
 
         # max_depth can be an integer > 0, or * for everything.
         try:
@@ -76,7 +78,9 @@ class DirectoryViewSet(CommonViewSet):
             if max_depth <= 0:
                 raise Http400({ 'detail': ['value of depth must be higher than 0'] })
 
-        cr_identifier = request.query_params.get('cr_identifier', None)
+        if cr_identifier and not_cr_identifier:
+            raise Http400({ 'detail':
+                ["there can only be one query parameter of 'cr_identifier' and 'not_cr_identifier'"] })
 
         files_and_dirs = FileService.get_directory_contents(
             identifier=identifier,
@@ -87,8 +91,20 @@ class DirectoryViewSet(CommonViewSet):
             dirs_only=dirs_only,
             include_parent=include_parent,
             cr_identifier=cr_identifier,
+            not_cr_identifier=not_cr_identifier,
             request=request
         )
+
+        if isinstance(files_and_dirs, dict):
+            if files_and_dirs.get('directories') and files_and_dirs['directories'][0].get('directory_path'):
+                files_and_dirs['directories'] = sorted(files_and_dirs['directories'],
+                    key=lambda k: k['directory_path'].lower())
+
+            if files_and_dirs.get('files') and files_and_dirs['files'][0].get('file_path'):
+                files_and_dirs['files'] = sorted(files_and_dirs['files'], key=lambda k: k['file_path'].lower())
+
+        elif files_and_dirs and files_and_dirs[0].get('file_path'):
+            files_and_dirs = sorted(files_and_dirs, key=lambda k: k['file_path'].lower())
 
         if paginate:
             if isinstance(files_and_dirs, dict):

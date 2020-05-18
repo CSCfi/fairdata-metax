@@ -5,10 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from base64 import urlsafe_b64decode
 from collections import defaultdict
 from copy import deepcopy
-import json
 import logging
 
 from django.conf import settings
@@ -261,7 +259,7 @@ class CatalogRecord(Common):
 
     _directory_data = JSONField(null=True, help_text='Stores directory data related to browsing files and directories')
 
-    files = models.ManyToManyField(File)
+    files = models.ManyToManyField(File, related_query_name='record')
 
     identifier = models.CharField(max_length=200, unique=True, null=False)
 
@@ -355,6 +353,7 @@ class CatalogRecord(Common):
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
+            'access_granter',
             'cumulative_state',
             'date_deprecated',
             'deprecated',
@@ -1043,8 +1042,12 @@ class CatalogRecord(Common):
         Parses query parameter or token to fetch needed information for REMS user
         """
         if self.request.user.is_service:
-            b64_access_granter = self.request.query_params.get('access_granter')
-            user_info = json.loads(urlsafe_b64decode(f'{b64_access_granter}===').decode('utf-8'))
+            # use constant keys for easier validation
+            user_info = {
+                'userid':   self.access_granter.get('userid'),
+                'name':     self.access_granter.get('name'),
+                'email':    self.access_granter.get('email')
+            }
         else:
             # end user api
             user_info = {
@@ -1068,8 +1071,8 @@ class CatalogRecord(Common):
         if self._access_type_is_permit() and not self.research_dataset['access_rights'].get('license', False):
             raise Http400('You must define license for dataset in order to make it REMS manageable')
 
-        if self.request.user.is_service and not self.request.query_params.get('access_granter', False):
-            raise Http400('Missing query parameter access_granter')
+        if self.request.user.is_service and not self.access_granter:
+            raise Http400('Missing access_granter')
 
     def _pre_create_operations(self, pid_type=None):
 
@@ -1285,9 +1288,15 @@ class CatalogRecord(Common):
                             REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
                         )
                         self.rems_identifier = generate_uuid_identifier()
+                        # make sure that access_granter is not changed during license update
+                        self.access_granter = self._initial_data['access_granter']
 
                     else:
                         self._pre_rems_deletion(reason='license deletion')
+
+            elif self.field_changed('access_granter'):
+                # do not allow access_granter changes if no real REMS changes occur
+                self.access_granter = self._initial_data['access_granter']
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (

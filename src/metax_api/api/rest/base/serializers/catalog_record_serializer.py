@@ -133,7 +133,6 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop('preservation_dataset_version', None)
         self.initial_data.pop('preservation_dataset_origin_version', None)
         self.initial_data.pop('rems_identifier', None)
-        self.initial_data.pop('access_granter', None)
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.

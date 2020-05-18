@@ -565,7 +565,17 @@ paths:
           type: boolean
         - name: cr_identifier
           in: query
-          description: Identifier of a catalog record. Browse only files that have been selected for that record.
+          description: |
+            Identifier of a catalog record. browse only files that have been selected for that record.
+            This parameter is incompatible with `not_cr_identifier` parameter.
+          required: false
+          type: string
+        - name: not_cr_identifier
+          in: query
+          description: |
+            Identifier of a catalog record. Browse only files that have not been selected for that record.
+            Parameter is only usable by the owner of the dataset and it's primary use is for editing datasets.
+            This parameter is incompatible with `cr_identifier` parameter.
           required: false
           type: string
         - name: file_fields
