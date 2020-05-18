@@ -261,7 +261,7 @@ class CatalogRecordSerializer(CommonSerializer):
         if 'next_dataset_version' in res:
             if instance.next_dataset_version.state == CatalogRecord.STATE_PUBLISHED:
                 res['next_dataset_version'] = instance.next_dataset_version.identifiers_dict
-            elif instance.user_is_owner(self.context['request']):
+            elif instance.user_is_owner(instance.request):
                 # include additional information to show the owner this version is actually still just a draft
                 res['next_dataset_version'] = instance.next_dataset_version.identifiers_dict
                 res['next_dataset_version']['state'] = CatalogRecord.STATE_DRAFT
