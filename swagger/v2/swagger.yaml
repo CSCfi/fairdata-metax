@@ -1,0 +1,2216 @@
+swagger: '2.0'
+info:
+  title: METAX API
+  version: v2
+host: __METAX_ENV_DOMAIN__
+schemes:
+  - https
+basePath: ''
+produces:
+  - application/json
+paths:
+
+  # File Storage API
+  /rest/v2/filestorages:
+    get:
+      summary: List File Storages
+      parameters:
+        - name: ordering
+          in: query
+          description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Return list of file storages
+      tags:
+        - File Storage API
+    post:
+      summary: Create File Storage metadata
+      parameters:
+        - $ref: "#/parameters/dryrun"
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: New file storage created, returns created object
+        '400':
+          description: Parameters contained errors, response includes details
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - File Storage API
+  /rest/v2/filestorages/{PID}:
+    get:
+      summary: Get File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Identifier of file storage
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Return file storage metadata
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - File Storage API
+    put:
+      summary: Replace File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Identifier of file storage
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation. Modified content returned
+        '400':
+          description: Parameters contained errors, response includes details
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - File Storage API
+    patch:
+      summary: Partially replace File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Identifier of file storage
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation. Modified content returned
+        '400':
+          description: Parameters contained errors, response includes details
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - File Storage API
+    delete:
+      summary: Delete File Storage metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Identifier of file storage
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - File Storage API
+
+
+# File API
+  /rest/v2/files:
+    get:
+      summary: Get list of files
+      parameters:
+        - name: project_identifier
+          in: query
+          description: Filter files by project
+          required: false
+          type: string
+        - name: file_path
+          in: query
+          description: Filters files by path. Requires query parameter project_identifier.
+          required: false
+          type: string
+        - name: offset
+          in: query
+          description: Offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit for paging
+          required: false
+          type: integer
+          default: 10
+        - name: ordering
+          in: query
+          description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Successful operation, return list of files
+          schema:
+            $ref: '#/definitions/FileList'
+        '404':
+          description: Not found. Also when not authenticated request
+      tags:
+        - File API
+    post:
+      summary: Create new file metadata
+      consumes:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object or a list of objects to create."
+        required: true
+        schema:
+          $ref: '#/definitions/File'
+      - $ref: "#/parameters/dryrun"
+      responses:
+        '201':
+          description: Returns the created object, or if a list was given, a list of objects and errors.
+        '400':
+          description: Parameters contained errors, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - File API
+    put:
+      summary: Bulk update
+      consumes:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: A list of objects to update.
+        required: true
+        schema:
+          $ref: '#/definitions/FileList'
+      - $ref: "#/parameters/allowed_projects"
+      - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation. Return values include a list of errors, if any.
+        '400':
+          description: All updates failed. A list of errors is returned.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - File API
+    patch:
+      summary: Bulk update partial
+      description: |
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, identifier</b>
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: A list of (partial) objects to update.
+          required: true
+          schema:
+            $ref: '#/definitions/FileList'
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
+        '400':
+          description: All updates failed. A list of errors is returned.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - File API
+    delete:
+      summary: Bulk delete
+      description: Mark files as deleted en masse.
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: A list of ids, or a list of identifiers.
+          required: true
+          schema:
+            $ref: '#/definitions/StringList'
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: |
+            Successful operation. At least some requested files were marked deleted. If some of the provided
+            identifiers were not found, those are ignored. Returns count of deleted files in json body.
+        '400':
+          description: All updates failed. A list of errors is returned.
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: None of the provided identifiers were found.
+      tags:
+        - File API
+  /rest/v2/files/{PID}:
+    get:
+      summary: Get file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Return file metadata
+          schema:
+            $ref: '#/definitions/File'
+        '404':
+          description: Not found. Also when not authenticated request
+      tags:
+        - File API
+    put:
+      summary: Replace file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: "body"
+          in: "body"
+          description: Object to update the resource with
+          required: true
+          schema:
+            $ref: '#/definitions/File'
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation. Modified content returned
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Object not found
+      tags:
+        - File API
+    patch:
+      summary: Replace part of file metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: "body"
+          in: "body"
+          description: (Partial) Object to update the resource with
+          required: true
+          schema:
+            $ref: '#/definitions/File'
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation, full content returned
+          schema:
+            $ref: '#/definitions/File'
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Object not found
+      tags:
+        - File API
+    delete:
+      summary: Delete a file
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '204':
+          description: Successful operation, no content returned
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Object not found
+      tags:
+        - File API
+  /rest/v2/files/{PID}/XML:
+    get:
+      summary: Get XML metadata from file
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: Namespace of the schema. If omitted, returns a list of xml metadata namespaces associated with the file.
+          type: string
+      responses:
+        '200':
+          description: Single xml metadata (application/xml), or a list of namespaces (application/json)
+        '404':
+          description: File not found. Also when not authenticated request
+      tags:
+        - File API
+    post:
+      summary: Create new XML metadata
+      consumes:
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: Namespace of the schema. If a xml metadata already existed with given namespace, an error is returned
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: The XML to create.
+          required: true
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '201':
+          description: Return created XML
+        '400':
+          description: Parameters contained errors, response includes details (application/json)
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - File API
+    put:
+      summary: Update XML metadata
+      consumes:
+        - application/xml
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: Namespace of the schema
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: The XML to update
+          required: true
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '204':
+          description: XML saved
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: File or namespace does not exist
+      tags:
+        - File API
+    delete:
+      summary: Delete XML metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of file OR the internal pk
+          required: true
+          type: string
+        - name: namespace
+          in: query
+          description: Namespace of the schema
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '204':
+          description: XML is deleted
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: File or namespace does not exist
+      tags:
+        - File API
+  /rest/v2/files/datasets:
+    post:
+      summary: Get datasets where files belong to
+      description: |
+        Note&#58; The method is invoked using POST, because there are limits to length of query
+        parameters in GET. Also, some clients forcibly shove parameters in body in GET
+        requests to query parameters, so using POST instead is more guaranteed to work.
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: A list of file id's (integers) or identifiers (strings).
+          required: true
+          schema:
+            $ref: '#/definitions/StringList'
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: A list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Files given in the list not found
+      tags:
+        - File API
+  /rest/v2/files/restore:
+    post:
+      summary: Restore removed files back to "not removed" state.
+      description: |
+        note&#58; does not restore possible deprecated datasets (due to files having been removed) to back to non-deprecated state!
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: A list of file identifiers of files to restore.
+          required: true
+          schema:
+            $ref: '#/definitions/StringList'
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Numbers of files restored.
+        '400':
+          description: Request ended in an error, response contains details.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - File API
+  /rest/v2/directories/{PID}:
+    get:
+      summary: Get details of a directory
+      description: Does not contain the directory's files and sub-directories. For that, use /rest/v2/directories/{PID}/files
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Return directory details
+          schema:
+            $ref: '#/definitions/Directory'
+        '404':
+          description: Not found. Also when not authenticated request
+      tags:
+        - File API
+  /rest/v2/directories/{PID}/files:
+    get:
+      summary: Get list of files and directories contained by a directory
+      parameters:
+        - name: PID
+          in: path
+          description: persistent ID of the directory OR the internal pk
+          required: true
+          type: string
+        - name: recursive
+          in: query
+          description: |
+            Return a flat list of file objects contained by the target directory and its sub-directories.
+            If directories_only=true is also specified, returns a hierarchial directory tree instead, of x depth.
+          required: false
+          type: boolean
+        - name: depth
+          in: query
+          description: Max depth of recursion. Value must be an integer > 0, or *. default value is 1.
+          required: false
+          type: string
+        - name: directories_only
+          in: query
+          description: |
+            Omit files entirely from the returned results. Use together with recursive=true and depth=x
+            to get a directory tree.
+          required: false
+          type: boolean
+        - name: include_parent
+          in: query
+          description: |
+            Includes the 'parent directory' of the contents being fetched in the results also. example&#58;
+            GET /rest/v2/directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            Otherwise, one would query for its data separately by GET /rest/v2/directories/3.
+          required: false
+          type: boolean
+        - name: cr_identifier
+          in: query
+          description: Identifier of a catalog record. Browse only files that have been selected for that record.
+          required: false
+          type: string
+        - name: file_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for files
+          required: false
+          type: string
+        - name: directory_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for directories
+          required: false
+          type: string
+        - name: pagination
+          in: query
+          description: Sets paging on with default limit of 10 
+          required: false
+          type: bolean
+        - name: offset
+          in: query
+          description: Offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit for paging
+          required: false
+          type: integer
+          default: 10
+      responses:
+        '200':
+          description: |
+            Returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
+            note&#58; if parameter 'recursive' is used, return value is a flat list of file objects instead.
+        '404':
+          description: Directory not found. Also when not authenticated request
+      tags:
+        - File API
+  /rest/v2/directories/files:
+    get:
+      summary: Get list of files and directories contained by a directory, queried by dir path and project
+      description: |
+        Functions the same as /rest/v2/directories/pid, except queried by dir path and project identifier, instead of directly by directory identifier.
+      parameters:
+        - name: path
+          in: path
+          description: Path of the directory to browse
+          required: true
+          type: string
+        - name: project
+          in: query
+          description: Project_identifier of the project to browse from
+          required: true
+          type: string
+        - name: recursive
+          in: query
+          description: |
+            Return a flat list of file objects contained by the target directory and its sub-directories.
+            If directories_only=true is also specified, returns a hierarchial directory tree instead, of x depth.
+          required: false
+          type: boolean
+        - name: depth
+          in: query
+          description: Max depth of recursion. Value must be an integer > 0, or *. Default value is 1.
+          required: false
+          type: string
+        - name: directories_only
+          in: query
+          description: |
+            Omit files entirely from the returned results. Use together with recursive=true and depth=x
+            to get a directory tree.
+          required: false
+          type: boolean
+        - name: include_parent
+          in: query
+          description: |
+            Includes the 'parent directory' of the contents being fetched in the results also. example&#58;
+            GET /rest/v2/directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            Otherwise, one would query for its data separately by GET /rest/v2/directories/3.
+          required: false
+          type: boolean
+        - name: preferred_identifier
+          in: query
+          description: Preferred_identifier of a dataset. Browse only files that have been selected for that record.
+          required: false
+          type: string
+      responses:
+        '200':
+          description: |
+            Returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
+            note&#58; If parameter 'recursive' is used, return value is a flat list of file objects instead.
+        '404':
+          description: Directory not found. Also when not authenticated request
+      tags:
+        - File API
+  /rest/v2/directories/root:
+    get:
+      summary: Return root directory for a project, and its files and directories
+      description: Useful when starting to browse files for a project, when individual root-level directory identifier is not yet known.
+      parameters:
+        - name: project
+          in: query
+          description: Project_identifier of the project for which to find root directory
+          required: true
+          type: string
+      responses:
+        '200':
+          description: |
+            Returns the root directory for the requested project.
+            Returned object additionally contains fields 'directories' and 'files', which contain the child directory and file objects of the root directory, similar to what API /directories/{PID}/files does.
+        '400':
+          description: Bad parameters, details in body
+        '404':
+          description: Directory not found. Also when not authenticated request
+      tags:
+        - File API
+
+
+# Data Catalog API
+  /rest/v2/datacatalogs:
+    get:
+      summary: List of data catalogs
+      parameters:
+        - name: ordering
+          in: query
+          description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Return list of file data catalogs
+      tags:
+        - Data Catalog API
+    post:
+      summary: Create new data catalog
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Object or a list of objects to create."
+          required: true
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '201':
+          description: New data catalog created
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Data Catalog API
+  /rest/v2/datacatalogs/{PID}:
+    get:
+      summary: Get data catalog metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Return data catalog metadata
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        '404':
+          description: Not found
+      tags:
+        - Data Catalog API
+    put:
+      summary: Replace data catalog metadata
+      description: |
+        # catalog_json read-only fields
+        - identifier
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+        - in: "body"
+          name: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation. modified content returned
+        '400':
+          description: Parameters contained errors, response includes details
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Data Catalog API
+    patch:
+      summary: Replace part of catalog metadata
+      description: |
+        # catalog_json read-only fields
+        - identifier
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation, full content returned
+          schema:
+            $ref: '#/definitions/DataCatalog'
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Data Catalog API
+    delete:
+      summary: Delete catalog metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Data Catalog API
+
+
+# Dataset API
+  /rest/v2/datasets:
+    # some of the parameters and returned fields are for TPAS usage only
+    get:
+      summary: List datasets
+      parameters:
+        - name: latest
+          in: query
+          description: Only return latest versions
+          required: false
+          type: boolean
+        - name: owner_id
+          in: query
+          description: Id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: user_created
+          in: query
+          description: Id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
+          in: query
+          description: Curator identifier (field research_dataset-> curator-> identifier)
+          required: false
+          type: string
+        - name: preferred_identifier
+          in: query
+          description: |
+            Use given preferred_identifier as filter. Returns a best guess of the record (always a single record!), by
+            looking from Fairdata catalogs first, then from harvested catalogs. If the value of preferred_identifier
+            contains special characters such as ampersands, the value has to be urlencoded.
+          required: false
+          type: string
+        - name: state
+          in: query
+          description: TPAS state (field preservation_state). Multiple states using OR-logic are queriable in the same request, e.g. state=5,6. See valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+          required: false
+          type: string
+        - name: metadata_owner_org
+          in: query
+          description: Filter by dataset field metadata_owner_org
+          required: false
+          type: string
+        - name: metadata_provider_user
+          in: query
+          description: Filter by dataset field metadata_provider_user
+          required: false
+          type: string
+        - name: contract_org_identifier
+          in: query
+          description: Filter by dataset contract.contract_json.organization.organization_identifier. Restricted to permitted users.
+          required: false
+          type: string
+        - name: pas_filter
+          in: query
+          description: A specific filter that targets the following fields; research_dataset['title'], research_dataset['curator'][n]['name'], contract['contract_json']['title']. Restricted to permitted users.
+          required: false
+          type: string
+        - name: editor
+          in: query
+          description: Identifier of the editor used to modify the record, i.e. qvain.
+          type: string
+        - name: data_catalog
+          in: query
+          description: Filter by data catalog urn identifier
+          type: string
+        - name: offset
+          in: query
+          description: Offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit for paging
+          required: false
+          type: integer
+          default: 10
+        - name: ordering
+          in: query
+          description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
+        - name: actor_filter
+          in: query
+          description: |
+            Actor_filters are a collection of filter parameters for filtering according to the name
+            of creator, curator, publisher or rights_holder actors. Actor type must be defined as
+            a suffix in the filter name ('_person' or '_organization'). Actor type '_organization' finds matches
+            from "is_member_of" -field if actor is a person. Multiple actor_filters can be applied simultaneously (AND)
+            or separately (OR) by using 'condition_separator'. Default separator is AND.
+
+            Examples&#58;
+
+            '?creator_person=person_name'
+            '?publisher_organization=some organisation&creator_person=person_name&condition_separator=or'
+          required: false
+          type: string
+        - $ref: "#/parameters/include_user_metadata"
+      responses:
+        "200":
+          description: Successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. When using query parameters, search result can be an empty list.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+      tags:
+        - Dataset API
+    post:
+      summary: Create new dataset metadata
+      description: |
+        # research_dataset identifiers
+        The fields <b>metadata_version_identifier</b> and <b>preferred_identifier</b> are generally always generated server-side. <b>Exception</b>: In harvested catalogs, preferred_identifier value can be provided by the user.
+        # research_dataset read-only fields
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs)
+        - total_files_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Object or a list of objects to create."
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        - in: query
+          name: draft
+          description: Create new dataset into draft state. The dataset has to be separately published using the designated RPC API.
+          type: boolean
+          required: false
+          default: false
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
+        - $ref: "#/parameters/include_user_metadata"
+      responses:
+        '201':
+          description: Returns the created object, or if a list was given, a list of objects and errors.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        '400':
+          description: Parameters contained errors, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Dataset API
+    put:
+      summary: Bulk update
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of objects to update."
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecordList'
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Sucessful operation. Return values include a list of errors, if any.
+        '400':
+          description: All updates failed. A list of errors is returned.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Dataset API
+    patch:
+      summary: Bulk update partial
+      description: |
+        The payload must include a field that can be used to identify the resource being updated. Acceptable identifier fields are: <b>id, identifier</b>
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "A list of (partial) objects to update."
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecordList'
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
+        '400':
+          description: All updates failed. A list of errors is returned.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Dataset API
+  /rest/v2/datasets/identifiers:
+    get:
+      summary: List all dataset identifiers
+      parameters:
+        - name: latest
+          in: query
+          description: Only return latest versions
+          required: false
+          type: boolean
+        - name: owner_id
+          in: query
+          description: Id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: user_created
+          in: query
+          description: Id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
+          in: query
+          description: Curator identifier (field research_dataset-> curator-> identifier)
+          required: false
+          type: string
+        - name: state
+          in: query
+          description: TPAS state (field preservation_state). Multiple states using OR-logic are queriable in the same request, e.g. state=5,6. See valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Successful operation, returns a list of all dataset metadata version identifiers.
+      tags:
+        - Dataset API
+  /rest/v2/datasets/unique_preferred_identifiers:
+    get:
+      summary: List all unique dataset preferred identifiers
+      parameters:
+        - name: latest
+          in: query
+          description: Only return latest dataset versions
+          required: false
+          type: boolean
+        - name: owner_id
+          in: query
+          description: Id of the person who owns the record in metax
+          required: false
+          type: string
+        - name: user_created
+          in: query
+          description: Id of the person who created the record in metax
+          required: false
+          type: string
+        - name: curator
+          in: query
+          description: Curator identifier (field research_dataset-> curator-> identifier)
+          required: false
+          type: string
+        - name: state
+          in: query
+          description: TPAS state (field preservation_state). Multiple states using OR-logic are queriable in the same request, e.g. state=5,6. see valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Successful operation, returns a list of all unique dataset preferred identifiers.
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}:
+    get:
+      summary: Get dataset metadata.
+      description: |
+        Get dataset metadata.
+        - If the user is not authenticated and the user is not the owner of the dataset, then some personal data of users affiliated with the datasets are left out of the response.
+        - By default, fields research_dataset.files and research_dataset.directories are not included in the response (often regarded as "user metadata" or "dataset-specific metadata"). Include these by using the optional include_user_metadata query parameter.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - name: dataset_format
+          in: query
+          description: |
+            Format the dataset should be returned in.
+            Possible formats are:
+            - datacite (Datacite XML)
+            - fairdata_datacite (a less strict version of official Datacite XML. research_dataset.issued and research_dataset.publisher are not required, and identifierType can be URN, if the dataset does not have a real DOI identifier.)
+            - metax (a simple json -> xml transformation)
+
+            <b>Note:</b> Using this parameter causes the api to return only the field research_dataset, transformed to the requested format.
+          required: false
+          type: string
+        - name: dummy_doi
+          in: path
+          description: |
+            Can be used with query parameter dataset_format, when dataset_format value is either datacite, or fairdata_datacite.
+            If specified to true, and the dataset does not have a real DOI identifier, then a dummy DOI is used in place, using the form 10.0/<preferred_identifier>.
+            If the dataset does already have a valid DOI, then the real DOI is used instead, and this parameter has no effect.
+          required: false
+          type: boolean
+        - name: file_details
+          in: query
+          description: |
+            Populate individual research_dataset.files and directories objects with their corresponding db object details.
+            The details can be found behind the appended key 'details' that is placed into each file and directory in the dataset.
+            Additionally total byte size and total file counts are calculated for directories, and are placed into fields
+            byte_size and file_count in each directory's details as extra information.
+            Note: Only works if used with the include_user_metadata query parameter.
+          required: false
+          type: boolean
+        - name: file_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for file details, when details are requested (query param file_details=true is passed)
+          required: false
+          type: string
+        - name: directory_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for directory details, when details are requested (query param file_details=true is passed)
+          required: false
+          type: string
+        - name: preferred_identifier
+          in: query
+          description: |
+            Return a hit only if the given PID is a preferred identifier.
+          required: false
+          type: boolean
+        - $ref: "#/parameters/include_user_metadata"
+      responses:
+        '200':
+          description: Return dataset metadata
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        '404':
+          description: Not found
+      tags:
+        - Dataset API
+    put:
+      summary: Replace dataset metadata.
+      description: |
+        # research_dataset read-only fields
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs and legacy catalogs)
+        - total_files_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
+        # research_dataset fields that can only be updated using a separate API datasets/{PID}/files/user_metadata
+        - files
+        - directories
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
+        - $ref: "#/parameters/include_user_metadata"
+      responses:
+        '200':
+          description: Successful operation. Modified content returned
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Dataset API
+    patch:
+      summary: Replace part of dataset metadata.
+      description: |
+        # research_dataset read-only fields
+        - metadata_version_identifier
+        - preferred_identifier (except harvested catalogs)
+        - total_files_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
+        - total_remote_resources_byte_size (generated from entries in remote_resources)
+        # research_dataset fields that can only be updated using a separate API datasets/{PID}/files/user_metadata
+        - files
+        - directories
+        Note that contents of the field research_dataset can not be partially updated. The entire research_dataset block is updated as a whole.
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "(Partial) Object to update the resource with"
+          required: true
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
+        - $ref: "#/parameters/include_user_metadata"
+      responses:
+        '200':
+          description: Successful operation, full content returned
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Dataset API
+    delete:
+      summary: Delete dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '204':
+          description: Successful operation
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/files:
+    get:
+      summary: Get list of all files in a dataset and their technical metadata.
+      description: Get list of all files in a dataset and their technical metadata. If dataset is under embargo, or otherwise dataset access_type is not fully open, it is possible that the file list can not be retrieved.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - name: file_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for files
+          required: false
+          type: string
+        - name: removed_files
+          in: query
+          description: Return only deleted files
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: Successful operation, return list of full files metadata.
+          schema:
+            $ref: '#/definitions/FileList'
+      tags:
+        - Dataset API
+    post:
+      summary: Add files to a dataset or exclude files from a dataset.
+      description: |
+        Add files to a dataset or exclude files from an existing dataset. This API is the sole means of adding or excluding files once a dataset has been created.
+        - To add files, only the field "identifier" is required. To exclude fields, only the fields "identifier" and "exclude" are required (i.e. "exclude=true").
+        - In general, this API can be used only for datasets that are in draft state, where files can be freely added or excluded.
+        - When a dataset has been published, this API can be used in two situations only: 1) Dataset has never had any files added to it. Files can be added to the dataset once, but after that, adding or excluding files will be prevented. 2) Dataset is cumulative. Files can be freely added, but not excluded.
+        - The request body can include also user metadata for files and directories that are added.
+        - The user must be a member of the project where files are added from.
+        - API only usable by the owner of the dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: List of files or entire directories to include or exclude.
+          required: true
+          schema:
+            $ref: '#/definitions/AddOrExcludeFiles'
+      responses:
+        '200':
+          description: Successful operation, return number of files added and removed.
+          schema:
+            type: object
+            properties:
+              files_added:
+                type: integer
+                example: 3
+              files_removed:
+                type: integer
+                example: 2
+        '400':
+          description: Operation resulted in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource.
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/files/{FILE_PID}:
+    get:
+      summary: Get technical metadata of a single file in a dataset.
+      description: Get technical metadata of a single file in a dataset. If dataset is under embargo, or otherwise dataset access_type is not fully open, it is possible that the file can not be retrieved.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - name: FILE_PID
+          in: path
+          description: Persistent ID of the file OR the internal pk
+          required: true
+          type: string
+        - name: file_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for files
+          required: false
+          type: string
+        - name: removed_files
+          in: query
+          description: Return only deleted files
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: Successful operation, return file metadata.
+          schema:
+            $ref: '#/definitions/File'
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/files/user_metadata:
+    put:
+      summary: Update or remove user metadata of files in dataset.
+      description: |
+        Update or remove user metadata of files in a dataset. Does not add or exclude files.
+        - Request body has to fully contain all metadata of the file or directory entries.
+        - API only usable by the owner of the dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: List of file or directory entries with metadata included. If the entry object has the attribute delete=true, then the metadata entry is removed (does NOT remove the file from the dataset!).
+          required: true
+          schema:
+            $ref: '#/definitions/AddOrDeleteUserMetadata'
+      responses:
+        '200':
+          description: Successful operation. Does not return anything.
+        '400':
+          description: Operation resulted in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource.
+      tags:
+        - Dataset API
+    patch:
+      summary: Partially update or remove user metadata of files in dataset.
+      description: |
+        Update or remove user metadata of files in a dataset. Does not add or exclude files.
+        - Permits partially updating metadata.
+        - Note: Leaving out a field from the body of the request does NOT delete the field! In order to delete a single field, use PUT instead, and omit the field you want to delete.
+        - Permits also deleting entries by using the attribute delete=true in a file or directory entry.
+        - API only usable by the owner of the dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: List of file or directory entries with metadata included. If the entry object has the attribute delete=true, then the metadata entry is removed (does NOT remove the file from the dataset!).
+          required: true
+          schema:
+            $ref: '#/definitions/AddOrDeleteUserMetadata'
+      responses:
+        '200':
+          description: Successful operation. Does not return anything.
+        '400':
+          description: Operation resulted in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource.
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/files/{FILE_PID}/user_metadata:
+    get:
+      summary: Retrieve user metadata of a single file or a directory in a dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - name: FILE_PID
+          in: path
+          description: Persistent ID of the file OR the internal pk
+          required: true
+          type: string
+        - name: directory
+          in: query
+          description: If true, {FILE_PID} is regarded as a directory PID instead, and directory metadata is returned instead. At the time of writing, the difference between returned objects between file and dir metadata, is one field (files have file_type).
+          required: false
+          type: boolean
+          default: false
+      responses:
+        '200':
+          # note: file and dir metadata has a difference (at the time of writing, one field difference), but it does
+          # not seem to be possible to use oneOf here... the difference is mentioned in the "directory" parameter description above.
+          description: Successful operation, return user metadata of the file.
+          schema:
+            $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileMetadata'
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/metadata_versions:
+    get:
+      summary: List old research_dataset entries of a record
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Successful operation, return a list of entries. May return an empty list.
+          schema:
+            $ref: '#/definitions/StringList'
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/metadata_versions/{MVI}:
+    get:
+      summary: Get contents of a specific old research_dataset of a record.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - name: MVI
+          in: path
+          description: The metadata_version_identifier of the research_dataset
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Successful operation, return a list of entries. May return an empty list.
+        "404":
+          description: Resource not found.
+      tags:
+        - Dataset API
+
+
+# Contract API
+  /rest/v2/contracts:
+    get:
+      summary: List contracts
+      parameters:
+        - name: organization
+          in: query
+          description: Organization ID (field contract_json-> organization-> organization_identifier)
+          required: false
+          type: string
+        - name: offset
+          in: query
+          description: Offset for paging
+          required: false
+          type: integer
+        - name: limit
+          in: query
+          description: Limit for paging
+          required: false
+          type: integer
+        - name: ordering
+          in: query
+          description: Specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Successful operation, return list of contracts
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Contract API
+    post:
+      summary: Create new contract metadata
+      parameters:
+        - $ref: "#/parameters/dryrun"
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: New contract metadata created, returns the created object, or if a list was given, a list of objects
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Contract API
+  /rest/v2/contracts/{PID}:
+    get:
+      summary: Get contract metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of contract OR the internal pk
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation, return contract metadata
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Contract API
+    put:
+      summary: Replace contract metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of contract OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation. Modified content returned
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Contract API
+    patch:
+      summary: Replace part of contract metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of contract OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '200':
+          description: Successful operation, full content returned
+        '400':
+          description: Parameters contained errors, response includes details
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - Contract API
+    delete:
+      summary: Delete contract metadata
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of the resource OR the internal pk
+          required: true
+          type: string
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          description: Unauthorized. Reserved for admins only
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Contract API
+
+
+# ApiErrors API
+  /rest/v2/apierrors:
+    get:
+      summary: List errors produced during api requests
+      responses:
+        '200':
+          description: Returns a list of error entries. May return an empty list.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - ApiErrors API
+  /rest/v2/apierrors/{identifier}:
+    get:
+      summary: Get details of a single error entry
+      parameters:
+        - name: identifier
+          in: path
+          description: Error_identifier of an error response
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Return error details as a json object
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - ApiErrors API
+    delete:
+      summary: Delete a single error entry
+      parameters:
+        - name: identifier
+          in: path
+          description: Error identifier of an error response
+          required: true
+          type: string
+      responses:
+        '204':
+          description: Entry deleted
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - ApiErrors API
+  /rest/v2/apierrors/flush:
+    post:
+      summary: "Delete all error entries"
+      responses:
+        '200':
+          description: All entries deleted. Return a json object telling how many items were deleted.
+        '403':
+          description: Forbidden. Must have permission for resource
+      tags:
+        - ApiErrors API
+
+
+# Schema API
+  /rest/v2/schemas:
+    get:
+      summary: "List schemas"
+      responses:
+        '200':
+          description: Successful operation, return list of schema names
+      tags:
+        - Schema API
+  /rest/v2/schemas/{name}:
+    get:
+      summary: Get schema content
+      parameters:
+        - name: name
+          in: path
+          description: Name of the schema to be retrieved
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Return JSON schema
+        '404':
+          description: Not found
+      tags:
+        - Schema API
+
+
+# RPC APIs
+  /rpc/v2/datasets/create_new_version:
+    post:
+      summary: Create new dataset version.
+      description: |
+        Create a new dataset version of an existing dataset.
+        - The new version is created into draft state, and has to be separately published
+        - Creating a new version from a deprecated dataset: When the new version is created, all files from the original version that have "removed=True" state will get removed from the new version. This effectively restores a deprecated dataset into a working condition again in the newer version.
+        - Will raise an error, if dataset already has a newer version
+        - Usable only by the owner of the dataset
+      parameters:
+        - $ref: "#/parameters/rpc_dataset_identifier"
+      responses:
+        '200':
+          description: Successful operation, returns the id and identifier of the published dataset.
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              identifier:
+                type: string
+                example: 2955e124-e3dd-hh56-99f1-gtr4446f96d1
+        '400':
+          description: Operation ended in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Dataset RPC
+  /rpc/v2/datasets/get_minimal_dataset_template:
+    get:
+      summary: Get minimal dataset template.
+      description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. The returned template can be used as-is when creating a dataset into Metax.
+      parameters:
+        - name: type
+          in: query
+          description: Type of dataset template to retrieve. Accepted values&#58; service, enduser.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation, return dataset template as json.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+      tags:
+        - Dataset RPC
+  /rpc/v2/datasets/publish_dataset:
+    post:
+      summary: Publish a draft dataset.
+      description: |
+        Publish a draft dataset.
+        - Generates the dataset a proper PID (preferred_identifier)
+        - Possibly publishes metadata to Datacite (if PID type is DOI)
+        - Makes the new published dataset findable in Etsin
+        - Will raise an error, if dataset is already published
+        - Usable only by the owner of the dataset
+      parameters:
+        - $ref: "#/parameters/rpc_dataset_identifier"
+      responses:
+        '200':
+          description: Successful operation, returns the new generated PID (preferred_identifier) of the published dataset.
+          schema:
+            type: object
+            properties:
+              preferred_identifier:
+                type: string
+                example: urn:nbn:fi:att:2955e124-e3dd-hh56-99f1-gtr4446f96d1
+        '400':
+          description: Operation ended in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Dataset RPC
+  # /rpc/v2/statistics/count_datasets:
+  #   get:
+  #     summary: Get the total number of datasets and file sizes.
+  #     description: Calculates the total number of datasets and file sizes.
+  #     parameters:
+  #       - $ref: "#/parameters/from_date_non_required"
+  #       - $ref: "#/parameters/to_date_non_required"
+  #       - $ref: "#/parameters/access_type_filter"
+  #       - $ref: "#/parameters/data_catalog_filter"
+  #       - $ref: "#/parameters/deprecated_filter"
+  #       - $ref: "#/parameters/harvested_filter"
+  #       - $ref: "#/parameters/latest_filter"
+  #       - $ref: "#/parameters/metadata_owner_org_filter"
+  #       - $ref: "#/parameters/metadata_provider_org_filter"
+  #       - $ref: "#/parameters/metadata_provider_user_filter"
+  #       - $ref: "#/parameters/preservation_state_filter"
+  #     responses:
+  #       '200':
+  #         description: successful operation.
+  #         schema:
+  #           $ref: "#/examples/count_datasets"
+  #     tags:
+  #       - Statistics RPC
+  /rpc/v2/statistics/all_datasets_cumulative:
+    get:
+      summary: Get cumulative list of dataset information in given interval.
+      description: Retrieve dataset count and byte size per month and monthly cumulative from all datasets.
+      parameters:
+        - name: from_date
+          in: query
+          description: Includes datasets that are created after this date. Given in format 'YYYY-MM'.
+          required: true
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        - name: to_date
+          in: query
+          description: Includes datasets that are created before (including) this date. Given in format 'YYYY-MM'.
+          required: true
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        - name: latest
+          in: query
+          description: Only return latest versions. Default value is true.
+          required: false
+          type: boolean
+        - name: removed
+          in: query
+          description: Only return removed datasets. If set to false, return non-removed datasets. When parameter is not given, return both removed and non-removed datasets.
+          required: false
+          type: boolean
+        - name: legacy
+          in: query
+          description: Only return legacy datasets. If set to false, return non-legacy datasets. When parameter is not given, return both legacy and non-legacy datasets.
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: Successful operation.
+          schema:
+            $ref: "#/examples/all_datasets_cumulative"
+        '400':
+          description: Parameters contained errors, response includes details
+      tags:
+        - Statistics RPC
+  # /rpc/v2/statistics/catalog_datasets_cumulative:
+  #   get:
+  #     summary: Get cumulative list of datacatalog information in given interval.
+  #     description: Lists datacatalogs and groups their content by access type and by month. Each month contains how many datasets have been added and total size of files. These are calculated both for current month and cumulatively from from_date.
+  #     parameters:
+  #       - $ref: "#/parameters/from_date"
+  #       - $ref: "#/parameters/to_date"
+  #       - $ref: "#/parameters/data_catalog_filter"
+  #     responses:
+  #       '200':
+  #         description: successful operation, return json of requested data catalogs.
+  #         schema:
+  #           $ref: "#/examples/catalog_datasets_cumulative"
+  #       '400':
+  #         description: required parameters missing.
+  #     tags:
+  #       - Statistics RPC
+  # /rpc/v2/statistics/deprecated_datasets_cumulative:
+  #   get:
+  #     summary: Get cumulative list of deprecated dataset information in given interval.
+  #     description: Retrieve dataset count per month and monthly cumulative for deprecated datasets.
+  #     parameters:
+  #       - $ref: "#/parameters/from_date"
+  #       - $ref: "#/parameters/to_date"
+  #     responses:
+  #       '200':
+  #         description: successful operation.
+  #         schema:
+  #           $ref: "#/examples/deprecated_datasets_cumulative"
+  #     tags:
+  #       - Statistics RPC
+  # /rpc/v2/statistics/end_user_datasets_cumulative:
+  #   get:
+  #     summary: Get cumulative list of dataset information in given interval added by end users.
+  #     description: Retrieve dataset count per month and monthly cumulative for datasets which have been created by end users using End User API.
+  #     parameters:
+  #       - $ref: "#/parameters/from_date"
+  #       - $ref: "#/parameters/to_date"
+  #     responses:
+  #       '200':
+  #         description: successful operation.
+  #         schema:
+  #           $ref: "#/examples/end_user_datasets_cumulative"
+  #       '400':
+  #         description: required parameters missing.
+  #     tags:
+  #       - Statistics RPC
+  # /rpc/v2/statistics/harvested_datasets_cumulative:
+  #   get:
+  #     summary: Get cumulative list of harvested dataset information in given interval.
+  #     description: For harvested datasets, retrieve dataset count per month and monthly cumulative, and grouped by access_type.
+  #     parameters:
+  #       - $ref: "#/parameters/from_date"
+  #       - $ref: "#/parameters/to_date"
+  #     responses:
+  #       '200':
+  #         description: successful operation.
+  #         schema:
+  #           $ref: "#/examples/harvested_datasets_cumulative"
+  #       '400':
+  #         description: required parameters missing.
+  #     tags:
+  #       - Statistics RPC
+  /rpc/v2/statistics/organization_datasets_cumulative:
+    get:
+      summary: Get cumulative list of dataset information in given interval added by organizations.
+      description: Retrieve dataset count and byte size per month and monthly cumulative for all organizations, or a given single organization, grouped by catalog.
+      parameters:
+        - $ref: "#/parameters/from_date"
+        - $ref: "#/parameters/to_date"
+        - $ref: "#/parameters/metadata_owner_org_filter"
+      responses:
+        '200':
+          description: Successful operation.
+          schema:
+            $ref: "#/examples/organization_datasets_cumulative"
+        '400':
+          description: Required parameters missing.
+      tags:
+        - Statistics RPC
+  # /rpc/v2/statistics/unused_files:
+  #   get:
+  #     summary: Get files that are not part of any datasets.
+  #     description: Retrieving total counts of files and project identifiers which are not part of any datasets.
+  #     responses:
+  #       '200':
+  #         description: successful operation.
+  #         schema:
+  #           $ref: "#/examples/unused_files"
+  #     tags:
+  #       - Statistics RPC
+  /rpc/v2/files/delete_project:
+    post:
+      summary: Deletes given project from the database.
+      description: Usable by ida, tpas and metax users. Marks all related files deleted, deprecates related datasets and removes all directories. Returns number of deleted files. Request is successful even when the project identifier is wrong, number of deleted files is then 0.
+      parameters:
+        - name: project_identifier
+          in: query
+          description: Project's identifier what needs to be removed.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation, returns the number of deleted files.
+        '400':
+          description: Unsuccesful operation when project identifier is missing.
+      tags:
+        - File RPC
+
+
+parameters:
+
+  dryrun:
+    name: dryrun
+    in: query
+    description: Execute the operation normally, returning the same response as normally, but do not save anything to db, or publish anything to remote services.
+    required: false
+    type: boolean
+
+  allowed_projects:
+    name: allowed_projects
+    in: query
+    description: Ensures that content is part of intended projects.
+    required: false
+    type: string
+
+  from_date:
+    name: from_date
+    in: query
+    description: Query returns objects that are created after this date. to_date parameter is required with this.
+    required: true
+    type: string
+    format: date
+
+  from_date_non_required:
+    name: from_date
+    in: query
+    description: Query returns objects that are created after this date. to_date parameter is required with this.
+    required: false
+    type: string
+    format: date
+
+  to_date:
+    name: to_date
+    in: query
+    description: Query returns objects that are created before this date. from_date parameter is required with this.
+    required: true
+    type: string
+    format: date
+
+  to_date_non_required:
+    name: to_date
+    in: query
+    description: Query returns objects that are created before this date. from_date parameter is required with this.
+    required: false
+    type: string
+    format: date
+
+  data_catalog_filter:
+    name: data_catalog
+    in: query
+    description: Filter by data catalog identifier
+    type: string
+    required: false
+
+  access_type_filter:
+    name: access_type
+    in: query
+    description: Filter by access type
+    type: string
+    required: false
+
+  preservation_state_filter:
+    name: state
+    in: query
+    description: TPAS state (field preservation_state). Multiple states using OR-logic are queriable in the same request, e.g. state=5,6. See valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
+    required: false
+    type: string
+
+  metadata_owner_org_filter:
+    name: metadata_owner_org
+    in: query
+    description: Filter by dataset field metadata_owner_org
+    required: false
+    type: string
+
+  metadata_provider_org_filter:
+    name: metadata_provider_org
+    in: query
+    description: Filter by dataset field metadata_provider_org
+    required: false
+    type: string
+
+  metadata_provider_user_filter:
+    name: metadata_provider_user
+    in: query
+    description: Filter by dataset field metadata_provider_user
+    required: false
+    type: string
+
+  latest_filter:
+    name: latest
+    in: query
+    description: Only return latest versions
+    required: false
+    type: boolean
+
+  harvested_filter:
+    name: harvested
+    in: query
+    description: Only return harvested datasets
+    required: false
+    type: boolean
+
+  deprecated_filter:
+    name: deprecated
+    in: query
+    description: only return deprecated datasets
+    required: false
+    type: boolean
+
+  include_user_metadata:
+    name: include_user_metadata
+    in: query
+    description: Include user metadata for files (dataset-specific metadata) (fields research_dataset.files and research_dataset.directories)
+    required: false
+    type: boolean
+    default: false
+
+  rpc_dataset_identifier:
+    name: identifier
+    in: query
+    description: Identifier of the target dataset.
+    required: true
+    type: string
+
+
+definitions:
+  AddOrDeleteUserMetadata:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      files:
+        type: array
+        items:
+          type: object
+          minProperties: 1
+          anyOf:
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileMetadataDeleteEvent'
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileMetadata'
+      directories:
+        type: array
+        items:
+          type: object
+          minProperties: 1
+          anyOf:
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/DirectoryMetadataDeleteEvent'
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/DirectoryMetadata'
+  AddOrExcludeFiles:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      files:
+        type: array
+        items:
+          type: object
+          minProperties: 1
+          anyOf:
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileAdditionEvent'
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileMetadata'
+      directories:
+        type: array
+        items:
+          type: object
+          minProperties: 1
+          anyOf:
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/DirectoryAdditionEvent'
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/DirectoryMetadata'
+  #   type: object
+  #   properties:
+  #     files:
+  #       type: array
+  #       items:
+  #         $ref: '#/definitions/ResearchDatasetFile'
+  #     directories:
+  #       type: array
+  #       items:
+  #         $ref: '#/definitions/ResearchDatasetDirectory'
+  CatalogRecord:
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/catalogrecord.json#/definitions/CatalogRecord'
+  DataCatalog:
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/datacatalog.json#/definitions/Catalog'
+  File:
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/file.json#/definitions/File'
+  Directory:
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/file.json#/definitions/Directory'
+  StringList:
+    type: array
+    items:
+      type: string
+      example: "value"
+  CatalogRecordList:
+    type: array
+    items:
+      $ref: '#/definitions/CatalogRecord'
+  FileList:
+    type: array
+    items:
+      $ref: '#/definitions/File'
+  CumulativeElementWFiles:
+    type: object
+    properties:
+      month:
+        type: string
+        pattern: '^\d{4}-\d{2}$'
+        example: 2019-11
+      count:
+        type: integer
+      count_cumulative:
+        type: number
+        format: float
+      ida_byte_size:
+        type: number
+        format: float
+      ida_byte_size_cumulative:
+        type: number
+        format: float
+  CumulativeElementWOFiles:
+    type: object
+    properties:
+      month:
+        type: string
+        format: date
+      count:
+        type: integer
+      count_cumulative:
+        type: number
+        format: float
+
+
+examples:
+  # count_datasets:
+  #   type: object
+  #   properties:
+  #     count:
+  #       type: integer
+  #     ida_byte_size:
+  #       type: number
+  #       format: float
+  all_datasets_cumulative:
+    type: array
+    items:
+      $ref: '#/definitions/CumulativeElementWFiles'
+  # catalog_datasets_cumulative:
+  #   type: object
+  #   properties:
+  #     identifier:
+  #       type: object
+  #       properties:
+  #         access_type:
+  #           type: array
+  #           items:
+  #             $ref: '#/definitions/CumulativeElementWFiles'
+  # deprecated_datasets_cumulative:
+  #   type: array
+  #   items:
+  #     $ref: '#/definitions/CumulativeElementWOFiles'
+  # end_user_datasets_cumulative:
+  #   type: array
+  #   items:
+  #     $ref: '#/definitions/CumulativeElementWOFiles'
+  # harvested_datasets_cumulative:
+  #   type: object
+  #   properties:
+  #     identifier:
+  #       type: object
+  #       properties:
+  #         access_type:
+  #           type: array
+  #           items:
+  #             $ref: '#/definitions/CumulativeElementWOFiles'
+  organization_datasets_cumulative:
+    type: object
+    properties:
+      organization_name:
+        type: object
+        properties:
+          identifier:
+            type: array
+            items:
+              $ref: '#/definitions/CumulativeElementWFiles'
+  # unused_files:
+  #   type: array
+  #   items:
+  #     type: object
+  #     properties:
+  #       count:
+  #         type: integer
+  #       project_identifier:
+  #         type: string

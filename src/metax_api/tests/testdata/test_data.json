@@ -5705,7 +5705,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 1
@@ -5819,7 +5820,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 2
@@ -5933,7 +5935,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 3
@@ -6047,7 +6050,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 4
@@ -6161,7 +6165,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 5
@@ -6275,7 +6280,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 6
@@ -6389,7 +6395,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 7
@@ -6500,7 +6507,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 8
@@ -6608,7 +6616,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 9
@@ -6717,7 +6726,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 10
@@ -7459,7 +7469,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 11
@@ -8201,7 +8212,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 12
@@ -9035,7 +9047,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 13
@@ -9144,7 +9157,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 14
@@ -9253,7 +9267,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 15
@@ -9362,7 +9377,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 16
@@ -9471,7 +9487,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 17
@@ -9580,7 +9597,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 18
@@ -9689,7 +9707,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 19
@@ -9796,7 +9815,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 20
@@ -9903,7 +9923,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 21
@@ -10010,7 +10031,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 22
@@ -10117,7 +10139,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 23
@@ -10850,7 +10873,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 24
@@ -11583,7 +11607,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 25
@@ -12316,7 +12341,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 26
@@ -12424,7 +12450,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 27
@@ -12526,7 +12553,8 @@
                     "This version contains changes to x and y."
                 ]
             },
-            "service_created": "metax"
+            "service_created": "metax",
+            "state": "published"
         },
         "model": "metax_api.catalogrecord",
         "pk": 28

@@ -171,14 +171,12 @@ class Directory(Common):
             select parent_directory_id, sum(f.byte_size) as byte_size, count(f.id) as file_count
             from metax_api_file f
             inner join metax_api_catalogrecord_files cr_f on (cr_f.file_id = f.id and cr_f.catalogrecord_id = %s)
-            where f.file_path like (%s || '/%%')
-            and f.removed = false
-            and f.active = true
+            where f.removed = false and f.active = true
             group by parent_directory_id
         '''
+
         with connection.cursor() as cursor:
-            cursor.execute(sql, [cr_id, self.directory_path])
-            # fetched results are triples like (id, Decimal(byte_size), file_count)
+            cursor.execute(sql, [cr_id])
             grouped_by_dir = {}
             for row in cursor.fetchall():
                 grouped_by_dir[row[0]] = [ int(row[1]), row[2] ]

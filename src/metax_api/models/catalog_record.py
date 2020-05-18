@@ -82,6 +82,9 @@ class DatasetVersionSet(models.Model):
         Return a list of record preferred_identifiers that belong in the same dataset version chain.
         Latest first.
         """
+        records = self.records(manager='objects_unfiltered') \
+            .filter(state=CatalogRecord.STATE_PUBLISHED) \
+            .order_by('-date_created')
 
         versions = [
             {
@@ -91,9 +94,10 @@ class DatasetVersionSet(models.Model):
                 'date_created': r.date_created.astimezone().isoformat(),
                 'date_removed': r.date_removed.astimezone().isoformat() if r.date_removed else None
             }
-            for r in self.records(manager='objects_unfiltered').all().order_by('-date_created')
+            for r in records
         ]
 
+        # dont show the date_removed field at all if the value is None (record has not been removed)
         versions = [{key: value for (key, value) in i.items() if value is not None} for i in versions]
 
         return versions
@@ -239,7 +243,7 @@ class CatalogRecord(Common):
 
     state = models.CharField(
         choices=STATE_CHOICES,
-        default=STATE_PUBLISHED,
+        default=STATE_DRAFT,
         max_length=200,
         help_text='Publishing state (published / draft) of the dataset.'
     )
@@ -331,6 +335,12 @@ class CatalogRecord(Common):
     """
     new_dataset_version_created = None
 
+    """
+    Serializer class to use withing this class, where needed. Allows inheriting classes
+    to define their own preference without hardcoding it everywhere.
+    """
+    serializer_class = None
+
     objects = CatalogRecordManager()
 
     class Meta:
@@ -361,6 +371,8 @@ class CatalogRecord(Common):
             'research_dataset.metadata_version_identifier',
             'research_dataset.preferred_identifier',
         )
+        from metax_api.api.rest.base.serializers import CatalogRecordSerializer
+        self.serializer_class = CatalogRecordSerializer
 
     def print_files(self): # pragma: no cover
         for f in self.files.all():
@@ -397,6 +409,9 @@ class CatalogRecord(Common):
 
     def user_is_owner(self, request):
         if self.state == self.STATE_DRAFT and self.metadata_provider_user != request.user.username:
+            _logger.debug('404 due to state == draft and metadata_provider_user != request.user.username')
+            _logger.debug('metadata_provider_user =', self.metadata_provider_user)
+            _logger.debug('request.user.username =', request.user.username)
             raise Http404
 
         if self.editor and 'owner_id' in self.editor:
@@ -896,7 +911,12 @@ class CatalogRecord(Common):
 
     def delete(self, *args, **kwargs):
         if self.state == self.STATE_DRAFT:
-            # delete permanently instead of only marking as 'removed'
+            _logger.info('Deleting draft dataset %s permanently' % self.identifier)
+
+            if self.previous_dataset_version:
+                self.previous_dataset_version.next_dataset_version = None
+                super(Common, self.previous_dataset_version).save()
+
             super(Common, self).delete()
             return
 
@@ -1000,7 +1020,7 @@ class CatalogRecord(Common):
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
-    def _save_as_draft(self, request):
+    def _save_as_draft(self):
         from metax_api.services import CommonService
         return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
 
@@ -1089,7 +1109,7 @@ class CatalogRecord(Common):
                 'Catalog %s is a legacy catalog - not generating pid'
                 % self.data_catalog.catalog_json['identifier']
             )
-        elif self._save_as_draft(self.request):
+        elif self._save_as_draft():
             self.state = self.STATE_DRAFT
             self.research_dataset['preferred_identifier'] = self.identifier
         else:
@@ -1141,10 +1161,13 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if self._save_as_draft(self.request):
+        if self._save_as_draft():
             # do nothing
             pass
         else:
+
+            self.state = self.STATE_PUBLISHED
+
             if self.catalog_versions_datasets():
                 dvs = DatasetVersionSet()
                 dvs.save()
@@ -1158,6 +1181,8 @@ class CatalogRecord(Common):
             if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
                 self._pre_rems_creation()
                 super().save(update_fields=['rems_identifier', 'access_granter'])
+
+            super().save()
 
             self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1250,28 +1275,7 @@ class CatalogRecord(Common):
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
         if settings.REMS['ENABLED']:
-            if self._dataset_rems_changed():
-                if self._dataset_rems_access_type_changed():
-                    if self._dataset_has_rems_managed_access():
-                        self._pre_rems_creation()
-                    else:
-                        self._pre_rems_deletion(reason='access type change')
-
-                elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
-                    if self._dataset_has_license():
-                        self.add_post_request_callable(
-                            REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
-                        )
-                        self.rems_identifier = generate_uuid_identifier()
-                        # make sure that access_granter is not changed during license update
-                        self.access_granter = self._initial_data['access_granter']
-
-                    else:
-                        self._pre_rems_deletion(reason='license deletion')
-
-            elif self.field_changed('access_granter'):
-                # do not allow access_granter changes if no real REMS changes occur
-                self.access_granter = self._initial_data['access_granter']
+            self._pre_update_handle_rems()
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -1389,6 +1393,30 @@ class CatalogRecord(Common):
                 convert_cr_to_datacite_cr_json(self), True)
         except DataciteException as e:
             raise Http400(str(e))
+
+    def _pre_update_handle_rems(self):
+        if self._dataset_rems_changed():
+            if self._dataset_rems_access_type_changed():
+                if self._dataset_has_rems_managed_access():
+                    self._pre_rems_creation()
+                else:
+                    self._pre_rems_deletion(reason='access type change')
+
+            elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
+                if self._dataset_has_license():
+                    self.add_post_request_callable(
+                        REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
+                    )
+                    self.rems_identifier = generate_uuid_identifier()
+                    # make sure that access_granter is not changed during license update
+                    self.access_granter = self._initial_data['access_granter']
+
+                else:
+                    self._pre_rems_deletion(reason='license deletion')
+
+        elif self.field_changed('access_granter'):
+            # do not allow access_granter changes if no real REMS changes occur
+            self.access_granter = self._initial_data['access_granter']
 
     def _handle_cumulative_file_addition(self, file_changes):
         """
@@ -1539,7 +1567,7 @@ class CatalogRecord(Common):
     def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
         if 'files' in rd or 'directories' in rd:
-            rd['total_files_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum']
+            rd['total_files_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum'] or 0
         else:
             rd['total_files_byte_size'] = 0
 
@@ -1750,7 +1778,7 @@ class CatalogRecord(Common):
         The record is saved once immediately, so that it will have a proper db id for later changes,
         such as adding relations.
         """
-        new_version_template = CatalogRecord.objects.get(pk=self.id)
+        new_version_template = self.__class__.objects.get(pk=self.id)
         new_version_template.id = None
         new_version_template.next_dataset_version = None
         new_version_template.previous_dataset_version = None
@@ -2128,7 +2156,7 @@ class CatalogRecord(Common):
         CRS.validate_reference_data(params['research_dataset'], cache)
 
         # finally create the pas copy dataset
-        pas_version = CatalogRecord(**params)
+        pas_version = self.__class__(**params)
         pas_version.request = origin_version.request
         pas_version.save(pid_type=IdentifierType.DOI)
 
@@ -2504,8 +2532,8 @@ class RabbitMQPublishRecord():
             ]})
 
     def _to_json(self):
-        from metax_api.api.rest.base.serializers import CatalogRecordSerializer
-        return CatalogRecordSerializer(self.cr).data
+        serializer_class = self.cr.serializer_class
+        return serializer_class(self.cr).data
 
 
 class REMSUpdate():

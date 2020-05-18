@@ -6,6 +6,7 @@
 # :license: MIT
 
 from .catalog_record import AlternateRecordSet, CatalogRecord
+from .catalog_record_v2 import CatalogRecordV2
 from .common import Common
 from .contract import Contract
 from .data_catalog import DataCatalog

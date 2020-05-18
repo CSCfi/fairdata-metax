@@ -1396,7 +1396,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
 
         response = self.client.put('/rest/datasets/%d' % pas_dataset['id'], pas_dataset, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('Cannot change files in' in response.data['detail'], True)
+        self.assertEqual('Cannot change files in' in response.data['detail'][0], True)
 
     def test_pas_dataset_files_equal_origin_dataset(self):
         """
@@ -2751,7 +2751,7 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('PAS' in response.data['detail'], 'error message should concern PAS process')
+        self.assertTrue('PAS' in response.data['detail'][0], response.data)
 
     def test_create_cumulative_dataset_sets_date_cumulation_started(self):
         self.cr_test_data['cumulative_state'] = 1
@@ -4539,7 +4539,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('access_granter' in response.data['detail'], response.data)
+        self.assertTrue('access_granter' in response.data['detail'][0], response.data)
 
         # test on update
         self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
@@ -4550,7 +4550,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         cr['research_dataset']['access_rights'] = self.permit_rights
         response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('access_granter' in response.data['detail'], response.data)
+        self.assertTrue('access_granter' in response.data['detail'][0], response.data)
 
     def test_bad_access_granter_parameter(self):
         """
@@ -4566,7 +4566,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('must be string' in response.data['detail'], response.data)
+        self.assertTrue('must be string' in response.data['detail'][0], response.data)
 
     def test_missing_license_in_dataset(self):
         """
@@ -4582,7 +4582,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('must define license' in response.data['detail'], response.data)
+        self.assertTrue('must define license' in response.data['detail'][0], response.data)
 
     @responses.activate
     def test_only_return_rems_info_to_privileged(self):

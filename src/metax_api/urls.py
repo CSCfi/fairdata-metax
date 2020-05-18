@@ -20,14 +20,17 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+from django.conf import settings as django_settings
 from django.conf.urls import url, include
 
 from metax_api.api.oaipmh.base.view import oaipmh_view as oaipmh
 from metax_api.api.rest.base.router import api_urlpatterns as rest_api_v1
+from metax_api.api.rest.v2.router import api_urlpatterns as rest_api_v2
 from metax_api.api.rpc.base.router import api_urlpatterns as rpc_api_v1
+from metax_api.api.rpc.v2.router import api_urlpatterns as rpc_api_v2
 from metax_api.views.router import view_urlpatterns
 
-urlpatterns = [
+v1_urls = [
     url('', include(view_urlpatterns)),
     url(r'^oai/', oaipmh, name='oai'),
     url(r'^rest/', include(rest_api_v1)),
@@ -35,3 +38,16 @@ urlpatterns = [
     url(r'^rpc/', include(rpc_api_v1)),
     url(r'^rpc/v1/', include(rpc_api_v1)),
 ]
+
+v2_urls = [
+    url(r'^rest/v2/', include(rest_api_v2)),
+    url(r'^rpc/v2/', include(rpc_api_v2)),
+]
+
+urlpatterns = []
+
+if django_settings.API_VERSIONS_ENABLED.get('v1'):
+    urlpatterns += v1_urls
+
+if django_settings.API_VERSIONS_ENABLED.get('v2'):
+    urlpatterns += v2_urls
