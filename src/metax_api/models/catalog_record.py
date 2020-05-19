@@ -410,8 +410,8 @@ class CatalogRecord(Common):
     def user_is_owner(self, request):
         if self.state == self.STATE_DRAFT and self.metadata_provider_user != request.user.username:
             _logger.debug('404 due to state == draft and metadata_provider_user != request.user.username')
-            _logger.debug('metadata_provider_user =', self.metadata_provider_user)
-            _logger.debug('request.user.username =', request.user.username)
+            _logger.debug('metadata_provider_user = %s', self.metadata_provider_user)
+            _logger.debug('request.user.username = %s', request.user.username)
             raise Http404
 
         if self.editor and 'owner_id' in self.editor:
