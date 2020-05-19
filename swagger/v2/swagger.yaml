@@ -139,6 +139,12 @@ paths:
           description: Filters files by path. Requires query parameter project_identifier.
           required: false
           type: string
+        - name: pagination
+          in: query
+          description: Parameter should be used when paging is not desired ergo pagination=false
+          required: false
+          type: boolean          
+          default: true
         - name: offset
           in: query
           description: Offset for paging
@@ -910,6 +916,12 @@ paths:
           in: query
           description: Filter by data catalog urn identifier
           type: string
+        - name: pagination
+          in: query
+          description: Parameter should be used when paging is not desired ergo pagination=false
+          required: false
+          type: boolean          
+          default: true
         - name: offset
           in: query
           description: Offset for paging
@@ -1498,6 +1510,12 @@ paths:
           description: Organization ID (field contract_json-> organization-> organization_identifier)
           required: false
           type: string
+        - name: pagination
+          in: query
+          description: Parameter should be used when paging is not desired ergo pagination=false
+          required: false
+          type: boolean          
+          default: true      
         - name: offset
           in: query
           description: Offset for paging
