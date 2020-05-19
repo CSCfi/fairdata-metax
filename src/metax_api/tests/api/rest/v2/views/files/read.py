@@ -191,7 +191,7 @@ class FileApiReadEndUserAccess(FileApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
         response = self.client.get('/rest/v2/files?project_identifier=%s' % proj)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
-        response = self.client.get('/rest/v2/files?no_pagination')
+        response = self.client.get('/rest/files?pagination=false')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 0, 'should return 200 OK, but user projects has no files')
 
