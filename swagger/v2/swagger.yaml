@@ -143,7 +143,7 @@ paths:
           in: query
           description: Parameter should be used when paging is not desired ergo pagination=false
           required: false
-          type: boolean          
+          type: boolean
           default: true
         - name: offset
           in: query
@@ -920,7 +920,7 @@ paths:
           in: query
           description: Parameter should be used when paging is not desired ergo pagination=false
           required: false
-          type: boolean          
+          type: boolean
           default: true
         - name: offset
           in: query
@@ -1514,8 +1514,8 @@ paths:
           in: query
           description: Parameter should be used when paging is not desired ergo pagination=false
           required: false
-          type: boolean          
-          default: true      
+          type: boolean
+          default: true
         - name: offset
           in: query
           description: Offset for paging

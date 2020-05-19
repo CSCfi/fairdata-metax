@@ -1034,8 +1034,8 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
 
         response = self.client.get('/rest/directories/24/files?directory_name=dir_1&file_name=file_name_120')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['directories']), 1, response.data['directories'])
-        self.assertEqual(len(response.data['files']), 1, response.data['files'])
+        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(len(response.data['files']), 1)
 
         response = self.client.get('/rest/directories/24/files?directory_name=dir&file_name=not_existing')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1106,17 +1106,17 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
         # self.assertEqual(len(response.data['directories']), 0)
 
         # tests for file_name and cr_identifier
-        response = self.client.get('/rest/directories/4/files?file_name=6&cr_identifier=13')
+        response = self.client.get('/rest/directories/12/files?file_name=22&cr_identifier=13')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['files']), 1)
 
-        response = self.client.get('/rest/directories/4/files?file_name=name_&cr_identifier=13')
+        response = self.client.get('/rest/directories/12/files?file_name=name_&cr_identifier=13')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data['files']), 2)
+        self.assertEqual(len(response.data['files']), 3)
 
-        response = self.client.get('/rest/directories/4/files?file_name=&cr_identifier=13')
+        response = self.client.get('/rest/directories/12/files?file_name=&cr_identifier=13')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data['files']), 2)
+        self.assertEqual(len(response.data['files']), 3)
 
         response = self.client.get('/rest/directories/17/files?file_name=&cr_identifier=13&directories_only')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)

@@ -553,7 +553,6 @@ class FileService(CommonService, ReferenceDataMixin):
         being retrieved in the results. Example: /directories/3/files?include_parent=true also
         includes the data about directory id 3 in the results. Normally its data would not be
         present, and instead would need to be retrieved by calling /directories/3.
-
         file_name: substring search from file names. Only matching files are returned.
         Can be used with directory_name.
 
@@ -880,7 +879,6 @@ class FileService(CommonService, ReferenceDataMixin):
 
                 files = None if dirs_only else File.objects \
                     .filter(record__pk=cr_id, parent_directory=directory_id).values(*file_fields)
-
             elif not_cr_id:
                 sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql, '!=')
 
