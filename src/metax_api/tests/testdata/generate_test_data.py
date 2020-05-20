@@ -563,14 +563,14 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                 directories = []
                 files = []
 
-                db_files = [6, 10, 22, 23, 24, 25, 26]
+                db_files = [22, 23, 24, 25, 26, 27, 28]
                 db_files.extend(list(range(35, 116)))
 
                 files = [
                     {
-                        "identifier": "pid:urn:6",
-                        "title": "file title 6",
-                        "description": "file description 6",
+                        "identifier": "pid:urn:27",
+                        "title": "file title 27",
+                        "description": "file description 27",
                         "file_type": {
                             "identifier": "video",
                             "definition": {
@@ -583,9 +583,9 @@ def generate_catalog_records(basic_catalog_record_max_rows, data_catalogs_list, 
                         }
                     },
                     {
-                        "identifier": "pid:urn:10",
-                        "title": "file title 10",
-                        "description": "file description 10",
+                        "identifier": "pid:urn:28",
+                        "title": "file title 28",
+                        "description": "file description 28",
                         "file_type": {
                             "identifier": "software",
                             "definition": {

@@ -345,20 +345,20 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         # prepare a new test dataset which contains a directory from testdata, which contains a decent
         # qty of files and complexity
         dr = Directory.objects.get(directory_path='/prj_112_root')
-        cr_with_dirs = CatalogRecord.objects.get(pk=13)
-        cr_data = response = self.client.get('/rest/datasets/1').data
+        cr_data = self.client.get('/rest/datasets/1').data
         cr_data.pop('id')
         cr_data.pop('identifier')
         cr_data['research_dataset'].pop('preferred_identifier')
+        cr_data['research_dataset'].pop('files', None)
         cr_data['research_dataset']['directories'] = [{
             'identifier': dr.identifier,
             'title': 'test dir',
-            'use_category': {
-                'identifier': cr_with_dirs.research_dataset['directories'][0]['use_category']['identifier']
-            }
+            'use_category': { 'identifier': 'outcome' }
         }]
         self._use_http_authorization(username='metax')
-        cr_data = response = self.client.post('/rest/datasets', cr_data, format='json').data
+        response = self.client.post('/rest/datasets', cr_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_data = response.data
         cr = CatalogRecord.objects.get(pk=cr_data['id'])
 
         # begin tests
