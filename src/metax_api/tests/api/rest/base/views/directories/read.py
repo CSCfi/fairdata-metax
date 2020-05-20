@@ -328,11 +328,11 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual(response.data['directories'][0]['directory_path'],
             '/prj_112_root/other')
         self.assertEqual(response.data['directories'][1]['directory_path'],
-            '/prj_112_root/science_data_A')
+            '/prj_112_root/random_folder')
         self.assertEqual(response.data['directories'][2]['directory_path'],
-            '/prj_112_root/science_data_B')
+            '/prj_112_root/science_data_A')
         self.assertEqual(response.data['directories'][3]['directory_path'],
-            '/prj_112_root/science_data_C')
+            '/prj_112_root/science_data_B')
 
 
 class DirectoryApiReadFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
