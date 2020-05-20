@@ -131,6 +131,8 @@ if executing_in_test_case or executing_in_travis:
                 "set_preservation_identifier": { "use": ["metax", "tpas"] },
                 "create_new_version": { "use": ["all"] },
                 "publish_dataset": { "use": ["all"] },
+                "create_draft": { "use": ["all"] },
+                "publish_draft": { "use": ["all"] },
             },
             "files": {
                 "delete_project": { "use": ["testuser", "metax"] }

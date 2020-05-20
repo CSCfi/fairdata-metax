@@ -293,6 +293,13 @@ class CatalogRecord(Common):
 
     research_dataset = JSONField()
 
+    next_draft = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+        related_name='draft_of',
+        help_text='A draft of the next changes to be published on this dataset, in order to be able '
+                  'to save progress, and continue later. Is created from a published dataset. '
+                  'When the draft is published, changes are saved on top of the original dataset, '
+                  'and the draft record is destroyed.')
+
     next_dataset_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
         related_name='+')
 
@@ -513,6 +520,10 @@ class CatalogRecord(Common):
             (self._access_type_is_embargo() and self._embargo_is_available())
 
     def save(self, *args, **kwargs):
+        """
+        Note: keys are popped from kwargs, because super().save() will complain if it receives
+        unknown keyword arguments.
+        """
         if self._operation_is_create():
             self._pre_create_operations(pid_type=kwargs.pop('pid_type', None))
             super(CatalogRecord, self).save(*args, **kwargs)

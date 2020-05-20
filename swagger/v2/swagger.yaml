@@ -1671,9 +1671,89 @@ paths:
 
 
 # RPC APIs
+  /rpc/v2/datasets/get_minimal_dataset_template:
+    get:
+      summary: Get minimal dataset template.
+      description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. The returned template can be used as-is when creating a dataset into Metax.
+      parameters:
+        - name: type
+          in: query
+          description: Type of dataset template to retrieve. Accepted values&#58; service, enduser.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation, return dataset template as json.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
+      tags:
+        - Dataset RPC
+  /rpc/v2/datasets/create_draft:
+    post:
+      summary: Create draft of a published dataset.
+      description: |
+        Create a new draft record for a published dataset, to be merged back to the originating dataset at a later date. The draft record effectively
+        lets you continue working on dataset changes over an extended period of time, saving changes periodically, even if the dataset has already been previously published.
+        Changes made to the draft record will not be publicly visible, nor will any changes be visible in the original published dataset before the
+        changes are explicitly published by using the /rpc/v2/datasets/publish_draft API.
+        - The new record is created into draft state, and has to be separately published.
+        - In draft state, files can be added to the dataset, if general restrictions allow it (dataset is cumulative, or files have not been previously added yet).
+        - Publishing the draft record 'merges' the changes from the draft record back to the original published dataset.
+        - Will raise an error, if dataset already has an existing draft record.
+        - Usable only by the owner of the dataset
+      parameters:
+        - $ref: "#/parameters/rpc_dataset_identifier"
+      responses:
+        '200':
+          description: Successful operation, returns the id and identifier of the created draft dataset.
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              identifier:
+                type: string
+                example: 2955e124-e3dd-hh56-99f1-gtr4446f96d1
+        '400':
+          description: Operation ended in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Dataset RPC
+  /rpc/v2/datasets/publish_draft:
+    post:
+      summary: Publish changes of a draft dataset.
+      description: |
+        Publish changes of a draft dataset. The changes are merged to the originating published dataset record, and the draft record is destroyed upon a successful operation.
+        - Possibly publishes metadata to Datacite (if PID type is DOI)
+        - Makes the new changes visible in Etsin
+        - If the original published dataset has been deprecated, then only metadata changes will be merged back to the published dataset. File changes are ignored. This only applies to cumulative datasets.
+        - Usable only by the owner of the dataset
+      parameters:
+        - $ref: "#/parameters/rpc_dataset_identifier"
+      responses:
+        '200':
+          description: Successful operation, returns the new identifier of the published dataset.
+          schema:
+            type: object
+            properties:
+              preferred_identifier:
+                type: string
+                example: 2955e124-e3dd-hh56-99f1-gtr4446f96d1
+        '400':
+          description: Operation ended in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Dataset RPC
   /rpc/v2/datasets/create_new_version:
     post:
-      summary: Create new dataset version.
+      summary: Create a new dataset version.
       description: |
         Create a new dataset version of an existing dataset.
         - The new version is created into draft state, and has to be separately published
@@ -1702,26 +1782,9 @@ paths:
           description: Not found
       tags:
         - Dataset RPC
-  /rpc/v2/datasets/get_minimal_dataset_template:
-    get:
-      summary: Get minimal dataset template.
-      description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. The returned template can be used as-is when creating a dataset into Metax.
-      parameters:
-        - name: type
-          in: query
-          description: Type of dataset template to retrieve. Accepted values&#58; service, enduser.
-          required: true
-          type: string
-      responses:
-        '200':
-          description: Successful operation, return dataset template as json.
-          schema:
-            $ref: '#/definitions/CatalogRecord'
-      tags:
-        - Dataset RPC
   /rpc/v2/datasets/publish_dataset:
     post:
-      summary: Publish a draft dataset.
+      summary: Initial publish of a new dataset in draft state.
       description: |
         Publish a draft dataset.
         - Generates the dataset a proper PID (preferred_identifier)
