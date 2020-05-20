@@ -386,7 +386,7 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
 
         pid = response.data['research_dataset']['preferred_identifier']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue(pid == response.data['identifier'], response.data)
+        self.assertTrue(pid == 'draft:%s' % response.data['identifier'], response.data)
         self.assertTrue('urn' not in pid, response.data)
         self.assertTrue('doi' not in pid, response.data)
         self.assertTrue(response.data['state'] == 'draft', response.data)

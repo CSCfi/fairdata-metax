@@ -1122,7 +1122,7 @@ class CatalogRecord(Common):
             )
         elif self._save_as_draft():
             self.state = self.STATE_DRAFT
-            self.research_dataset['preferred_identifier'] = self.identifier
+            self.research_dataset['preferred_identifier'] = 'draft:%s' % self.identifier
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
