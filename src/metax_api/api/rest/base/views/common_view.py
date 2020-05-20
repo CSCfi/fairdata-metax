@@ -167,8 +167,8 @@ class CommonViewSet(ModelViewSet):
             # if no fields is relation, select_related will be made empty.
             self.select_related = [ rel for rel in self.select_related if rel in fields ]
 
-        queryset = super().get_queryset().filter(*q_filters, **additional_filters)       
-        
+        queryset = super().get_queryset().filter(*q_filters, **additional_filters)
+
         if self.request.META['REQUEST_METHOD'] in WRITE_OPERATIONS:
             # for update operations, do not select relations in the original queryset
             # so that select_for_update() can be used to lock the row for the duration
