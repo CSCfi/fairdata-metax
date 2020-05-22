@@ -132,7 +132,7 @@ if executing_in_test_case or executing_in_travis:
                 "create_new_version": { "use": ["all"] },
                 "publish_dataset": { "use": ["all"] },
                 "create_draft": { "use": ["all"] },
-                "publish_draft": { "use": ["all"] },
+                "merge_draft": { "use": ["all"] },
             },
             "files": {
                 "delete_project": { "use": ["testuser", "metax"] }

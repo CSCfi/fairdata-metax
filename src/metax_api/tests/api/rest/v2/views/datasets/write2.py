@@ -590,7 +590,7 @@ class CatalogRecordPublishing(CatalogRecordApiWriteCommon):
     todo move to rpc api v2 tests directory
     """
 
-    def test_publish_draft(self):
+    def test_publish_new_dataset_draft(self):
 
         response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -673,18 +673,20 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         # retrieve draft data for modifications
         response = self.client.get('/rest/v2/datasets/%s' % draft_id, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('draft_of' in response.data, True, response.data)
+        self.assertEqual(response.data['draft_of']['id'], id, response.data)
 
         return response.data
 
-    def _publish_draft_changes(self, draft_id):
-        response = self.client.post('/rpc/v2/datasets/publish_draft?identifier=%d' % draft_id, format="json")
+    def _merge_draft_changes(self, draft_id):
+        response = self.client.post('/rpc/v2/datasets/merge_draft?identifier=%d' % draft_id, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         # draft should be permanently destroyed
         draft_found = CR.objects_unfiltered.filter(pk=draft_id).exists()
         self.assertEqual(draft_found, False)
 
-    def test_create_and_publish_draft(self):
+    def test_create_and_merge_draft(self):
         """
         A simple test to create a draft, change some metadata, and publish the changes.
         """
@@ -694,6 +696,12 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         # create draft
         draft_cr = self._create_draft(cr['id'])
         draft_cr['research_dataset']['title']['en'] = 'modified title'
+
+        # ensure original now has a link to next_draft
+        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_draft' in response.data, True, response.data)
+        self.assertEqual(response.data['next_draft']['id'], draft_cr['id'], response.data)
 
         # update the draft
         response = self.client.put('/rest/v2/datasets/%d' % draft_cr['id'], draft_cr, format="json")
@@ -706,8 +714,8 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         self.assertEqual(original_cr.research_dataset['title'], initial_title, original_cr.research_dataset['title'])
         self.assertEqual(original_cr.next_draft_id, draft_cr['id'])
 
-        # publish draft changes
-        self._publish_draft_changes(draft_cr['id'])
+        # merge draft changes back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
 
         # changes should now reflect on original published dataset
         response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
@@ -734,8 +742,8 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         # ensure original has no files
         self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 0)
 
-        # publish draft changes
-        self._publish_draft_changes(draft_cr['id'])
+        # merge draft changes back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
 
         # ensure original now has the files
         self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 1)
@@ -773,12 +781,30 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         # ensure original has no files YET
         self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 2)
 
-        # publish draft changes
-        self._publish_draft_changes(draft_cr['id'])
+        # merge draft changes back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
 
         # ensure original now has the files
         self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 3)
 
+    def test_delete_draft(self):
+        """
+        Delete draft of a published dataset.
+        """
+        cr = self._create_dataset(with_files=False)
+        draft_cr = self._create_draft(cr['id'])
+
+        response = self.client.delete('/rest/v2/datasets/%d' % draft_cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # draft should be deleted permanently
+        draft_found = CR.objects_unfiltered.filter(pk=draft_cr['id']).exists()
+        self.assertEqual(draft_found, False)
+
+        # ensure original now has a link to next_draft
+        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
 
 class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
 

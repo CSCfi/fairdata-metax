@@ -78,6 +78,17 @@ class CatalogRecordV2(CatalogRecord):
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_update_operations()
 
+    def delete(self, *args, **kwargs):
+        if self.next_draft:
+            self.next_draft.delete()
+            self.next_draft = None
+        elif self.is_draft_for_another_dataset():
+            draft_of = self.draft_of
+            draft_of.next_draft = None
+            super(CatalogRecord, draft_of).save(update_fields=['next_draft'])
+
+        super().delete(*args, **kwargs)
+
     def _pre_create_operations(self):
 
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create,
@@ -247,7 +258,7 @@ class CatalogRecordV2(CatalogRecord):
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
-    def publish_draft(self):
+    def merge_draft(self):
         """
         Save changes from the "external draft record" copy of this dataset, on top of the original
         published dataset. The draft record is destroyed once changes have been successfully
@@ -272,7 +283,12 @@ class CatalogRecordV2(CatalogRecord):
             draft_files_count = draft_cr.files.count()
             origin_files_count = origin_cr.files.count()
 
-            if self.draft_of.deprecated:
+            if self.draft_of.removed:
+                _logger.info(
+                    'Origin dataset is marked as removed - merging other changes to the published dataset, '
+                    'but not adding files'
+                )
+            elif self.draft_of.deprecated:
                 _logger.info(
                     'Origin dataset is deprecated - merging other changes to the published dataset, '
                     'but not adding files'

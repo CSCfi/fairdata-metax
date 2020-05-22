@@ -94,14 +94,14 @@ class DatasetRPC(DatasetRPC):
             status=status.HTTP_200_OK
         )
 
-    @list_route(methods=['post'], url_path="publish_draft")
-    def publish_draft(self, request):
+    @list_route(methods=['post'], url_path="merge_draft")
+    def merge_draft(self, request):
 
         cr = self.get_object()
 
         # on successful publish, the record behind the variable 'cr' should now be deleted.
         # the identifier points to the original published dataset.
-        identifier_of_published = cr.publish_draft()
+        identifier_of_published = cr.merge_draft()
 
         return Response(
             data={ 'identifier': identifier_of_published },

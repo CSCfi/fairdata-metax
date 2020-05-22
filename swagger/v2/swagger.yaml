@@ -1695,7 +1695,7 @@ paths:
         Create a new draft record for a published dataset, to be merged back to the originating dataset at a later date. The draft record effectively
         lets you continue working on dataset changes over an extended period of time, saving changes periodically, even if the dataset has already been previously published.
         Changes made to the draft record will not be publicly visible, nor will any changes be visible in the original published dataset before the
-        changes are explicitly published by using the /rpc/v2/datasets/publish_draft API.
+        changes are explicitly merged back by using the /rpc/v2/datasets/merge_draft API.
         - The new record is created into draft state, and has to be separately published.
         - In draft state, files can be added to the dataset, if general restrictions allow it (dataset is cumulative, or files have not been previously added yet).
         - Publishing the draft record 'merges' the changes from the draft record back to the original published dataset.
@@ -1723,11 +1723,11 @@ paths:
           description: Not found
       tags:
         - Dataset RPC
-  /rpc/v2/datasets/publish_draft:
+  /rpc/v2/datasets/merge_draft:
     post:
-      summary: Publish changes of a draft dataset.
+      summary: Merge changes of a draft dataset back to the published dataset.
       description: |
-        Publish changes of a draft dataset. The changes are merged to the originating published dataset record, and the draft record is destroyed upon a successful operation.
+        The changes are merged to the originating published dataset record, and the draft record is destroyed upon a successful operation.
         - Possibly publishes metadata to Datacite (if PID type is DOI)
         - Makes the new changes visible in Etsin
         - If the original published dataset has been deprecated, then only metadata changes will be merged back to the published dataset. File changes are ignored. This only applies to cumulative datasets.
