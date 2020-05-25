@@ -33,9 +33,19 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.Meta.model = CatalogRecordV2
+        self.Meta.fields += (
+            'draft_of',
+            'next_draft',
+        )
+        self.Meta.extra_kwargs.update({
+            'draft_of':   { 'required': False },
+            'next_draft': { 'required': False },
+        })
 
     def is_valid(self, raise_exception=False):
+        self.initial_data.pop('draft_of', None)
         self.initial_data.pop('editor', None)
+        self.initial_data.pop('next_draft', None)
         super().is_valid(raise_exception=raise_exception)
 
     def to_representation(self, instance):
@@ -50,6 +60,18 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
             else:
                 res.get('research_dataset', {}).pop('files', None)
                 res.get('research_dataset', {}).pop('directories', None)
+
+        if 'draft_of' in res:
+            if instance.user_is_privileged(instance.request or self.context['request']):
+                res['draft_of'] = instance.draft_of.identifiers_dict
+            else:
+                del res['draft_of']
+
+        if 'next_draft' in res:
+            if instance.user_is_privileged(instance.request or self.context['request']):
+                res['next_draft'] = instance.next_draft.identifiers_dict
+            else:
+                del res['next_draft']
 
         res.pop('editor', None)
 

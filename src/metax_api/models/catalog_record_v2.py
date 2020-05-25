@@ -39,13 +39,16 @@ _logger = logging.getLogger(__name__)
 """
 A version V2 proxy model for CatalogRecord.
 
-Note that in this class, calling super().some_method() actually calls CatalogRecord.some_method(),
+Note 1: In this class, calling super().some_method() actually calls CatalogRecord.some_method(),
 instead of CommonModel.some_method() !!! Therefore, if wishing to call the actual CommonModel method,
 or even the base Model, super(Common, self).some_method() should be called instead. Calling just
 super().some_method() can cause some unnecessary processing and prevents editing some fields, so
-may want to avoid that.
+may want to avoid that. At least UNTIL this class fully replaces the V1 version.
 
-At least UNTIL this class fully replaces the V1 version.
+Note 2: Retrieving relations inside this class, such as cr.next_dataset_version, will by
+default retrieve an object of class CatalogRecord, NOT CatalogRecordV2, which behaves differently.
+When CatalogRecordV2 is desired instead, use cr_v2 = CatalogRecordV2.objects.get(pk=cr.next_dataset_version_id).
+Not sure if there is a better way to handle this...
 """
 
 
@@ -62,14 +65,29 @@ class CatalogRecordV2(CatalogRecord):
         self.serializer_class = CatalogRecordSerializerV2
 
     def save(self, *args, **kwargs):
+        """
+        Note: keys are popped from kwargs, because super().save() will complain if it receives
+        unknown keyword arguments.
+        """
         if self._operation_is_create():
             self._pre_create_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_create_operations(pid_type=kwargs.pop('pid_type', None))
         else:
-            self._pre_update_operations()
+            self._pre_update_operations(draft_publish=kwargs.pop('draft_publish', False))
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_update_operations()
+
+    def delete(self, *args, **kwargs):
+        if self.next_draft:
+            self.next_draft.delete()
+            self.next_draft = None
+        elif self.is_draft_for_another_dataset():
+            draft_of = self.draft_of
+            draft_of.next_draft = None
+            super(CatalogRecord, draft_of).save(update_fields=['next_draft'])
+
+        super().delete(*args, **kwargs)
 
     def _pre_create_operations(self):
 
@@ -126,6 +144,9 @@ class CatalogRecordV2(CatalogRecord):
 
         self.add_post_request_callable(DelayedLog(**log_args))
 
+    def is_draft_for_another_dataset(self):
+        return hasattr(self, 'draft_of') and self.draft_of is not None
+
     def publish_dataset(self, pid_type=None):
         """
         Execute actions necessary to make the dataset publicly findable, in the following order:
@@ -138,11 +159,15 @@ class CatalogRecordV2(CatalogRecord):
         Note: The last three steps are executed at the very end of the HTTP request, but they are
         queued in this method.
         """
-
-        _logger.debug('Publishing dataset...')
+        _logger.info('Publishing dataset...')
 
         if self.state == self.STATE_PUBLISHED:
             raise Http400('Dataset is already published.')
+        elif self.is_draft_for_another_dataset():
+            raise Http400(
+                'This dataset is a draft for another published dataset. To publish the draft changes, '
+                'use API /rpc/v2/datasets/publish_draft'
+            )
 
         self.state = self.STATE_PUBLISHED
 
@@ -233,7 +258,87 @@ class CatalogRecordV2(CatalogRecord):
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
-    def _pre_update_operations(self):
+    def merge_draft(self):
+        """
+        Save changes from the "external draft record" copy of this dataset, on top of the original
+        published dataset. The draft record is destroyed once changes have been successfully
+        merged.
+        """
+        _logger.info('Publishing changes from draft to a published record...')
+
+        if not self.is_draft_for_another_dataset():
+            raise Http400('Dataset is not a draft for another published dataset.')
+
+        # by default retrieves the CatalogRecord object (not CatalogRecordV2!!) which behaves differently!!
+        origin_cr = CatalogRecordV2.objects.get(next_draft_id=self.id)
+        draft_cr = self
+
+        origin_cr.date_modified = get_tz_aware_now_without_micros()
+        origin_cr.user_modified = draft_cr.user_modified
+
+        if origin_cr.cumulative_state == self.CUMULATIVE_STATE_YES or origin_cr._files_added_for_first_time():
+            # ^ these checks should already be in place when files are added using change_files() method,
+            # but checking here again.
+
+            draft_files_count = draft_cr.files.count()
+            origin_files_count = origin_cr.files.count()
+
+            if self.draft_of.removed:
+                _logger.info(
+                    'Origin dataset is marked as removed - merging other changes to the published dataset, '
+                    'but not adding files'
+                )
+            elif self.draft_of.deprecated:
+                _logger.info(
+                    'Origin dataset is deprecated - merging other changes to the published dataset, '
+                    'but not adding files'
+                )
+            elif draft_files_count > origin_files_count:
+                # ^ note: it should not be possible that the draft has lesser files, since
+                # removing files is not permitted in any case.
+
+                _logger.info(
+                    'Draft record has %d new files. Adding files to published record'
+                    % (draft_files_count - origin_files_count)
+                )
+
+                # add all files which were not already part of the original record
+                origin_cr.files.add(*draft_cr.files.all().exclude(id__in=origin_cr.files.all()))
+
+                # files should now match, so it should be ok to just copy the directory data for file browsing
+                origin_cr._directory_data = draft_cr._directory_data
+
+            elif draft_files_count < origin_files_count: # pragma: no cover
+                # should never happen
+                raise Exception('Files have been removed from the draft? This should not have been permitted')
+            else:
+                _logger.info('No new files to add in draft')
+
+        # cumulative period can be closed. opening it is prevented through
+        # versioning related rules elsewhere.
+        origin_cr.cumulative_state = draft_cr.cumulative_state
+
+        # replace the "draft:<identifier>" of the draft with the original pid so that
+        # the save will not raise errors about it
+        draft_cr.research_dataset['preferred_identifier'] = origin_cr.preferred_identifier
+
+        # other than that, all values from research_dataset should be copied over
+        origin_cr.research_dataset = draft_cr.research_dataset
+
+        origin_cr.next_draft = None
+
+        origin_cr.request = draft_cr.request
+
+        # draft_publish=True will permit saving some changes that would normally not be
+        # permitted if the save was a traditional PUT or PATCH update to /rest/v2/datasets/pid.
+        origin_cr.save(draft_publish=True)
+
+        # the draft record has served its purpose, and it should not be persisted any longer. thank you for your service
+        draft_cr.delete()
+
+        return origin_cr.identifier
+
+    def _pre_update_operations(self, draft_publish=False):
 
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
                 self.data_catalog.catalog_record_services_edit):
@@ -253,16 +358,22 @@ class CatalogRecordV2(CatalogRecord):
                 raise Http400("Cannot change preferred_identifier in datasets in non-harvested catalogs")
 
         if self.field_changed('research_dataset.total_files_byte_size'):
-            # read-only
-            if 'total_files_byte_size' in self._initial_data['research_dataset']:
+            if draft_publish:
+                # allow update when merging changes from draft to published record
+                pass
+            elif 'total_files_byte_size' in self._initial_data['research_dataset']:
+                # read-only
                 self.research_dataset['total_files_byte_size'] = \
                     self._initial_data['research_dataset']['total_files_byte_size']
             else:
                 self.research_dataset.pop('total_files_byte_size')
 
         if self.field_changed('research_dataset.total_remote_resources_byte_size'):
-            # read-only
-            if 'total_remote_resources_byte_size' in self._initial_data['research_dataset']:
+            if draft_publish:
+                # allow update when merging changes from draft to published record
+                pass
+            elif 'total_remote_resources_byte_size' in self._initial_data['research_dataset']:
+                # read-only
                 self.research_dataset['total_remote_resources_byte_size'] = \
                     self._initial_data['research_dataset']['total_remote_resources_byte_size']
             else:
@@ -298,19 +409,34 @@ class CatalogRecordV2(CatalogRecord):
             self._pre_update_handle_rems()
 
         if self.field_changed('cumulative_state'):
-            raise Http400(
-                "Cannot change cumulative state using REST API. "
-                "Use API /rpc/datasets/change_cumulative_state to change cumulative state."
-            )
+            if draft_publish:
+                # let cumulative state be updated if it is being changed when
+                # draft record is being merged into a published record.
+                # effectively, cumulative_state can only be closed here, which would be ok
+                pass
+            else:
+                raise Http400(
+                    "Cannot change cumulative state using REST API. "
+                    "Use API /rpc/v2/datasets/change_cumulative_state to change cumulative state."
+                )
 
-        # do not permit editing files or directories through general save to /rest/datasets/pid
-        if 'files' in self._initial_data['research_dataset']:
-            self.research_dataset['files'] = self._initial_data['research_dataset']['files']
+        if draft_publish:
+            # permit updating files and directories (user metadata) when
+            # draft record is being merged into a published record.
+            pass
+        else:
+            # "normal" PUT or PATCH to the record (draft or published). these fields should
+            # normally be updated by using the api /rest/v2/datasets/pid/files/user_metadata,
+            # or when user metadata is included when files new files are added to the dataset
+            # using the api /rest/v2/datasets/pid/files.
 
-        if 'directories' in self._initial_data['research_dataset']:
-            self.research_dataset['directories'] = self._initial_data['research_dataset']['directories']
+            if 'files' in self._initial_data['research_dataset']:
+                self.research_dataset['files'] = self._initial_data['research_dataset']['files']
 
-        if self.field_changed('research_dataset'):
+            if 'directories' in self._initial_data['research_dataset']:
+                self.research_dataset['directories'] = self._initial_data['research_dataset']['directories']
+
+        if self.field_changed('research_dataset') and self.state == self.STATE_PUBLISHED:
 
             self.update_datacite = True
 
@@ -450,6 +576,21 @@ class CatalogRecordV2(CatalogRecord):
         """
         return not self.files.exists()
 
+    def _cumulative_add_check_excludes(self, file_changes):
+        """
+        Cumulative datasets permit adding new files, but not excluding. Raise error
+        if user is trying to remove files. While we could just ignore the exlusions,
+        raising an error and stopping the operation altogether should be the path of
+        least astonishment.
+        """
+        for object_type in ('files', 'directories'):
+            for obj in file_changes.get(object_type, []):
+                if obj.get('exclude', False) is True:
+                    raise Http400(
+                        'Excluding files from a cumulative dataset is not permitted. '
+                        'Please create a new dataset version first.'
+                    )
+
     def change_files(self, file_changes, operation_is_create=False):
         """
         Modify the set of files the dataset consists of: Add, or exclude files from the dataset.
@@ -521,36 +662,64 @@ class CatalogRecordV2(CatalogRecord):
                 self.date_last_cumulative_addition = self.date_created
         else:
 
-            # operation is update
+            # operation is update. check if the update is being made on a draft dataset, or
+            # a published dataset. draft datasets in general allow for much greater freedom
+            # in making changes to the files of a dataset.
 
             _logger.debug('self.state == %s' % self.state)
 
             if self.state == self.STATE_DRAFT:
-                # "normal case". file changes are generally allowed only on draft datasets.
-                pass
+
+                # dataset is in draft state. check if this is a draft of a brand new dataset,
+                # or a draft of a previously published dataset, which will be merged back to
+                # the original published dataset at a later date.
+
+                if self.is_draft_for_another_dataset():
+
+                    # dataset is draft for another published dataset. some restrictions apply
+                    # to adding or excluding files.
+
+                    if self.draft_of.deprecated:
+                        raise Http400(
+                            'The origin dataset of this draft is deprecated. Changing files of a deprecated '
+                            'dataset is not permitted. Please create a new dataset version first.'
+                        )
+
+                    elif self.draft_of._files_added_for_first_time():
+                        # allow any number of file changes on the draft, until published versions
+                        # has files added to it.
+                        pass
+
+                    elif self.draft_of.cumulative_state == self.CUMULATIVE_STATE_YES:
+                        # note: cumulative state can not be opened while in this draft-mode. if attempted,
+                        # the api should raise an error, and request that a new version should be created first.
+                        self._cumulative_add_check_excludes(file_changes)
+                    else:
+                        raise Http400(
+                            'Changing files of a published dataset is not permitted. '
+                            'Please create a new dataset version first. '
+                            'If you need to continuously add new files to a published dataset, '
+                            'consider creating a new cumulative dataset.'
+                        )
+                else:
+                    # "normal case": a new dataset in draft state. file changes are generally
+                    # allowed only on draft datasets.
+                    pass
             else:
 
-                # dataset is published
+                # dataset is published. file changes are not generally allowed, but there are
+                # a couple of exceptions: files are being added to the dataset for the first time,
+                # or the dataset is cumulative.
 
                 if self._files_added_for_first_time():
                     # first update from 0 to n files should be allowed even for a published dataset, and
                     # without needing to create new dataset versions, so this is permitted. subsequent
                     # file changes will require creating a new draft version first.
                     pass
+
                 elif self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                    self._cumulative_add_check_excludes(file_changes)
 
-                    # cumulative datasets permit adding new files, but not excluding. raise error
-                    # if user is trying to remove files. while we could just ignore the exlusions,
-                    # raising an error and stopping the operation altogether should be the path of
-                    # least astonishment
-
-                    for object_type in ('files', 'directories'):
-                        for obj in file_changes.get(object_type, []):
-                            if obj.get('exclude', False) is True:
-                                raise Http400(
-                                    'Excluding files from a cumulative dataset is not permitted. '
-                                    'Please create a new dataset version first.'
-                                )
                 else:
                     # published dataset with no special status. changing files is not permitted.
                     raise Http400(
@@ -904,14 +1073,65 @@ class CatalogRecordV2(CatalogRecord):
 
         super(Common, self).save()
 
+    def create_draft(self):
+        """
+        Create a new draft of a published dataset, that can later be merged back to the original published dataset.
+        """
+        _logger.info('Creating a draft of a published dataset...')
+
+        if self.is_draft_for_another_dataset():
+            raise Http400('Dataset is already a draft for another published dataset.')
+
+        elif self.state == self.STATE_DRAFT:
+            # a new dataset in draft state
+            raise Http400('Dataset is already draft.')
+
+        origin_cr = self
+
+        draft_cr = origin_cr._create_new_dataset_version_template()
+        draft_cr.date_created = get_tz_aware_now_without_micros()
+        draft_cr.state = self.STATE_DRAFT
+        draft_cr.cumulative_state = origin_cr.cumulative_state
+        draft_cr.research_dataset['preferred_identifier'] = 'draft:%s' % draft_cr.identifier
+
+        super(CatalogRecord, draft_cr).save()
+
+        if origin_cr.files.exists():
+            # note: _directory_data field is already copied when the template is made
+            draft_cr.files.add(*origin_cr.files.all())
+
+        origin_cr.next_draft = draft_cr
+
+        super(CatalogRecord, origin_cr).save()
+
+        log_args = {
+            'event': 'dataset_draft_created',
+            'user_id': draft_cr.user_created or draft_cr.service_created,
+            'catalogrecord': {
+                'identifier': draft_cr.identifier,
+                'preferred_identifier': draft_cr.preferred_identifier,
+                'data_catalog': draft_cr.data_catalog.catalog_json['identifier'],
+                'date_created': datetime_to_str(draft_cr.date_created),
+                'metadata_owner_org': draft_cr.metadata_owner_org,
+                'state': draft_cr.state,
+            }
+        }
+
+        self.add_post_request_callable(DelayedLog(**log_args))
+
     def create_new_version(self):
         """
         A method to "explicitly" create a new version of a dataset, which is called from a particular
         RPC API endpoint.
         """
-        _logger.info('Creating new dataset version...')
+        _logger.info('Creating a new dataset version...')
 
-        if not self.catalog_versions_datasets():
+        if self.is_draft_for_another_dataset():
+            raise Http400(
+                'Can\'t create new version. Dataset is a draft for another published dataset: %s'
+                % self.draft_of.identifier
+            )
+        elif not self.catalog_versions_datasets():
             raise Http400('Data catalog does not allow dataset versioning')
 
         self._new_version = self._create_new_dataset_version_template()

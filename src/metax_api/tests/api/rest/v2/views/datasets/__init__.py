@@ -7,3 +7,4 @@
 
 from .read import *
 from .write import *
+from .write2 import *

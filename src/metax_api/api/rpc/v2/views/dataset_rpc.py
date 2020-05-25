@@ -52,6 +52,21 @@ class DatasetRPC(DatasetRPC):
 
         return cr
 
+    @list_route(methods=['post'], url_path="create_draft")
+    def create_draft(self, request):
+
+        cr = self.get_object()
+
+        cr.create_draft()
+
+        return Response(
+            data={
+                'id': cr.next_draft.id,
+                'identifier': cr.next_draft.identifier
+            },
+            status=status.HTTP_201_CREATED
+        )
+
     @list_route(methods=['post'], url_path="create_new_version")
     def create_new_version(self, request):
 
@@ -76,5 +91,19 @@ class DatasetRPC(DatasetRPC):
 
         return Response(
             data={ 'preferred_identifier': cr.preferred_identifier },
+            status=status.HTTP_200_OK
+        )
+
+    @list_route(methods=['post'], url_path="merge_draft")
+    def merge_draft(self, request):
+
+        cr = self.get_object()
+
+        # on successful publish, the record behind the variable 'cr' should now be deleted.
+        # the identifier points to the original published dataset.
+        identifier_of_published = cr.merge_draft()
+
+        return Response(
+            data={ 'identifier': identifier_of_published },
             status=status.HTTP_200_OK
         )
