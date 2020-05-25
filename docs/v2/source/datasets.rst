@@ -508,6 +508,69 @@ It helps to have the `research_dataset data model visualization <https://tietoma
     A special note for the relations ``contributor_type`` and ``contributor_role``. In ``ResearchAgent`` relations of type ``Organization``, only the relation ``contributor_type`` can be used. For same relations where type ``Person`` is being used instead, both ``contributor_type`` and ``contributor_role`` can be used. This is also communicated in the schema, but since persons and organizations can often be used in place of each other, this small difference can slip unnoticed! There are other differences in the schema as well of course, but this can be less obvious.
 
 
+.. only:: local_development or test
+
+    Using REMS
+    -----------
+
+
+    REMS can be used to give access for downloading dataset files to individual users. When dataset access is REMS managed, dataset owner can decide which users are able to download the files affiliated to the dataset.
+
+    To enable REMS, set ``access_type`` to ``permit`` and ensure that dataset belongs to IDA catalog and has at least one license defined. You can enable REMS when creating a new dataset or later while updating an existing dataset.
+
+
+    **Changing access type**
+
+    When ``access_type`` is set to ``permit``, dataset downloads are managed by REMS. If this functionality is no longer wanted, simply changing the ``access_type`` to any other access type disables REMS for the dataset. Example of defining permit access type:
+
+    .. code-block:: python
+
+        # ... other fields
+        "access_rights": {
+            # ... other access rights
+            "access_type": {
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/permit"
+            }
+        }
+        # ... other fields
+
+    More information about updating a dataset can be found in :ref:`Update examples<rst-dataset-examples-update>`.
+
+
+    **Changing license**
+
+    License is required property for those datasets that are managed by REMS. This license is what a downloading user must agree to. If there are multiple licenses described in dataset, REMS only considers the first one. So changing the license in REMS is changing the first license in the dataset. Example of defining a license:
+
+    .. code-block:: python
+
+        # ... other fields
+        "access_rights": {
+            # ... other access rights
+            "license": [
+                {
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC0-1.0"
+                }
+            ]
+        }
+        # ... other fields
+
+    Please refer to :ref:`Update examples<rst-dataset-examples-update>` for more information about update process.
+
+    .. note:: Changing the license for REMS managed dataset closes all existing download accesses to the dataset.
+
+    **Access granter**
+
+    Metax stores the necessary user information about the access granter in a separate field on CatalogRecord. When making dataset REMS managed, *end users* do not need to worry about this because this information will be automatically gathered from the access token. *Service users* need to provide this information in the request body because this is required property when making dataset REMS managed. Access granter is visible via API only for the owner of the dataset. Example:
+
+    .. code-block:: python
+
+        access_granter = {
+            "userid": "jodoe1",
+            "name": "John Doe",
+            "email": "john.doe@example.com"
+        }
+
+
 .. _rst-dataset-examples:
 
 Examples
