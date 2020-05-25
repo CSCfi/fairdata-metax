@@ -1,0 +1,106 @@
+
+{
+    "description":"This is a subset of http://iow.csc.fi/model/att that defines API to describe Research Data Catalogs in METAX",
+    "@id":"http://iow.csc.fi/ns/mdc#",
+    "title":"Metax Research Data Catalogs",
+    "modified":"Wed, 01 Feb 2017 13:10:07 EET",
+    "$schema":"http://json-schema.org/draft-04/schema#",
+    "type":"object",
+    "allOf":[
+        {
+            "$ref":"#/definitions/Catalog"
+        }
+    ],
+    "definitions":{
+        "Catalog":{
+            "title":"Research Data Catalog",
+            "@id":"http://www.w3.org/ns/dcat#Catalog",
+            "description":"A curated collection of metadata about datasets",
+            "properties":{
+                "catalog_json":{
+                    "title":"Catalog JSON",
+                    "description":"The actual fields of the data catalog. Detailed in http://iow.csc.fi/model/mdc/Catalog/",
+                    "type":"object"
+                },
+                "catalog_record_group_edit":{
+                    "title":"Editor group",
+                    "description":"Comma-separated list of groups which are allowed to edit catalog records in the catalog.",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "catalog_record_group_create":{
+                    "title":"Creator group",
+                    "description":"Comma-separated list of groups which are allowed to add new catalog records to the catalog.",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "catalog_record_services_edit":{
+                    "title":"Editor services",
+                    "description":"Comma-separated list of services which are allowed to edit catalog records in the catalog.",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "catalog_record_services_create":{
+                    "title":"Creator services",
+                    "description":"Comma-separated list of services which are allowed to add new catalog records to the catalog.",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "date_modified":{
+                    "title":"Date Modified",
+                    "description":"Date on which the resource was changed.",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "user_modified":{
+                    "title":"Modified by user id",
+                    "description":"User id of the person who last edited this record",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "date_created":{
+                    "title":"Date Created",
+                    "description":"Date of creation of the resource. Can't be updated once set.",
+                    "maxItems":1,
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly": true
+                },
+                "user_created":{
+                    "title":"Created by user id",
+                    "description":"User id of the person who created this record. Can't be updated once set.",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "service_created":{
+                    "description":"Service name who created this resource.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "service_modified":{
+                    "description":"Service name who last modified this resource.",
+                    "type":"string",
+                    "readonly": true
+                },
+                "removed":{
+                    "title":"Resource removed state",
+                    "description":"Indicates whether resource is deleted",
+                    "type":"boolean",
+                    "readyonly":true
+                },
+                "date_removed":{
+                    "title":"Date removed",
+                    "description":"Date of removal of the resource. Can't be updated once set",
+                    "type":"string",
+                    "format":"date-time",
+                    "readonly":true
+                  }
+            },
+            "required":[
+                "catalog_json"
+            ]
+        }
+    }
+}

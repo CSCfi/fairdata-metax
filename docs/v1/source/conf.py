@@ -168,3 +168,6 @@ texinfo_documents = [
      author, 'MetaxAPI', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+def setup(app):
+    app.add_stylesheet('custom.css')

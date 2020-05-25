@@ -29,19 +29,6 @@ from .reference_data_mixin import ReferenceDataMixin
 
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
-
-
-# avoiding circular imports
-def DirectorySerializer(*args, **kwargs):
-    from metax_api.api.rest.base.serializers import DirectorySerializer as DS
-    DirectorySerializer = DS
-    return DirectorySerializer(*args, **kwargs)
-
-def FileSerializer(*args, **kwargs):
-    from metax_api.api.rest.base.serializers import FileSerializer as FS
-    FileSerializer = FS
-    return FileSerializer(*args, **kwargs)
 
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):

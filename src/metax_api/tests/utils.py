@@ -221,7 +221,7 @@ class TestClassUtils():
         data['research_dataset'].pop('preferred_identifier', None)
 
         response = self.client.post('/rest/datasets', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         return response.data['id']
 
     def get_open_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False, use_login_access_type=False):

@@ -1,17 +1,17 @@
 swagger: '2.0'
 info:
-  title: METAX REST API
-  version: v1
+  title: METAX API
+  version: v2
 host: __METAX_ENV_DOMAIN__
 schemes:
   - https
-basePath: /rest/v1/
+basePath: ''
 produces:
   - application/json
 paths:
 
-# File Storage API
-  /rest/filestorages:
+  # File Storage API
+  /rest/v2/filestorages:
     get:
       summary: List File Storages
       parameters:
@@ -42,7 +42,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - File Storage API
-  /rest/filestorages/{PID}:
+  /rest/v2/filestorages/{PID}:
     get:
       summary: Get File Storage metadata
       parameters:
@@ -123,7 +123,7 @@ paths:
 
 
 # File API
-  /rest/files:
+  /rest/v2/files:
     get:
       summary: Get list of files
       parameters:
@@ -255,7 +255,7 @@ paths:
           description: None of the provided identifiers were found.
       tags:
         - File API
-  /rest/files/{PID}:
+  /rest/v2/files/{PID}:
     get:
       summary: Get file metadata
       parameters:
@@ -347,7 +347,7 @@ paths:
           description: Object not found
       tags:
         - File API
-  /rest/files/{PID}/XML:
+  /rest/v2/files/{PID}/XML:
     get:
       summary: Get XML metadata from file
       produces:
@@ -458,7 +458,7 @@ paths:
           description: File or namespace does not exist
       tags:
         - File API
-  /rest/files/datasets:
+  /rest/v2/files/datasets:
     post:
       summary: Get datasets where files belong to
       description: |
@@ -484,7 +484,7 @@ paths:
           description: Files given in the list not found
       tags:
         - File API
-  /rest/files/restore:
+  /rest/v2/files/restore:
     post:
       summary: Restore removed files back to "not removed" state.
       description: |
@@ -508,10 +508,10 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - File API
-  /rest/directories/{PID}:
+  /rest/v2/directories/{PID}:
     get:
       summary: Get details of a directory
-      description: Does not contain the directory's files and sub-directories. For that, use /rest/directories/{PID}/files
+      description: Does not contain the directory's files and sub-directories. For that, use /rest/v2/directories/{PID}/files
       parameters:
         - name: PID
           in: path
@@ -527,7 +527,7 @@ paths:
           description: Not found. Also when not authenticated request
       tags:
         - File API
-  /rest/directories/{PID}/files:
+  /rest/v2/directories/{PID}/files:
     get:
       summary: Get list of files and directories contained by a directory
       parameters:
@@ -559,8 +559,8 @@ paths:
           in: query
           description: |
             Includes the 'parent directory' of the contents being fetched in the results also. example&#58;
-            GET /rest/directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
-            Otherwise, one would query for its data separately by GET /rest/directories/3.
+            GET /rest/v2/directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            Otherwise, one would query for its data separately by GET /rest/v2/directories/3.
           required: false
           type: boolean
         - name: cr_identifier
@@ -603,11 +603,11 @@ paths:
           description: Directory not found. Also when not authenticated request
       tags:
         - File API
-  /rest/directories/files:
+  /rest/v2/directories/files:
     get:
       summary: Get list of files and directories contained by a directory, queried by dir path and project
       description: |
-        Functions the same as /rest/directories/pid, except queried by dir path and project identifier, instead of directly by directory identifier.
+        Functions the same as /rest/v2/directories/pid, except queried by dir path and project identifier, instead of directly by directory identifier.
       parameters:
         - name: path
           in: path
@@ -642,8 +642,8 @@ paths:
           in: query
           description: |
             Includes the 'parent directory' of the contents being fetched in the results also. example&#58;
-            GET /rest/directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
-            Otherwise, one would query for its data separately by GET /rest/directories/3.
+            GET /rest/v2/directories/3/files?include_parent=true also includes data about directory id: 3 in the results.
+            Otherwise, one would query for its data separately by GET /rest/v2/directories/3.
           required: false
           type: boolean
         - name: preferred_identifier
@@ -660,7 +660,7 @@ paths:
           description: Directory not found. Also when not authenticated request
       tags:
         - File API
-  /rest/directories/root:
+  /rest/v2/directories/root:
     get:
       summary: Return root directory for a project, and its files and directories
       description: Useful when starting to browse files for a project, when individual root-level directory identifier is not yet known.
@@ -684,7 +684,7 @@ paths:
 
 
 # Data Catalog API
-  /rest/datacatalogs:
+  /rest/v2/datacatalogs:
     get:
       summary: List of data catalogs
       parameters:
@@ -721,7 +721,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - Data Catalog API
-  /rest/datacatalogs/{PID}:
+  /rest/v2/datacatalogs/{PID}:
     get:
       summary: Get data catalog metadata
       parameters:
@@ -820,7 +820,7 @@ paths:
 
 
 # Dataset API
-  /rest/datasets:
+  /rest/v2/datasets:
     # some of the parameters and returned fields are for TPAS usage only
     get:
       summary: List datasets
@@ -917,6 +917,7 @@ paths:
             '?publisher_organization=some organisation&creator_person=person_name&condition_separator=or'
           required: false
           type: string
+        - $ref: "#/parameters/include_user_metadata"
       responses:
         "200":
           description: Successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. When using query parameters, search result can be an empty list.
@@ -943,11 +944,20 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/CatalogRecord'
+        - in: query
+          name: draft
+          description: Create new dataset into draft state. The dataset has to be separately published using the designated RPC API.
+          type: boolean
+          required: false
+          default: false
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
+        - $ref: "#/parameters/include_user_metadata"
       responses:
         '201':
           description: Returns the created object, or if a list was given, a list of objects and errors.
+          schema:
+            $ref: '#/definitions/CatalogRecord'
         '400':
           description: Parameters contained errors, response includes details.
         '403':
@@ -1000,7 +1010,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - Dataset API
-  /rest/datasets/identifiers:
+  /rest/v2/datasets/identifiers:
     get:
       summary: List all dataset identifiers
       parameters:
@@ -1034,7 +1044,7 @@ paths:
           description: Successful operation, returns a list of all dataset metadata version identifiers.
       tags:
         - Dataset API
-  /rest/datasets/unique_preferred_identifiers:
+  /rest/v2/datasets/unique_preferred_identifiers:
     get:
       summary: List all unique dataset preferred identifiers
       parameters:
@@ -1068,9 +1078,13 @@ paths:
           description: Successful operation, returns a list of all unique dataset preferred identifiers.
       tags:
         - Dataset API
-  /rest/datasets/{PID}:
+  /rest/v2/datasets/{PID}:
     get:
-      summary: Get dataset metadata
+      summary: Get dataset metadata.
+      description: |
+        Get dataset metadata.
+        - If the user is not authenticated and the user is not the owner of the dataset, then some personal data of users affiliated with the datasets are left out of the response.
+        - By default, fields research_dataset.files and research_dataset.directories are not included in the response (often regarded as "user metadata" or "dataset-specific metadata"). Include these by using the optional include_user_metadata query parameter.
       parameters:
         - name: PID
           in: path
@@ -1104,6 +1118,7 @@ paths:
             The details can be found behind the appended key 'details' that is placed into each file and directory in the dataset.
             Additionally total byte size and total file counts are calculated for directories, and are placed into fields
             byte_size and file_count in each directory's details as extra information.
+            Note: Only works if used with the include_user_metadata query parameter.
           required: false
           type: boolean
         - name: file_fields
@@ -1122,6 +1137,7 @@ paths:
             Return a hit only if the given PID is a preferred identifier.
           required: false
           type: boolean
+        - $ref: "#/parameters/include_user_metadata"
       responses:
         '200':
           description: Return dataset metadata
@@ -1132,13 +1148,16 @@ paths:
       tags:
         - Dataset API
     put:
-      summary: Replace dataset metadata
+      summary: Replace dataset metadata.
       description: |
         # research_dataset read-only fields
         - metadata_version_identifier
-        - preferred_identifier (except harvested catalogs)
+        - preferred_identifier (except harvested catalogs and legacy catalogs)
         - total_files_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
         - total_remote_resources_byte_size (generated from entries in remote_resources)
+        # research_dataset fields that can only be updated using a separate API datasets/{PID}/files/user_metadata
+        - files
+        - directories
       parameters:
         - in: "body"
           name: "body"
@@ -1153,6 +1172,7 @@ paths:
           type: string
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
+        - $ref: "#/parameters/include_user_metadata"
       responses:
         '200':
           description: Successful operation. Modified content returned
@@ -1163,13 +1183,17 @@ paths:
       tags:
         - Dataset API
     patch:
-      summary: Replace part of dataset metadata
+      summary: Replace part of dataset metadata.
       description: |
         # research_dataset read-only fields
         - metadata_version_identifier
         - preferred_identifier (except harvested catalogs)
         - total_files_byte_size (generated from files in the db according to files and directories listed in the dataset metadata)
         - total_remote_resources_byte_size (generated from entries in remote_resources)
+        # research_dataset fields that can only be updated using a separate API datasets/{PID}/files/user_metadata
+        - files
+        - directories
+        Note that contents of the field research_dataset can not be partially updated. The entire research_dataset block is updated as a whole.
       parameters:
         - in: "body"
           name: "body"
@@ -1184,6 +1208,7 @@ paths:
           type: string
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
+        - $ref: "#/parameters/include_user_metadata"
       responses:
         '200':
           description: Successful operation, full content returned
@@ -1196,7 +1221,7 @@ paths:
       tags:
         - Dataset API
     delete:
-      summary: Delete dataset metadata
+      summary: Delete dataset.
       parameters:
         - name: PID
           in: path
@@ -1207,17 +1232,16 @@ paths:
       responses:
         '204':
           description: Successful operation
-        '401':
-          description: Unauthorized. Reserved for admins only
         '403':
           description: Forbidden. Must have permission for resource
         '404':
           description: Not found
       tags:
         - Dataset API
-  /rest/datasets/{PID}/files:
+  /rest/v2/datasets/{PID}/files:
     get:
-      summary: Get list of files in a dataset
+      summary: Get list of all files in a dataset and their technical metadata.
+      description: Get list of all files in a dataset and their technical metadata. If dataset is under embargo, or otherwise dataset access_type is not fully open, it is possible that the file list can not be retrieved.
       parameters:
         - name: PID
           in: path
@@ -1236,10 +1260,170 @@ paths:
           type: boolean
       responses:
         '200':
-          description: Successful operation, return list of full files metadata
+          description: Successful operation, return list of full files metadata.
+          schema:
+            $ref: '#/definitions/FileList'
       tags:
         - Dataset API
-  /rest/datasets/{PID}/metadata_versions:
+    post:
+      summary: Add files to a dataset or exclude files from a dataset.
+      description: |
+        Add files to a dataset or exclude files from an existing dataset. This API is the sole means of adding or excluding files once a dataset has been created.
+        - To add files, only the field "identifier" is required. To exclude fields, only the fields "identifier" and "exclude" are required (i.e. "exclude=true").
+        - In general, this API can be used only for datasets that are in draft state, where files can be freely added or excluded.
+        - When a dataset has been published, this API can be used in two situations only: 1) Dataset has never had any files added to it. Files can be added to the dataset once, but after that, adding or excluding files will be prevented. 2) Dataset is cumulative. Files can be freely added, but not excluded.
+        - The request body can include also user metadata for files and directories that are added.
+        - The user must be a member of the project where files are added from.
+        - API only usable by the owner of the dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: List of files or entire directories to include or exclude.
+          required: true
+          schema:
+            $ref: '#/definitions/AddOrExcludeFiles'
+      responses:
+        '200':
+          description: Successful operation, return number of files added and removed.
+          schema:
+            type: object
+            properties:
+              files_added:
+                type: integer
+                example: 3
+              files_removed:
+                type: integer
+                example: 2
+        '400':
+          description: Operation resulted in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource.
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/files/{FILE_PID}:
+    get:
+      summary: Get technical metadata of a single file in a dataset.
+      description: Get technical metadata of a single file in a dataset. If dataset is under embargo, or otherwise dataset access_type is not fully open, it is possible that the file can not be retrieved.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - name: FILE_PID
+          in: path
+          description: Persistent ID of the file OR the internal pk
+          required: true
+          type: string
+        - name: file_fields
+          in: query
+          description: Comma-separated list of field names to retrieve for files
+          required: false
+          type: string
+        - name: removed_files
+          in: query
+          description: Return only deleted files
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: Successful operation, return file metadata.
+          schema:
+            $ref: '#/definitions/File'
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/files/user_metadata:
+    put:
+      summary: Update or remove user metadata of files in dataset.
+      description: |
+        Update or remove user metadata of files in a dataset. Does not add or exclude files.
+        - Request body has to fully contain all metadata of the file or directory entries.
+        - API only usable by the owner of the dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: List of file or directory entries with metadata included. If the entry object has the attribute delete=true, then the metadata entry is removed (does NOT remove the file from the dataset!).
+          required: true
+          schema:
+            $ref: '#/definitions/AddOrDeleteUserMetadata'
+      responses:
+        '200':
+          description: Successful operation. Does not return anything.
+        '400':
+          description: Operation resulted in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource.
+      tags:
+        - Dataset API
+    patch:
+      summary: Partially update or remove user metadata of files in dataset.
+      description: |
+        Update or remove user metadata of files in a dataset. Does not add or exclude files.
+        - Permits partially updating metadata.
+        - Note: Leaving out a field from the body of the request does NOT delete the field! In order to delete a single field, use PUT instead, and omit the field you want to delete.
+        - Permits also deleting entries by using the attribute delete=true in a file or directory entry.
+        - API only usable by the owner of the dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: List of file or directory entries with metadata included. If the entry object has the attribute delete=true, then the metadata entry is removed (does NOT remove the file from the dataset!).
+          required: true
+          schema:
+            $ref: '#/definitions/AddOrDeleteUserMetadata'
+      responses:
+        '200':
+          description: Successful operation. Does not return anything.
+        '400':
+          description: Operation resulted in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource.
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/files/{FILE_PID}/user_metadata:
+    get:
+      summary: Retrieve user metadata of a single file or a directory in a dataset.
+      parameters:
+        - name: PID
+          in: path
+          description: Persistent ID of dataset OR the internal pk
+          required: true
+          type: string
+        - name: FILE_PID
+          in: path
+          description: Persistent ID of the file OR the internal pk
+          required: true
+          type: string
+        - name: directory
+          in: query
+          description: If true, {FILE_PID} is regarded as a directory PID instead, and directory metadata is returned instead. At the time of writing, the difference between returned objects between file and dir metadata, is one field (files have file_type).
+          required: false
+          type: boolean
+          default: false
+      responses:
+        '200':
+          # note: file and dir metadata has a difference (at the time of writing, one field difference), but it does
+          # not seem to be possible to use oneOf here... the difference is mentioned in the "directory" parameter description above.
+          description: Successful operation, return user metadata of the file.
+          schema:
+            $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileMetadata'
+      tags:
+        - Dataset API
+  /rest/v2/datasets/{PID}/metadata_versions:
     get:
       summary: List old research_dataset entries of a record
       parameters:
@@ -1255,7 +1439,7 @@ paths:
             $ref: '#/definitions/StringList'
       tags:
         - Dataset API
-  /rest/datasets/{PID}/metadata_versions/{MVI}:
+  /rest/v2/datasets/{PID}/metadata_versions/{MVI}:
     get:
       summary: Get contents of a specific old research_dataset of a record.
       parameters:
@@ -1279,7 +1463,7 @@ paths:
 
 
 # Contract API
-  /rest/contracts:
+  /rest/v2/contracts:
     get:
       summary: List contracts
       parameters:
@@ -1325,7 +1509,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - Contract API
-  /rest/contracts/{PID}:
+  /rest/v2/contracts/{PID}:
     get:
       summary: Get contract metadata
       parameters:
@@ -1402,7 +1586,7 @@ paths:
 
 
 # ApiErrors API
-  /rest/apierrors:
+  /rest/v2/apierrors:
     get:
       summary: List errors produced during api requests
       responses:
@@ -1412,7 +1596,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - ApiErrors API
-  /rest/apierrors/{identifier}:
+  /rest/v2/apierrors/{identifier}:
     get:
       summary: Get details of a single error entry
       parameters:
@@ -1447,7 +1631,7 @@ paths:
           description: Not found
       tags:
         - ApiErrors API
-  /rest/apierrors/flush:
+  /rest/v2/apierrors/flush:
     post:
       summary: "Delete all error entries"
       responses:
@@ -1460,7 +1644,7 @@ paths:
 
 
 # Schema API
-  /rest/schemas:
+  /rest/v2/schemas:
     get:
       summary: "List schemas"
       responses:
@@ -1468,7 +1652,7 @@ paths:
           description: Successful operation, return list of schema names
       tags:
         - Schema API
-  /rest/schemas/{name}:
+  /rest/v2/schemas/{name}:
     get:
       summary: Get schema content
       parameters:
@@ -1487,7 +1671,38 @@ paths:
 
 
 # RPC APIs
-  /rpc/datasets/get_minimal_dataset_template:
+  /rpc/v2/datasets/create_new_version:
+    post:
+      summary: Create new dataset version.
+      description: |
+        Create a new dataset version of an existing dataset.
+        - The new version is created into draft state, and has to be separately published
+        - Creating a new version from a deprecated dataset: When the new version is created, all files from the original version that have "removed=True" state will get removed from the new version. This effectively restores a deprecated dataset into a working condition again in the newer version.
+        - Will raise an error, if dataset already has a newer version
+        - Usable only by the owner of the dataset
+      parameters:
+        - $ref: "#/parameters/rpc_dataset_identifier"
+      responses:
+        '200':
+          description: Successful operation, returns the id and identifier of the published dataset.
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              identifier:
+                type: string
+                example: 2955e124-e3dd-hh56-99f1-gtr4446f96d1
+        '400':
+          description: Operation ended in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Dataset RPC
+  /rpc/v2/datasets/get_minimal_dataset_template:
     get:
       summary: Get minimal dataset template.
       description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. The returned template can be used as-is when creating a dataset into Metax.
@@ -1504,57 +1719,36 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
-  /rpc/datasets/set_preservation_identifier:
+  /rpc/v2/datasets/publish_dataset:
     post:
-      summary: Assign a preservation identifier value for a catalog record and return it
-      description: Usable only by tpas user. Works only for ida catalog records. If cr does not have a preservation_identifier, creates it and handles appropriate publishing of the identifier, finally returns it. If cr already has a preservation identifier, just returns it.
+      summary: Publish a draft dataset.
+      description: |
+        Publish a draft dataset.
+        - Generates the dataset a proper PID (preferred_identifier)
+        - Possibly publishes metadata to Datacite (if PID type is DOI)
+        - Makes the new published dataset findable in Etsin
+        - Will raise an error, if dataset is already published
+        - Usable only by the owner of the dataset
       parameters:
-        - name: identifier
-          in: query
-          description: Catalog record identifier for which the pas_identifier is to be assigned.
-          required: true
-          type: string
+        - $ref: "#/parameters/rpc_dataset_identifier"
       responses:
         '200':
-          description: Successful operation, return catalog record preservation identifier.
+          description: Successful operation, returns the new generated PID (preferred_identifier) of the published dataset.
           schema:
-            $ref: '#/definitions/CatalogRecord'
+            type: object
+            properties:
+              preferred_identifier:
+                type: string
+                example: urn:nbn:fi:att:2955e124-e3dd-hh56-99f1-gtr4446f96d1
+        '400':
+          description: Operation ended in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
       tags:
         - Dataset RPC
-  /rpc/datasets/refresh_directory_content:
-    post:
-      summary: Search for new frozen files from directory and add them to dataset
-      description: Find all new frozen files from given directory and add them to given dataset following normal versioning rules. Not allowed for deprecated datasets. Returns information about new dataset version if one is created. You must have rights to modify the record.
-      parameteres:
-        - name: cr_identifier
-          in: query
-          description: Catalog record identifier where the files will be added.
-          required: true
-          type: string
-        - name: dir_identifier
-          in: query
-          description: Directory identifier from where the new files will be searched.
-      responses:
-        '200':
-          description: Successful operation. Files were added and new dataset version was created. Returns information about the new dataset version.
-        '204':
-          description: Successful operation. Files were added and new dataset version was not created or no new files were found. Returns no content.
-  /rpc/datasets/fix_deprecated:
-    post:
-      summary: Fixes deprecated dataset
-      description: Deletes all removed files from dataset and creates new version which will be non-deprecated. This api is the only way to recover deprecated dataset.
-      parameters:
-        - name: identifier
-          in: query
-          description: Identifier of the catalog record to be fixed.
-          required: true
-          type: string
-      responses:
-        '200':
-          description: Successful operation, returns information about the new dataset version.
-      tags:
-        - Dataset RPC
-  # /rpc/statistics/count_datasets:
+  # /rpc/v2/statistics/count_datasets:
   #   get:
   #     summary: Get the total number of datasets and file sizes.
   #     description: Calculates the total number of datasets and file sizes.
@@ -1577,7 +1771,7 @@ paths:
   #           $ref: "#/examples/count_datasets"
   #     tags:
   #       - Statistics RPC
-  /rpc/statistics/all_datasets_cumulative:
+  /rpc/v2/statistics/all_datasets_cumulative:
     get:
       summary: Get cumulative list of dataset information in given interval.
       description: Retrieve dataset count and byte size per month and monthly cumulative from all datasets.
@@ -1618,7 +1812,7 @@ paths:
           description: Parameters contained errors, response includes details
       tags:
         - Statistics RPC
-  # /rpc/statistics/catalog_datasets_cumulative:
+  # /rpc/v2/statistics/catalog_datasets_cumulative:
   #   get:
   #     summary: Get cumulative list of datacatalog information in given interval.
   #     description: Lists datacatalogs and groups their content by access type and by month. Each month contains how many datasets have been added and total size of files. These are calculated both for current month and cumulatively from from_date.
@@ -1635,7 +1829,7 @@ paths:
   #         description: required parameters missing.
   #     tags:
   #       - Statistics RPC
-  # /rpc/statistics/deprecated_datasets_cumulative:
+  # /rpc/v2/statistics/deprecated_datasets_cumulative:
   #   get:
   #     summary: Get cumulative list of deprecated dataset information in given interval.
   #     description: Retrieve dataset count per month and monthly cumulative for deprecated datasets.
@@ -1649,7 +1843,7 @@ paths:
   #           $ref: "#/examples/deprecated_datasets_cumulative"
   #     tags:
   #       - Statistics RPC
-  # /rpc/statistics/end_user_datasets_cumulative:
+  # /rpc/v2/statistics/end_user_datasets_cumulative:
   #   get:
   #     summary: Get cumulative list of dataset information in given interval added by end users.
   #     description: Retrieve dataset count per month and monthly cumulative for datasets which have been created by end users using End User API.
@@ -1665,7 +1859,7 @@ paths:
   #         description: required parameters missing.
   #     tags:
   #       - Statistics RPC
-  # /rpc/statistics/harvested_datasets_cumulative:
+  # /rpc/v2/statistics/harvested_datasets_cumulative:
   #   get:
   #     summary: Get cumulative list of harvested dataset information in given interval.
   #     description: For harvested datasets, retrieve dataset count per month and monthly cumulative, and grouped by access_type.
@@ -1681,7 +1875,7 @@ paths:
   #         description: required parameters missing.
   #     tags:
   #       - Statistics RPC
-  /rpc/statistics/organization_datasets_cumulative:
+  /rpc/v2/statistics/organization_datasets_cumulative:
     get:
       summary: Get cumulative list of dataset information in given interval added by organizations.
       description: Retrieve dataset count and byte size per month and monthly cumulative for all organizations, or a given single organization, grouped by catalog.
@@ -1698,7 +1892,7 @@ paths:
           description: Required parameters missing.
       tags:
         - Statistics RPC
-  # /rpc/statistics/unused_files:
+  # /rpc/v2/statistics/unused_files:
   #   get:
   #     summary: Get files that are not part of any datasets.
   #     description: Retrieving total counts of files and project identifiers which are not part of any datasets.
@@ -1709,7 +1903,7 @@ paths:
   #           $ref: "#/examples/unused_files"
   #     tags:
   #       - Statistics RPC
-  /rpc/files/delete_project:
+  /rpc/v2/files/delete_project:
     post:
       summary: Deletes given project from the database.
       description: Usable by ida, tpas and metax users. Marks all related files deleted, deprecates related datasets and removes all directories. Returns number of deleted files. Request is successful even when the project identifier is wrong, number of deleted files is then 0.
@@ -1729,6 +1923,7 @@ paths:
 
 
 parameters:
+
   dryrun:
     name: dryrun
     in: query
@@ -1838,16 +2033,83 @@ parameters:
     required: false
     type: boolean
 
+  include_user_metadata:
+    name: include_user_metadata
+    in: query
+    description: Include user metadata for files (dataset-specific metadata) (fields research_dataset.files and research_dataset.directories)
+    required: false
+    type: boolean
+    default: false
+
+  rpc_dataset_identifier:
+    name: identifier
+    in: query
+    description: Identifier of the target dataset.
+    required: true
+    type: string
+
 
 definitions:
+  AddOrDeleteUserMetadata:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      files:
+        type: array
+        items:
+          type: object
+          minProperties: 1
+          anyOf:
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileMetadataDeleteEvent'
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileMetadata'
+      directories:
+        type: array
+        items:
+          type: object
+          minProperties: 1
+          anyOf:
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/DirectoryMetadataDeleteEvent'
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/DirectoryMetadata'
+  AddOrExcludeFiles:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    properties:
+      files:
+        type: array
+        items:
+          type: object
+          minProperties: 1
+          anyOf:
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileAdditionEvent'
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/FileMetadata'
+      directories:
+        type: array
+        items:
+          type: object
+          minProperties: 1
+          anyOf:
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/DirectoryAdditionEvent'
+            - $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/dataset_files_schema.json#/definitions/DirectoryMetadata'
+  #   type: object
+  #   properties:
+  #     files:
+  #       type: array
+  #       items:
+  #         $ref: '#/definitions/ResearchDatasetFile'
+  #     directories:
+  #       type: array
+  #       items:
+  #         $ref: '#/definitions/ResearchDatasetDirectory'
   CatalogRecord:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/datacatalog.json#/definitions/Catalog'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/datacatalog.json#/definitions/Catalog'
   File:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/file.json#/definitions/File'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/file.json#/definitions/File'
   Directory:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/file.json#/definitions/Directory'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v2/file.json#/definitions/Directory'
   StringList:
     type: array
     items:

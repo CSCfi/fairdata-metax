@@ -23,6 +23,7 @@ from metax_api.services import CommonService as CS, ApiErrorService, CallableSer
 _logger = logging.getLogger(__name__)
 
 RESPONSE_SUCCESS_CODES = (200, 201, 204)
+WRITE_OPERATIONS = ('PUT', 'PATCH', 'POST')
 
 
 class CommonViewSet(ModelViewSet):
@@ -166,9 +167,20 @@ class CommonViewSet(ModelViewSet):
             # if no fields is relation, select_related will be made empty.
             self.select_related = [ rel for rel in self.select_related if rel in fields ]
 
-        return super(CommonViewSet, self).get_queryset() \
-            .select_related(*self.select_related) \
-            .filter(*q_filters, **additional_filters)
+        queryset = super().get_queryset().filter(*q_filters, **additional_filters)
+
+        if self.request.META['REQUEST_METHOD'] in WRITE_OPERATIONS:
+            # for update operations, do not select relations in the original queryset
+            # so that select_for_update() can be used to lock the row for the duration
+            # of the update-operation. when the full object is returned, it is possible
+            # that additional queres need to be executed to the db to retrieve relation
+            # data, but that seems to be the price to pay to be able the lock rows being
+            # written to.
+            queryset = queryset.select_for_update(nowait=False, of=('self',))
+        else:
+            queryset = queryset.select_related(*self.select_related)
+
+        return queryset
 
     def get_object(self, search_params=None):
         """
