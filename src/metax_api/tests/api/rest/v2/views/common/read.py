@@ -28,11 +28,11 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
         obj2 = CatalogRecord.objects.get(pk=2)
         obj2.removed = True
         obj2.force_save()
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        response = self.client.get('/rest/datasets/1?removed=true')
+        response = self.client.get('/rest/v2/datasets/1?removed=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get('/rest/datasets/metadata_version_identifiers')
+        response = self.client.get('/rest/v2/datasets/metadata_version_identifiers')
         self.assertEqual(obj.metadata_version_identifier not in response.data, True)
         self.assertEqual(obj2.metadata_version_identifier not in response.data, True)
 
@@ -42,13 +42,13 @@ class ApiReadGetDeletedObjects(CatalogRecordApiReadCommon):
         obj2 = File.objects.get(pk=2)
         obj2.removed = True
         obj2.force_save()
-        response = self.client.get('/rest/files/1')
+        response = self.client.get('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        response = self.client.get('/rest/files/1?removed=true')
+        response = self.client.get('/rest/v2/files/1?removed=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_removed_parameter_gets_correct_amount_of_objects(self):
-        path = '/rest/datasets'
+        path = '/rest/v2/datasets'
         objects = CatalogRecord.objects.all().values()
 
         results = self.client.get('{0}?no_pagination&removed=false'.format(path)).json()
@@ -77,19 +77,19 @@ class ApiReadPaginationTests(CatalogRecordApiReadCommon):
     """
 
     def test_read_catalog_record_list_pagination_1(self):
-        response = self.client.get('/rest/datasets?limit=2&offset=0')
+        response = self.client.get('/rest/v2/datasets?limit=2&offset=0')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
         self.assertEqual(response.data['results'][0]['id'], 1, 'Id of first result should have been 1')
 
     def test_read_catalog_record_list_pagination_2(self):
-        response = self.client.get('/rest/datasets?limit=2&offset=2')
+        response = self.client.get('/rest/v2/datasets?limit=2&offset=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 2, 'There should have been exactly two results')
         self.assertEqual(response.data['results'][0]['id'], 3, 'Id of first result should have been 3')
 
     def test_disable_pagination(self):
-        response = self.client.get('/rest/datasets?no_pagination=true')
+        response = self.client.get('/rest/v2/datasets?no_pagination=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('next' not in response.data, True)
         self.assertEqual('results' not in response.data, True)
@@ -102,7 +102,7 @@ class ApiReadPaginationTests(CatalogRecordApiReadCommon):
             # vary offset from 0 to 20, in increments of 5
             for offset in range(0, 20, 5):
 
-                response = self.client.get(f'/rest/datasets?limit={limit}&offset={offset}&ordering={order}')
+                response = self.client.get(f'/rest/v2/datasets?limit={limit}&offset={offset}&ordering={order}')
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
 
                 from_api = [cr['preservation_state'] for cr in response.data['results']]
@@ -134,19 +134,19 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.identifier, **headers)
+        response = self.client.get('/rest/v2/datasets/%s' % self.identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.identifier, **headers)
+        response = self.client.get('/rest/v2/datasets/%s' % self.identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.identifier, **headers)
+        response = self.client.get('/rest/v2/datasets/%s' % self.identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_with_if_modified_since_header_syntax_error(self):
@@ -156,7 +156,7 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S UTC')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/%s' % self.identifier, **headers)
+        response = self.client.get('/rest/v2/datasets/%s' % self.identifier, **headers)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     #
@@ -172,14 +172,14 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets?limit=100', **headers)
+        response = self.client.get('/rest/v2/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get('results')) == 6)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets?limit=100', **headers)
+        response = self.client.get('/rest/v2/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get('results')) == 6)
 
@@ -189,7 +189,7 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets?limit=100', **headers)
+        response = self.client.get('/rest/v2/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get('results')) > 6)
         self.assertTrue(len(response.data.get('results')) == 28)
@@ -199,7 +199,7 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         cr.date_created = date_modified
         cr.date_modified = None
         cr.force_save()
-        response = self.client.get('/rest/datasets?limit=100', **headers)
+        response = self.client.get('/rest/v2/datasets?limit=100', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get('results')) > 6)
         self.assertTrue(len(response.data.get('results')) == 28)
@@ -215,18 +215,18 @@ class ApiReadQueryParamTests(CatalogRecordApiReadCommon):
         """
         While the param ?fields works with write operations too, the primary use case is when GETting.
         """
-        response = self.client.get('/rest/datasets?fields=identifier')
+        response = self.client.get('/rest/v2/datasets?fields=identifier')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('identifier' in response.data['results'][0], True)
         self.assertEqual(len(response.data['results'][0].keys()), 1)
         self.assertEqual(len(response.data['results'][1].keys()), 1)
 
-        response = self.client.get('/rest/datasets/1?fields=identifier')
+        response = self.client.get('/rest/v2/datasets/1?fields=identifier')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('identifier' in response.data, True)
         self.assertEqual(len(response.data.keys()), 1)
 
-        response = self.client.get('/rest/datasets/1?fields=identifier,data_catalog')
+        response = self.client.get('/rest/v2/datasets/1?fields=identifier,data_catalog')
         self.assertEqual('identifier' in response.data, True)
         self.assertEqual('data_catalog' in response.data, True)
         self.assertEqual(len(response.data.keys()), 2)

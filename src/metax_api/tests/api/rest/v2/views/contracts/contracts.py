@@ -29,19 +29,19 @@ class ContractApiReadTestV1(APITestCase, TestClassUtils):
         self._use_http_authorization()
 
     def test_read_contract_list(self):
-        response = self.client.get('/rest/datasets')
+        response = self.client.get('/rest/v2/datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_contract_details_by_pk(self):
-        response = self.client.get('/rest/contracts/%s' % self.pk)
+        response = self.client.get('/rest/v2/contracts/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_contract_details_by_identifier(self):
-        response = self.client.get('/rest/contracts/%s' % self.identifier)
+        response = self.client.get('/rest/v2/contracts/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_contract_details_not_found(self):
-        response = self.client.get('/rest/contracts/shouldnotexist')
+        response = self.client.get('/rest/v2/contracts/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -65,21 +65,21 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_update_contract(self):
         self.test_new_data['pk'] = self.pk
-        response = self.client.put('/rest/contracts/%s' % self.pk, self.test_new_data, format="json")
+        response = self.client.put('/rest/v2/contracts/%s' % self.pk, self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_contract_not_found(self):
-        response = self.client.put('/rest/contracts/doesnotexist', self.test_new_data, format="json")
+        response = self.client.put('/rest/v2/contracts/doesnotexist', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_add_catalog_record_to_contract(self):
-        new_catalog_record = self.client.get('/rest/datasets/1', format="json").data
+        new_catalog_record = self.client.get('/rest/v2/datasets/1', format="json").data
         new_catalog_record.pop('id')
         new_catalog_record.pop('identifier')
         new_catalog_record['research_dataset'].pop('preferred_identifier')
         new_catalog_record['contract'] = self.pk
 
-        response = self.client.post('/rest/datasets', new_catalog_record, format="json")
+        response = self.client.post('/rest/v2/datasets', new_catalog_record, format="json")
         created_catalog_record = response.data
 
         try:
@@ -96,12 +96,12 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         except CatalogRecord.DoesNotExist:
             raise Exception('The added CatalogRecord should appear in the relation contract.records')
 
-        response = self.client.get('/rest/contracts/%d/datasets' % self.pk)
+        response = self.client.get('/rest/v2/contracts/%d/datasets' % self.pk)
         self.assertIn(created_catalog_record['id'], [cr['id'] for cr in response.data],
                       'The added CatalogRecord should appear in the results of /contracts/id/datasets')
 
     def test_delete_contract(self):
-        url = '/rest/contracts/%s' % self.pk
+        url = '/rest/v2/contracts/%s' % self.pk
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         response = self.client.get(url)
@@ -130,16 +130,16 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
         # add two new records to contract
         new_catalog_record = self._get_new_catalog_record_test_data()
         new_catalog_record['contract'] = self.pk
-        self.client.post('/rest/datasets', new_catalog_record, format="json")
-        self.client.post('/rest/datasets', new_catalog_record, format="json")
+        self.client.post('/rest/v2/datasets', new_catalog_record, format="json")
+        self.client.post('/rest/v2/datasets', new_catalog_record, format="json")
 
-        self.client.delete('/rest/contracts/%s' % self.pk)
+        self.client.delete('/rest/v2/contracts/%s' % self.pk)
         contract = Contract.objects_unfiltered.get(pk=self.pk)
         related_crs = contract.records(manager='objects_unfiltered').all()
-        response_get_1 = self.client.get('/rest/datasets/%d' % related_crs[0].id)
+        response_get_1 = self.client.get('/rest/v2/datasets/%d' % related_crs[0].id)
         self.assertEqual(response_get_1.status_code, status.HTTP_404_NOT_FOUND,
                          'CatalogRecords of deleted contracts should not be retrievable through the api')
-        response_get_2 = self.client.get('/rest/datasets/%d' % related_crs[1].id)
+        response_get_2 = self.client.get('/rest/v2/datasets/%d' % related_crs[1].id)
         self.assertEqual(response_get_2.status_code, status.HTTP_404_NOT_FOUND,
                          'CatalogRecords of deleted contracts should not be retrievable through the api')
 
@@ -148,8 +148,8 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
 
     def test_deleted_catalog_record_is_not_listed_in_contract_datasets_api(self):
         deleted_id = 1
-        self.client.delete('/rest/datasets/%d' % deleted_id)
-        response = self.client.get('/rest/contracts/%d/datasets' % self.pk)
+        self.client.delete('/rest/v2/datasets/%d' % deleted_id)
+        response = self.client.get('/rest/v2/contracts/%d/datasets' % self.pk)
         self.assertNotIn(deleted_id, [cr['id'] for cr in response.data],
                          'The deleted CatalogRecord should not appear in the results of /contracts/id/datasets')
 

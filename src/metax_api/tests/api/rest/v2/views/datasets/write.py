@@ -6,8 +6,7 @@
 # :license: MIT
 
 from copy import deepcopy
-from datetime import datetime, timedelta
-from time import sleep
+from datetime import timedelta
 import unittest
 
 import responses
@@ -16,18 +15,41 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
+from metax_api.models import (
+    AlternateRecordSet,
+    CatalogRecordV2,
+    Contract,
+    DataCatalog,
+    Directory,
+    File
+)
+
 from metax_api.services import ReferenceDataMixin as RDM, RedisCacheService as cache
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
-from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
+from metax_api.utils import get_tz_aware_now_without_micros
 from metax_api.tests.utils import get_test_oidc_token
 
+
+CR = CatalogRecordV2
 
 VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 EXT_CATALOG = django_settings.EXT_DATA_CATALOG_IDENTIFIER
+
+
+def create_end_user_catalogs():
+    dc = DataCatalog.objects.get(pk=1)
+    catalog_json = dc.catalog_json
+    for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+        catalog_json['identifier'] = identifier
+        dc = DataCatalog.objects.create(
+            catalog_json=catalog_json,
+            date_created=get_tz_aware_now_without_micros(),
+            catalog_record_services_create='testuser,api_auth_user,metax',
+            catalog_record_services_edit='testuser,api_auth_user,metax'
+        )
 
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
@@ -61,11 +83,11 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         self._use_http_authorization()
 
     def update_record(self, record):
-        return self.client.put('/rest/datasets/%d' % record['id'], record, format="json")
+        return self.client.put('/rest/v2/datasets/%d' % record['id'], record, format="json")
 
     def get_next_version(self, record):
         self.assertEqual('next_dataset_version' in record, True)
-        response = self.client.get('/rest/datasets/%d' % record['next_dataset_version']['id'], format="json")
+        response = self.client.get('/rest/v2/datasets/%d' % record['next_dataset_version']['id'], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         return response.data
 
@@ -177,17 +199,17 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         # Create published record with owner: testuser and pk 1
         # Create draft records with owner: testuser, pk: 2 and owner: 'some owner who is not you', pk 3
         self._set_cr_owner_and_state(1, 'published', self.token['CSCUserName']) # Published dataset
-        self.assertEqual(CatalogRecord.objects.get(pk=1).metadata_provider_user, 'testuser')
+        self.assertEqual(CatalogRecordV2.objects.get(pk=1).metadata_provider_user, 'testuser')
 
         self._set_cr_owner_and_state(2, 'draft', self.token['CSCUserName']) # testusers' draft
-        self.assertEqual(CatalogRecord.objects.get(pk=2).metadata_provider_user, 'testuser')
+        self.assertEqual(CatalogRecordV2.objects.get(pk=2).metadata_provider_user, 'testuser')
 
         self._set_cr_owner_and_state(3, 'draft', '#### Some owner who is not you ####') # Draft dataset for some user
-        self.assertNotEqual(CatalogRecord.objects.get(pk=3).metadata_provider_user, 'testuser')
+        self.assertNotEqual(CatalogRecordV2.objects.get(pk=3).metadata_provider_user, 'testuser')
 
     def _set_cr_owner_and_state(self, cr_id, state, owner):
         ''' helper method for testing user accessibility for draft datasets '''
-        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr = CatalogRecordV2.objects.get(pk=cr_id)
         cr.state = state
         cr.user_created = owner
         cr.metadata_provider_user = owner
@@ -198,16 +220,16 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
     def test_field_exists(self):
         """Try fetching any dataset, field 'state' should be returned'"""
 
-        cr = self.client.get('/rest/datasets/13').data
+        cr = self.client.get('/rest/v2/datasets/13').data
         self.assertEqual('state' in cr, True)
 
     def test_change_state_field_through_API(self):
         """Fetch a dataset and change its state.
         Value should remain: 'published' """
 
-        cr = self.client.get('/rest/datasets/1').data
+        cr = self.client.get('/rest/v2/datasets/1').data
         cr['state'] = 'changed value'
-        response = self.client.put('/rest/datasets/1', cr, format="json")
+        response = self.client.put('/rest/v2/datasets/1', cr, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertFalse(response.data['state'] == 'changed value')
@@ -223,14 +245,14 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         self._use_http_authorization(method='bearer', token=self.token)
 
         # Test access for owner of dataset
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
-        response = self.client.get('/rest/datasets/2')
+        response = self.client.get('/rest/v2/datasets/2')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
-        response = self.client.get('/rest/datasets/3')
+        response = self.client.get('/rest/v2/datasets/3')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.status_code)
         # Test for multiple datasets
-        response = self.client.get('/rest/datasets', format="json")
+        response = self.client.get('/rest/v2/datasets', format="json")
         # Returned list of datasets should not have owner "#### Some owner who is not you ####"
         owners = [cr['metadata_provider_user'] for cr in response.data['results']]
         self.assertEqual('#### Some owner who is not you ####' not in owners, True, response.data)
@@ -240,14 +262,14 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         # test access as a service-user
         self._use_http_authorization(method='basic', username='metax')
 
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
-        response = self.client.get('/rest/datasets/2')
+        response = self.client.get('/rest/v2/datasets/2')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
-        response = self.client.get('/rest/datasets/3')
+        response = self.client.get('/rest/v2/datasets/3')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.status_code)
         # test for multiple datasets
-        response = self.client.get('/rest/datasets', format="json")
+        response = self.client.get('/rest/v2/datasets', format="json")
         # Returned list of datasets should have owner "#### Some owner who is not you ####"
         owners = [cr['metadata_provider_user'] for cr in response.data['results']]
         self.assertEqual('#### Some owner who is not you ####' in owners, True, response.data)
@@ -257,14 +279,14 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         # Test access as unauthenticated user
         self.client._credentials = {}
 
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get('/rest/datasets/2')
+        response = self.client.get('/rest/v2/datasets/2')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
-        response = self.client.get('/rest/datasets/3')
+        response = self.client.get('/rest/v2/datasets/3')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
         # test for multiple datasets
-        response = self.client.get('/rest/datasets', format="json")
+        response = self.client.get('/rest/v2/datasets', format="json")
         # Returned list of datasets should not have drafts
         states = [cr['state'] for cr in response.data['results']]
         self.assertEqual('draft' not in states, True, response.data)
@@ -281,20 +303,20 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
 
         for http_verb in ['put', 'patch']:
             update_request = getattr(self.client, http_verb)
-            data1 = self.client.get('/rest/datasets/1').data # published
-            response = update_request('/rest/datasets/1', data1, format="json")
+            data1 = self.client.get('/rest/v2/datasets/1').data # published
+            response = update_request('/rest/v2/datasets/1', data1, format="json")
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-            data2 = self.client.get('/rest/datasets/2').data # end users own draft
-            response = update_request('/rest/datasets/2', data2, format="json")
+            data2 = self.client.get('/rest/v2/datasets/2').data # end users own draft
+            response = update_request('/rest/v2/datasets/2', data2, format="json")
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-            data3 = self.client.get('/rest/datasets/3').data # someone elses draft
-            response = update_request('/rest/datasets/3', data3, format="json")
+            data3 = self.client.get('/rest/v2/datasets/3').data # someone elses draft
+            response = update_request('/rest/v2/datasets/3', data3, format="json")
             self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
 
             # test for multiple datasets
-            response = update_request('/rest/datasets', [data1, data2, data3], format="json")
+            response = update_request('/rest/v2/datasets', [data1, data2, data3], format="json")
             owners = [cr['object']['metadata_provider_user'] for cr in response.data['success']]
             self.assertEqual('#### Some owner who is not you ####' not in owners, True, response.data)
 
@@ -306,20 +328,20 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
 
         for http_verb in ['put', 'patch']:
             update_request = getattr(self.client, http_verb)
-            data1 = self.client.get('/rest/datasets/1').data # published
-            response = update_request('/rest/datasets/1', data1, format="json")
+            data1 = self.client.get('/rest/v2/datasets/1').data # published
+            response = update_request('/rest/v2/datasets/1', data1, format="json")
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-            data2 = self.client.get('/rest/datasets/2').data # draft
-            response = update_request('/rest/datasets/2', data2, format="json")
+            data2 = self.client.get('/rest/v2/datasets/2').data # draft
+            response = update_request('/rest/v2/datasets/2', data2, format="json")
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-            data3 = self.client.get('/rest/datasets/3').data # draft
-            response = update_request('/rest/datasets/3', data3, format="json")
+            data3 = self.client.get('/rest/v2/datasets/3').data # draft
+            response = update_request('/rest/v2/datasets/3', data3, format="json")
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
             # test for multiple datasets
-            response = update_request('/rest/datasets', [data1, data2, data3], format="json")
+            response = update_request('/rest/v2/datasets', [data1, data2, data3], format="json")
             self.assertEqual(len(response.data['success']), 3, 'response.data should contain 3 changed objects')
             owners = [cr['object']['metadata_provider_user'] for cr in response.data['success']]
             self.assertEqual('#### Some owner who is not you ####' in owners, True, response.data)
@@ -330,21 +352,21 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         self.client._credentials = {}
 
         # Fetches a published dataset since unauthenticated user can't get drafts
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         data = response.data
 
         for http_verb in ['put', 'patch']:
             update_request = getattr(self.client, http_verb)
-            response = update_request('/rest/datasets/1', data, format="json") # published
+            response = update_request('/rest/v2/datasets/1', data, format="json") # published
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.status_code)
-            response = update_request('/rest/datasets/2', data, format="json") # draft
+            response = update_request('/rest/v2/datasets/2', data, format="json") # draft
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.status_code)
-            response = update_request('/rest/datasets/3', data, format="json") # draft
+            response = update_request('/rest/v2/datasets/3', data, format="json") # draft
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.status_code)
 
             # test for multiple datasets
-            response = update_request('/rest/datasets', data, format="json")
+            response = update_request('/rest/v2/datasets', data, format="json")
             self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.status_code)
 
     ###
@@ -358,19 +380,19 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         self._use_http_authorization(method='basic', username='metax')
 
         for cr_id in (2, 3):
-            response = self.client.delete('/rest/datasets/%d' % cr_id)
+            response = self.client.delete('/rest/v2/datasets/%d' % cr_id)
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-            self.assertFalse(CatalogRecord.objects_unfiltered.filter(pk=cr_id).exists())
+            self.assertFalse(CatalogRecordV2.objects_unfiltered.filter(pk=cr_id).exists())
 
     @responses.activate
     def test_draft_is_permanently_deleted_by_enduser(self):
         # Set end user
         self._use_http_authorization(method='bearer', token=self.token)
 
-        response = self.client.delete('/rest/datasets/2')
+        response = self.client.delete('/rest/v2/datasets/2')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-        self.assertFalse(CatalogRecord.objects_unfiltered.filter(pk=2).exists())
-        response = self.client.delete('/rest/datasets/3')
+        self.assertFalse(CatalogRecordV2.objects_unfiltered.filter(pk=2).exists())
+        response = self.client.delete('/rest/v2/datasets/3')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
 
     ###
@@ -382,7 +404,7 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         # test access as a service-user
         self._use_http_authorization(method='basic', username='metax')
 
-        response = self.client.post('/rest/datasets?draft', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
 
         pid = response.data['research_dataset']['preferred_identifier']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -392,7 +414,7 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         self.assertTrue(response.data['state'] == 'draft', response.data)
 
         for queryparam in ('', '?draft=false'):
-            response = self.client.post('/rest/datasets{}'.format(queryparam), self.cr_test_data, format="json")
+            response = self.client.post('/rest/v2/datasets{}'.format(queryparam), self.cr_test_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
             self.assertTrue(response.data['state'] == 'published', response.data)
 
@@ -408,7 +430,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
 
     def test_create_catalog_record(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'this_should_be_overwritten'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual('metadata_version_identifier' in response.data['research_dataset'], True,
@@ -425,14 +447,14 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             response.data['research_dataset']['metadata_version_identifier'],
             'preferred_identifier and metadata_version_identifier should be generated separately'
         )
-        cr = CatalogRecord.objects.get(pk=response.data['id'])
+        cr = CatalogRecordV2.objects.get(pk=response.data['id'])
         self.assertEqual(cr.date_created >= get_tz_aware_now_without_micros() - timedelta(seconds=5), True,
                          'Timestamp should have been updated during object creation')
 
     def test_create_catalog_record_as_harvester(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'this_should_be_saved'
         self.cr_test_data['data_catalog'] = 3
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(
             self.cr_test_data['research_dataset']['preferred_identifier'],
             response.data['research_dataset']['preferred_identifier'],
@@ -447,26 +469,26 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         """
 
         # dc 3 happens to be harvested catalog, which allows setting pref id
-        cr = CatalogRecord.objects.filter(data_catalog_id=3).first()
-        response = self.client.delete('/rest/datasets/%d' % cr.id)
+        cr = CatalogRecordV2.objects.filter(data_catalog_id=3).first()
+        response = self.client.delete('/rest/v2/datasets/%d' % cr.id)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         self.cr_test_data['research_dataset']['preferred_identifier'] = cr.preferred_identifier
         self.cr_test_data['data_catalog'] = 3
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('already exists' in response.data['research_dataset'][0], True, response.data)
 
     def test_create_catalog_contract_string_identifier(self):
         contract_identifier = Contract.objects.first().contract_json['identifier']
         self.cr_test_data['contract'] = contract_identifier
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['contract']['identifier'], contract_identifier, response.data)
 
     def test_create_catalog_error_contract_string_identifier_not_found(self):
         self.cr_test_data['contract'] = 'doesnotexist'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Should have raised 404 not found')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('contract' in response.data, True, 'Error should have been about contract not found')
@@ -476,7 +498,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         Ensure the json path of the error is returned along with other details
         """
         self.cr_test_data['research_dataset']["title"] = 1234456
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(response.data), 2, 'there should be two errors (error_identifier is one of them)')
         self.assertEqual('research_dataset' in response.data.keys(), True,
@@ -495,7 +517,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
                 {'@type': 'Person', 'xname': 'seppo'}
             ]
         }]
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(response.data), 2, 'there should be two errors (error_identifier is one of them)')
         self.assertEqual('research_dataset' in response.data.keys(), True,
@@ -504,25 +526,27 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual('was_associated_with' in response.data['research_dataset'][0], True, response.data)
 
     def test_create_catalog_record_allowed_projects_ok(self):
-        response = self.client.post('/rest/datasets?allowed_projects=project_x', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?allowed_projects=project_x', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_catalog_record_allowed_projects_fail(self):
         # dataset file not in allowed projects
-        response = self.client.post('/rest/datasets?allowed_projects=no,permission', self.cr_test_data, format="json")
+        response = self.client.post(
+            '/rest/v2/datasets?allowed_projects=no,permission', self.cr_test_data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
         # ensure list is properly handled (separated by comma, end result should be list)
-        response = self.client.post('/rest/datasets?allowed_projects=no_good_project_x,another',
+        response = self.client.post('/rest/v2/datasets?allowed_projects=no_good_project_x,another',
             self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
         # handle empty value
-        response = self.client.post('/rest/datasets?allowed_projects=', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?allowed_projects=', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
         # Other trickery
-        response = self.client.post('/rest/datasets?allowed_projects=,', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?allowed_projects=,', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     #
@@ -530,7 +554,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
 
     def test_create_catalog_record_list(self):
-        response = self.client.post('/rest/datasets',
+        response = self.client.post('/rest/v2/datasets',
                                     [self.cr_test_data, self.cr_test_data_new_identifier], format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual('success' in response.data.keys(), True)
@@ -541,7 +565,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
 
     def test_create_catalog_record_list_error_one_fails(self):
         self.cr_test_data['research_dataset']["title"] = 1234456
-        response = self.client.post('/rest/datasets',
+        response = self.client.post('/rest/v2/datasets',
             [self.cr_test_data, self.cr_test_data_new_identifier], format="json")
 
         """
@@ -581,7 +605,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.cr_test_data['data_catalog'] = None
         self.cr_test_data_new_identifier['data_catalog'] = None
 
-        response = self.client.post('/rest/datasets',
+        response = self.client.post('/rest/v2/datasets',
                                     [self.cr_test_data, self.cr_test_data_new_identifier], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('success' in response.data.keys(), True)
@@ -589,15 +613,6 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual('object' in response.data['failed'][0].keys(), True)
         self.assertEqual(len(response.data['success']), 0)
         self.assertEqual(len(response.data['failed']), 2)
-
-    def test_create_catalog_record_editor_field_is_optional(self):
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        new = response.data
-        new['research_dataset']['title']['en'] = 'updated title'
-        new.pop('editor')
-        response = self.client.put('/rest/datasets/%d' % new['id'], new, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_parameter_migration_override_preferred_identifier_when_creating(self):
         """
@@ -607,7 +622,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         """
         custom_pid = 'custom-pid-value'
         self.cr_test_data['research_dataset']['preferred_identifier'] = custom_pid
-        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?migration_override', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], custom_pid)
 
@@ -618,45 +633,45 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         can be passed.
         """
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
-        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?migration_override', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
 
         self.cr_test_data['research_dataset'].pop('preferred_identifier', None)
-        response = self.client.post('/rest/datasets?migration_override', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?migration_override', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertTrue(len(response.data['research_dataset']['preferred_identifier']) > 0)
 
     def test_create_catalog_record_using_pid_type(self):
         # Test with pid_type = urn
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
-        response = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?pid_type=urn', self.cr_test_data, format="json")
         self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
 
         # Test with pid_type = doi AND not ida catalog
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
-        response = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?pid_type=doi', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
         # Create ida data catalog
         dc = self._get_object_from_test_data('datacatalog', requested_index=0)
         dc_id = IDA_CATALOG
         dc['catalog_json']['identifier'] = dc_id
-        self.client.post('/rest/datacatalogs', dc, format="json")
+        self.client.post('/rest/v2/datacatalogs', dc, format="json")
         # Test with pid_type = doi AND ida catalog
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
         self.cr_test_data['data_catalog'] = IDA_CATALOG
-        response = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?pid_type=doi', self.cr_test_data, format="json")
         self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('doi:10.'))
 
         # Test with pid_type = not_known
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
-        response = self.client.post('/rest/datasets?pid_type=not_known', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?pid_type=not_known', self.cr_test_data, format="json")
         self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
 
         # Test without pid_type
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertTrue(response.data['research_dataset']['preferred_identifier'].startswith('urn:'))
 
 
@@ -680,13 +695,13 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         preferred_identifier can never be the same as a metadata_version_identifier in another cr, in any catalog.
         """
-        existing_metadata_version_identifier = CatalogRecord.objects.get(pk=1).metadata_version_identifier
+        existing_metadata_version_identifier = CatalogRecordV2.objects.get(pk=1).metadata_version_identifier
         self.cr_test_data['research_dataset']['preferred_identifier'] = existing_metadata_version_identifier
 
         # setting preferred_identifier is only allowed in harvested catalogs.
         self.cr_test_data['data_catalog'] = 3
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True,
                          'The error should be about an error in research_dataset')
@@ -704,12 +719,12 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'pid_by_harvester'
         self.cr_test_data['data_catalog'] = 3
-        cr_1 = self.client.post('/rest/datasets', self.cr_test_data, format="json").data
+        cr_1 = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json").data
 
         self.cr_test_data['research_dataset']['preferred_identifier'] = \
             cr_1['research_dataset']['preferred_identifier']
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True,
                          'The error should be about an error in research_dataset')
@@ -727,7 +742,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         # can exist in other catalogs)
         self.cr_test_data['data_catalog'] = 3
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     #
@@ -743,14 +758,14 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
 
-        cr = CatalogRecord.objects.get(pk=3)
+        cr = CatalogRecordV2.objects.get(pk=3)
         cr.data_catalog_id = 3
         cr.save()
 
-        data = self.client.get('/rest/datasets/3').data
+        data = self.client.get('/rest/v2/datasets/3').data
         data['research_dataset']['preferred_identifier'] = unique_identifier
 
-        response = self.client.patch('/rest/datasets/3', data, format="json")
+        response = self.client.patch('/rest/v2/datasets/3', data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_2(self):
@@ -766,11 +781,11 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         """
         unique_identifier = self._set_preferred_identifier_to_record(pk=1, catalog_id=1)
 
-        data = self.client.get('/rest/datasets/3').data
+        data = self.client.get('/rest/v2/datasets/3').data
         data['research_dataset']['preferred_identifier'] = unique_identifier
         data['data_catalog'] = 3
 
-        response = self.client.patch('/rest/datasets/3', data, format="json")
+        response = self.client.patch('/rest/v2/datasets/3', data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, data)
 
     def test_update_catalog_record_preferred_identifier_exists_in_another_catalog_3(self):
@@ -794,7 +809,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         data['research_dataset']['preferred_identifier'] = unique_identifier
         data['data_catalog'] = 3
 
-        response = self.client.patch('/rest/datasets/2', data, format="json")
+        response = self.client.patch('/rest/v2/datasets/2', data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True,
                          'The error should be about preferred_identifier already existing')
@@ -809,7 +824,7 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         which will then be used by the test to create or update another record.
         """
         unique_identifier = 'im unique yo'
-        cr = CatalogRecord.objects.get(pk=pk)
+        cr = CatalogRecordV2.objects.get(pk=pk)
         cr.research_dataset['preferred_identifier'] = unique_identifier
         cr.data_catalog_id = catalog_id
         cr.force_save()
@@ -826,9 +841,15 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
     #
     #
 
+    def _set_data_catalog_schema_to_harvester(self):
+        dc = DataCatalog.objects.get(pk=1)
+        dc.catalog_json['research_dataset_schema'] = 'harvester'
+        dc.save()
+
     def setUp(self):
-        super(CatalogRecordApiWriteDatasetSchemaSelection, self).setUp()
+        super().setUp()
         self._set_data_catalog_schema_to_harvester()
+        self.cr_test_data['research_dataset']['preferred_identifier'] = 'unique_pid'
 
     def test_catalog_record_with_not_found_json_schema_gets_default_schema(self):
         # catalog has dataset schema, but it is not found on the server
@@ -836,7 +857,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         dc.catalog_json['research_dataset_schema'] = 'nonexisting'
         dc.save()
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # catalog has no dataset schema at all
@@ -844,7 +865,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         dc.catalog_json.pop('research_dataset_schema')
         dc.save()
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_catalog_record_create_with_other_schema(self):
@@ -857,7 +878,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
             {'title': 'title'}
         ]
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         self.cr_test_data['research_dataset']['remote_resources'] = [
@@ -866,7 +887,7 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
             {'woah': 'this should give a failure, since title is a required field, and it is missing'}
         ]
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_catalog_record_ref_data_validation_with_other_schema(self):
@@ -883,18 +904,13 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
             }
         ]
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
             'uri.suomi.fi' in response.data['research_dataset']['other_identifier'][0]['type']['identifier'],
             True,
             'Identifier type should have been populated with data from ref data'
         )
-
-    def _set_data_catalog_schema_to_harvester(self):
-        dc = DataCatalog.objects.get(pk=1)
-        dc.catalog_json['research_dataset_schema'] = 'harvester'
-        dc.save()
 
 
 class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
@@ -905,19 +921,19 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
     #
 
     def test_update_catalog_record(self):
-        cr = self.client.get('/rest/datasets/1').data
+        cr = self.client.get('/rest/v2/datasets/1').data
         cr['preservation_description'] = 'what'
 
-        response = self.client.put('/rest/datasets/1', cr, format="json")
+        response = self.client.put('/rest/v2/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['preservation_description'], 'what')
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         self.assertEqual(cr.date_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5), True,
                          'Timestamp should have been updated during object update')
 
     def test_update_catalog_record_error_using_preferred_identifier(self):
-        cr = self.client.get('/rest/datasets/1').data
-        response = self.client.put('/rest/datasets/%s' % cr['research_dataset']['preferred_identifier'],
+        cr = self.client.get('/rest/v2/datasets/1').data
+        response = self.client.put('/rest/v2/datasets/%s' % cr['research_dataset']['preferred_identifier'],
                                    { 'whatever': 123 }, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND,
                          'Update operation should return 404 when using preferred_identifier')
@@ -927,78 +943,61 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         Field 'research_dataset' is missing, which should result in an error, since PUT
         replaces an object and requires all 'required' fields to be present.
         """
-        cr = self.client.get('/rest/datasets/1').data
+        cr = self.client.get('/rest/v2/datasets/1').data
         cr.pop('research_dataset')
-        response = self.client.put('/rest/datasets/1', cr, format="json")
+        response = self.client.put('/rest/v2/datasets/1', cr, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True,
                          'Error for field \'research_dataset\' is missing from response.data')
 
     def test_update_catalog_record_not_found(self):
-        response = self.client.put('/rest/datasets/doesnotexist', self.cr_test_data, format="json")
+        response = self.client.put('/rest/v2/datasets/doesnotexist', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_catalog_record_contract(self):
         # take any cr that has a contract set
-        cr = CatalogRecord.objects.filter(contract_id__isnull=False).first()
+        cr = CatalogRecordV2.objects.filter(contract_id__isnull=False).first()
         old_contract_id = cr.contract.id
 
         # update contract to any different contract
-        cr_1 = self.client.get('/rest/datasets/%d' % cr.id).data
+        cr_1 = self.client.get('/rest/v2/datasets/%d' % cr.id).data
         cr_1['contract'] = Contract.objects.all().exclude(pk=old_contract_id).first().id
 
-        response = self.client.put('/rest/datasets/%d' % cr.id, cr_1, format="json")
+        response = self.client.put('/rest/v2/datasets/%d' % cr.id, cr_1, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        new_contract_id = CatalogRecord.objects.get(pk=cr.id).contract.id
+        new_contract_id = CatalogRecordV2.objects.get(pk=cr.id).contract.id
         self.assertNotEqual(old_contract_id, new_contract_id, 'Contract should have changed')
-
-    def test_catalog_record_update_allowed_projects_ok(self):
-        cr_11 = self.client.get('/rest/datasets/11').data
-        cr_11['preservation_state'] = 0
-        cr_11_dir_len = len(cr_11['research_dataset']['directories'])
-        cr_11['research_dataset']['directories'].pop(1)
-
-        response = self.client.put('/rest/datasets/11?allowed_projects=project_x', cr_11, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data['research_dataset']['directories']), cr_11_dir_len - 1)
-
-    def test_catalog_record_update_allowed_projects_fail(self):
-        cr_1 = self.client.get('/rest/datasets/1').data
-        cr_1['research_dataset']['files'].pop(0)
-
-        response = self.client.put('/rest/datasets/1?allowed_projects=no,projects', cr_1, format="json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     #
     # update list operations PUT
     #
 
     def test_catalog_record_update_list(self):
-        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1 = self.client.get('/rest/v2/datasets/1').data
         cr_1['preservation_description'] = 'updated description'
 
-        cr_2 = self.client.get('/rest/datasets/2').data
+        cr_2 = self.client.get('/rest/v2/datasets/2').data
         cr_2['preservation_description'] = 'second updated description'
 
-        response = self.client.put('/rest/datasets', [ cr_1, cr_2 ], format="json")
+        response = self.client.put('/rest/v2/datasets', [ cr_1, cr_2 ], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['success']), 2)
 
-        updated_cr = CatalogRecord.objects.get(pk=1)
+        updated_cr = CatalogRecordV2.objects.get(pk=1)
         self.assertEqual(updated_cr.preservation_description, 'updated description')
-        updated_cr = CatalogRecord.objects.get(pk=2)
+        updated_cr = CatalogRecordV2.objects.get(pk=2)
         self.assertEqual(updated_cr.preservation_description, 'second updated description')
 
     def test_catalog_record_update_list_error_one_fails(self):
-        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1 = self.client.get('/rest/v2/datasets/1').data
         cr_1['preservation_description'] = 'updated description'
 
         # data catalog is a required field, should therefore fail
-        cr_2 = self.client.get('/rest/datasets/2').data
+        cr_2 = self.client.get('/rest/v2/datasets/2').data
         cr_2.pop('data_catalog', None)
 
-        response = self.client.put('/rest/datasets', [ cr_1, cr_2 ], format="json")
+        response = self.client.put('/rest/v2/datasets', [ cr_1, cr_2 ], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
@@ -1007,20 +1006,20 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data['success']), 1)
         self.assertEqual(len(response.data['failed']), 1)
 
-        updated_cr = CatalogRecord.objects.get(pk=1)
+        updated_cr = CatalogRecordV2.objects.get(pk=1)
         self.assertEqual(updated_cr.preservation_description, 'updated description')
 
     def test_catalog_record_update_list_error_key_not_found(self):
         # does not have identifier key
-        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1 = self.client.get('/rest/v2/datasets/1').data
         cr_1.pop('id')
         cr_1.pop('identifier')
         cr_1['research_dataset'].pop('metadata_version_identifier')
 
-        cr_2 = self.client.get('/rest/datasets/2').data
+        cr_2 = self.client.get('/rest/v2/datasets/2').data
         cr_2['preservation_description'] = 'second updated description'
 
-        response = self.client.put('/rest/datasets', [ cr_1, cr_2 ], format="json")
+        response = self.client.put('/rest/v2/datasets', [ cr_1, cr_2 ], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
@@ -1033,50 +1032,33 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         initial_deprecated = True
         self.cr_test_data['deprecated'] = initial_deprecated
         self.cr_test_data['date_deprecated'] = '2018-01-01T00:00:00'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.data['deprecated'], False)
         self.assertTrue('date_deprecated' not in response.data)
 
-        response_json = self.client.get('/rest/datasets/1').data
+        response_json = self.client.get('/rest/v2/datasets/1').data
         initial_deprecated = response_json['deprecated']
         response_json['deprecated'] = not initial_deprecated
         response_json['date_deprecated'] = '2018-01-01T00:00:00'
-        response = self.client.put('/rest/datasets/1', response_json, format="json")
+        response = self.client.put('/rest/v2/datasets/1', response_json, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['deprecated'], initial_deprecated)
         self.assertTrue('date_deprecated' not in response.data)
 
-        initial_deprecated = self.client.get('/rest/datasets/1').data['deprecated']
-        response = self.client.patch('/rest/datasets/1', { 'deprecated': not initial_deprecated }, format="json")
+        initial_deprecated = self.client.get('/rest/v2/datasets/1').data['deprecated']
+        response = self.client.patch('/rest/v2/datasets/1', { 'deprecated': not initial_deprecated }, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['deprecated'], initial_deprecated)
         self.assertTrue('date_deprecated' not in response.data)
-
-    def test_catalog_record_date_deprecated_and_date_deprecated_lifecycle(self):
-        # if dataset is deprecated, fixing dataset creates new version
-        ds = CatalogRecord.objects.filter(files__id=1)
-        ds_id = ds[0].identifier
-
-        response = self.client.delete('/rest/files/1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        response = self.client.get('/rest/datasets/%s' % ds_id)
-        cr = response.data
-        self.assertTrue(cr['deprecated'])
-        self.assertTrue(cr['date_deprecated'].startswith('2'))
-
-        response = self.client.post('/rpc/datasets/fix_deprecated?identifier=%s' % ds_id, cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(CatalogRecord.objects.get(identifier=ds_id).next_dataset_version.deprecated, False)
 
     def test_catalog_record_deprecation_updates_date_modified(self):
-        cr = CatalogRecord.objects.filter(files__id=1)
+        cr = CatalogRecordV2.objects.filter(files__id=1)
         cr_id = cr[0].identifier
 
-        response = self.client.delete('/rest/files/1')
+        response = self.client.delete('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        cr_depr = CatalogRecord.objects.get(identifier=cr_id)
+        cr_depr = CatalogRecordV2.objects.get(identifier=cr_id)
         self.assertTrue(cr_depr.deprecated)
         self.assertEqual(cr_depr.date_modified, cr_depr.date_deprecated, 'date_modified should be updated')
 
@@ -1093,7 +1075,7 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         new_data = {
             "data_catalog": new_data_catalog,
         }
-        response = self.client.patch('/rest/datasets/%s' % self.identifier, new_data, format="json")
+        response = self.client.patch('/rest/v2/datasets/%s' % self.identifier, new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True, 'PATCH operation should return full content')
@@ -1112,14 +1094,14 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         second_test_data['id'] = 2
         second_test_data['preservation_description'] = 'description 2'
 
-        response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
+        response = self.client.patch('/rest/v2/datasets', [test_data, second_test_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data, True, 'response.data should contain list of changed objects')
         self.assertEqual(len(response.data), 2, 'response.data should contain 2 changed objects')
         self.assertEqual('research_dataset' in response.data['success'][0]['object'], True,
                          'response.data should contain full objects')
 
-        updated_cr = CatalogRecord.objects.get(pk=1)
+        updated_cr = CatalogRecordV2.objects.get(pk=1)
         self.assertEqual(updated_cr.preservation_description, 'description')
 
     def test_catalog_record_partial_update_list_error_one_fails(self):
@@ -1131,7 +1113,7 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         second_test_data['preservation_state'] = 555  # value not allowed
         second_test_data['id'] = 2
 
-        response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
+        response = self.client.patch('/rest/v2/datasets', [test_data, second_test_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
@@ -1149,7 +1131,7 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
         second_test_data['id'] = 2
         second_test_data['preservation_state'] = 20
 
-        response = self.client.patch('/rest/datasets', [test_data, second_test_data], format="json")
+        response = self.client.patch('/rest/v2/datasets', [test_data, second_test_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
@@ -1170,22 +1152,22 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
     #
 
     def test_delete_catalog_record(self):
-        url = '/rest/datasets/%s' % self.identifier
+        url = '/rest/v2/datasets/%s' % self.identifier
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         try:
-            deleted_catalog_record = CatalogRecord.objects.get(identifier=self.identifier)
+            deleted_catalog_record = CatalogRecordV2.objects.get(identifier=self.identifier)
             raise Exception('Deleted CatalogRecord should not be retrievable from the default objects table')
-        except CatalogRecord.DoesNotExist:
+        except CatalogRecordV2.DoesNotExist:
             # successful test should go here, instead of raising the expection in try: block
             pass
 
         try:
-            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(identifier=self.identifier)
-        except CatalogRecord.DoesNotExist:
+            deleted_catalog_record = CatalogRecordV2.objects_unfiltered.get(identifier=self.identifier)
+        except CatalogRecordV2.DoesNotExist:
             raise Exception('Deleted CatalogRecord should not be deleted from the db, but marked as removed')
 
         self.assertEqual(deleted_catalog_record.removed, True)
@@ -1194,7 +1176,7 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
                         'date_modified should be updated')
 
     def test_delete_catalog_record_error_using_preferred_identifier(self):
-        url = '/rest/datasets/%s' % self.preferred_identifier
+        url = '/rest/v2/datasets/%s' % self.preferred_identifier
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -1210,12 +1192,12 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         Helper method to create a pas dataset by updating the given dataset's
         preservation_state to 80.
         """
-        cr_data = self.client.get('/rest/datasets/%d' % id, format="json").data
+        cr_data = self.client.get('/rest/v2/datasets/%d' % id, format="json").data
         self.assertEqual(cr_data['preservation_state'], 0)
 
         # update state to "accepted to pas" -> should create pas version
         cr_data['preservation_state'] = 80
-        response = self.client.put('/rest/datasets/%d' % id, cr_data, format="json")
+        response = self.client.put('/rest/v2/datasets/%d' % id, cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         return response.data
 
@@ -1233,12 +1215,12 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         )
 
     def test_update_catalog_record_pas_state_allowed_value(self):
-        cr = self.client.get('/rest/datasets/1').data
+        cr = self.client.get('/rest/v2/datasets/1').data
         cr['preservation_state'] = 30
-        response = self.client.put('/rest/datasets/1', cr, format="json")
+        response = self.client.put('/rest/v2/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         self.assertEqual(cr.preservation_state_modified >= get_tz_aware_now_without_micros() - timedelta(seconds=5),
                          True, 'Timestamp should have been updated during object update')
 
@@ -1247,7 +1229,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         When dataset metadata is updated, and preservation_state in (40, 50, 70), metax should
         automatically update preservation_state value to 60 ("validated metadata updated").
         """
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
 
         for i, preservation_state_value in enumerate((40, 50, 70)):
             # set testing initial condition...
@@ -1255,12 +1237,12 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
             cr.save()
 
             # retrieve record and ensure testing state was set correctly...
-            cr_data = self.client.get('/rest/datasets/1', format="json").data
+            cr_data = self.client.get('/rest/v2/datasets/1', format="json").data
             self.assertEqual(cr_data['preservation_state'], preservation_state_value)
 
             # strike and verify
             cr_data['research_dataset']['title']['en'] = 'Metadata has been updated on loop %d' % i
-            response = self.client.put('/rest/datasets/1', cr_data, format="json")
+            response = self.client.put('/rest/v2/datasets/1', cr_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assertEqual(response.data['preservation_state'], 60)
 
@@ -1268,18 +1250,21 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         """
         When preservation_state > 0, changing associated files of a dataset should not be allowed.
         """
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         cr.preservation_state = 10
         cr.save()
-        cr_data = self.client.get('/rest/datasets/1', format="json").data
-        cr_data['research_dataset']['files'].pop(0)
-        response = self.client.put('/rest/datasets/1', cr_data, format="json")
+
+        file_changes = {
+            'files': [{ 'identifier': 'pid:urn:3' }]
+        }
+
+        response = self.client.post('/rest/v2/datasets/1/files', file_changes, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('PAS process' in response.data['detail'][0], True, response.data)
+        self.assertEqual('Changing files of a published' in response.data['detail'][0], True, response.data)
 
     def test_non_pas_dataset_unallowed_preservation_state_values(self):
         # update non-pas dataset
-        cr = self.client.get('/rest/datasets/1').data
+        cr = self.client.get('/rest/v2/datasets/1').data
 
         values = [
             11, # not one of known values
@@ -1288,15 +1273,15 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
 
         for invalid_value in values:
             cr['preservation_state'] = invalid_value
-            response = self.client.put('/rest/datasets/1', cr, format="json")
+            response = self.client.put('/rest/v2/datasets/1', cr, format="json")
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_pas_dataset_unallowed_preservation_state_values(self):
         # create pas dataset and update with invalid values
-        cr = self.client.get('/rest/datasets/1').data
+        cr = self.client.get('/rest/v2/datasets/1').data
         cr['preservation_state'] = 80
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        cr = self.client.get('/rest/datasets/%d' % response.data['preservation_dataset_version']['id']).data
+        response = self.client.put('/rest/v2/datasets/1', cr, format="json")
+        cr = self.client.get('/rest/v2/datasets/%d' % response.data['preservation_dataset_version']['id']).data
 
         values = [
             70,  # value not allowed for non-pas datasets
@@ -1306,7 +1291,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
 
         for invalid_value in values:
             cr['preservation_state'] = invalid_value
-            response = self.client.put('/rest/datasets/1', cr, format="json")
+            response = self.client.put('/rest/v2/datasets/1', cr, format="json")
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_pas_version_is_created_on_preservation_state_80(self):
@@ -1314,7 +1299,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         When preservation_state is updated to 'accepted to pas', a copy should be created into
         designated PAS catalog.
         """
-        cr_data = self.client.get('/rest/datasets/1', format="json").data
+        cr_data = self.client.get('/rest/v2/datasets/1', format="json").data
         self.assertEqual(cr_data['preservation_state'], 0)
 
         origin_dataset = self._create_pas_dataset_from_id(1)
@@ -1327,7 +1312,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
 
         # get pas version and verify links and other signature values are there
         pas_dataset = self.client.get(
-            '/rest/datasets/%d' % origin_dataset['preservation_dataset_version']['id'], format="json"
+            '/rest/v2/datasets/%d' % origin_dataset['preservation_dataset_version']['id'], format="json"
         ).data
         self.assertEqual(pas_dataset['data_catalog']['identifier'], django_settings.PAS_DATA_CATALOG_IDENTIFIER)
         self.assertEqual(pas_dataset['preservation_state'], 80)
@@ -1341,8 +1326,16 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(pas_dataset['research_dataset']['other_identifier'][0]['notation'].startswith('urn'), True)
 
         # when pas copy is created, origin_dataset preservation_state should have been set back to 0
-        cr_data = self.client.get('/rest/datasets/1', format="json").data
+        cr_data = self.client.get('/rest/v2/datasets/1', format="json").data
         self.assertEqual(cr_data['preservation_state'], 0)
+
+        # ensure files match between original and pas cr
+        cr = CatalogRecordV2.objects.get(pk=1)
+        cr_files = cr.files.filter().order_by('id').values_list('id', flat=True)
+        cr_pas_files = cr.preservation_dataset_version.files.filter().order_by('id').values_list('id', flat=True)
+
+        # note: trying to assert querysets will result in failure. must evaluate the querysets first by iterating them
+        self.assertEqual([f for f in cr_files], [f for f in cr_pas_files])
 
     def test_origin_dataset_cant_have_multiple_pas_versions(self):
         """
@@ -1352,7 +1345,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         self._create_pas_dataset_from_id(1)
 
         cr_data = { 'preservation_state': 80 }
-        response = self.client.patch('/rest/datasets/1', cr_data, format="json")
+        response = self.client.patch('/rest/v2/datasets/1', cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('already has a PAS version' in response.data['detail'][0], True, response.data)
 
@@ -1362,7 +1355,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         rules about changing preservation_state value.
         """
         self.cr_test_data['data_catalog'] = django_settings.PAS_DATA_CATALOG_IDENTIFIER
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(
             response.data['research_dataset']['preferred_identifier'].startswith('doi'),
@@ -1372,74 +1365,15 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
 
         # when created directly into pas catalog, preservation_state can be updated
         # to whatever, whenever
-        ps_values = [ v[0] for v in CatalogRecord.PRESERVATION_STATE_CHOICES ]
+        ps_values = [ v[0] for v in CatalogRecordV2.PRESERVATION_STATE_CHOICES ]
         for ps in ps_values:
             cr_data = { 'preservation_state': ps }
-            response = self.client.patch('/rest/datasets/%d' % response.data['id'], cr_data, format="json")
+            response = self.client.patch('/rest/v2/datasets/%d' % response.data['id'], cr_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         cr_data = { 'preservation_state': 0 }
-        response = self.client.patch('/rest/datasets/%d' % response.data['id'], cr_data, format="json")
+        response = self.client.patch('/rest/v2/datasets/%d' % response.data['id'], cr_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-    def test_dataset_files_can_not_be_changed_in_pas_catalog(self):
-        """
-        PAS catalog does not support versioning, but it also should not permit altering
-        files, which could result in the dataset being different from the origin dataset.
-        """
-        cr = self._create_pas_dataset_from_id(1)
-
-        pas_dataset = self.client.get(
-            '/rest/datasets/%d' % cr['preservation_dataset_version']['id'], format="json"
-        ).data
-        pas_dataset['research_dataset']['files'].pop(0)
-
-        response = self.client.put('/rest/datasets/%d' % pas_dataset['id'], pas_dataset, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('Cannot change files in' in response.data['detail'][0], True)
-
-    def test_pas_dataset_files_equal_origin_dataset(self):
-        """
-        Ensure set of files in original and pas datasets match exactly, even if more files have
-        been frozen in between.
-        """
-        test_file = self._get_object_from_test_data('file', requested_index=0)
-
-        response = self.client.get(
-            '/rest/directories/files?project=%s&path=/' % test_file['project_identifier'], format="json")
-
-        dir_identifier = response.data['directories'][0]['identifier']
-
-        # create dataset where directory along with all of its files are included
-        cr_data = self.client.get('/rest/datasets/1', format="json").data
-        cr_data['research_dataset']['directories'] = [{
-            'identifier': dir_identifier,
-            'use_category': { 'identifier': 'documentation' }
-        }]
-
-        response = self.client.put('/rest/datasets/1', cr_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        cr_id = response.data['next_dataset_version']['id']
-
-        # now freeze more files into same directory
-        test_file.update({
-            'file_name': '%s_new' % test_file['file_name'],
-            'file_path': '%s_new' % test_file['file_path'],
-            'identifier': '%s_new' % test_file['identifier'],
-        })
-        response = self.client.post('/rest/files', test_file, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        # more files have been frozen in the directory, but pas dataset should not have the new frozen file,
-        # since it is not part of the origin dataset either.
-        self._create_pas_dataset_from_id(cr_id)
-
-        cr = CatalogRecord.objects.get(pk=cr_id)
-        cr_files = cr.files.filter().order_by('id').values_list('id', flat=True)
-        cr_pas_files = cr.preservation_dataset_version.files.filter().order_by('id').values_list('id', flat=True)
-
-        # note: trying to assert querysets will result in failure. must evaluate the querysets first by iterating them
-        self.assertEqual([f for f in cr_files], [f for f in cr_pas_files])
 
     def test_unfreezing_files_does_not_deprecate_pas_dataset(self):
         """
@@ -1448,10 +1382,10 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         been stored in PAS.
         """
         cr = self._create_pas_dataset_from_id(1)
-        response = self.client.delete('/rest/files/1', format="json")
+        response = self.client.delete('/rest/v2/files/1', format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        response = self.client.get('/rest/datasets/%d' % cr['preservation_dataset_version']['id'], format="json")
+        response = self.client.get('/rest/v2/datasets/%d' % cr['preservation_dataset_version']['id'], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['deprecated'], False)
 
@@ -1479,7 +1413,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
             'identifier': 'not found!',
             # no name!
         }]
-        response = self.client.post('/rest/datasets', cr, format="json")
+        response = self.client.post('/rest/v2/datasets', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # a more complex case. ensure organizations are found from deep structures
@@ -1488,12 +1422,12 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         del org['name'] # should cause the error
         org['@type'] = 'Organization'
         org['identifier'] = 'not found!'
-        response = self.client.post('/rest/datasets', cr, format="json")
+        response = self.client.post('/rest/v2/datasets', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # try again. should be ok
         org['identifier'] = 'http://uri.suomi.fi/codelist/fairdata/organization/code/10076'
-        response = self.client.post('/rest/datasets', cr, format="json")
+        response = self.client.post('/rest/v2/datasets', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_catalog_record_reference_data_missing_ok(self):
@@ -1505,7 +1439,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(cache.get('reference_data', master=True), None,
                          'cache ref data should be missing after cache.delete()')
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_missing_license_identifier_ok(self):
@@ -1517,7 +1451,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['access_rights']['license'] = [{
             'license': "http://a.very.nice.custom/url"
         }]
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(len(response.data['research_dataset']['access_rights']['license'][0]), 1, response.data)
 
@@ -1534,7 +1468,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
                 'en': "Proof that also remote licenses can be used with custom urls."
             }
         }]
-        response = self.client.post('/rest/datasets', self.cr_full_att_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_full_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(len(response.data['research_dataset']['access_rights']['license'][0]), 2, response.data)
         self.assertEqual(len(response.data['research_dataset']['remote_resources'][0]['license'][0]), 2, response.data)
@@ -1560,7 +1494,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['provenance'][0]['lifecycle_event']['identifier'] = 'nonexisting'
         rd_ida['provenance'][1]['preservation_event']['identifier'] = 'nonexisting'
         rd_ida['provenance'][0]['event_outcome']['identifier'] = 'nonexisting'
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(len(response.data['research_dataset']), 19)
@@ -1569,7 +1503,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_att['remote_resources'][0]['license'][0]['identifier'] = 'nonexisting'
         rd_att['remote_resources'][1]['resource_type']['identifier'] = 'nonexisting'
         rd_att['remote_resources'][0]['use_category']['identifier'] = 'nonexisting'
-        response = self.client.post('/rest/datasets', self.cr_full_att_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_full_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('research_dataset' in response.data.keys(), True)
         self.assertEqual(len(response.data['research_dataset']), 3)
@@ -1671,7 +1605,9 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_ida['spatial'][1]['as_wkt'] = []
         rd_ida['spatial'][1]['place_uri']['identifier'] = refs['location']['code']
 
-        response = self.client.post('/rest/datasets', self.cr_full_ida_test_data, format="json")
+        response = self.client.post(
+            '/rest/v2/datasets?include_user_metadata', self.cr_full_ida_test_data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True)
 
@@ -1693,7 +1629,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         rd_att['remote_resources'][0]['license'][0] = {'identifier': refs['license']['code']}
 
         # Assert remote resources related reference datas
-        response = self.client.post('/rest/datasets', self.cr_full_att_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_full_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('research_dataset' in response.data.keys(), True)
         new_rd_att = response.data['research_dataset']
@@ -1817,7 +1753,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
     def test_refdata_sub_org_main_org_population(self):
         # Test parent org gets populated when sub org is from ref data and user has not provided is_part_of relation
         self.cr_test_data['research_dataset']['publisher'] = {'@type': 'Organization', 'identifier': '10076-A800'}
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('is_part_of' in response.data['research_dataset']['publisher'], True)
@@ -1834,7 +1770,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
                 'identifier': 'test_id',
                 'name': {'und': 'test_name'}
             }}
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('is_part_of' in response.data['research_dataset']['publisher'], True)
@@ -1843,7 +1779,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
 
         # Test nothing happens when org is a parent org
         self.cr_test_data['research_dataset']['publisher'] = {'@type': 'Organization', 'identifier': '10076'}
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('is_part_of' not in response.data['research_dataset']['publisher'], True)
@@ -1875,16 +1811,16 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         # new record is saved to catalog 3, which does not support versioning
         self.cr_test_data['data_catalog'] = 3
 
-        existing_records_count = CatalogRecord.objects.filter(
+        existing_records_count = CatalogRecordV2.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier}).count()
         self.assertEqual(existing_records_count, 1,
                          'in the beginning, there should be only one record with pref id %s'
                          % self.preferred_identifier)
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        records = CatalogRecord.objects.filter(
+        records = CatalogRecordV2.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier})
         self.assertEqual(len(records), 2,
                          'after, there should be two records with pref id %s' % self.preferred_identifier)
@@ -1911,15 +1847,15 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         self._set_preferred_identifier_to_record(pk=2, data_catalog=2)
         self.cr_test_data['data_catalog'] = 3
 
-        existing_records_count = CatalogRecord.objects.filter(
+        existing_records_count = CatalogRecordV2.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier}).count()
         self.assertEqual(existing_records_count, 2,
             'in the beginning, there should be two records with pref id %s' % self.preferred_identifier)
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        records = CatalogRecord.objects.filter(
+        records = CatalogRecordV2.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier})
         self.assertEqual(len(records), 3,
             'after, there should be three records with pref id %s' % self.preferred_identifier)
@@ -1950,11 +1886,11 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         # initial conditions will have 3 records in the same set.
         self._set_and_ensure_initial_conditions()
 
-        response = self.client.delete('/rest/datasets/2', format="json")
+        response = self.client.delete('/rest/v2/datasets/2', format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # check resulting conditions
-        records = CatalogRecord.objects.filter(
+        records = CatalogRecordV2.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier})
         self.assertEqual(records[0].alternate_record_set.records.count(), 2)
 
@@ -1972,18 +1908,18 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         self._set_preferred_identifier_to_record(pk=2, data_catalog=3)
 
         # save for later checking
-        old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
+        old_ars_id = CatalogRecordV2.objects.get(pk=2).alternate_record_set.id
 
         # retrieve record id=2, and change its preferred identifier
-        response = self.client.get('/rest/datasets/2', format="json")
+        response = self.client.get('/rest/v2/datasets/2', format="json")
         data = {'research_dataset': response.data['research_dataset']}
         data['research_dataset']['preferred_identifier'] = 'a:new:identifier:here'
 
         # updating preferred_identifier - a new version is NOT created
-        response = self.client.patch('/rest/datasets/2', data=data, format="json")
+        response = self.client.patch('/rest/v2/datasets/2', data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        records = CatalogRecord.objects.filter(
+        records = CatalogRecordV2.objects.filter(
             research_dataset__contains={'preferred_identifier': original_preferred_identifier })
         self.assertEqual(records.count(), 1)
 
@@ -1997,12 +1933,12 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         End result for the alternate_record_set should be the same (it gets deleted).
         """
         self._set_preferred_identifier_to_record(pk=2, data_catalog=2)
-        old_ars_id = CatalogRecord.objects.get(pk=2).alternate_record_set.id
+        old_ars_id = CatalogRecordV2.objects.get(pk=2).alternate_record_set.id
 
-        response = self.client.delete('/rest/datasets/2', format="json")
+        response = self.client.delete('/rest/v2/datasets/2', format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        records = CatalogRecord.objects.filter(
+        records = CatalogRecordV2.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier})
         self.assertEqual(records.count(), 1, 'should be only record with this identifier left now')
 
@@ -2017,8 +1953,8 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         self.cr_test_data['data_catalog'] = 3
         msg_self_should_not_be_listed = 'identifier of the record itself should not be listed'
 
-        response_1 = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        response_2 = self.client.get('/rest/datasets/1', format="json")
+        response_1 = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        response_2 = self.client.get('/rest/v2/datasets/1', format="json")
         self.assertEqual(response_1.status_code, status.HTTP_201_CREATED)
         self.assertEqual('alternate_record_set' in response_1.data, True)
         self.assertEqual(
@@ -2034,7 +1970,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         )
 
         self.cr_test_data.update({'data_catalog': 4})
-        response_3 = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response_3 = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response_3.status_code, status.HTTP_201_CREATED)
         self.assertEqual('alternate_record_set' in response_3.data, True)
         self.assertEqual(
@@ -2054,7 +1990,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
             msg_self_should_not_be_listed
         )
 
-        response_2 = self.client.get('/rest/datasets/1', format="json")
+        response_2 = self.client.get('/rest/v2/datasets/1', format="json")
         self.assertEqual('alternate_record_set' in response_2.data, True)
         self.assertEqual(
             response_1.data['identifier']
@@ -2082,7 +2018,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         alternate_record_set (by calling _handle_preferred_identifier_changed()).
         """
         unique_identifier = 'im unique yo'
-        cr = CatalogRecord.objects.get(pk=pk)
+        cr = CatalogRecordV2.objects.get(pk=pk)
         cr.research_dataset['preferred_identifier'] = unique_identifier
         cr.data_catalog_id = data_catalog
         cr.force_save()
@@ -2100,7 +2036,7 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         self._set_preferred_identifier_to_record(pk=3, data_catalog=4)
 
         # ensuring initial conditions...
-        records = CatalogRecord.objects.filter(
+        records = CatalogRecordV2.objects.filter(
             research_dataset__contains={'preferred_identifier': self.preferred_identifier})
         self.assertEqual(len(records), 3,
             'in the beginning, there should be three records with pref id %s' % self.preferred_identifier)
@@ -2108,90 +2044,6 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
         self.assertEqual(records[0].alternate_record_set.id, ars_id)
         self.assertEqual(records[1].alternate_record_set.id, ars_id)
         self.assertEqual(records[2].alternate_record_set.id, ars_id)
-
-
-class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
-
-    """
-    Test dataset versioning when updating datasets which belong to a data catalog that
-    has dataset_versioning=True.
-
-    Catalogs 1-2 should have dataset_versioning=True, while the rest should not.
-    """
-
-    def test_update_from_0_to_n_files_does_not_create_new_version(self):
-        """
-        The FIRST update from 0 to n files in a dataset should be permitted
-        without creating a new dataset version.
-        """
-        data = self.client.get('/rest/datasets/1', format="json").data
-        data.pop('id')
-        data.pop('identifier')
-        data['research_dataset'].pop('preferred_identifier', None)
-        files = data['research_dataset'].pop('files', None)
-        data['research_dataset'].pop('directories', None)
-        self.assertEqual(isinstance(files, list), True)
-
-        # create test record
-        response = self.client.post('/rest/datasets', data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        # modify a few times to create metadata versions
-        data = response.data
-        data['research_dataset']['title']['en'] = 'updated'
-        data = self.client.put('/rest/datasets/%d' % data['id'], data, format="json").data
-        data['research_dataset']['title']['en'] = 'updated again'
-        data = self.client.put('/rest/datasets/%d' % data['id'], data, format="json").data
-
-        response = self.client.get('/rest/datasets', format="json")
-        dataset_count_beginning = response.data['count']
-
-        # add files for the first time - should not create a new dataset version
-        data['research_dataset']['files'] = files
-        response = self.client.put('/rest/datasets/%d' % data['id'], data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual('new_version_created' in response.data, False)
-
-        # ensure no "ghost datasets" are created as residue
-        response = self.client.get('/rest/datasets', format="json")
-        self.assertEqual(response.data['count'], dataset_count_beginning, 'no new datasets should be created')
-
-        # remove files again... a new version is created normally
-        files = data['research_dataset'].pop('files')
-        response = self.client.put('/rest/datasets/%d' % data['id'], data, format="json")
-        new_version = self.get_next_version(response.data)
-
-        response = self.client.get('/rest/datasets', format="json")
-        self.assertEqual(response.data['count'], dataset_count_beginning + 1)
-
-        # ...and put the files back. this is another 0->n files update. this time
-        # should normally create new dataset version.
-        new_version['research_dataset']['files'] = files
-        response = self.client.put('/rest/datasets/%d' % new_version['id'], new_version, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual('new_version_created' in response.data, True)
-
-        response = self.client.get('/rest/datasets', format="json")
-        self.assertEqual(response.data['count'], dataset_count_beginning + 2)
-
-    def test_update_to_non_versioning_catalog_does_not_create_version(self):
-        self._set_cr_to_catalog(pk=self.pk, dc=3)
-        response = self._get_and_update_title(self.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self._assert_metadata_version_count(response.data, 0)
-
-    def test_update_to_versioning_catalog_with_preserve_version_parameter_does_not_create_version(self):
-        self._set_cr_to_catalog(pk=self.pk, dc=1)
-        response = self._get_and_update_title(self.pk, params='?preserve_version')
-        self._assert_metadata_version_count(response.data, 0)
-
-    def test_preserve_version_parameter_does_not_allow_file_changes(self):
-        self._set_cr_to_catalog(pk=self.pk, dc=1)
-        data = self.client.get('/rest/datasets/%d' % self.pk, format="json").data
-        data['research_dataset']['files'][0]['identifier'] = 'pid:urn:11'
-        response = self.client.put('/rest/datasets/%d?preserve_version' % self.pk, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('not supported' in response.data['detail'][0], True, response.data)
 
     def test_update_rd_title_creates_new_metadata_version(self):
         """
@@ -2202,9 +2054,9 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         self._assert_metadata_version_count(response_1.data, 2)
 
         # get list of metadata versions to access contents...
-        response = self.client.get('/rest/datasets/%d/metadata_versions' % response_1.data['id'], format="json")
+        response = self.client.get('/rest/v2/datasets/%d/metadata_versions' % response_1.data['id'], format="json")
 
-        response_2 = self.client.get('/rest/datasets/%d/metadata_versions/%s' %
+        response_2 = self.client.get('/rest/v2/datasets/%d/metadata_versions/%s' %
             (self.pk, response.data[0]['metadata_version_identifier']), format="json")
         self.assertEqual(response_2.status_code, status.HTTP_200_OK, response_2.data)
         self.assertEqual('preferred_identifier' in response_2.data, True)
@@ -2213,78 +2065,36 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
         self.assertEqual(response_1.data['research_dataset']['preferred_identifier'],
             response_2.data['preferred_identifier'])
 
-    def test_changing_files_creates_new_dataset_version(self):
-        cr = self.client.get('/rest/datasets/1').data
-        cr['research_dataset']['files'].pop(0)
-        response = self.client.put('/rest/datasets/1', cr, format="json")
-        self.assertEqual('next_dataset_version' in response.data, True)
-        self.assertEqual('new_version_created' in response.data, True)
-        self.assertEqual('dataset_version_set' in response.data, True)
-
     def test_dataset_version_lists_removed_records(self):
-        # create new version
-        cr = self.client.get('/rest/datasets/1').data
-        cr['research_dataset']['files'].pop(0)
-        response = self.client.put('/rest/datasets/1', cr, format="json")
 
-        # delete the new version
-        new_ver = response.data['next_dataset_version']
-        response = self.client.delete('/rest/datasets/%d' % new_ver['id'], format="json")
+        # create version2 of a record
+        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        # check deleted record is listed
-        response = self.client.get('/rest/datasets/1', format="json")
-        self.assertEqual(response.data['dataset_version_set'][0].get('removed', None), True,
-            response.data['dataset_version_set'])
+        new_version_id = response.data['id']
 
-    def test_dataset_version_lists_date_removed(self):
-        # get catalog record
-        cr = self.client.get('/rest/datasets/1').data
-        # create version2
-        cr['research_dataset']['files'].pop(0)
-        response = self.client.put('/rest/datasets/1', cr, format="json")
+        # publish the new version
+        response = self.client.post(f'/rpc/v2/datasets/publish_dataset?identifier={new_version_id}', format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         # delete version2
-        version2 = response.data['next_dataset_version']
-        response = self.client.delete('/rest/datasets/%d' % version2['id'], format="json")
+        response = self.client.delete(f'/rest/v2/datasets/{new_version_id}', format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
         # check date_removed is listed and not None in deleted version
-        response = self.client.get('/rest/datasets/1', format="json")
+        response = self.client.get('/rest/v2/datasets/1', format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         self.assertTrue(response.data['dataset_version_set'][0].get('date_removed'))
         self.assertTrue(response.data['dataset_version_set'][0].get('date_removed') is not None)
         self.assertFalse(response.data['dataset_version_set'][1].get('date_removed'))
 
-    def test_new_dataset_version_pref_id_type_stays_same_as_previous_dataset_version_pref_id_type(self):
-        # Create ida data catalog
-        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
-        dc_id = IDA_CATALOG
-        dc['catalog_json']['identifier'] = dc_id
-        self.client.post('/rest/datacatalogs', dc, format="json")
-
-        self.cr_test_data['data_catalog'] = IDA_CATALOG
-        self.cr_test_data['research_dataset']['preferred_identifier'] = ''
-
-        cr_v1 = self.client.post('/rest/datasets?pid_type=urn', self.cr_test_data, format="json").data
-        cr_v1['research_dataset']['files'].pop(0)
-        cr_v2 = self.client.put('/rest/datasets/{0}?pid_type=doi'.format(cr_v1['identifier']), cr_v1, format="json")
-        self.assertEqual(cr_v2.status_code, status.HTTP_200_OK, cr_v2.data)
-        self.assertEqual('new_version_created' in cr_v2.data, True)
-        self.assertTrue(
-            get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.URN)
-
-        cr_v1 = self.client.post('/rest/datasets?pid_type=doi', self.cr_test_data, format="json").data
-        cr_v1['research_dataset']['files'].pop(0)
-        cr_v2 = self.client.put('/rest/datasets/{0}'.format(cr_v1['identifier']), cr_v1, format="json")
-        self.assertEqual('new_version_created' in cr_v2.data, True)
-        self.assertTrue(
-            get_identifier_type(cr_v2.data['new_version_created']['preferred_identifier']) == IdentifierType.DOI)
-
     def _assert_metadata_version_count(self, record, count):
-        response = self.client.get('/rest/datasets/%d/metadata_versions' % record['id'], format="json")
+        response = self.client.get('/rest/v2/datasets/%d/metadata_versions' % record['id'], format="json")
         self.assertEqual(len(response.data), count)
 
     def _set_cr_to_catalog(self, pk=None, dc=None):
-        cr = CatalogRecord.objects.get(pk=pk)
+        cr = CatalogRecordV2.objects.get(pk=pk)
         cr.data_catalog_id = dc
         cr.force_save()
 
@@ -2295,84 +2105,41 @@ class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
 
         Should not force preferred_identifier to change.
         """
-        data = self.client.get('/rest/datasets/%d' % pk, format="json").data
+        data = self.client.get('/rest/v2/datasets/%d' % pk, format="json").data
         data['research_dataset']['title']['en'] = 'modified title'
-        return self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json")
-
-    def _get_and_update_files(self, pk, update_preferred_identifier=False, params=None):
-        """
-        Get, modify, and update data for given pk. The modification should cause a new
-        version to be created if the catalog permits.
-
-        Should force preferred_identifier to change.
-        """
-        file_identifiers = [
-            {
-                'identifier': f.identifier,
-                'title': 'title',
-                'use_category': { 'identifier': 'outcome' }
-            }
-            for f in File.objects.all()
-        ]
-        data = self.client.get('/rest/datasets/%d' % pk, format="json").data
-        data['research_dataset']['files'] = file_identifiers[-5:]
-
-        if update_preferred_identifier:
-            new_pref_id = 'modified-preferred-identifier'
-            data['research_dataset']['preferred_identifier'] = new_pref_id
-            return (
-                self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json"),
-                new_pref_id
-            )
-        return self.client.put('/rest/datasets/%d%s' % (pk, params or ''), data, format="json")
+        return self.client.put('/rest/v2/datasets/%d%s' % (pk, params or ''), data, format="json")
 
     def test_allow_metadata_changes_after_deprecation(self):
         """
-        For deprecated datasets, file and directory additions/removals are forbidden but
-        metadata changes are allowed.
+        For deprecated datasets metadata changes are still allowed. Changing user metadata for files that
+        are marked as removed (caused the deprecation) is not possible.
         """
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1?include_user_metadata')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         cr = response.data
 
-        response = self.client.delete('/rest/files/1')
+        response = self.client.delete('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        # after the dataset is deprecated, metadata updates should be ok
+        # after the dataset is deprecated, metadata updates should still be ok
         cr['research_dataset']['description'] = {
             "en": "Updating new description for deprecated dataset should not create any problems"
         }
-        cr['research_dataset']['files'][0]['title'] = 'Brand new title 1'
 
-        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
+        response = self.client.put('/rest/v2/datasets/%s' % cr['id'], cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue('new description' in response.data['research_dataset']['description']['en'],
             'description field should be updated')
-        self.assertTrue('Brand new' in response.data['research_dataset']['files'][0]['title'],
-            'title field for file should be updated')
 
-    def test_prevent_adding_removed_file_to_deprecated_dataset(self):
-        response = self.client.get('/rest/datasets/1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        cr = response.data
+        file_changes = {
+            'files': [ cr['research_dataset']['files'][0] ]
+        }
 
-        # deprecates the dataset
-        response = self.client.delete('/rest/files/1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        file_changes['files'][0]['title'] = 'Brand new title 1'
 
-        # the file to add to data
-        response = self.client.delete('/rest/files/4')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        cr['research_dataset']['files'].append({
-            "identifier": "pid:urn:4",
-            "title": "File Title",
-            "use_category": {
-                "identifier": "method"
-            }
-        })
-        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
+        response = self.client.put('/rest/v2/datasets/%s/files/user_metadata' % cr['id'], file_changes, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('The following files are not' in response.data['detail'][0], True, response.data)
 
 
 class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
@@ -2549,7 +2316,7 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
     def _research_dataset_or_file_changes(self, rd_or_file_changes):
         """
         File and dir entries can be added both to research_dataset object, and
-        the more simpke "file changes" object that is sent to /rest/datasets/pid/files.
+        the more simpke "file changes" object that is sent to /rest/v2/datasets/pid/files.
         Methods who call this helper can treat the returned object as either, and only
         operate with "files" and "directories" keys.
         """
@@ -2691,7 +2458,7 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
             file = deepcopy(file_template)
             file.update(f, identifier='frozen:later:file:%s' % f['file_name'][-6:-4])
             files.append(file)
-        response = self.client.post('/rest/files', files, format="json")
+        response = self.client.post('/rest/v2/files', files, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def _freeze_files_to_root(self):
@@ -2717,7 +2484,7 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
             file = deepcopy(file_template)
             file.update(f, identifier='frozen:later:file:%s' % f['file_name'][-6:-4])
             files.append(file)
-        response = self.client.post('/rest/files', files, format="json")
+        response = self.client.post('/rest/v2/files', files, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def setUp(self):
@@ -2733,7 +2500,7 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset'].pop('directories', None)
         project_files = self._form_test_file_hierarchy()
         for p_files in project_files:
-            response = self.client.post('/rest/files', p_files, format="json")
+            response = self.client.post('/rest/v2/files', p_files, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def assert_preferred_identifier_changed(self, response, true_or_false):
@@ -2746,736 +2513,11 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
 
     def assert_file_count(self, cr, expected_file_count):
         self.assertEqual(
-            CatalogRecord.objects.get(pk=cr if type(cr) is int else cr['id']).files.count(), expected_file_count
+            CatalogRecordV2.objects.get(pk=cr if type(cr) is int else cr['id']).files.count(), expected_file_count
         )
 
     def assert_total_files_byte_size(self, cr, expected_size):
         self.assertEqual(cr['research_dataset']['total_files_byte_size'], expected_size)
-
-
-class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCommon):
-
-    """
-    Tests for different creation situations and adding files and directories to successfully
-    created datasets. Makes sure that adding files or directories does not create new dataset version
-    and removing any files or directories is forbidden.
-    """
-
-    def _create_cumulative_dataset_with_files(self):
-        """
-        Create cumulative dataset with two files that will be updated.
-        """
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_06.txt')
-        self.cr_test_data['cumulative_state'] = 1 # YES
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        return response.data # i.e. the dataset
-
-    def _create_cumulative_dataset_without_files(self):
-        """
-        Create cumulative dataset without any files.
-        """
-        self.cr_test_data['cumulative_state'] = 1 # YES
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        return response.data
-
-    def test_create_cumulative_dataset_with_state_closed(self):
-        self.cr_test_data['cumulative_state'] = 2 # CLOSED
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-    def test_create_cumulative_dataset_with_preservation_state(self):
-        self.cr_test_data['cumulative_state'] = 1
-        self.cr_test_data['preservation_state'] = 10
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('PAS' in response.data['detail'][0], 'error message should concern PAS process')
-
-    def test_create_cumulative_dataset_sets_date_cumulation_started(self):
-        self.cr_test_data['cumulative_state'] = 1
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual(response.data['date_cumulation_started'], response.data['date_created'], response.data)
-        self.assertTrue('date_cumulation_ended' not in response.data, response.data)
-        self.assertTrue('date_last_cumulative_addition' not in response.data, response.data)
-
-    def test_add_files_to_empty_cumulative_dataset(self):
-        cr = self._create_cumulative_dataset_without_files()
-
-        total_record_count_beginning = CatalogRecord.objects_unfiltered.all().count()
-
-        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
-        response = self.update_record(cr)
-        current_record_count = CatalogRecord.objects_unfiltered.all().count()
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
-
-    def test_adding_files_to_cumulative_dataset_creates_no_new_versions(self):
-        """
-        Tests the basic idea of cumulative dataset: add files with no new version
-        """
-        cr = self._create_cumulative_dataset_with_files()
-        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
-        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_02.txt')
-
-        total_record_count_beginning = CatalogRecord.objects_unfiltered.all().count()
-        response = self.update_record(cr)
-        current_record_count = CatalogRecord.objects_unfiltered.all().count()
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
-
-        # two + two is four, quik mafs
-        self.assert_file_count(response.data, 4)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
-        self.assertEqual('new_dataset_version' in response.data, False, 'New version should not be created')
-
-        cr = response.data
-        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
-        response = self.update_record(cr)
-        current_record_count = CatalogRecord.objects_unfiltered.all().count()
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(current_record_count, total_record_count_beginning, 'there should be no new datasets')
-
-        self.assert_file_count(response.data, 8)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 8)
-        self.assertEqual('new_dataset_version' in response.data, False, 'New version should not be created')
-
-    def test_adding_files_to_cumulative_dataset_changes_date_last_cumulative_addition(self):
-        cr = self._create_cumulative_dataset_with_files()
-        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
-        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_02.txt')
-        sleep(1) # ensure that next request happens with different timestamp
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertTrue(response.data['date_last_cumulative_addition'] != response.data['date_created'], response.data)
-
-    def test_add_single_sub_directory(self):
-        """
-        A very simple "there is a single common root directory" test.
-        """
-        cr = self._create_cumulative_dataset_with_files()
-
-        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assert_file_count(response.data, 4)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
-
-        cr = response.data
-        self._add_directory(response.data, '/TestExperiment/Directory_2/Group_2')
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assert_file_count(response.data, 6)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
-
-    def test_single_common_root_directory(self):
-        """
-        A very simple "there is a single common root directory" test. When root directory is
-        added, all the sub-directories are also included so adding them later do not add files.
-        """
-        cr = self._create_cumulative_dataset_with_files()
-
-        self._add_directory(cr, '/TestExperiment/Directory_2')
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assert_file_count(response.data, 10)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
-
-        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
-        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assert_file_count(response.data, 10)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
-
-    def test_add_multiple_files_and_directories(self):
-        """
-        Multiple add file/add directory updates. Some of the updates add new files since
-        the path was not already included by other directories, and some dont.
-
-        Ensure preferred_identifier changes and file counts and byte sizes change as expected.
-        """
-        cr = self._create_cumulative_dataset_with_files()
-        # add one directory, which holds a two files and one sub directory which also holds two files.
-        # four new files are added
-        self._add_directory(cr, '/TestExperiment/Directory_2/Group_2')
-        response = self.update_record(cr)
-        self.assert_file_count(response.data, 6)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
-
-        # separately add (describe) a child directory of the previous dir.
-        # no new files are added
-        self._add_directory(response.data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.update_record(response.data)
-        self.assert_file_count(response.data, 6)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
-
-        # add a single new file not included by the previously added directories.
-        # new files are added
-        self._add_file(response.data, '/TestExperiment/Directory_2/file_14.txt')
-        response = self.update_record(response.data)
-        self.assert_file_count(response.data, 7)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 7)
-
-        # add a single new file already included by the previously added directories.
-        # new files are not added
-        self._add_file(response.data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
-        response = self.update_record(response.data)
-        self.assert_file_count(response.data, 7)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 7)
-
-    def test_add_files_which_were_frozen_later(self):
-        """
-        It is possible to append files to a directory by freezing new files later.
-        Such new files or directories can specifically be added to a dataset only by
-        explicitly selecting/describing them, even if their path is already included
-        by another directory.
-
-        Ensure that file counts and byte sizes change as expected.
-        """
-        cr = self._create_cumulative_dataset_with_files()
-
-        # add new root directory which holds eight files
-        self._add_directory(cr, '/TestExperiment/Directory_2')
-        response = self.update_record(cr)
-        self.assert_preferred_identifier_changed(response, False)
-        self.assert_file_count(response.data, 10)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
-
-        # freeze two files to /TestExperiment/Directory_2
-        self._freeze_files_to_root()
-
-        # freezing files should not affect to the dataset file count
-        response = self.update_record(response.data)
-        self.assert_file_count(response.data, 10)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
-
-        # freeze two files to /TestExperiment/Directory_2/Group_3
-        self._freeze_new_files()
-
-        # only added files are included in the dataset
-        self._add_file(response.data, '/TestExperiment/Directory_2/Group_3/file_90.txt')
-        response = self.update_record(response.data)
-        self.assert_preferred_identifier_changed(response, False)
-        self.assert_file_count(response.data, 11)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 11)
-
-    def test_metadata_changes_do_not_add_later_frozen_files(self):
-        """
-        Ensure simple metadata updates do not automatically also include new frozen files.
-        New frozen files should only be searched when those new files or directories are
-        specifically added in the update.
-        """
-        # create the original record with just one directory
-        self.cr_test_data['cumulative_state'] = 1
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 8)
-        original_version = response.data
-
-        self._freeze_new_files()
-
-        original_version['research_dataset']['version_notes'] = [str(datetime.now())]
-        response = self.update_record(original_version)
-        self.assert_file_count(response.data, 8)
-
-    def test_add_files_with_preserve_version_flag(self):
-        """
-        Normally, preserve_version flag would skip the whole file/directory update process and complain
-        about updating files while trying to preserve version. But in case of cumulative dataset we want
-        to allow adding with same version.
-        """
-        cr = self._create_cumulative_dataset_with_files()
-        self._add_file(cr, '/TestExperiment/Directory_1/Group_1/file_01.txt')
-        response = self.client.put('/rest/datasets/%s?preserve_version' % cr['identifier'], cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-    def test_change_preservation_state(self):
-        cr = self._create_cumulative_dataset_with_files()
-        cr['preservation_state'] = 10
-        response = self.client.put('/rest/datasets/%s' % cr['identifier'], cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-    def test_remove_files_from_cumulative_dataset(self):
-        cr = self._create_cumulative_dataset_with_files()
-
-        self._remove_file(cr, '/TestExperiment/Directory_1/file_06.txt')
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-        # ensure that there are no changes
-        response = self.client.get('/rest/datasets/%s' % cr['identifier'], format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assert_file_count(response.data, 2)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
-
-    def test_remove_directory_from_cumulative_dataset(self):
-        cr = self._create_cumulative_dataset_with_files()
-        self._add_directory(cr, '/TestExperiment/Directory_2')
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        self._remove_directory(cr, '/TestExperiment/Directory_2')
-        response = self.update_record(cr)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-        # ensure that there are no changes
-        response = self.client.get('/rest/datasets/%s' % cr['identifier'], format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assert_file_count(response.data, 10)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 10)
-
-
-class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFilesCommon):
-
-    """
-    Test assigning files and directories to datasets and related functionality,
-    except: Tests related to file updates/versioning are handled in the
-    CatalogRecordApiWriteDatasetVersioning -suite.
-    """
-
-    def test_adding_filesystem_root_dir_not_permitted(self):
-        """
-        The root dir of a filesystem ("/") should not be permitted to be added to a dataset.
-        """
-        self._add_directory(self.cr_test_data, '/', project='testproject')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-    def test_files_are_saved_during_create(self):
-        """
-        A very simple "add two individual files" test.
-        """
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_06.txt')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 2)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
-
-    def test_directories_are_saved_during_create(self):
-        """
-        A very simple "add two individual directories" test.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 4)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
-
-    def test_single_common_root_directory(self):
-        """
-        A very simple "there is a single common root directory" test.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 8)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 8)
-
-    def test_directory_names_are_similar(self):
-        """
-        Ensure similar directory names are not mistaken to have parent/child relations,
-        i.e. directory separator-character is the true separator of dirs in the path.
-        """
-        self._add_directory(self.cr_test_data, '/SecondExperiment/Data')
-        self._add_directory(self.cr_test_data, '/SecondExperiment/Data/History')
-        self._add_directory(self.cr_test_data, '/SecondExperiment/Data_Config') # the interesting dir
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 4)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
-
-    def test_files_and_directories_are_saved_during_create(self):
-        """
-        A very simple "add two individual directories and two files" test.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_06.txt')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 6)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 6)
-
-    def test_files_and_directories_are_saved_during_create_2(self):
-        """
-        Save a directory, and also two files from the same directory.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_02.txt')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 2)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
-
-    def test_empty_files_and_directories_arrays_are_removed(self):
-        """
-        If an update is trying to leave empty "files" or "directories" array into
-        research_dataset, they should be removed entirely during the update.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        cr = response.data
-        cr['research_dataset']['directories'] = []
-        cr['research_dataset']['files'] = []
-        response = self.client.put('/rest/datasets/%d' % cr['id'], cr, format="json")
-        new_version = self.get_next_version(response.data)
-        self.assertEqual('directories' in new_version['research_dataset'], False, response.data)
-        self.assertEqual('files' in new_version['research_dataset'], False, response.data)
-
-    def test_multiple_file_and_directory_changes(self):
-        """
-        Multiple add file/add directory updates, followed by multiple remove file/remove directory updates.
-        Some of the updates add new files since the path was not already included by other directories, and
-        some dont.
-
-        Ensure preferred_identifier changes and file counts and byte sizes change as expected.
-        """
-
-        # create the original record with just one file
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/file_13.txt')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual(CatalogRecord.objects.get(pk=response.data['id']).files.count(), 1)
-
-        # add one directory, which holds a couple of files and one sub directory which also holds two files.
-        # new files are added
-        original_version = response.data
-        self._add_directory(original_version, '/TestExperiment/Directory_2/Group_2')
-        response = self.update_record(original_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 5)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 5)
-
-        # separately add (describe) a child directory of the previous dir.
-        # no new files are added
-        self._add_directory(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.update_record(new_version)
-        self.assertEqual('new_dataset_version' in response.data, False)
-
-        # add a single new file not included by the previously added directories.
-        # new files are added
-        self._add_file(new_version, '/TestExperiment/Directory_2/file_14.txt')
-        response = self.update_record(new_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 6)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 6)
-
-        # remove the previously added file, not included by the previously added directories.
-        # files are removed
-        self._remove_file(new_version, '/TestExperiment/Directory_2/file_14.txt')
-        response = self.update_record(new_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 5)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 5)
-
-        # add a single new file already included by the previously added directories.
-        # new files are not added
-        self._add_file(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
-        response = self.update_record(new_version)
-        self.assertEqual('new_dataset_version' in response.data, False)
-
-        # remove the sub dir added previously. files are also still contained by the other upper dir.
-        # files are not removed
-        self._remove_directory(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.update_record(new_version)
-        self.assertEqual('new_dataset_version' in response.data, False)
-
-        # remove a previously added file, the file is still contained by the other upper dir.
-        # files are not removed
-        self._remove_file(new_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
-        response = self.update_record(new_version)
-        self.assertEqual('new_dataset_version' in response.data, False)
-
-        # remove the last directory, which should remove the 4 files included by this dir and the sub dir.
-        # files are removed.
-        # only the originally added single file should be left.
-        self._remove_directory(new_version, '/TestExperiment/Directory_2/Group_2')
-        response = self.update_record(new_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 1)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 1)
-
-    def test_add_files_which_were_frozen_later(self):
-        """
-        It is possible to append files to a directory by freezing new files later.
-        Such new files or directories can specifically be added to a dataset by
-        explicitly selecting/describing them, even if their path is already included
-        by another directory.
-
-        Ensure preferred_identifier changes and file counts and byte sizes change as expected.
-        """
-
-        # create the original record with just one directory
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual(CatalogRecord.objects.get(pk=response.data['id']).files.count(), 8)
-        original_version = response.data
-
-        self._freeze_new_files()
-
-        # add one new file
-        self._add_file(original_version, '/TestExperiment/Directory_2/Group_3/file_90.txt')
-        response = self.update_record(original_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 9)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 9)
-
-        # add one new directory, which holds one new file, since the other file was already added
-        self._add_directory(new_version, '/TestExperiment/Directory_2/Group_3')
-        response = self.update_record(new_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 10)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 10)
-
-    def test_metadata_changes_do_not_add_later_frozen_files(self):
-        """
-        Ensure simple metadata updates do not automatically also include new frozen files.
-        New frozen files should only be searched when those new files or directories are
-        specifically added in the update.
-        """
-
-        # create the original record with just one directory
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual(CatalogRecord.objects.get(pk=response.data['id']).files.count(), 8)
-        original_version = response.data
-
-        self._freeze_new_files()
-
-        original_version['research_dataset']['version_notes'] = [str(datetime.now())]
-        response = self.update_record(original_version)
-        self.assertEqual('next_dataset_version' in response.data, False)
-        self.assert_file_count(response.data, 8)
-
-    def test_removing_top_level_directory_does_not_remove_all_files(self):
-        """
-        Ensure removing a top-level directory does not remove all its sub-files from a dataset,
-        if the dataset contains other sub-directories. Only the files contained by the top-level
-        directory (and whatever files fall between the old top-level, and the next known new top-level
-        directories) should be removed.
-        """
-
-        # note: see the method _form_test_file_hierarchy() to inspect what the directories
-        # contain in more detail.
-        self._add_directory(self.cr_test_data, '/TestExperiment') # 14 files (removed later)
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1') # 6 files
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2') # 8 files (removed later)
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2') # 4 files
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 14)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 14)
-        original_version = response.data
-
-        # remove the root dir, and another sub-dir. there should be two directories left. both of them
-        # are now "top-level directories", since they have no common parent.
-        # files are removed
-        self._remove_directory(original_version, '/TestExperiment')
-        self._remove_directory(original_version, '/TestExperiment/Directory_2')
-        response = self.update_record(original_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 10)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 10)
-
-    def test_add_multiple_directories(self):
-        """
-        Ensure adding multiple directories at once really adds files from all new directories.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 2)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
-        original_version = response.data
-
-        # add new directories.
-        # files are added
-        self._add_directory(original_version, '/TestExperiment/Directory_2/Group_1')
-        self._add_directory(original_version, '/TestExperiment/Directory_2/Group_2')
-        self._add_directory(original_version, '/SecondExperiment/Directory_1/Group_1')
-        response = self.update_record(original_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 8)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 8)
-
-    def test_add_multiple_directories_2(self):
-        """
-        Ensure adding multiple directories at once really adds files from all new directories.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 14)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 14)
-
-    def test_add_files_from_different_projects(self):
-        """
-        Add directories from two different projects, ensure both projects' top-level dirs
-        are handled properly, and none of the projects interferes with each other.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper')
-        self._add_directory(self.cr_test_data, '/SecondExperiment/Directory_1/Group_1')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assert_file_count(response.data, 4)
-        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
-        original_version = response.data
-
-        # add a new directory. this is a top-level of the previous dir, which contains new files.
-        # files are added
-        self._add_directory(original_version, '/TestExperiment/Directory_2/Group_2')
-        response = self.update_record(original_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 6)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 6)
-
-        # remove the previously added dir, which is now the top-level dir in that project.
-        # files are removed
-        self._remove_directory(new_version, '/TestExperiment/Directory_2/Group_2')
-        response = self.update_record(new_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 4)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 4)
-
-        # remove dirs from the second project entirely.
-        # files are removed
-        self._remove_directory(new_version, '/SecondExperiment/Directory_1/Group_1')
-        response = self.update_record(new_version)
-        self.assert_preferred_identifier_changed(response, True)
-        new_version = self.get_next_version(response.data)
-        self.assert_file_count(new_version, 2)
-        self.assert_total_files_byte_size(new_version, self._single_file_byte_size * 2)
-
-    def test_file_not_found(self):
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        original_version = response.data
-        self._add_nonexisting_file(original_version)
-        response = self.update_record(original_version)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-    def test_directory_not_found(self):
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        original_version = response.data
-        self._add_nonexisting_directory(original_version)
-        response = self.update_record(original_version)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-    def test_prevent_file_changes_to_old_dataset_versions(self):
-        """
-        In old dataset versions, metadata changes are allowed. File changes, which would
-        result in new dataset versions being created, is not allowed.
-        """
-
-        # create original record
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/file_13.txt')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        original_version = response.data
-
-        # make a file change, so that a new dataset version is created
-        self._add_file(original_version, '/TestExperiment/Directory_2/file_14.txt')
-        response = self.update_record(original_version)
-
-        # now try to make a file change to the older dataset versions. this should not be permitted
-        self._add_file(original_version, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
-        response = self.update_record(original_version)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST,
-            'file changes in old dataset versions should not be allowed')
-
-    # other tests related to adding files / dirs
-
-    def test_file_and_dir_titles_are_populated_when_omitted(self):
-        """
-        If field 'title' is omitted from file or dir metadata, their respective file_name or
-        directory_name should automatically be populated as title.
-        """
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_2')
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
-
-        # ensure titles are not overwritten when specified by the user
-
-        orig_titles = [
-            self.cr_test_data['research_dataset']['files'][0]['title'],
-            self.cr_test_data['research_dataset']['directories'][0]['title'],
-        ]
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue(
-            response.data['research_dataset']['files'][0]['title'] in orig_titles,
-            response.data['research_dataset']['files'][0]['title']
-        )
-        self.assertTrue(
-            response.data['research_dataset']['directories'][0]['title'] in orig_titles,
-            response.data['research_dataset']['directories'][0]['title']
-        )
-
-        # ensure titles are automatically populated when omitted by the user
-
-        del self.cr_test_data['research_dataset']['files'][0]['title']
-        del self.cr_test_data['research_dataset']['directories'][0]['title']
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue(
-            response.data['research_dataset']['files'][0]['title'] not in orig_titles,
-            response.data['research_dataset']['files'][0]['title']
-        )
-        self.assertTrue(
-            response.data['research_dataset']['directories'][0]['title'] not in orig_titles,
-            response.data['research_dataset']['directories'][0]['title']
-        )
-
-    def test_prevent_non_existent_additions_to_deprecated_dataset(self):
-        self._add_file(self.cr_test_data, '/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        cr = response.data
-
-        file_id = cr['research_dataset']['files'][0]['identifier']
-
-        response = self.client.delete('/rest/files/%s' % file_id, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self._add_nonexisting_directory(cr)
-        response = self.client.put('/rest/datasets/%s' % cr['id'], cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 
 class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
@@ -3489,7 +2531,7 @@ class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
         rr = cr_with_rr['research_dataset']['remote_resources']
         total_remote_resources_byte_size = sum(res['byte_size'] for res in rr)
         self.cr_att_test_data['research_dataset']['remote_resources'] = rr
-        response = self.client.post('/rest/datasets', self.cr_att_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('total_remote_resources_byte_size' in response.data['research_dataset'], True)
         self.assertEqual(response.data['research_dataset']['total_remote_resources_byte_size'],
@@ -3520,15 +2562,15 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
         same_pid_ids = []
         for i in range(3):
-            response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+            response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
             self.assertEqual(response.data['research_dataset']['preferred_identifier'], 'a')
             same_pid_ids.append(response.data['id'])
 
         # pid can even be same as an existing dataset's pid in an ATT catalog
-        real_pid = CatalogRecord.objects.get(pk=1).preferred_identifier
+        real_pid = CatalogRecordV2.objects.get(pk=1).preferred_identifier
         self.cr_test_data['research_dataset']['preferred_identifier'] = real_pid
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], real_pid)
 
@@ -3536,26 +2578,26 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         # pid cant be empty string
         self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
         # pid cant be omitted
         del self.cr_test_data['research_dataset']['preferred_identifier']
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_legacy_catalog_pids_update(self):
         # test setup
         self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # update record. in updates uniqueness also should not be checked
         modify = response.data
-        real_pid = CatalogRecord.objects.get(pk=1).preferred_identifier
+        real_pid = CatalogRecordV2.objects.get(pk=1).preferred_identifier
         modify['research_dataset']['preferred_identifier'] = real_pid
-        response = self.client.put('/rest/datasets/%s' % modify['id'], modify, format="json")
+        response = self.client.put('/rest/v2/datasets/%s' % modify['id'], modify, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_delete_legacy_catalog_dataset(self):
@@ -3567,14 +2609,14 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         # test setup
         self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         cr_id = response.data['id']
 
         # delete record
-        response = self.client.delete('/rest/datasets/%s' % cr_id, format="json")
+        response = self.client.delete('/rest/v2/datasets/%s' % cr_id, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-        results_count = CatalogRecord.objects_unfiltered.filter(pk=cr_id).count()
+        results_count = CatalogRecordV2.objects_unfiltered.filter(pk=cr_id).count()
         self.assertEqual(results_count, 0, 'record should have been deleted permantly')
 
 
@@ -3594,43 +2636,43 @@ class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
         """
 
         # create
-        cr = self.client.get('/rest/datasets/1', format="json").data
+        cr = self.client.get('/rest/v2/datasets/1', format="json").data
         cr.pop('id')
         cr.pop('identifier')
         cr.pop('metadata_owner_org')
         cr['research_dataset'].pop('preferred_identifier')
-        response = self.client.post('/rest/datasets', cr, format="json")
+        response = self.client.post('/rest/v2/datasets', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['metadata_owner_org'], response.data['metadata_provider_org'])
 
         # update to null - update is prevented
-        cr = self.client.get('/rest/datasets/1', format="json").data
+        cr = self.client.get('/rest/v2/datasets/1', format="json").data
         original = cr['metadata_owner_org']
         cr['metadata_owner_org'] = None
-        response = self.client.put('/rest/datasets/1', cr, format="json")
+        response = self.client.put('/rest/v2/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['metadata_owner_org'], original)
 
         # update with patch, where metadata_owner_org field is absent - value is not reverted back
         # to metadata_provider_org
-        response = self.client.patch('/rest/datasets/1', { 'metadata_owner_org': 'abc' }, format="json")
+        response = self.client.patch('/rest/v2/datasets/1', { 'metadata_owner_org': 'abc' }, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        response = self.client.patch('/rest/datasets/1', { 'contract': 1 }, format="json")
+        response = self.client.patch('/rest/v2/datasets/1', { 'contract': 1 }, format="json")
         self.assertEqual(response.data['metadata_owner_org'], 'abc')
 
     def test_metadata_provider_org_is_readonly_after_creating(self):
-        cr = self.client.get('/rest/datasets/1', format="json").data
+        cr = self.client.get('/rest/v2/datasets/1', format="json").data
         original = cr['metadata_provider_org']
         cr['metadata_provider_org'] = 'changed'
-        response = self.client.put('/rest/datasets/1', cr, format="json")
+        response = self.client.put('/rest/v2/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['metadata_provider_org'], original)
 
     def test_metadata_provider_user_is_readonly_after_creating(self):
-        cr = self.client.get('/rest/datasets/1', format="json").data
+        cr = self.client.get('/rest/v2/datasets/1', format="json").data
         original = cr['metadata_provider_user']
         cr['metadata_provider_user'] = 'changed'
-        response = self.client.put('/rest/datasets/1', cr, format="json")
+        response = self.client.put('/rest/v2/datasets/1', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['metadata_provider_user'], original)
 
@@ -3667,14 +2709,14 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self._mock_token_validation_succeeds()
 
     def _set_cr_owner_to_token_user(self, cr_id):
-        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr = CatalogRecordV2.objects.get(pk=cr_id)
         cr.user_created = self.token['CSCUserName']
         cr.metadata_provider_user = self.token['CSCUserName']
         cr.editor = None # pretend the record was created by user directly
         cr.force_save()
 
     def _set_cr_to_permitted_catalog(self, cr_id):
-        cr = CatalogRecord.objects.get(pk=cr_id)
+        cr = CatalogRecordV2.objects.get(pk=cr_id)
         cr.data_catalog_id = DataCatalog.objects.get(catalog_json__identifier=END_USER_ALLOWED_DATA_CATALOGS[0]).id
         cr.force_save()
 
@@ -3704,7 +2746,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset'].pop('files', None)
         self.cr_test_data['research_dataset'].pop('directories', None)
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
         self.assertEqual(response.data['user_created'], user_created)
@@ -3730,7 +2772,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
 
         # should not work
         self.cr_test_data['data_catalog'] = 1
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
         # check error has expected error description
         self.assertEqual('selected data catalog' in response.data['detail'][0], True, response.data)
@@ -3740,7 +2782,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
             if identifier in LEGACY_CATALOGS:
                 self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
             self.cr_test_data['data_catalog'] = identifier
-            response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+            response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     @responses.activate
@@ -3755,7 +2797,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0]
         self.cr_test_data['research_dataset'].pop('files', None) # test file permission checking in another test
         self.cr_test_data['research_dataset'].pop('directories', None)
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         modified_data = response.data
@@ -3767,7 +2809,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         modified_data['preservation_reason_description'] = 'discarded by metax'
         modified_data['preservation_state'] = 10
 
-        response = self.client.put('/rest/datasets/%d' % modified_data['id'], modified_data, format="json")
+        response = self.client.put('/rest/v2/datasets/%d' % modified_data['id'], modified_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['research_dataset']['value'], 112233) # value we set
         self.assertEqual(response.data['user_modified'], self.token['CSCUserName']) # set by metax
@@ -3793,52 +2835,29 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.cr_test_data.pop('editor', None)
 
         self._use_http_authorization() # create cr as a service-user
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         modified_data = response.data
         modified_data['research_dataset']['value'] = 112233
 
         self._use_http_authorization(method='bearer', token=self.token)
-        response = self.client.put('/rest/datasets/%d' % modified_data['id'], modified_data, format="json")
+        response = self.client.put('/rest/v2/datasets/%d' % modified_data['id'], modified_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
-
-    @responses.activate
-    def test_owner_can_edit_dataset_check_perms_from_editor_field(self):
-        '''
-        Ensure end user perms are also checked from the field 'editor', which may be
-        set by .e.g. qvain.
-        '''
-        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0]
-        self.cr_test_data['user_created'] = 'editor field is checked before this field, so should be ok'
-        self.cr_test_data['editor'] = { 'owner_id': self.token['CSCUserName'] }
-
-        self._use_http_authorization() # create cr as a service-user to ensure editor-field is set
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        self._use_http_authorization(method='bearer', token=self.token)
-        response = self.client.get('/rest/datasets/%d' % response.data['id'], format="json")
-        modified_data = response.data
-        modified_data['research_dataset']['value'] = 112233
-
-        response = self.client.put('/rest/datasets/%d' % response.data['id'], modified_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @responses.activate
     def test_other_users_cant_edit_dataset(self):
         '''
         Ensure end users are unable edit datasets not owned by them.
         '''
-        response = self.client.get('/rest/datasets/1', format="json")
+        response = self.client.get('/rest/v2/datasets/1', format="json")
         modified_data = response.data
         modified_data['research_dataset']['value'] = 112233
 
-        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        response = self.client.put('/rest/v2/datasets/1', modified_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        response = self.client.put('/rest/datasets', [modified_data], format="json")
+        response = self.client.put('/rest/v2/datasets', [modified_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         # ^ individual errors do not have error codes, only the general request
         # has an error code for a failed request.
@@ -3847,7 +2866,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
     def test_user_can_delete_dataset(self):
         self._set_cr_owner_to_token_user(1)
         self._set_cr_to_permitted_catalog(1)
-        response = self.client.delete('/rest/datasets/1', format="json")
+        response = self.client.delete('/rest/v2/datasets/1', format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
     @responses.activate
@@ -3859,7 +2878,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
 
         # try creating without proper permisisons
         self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0] # ida
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
         # add project membership to user's token and try again
@@ -3868,7 +2887,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.token['group_names'].append('IDA01:%s' % project_identifier)
         self._use_http_authorization(method='bearer', token=self.token)
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.content)
 
     @responses.activate
@@ -3879,22 +2898,22 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         only for changed files (newly added, or removed).
         '''
         # get some files to add to another dataset
-        response = self.client.get('/rest/datasets/2', format="json")
-        new_files = response.data['research_dataset']['files']
+        new_files = CatalogRecordV2.objects.get(pk=1).research_dataset['files']
 
-        # this is the dataset we'll modify
-        self._set_cr_owner_to_token_user(1)
-        self._set_cr_to_permitted_catalog(1)
-        response = self.client.get('/rest/datasets/1', format="json")
-        # ensure the files really are new
-        for f in new_files:
-            for existing_f in response.data['research_dataset']['files']:
-                assert f['identifier'] != existing_f['identifier'], 'test preparation failure, files should differ'
-        modified_data = response.data
-        modified_data['research_dataset']['files'].extend(new_files)
+        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0] # ida
+        self.cr_test_data['research_dataset'].pop('files', None)
+        self.cr_test_data['research_dataset'].pop('directories', None)
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_id = response.data['id']
+
+        file_changes = {
+            'files': new_files
+        }
 
         # should fail, since user's token has no permission for the newly added files
-        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        response = self.client.post(f'/rest/v2/datasets/{cr_id}/files', file_changes, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.content)
 
         # add project membership to user's token and try again
@@ -3902,7 +2921,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.token['group_names'].append('IDA01:%s' % project_identifier)
         self._use_http_authorization(method='bearer', token=self.token)
 
-        response = self.client.put('/rest/datasets/1', modified_data, format="json")
+        response = self.client.post(f'/rest/v2/datasets/{cr_id}/files', file_changes, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
 
     @responses.activate
@@ -3919,7 +2938,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
                 self.assertEqual(sensitive_field in obj['research_dataset']['curator'][0], True,
                     'field %s should be present' % sensitive_field)
 
-        for cr in CatalogRecord.objects.filter(pk=1):
+        for cr in CatalogRecordV2.objects.filter(pk=1):
             cr.research_dataset['curator'][0].update({
                 'email': 'email@mail.com',
                 'phone': '123124',
@@ -3927,7 +2946,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
             })
             cr.force_save()
 
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         _check_fields(response.data)
 
@@ -3960,65 +2979,65 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
 
     def test_external_service_can_add_catalog_record_to_own_catalog(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], '123456')
 
     def test_external_service_can_update_catalog_record_in_own_catalog(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], '123456')
 
         cr_id = response.data['id']
         self.cr_test_data['research_dataset']['preferred_identifier'] = '654321'
-        response = self.client.put('/rest/datasets/{}'.format(cr_id), self.cr_test_data, format="json")
+        response = self.client.put('/rest/v2/datasets/{}'.format(cr_id), self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], '654321')
 
     def test_external_service_can_delete_catalog_record_from_own_catalog(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         cr_id = response.data['id']
-        response = self.client.delete('/rest/datasets/{}'.format(cr_id))
+        response = self.client.delete('/rest/v2/datasets/{}'.format(cr_id))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
-        response = self.client.get('/rest/datasets/{}'.format(cr_id), format="json")
+        response = self.client.get('/rest/v2/datasets/{}'.format(cr_id), format="json")
         self.assertEqual('not found' in response.json()['detail'].lower(), True)
 
     def test_external_service_can_not_add_catalog_record_to_other_catalog(self):
         dc = self._get_object_from_test_data('datacatalog', requested_index=1)
         self.cr_test_data['data_catalog'] = dc['catalog_json']['identifier']
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'temp-pid'
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_external_service_can_not_update_catalog_record_in_other_catalog(self):
-        response = self.client.put('/rest/datasets/1', {}, format="json")
+        response = self.client.put('/rest/v2/datasets/1', {}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_external_service_can_not_delete_catalog_record_from_other_catalog(self):
-        response = self.client.delete('/rest/datasets/1')
+        response = self.client.delete('/rest/v2/datasets/1')
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_harvested_catalogs_must_have_preferred_identifier_create(self):
         # create without preferred identifier
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('must have preferred identifier' in
                 response.data['research_dataset']['preferred_identifier'][0], True)
 
         self.cr_test_data['research_dataset']['preferred_identifier'] = ''
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('must have preferred identifier' in
@@ -4065,7 +3084,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         dc = self._get_object_from_test_data('datacatalog', requested_index=0)
         dc_id = IDA_CATALOG
         dc['catalog_json']['identifier'] = dc_id
-        self.client.post('/rest/datacatalogs', dc, format="json")
+        self.client.post('/rest/v2/datacatalogs', dc, format="json")
 
         # token for end user access
         self.token = get_test_oidc_token(new_proxy=True)
@@ -4316,7 +3335,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.cr_test_data['data_catalog'] = IDA_CATALOG
         self.cr_test_data['access_granter'] = self._get_access_granter()
 
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post(f'/rest/v2/datasets?include_user_metadata', self.cr_test_data, format="json")
 
         return response
 
@@ -4372,7 +3391,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
 
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post(f'/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # change to rems managed
@@ -4380,7 +3399,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         cr['research_dataset']['access_rights'] = self.permit_rights
         cr['access_granter'] = self._get_access_granter()
 
-        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data.get('rems_identifier') is not None, 'rems_identifier should be present')
         self.assertTrue(response.data.get('access_granter') is not None, 'access_granter should be present')
@@ -4396,7 +3415,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
 
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post(f'/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # change to rems managed
@@ -4404,7 +3423,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         cr['research_dataset']['access_rights'] = self.permit_rights
         cr['access_granter'] = self._get_access_granter()
 
-        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
@@ -4415,7 +3434,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         cr = response.data
         cr['research_dataset']['access_rights'] = self.open_rights
 
-        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     @responses.activate
@@ -4428,7 +3447,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         cr = response.data
         cr['research_dataset']['access_rights'] = self.open_rights
 
-        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
@@ -4450,7 +3469,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             }
         ]
 
-        response = self.client.put(f'/rest/datasets/{cr_before["id"]}', cr_before, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr_before["id"]}', cr_before, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         cr_after = response.data
@@ -4474,7 +3493,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             }
         ]
 
-        response = self.client.put(f'/rest/datasets/{cr_before["id"]}', cr_before, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr_before["id"]}', cr_before, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         cr_after = response.data
@@ -4492,7 +3511,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         cr_before['research_dataset']['access_rights'].pop('license')
 
-        response = self.client.put(f'/rest/datasets/{cr_before["id"]}', cr_before, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr_before["id"]}', cr_before, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         cr_after = response.data
@@ -4518,7 +3537,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # end user doesn't have permissions to the files and they are also not needed in this test
         del self.cr_test_data['research_dataset']['files']
 
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post(f'/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     @responses.activate
@@ -4529,10 +3548,10 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         cr_id = response.data['id']
 
         # delete dataset
-        response = self.client.delete(f'/rest/datasets/{cr_id}')
+        response = self.client.delete(f'/rest/v2/datasets/{cr_id}')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
-        cr = self.client.get(f'/rest/datasets/{cr_id}?removed').data
+        cr = self.client.get(f'/rest/v2/datasets/{cr_id}?removed').data
         self.assertTrue(cr.get('rems_identifier') is None, 'rems_identifier should not be present')
         self.assertTrue(cr.get('access_granter') is None, 'access_granter should not be present')
 
@@ -4544,7 +3563,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # delete dataset
         self._mock_rems_access_return_error('PUT', 'catalogue-item', 'enabled')
 
-        response = self.client.delete(f'/rest/datasets/{response.data["id"]}')
+        response = self.client.delete(f'/rest/v2/datasets/{response.data["id"]}')
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
@@ -4554,10 +3573,10 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         cr_before = response.data
         # deprecate dataset
-        response = self.client.delete(f"/rest/files/{cr_before['research_dataset']['files'][0]['identifier']}")
+        response = self.client.delete(f"/rest/v2/files/{cr_before['research_dataset']['files'][0]['identifier']}")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        cr_after = self.client.get(f'/rest/datasets/{cr_before["id"]}').data
+        cr_after = self.client.get(f'/rest/v2/datasets/{cr_before["id"]}').data
         self.assertTrue(cr_after.get('rems_identifier') is None, 'rems_identifier should not be present')
         self.assertTrue(cr_after.get('access_granter') is None, 'access_granter should not be present')
 
@@ -4569,7 +3588,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # deprecate dataset
         self._mock_rems_access_crashes('PUT', 'workflow', 'archived')
 
-        response = self.client.delete(f"/rest/files/{response.data['research_dataset']['files'][0]['identifier']}")
+        response = self.client.delete(f"/rest/v2/files/{response.data['research_dataset']['files'][0]['identifier']}")
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
         self.assertTrue('failed to publish' in response.data['detail'][0], response.data)
 
@@ -4583,18 +3602,18 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
 
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertTrue('access_granter' in response.data['detail'][0], response.data)
 
         # test on update
         self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post(f'/rest/v2/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         cr = response.data
         cr['research_dataset']['access_rights'] = self.permit_rights
-        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertTrue('access_granter' in response.data['detail'][0], response.data)
 
@@ -4607,7 +3626,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.cr_test_data['access_granter'] = self._get_access_granter(malformed=True)
 
         response = self.client.post(
-            f'/rest/datasets',
+            f'/rest/v2/datasets',
             self.cr_test_data,
             format="json"
         )
@@ -4623,7 +3642,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.cr_test_data['data_catalog'] = IDA_CATALOG
 
         response = self.client.post(
-            f'/rest/datasets?access_granter={self._get_access_granter()}',
+            f'/rest/v2/datasets?access_granter={self._get_access_granter()}',
             self.cr_test_data,
             format="json"
         )
@@ -4640,7 +3659,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertTrue(response.data.get('access_granter') is not None, 'access_granter should be returned to owner')
 
         self._set_http_authorization('no')
-        response = self.client.get(f'/rest/datasets/{response.data["id"]}')
+        response = self.client.get(f'/rest/v2/datasets/{response.data["id"]}')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data.get('rems_identifier') is None, 'rems_identifier should not be returned to Anon')
         self.assertTrue(response.data.get('access_granter') is None, 'access_granter should not be returned to Anon')
@@ -4655,7 +3674,739 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         cr['rems_identifier'] = 'some:new:identifier'
         cr['access_granter']['name'] = 'New Name'
 
-        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertNotEqual(response.data['rems_identifier'], 'some:new:identifier', 'rems_id should not be changed')
         self.assertNotEqual(response.data['access_granter'], 'New Name', 'access_granter should not be changed')
+
+
+class CatalogRecordApiWriteAssignFilesCommonV2(CatalogRecordApiWriteAssignFilesCommon):
+
+    """
+    Note !!!
+
+    These common helper methods inherit from V1 class CatalogRecordApiWriteAssignFilesCommon.
+    """
+
+    def _add_file(self, ds, path, with_metadata=False):
+
+        super()._add_file(ds, path)
+
+        if with_metadata:
+            return
+
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        # else: addition entry only, which will not be persisted. keep only identifier
+
+        files_and_dirs['files'][-1] = { 'identifier': files_and_dirs['files'][-1]['identifier'] }
+
+    def _exclude_file(self, ds, path):
+        self._add_file(ds, path)
+
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        files_and_dirs['files'][-1]['exclude'] = True
+
+        assert len(files_and_dirs['files'][-1]) == 2
+
+    def _add_directory(self, ds, path, project=None, with_metadata=False):
+        super()._add_directory(ds, path)
+
+        if with_metadata:
+            return
+
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        # else: addition entry only, which will not be persisted. keep only identifier
+
+        files_and_dirs['directories'][-1] = { 'identifier': files_and_dirs['directories'][-1]['identifier'] }
+
+    def _exclude_directory(self, ds, path):
+        self._add_directory(ds, path)
+
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        files_and_dirs['directories'][-1]['exclude'] = True
+
+        assert len(files_and_dirs['directories'][-1]) == 2
+
+
+class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
+
+    def _set_token_authentication(self):
+        create_end_user_catalogs()
+        self.token = get_test_oidc_token()
+        self.token['group_names'].append('IDA01:testproject')
+        self._use_http_authorization(method='bearer', token=self.token)
+        self._mock_token_validation_succeeds()
+
+    def _create_draft(self):
+        self.cr_test_data['research_dataset'].pop('files', None)
+        self.cr_test_data['research_dataset'].pop('directories', None)
+        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        return response.data['id']
+
+    @responses.activate
+    def test_authorization(self):
+        """
+        When adding files to a dataset, the user must have membership of the related files' project.
+        If changing files of an existing dataset, the user must have membership of the related files' project,
+        in addition to being the owner of the dataset.
+        """
+        self._set_token_authentication()
+
+        for with_metadata in (False, True):
+            self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+            self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_06.txt', with_metadata=with_metadata)
+            response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    @responses.activate
+    def test_retrieve_dataset_file_projects(self):
+        """
+        A helper api for retrieving current file projects of a dataset. There should always be
+        only 0 or 1 projects.
+        """
+        self._set_token_authentication()
+
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_id = response.data['id']
+
+        # user owns dataset
+        response = self.client.get('/rest/v2/datasets/%d/projects' % cr_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data), 1, response.data)
+
+        # user is authenticated, but does not own dataset
+        response = self.client.get('/rest/v2/datasets/1/projects', format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+        # anonymous user
+        self.client._credentials = {}
+        response = self.client.get('/rest/v2/datasets/%d/projects' % cr_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_include_user_metadata_parameter(self):
+        """
+        When retrieving datasets, by default the "user metadata", or "dataset-specific file metadata" stored
+        in research_dataset.files and research_dataset.directories should not be returned.
+        """
+        response = self.client.get('/rest/v2/datasets/1', format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('files' in response.data['research_dataset'], False, response.data)
+
+        response = self.client.get('/rest/v2/datasets/1?include_user_metadata', format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('files' in response.data['research_dataset'], True, response.data)
+
+    def test_create_files_are_saved(self):
+        """
+        A very simple "add two individual files" test. Only entries with dataset-specific
+        metadata should be persisted in research_dataset.files.
+        """
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_06.txt', with_metadata=True)
+        response = self.client.post('/rest/v2/datasets?include_user_metadata', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(len(response.data['research_dataset']['files']), 1)
+        self.assert_file_count(response.data, 2)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
+
+    def test_allowed_projects(self):
+        """
+        Test the ?allowed_projects=x,y parameter when adding files.
+        """
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+
+        response = self.client.post('/rest/v2/datasets?allowed_projects=testproject', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.post('/rest/v2/datasets?allowed_projects=no,projects', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    def test_create_directories_are_saved(self):
+        """
+        A very simple "add two individual directories" test. Only entries with dataset-specific
+        metadata should be persisted in research_dataset.directories.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2', with_metadata=True)
+        response = self.client.post('/rest/v2/datasets?include_user_metadata', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(len(response.data['research_dataset']['directories']), 1)
+        self.assert_file_count(response.data, 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
+
+    def test_create_exclude_files(self):
+        """
+        Add directory of files, but exclude one file.
+        """
+        self._exclude_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1')
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 5)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 5)
+
+    def test_create_exclude_directories(self):
+        """
+        Add directory of files, but exclude one sub directory.
+        """
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1')
+        self._exclude_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 4)
+        self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 4)
+
+    def test_update_add_and_exclude_files(self):
+        """
+        Add and excldue files to an existing draft dataset.
+
+        It should be possible to add or exclude files any number of times on a draft dataset.
+        """
+        cr_id = self._create_draft()
+
+        file_changes = {}
+
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('files_added'), 1, response.data)
+        self.assert_file_count(cr_id, 1)
+
+        # executing the same request with same file entry should make no difference
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('files_added'), 0, response.data)
+        self.assert_file_count(cr_id, 1)
+
+        # adding a directory should add files that are not already added
+        file_changes = {}
+
+        self._add_directory(file_changes, '/TestExperiment/Directory_1/Group_1')
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('files_added'), 1, response.data)
+        self.assert_file_count(cr_id, 2)
+
+        # add even more files
+        file_changes = {}
+
+        self._add_directory(file_changes, '/TestExperiment/Directory_1')
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('files_added'), 4, response.data)
+        self.assert_file_count(cr_id, 6)
+
+        # exclude previously added files from one directroy
+        file_changes = {}
+
+        self._exclude_directory(file_changes, '/TestExperiment/Directory_1/Group_1')
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('files_removed'), 2, response.data)
+        self.assert_file_count(cr_id, 4)
+
+        # exclude all previously added files, but keep one file by adding an "add file" entry
+        file_changes = {}
+
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_2/file_03.txt')
+        self._exclude_directory(file_changes, '/TestExperiment')
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('files_added'), 0, response.data)
+        self.assertEqual(response.data.get('files_removed'), 3, response.data)
+        self.assert_file_count(cr_id, 1)
+
+    def test_files_can_be_added_once_after_publishing(self):
+        """
+        First update from 0 to n files should be allowed even for a published dataset, and
+        without needing to create new dataset versions, so this is permitted. Subsequent
+        file changes will requiree creating a new draft version first.
+        """
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_id = response.data['id']
+
+        self.assert_file_count(cr_id, 0)
+
+        file_changes = {}
+
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data.get('files_added'), 1, response.data)
+
+        # try to add a second time. should give an error
+        file_changes = {}
+
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('Changing files of a published dataset' in response.data['detail'][0], True, response.data)
+
+    def test_prevent_changing_files_on_deprecated_datasets(self):
+        cr = CR.objects.get(pk=1)
+        cr.deprecated = True
+        cr.force_save()
+
+        file_changes = {
+            'files': [{ 'identifier': 'some file' }]
+        }
+
+        response = self.client.post('/rest/v2/datasets/1/files', file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('Changing files of a deprecated' in response.data['detail'][0], True, response.data)
+
+    def test_directory_entries_are_processed_in_order(self):
+        """
+        Directory entries should executed in the order they are given in the request body.
+        """
+        # excluding should do nothing, since "add directory" entry is later
+        self._exclude_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1')
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 6)
+
+        self.cr_test_data['research_dataset'].pop('directories')
+
+        # exclusion should now have effect, since it is last
+        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1')
+        self._exclude_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_1')
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assert_file_count(response.data, 4)
+
+    def test_allow_file_changes_only_on_drafts(self):
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        file_changes = {}
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+        response = self.client.post('/rest/v2/datasets/%d/files' % response.data['id'], file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('Changing files of a published dataset' in response.data['detail'][0], True, response.data)
+
+
+class CatalogRecordUserMetadata(CatalogRecordApiWriteAssignFilesCommonV2):
+
+    """
+    Dataset-specific metadata aka User Metadata related tests.
+    """
+
+    def test_retrieve_file_metadata_only(self):
+
+        cr_id = 11
+
+        # retrieve all "user metadata" of adataset
+        response = self.client.get('/rest/v2/datasets/%d/files/user_metadata' % cr_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr = CR.objects.only('research_dataset').get(pk=cr_id)
+
+        for object_type in ('files', 'directories'):
+            self.assertEqual(
+                len(cr.research_dataset[object_type]),
+                len(response.data[object_type]),
+                response.data
+            )
+
+        files_and_dirs = response.data
+
+        params = [
+            {
+                # a pid of single file
+                'pid': 'pid:urn:2',
+                'directory': 'false',
+                'expect_to_find': True,
+            },
+            {
+                # a pid of a directory
+                'pid': 'pid:urn:dir:2',
+                'directory': 'true',
+                'expect_to_find': True,
+            },
+            {
+                # a pid of a directory not part of this dataset
+                'pid': 'should not be found',
+                'directory': 'true',
+                'expect_to_find': False,
+            }
+        ]
+
+        for p in params:
+
+            # retrieve a single metadata entry
+            response = self.client.get(
+                '/rest/v2/datasets/%d/files/%s/user_metadata?directory=%s' % (cr_id, p['pid'], p['directory']),
+                format="json"
+            )
+            if p['expect_to_find'] is True:
+                self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+                self.assertEqual('identifier' in response.data, True, response.data)
+            else:
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+                continue
+
+            if p['directory'] == 'true':
+                object_type = 'directories'
+            else:
+                object_type = 'files'
+
+            for obj in files_and_dirs[object_type]:
+                if obj['identifier'] == response.data['identifier']:
+                    if p['expect_to_find'] is True:
+                        self.assertEqual(obj, response.data, response.data)
+                        break
+                    else:
+                        self.fail('pid %s should not have been found' % p['pid'])
+            else:
+                if p['expect_to_find'] is True:
+                    self.fail('Retrieved object %s was not found in research_dataset file data?' % p['pid'])
+
+    def test_dataset_files_schema(self):
+        """
+        Ensure new schema file dataset_files_schema.json is used.
+        """
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_id = response.data['id']
+
+        # use a non-schema field
+        file_changes = {}
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_1/file_02.txt', with_metadata=True)
+        file_changes['files'][0]['some_unexpected_file'] = 'should raise error'
+
+        response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('is not valid' in str(response.data['detail'][0]), True, response.data)
+
+        # various mandatory fields missing
+        for mandatory_field in ('identifier', 'use_category'):
+            file_changes = {}
+            self._add_file(file_changes, '/TestExperiment/Directory_1/Group_1/file_02.txt', with_metadata=True)
+            file_changes['files'][0].pop(mandatory_field)
+
+            response = self.client.post('/rest/v2/datasets/%d/files' % cr_id, file_changes, format="json")
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+            self.assertEqual('is not valid' in str(response.data['detail'][0]), True, response.data)
+
+    def test_update_metadata_only(self):
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('files' in response.data['research_dataset'], False, response.data)
+
+        cr_id = response.data['id']
+
+        # add metadata for one file
+
+        file_changes = {}
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_1/file_02.txt', with_metadata=True)
+        file_changes['files'][0]['title'] = 'New title'
+
+        response = self.client.put('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(
+            CR.objects.only('research_dataset').get(pk=cr_id).research_dataset['files'][0]['title'],
+            file_changes['files'][0]['title']
+        )
+
+        # add metadata for two directories
+
+        file_changes = {}
+        self._add_directory(file_changes, '/TestExperiment', with_metadata=True)
+        self._add_directory(file_changes, '/TestExperiment/Directory_1', with_metadata=True)
+        file_changes['directories'][0]['title']       = 'New dir title'
+        file_changes['directories'][0]['description'] = 'New dir description'
+        file_changes['directories'][1]['title']       = 'New dir title 2'
+        file_changes['directories'][1]['description'] = 'New dir description 2'
+
+        file_count_before = CR.objects.get(pk=cr_id).files.count()
+
+        response = self.client.put('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr = CR.objects.only('research_dataset').get(pk=cr_id)
+
+        self.assertEqual(
+            cr.files.count(), file_count_before, 'operation should only update metadata, but not add files'
+        )
+
+        for index in (0, 1):
+            for field in ('title', 'description'):
+                self.assertEqual(
+                    cr.research_dataset['directories'][index][field],
+                    file_changes['directories'][index][field]
+                )
+
+        # update only one field using patch
+
+        file_changes = {}
+        self._add_directory(file_changes, '/TestExperiment', with_metadata=True)
+        file_changes['directories'][0] = {
+            'identifier': file_changes['directories'][0]['identifier'],
+            'title': 'Changed dir title'
+        }
+
+        response = self.client.patch('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(
+            CR.objects.only('research_dataset').get(pk=cr_id).research_dataset['directories'][0]['title'],
+            file_changes['directories'][0]['title']
+        )
+
+        # remove metadata entry. it should be ok that there are normal metadata-addition entries included
+        # in the request body too.
+
+        file_changes = {}
+        self._add_directory(file_changes, '/TestExperiment/Directory_1/Group_1', with_metadata=True)
+        self._add_directory(file_changes, '/TestExperiment')
+        file_changes['directories'][-1]['delete'] = True
+
+        entry_to_delete = file_changes['directories'][-1]['identifier']
+
+        response = self.client.put('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr = CR.objects.only('research_dataset').get(pk=cr_id)
+
+        self.assertEqual(
+            entry_to_delete in [ dr['identifier'] for dr in cr.research_dataset['directories'] ],
+            False
+        )
+
+        # dont allow adding metadata entries for files that are not actually included in the dataset
+        file_changes = {}
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_2/file_03.txt', with_metadata=True)
+        non_existing_file = file_changes['files'][-1]['identifier']
+
+        response = self.client.put('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('are not included' in response.data['detail'][0], True, response.data)
+        self.assertEqual(non_existing_file in response.data['data'], True, response.data)
+
+
+class CatalogRecordFileHandlingCumulativeDatasets(CatalogRecordApiWriteAssignFilesCommonV2):
+
+    """
+    Cumulative datasets should allow adding new files to a published dataset,
+    but prevent removing files.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.cr_test_data.pop('files', None)
+        self.cr_test_data.pop('directories', None)
+        self.cr_test_data['cumulative_state'] = CR.CUMULATIVE_STATE_YES
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.cr_id = response.data['id']
+
+    def test_add_files_to_cumulative_dataset(self):
+        """
+        Adding files to an existing cumulative dataset should be ok.
+        """
+        file_data = {}
+        self._add_file(file_data, '/TestExperiment/Directory_1/file_06.txt')
+
+        response = self.client.post('/rest/v2/datasets/%d/files' % self.cr_id, file_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr = CR.objects.get(pk=self.cr_id)
+        self.assertEqual(cr.files.count(), 2)
+        self.assertEqual(cr.date_last_cumulative_addition, cr.date_modified)
+
+    def test_exclude_files_from_cumulative_dataset(self):
+        """
+        Excluding files from an existing cumulative dataset should be prevented.
+        """
+        file_data = {}
+        self._exclude_file(file_data, '/TestExperiment/Directory_1/file_05.txt')
+
+        response = self.client.post('/rest/v2/datasets/%d/files' % self.cr_id, file_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual('Excluding files from a cumulative' in response.data['detail'][0], True, response.data)
+        self.assertEqual(CR.objects.get(pk=self.cr_id).files.count(), 1)
+
+    def test_change_preservation_state(self):
+        """
+        PAS process should not be started while cumulative period is open.
+        """
+        cr = { 'preservation_state': 10 }
+        response = self.client.patch('/rest/v2/datasets/%s' % self.cr_id, cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+
+class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
+
+    """
+    Tests related to drafts of published records.
+    """
+
+    def _create_dataset(self, cumulative=False, draft=False, with_files=False):
+        draft = 'true' if draft else 'false'
+        cumulative_state = 1 if cumulative else 0
+
+        self.cr_test_data['cumulative_state'] = cumulative_state
+
+        if with_files is False:
+            self.cr_test_data['research_dataset'].pop('files', None)
+            self.cr_test_data['research_dataset'].pop('directories', None)
+
+        response = self.client.post('/rest/v2/datasets?draft=%s' % draft, self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        return response.data
+
+    def _create_draft(self, id):
+        # create draft
+        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=%d' % id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        draft_id = response.data['id']
+
+        # retrieve draft data for modifications
+        response = self.client.get('/rest/v2/datasets/%s' % draft_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('draft_of' in response.data, True, response.data)
+        self.assertEqual(response.data['draft_of']['id'], id, response.data)
+
+        return response.data
+
+    def _merge_draft_changes(self, draft_id):
+        response = self.client.post('/rpc/v2/datasets/merge_draft?identifier=%d' % draft_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # draft should be permanently destroyed
+        draft_found = CR.objects_unfiltered.filter(pk=draft_id).exists()
+        self.assertEqual(draft_found, False)
+
+    def test_create_and_merge_draft(self):
+        """
+        A simple test to create a draft, change some metadata, and publish the changes.
+        """
+        cr = self._create_dataset()
+        initial_title = cr['research_dataset']['title']
+
+        # create draft
+        draft_cr = self._create_draft(cr['id'])
+        draft_cr['research_dataset']['title']['en'] = 'modified title'
+
+        # ensure original now has a link to next_draft
+        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_draft' in response.data, True, response.data)
+        self.assertEqual(response.data['next_draft']['id'], draft_cr['id'], response.data)
+
+        # update the draft
+        response = self.client.put('/rest/v2/datasets/%d' % draft_cr['id'], draft_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure original dataset
+        # - does not have the changes yet, since draft has not been published
+        # - has next_draft link, pointing to the preciously created draft
+        original_cr = CR.objects.get(pk=cr['id'])
+        self.assertEqual(original_cr.research_dataset['title'], initial_title, original_cr.research_dataset['title'])
+        self.assertEqual(original_cr.next_draft_id, draft_cr['id'])
+
+        # merge draft changes back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
+
+        # changes should now reflect on original published dataset
+        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(
+            response.data['research_dataset']['title'],
+            draft_cr['research_dataset']['title'],
+            response.data
+        )
+        self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
+
+    def test_add_files_to_draft_normal_dataset(self):
+        """
+        Test case where dataset has 0 files in the beginning.
+        """
+        cr = self._create_dataset(with_files=False)
+        draft_cr = self._create_draft(cr['id'])
+
+        # add file to draft
+        file_changes = { 'files': [{ 'identifier': 'pid:urn:1' }]}
+        response = self.client.post('/rest/v2/datasets/%d/files' % draft_cr['id'], file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure original has no files
+        self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 0)
+
+        # merge draft changes back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
+
+        # ensure original now has the files
+        self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 1)
+
+    def test_add_files_to_draft_when_files_already_exist(self):
+        """
+        Dataset already has files, so only metadata changes should be allowed. Adding
+        or removing files should be prevented.
+        """
+        cr = self._create_dataset(with_files=True)
+        draft_cr = self._create_draft(cr['id'])
+
+        # add file to draft
+        file_changes = { 'files': [{ 'identifier': 'pid:urn:10' }]}
+        response = self.client.post('/rest/v2/datasets/%d/files' % draft_cr['id'], file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_add_files_to_draft_cumulative_dataset(self):
+        """
+        Adding new files to cumulative draft should be ok. Removing files should be prevented.
+        """
+        cr = self._create_dataset(cumulative=True, with_files=True)
+        draft_cr = self._create_draft(cr['id'])
+
+        # try to remove a file. should be stopped
+        file_changes = { 'files': [{ 'identifier': 'pid:urn:1', 'exclude': True }]}
+        response = self.client.post('/rest/v2/datasets/%d/files' % draft_cr['id'], file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # now add files
+        file_changes = { 'files': [{ 'identifier': 'pid:urn:10' }]}
+        response = self.client.post('/rest/v2/datasets/%d/files' % draft_cr['id'], file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure original has no files YET
+        self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 2)
+
+        # merge draft changes back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
+
+        # ensure original now has the files
+        self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 3)
+
+    def test_delete_draft(self):
+        """
+        Delete draft of a published dataset.
+        """
+        cr = self._create_dataset(with_files=False)
+        draft_cr = self._create_draft(cr['id'])
+
+        response = self.client.delete('/rest/v2/datasets/%d' % draft_cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # draft should be deleted permanently
+        draft_found = CR.objects_unfiltered.filter(pk=draft_cr['id']).exists()
+        self.assertEqual(draft_found, False)
+
+        # ensure original now has a link to next_draft
+        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')

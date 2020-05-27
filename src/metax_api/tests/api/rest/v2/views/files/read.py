@@ -34,13 +34,13 @@ class FileApiReadCommon(APITestCase, TestClassUtils):
 class FileApiReadBasicTests(FileApiReadCommon):
 
     def test_read_file_list(self):
-        response = self.client.get('/rest/files')
+        response = self.client.get('/rest/v2/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_file_list_filter_by_project(self):
         proj = File.objects.get(pk=1).project_identifier
         file_count = File.objects.filter(project_identifier=proj).count()
-        response = self.client.get('/rest/files?project_identifier=%s' % proj)
+        response = self.client.get('/rest/v2/files?project_identifier=%s' % proj)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], file_count)
 
@@ -48,16 +48,16 @@ class FileApiReadBasicTests(FileApiReadCommon):
         proj = File.objects.get(pk=1).project_identifier
         path = "/project_x_FROZEN/Experiment_X/Phase_1/2017/01"
         file_count = File.objects.filter(project_identifier=proj, file_path__contains=path).count()
-        response = self.client.get('/rest/files?project_identifier=%s&file_path=%s' % (proj, path))
+        response = self.client.get('/rest/v2/files?project_identifier=%s&file_path=%s' % (proj, path))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], file_count)
 
         # missing project_identifier
-        response = self.client.get('/rest/files?file_path=%s' % path)
+        response = self.client.get('/rest/v2/files?file_path=%s' % path)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_read_file_details_by_pk(self):
-        response = self.client.get('/rest/files/%s' % self.pk)
+        response = self.client.get('/rest/v2/files/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(hasattr(response, 'data'), True, 'Request response object is missing attribute \'data\'')
         self.assertEqual('file_name' in response.data, True)
@@ -65,24 +65,24 @@ class FileApiReadBasicTests(FileApiReadCommon):
         self.assertEqual('identifier' in response.data['file_storage'], True)
 
     def test_read_file_details_by_identifier(self):
-        response = self.client.get('/rest/files/%s' % self.identifier)
+        response = self.client.get('/rest/v2/files/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(hasattr(response, 'data'), True, 'Request response object is missing attribute \'data\'')
         self.assertEqual('file_name' in response.data.keys(), True)
         self.assertEqual(response.data['identifier'], self.identifier)
 
     def test_read_file_details_not_found(self):
-        response = self.client.get('/rest/files/shouldnotexist')
+        response = self.client.get('/rest/v2/files/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_read_file_details_checksum_relation(self):
-        response = self.client.get('/rest/files/%s' % self.pk)
+        response = self.client.get('/rest/v2/files/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('checksum' in response.data, True)
         self.assertEqual('value' in response.data['checksum'], True)
 
     def test_expand_relations(self):
-        response = self.client.get('/rest/files/1?expand_relation=file_storage,parent_directory')
+        response = self.client.get('/rest/v2/files/1?expand_relation=file_storage,parent_directory')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('file_storage_json' in response.data['file_storage'], True, response.data['file_storage'])
         self.assertEqual('date_created' in response.data['parent_directory'], True, response.data['parent_directory'])
@@ -94,7 +94,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         """
         File pk 1 should belong to only 3 datasets
         """
-        response = self.client.post('/rest/files/datasets', [1], format='json')
+        response = self.client.post('/rest/v2/files/datasets', [1], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 3)
 
@@ -103,7 +103,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         File identifiers listed below should belong to 5 datasets
         """
         file_identifiers = File.objects.filter(id__in=[1, 2, 3, 4, 5]).values_list('identifier', flat=True)
-        response = self.client.post('/rest/files/datasets', file_identifiers, format='json')
+        response = self.client.post('/rest/v2/files/datasets', file_identifiers, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
@@ -111,7 +111,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         """
         File identifiers listed below should belong to 5 datasets
         """
-        response = self.client.post('/rest/files/datasets?detailed=true', [1], format='json')
+        response = self.client.post('/rest/v2/files/datasets?detailed=true', [1], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 1)
         self.assertEqual(len(list(response.data.values())[0]), 3, response.data)
@@ -122,7 +122,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         """
         file_identifiers = [1, 2, 3, 4, 5]
 
-        response = self.client.post('/rest/files/datasets?detailed=true', file_identifiers, format='json')
+        response = self.client.post('/rest/v2/files/datasets?detailed=true', file_identifiers, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
@@ -132,7 +132,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         # check if identifiers work
         file_identifiers = ['pid:urn:1', 'pid:urn:2', 'pid:urn:3', 'pid:urn:4', 'pid:urn:5']
 
-        response = self.client.post('/rest/files/datasets?detailed=true', file_identifiers, format='json')
+        response = self.client.post('/rest/v2/files/datasets?detailed=true', file_identifiers, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
@@ -143,10 +143,10 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         """
         When the files themselves are not found, 404 should be returned
         """
-        response = self.client.post('/rest/files/datasets', ['doesnotexist'], format='json')
+        response = self.client.post('/rest/v2/files/datasets', ['doesnotexist'], format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
 
-        response = self.client.post('/rest/files/datasets?detailed=true', ['doesnotexist'], format='json')
+        response = self.client.post('/rest/v2/files/datasets?detailed=true', ['doesnotexist'], format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
 
     def test_get_related_datasets_records_not_found(self):
@@ -157,11 +157,11 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
             # detach file pk 1 from any datasets
             cr.execute('delete from metax_api_catalogrecord_files where file_id = 1')
 
-        response = self.client.post('/rest/files/datasets', [1], format='json')
+        response = self.client.post('/rest/v2/files/datasets', [1], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 0)
 
-        response = self.client.post('/rest/files/datasets?detailed=true', [1], format='json')
+        response = self.client.post('/rest/v2/files/datasets?detailed=true', [1], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 0)
 
@@ -180,18 +180,18 @@ class FileApiReadEndUserAccess(FileApiReadCommon):
     @responses.activate
     def test_user_can_read_owned_files(self):
         '''
-        Ensure users can only read files owned by them from /rest/files api.
+        Ensure users can only read files owned by them from /rest/v2/files api.
         '''
 
         # first read files without project access - should fail
         self._use_http_authorization(method='bearer', token=self.token)
         proj = File.objects.get(pk=1).project_identifier
 
-        response = self.client.get('/rest/files/1')
+        response = self.client.get('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
-        response = self.client.get('/rest/files?project_identifier=%s' % proj)
+        response = self.client.get('/rest/v2/files?project_identifier=%s' % proj)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
-        response = self.client.get('/rest/files?no_pagination')
+        response = self.client.get('/rest/v2/files?no_pagination')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 0, 'should return 200 OK, but user projects has no files')
 
@@ -199,12 +199,12 @@ class FileApiReadEndUserAccess(FileApiReadCommon):
         self.token['group_names'].append('IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
-        response = self.client.get('/rest/files')
+        response = self.client.get('/rest/v2/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data) > 0, True, 'user should only see their own files')
 
-        response = self.client.get('/rest/files/1')
+        response = self.client.get('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client.get('/rest/files?project_identifier=%s' % proj)
+        response = self.client.get('/rest/v2/files?project_identifier=%s' % proj)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

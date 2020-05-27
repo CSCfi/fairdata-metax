@@ -33,19 +33,19 @@ class FileStorageApiWriteCommon(APITestCase, TestClassUtils):
 class FileStorageApiWriteBasicTests(FileStorageApiWriteCommon):
 
     def test_create(self):
-        response = self.client.post('/rest/filestorages', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/filestorages', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_identifier_already_exists(self):
-        response = self.client.post('/rest/filestorages', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/filestorages', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response = self.client.post('/rest/filestorages', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/filestorages', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('already exists' in response.data['file_storage_json']['identifier'][0],
             True, response.data)
 
     def test_delete(self):
-        response = self.client.delete('/rest/filestorages/1')
+        response = self.client.delete('/rest/v2/filestorages/1')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         fs = FileStorage.objects_unfiltered.get(pk=1)
         self.assertEqual(fs.removed, True, 'should be deleted')
