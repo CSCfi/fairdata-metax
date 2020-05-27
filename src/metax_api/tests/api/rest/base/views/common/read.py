@@ -230,3 +230,29 @@ class ApiReadQueryParamTests(CatalogRecordApiReadCommon):
         self.assertEqual('identifier' in response.data, True)
         self.assertEqual('data_catalog' in response.data, True)
         self.assertEqual(len(response.data.keys()), 2)
+
+        response = self.client.get('/rest/datasets/1?fields=not_found')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_checksum_field_for_file(self):
+        """
+        Check that checksum field works correctly
+        """
+
+        self._use_http_authorization('metax')
+        response = self.client.get('/rest/files/1?fields=checksum')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('checksum'), 'Checksum JSON should be returned')
+        self.assertTrue(response.data['checksum'].get('algorithm'))
+        self.assertTrue(response.data['checksum'].get('checked'))
+        self.assertTrue(response.data['checksum'].get('value'))
+
+        response = self.client.get('/rest/files/1?fields=checksum:value')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('checksum'), 'Checksum JSON should be returned')
+        self.assertTrue(response.data['checksum'].get('value'))
+        self.assertFalse(response.data['checksum'].get('algorithm'))
+
+        response = self.client.get('/rest/files/1?fields=checksum:badvalue')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('is not part of' in response.data['detail'][0], 'Should complain about field not found')

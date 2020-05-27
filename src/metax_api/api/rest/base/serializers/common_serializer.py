@@ -26,7 +26,7 @@ _logger = logging.getLogger(__name__)
 class CommonSerializer(ModelSerializer):
 
     # when query parameter ?fields=x,y is used, will include a list of fields to return
-    requested_fields = None
+    requested_fields = []
 
     class Meta:
         model = Common
@@ -66,8 +66,6 @@ class CommonSerializer(ModelSerializer):
         in the kw arg 'only_fields', when serializing objects outside of the common GET
         api's.
         """
-        if 'only_fields' in kwargs:
-            self.requested_fields = kwargs.pop('only_fields')
 
         super(CommonSerializer, self).__init__(*args, **kwargs)
 
@@ -92,8 +90,11 @@ class CommonSerializer(ModelSerializer):
             # to do so. solution: read the docs and be aware of it.
             self.partial = True
 
-        if not self.requested_fields and 'request' in self.context and 'fields' in self.context['request'].query_params:
-            self.requested_fields = self.context['request'].query_params['fields'].split(',')
+        if 'only_fields' in kwargs:
+            self.requested_fields = kwargs.pop('only_fields')
+
+        elif 'request' in self.context and 'fields' in self.context['request'].query_params:
+            self.requested_fields = self.context['view'].fields
 
     @transaction.atomic
     def save(self, *args, **kwargs):

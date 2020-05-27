@@ -315,8 +315,10 @@ class CatalogRecordSerializer(CommonSerializer):
         """
         if 'request' in self.context:
             if not instance.user_is_privileged(self.context['request']):
-                res['research_dataset'] = CRS.check_and_remove_metadata_based_on_access_type(
-                    CRS.remove_contact_info_metadata(res['research_dataset']))
+                if res.get('research_dataset'):
+                    # research_dataset can be missing if not listed in fields query param
+                    res['research_dataset'] = CRS.check_and_remove_metadata_based_on_access_type(
+                        CRS.remove_contact_info_metadata(res['research_dataset']))
 
                 res.pop('rems_identifier', None)
                 res.pop('access_granter', None)
