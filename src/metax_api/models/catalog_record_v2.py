@@ -69,10 +69,12 @@ class CatalogRecordV2(CatalogRecord):
         Note: keys are popped from kwargs, because super().save() will complain if it receives
         unknown keyword arguments.
         """
+        pid_type = kwargs.pop('pid_type', None)
+
         if self._operation_is_create():
             self._pre_create_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
-            self._post_create_operations(pid_type=kwargs.pop('pid_type', None))
+            self._post_create_operations(pid_type=pid_type)
         else:
             self._pre_update_operations(draft_publish=kwargs.pop('draft_publish', False))
             super(CatalogRecord, self).save(*args, **kwargs)
@@ -234,9 +236,10 @@ class CatalogRecordV2(CatalogRecord):
             self._create_or_update_alternate_record_set(other_record)
 
         if self.catalog_versions_datasets():
-            dvs = DatasetVersionSet()
-            dvs.save()
-            dvs.records.add(self)
+            if not self.dataset_version_set:
+                dvs = DatasetVersionSet()
+                dvs.save()
+                dvs.records.add(self)
 
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
 
@@ -986,8 +989,8 @@ class CatalogRecordV2(CatalogRecord):
                 if not_included_files:
                     raise Http400({
                         'detail': [
-                            'The following files are not included in the dataset. '
-                            'Please add them to the dataset first.'
+                            'The following files are not included in the dataset, or the files may '
+                            'have been marked as removed.'
                         ],
                         'data': not_included_files
                     })

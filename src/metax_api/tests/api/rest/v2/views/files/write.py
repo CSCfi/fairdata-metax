@@ -87,7 +87,7 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
             .aggregate(Sum('byte_size'))['byte_size__sum']
         file_count = File.objects.filter(project_identifier=project_identifier).count()
 
-        response = self.client.get('/rest/directories/root?project=%s' % project_identifier)
+        response = self.client.get('/rest/v2/directories/root?project=%s' % project_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['byte_size'], byte_size)
         self.assertEqual(response.data['file_count'], file_count)
@@ -138,7 +138,7 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
 
     def test_file_format_version_with_invalid_file_format_when_format_version_given_1(self):
         self.test_new_data['file_characteristics']['format_version'] = 'any'
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_characteristics' in response.data.keys(), True)
         self.assertEqual('file_characteristics.file_format' in response.data['file_characteristics'], True)
@@ -146,14 +146,14 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
     def test_file_format_version_with_invalid_file_format_when_format_version_given_2(self):
         self.test_new_data['file_characteristics']['file_format'] = 'nonexisting'
         self.test_new_data['file_characteristics']['format_version'] = 'any'
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_characteristics' in response.data.keys(), True)
         self.assertEqual('file_characteristics.file_format' in response.data['file_characteristics'], True)
 
     def test_file_format_version_with_invalid_format_version_when_file_format_has_versions_1(self):
         self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_characteristics' in response.data.keys(), True)
         self.assertEqual('file_characteristics.format_version' in response.data['file_characteristics'], True)
@@ -161,33 +161,33 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
     def test_file_format_version_with_invalid_format_version_when_file_format_has_versions_2(self):
         self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
         self.test_new_data['file_characteristics']['format_version'] = 'nonexisting'
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_characteristics' in response.data.keys(), True)
         self.assertEqual('file_characteristics.format_version' in response.data['file_characteristics'], True)
 
     def test_file_format_version_with_empty_format_version_when_file_format_has_no_version_1(self):
         self.test_new_data['file_characteristics']['file_format'] = self.ff_without_version['input_file_format']
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_file_format_version_with_empty_format_version_when_file_format_has_no_version_2(self):
         self.test_new_data['file_characteristics']['file_format'] = self.ff_without_version['input_file_format']
         self.test_new_data['file_characteristics']['format_version'] = ''
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_file_format_version_with_valid_file_format_and_valid_file_version_1(self):
         self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
         self.test_new_data['file_characteristics']['format_version'] = self.ff_with_version['output_format_version']
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_file_format_version_with_valid_file_format_and_valid_file_version_2(self):
         self.test_new_data['file_characteristics']['file_format'] = self.ff_with_version['input_file_format']
         self.test_new_data['file_characteristics']['format_version'] = \
             self.ff_with_different_version['output_format_version']
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     # update tests
@@ -197,10 +197,10 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
         Ensure validation also works when updating existing files.
         """
         self.test_new_data['file_characteristics']['file_format'] = self.ff_without_version['input_file_format']
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        response = self.client.put('/rest/files/%s' % response.data['identifier'], response.data, format="json")
+        response = self.client.put('/rest/v2/files/%s' % response.data['identifier'], response.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
 
@@ -221,7 +221,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.test_new_data['file_name'] = newly_created_file_name
         self.test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('file_name' in response.data.keys(), True)
         self.assertEqual(response.data['file_name'], newly_created_file_name)
@@ -229,9 +229,9 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
 
     def test_create_file_error_identifier_exists(self):
         # first ok
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         # second should give error
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('identifier' in response.data.keys(), True)
         self.assertEqual('already exists' in response.data['identifier'][0], True)
@@ -241,10 +241,10 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         It should be possible to delete a file, and then create the exact same file again
         without letting the removed file conflict.
         """
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
-        response = self.client.delete('/rest/files/%d' % response.data['id'], format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
+        response = self.client.delete('/rest/v2/files/%d' % response.data['id'], format="json")
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     def test_create_file_error_json_validation(self):
@@ -258,7 +258,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
             "title": "A title 0000000010"
         }
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_characteristics' in response.data.keys(), True,
@@ -271,7 +271,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
     def test_create_file_allowed_checksum_algorithm(self):
         self.test_new_data['checksum']['algorithm'] = 'SHA-512'
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['checksum']['algorithm'], 'SHA-512')
@@ -281,7 +281,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.test_new_data['file_name'] = 'md5-filename'
         self.test_new_data['checksum']['algorithm'] = 'MD5'
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data['checksum']['algorithm'], 'MD5')
@@ -292,7 +292,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         for algo in ['sha2', 'sha256', 'sha-256']:
             # run POST requests inside db transaction to ensure django testcase transactions
             # work correctly. https://stackoverflow.com/a/23326971/1201945 this probably has
-            # somethind to do with the fact that POST requests to /rest/files do not normally
+            # somethind to do with the fact that POST requests to /rest/v2/files do not normally
             # execute inside a db transaction like all other requests to metax api do. see
             # file_view.py for details.
             #
@@ -300,7 +300,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
             # causes the request to be executed inside a transaction too.
             with transaction.atomic():
                 self.test_new_data['checksum']['algorithm'] = algo
-                response = self.client.post('/rest/files', self.test_new_data, format="json")
+                response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
                 self.assertEqual('checksum_algorithm' in response.data, True)
 
@@ -315,7 +315,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.second_test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurnalso'
         self._change_file_path(self.second_test_new_data, 'two_file.txt')
 
-        response = self.client.post('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.post('/rest/v2/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('failed' in response.data.keys(), True)
         self.assertEqual('success' in response.data.keys(), True)
@@ -337,7 +337,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         # same as above - should fail
         self.second_test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
-        response = self.client.post('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.post('/rest/v2/files', [self.test_new_data, self.second_test_new_data], format="json")
 
         """
         List response looks like
@@ -370,7 +370,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         # same as above - should cause an error.
         self.second_test_new_data['identifier'] = 'urn:nbn:fi:csc-thisisanewurn'
 
-        response = self.client.post('/rest/files?ignore_already_exists_errors',
+        response = self.client.post('/rest/v2/files?ignore_already_exists_errors',
             [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(len(response.data), 2)
@@ -383,7 +383,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.test_new_data['identifier'] = None
         self.second_test_new_data['identifier'] = None
 
-        response = self.client.post('/rest/files', [self.test_new_data, self.second_test_new_data], format="json")
+        response = self.client.post('/rest/v2/files', [self.test_new_data, self.second_test_new_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual('failed' in response.data.keys(), True)
@@ -411,7 +411,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         f['file_path'] = file_path % f['file_name']
         f['identifier'] = 'abc123111'
 
-        response = self.client.post('/rest/files', f, format="json")
+        response = self.client.post('/rest/v2/files', f, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('date_created' in response.data, True)
         self.assertEqual('parent_directory' in response.data, True)
@@ -437,7 +437,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         f['identifier'] = '%s-111' % f['file_path']
         f['project_identifier'] = project_identifier
 
-        response = self.client.post('/rest/files', f, format="json")
+        response = self.client.post('/rest/v2/files', f, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('date_created' in response.data, True)
         self.assertEqual('parent_directory' in response.data, True)
@@ -456,7 +456,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         """
         experiment_1_file_list = self._form_complex_list_from_test_file()
 
-        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_1_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual(len(response.data['success']), 12)
@@ -479,7 +479,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
 
         # setup db to have pre-existing dirs
         experiment_1_file_list = self._form_complex_list_from_test_file()
-        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_1_file_list, format="json")
 
         # form new test data
         experiment_2_file_list = self._form_complex_list_from_test_file()
@@ -489,7 +489,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
                                                     '/project_y_FROZEN/Experiment_2/Phase_1/Data')
             f['identifier'] = '%s-%d' % (f['file_path'], i)
 
-        response = self.client.post('/rest/files', experiment_2_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_2_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual(len(response.data['success']), 12)
@@ -507,7 +507,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
 
         # setup db to have pre-existing dirs
         experiment_1_file_list = self._form_complex_list_from_test_file()
-        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_1_file_list, format="json")
 
         # form new test data, and trim it down a bit
         experiment_2_file_list = self._form_complex_list_from_test_file()
@@ -518,7 +518,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             f['file_path'] = '/project_y_FROZEN/Experiment_2/%s' % f['file_name']
             f['identifier'] = '%s-%d' % (f['file_path'], i)
 
-        response = self.client.post('/rest/files', experiment_2_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_2_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual(len(response.data['failed']), 0, response.data['failed'])
@@ -536,7 +536,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
 
         # setup db to have pre-existing dirs
         experiment_1_file_list = self._form_complex_list_from_test_file()
-        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_1_file_list, format="json")
 
         # form new test data, but use just the first item
         experiment_2_file_list = self._form_complex_list_from_test_file()[0:1]
@@ -545,7 +545,7 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
             f['file_path'] = '/project_y_FROZEN/Experiment_2/%s' % f['file_name']
             f['identifier'] = '%s-%d' % (f['file_path'], i)
 
-        response = self.client.post('/rest/files', experiment_2_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_2_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual('success' in response.data.keys(), True)
         self.assertEqual(len(response.data['success']), 1)
@@ -562,21 +562,21 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         """
         experiment_1_file_list = self._form_complex_list_from_test_file()
         experiment_1_file_list[0].pop('file_path')
-        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_1_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('file_path' in response.data, True)
         self.assertEqual('required parameter' in response.data['file_path'][0], True)
 
         experiment_1_file_list = self._form_complex_list_from_test_file()
         experiment_1_file_list[0].pop('project_identifier')
-        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_1_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('project_identifier' in response.data, True)
         self.assertEqual('required parameter' in response.data['project_identifier'][0], True)
 
         experiment_1_file_list = self._form_complex_list_from_test_file()
         experiment_1_file_list[0]['project_identifier'] = 'second_project'
-        response = self.client.post('/rest/files', experiment_1_file_list, format="json")
+        response = self.client.post('/rest/v2/files', experiment_1_file_list, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('project_identifier' in response.data, True)
         self.assertEqual('multiple projects' in response.data['project_identifier'][0], True)
@@ -691,15 +691,15 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
     """
 
     def test_update_file(self):
-        f = self.client.get('/rest/files/1').data
+        f = self.client.get('/rest/v2/files/1').data
         f['file_format'] = 'csv'
-        response = self.client.put('/rest/files/%s' % f['identifier'], f, format="json")
+        response = self.client.put('/rest/v2/files/%s' % f['identifier'], f, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_prevent_file_path_update_after_create(self):
-        f = self.client.get('/rest/files/1').data
+        f = self.client.get('/rest/v2/files/1').data
         f['file_path'] = '%s_bak' % f['file_path']
-        response = self.client.put('/rest/files/%s' % f['identifier'], f, format="json")
+        response = self.client.put('/rest/v2/files/%s' % f['identifier'], f, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_file_error_required_fields(self):
@@ -708,30 +708,32 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         replaces an object and requires all 'required' fields to be present.
         """
         self.test_new_data.pop('project_identifier')
-        response = self.client.put('/rest/files/%s' % self.identifier, self.test_new_data, format="json")
+        response = self.client.put('/rest/v2/files/%s' % self.identifier, self.test_new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('project_identifier' in response.data.keys(), True,
                          'Error for field \'project_identifier\' is missing from response.data')
 
     def test_update_file_not_found(self):
-        response = self.client.put('/rest/files/doesnotexist', self.test_new_data, format="json")
+        response = self.client.put('/rest/v2/files/doesnotexist', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_file_allowed_projects_ok(self):
-        f = self.client.get('/rest/files/1').data
-        response = self.client.put('/rest/files/%s?allowed_projects=%s' % (f['identifier'], f['project_identifier']),
+        f = self.client.get('/rest/v2/files/1').data
+        response = self.client.put('/rest/v2/files/%s?allowed_projects=%s' % (f['identifier'], f['project_identifier']),
                                 f, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_file_allowed_projects_fail(self):
-        f = self.client.get('/rest/files/1').data
-        response = self.client.put('/rest/files/%s?allowed_projects=nopermission' % f['identifier'], f, format="json")
+        f = self.client.get('/rest/v2/files/1').data
+        response = self.client.put(
+            '/rest/v2/files/%s?allowed_projects=nopermission' % f['identifier'], f, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_file_allowed_projects_not_dict(self):
-        f = self.client.get('/rest/files/1').data
-        response = self.client.put('/rest/files/%s?allowed_projects=%s' % (f['identifier'], f['project_identifier']),
+        f = self.client.get('/rest/v2/files/1').data
+        response = self.client.put('/rest/v2/files/%s?allowed_projects=%s' % (f['identifier'], f['project_identifier']),
                                 [f], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('json' in response.data['detail'][0], True, 'Error regarding datatype')
@@ -741,28 +743,28 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
     #
 
     def test_file_update_list(self):
-        f1 = self.client.get('/rest/files/1').data
-        f2 = self.client.get('/rest/files/2').data
+        f1 = self.client.get('/rest/v2/files/1').data
+        f2 = self.client.get('/rest/v2/files/2').data
         new_file_format = 'changed-format'
         new_file_format_2 = 'changed-format-2'
         f1['file_format'] = new_file_format
         f2['file_format'] = new_file_format_2
 
-        response = self.client.put('/rest/files', [f1, f2], format="json")
+        response = self.client.put('/rest/v2/files', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         updated_file = File.objects.get(pk=1)
         self.assertEqual(updated_file.file_format, new_file_format)
 
     def test_file_update_list_error_one_fails(self):
-        f1 = self.client.get('/rest/files/1').data
-        f2 = self.client.get('/rest/files/2').data
+        f1 = self.client.get('/rest/v2/files/1').data
+        f2 = self.client.get('/rest/v2/files/2').data
         new_file_format = 'changed-format'
         f1['file_format'] = new_file_format
         # cant be null - should fail
         f2['file_frozen'] = None
 
-        response = self.client.put('/rest/files', [f1, f2], format="json")
+        response = self.client.put('/rest/v2/files', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['success']), 1, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
@@ -773,8 +775,8 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         self.assertEqual(updated_file.file_format, new_file_format)
 
     def test_file_update_list_error_key_not_found(self):
-        f1 = self.client.get('/rest/files/1').data
-        f2 = self.client.get('/rest/files/2').data
+        f1 = self.client.get('/rest/v2/files/1').data
+        f2 = self.client.get('/rest/v2/files/2').data
         new_file_format = 'changed-format'
         new_file_format_2 = 'changed-format-2'
         f1['file_format'] = new_file_format
@@ -783,7 +785,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         f2.pop('id')
         f2.pop('identifier')
 
-        response = self.client.put('/rest/files', [f1, f2], format="json")
+        response = self.client.put('/rest/v2/files', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['success']), 1, 'success list should be empty')
         self.assertEqual(len(response.data['failed']), 1, 'there should have been one failed element')
@@ -796,23 +798,23 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
 
     def test_file_update_list_allowed_projects_ok(self):
         # Both files in project 'project_x'
-        f1 = self.client.get('/rest/files/1').data
-        f2 = self.client.get('/rest/files/2').data
+        f1 = self.client.get('/rest/v2/files/1').data
+        f2 = self.client.get('/rest/v2/files/2').data
 
-        response = self.client.put('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
+        response = self.client.put('/rest/v2/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_file_update_list_allowed_projects_fail(self):
         # Files in projects 'project_x' and 'research_project_112'
-        f1 = self.client.get('/rest/files/1').data
-        f2 = self.client.get('/rest/files/39').data
+        f1 = self.client.get('/rest/v2/files/1').data
+        f2 = self.client.get('/rest/v2/files/39').data
 
-        response = self.client.put('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
+        response = self.client.put('/rest/v2/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_file_update_list_allowed_projects_empty_value(self):
-        f1 = self.client.get('/rest/files/1').data
-        response = self.client.put('/rest/files?allowed_projects=', [f1], format="json")
+        f1 = self.client.get('/rest/v2/files/1').data
+        response = self.client.put('/rest/v2/files?allowed_projects=', [f1], format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_file_update_list_allowed_projects_not_list(self):
@@ -820,7 +822,7 @@ class FileApiWriteUpdateTests(FileApiWriteCommon):
         new_data_1['identifier'] = "pid:urn:1"
         new_data_1['file_name'] = 'Nice_new_name'
 
-        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', new_data_1, format="json")
+        res = self.client.patch('/rest/v2/files?allowed_projects=y,z,project_x', new_data_1, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
 
 
@@ -833,7 +835,7 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         new_data = {
             "file_name": "new_file_name",
         }
-        response = self.client.patch('/rest/files/%s' % self.identifier, new_data, format="json")
+        response = self.client.patch('/rest/v2/files/%s' % self.identifier, new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('file_name' in response.data.keys(), True)
@@ -844,7 +846,7 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         new_data = {
             "file_name": "new_file_name",
         }
-        response = self.client.patch('/rest/files/%s?allowed_projects=%s' % (self.identifier, self.pidentifier),
+        response = self.client.patch('/rest/v2/files/%s?allowed_projects=%s' % (self.identifier, self.pidentifier),
             new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -854,7 +856,7 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         new_data = {
             "file_name": "new_file_name",
         }
-        response = self.client.patch('/rest/files/%s?allowed_projects=noproject' % self.identifier,
+        response = self.client.patch('/rest/v2/files/%s?allowed_projects=noproject' % self.identifier,
             new_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
@@ -863,7 +865,7 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         new_data = {
             "file_name": "new_file_name",
         }
-        response = self.client.patch('/rest/files/%s?allowed_projects=%s' % (self.identifier, self.pidentifier),
+        response = self.client.patch('/rest/v2/files/%s?allowed_projects=%s' % (self.identifier, self.pidentifier),
             [new_data], format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
@@ -885,7 +887,7 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         second_test_data['id'] = 2
         second_test_data['project_identifier'] = new_project_identifier_2
 
-        response = self.client.patch('/rest/files', [test_data, second_test_data], format="json")
+        response = self.client.patch('/rest/v2/files', [test_data, second_test_data], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('success' in response.data, True, 'response.data should contain list of changed objects')
         self.assertEqual(len(response.data['success']), 2, 'response.data should contain 2 changed objects')
@@ -904,16 +906,18 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         new_data_2['identifier'] = "pid:urn:2"
         new_data_2['file_name'] = 'Not_so_nice_name'
 
-        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', [new_data_1, new_data_2], format="json")
+        res = self.client.patch(
+            '/rest/v2/files?allowed_projects=y,z,project_x', [new_data_1, new_data_2], format="json"
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK, res.data)
         self.assertEqual(res.data['success'][0]['object']['file_name'], 'Nice_new_name', res.data)
 
     def test_file_partial_update_list_allowed_projects_fail(self):
         # Files in projects 'project_x' and 'research_project_112'
-        f1 = self.client.get('/rest/files/1').data
-        f2 = self.client.get('/rest/files/39').data
+        f1 = self.client.get('/rest/v2/files/1').data
+        f2 = self.client.get('/rest/v2/files/39').data
 
-        response = self.client.patch('/rest/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
+        response = self.client.patch('/rest/v2/files?allowed_projects=project_x,y,z', [f1, f2], format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_file_partial_update_list_allowed_projects_not_list(self):
@@ -921,7 +925,7 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         new_data_1['identifier'] = "pid:urn:1"
         new_data_1['file_name'] = 'Nice_new_name'
 
-        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', new_data_1, format="json")
+        res = self.client.patch('/rest/v2/files?allowed_projects=y,z,project_x', new_data_1, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
 
     def test_file_partial_update_list_allowed_projects_no_identifier(self):
@@ -932,7 +936,9 @@ class FileApiWritePartialUpdateTests(FileApiWriteCommon):
         new_data_2['id'] = 23
         new_data_2['file_name'] = 'Not_so_nice_name'
 
-        res = self.client.patch('/rest/files?allowed_projects=y,z,project_x', [new_data_1, new_data_2], format="json")
+        res = self.client.patch(
+            '/rest/v2/files?allowed_projects=y,z,project_x', [new_data_1, new_data_2], format="json"
+        )
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST, res.data)
 
 
@@ -947,7 +953,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
 
     def test_delete_single_file_ok(self):
         dir_count_before = Directory.objects.all().count()
-        response = self.client.delete('/rest/files/1')
+        response = self.client.delete('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('deleted_files_count' in response.data, True, response.data)
         self.assertEqual(response.data['deleted_files_count'], 1, response.data)
@@ -963,10 +969,10 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         test_data['file_path'] = '/project_z/some/path/here/%s' % test_data['file_name']
         test_data['project_identifier'] = project_identifier
         test_data['identifier'] = 'abc123'
-        response = self.client.post('/rest/files', test_data, format='json')
+        response = self.client.post('/rest/v2/files', test_data, format='json')
         self.assertEqual(Directory.objects.filter(project_identifier=project_identifier).exists(), True)
 
-        response = self.client.delete('/rest/files/%s' % response.data['id'])
+        response = self.client.delete('/rest/v2/files/%s' % response.data['id'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('deleted_files_count' in response.data, True, response.data)
         self.assertEqual(response.data['deleted_files_count'], 1, response.data)
@@ -974,7 +980,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         self.assertEqual(Directory.objects.filter(project_identifier=project_identifier).exists(), False)
 
     def test_delete_single_file_404(self):
-        response = self.client.delete('/rest/files/doesnotexist')
+        response = self.client.delete('/rest/v2/files/doesnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_bulk_delete_files_identifiers_not_found(self):
@@ -983,7 +989,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         Should return 404.
         """
         identifiers = ['nope', 'doesnotexist', 'stillno']
-        response = self.client.delete('/rest/files', identifiers, format="json")
+        response = self.client.delete('/rest/v2/files', identifiers, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
 
     def test_bulk_delete_files_some_identifiers_not_found(self):
@@ -994,7 +1000,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         """
         identifiers = ['nope', 'doesnotexist', 'stillno']
         identifiers.append(File.objects.get(pk=1).identifier)
-        response = self.client.delete('/rest/files', identifiers, format="json")
+        response = self.client.delete('/rest/v2/files', identifiers, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         removed = File.objects_unfiltered.get(pk=1).removed
         self.assertEqual(removed, True, 'file should have been removed')
@@ -1011,7 +1017,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         all_files_count_before = File.objects.all().count()
         file_ids = [f.id for f in Directory.objects.get(pk=3).files.all()]
 
-        response = self.client.delete('/rest/files', file_ids, format="json")
+        response = self.client.delete('/rest/v2/files', file_ids, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         all_files_count_after = File.objects.all().count()
@@ -1024,7 +1030,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         all_files_count_before = File.objects.all().count()
         file_ids = [f.id for f in Directory.objects.get(pk=4).files.all()]
 
-        response = self.client.delete('/rest/files', file_ids, format="json")
+        response = self.client.delete('/rest/v2/files', file_ids, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         all_files_count_after = File.objects.all().count()
@@ -1041,7 +1047,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         # everything except the last file should be removed
         file_ids.pop()
 
-        response = self.client.delete('/rest/files', file_ids, format="json")
+        response = self.client.delete('/rest/v2/files', file_ids, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         all_files_after = File.objects.filter(project_identifier='project_x')
@@ -1060,7 +1066,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         file_ids = File.objects.filter(project_identifier='project_x').values_list('id', flat=True)
         self.assertEqual(len(file_ids), files_to_remove_count)
 
-        response = self.client.delete('/rest/files', file_ids, format="json")
+        response = self.client.delete('/rest/v2/files', file_ids, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data.get('deleted_files_count', None), files_to_remove_count, response.data)
 
@@ -1078,7 +1084,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         file_ids += [f.id for f in Directory.objects.get(pk=6).files.all()]
         self.assertEqual(len(file_ids), files_to_remove_count)
 
-        response = self.client.delete('/rest/files', file_ids, format="json")
+        response = self.client.delete('/rest/v2/files', file_ids, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data.get('deleted_files_count', None), files_to_remove_count, response.data)
 
@@ -1099,7 +1105,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
         file_ids = [f.id for f in Directory.objects.get(pk=6).files.all()]
         self.assertEqual(len(file_ids), files_to_remove_count)
 
-        response = self.client.delete('/rest/files', file_ids, format="json")
+        response = self.client.delete('/rest/v2/files', file_ids, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data.get('deleted_files_count', None), files_to_remove_count, response.data)
 
@@ -1137,7 +1143,7 @@ class FileApiWriteDeleteTests(FileApiWriteCommon):
             cr.force_save()
 
         datasets_with_file = CatalogRecord.objects.filter(files__id=1).count()
-        response = self.client.delete('/rest/files/1')
+        response = self.client.delete('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(CatalogRecord.objects.filter(deprecated=True).count(), datasets_with_file)
 
@@ -1149,15 +1155,15 @@ class FileApiWriteRestoreTests(FileApiWriteCommon):
         Restore a few deleted files from directories, that still contain other files.
         Restored files should be appended to previously existing files.
         """
-        response = self.client.delete('/rest/files/1')
-        response = self.client.delete('/rest/files/2')
-        response = self.client.delete('/rest/files/3')
+        response = self.client.delete('/rest/v2/files/1')
+        response = self.client.delete('/rest/v2/files/2')
+        response = self.client.delete('/rest/v2/files/3')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         deleted_files = File.objects_unfiltered.filter(pk__in=[1, 2, 3]) \
             .values('identifier', 'parent_directory_id')
 
-        response = self.client.post('/rest/files/restore', [f['identifier'] for f in deleted_files], format='json')
+        response = self.client.post('/rest/v2/files/restore', [f['identifier'] for f in deleted_files], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('restored_files_count' in response.data, True, response.data)
         self.assertEqual(response.data['restored_files_count'], 3, response.data)
@@ -1176,17 +1182,17 @@ class FileApiWriteRestoreTests(FileApiWriteCommon):
         """
         proj = File.objects.get(pk=1).project_identifier
 
-        response = self.client.get('/rest/files?project_identifier=%s&fields=identifier&no_pagination=true'
+        response = self.client.get('/rest/v2/files?project_identifier=%s&fields=identifier&no_pagination=true'
             % proj, format='json')
         file_identifiers = [ f['identifier'] for f in response.data ]
 
-        self.client.delete('/rest/files', file_identifiers, format='json')
+        self.client.delete('/rest/v2/files', file_identifiers, format='json')
 
         deleted_directory_ids = File.objects_unfiltered.filter(identifier__in=file_identifiers) \
             .values_list('parent_directory_id', flat=True)
         old_parent_dirs = { id for id in deleted_directory_ids }
 
-        response = self.client.post('/rest/files/restore', file_identifiers, format='json')
+        response = self.client.post('/rest/v2/files/restore', file_identifiers, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual('restored_files_count' in response.data, True, response.data)
         self.assertEqual(response.data['restored_files_count'], len(file_identifiers), response.data)
@@ -1197,15 +1203,15 @@ class FileApiWriteRestoreTests(FileApiWriteCommon):
             self.assertEqual(f.parent_directory_id in old_parent_dirs, False)
 
     def test_check_parameter_is_string_list(self):
-        response = self.client.post('/rest/files/restore', ['a', 'b', 1], format='json')
+        response = self.client.post('/rest/v2/files/restore', ['a', 'b', 1], format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_check_files_belong_to_one_project(self):
         f1 = File.objects_unfiltered.get(pk=1)
         f2 = File.objects_unfiltered.filter().exclude(project_identifier=f1.project_identifier).first()
-        response = self.client.delete('/rest/files/%d' % f1.id)
-        response = self.client.delete('/rest/files/%d' % f2.id)
-        response = self.client.post('/rest/files/restore', [ f1.identifier, f2.identifier ], format='json')
+        response = self.client.delete('/rest/v2/files/%d' % f1.id)
+        response = self.client.delete('/rest/v2/files/%d' % f2.id)
+        response = self.client.post('/rest/v2/files/restore', [ f1.identifier, f2.identifier ], format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -1219,43 +1225,43 @@ class FileApiWriteXmlTests(FileApiWriteCommon):
         data = '<?xml version="1.0" encoding="utf-8"?><root><stuffia>tauhketta yeah</stuffia></root>'
 
         # create
-        response = self.client.post('/rest/files/1/xml?namespace=breh', data, content_type=content_type)
+        response = self.client.post('/rest/v2/files/1/xml?namespace=breh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
         self.assertEqual('<?xml' in response.data, True)
 
-        response = self.client.post('/rest/files/1/xml?namespace=bruh', data, content_type=content_type)
+        response = self.client.post('/rest/v2/files/1/xml?namespace=bruh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
         self.assertEqual('<?xml' in response.data, True)
 
         # get list
-        response = self.client.get('/rest/files/1/xml', content_type=content_type)
+        response = self.client.get('/rest/v2/files/1/xml', content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
         self.assertEqual(isinstance(response.data, list), True, response.data)
         self.assertEqual('breh' in response.data, True)
 
         # get single
-        response = self.client.get('/rest/files/1/xml?namespace=breh', content_type=content_type)
+        response = self.client.get('/rest/v2/files/1/xml?namespace=breh', content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
         self.assertEqual('<?xml' in response.data, True)
 
         # update
         data = '<?xml version="1.0" encoding="utf-8"?><root><stuffia>updated stuff</stuffia></root>'
-        response = self.client.put('/rest/files/1/xml?namespace=breh', data, content_type=content_type)
+        response = self.client.put('/rest/v2/files/1/xml?namespace=breh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
 
         # get updated again
-        response = self.client.get('/rest/files/1/xml?namespace=breh', content_type=content_type, )
+        response = self.client.get('/rest/v2/files/1/xml?namespace=breh', content_type=content_type, )
         self.assertEqual('updated stuff' in response.data, True)
 
         # delete
-        response = self.client.delete('/rest/files/1/xml?namespace=breh', data, content_type=content_type)
+        response = self.client.delete('/rest/v2/files/1/xml?namespace=breh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
 
-        response = self.client.delete('/rest/files/1/xml?namespace=bruh', data, content_type=content_type)
+        response = self.client.delete('/rest/v2/files/1/xml?namespace=bruh', data, content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
 
         # get list
-        response = self.client.get('/rest/files/1/xml', content_type=content_type)
+        response = self.client.get('/rest/v2/files/1/xml', content_type=content_type)
         self.assertEqual(response.status_code in (200, 201, 204), True)
 
 
@@ -1276,7 +1282,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         self.token['group_names'].append('IDA01:%s' % self.test_new_data['project_identifier'])
         self._use_http_authorization(method='bearer', token=self.token)
 
-        response = self.client.post('/rest/files', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @responses.activate
@@ -1289,7 +1295,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         self.token['group_names'].append('IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
-        response = self.client.get('/rest/files/1', format="json")
+        response = self.client.get('/rest/v2/files/1', format="json")
         file = response.data
         original_file = deepcopy(file)
         file['byte_size'] = 200
@@ -1311,7 +1317,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         # the only field that should be changed
         file['file_characteristics'] = { 'title': 'new title'}
 
-        response = self.client.put('/rest/files/1', file, format="json")
+        response = self.client.put('/rest/v2/files/1', file, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['file_characteristics']['title'], 'new title', response.data)
 
@@ -1339,7 +1345,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         '''
         proj = File.objects.only('project_identifier').get(pk=1).project_identifier
 
-        response = self.client.get('/rest/files?project_identifier=%s' % proj,
+        response = self.client.get('/rest/v2/files?project_identifier=%s' % proj,
             format="json")
 
         file = response.data['results'][0]
@@ -1347,10 +1353,10 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         self.token['group_names'].append('IDA01:%s' % proj)
         self._use_http_authorization(method='bearer', token=self.token)
 
-        response = self.client.put('/rest/files/%s' % file['id'], file, format="json")
+        response = self.client.put('/rest/v2/files/%s' % file['id'], file, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client.put('/rest/files', [file], format="json")
+        response = self.client.put('/rest/v2/files', [file], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @responses.activate
@@ -1360,7 +1366,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         '''
         proj = File.objects.only('project_identifier').get(pk=1).project_identifier
 
-        response = self.client.get('/rest/files?project_identifier=%s' % proj,
+        response = self.client.get('/rest/v2/files?project_identifier=%s' % proj,
             format="json")
 
         file = response.data['results'][0]
@@ -1368,18 +1374,18 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         self.token['group_names'] = ['no_files_for_this_project']
         self._use_http_authorization(method='bearer', token=self.token)
 
-        response = self.client.put('/rest/files/%s' % file['id'], file, format="json")
+        response = self.client.put('/rest/v2/files/%s' % file['id'], file, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-        response = self.client.put('/rest/files', [file], format="json")
+        response = self.client.put('/rest/v2/files', [file], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class FileApiWriteDryrunTest(FileApiWriteCommon):
 
     """
-    Test query param ?dryrun=bool separately for post /rest/files api, due to special
-    behavior in POST /rest/files.
+    Test query param ?dryrun=bool separately for post /rest/v2/files api, due to special
+    behavior in POST /rest/v2/files.
 
     For other apis, the common test case is among views/common/write tests.
     """
@@ -1389,7 +1395,7 @@ class FileApiWriteDryrunTest(FileApiWriteCommon):
         Ensure query parameter ?dryrun=true returns same result as they normally would, but
         changes made during the request do not get saved in the db.
         """
-        response = self.client.post('/rest/files?what&dryrun=true&other', self.test_new_data, format="json")
+        response = self.client.post('/rest/v2/files?what&dryrun=true&other', self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('id' in response.data, True)
         found = File.objects.filter(pk=response.data['id']).exists()

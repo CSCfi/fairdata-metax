@@ -55,8 +55,8 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
         if 'request' in self.context:
 
             if CS.get_boolean_query_param(self.context['request'], 'include_user_metadata'):
-                if CS.get_boolean_query_param(self.context['request'], 'file_details'):
-                    CRS.populate_file_details(res, self.context['request'])
+                # keep user metadata and possible file_details that have been populated in super().to_representation()
+                pass
             else:
                 res.get('research_dataset', {}).pop('files', None)
                 res.get('research_dataset', {}).pop('directories', None)
