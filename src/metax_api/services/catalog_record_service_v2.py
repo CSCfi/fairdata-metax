@@ -23,10 +23,11 @@ class CatalogRecordServiceV2(CatalogRecordService):
         state = request.query_params.get('state', None)
 
         if state:
-            # request.query_params is an immutable QueryDict object. replace request.query_params
-            # with a new, ordinary dict where state is missing
-            query_params = { k: v for k, v in request.query_params if k != 'state' }
-            request.query_params = query_params
+            # note: request.query_params is a @property of the request object. can not be directly edited.
+            # see rest_framework/request.py
+            request._request.GET._mutable = True
+            request.query_params.pop('state', None)
+            request._request.GET._mutable = False
 
         queryset_search_params = super().get_queryset_search_params(request)
 

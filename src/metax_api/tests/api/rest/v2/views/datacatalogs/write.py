@@ -33,37 +33,37 @@ class DataCatalogApiWriteCommon(APITestCase, TestClassUtils):
 class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
 
     def test_identifier_is_auto_generated(self):
-        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertNotEqual(response.data['catalog_json'].get('identifier', None), None, 'identifier should be created')
 
     def test_research_dataset_schema_missing_ok(self):
         self.new_test_data['catalog_json'].pop('research_dataset_schema', None)
-        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_research_dataset_schema_not_found_error(self):
         self.new_test_data['catalog_json']['research_dataset_schema'] = 'notfound'
-        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_disallow_versioning_in_harvested_catalogs(self):
         self.new_test_data['catalog_json']['dataset_versioning'] = True
         self.new_test_data['catalog_json']['harvested'] = True
-        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('versioning' in response.data['detail'][0], True, response.data)
 
     def test_create_identifier_already_exists(self):
-        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('already exists' in response.data['catalog_json']['identifier'][0],
             True, response.data)
 
     def test_delete(self):
-        response = self.client.delete('/rest/datacatalogs/1')
+        response = self.client.delete('/rest/v2/datacatalogs/1')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         dc_deleted = DataCatalog.objects_unfiltered.get(pk=1)
@@ -83,7 +83,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         dc['language'][0]['identifier'] = 'nonexisting'
         dc['access_rights']['access_type'][0]['identifier'] = 'nonexisting'
         dc['access_rights']['license'][0]['identifier'] = 'nonexisting'
-        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual('catalog_json' in response.data.keys(), True)
         self.assertEqual(len(response.data['catalog_json']), 4)
@@ -135,7 +135,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         dc['publisher']['identifier'] = refs['organization']['code']
         dc['access_rights']['has_rights_related_agent'][0]['identifier'] = refs['organization']['code']
 
-        response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
+        response = self.client.post('/rest/v2/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual('catalog_json' in response.data.keys(), True)
 

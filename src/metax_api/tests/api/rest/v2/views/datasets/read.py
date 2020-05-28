@@ -12,11 +12,11 @@ from django.conf import settings
 from django.core.management import call_command
 from django.utils import timezone
 from pytz import timezone as tz
-import responses
 from rest_framework import status
 from rest_framework.test import APITestCase
+import responses
 
-from metax_api.models import CatalogRecord, Contract, File
+from metax_api.models import CatalogRecordV2, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -45,36 +45,36 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
     """
 
     def test_read_catalog_record_list(self):
-        response = self.client.get('/rest/datasets')
+        response = self.client.get('/rest/v2/datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_catalog_record_details_by_pk(self):
-        response = self.client.get('/rest/datasets/%s' % self.pk)
+        response = self.client.get('/rest/v2/datasets/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['identifier'], self.identifier)
         self.assertEqual('identifier' in response.data['data_catalog'], True)
 
     def test_read_catalog_record_details_by_identifier(self):
-        response = self.client.get('/rest/datasets/%s' % self.identifier)
+        response = self.client.get('/rest/v2/datasets/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['identifier'],
             self.identifier)
 
     def test_get_by_preferred_identifier(self):
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         cr.research_dataset['preferred_identifier'] = '%s-/uhoh/special.chars?all&around' % cr.preferred_identifier
         cr.force_save()
-        response = self.client.get('/rest/datasets?preferred_identifier=%s' %
+        response = self.client.get('/rest/v2/datasets?preferred_identifier=%s' %
             urllib.parse.quote(cr.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['research_dataset']['preferred_identifier'], cr.preferred_identifier)
 
     def test_get_removed_by_preferred_identifier(self):
         self._use_http_authorization()
-        response = self.client.delete('/rest/datasets/%s' % self.identifier)
+        response = self.client.delete('/rest/v2/datasets/%s' % self.identifier)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        response = self.client.get('/rest/datasets?preferred_identifier=%s&removed=true' %
+        response = self.client.get('/rest/v2/datasets?preferred_identifier=%s&removed=true' %
             urllib.parse.quote(self.preferred_identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -89,21 +89,21 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         pid = cr['research_dataset']['preferred_identifier']
 
         # verify there are more than one record with same pid!
-        count = CatalogRecord.objects.filter(research_dataset__preferred_identifier=pid).count()
+        count = CatalogRecordV2.objects.filter(research_dataset__preferred_identifier=pid).count()
         self.assertEqual(count > 1, True, 'makes no sense to test with a pid that exists only once')
 
         # the retrieved record should be the one that is in catalog 1
-        response = self.client.get('/rest/datasets?preferred_identifier=%s' %
+        response = self.client.get('/rest/v2/datasets?preferred_identifier=%s' %
             urllib.parse.quote(pid))
         self.assertEqual('alternate_record_set' in response.data, True)
         self.assertEqual(response.data['data_catalog']['id'], cr['data_catalog'])
 
     def test_read_catalog_record_details_not_found(self):
-        response = self.client.get('/rest/datasets/shouldnotexist')
+        response = self.client.get('/rest/v2/datasets/shouldnotexist')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_read_catalog_record_metadata_version_identifiers(self):
-        response = self.client.get('/rest/datasets/metadata_version_identifiers')
+        response = self.client.get('/rest/v2/datasets/metadata_version_identifiers')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
@@ -112,7 +112,7 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         """
         Get all unique preferred_identifiers, no matter if they are the latest dataset version or not.
         """
-        response = self.client.get('/rest/datasets/unique_preferred_identifiers')
+        response = self.client.get('/rest/v2/datasets/unique_preferred_identifiers')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
@@ -122,14 +122,14 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
 
         self._create_new_ds()
         self._create_new_ds()
-        response = self.client.get('/rest/datasets/unique_preferred_identifiers')
+        response = self.client.get('/rest/v2/datasets/unique_preferred_identifiers')
         self.assertEqual(len(response.data) - ids_len, 2, 'should be two new PIDs')
 
     def test_get_latest_unique_preferred_identifiers(self):
         """
         Get all unique preferred_identifiers, but only from the latest dataset versions.
         """
-        response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
+        response = self.client.get('/rest/v2/datasets/unique_preferred_identifiers?latest')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(isinstance(response.data, list))
         self.assertTrue(len(response.data) > 0)
@@ -138,27 +138,27 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         ids_len = len(response.data)
 
         # files change
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         new_file_id = cr.files.all().order_by('-id').first().id + 1
         file_from_testdata = self._get_object_from_test_data('file', requested_index=new_file_id)
         # warning, this is actual file metadata, would not pass schema validation if sent through api
         cr.research_dataset['files'] = [file_from_testdata]
         cr.save()
-        response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
+        response = self.client.get('/rest/v2/datasets/unique_preferred_identifiers?latest')
         self.assertEqual(ids_len, len(response.data), 'count should stay the same')
 
         # create new
         self._create_new_ds()
         self._create_new_ds()
-        response = self.client.get('/rest/datasets/unique_preferred_identifiers?latest')
+        response = self.client.get('/rest/v2/datasets/unique_preferred_identifiers?latest')
         self.assertEqual(len(response.data) - ids_len, 2, 'should be two new PIDs')
 
     def test_expand_relations(self):
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         cr.contract_id = 1
         cr.force_save()
 
-        response = self.client.get('/rest/datasets/1?expand_relation=data_catalog,contract')
+        response = self.client.get('/rest/v2/datasets/1?expand_relation=data_catalog,contract')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('catalog_json' in response.data['data_catalog'], True, response.data['data_catalog'])
         self.assertEqual('contract_json' in response.data['contract'], True, response.data['contract'])
@@ -172,7 +172,7 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
                 self.assertEqual(sensitive_field not in obj['research_dataset']['curator'][0], True,
                     'field %s should have been stripped' % sensitive_field)
 
-        for cr in CatalogRecord.objects.filter(pk__in=(1, 2, 3)):
+        for cr in CatalogRecordV2.objects.filter(pk__in=(1, 2, 3)):
             cr.research_dataset['curator'][0].update({
                 'email': 'email@mail.com',
                 'phone': '123124',
@@ -182,48 +182,51 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
 
         self.client._credentials = {}
 
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         _check_fields(response.data)
 
-        response = self.client.get('/rest/datasets')
+        response = self.client.get('/rest/v2/datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         for obj in response.data['results']:
             _check_fields(obj)
 
-        response = self.client.get('/rest/datasets?no_pagination')
+        response = self.client.get('/rest/v2/datasets?no_pagination')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         for obj in response.data:
             _check_fields(obj)
 
     def _create_new_ds(self):
-        new_cr = self.client.get('/rest/datasets/2').data
+        new_cr = self.client.get('/rest/v2/datasets/2').data
         new_cr.pop('id')
         new_cr['research_dataset'].pop('preferred_identifier')
         new_cr.pop('identifier')
         self._use_http_authorization()
-        response = self.client.post('/rest/datasets', new_cr, format='json')
+        response = self.client.post('/rest/v2/datasets', new_cr, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
 class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
+
     """
     Basic read operations from authorization perspective
     """
+
+    api_version = 'v2'
 
     # THE OK TESTS
 
     def test_returns_all_file_dir_info_for_open_catalog_record_if_no_authorization(self):
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify all file and dir details info is returned for open cr /rest/datasets/<pk> without
+        # Verify all file and dir details info is returned for open cr /rest/v2/datasets/<pk> without
         # authorization
         self._assert_ok(open_cr_json, 'no')
 
     def test_returns_all_file_dir_info_for_login_catalog_record_if_no_authorization(self):
         login_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(use_login_access_type=True)
 
-        # Verify all file and dir details info is returned for login cr /rest/datasets/<pk> without authorization
+        # Verify all file and dir details info is returned for login cr /rest/v2/datasets/<pk> without authorization
         self._assert_ok(login_cr_json, 'no')
 
     @responses.activate
@@ -231,7 +234,7 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
         self.create_end_user_data_catalogs()
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(True)
 
-        # Verify all file and dir details info is returned for open owner-owned cr /rest/datasets/<pk> with
+        # Verify all file and dir details info is returned for open owner-owned cr /rest/v2/datasets/<pk> with
         # owner authorization
         self._assert_ok(open_cr_json, 'owner')
 
@@ -241,14 +244,14 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
         login_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(set_owner=True,
                                                                                         use_login_access_type=True)
 
-        # Verify all file and dir details info is returned for login owner-owned cr /rest/datasets/<pk> with
+        # Verify all file and dir details info is returned for login owner-owned cr /rest/v2/datasets/<pk> with
         # owner authorization
         self._assert_ok(login_cr_json, 'owner')
 
     def test_returns_all_file_dir_info_for_restricted_catalog_record_if_service_authorization(self):
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify all file and dir details info is returned for restricted cr /rest/datasets/<pk> with
+        # Verify all file and dir details info is returned for restricted cr /rest/v2/datasets/<pk> with
         # service authorization
         self._assert_ok(restricted_cr_json, 'service')
 
@@ -257,14 +260,14 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
         self.create_end_user_data_catalogs()
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details(True)
 
-        # Verify all file and dir details info is returned for restricted owner-owned cr /rest/datasets/<pk> with
+        # Verify all file and dir details info is returned for restricted owner-owned cr /rest/v2/datasets/<pk> with
         # owner authorization
         self._assert_ok(restricted_cr_json, 'owner')
 
     def test_returns_all_file_dir_info_for_embargoed_catalog_record_if_available_reached_and_no_authorization(self):
         available_embargoed_cr_json = self.get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(True)
 
-        # Verify all file and dir details info is returned for embargoed cr /rest/datasets/<pk> when
+        # Verify all file and dir details info is returned for embargoed cr /rest/v2/datasets/<pk> when
         # embargo date has been reached without authorization
         self._assert_ok(available_embargoed_cr_json, 'no')
 
@@ -273,14 +276,14 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
     def test_returns_limited_file_dir_info_for_restricted_catalog_record_if_no_authorization(self):
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify limited file and dir info for restricted cr /rest/datasets/<pk> without authorization
+        # Verify limited file and dir info for restricted cr /rest/v2/datasets/<pk> without authorization
         self._assert_limited_or_no_file_dir_info(restricted_cr_json, 'no')
 
     def test_no_file_dir_info_for_embargoed_catalog_record_if_available_not_reached_and_no_authorization(self):
         not_available_embargoed_cr_json = self.get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(
             False)
 
-        # Verify no file and dir info for embargoed cr /rest/datasets/<pk> when embargo date has not
+        # Verify no file and dir info for embargoed cr /rest/v2/datasets/<pk> when embargo date has not
         # been reached without authorization
         self._assert_limited_or_no_file_dir_info(not_available_embargoed_cr_json, 'no')
 
@@ -291,8 +294,8 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
         dir_amt = len(cr_json['research_dataset']['directories'])
         pk = cr_json['id']
 
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/rest/v2/datasets/{0}?include_user_metadata&file_details'.format(pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         self.assertEqual(len(response.data['research_dataset']['files']), file_amt)
         self.assertEqual(len(response.data['research_dataset']['directories']), dir_amt)
@@ -313,8 +316,8 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
         dir_amt = len(cr_json['research_dataset']['directories'])
         pk = cr_json['id']
 
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/rest/v2/datasets/{0}?include_user_metadata&file_details'.format(pk))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['research_dataset']['files']), file_amt)
         self.assertEqual(len(response.data['research_dataset']['directories']), dir_amt)
 
@@ -328,60 +331,11 @@ class CatalogRecordApiReadBasicAuthorizationTests(CatalogRecordApiReadCommon):
             self.assertTrue('identifier' in d)
 
 
-class CatalogRecordApiReadPreservationStateTests(CatalogRecordApiReadCommon):
-    """
-    preservation_state filtering
-    """
-
-    def test_read_catalog_record_search_by_preservation_state(self):
-        '''
-        Various simple filtering requests
-        '''
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?{}=0'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']) > 2, True,
-                'There should have been multiple results for state=0 request')
-
-            response = self.client.get('/rest/datasets?{}=10'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), 2)
-
-            response = self.client.get('/rest/datasets?{}=40'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), 1)
-
-    def test_read_catalog_record_search_by_preservation_state_666(self):
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?{}=666'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), 0, 'should return empty list')
-
-    def test_read_catalog_record_search_by_preservation_state_many(self):
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?{}=10,40'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), 3)
-            self.assertEqual(response.data['results'][0]['preservation_state'], 10)
-            self.assertEqual(response.data['results'][1]['preservation_state'], 10)
-            self.assertEqual(response.data['results'][2]['preservation_state'], 40)
-
-    def test_read_catalog_record_search_by_preservation_state_invalid_value(self):
-        response = self.client.get('/rest/datasets?state=1,a')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('is not an integer' in response.data['state'][0], True,
-                        'Error should say letter a is not an integer')
-
-        response = self.client.get('/rest/datasets?preservation_state=1,a')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('is not an integer' in response.data['preservation_state'][0], True,
-                        'Error should say letter a is not an integer')
-
 class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
 
     def test_agents_and_actors(self):
         # set test conditions
-        cr = CatalogRecord.objects.get(pk=11)
+        cr = CatalogRecordV2.objects.get(pk=11)
         cr.research_dataset['curator'] = []
         cr.research_dataset['curator'].append({
             '@type': 'Person',
@@ -416,33 +370,33 @@ class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
         cr.research_dataset['publisher']['name'] = { 'fi': 'Originaali Organisaatio' }
         cr.force_save()
 
-        response = self.client.get('/rest/datasets?creator_organization=happy')
+        response = self.client.get('/rest/v2/datasets?creator_organization=happy')
         self.assertEqual(len(response.data['results']), 1, response.data)
 
-        response = self.client.get('/rest/datasets?creator_organization=Brilliant Organization')
+        response = self.client.get('/rest/v2/datasets?creator_organization=Brilliant Organization')
         self.assertEqual(len(response.data['results']), 1, response.data)
 
-        response = self.client.get('/rest/datasets?curator_person=termiitti')
+        response = self.client.get('/rest/v2/datasets?curator_person=termiitti')
         self.assertEqual(len(response.data['results']), 1, response.data)
 
-        response = self.client.get('/rest/datasets?curator_person=Laina Sakkonen')
+        response = self.client.get('/rest/v2/datasets?curator_person=Laina Sakkonen')
         self.assertEqual(len(response.data['results']), 1, response.data)
 
-        response = self.client.get('/rest/datasets?curator_organization=uniqu')
+        response = self.client.get('/rest/v2/datasets?curator_organization=uniqu')
         self.assertEqual(len(response.data['results']), 1, response.data)
 
-        response = self.client.get('/rest/datasets?curator_organization=Happy Organization')
+        response = self.client.get('/rest/v2/datasets?curator_organization=Happy Organization')
         self.assertEqual(len(response.data['results']), 1, response.data)
 
-        response = self.client.get('/rest/datasets?publisher_organization=originaali Organisaatio')
+        response = self.client.get('/rest/v2/datasets?publisher_organization=originaali Organisaatio')
         self.assertEqual(len(response.data['results']), 1, response.data)
 
         query = 'curator_person=notfound&creator_organization=sad organ&condition_separator=AND'
-        response = self.client.get('/rest/datasets?%s' % query)
+        response = self.client.get('/rest/v2/datasets?%s' % query)
         self.assertEqual(len(response.data['results']), 0, response.data)
 
         query = 'curator_person=notfound&creator_organization=sad organ&condition_separator=OR'
-        response = self.client.get('/rest/datasets?%s' % query)
+        response = self.client.get('/rest/v2/datasets?%s' % query)
         self.assertEqual(len(response.data['results']), 1, response.data)
 
         # test filter with pas filter
@@ -452,74 +406,13 @@ class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
         metax_user = settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
 
-        response = self.client.get('/rest/datasets?pas_filter=janus&creator_organization=sad organization')
+        response = self.client.get('/rest/v2/datasets?pas_filter=janus&creator_organization=sad organization')
         self.assertEqual(len(response.data['results']), 1)
 
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=kaisa&'
-            'creator_organization=notfound'.format(queryparam))
-            self.assertEqual(len(response.data['results']), 0)
-
-class CatalogRecordApiReadPASFilter(CatalogRecordApiReadCommon):
-
-    def test_pas_filter(self):
-        """
-        Test query param pas_filter which should search from various fields using the same search term.
-        """
-
-        # set test conditions
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.preservation_state = 10
-        cr.contract_id = 1
-        cr.research_dataset['title']['en'] = 'Catch me if you can'
-        cr.research_dataset['title']['fi'] = 'Ota kiinni jos saat'
-        cr.research_dataset['curator'] = []
-        cr.research_dataset['curator'].append({ 'name': 'Seppo Hovi' })
-        cr.research_dataset['curator'].append({ 'name': 'Esa Nieminen' })
-        cr.research_dataset['curator'].append({ 'name': 'Aku Ankka' })
-        cr.research_dataset['curator'].append({ 'name': 'Jaska Jokunen' })
-        cr.force_save()
-
-        contract = Contract.objects.get(pk=1)
-        contract.contract_json['title'] = 'An Important Agreement'
-        contract.save()
-
-        metax_user = settings.API_METAX_USER
-        self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
-
-        # beging testing
-
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=if you'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), 1)
-
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=kiinni jos'.format(queryparam))
-            self.assertEqual(len(response.data['results']), 1)
-
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=niemine'.format(queryparam))
-            self.assertEqual(len(response.data['results']), 1)
-
-            # more than 3 curators, requires typing exact case-sensitive name... see comments in related code
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=jokunen'.format(queryparam))
-            self.assertEqual(len(response.data['results']), 0)
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=Jaska Jokunen'.format(queryparam))
-            self.assertEqual(len(response.data['results']), 1)
-
-            # contract_id 1 has several other associated test datasets
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=agreement'.format(queryparam))
-            self.assertEqual(len(response.data['results']), 3)
-
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=does not exist'.format(queryparam))
-            self.assertEqual(len(response.data['results']), 0)
-
-    def test_pas_filter_is_restricted(self):
-        """
-        Query param is permitted to users metax and tpas.
-        """
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?{}=10&pas_filter=hmmm'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.get(
+            '/rest/v2/datasets?preservation_state=10&pas_filter=kaisa&creator_organization=notfound'
+        )
+        self.assertEqual(len(response.data['results']), 0)
 
 
 class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
@@ -529,7 +422,7 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
     """
 
     def test_read_catalog_record_search_by_curator_1(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen')
+        response = self.client.get('/rest/v2/datasets?curator=id:of:curator:rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 10)
         self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
@@ -538,7 +431,7 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
                          'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_2(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:jarski')
+        response = self.client.get('/rest/v2/datasets?curator=id:of:curator:jarski')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Jarski',
@@ -547,101 +440,76 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
                          'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_not_found_1(self):
-        response = self.client.get('/rest/datasets?curator=Not Found')
+        response = self.client.get('/rest/v2/datasets?curator=Not Found')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 0)
 
     def test_read_catalog_record_search_by_curator_not_found_case_sensitivity(self):
-        response = self.client.get('/rest/datasets?curator=id:of:curator:Rahikainen')
+        response = self.client.get('/rest/v2/datasets?curator=id:of:curator:Rahikainen')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 0)
 
     def test_read_catalog_record_search_by_curator_and_state_1(self):
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&{}=10'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), 2)
-            self.assertEqual(response.data['results'][0]['id'], 2)
-            self.assertEqual(response.data['results'][0]['preservation_state'], 10)
-            self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
-                            'Curator name is not matching')
+        response = self.client.get('/rest/v2/datasets?curator=id:of:curator:rahikainen&preservation_state=10')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual(response.data['results'][0]['id'], 2)
+        self.assertEqual(response.data['results'][0]['preservation_state'], 10)
+        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
+                        'Curator name is not matching')
 
     def test_read_catalog_record_search_by_curator_and_state_2(self):
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&{}=40'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), 1)
-            self.assertEqual(response.data['results'][0]['id'], 4)
-            self.assertEqual(response.data['results'][0]['preservation_state'], 40)
-            self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
-                            'Curator name is not matching')
-
-    def test_read_catalog_record_search_by_curator_and_state_not_found(self):
-        for queryparam in ('preservation_state', 'state'):
-            response = self.client.get('/rest/datasets?curator=id:of:curator:rahikainen&{}=55'.format(queryparam))
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(len(response.data['results']), 0)
-
-    def test_read_catalog_record_search_by_owner_id(self):
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.editor = { 'owner_id': '123' }
-        cr.save()
-        response = self.client.get('/rest/datasets?owner_id=123')
+        response = self.client.get('/rest/v2/datasets?curator=id:of:curator:rahikainen&preservation_state=40')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['editor']['owner_id'], '123')
+        self.assertEqual(response.data['results'][0]['id'], 4)
+        self.assertEqual(response.data['results'][0]['preservation_state'], 40)
+        self.assertEqual(response.data['results'][0]['research_dataset']['curator'][0]['name'], 'Rahikainen',
+                        'Curator name is not matching')
+
+    def test_read_catalog_record_search_by_curator_and_state_not_found(self):
+        response = self.client.get('/rest/v2/datasets?curator=id:of:curator:rahikainen&preservation_state=55')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 0)
 
     def test_read_catalog_record_search_by_creator_id(self):
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         cr.user_created = '123'
         cr.force_save()
-        response = self.client.get('/rest/datasets?user_created=123')
+        response = self.client.get('/rest/v2/datasets?user_created=123')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['user_created'], '123')
 
-    def test_read_catalog_record_search_by_editor(self):
-        response = self.client.get('/rest/datasets?editor=mspaint')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['count'], 0)
-
-        response = self.client.get('/rest/datasets?editor=qvain')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        qvain_records_count = response.data['count']
-        self.assertEqual(qvain_records_count > 0, True)
-
-        response = self.client.get('/rest/datasets')
-        self.assertNotEqual(response.data['count'], qvain_records_count, 'looks like filtering had no effect')
-
     def test_read_catalog_record_search_by_metadata_provider_user(self):
-        response = self.client.get('/rest/datasets?metadata_provider_user=123')
+        response = self.client.get('/rest/v2/datasets?metadata_provider_user=123')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 0)
 
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         cr.metadata_provider_user = '123'
         cr.force_save()
 
-        response = self.client.get('/rest/datasets?metadata_provider_user=123')
+        response = self.client.get('/rest/v2/datasets?metadata_provider_user=123')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 1)
 
     def test_read_catalog_record_search_by_metadata_owner_org(self):
         owner_org = 'org_id'
-        for cr in CatalogRecord.objects.filter(pk__in=[1, 2, 3]):
+        for cr in CatalogRecordV2.objects.filter(pk__in=[1, 2, 3]):
             cr.metadata_owner_org = owner_org
             cr.force_save()
 
         owner_org_2 = 'org_id_2'
-        for cr in CatalogRecord.objects.filter(pk__in=[4, 5, 6]):
+        for cr in CatalogRecordV2.objects.filter(pk__in=[4, 5, 6]):
             cr.metadata_owner_org = owner_org_2
             cr.force_save()
 
-        response = self.client.get('/rest/datasets?metadata_owner_org=%s' % owner_org)
+        response = self.client.get('/rest/v2/datasets?metadata_owner_org=%s' % owner_org)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 3)
 
-        response = self.client.get('/rest/datasets?metadata_owner_org=%s,%s' % (owner_org, owner_org_2))
+        response = self.client.get('/rest/v2/datasets?metadata_owner_org=%s,%s' % (owner_org, owner_org_2))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 6)
 
@@ -652,18 +520,18 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         metax_user = settings.API_METAX_USER
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
 
-        response = self.client.get('/rest/datasets?contract_org_identifier=2345')
+        response = self.client.get('/rest/v2/datasets?contract_org_identifier=2345')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 10)
 
-        response = self.client.get('/rest/datasets?contract_org_identifier=1234567-1')
+        response = self.client.get('/rest/v2/datasets?contract_org_identifier=1234567-1')
         self.assertEqual(len(response.data['results']), 10)
 
-        response = self.client.get('/rest/datasets?contract_org_identifier=1234567-123')
+        response = self.client.get('/rest/v2/datasets?contract_org_identifier=1234567-123')
         self.assertEqual(len(response.data['results']), 0)
 
     def test_filter_by_contract_org_identifier_is_restricted(self):
-        response = self.client.get('/rest/datasets?contract_org_identifier=1234')
+        response = self.client.get('/rest/v2/datasets?contract_org_identifier=1234')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_read_catalog_record_search_by_data_catalog_id(self):
@@ -673,35 +541,35 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         dc = self._get_object_from_test_data('datacatalog', requested_index=0)
         dc_id = 'original_dc_identifier'
         dc['catalog_json']['identifier'] = dc_id
-        self.client.post('/rest/datacatalogs', dc, format="json")
+        self.client.post('/rest/v2/datacatalogs', dc, format="json")
 
         # Set the new data catalog for a catalog record and store the catalog record
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         cr.data_catalog = DataCatalog.objects.get(catalog_json__identifier=dc_id)
         cr.force_save()
 
         # Verify
-        response = self.client.get('/rest/datasets?data_catalog={0}'.format(dc_id))
+        response = self.client.get('/rest/v2/datasets?data_catalog={0}'.format(dc_id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['data_catalog']['identifier'], dc_id)
 
     def test_filter_by_deprecated(self):
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         cr.deprecated = True
         cr.force_save()
 
-        response = self.client.get('/rest/datasets?deprecated=true')
+        response = self.client.get('/rest/v2/datasets?deprecated=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1, response.data['results'])
         self.assertTrue(response.data['results'][0]['deprecated'], response.data)
 
-        response = self.client.get('/rest/datasets?deprecated=false')
+        response = self.client.get('/rest/v2/datasets?deprecated=false')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['results'][0]['id'], 2, response.data)
         self.assertFalse(response.data['results'][0]['deprecated'], response.data)
 
-        response = self.client.get('/rest/datasets?deprecated=badbool')
+        response = self.client.get('/rest/v2/datasets?deprecated=badbool')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -716,32 +584,32 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         dc = self._get_object_from_test_data('datacatalog', requested_index=0)
         dc_id = settings.IDA_DATA_CATALOG_IDENTIFIER
         dc['catalog_json']['identifier'] = dc_id
-        self.client.post('/rest/datacatalogs', dc, format="json")
+        self.client.post('/rest/v2/datacatalogs', dc, format="json")
 
         # Create new cr by requesting a doi identifier
-        cr_json = self.client.get('/rest/datasets/1').data
+        cr_json = self.client.get('/rest/v2/datasets/1').data
         cr_json.pop('preservation_identifier', None)
         cr_json.pop('identifier')
         cr_json['research_dataset'].pop('preferred_identifier', None)
         cr_json['research_dataset']['publisher'] = {'@type': 'Organization', 'name': {'und': 'Testaaja'}}
         cr_json['research_dataset']['issued'] = '2010-01-01'
         cr_json['data_catalog'] = dc_id
-        response = self.client.post('/rest/datasets?pid_type=doi', cr_json, format="json")
+        response = self.client.post('/rest/v2/datasets?pid_type=doi', cr_json, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         return response.data
 
     def test_read_dataset_xml_format_metax(self):
-        response = self.client.get('/rest/datasets/1?dataset_format=metax')
+        response = self.client.get('/rest/v2/datasets/1?dataset_format=metax')
         self._check_dataset_xml_format_response(response, '<researchdataset')
 
     def test_read_dataset_xml_format_datacite(self):
-        for id in CatalogRecord.objects.all().values_list('id', flat=True):
-            response = self.client.get('/rest/datasets/%d?dataset_format=fairdata_datacite' % id)
+        for id in CatalogRecordV2.objects.all().values_list('id', flat=True):
+            response = self.client.get('/rest/v2/datasets/%d?dataset_format=fairdata_datacite' % id)
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self._check_dataset_xml_format_response(response, '<resource')
 
     def test_read_dataset_xml_format_error_unknown_format(self):
-        response = self.client.get('/rest/datasets/1?dataset_format=doesnotexist')
+        response = self.client.get('/rest/v2/datasets/1?dataset_format=doesnotexist')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_read_datacite_xml_format_identifier(self):
@@ -749,16 +617,16 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         doi = cr['preservation_identifier']
 
         # Datacite xml should contain the doi created
-        response = self.client.get('/rest/datasets/%s?dataset_format=datacite' % cr['identifier'])
+        response = self.client.get('/rest/v2/datasets/%s?dataset_format=datacite' % cr['identifier'])
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('<identifier identifierType="DOI">%s' % doi[len('doi:'):] in response.data,
                          True, response.data)
 
     def test_read_dataset_format_datacite_odd_lang_abbrevation(self):
-        cr = CatalogRecord.objects.get(pk=1)
+        cr = CatalogRecordV2.objects.get(pk=1)
         cr.research_dataset['publisher'] = {'@type': 'Organization', 'name': {'zk': 'Testiorganisaatio'}}
         cr.force_save()
-        response = self.client.get('/rest/datasets/1?dataset_format=fairdata_datacite')
+        response = self.client.get('/rest/v2/datasets/1?dataset_format=fairdata_datacite')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_read_dataset_format_dummy_datacite_doi(self):
@@ -767,18 +635,18 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
         and identifier value prefixed with 10.0/<preferred_identifier>. If a real DOI is
         available in the dataset, then dummy should NOT be returned.
         """
-        pid = self.client.get('/rest/datasets/12').data['research_dataset']['preferred_identifier']
+        pid = self.client.get('/rest/v2/datasets/12').data['research_dataset']['preferred_identifier']
         self.assertEqual(pid.startswith('doi:'), False, pid)
 
         for dataset_format in ['datacite', 'fairdata_datacite']:
-            response = self.client.get('/rest/datasets/12?dataset_format=%s&dummy_doi=true' % dataset_format)
+            response = self.client.get('/rest/v2/datasets/12?dataset_format=%s&dummy_doi=true' % dataset_format)
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             self.assertEqual('<identifier identifierType="DOI">' in response.data, True, response.data)
             self.assertEqual('10.0/%s' % pid in response.data, True, response.data)
 
         # ensure if a real doi exists, then dummy should never be returned
         cr = self._create_dataset_with_doi()
-        response = self.client.get('/rest/datasets/%d?dataset_format=datacite&dummy_doi=true' % cr['id'])
+        response = self.client.get('/rest/v2/datasets/%d?dataset_format=datacite&dummy_doi=true' % cr['id'])
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('<identifier identifierType="DOI">' in response.data, True, response.data)
         self.assertEqual(cr['preservation_identifier'][len('doi:'):] in response.data, True, response.data)
@@ -804,20 +672,20 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
     #
 
     def test_metadata_version_identifiers_get_with_if_modified_since_header_ok(self):
-        cr = CatalogRecord.objects.get(pk=self.pk)
+        cr = CatalogRecordV2.objects.get(pk=self.pk)
         date_modified = cr.date_modified
         date_modified_in_gmt = timezone.localtime(date_modified, timezone=tz('GMT'))
 
         if_modified_since_header_value = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/metadata_version_identifiers', **headers)
+        response = self.client.get('/rest/v2/datasets/metadata_version_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) == 6)
 
         if_modified_since_header_value = (date_modified_in_gmt + timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/metadata_version_identifiers', **headers)
+        response = self.client.get('/rest/v2/datasets/metadata_version_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) == 6)
 
@@ -827,7 +695,7 @@ class CatalogRecordApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         if_modified_since_header_value = (date_modified_in_gmt - timedelta(seconds=1)).strftime(
             '%a, %d %b %Y %H:%M:%S GMT')
         headers = {'HTTP_IF_MODIFIED_SINCE': if_modified_since_header_value}
-        response = self.client.get('/rest/datasets/metadata_version_identifiers', **headers)
+        response = self.client.get('/rest/v2/datasets/metadata_version_identifiers', **headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data) > 6)
 
@@ -841,10 +709,10 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
 
     def test_file_details_populated(self):
         # without the flag nothing should happen
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1?include_user_metadata')
         self.assertEqual(all('details' not in f for f in response.data['research_dataset']['files']), True)
 
-        response = self.client.get('/rest/datasets/1?file_details')
+        response = self.client.get('/rest/v2/datasets/1?include_user_metadata&file_details')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # check all fiels have the extra key 'details', and all details have the key 'identifier'.
         # presumably the details were then filled in.
@@ -854,9 +722,9 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
     def test_directory_details_populated(self):
         # id 11 is one of the example datasets with full details. they should have a couple
         # of directories attached.
-        CatalogRecord.objects.get(pk=11).calculate_directory_byte_sizes_and_file_counts()
+        CatalogRecordV2.objects.get(pk=11).calculate_directory_byte_sizes_and_file_counts()
 
-        response = self.client.get('/rest/datasets/11?file_details')
+        response = self.client.get('/rest/v2/datasets/11?include_user_metadata&file_details')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # check all dirs have the extra key 'details', and all details have the key 'identifier'.
@@ -879,15 +747,15 @@ class CatalogRecordApiReadPopulateFileInfoTests(CatalogRecordApiReadCommon):
 
         # id 11 is one of the example datasets with full details. they should have a couple
         # of directories attached.
-        cr = CatalogRecord.objects.get(pk=11)
+        cr = CatalogRecordV2.objects.get(pk=11)
 
         file_identifiers = File.objects.filter(
             project_identifier=cr.files.all()[0].project_identifier).values_list('identifier', flat=True)
 
-        response = self.client.delete('/rest/files', data=file_identifiers, format='json')
+        response = self.client.delete('/rest/v2/files', data=file_identifiers, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client.get('/rest/datasets/11?file_details', format='json')
+        response = self.client.get('/rest/v2/datasets/11?include_user_metadata&file_details', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -902,21 +770,21 @@ class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiRea
     def test_returns_all_details_for_open_catalog_record_if_no_authorization(self):
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify all file and dir details info is returned for open cr /rest/datasets/<pk>?file_details without
+        # Verify all file and dir details info is returned for open cr /rest/v2/datasets/<pk>?file_details without
         # authorization
         self._assert_ok(open_cr_json, 'no')
 
     def test_returns_all_details_for_login_catalog_record_if_no_authorization(self):
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify all file and dir details info is returned for open cr /rest/datasets/<pk>?file_details without
+        # Verify all file and dir details info is returned for open cr /rest/v2/datasets/<pk>?file_details without
         # authorization
         self._assert_ok(open_cr_json, 'no')
 
     def test_returns_all_details_for_open_catalog_record_if_service_authorization(self):
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify all file and dir details info is returned for open cr /rest/datasets/<pk>?file_details with
+        # Verify all file and dir details info is returned for open cr /rest/v2/datasets/<pk>?file_details with
         # service authorization
         self._assert_ok(open_cr_json, 'service')
 
@@ -925,14 +793,14 @@ class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiRea
         self.create_end_user_data_catalogs()
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(True)
 
-        # Verify all file and dir details info is returned for open owner-owned cr /rest/datasets/<pk>?file_details with
-        # owner authorization
+        # Verify all file and dir details info is returned for open owner-owned
+        # cr /rest/v2/datasets/<pk>?file_details with owner authorization
         self._assert_ok(open_cr_json, 'owner')
 
     def test_returns_all_details_for_restricted_catalog_record_if_service_authorization(self):
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify all file and dir details info is returned for restricted cr /rest/datasets/<pk>?file_details with
+        # Verify all file and dir details info is returned for restricted cr /rest/v2/datasets/<pk>?file_details with
         # service authorization
         self._assert_ok(restricted_cr_json, 'service')
 
@@ -942,13 +810,13 @@ class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiRea
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details(True)
 
         # Verify all file and dir details info is returned for restricted owner-owned cr
-        # /rest/datasets/<pk>?file_details with owner authorization
+        # /rest/v2/datasets/<pk>?file_details with owner authorization
         self._assert_ok(restricted_cr_json, 'owner')
 
     def test_returns_all_details_for_embargoed_catalog_record_if_available_reached_and_no_authorization(self):
         available_embargoed_cr_json = self.get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(True)
 
-        # Verify all file and dir details info is returned for embargoed cr /rest/datasets/<pk>?file_details when
+        # Verify all file and dir details info is returned for embargoed cr /rest/v2/datasets/<pk>?file_details when
         # embargo date has been reached without authorization
         self._assert_ok(available_embargoed_cr_json, 'no')
 
@@ -957,14 +825,14 @@ class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiRea
     def test_returns_limited_info_for_restricted_catalog_record_if_no_authorization(self):
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify limited file and dir info for restricted cr /rest/datasets/<pk>?file_details without authorization
+        # Verify limited file and dir info for restricted cr /rest/v2/datasets/<pk>?file_details without authorization
         self._assert_limited_or_no_file_dir_info(restricted_cr_json, 'no')
 
     def test_returns_limited_info_for_embargoed_catalog_record_if_available_not_reached_and_no_authorization(self):
         not_available_embargoed_cr_json = self.get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(False)
 
-        # Verify limited file and dir info for embargoed cr /rest/datasets/<pk>?file_details when embargo date has not
-        # been reached without authorization
+        # Verify limited file and dir info for embargoed cr /rest/v2/datasets/<pk>?file_details when embargo date has
+        # not been reached without authorization
         self._assert_limited_or_no_file_dir_info(not_available_embargoed_cr_json, 'no')
 
     def _assert_limited_or_no_file_dir_info(self, cr_json, credentials_type):
@@ -974,7 +842,7 @@ class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiRea
         dir_amt = len(cr_json['research_dataset']['directories'])
         pk = cr_json['id']
 
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+        response = self.client.get('/rest/v2/datasets/{0}?include_user_metadata&file_details'.format(pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(len(response.data['research_dataset']['files']), file_amt)
@@ -996,7 +864,7 @@ class CatalogRecordApiReadPopulateFileInfoAuthorizationTests(CatalogRecordApiRea
         dir_amt = len(cr_json['research_dataset']['directories'])
         pk = cr_json['id']
 
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+        response = self.client.get('/rest/v2/datasets/{0}?include_user_metadata&file_details'.format(pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['research_dataset']['files']), file_amt)
         self.assertEqual(len(response.data['research_dataset']['directories']), dir_amt)
@@ -1018,8 +886,8 @@ class CatalogRecordApiReadFiles(CatalogRecordApiReadCommon):
     """
 
     def test_get_files(self):
-        file_count = CatalogRecord.objects.get(pk=1).files.count()
-        response = self.client.get('/rest/datasets/1/files')
+        file_count = CatalogRecordV2.objects.get(pk=1).files.count()
+        response = self.client.get('/rest/v2/datasets/1/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), file_count)
 
@@ -1027,7 +895,7 @@ class CatalogRecordApiReadFiles(CatalogRecordApiReadCommon):
         """
         Test use of query parameter ?file_fields=x,y,z
         """
-        response = self.client.get('/rest/datasets/1/files?file_fields=identifier,file_path')
+        response = self.client.get('/rest/v2/datasets/1/files?file_fields=identifier,file_path')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data[0].keys()), 2)
         self.assertEqual('identifier' in response.data[0], True)
@@ -1038,7 +906,7 @@ class CatalogRecordApiReadFiles(CatalogRecordApiReadCommon):
         Test use of query parameter removed_files=bool in /datasets/pid/files, which should return
         only deleted files.
         """
-        response = self.client.get('/rest/datasets/1/files')
+        response = self.client.get('/rest/v2/datasets/1/files')
         file_ids_before = set([ f['id'] for f in response.data ])
         obj = File.objects.get(pk=1)
         obj.removed = True
@@ -1047,17 +915,18 @@ class CatalogRecordApiReadFiles(CatalogRecordApiReadCommon):
         obj2.removed = True
         obj2.force_save()
 
-        response = self.client.get('/rest/datasets/1/files')
+        response = self.client.get('/rest/v2/datasets/1/files')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)
         self.assertEqual(len(response.data), 0)
 
-        response = self.client.get('/rest/datasets/1/files?removed_files=true')
+        response = self.client.get('/rest/v2/datasets/1/files?removed_files=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), len(file_ids_before))
         self.assertEqual(file_ids_before, set([ f['id'] for f in response.data ]))
 
 
 class CatalogRecordApiReadFilesAuthorization(CatalogRecordApiReadCommon):
+
     """
     Test /datasets/pid/files api from authorization perspective
     """
@@ -1067,13 +936,13 @@ class CatalogRecordApiReadFilesAuthorization(CatalogRecordApiReadCommon):
     def test_returns_ok_for_open_catalog_record_if_no_authorization(self):
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify open dataset /rest/datasets/<pk>/files returns all the files even without authorization
+        # Verify open dataset /rest/v2/datasets/<pk>/files returns all the files even without authorization
         self._assert_ok(open_cr_json, 'no')
 
     def test_returns_ok_for_open_catalog_record_if_service_authorization(self):
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify open dataset /rest/datasets/<pk>/files returns all the files with service authorization
+        # Verify open dataset /rest/v2/datasets/<pk>/files returns all the files with service authorization
         self._assert_ok(open_cr_json, 'service')
 
     @responses.activate
@@ -1081,13 +950,13 @@ class CatalogRecordApiReadFilesAuthorization(CatalogRecordApiReadCommon):
         self.create_end_user_data_catalogs()
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(True)
 
-        # Verify open owner-owned dataset /rest/datasets/<pk>/files returns all the files with owner authorization
+        # Verify open owner-owned dataset /rest/v2/datasets/<pk>/files returns all the files with owner authorization
         self._assert_ok(open_cr_json, 'owner')
 
     def test_returns_ok_for_restricted_catalog_record_if_service_authorization(self):
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify restricted dataset /rest/datasets/<pk>/files returns all the files with service authorization
+        # Verify restricted dataset /rest/v2/datasets/<pk>/files returns all the files with service authorization
         self._assert_ok(restricted_cr_json, 'service')
 
     @responses.activate
@@ -1095,14 +964,14 @@ class CatalogRecordApiReadFilesAuthorization(CatalogRecordApiReadCommon):
         self.create_end_user_data_catalogs()
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details(True)
 
-        # Verify restricted owner-owned dataset /rest/datasets/<pk>/files returns all the files with
+        # Verify restricted owner-owned dataset /rest/v2/datasets/<pk>/files returns all the files with
         # owner authorization
         self._assert_ok(restricted_cr_json, 'owner')
 
     def test_returns_ok_for_embargoed_catalog_record_if_available_reached_and_no_authorization(self):
         available_embargoed_cr_json = self.get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(True)
 
-        # Verify restricted dataset /rest/datasets/<pk>/files returns ok when embargo date has been reached without
+        # Verify restricted dataset /rest/v2/datasets/<pk>/files returns ok when embargo date has been reached without
         # authorization
         self._assert_ok(available_embargoed_cr_json, 'no')
 
@@ -1111,19 +980,20 @@ class CatalogRecordApiReadFilesAuthorization(CatalogRecordApiReadCommon):
     def test_returns_forbidden_for_restricted_catalog_record_if_no_authorization(self):
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
 
-        # Verify restricted dataset /rest/datasets/<pk>/files returns forbidden without authorization
+        # Verify restricted dataset /rest/v2/datasets/<pk>/files returns forbidden without authorization
         self._assert_forbidden(restricted_cr_json, 'no')
 
     def test_returns_forbidden_for_embargoed_catalog_record_if_available_not_reached_and_no_authorization(self):
         not_available_embargoed_cr_json = self.get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(False)
 
-        # Verify restricted dataset /rest/datasets/<pk>/files returns forbidden when embargo date has not been reached
+        # Verify restricted dataset /rest/v2/datasets/<pk>/files returns forbidden when embargo
+        # date has not been reached
         self._assert_forbidden(not_available_embargoed_cr_json, 'no')
 
     def _assert_forbidden(self, cr_json, credentials_type):
         pk = cr_json['id']
         self._set_http_authorization(credentials_type)
-        response = self.client.get('/rest/datasets/{0}/files'.format(pk))
+        response = self.client.get('/rest/v2/datasets/{0}/files'.format(pk))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def _assert_ok(self, cr_json, credentials_type):
@@ -1131,6 +1001,6 @@ class CatalogRecordApiReadFilesAuthorization(CatalogRecordApiReadCommon):
         self._set_http_authorization(credentials_type)
         rd = cr_json['research_dataset']
         file_amt = len(rd['files']) + sum(int(d['details']['file_count']) for d in rd['directories'])
-        response = self.client.get('/rest/datasets/{0}/files'.format(pk))
+        response = self.client.get('/rest/v2/datasets/{0}/files'.format(pk))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), file_amt)

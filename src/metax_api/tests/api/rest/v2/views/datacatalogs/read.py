@@ -28,5 +28,5 @@ class DataCatalogApiReadBasicTests(APITestCase, TestClassUtils):
         self.identifier = data_catalog_from_test_data['catalog_json']['identifier']
 
     def test_basic_get(self):
-        response = self.client.get('/rest/datacatalogs/%s' % self.identifier)
+        response = self.client.get('/rest/v2/datacatalogs/%s' % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

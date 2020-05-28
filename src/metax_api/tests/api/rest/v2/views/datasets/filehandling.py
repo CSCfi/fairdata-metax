@@ -5,34 +5,399 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from django.conf import settings as django_settings
-from rest_framework import status
+from copy import deepcopy
+
 import responses
+from rest_framework import status
 
-from metax_api.models import CatalogRecordV2 as CR, DataCatalog
-from metax_api.tests.utils import get_test_oidc_token
-from metax_api.utils import get_tz_aware_now_without_micros
-
-from .write import (
-    CatalogRecordApiWriteAssignFilesCommon,
-    CatalogRecordApiWriteCommon,
+from metax_api.models import (
+    CatalogRecordV2,
+    Directory,
+    File
 )
+from metax_api.tests.utils import get_test_oidc_token
+from .write import CatalogRecordApiWriteCommon, create_end_user_catalogs
 
 
-END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
+CR = CatalogRecordV2
 
 
-def create_end_user_catalogs():
-    dc = DataCatalog.objects.get(pk=1)
-    catalog_json = dc.catalog_json
-    for identifier in END_USER_ALLOWED_DATA_CATALOGS:
-        catalog_json['identifier'] = identifier
-        dc = DataCatalog.objects.create(
-            catalog_json=catalog_json,
-            date_created=get_tz_aware_now_without_micros(),
-            catalog_record_services_create='testuser,api_auth_user,metax',
-            catalog_record_services_edit='testuser,api_auth_user,metax'
+class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
+    """
+    Helper class to test file assignment in Metax. Does not include any tests itself.
+    """
+
+    def _get_file_from_test_data(self):
+        from_test_data = self._get_object_from_test_data('file', requested_index=0)
+        from_test_data.update({
+            "checksum": {
+                "value": "checksumvalue",
+                "algorithm": "SHA-256",
+                "checked": "2017-05-23T10:07:22.559656Z",
+            },
+            "file_name": "must_replace",
+            "file_path": "must_replace",
+            "identifier": "must_replace",
+            "project_identifier": "must_replace",
+            "file_storage": self._get_object_from_test_data('filestorage', requested_index=0)
+        })
+        return from_test_data
+
+    def _form_test_file_hierarchy(self):
+        """
+        A file hierarchy that will be created prior to executing the tests.
+        Files and dirs from these files will then be added to a dataset.
+        """
+        file_data_1 = [
+            {
+                "file_name": "file_01.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_1/file_01.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_02.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_1/file_02.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_03.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_2/file_03.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_04.txt",
+                "file_path": "/TestExperiment/Directory_1/Group_2/file_04.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_05.txt",
+                "file_path": "/TestExperiment/Directory_1/file_05.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_06.txt",
+                "file_path": "/TestExperiment/Directory_1/file_06.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_07.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_1/file_07.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_08.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_1/file_08.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_09.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/file_09.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_10.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/file_10.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_11.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_11.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_12.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_12.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_13.txt",
+                "file_path": "/TestExperiment/Directory_2/file_13.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_14.txt",
+                "file_path": "/TestExperiment/Directory_2/file_14.txt",
+                'project_identifier': 'testproject',
+            },
+        ]
+
+        file_data_2 = [
+            {
+                "file_name": "file_15.txt",
+                "file_path": "/SecondExperiment/Directory_1/Group_1/file_15.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_16.txt",
+                "file_path": "/SecondExperiment/Directory_1/Group_1/file_16.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_17.txt",
+                "file_path": "/SecondExperiment/Directory_1/Group_2/file_18.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_18.txt",
+                "file_path": "/SecondExperiment/Directory_1/Group_2/file_18.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_19.txt",
+                "file_path": "/SecondExperiment/Directory_1/file_19.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_20.txt",
+                "file_path": "/SecondExperiment/Directory_1/file_20.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_21.txt",
+                "file_path": "/SecondExperiment/Data/file_21.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_22.txt",
+                "file_path": "/SecondExperiment/Data_Config/file_22.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_23.txt",
+                "file_path": "/SecondExperiment/Data_Config/file_23.txt",
+                'project_identifier': 'testproject_2',
+            },
+            {
+                "file_name": "file_24.txt",
+                "file_path": "/SecondExperiment/Data/History/file_24.txt",
+                'project_identifier': 'testproject_2',
+            },
+
+        ]
+
+        file_template = self._get_file_from_test_data()
+        del file_template['id']
+        self._single_file_byte_size = file_template['byte_size']
+
+        files_1 = []
+        for i, f in enumerate(file_data_1):
+            file = deepcopy(file_template)
+            file.update(f, identifier='test:file:%s' % f['file_name'][-6:-4])
+            files_1.append(file)
+
+        files_2 = []
+        for i, f in enumerate(file_data_2):
+            file = deepcopy(file_template)
+            file.update(f, identifier='test:file:%s' % f['file_name'][-6:-4])
+            files_2.append(file)
+
+        return files_1, files_2
+
+    def _research_dataset_or_file_changes(self, rd_or_file_changes):
+        """
+        File and dir entries can be added both to research_dataset object, and
+        the more simpke "file changes" object that is sent to /rest/v2/datasets/pid/files.
+        Methods who call this helper can treat the returned object as either, and only
+        operate with "files" and "directories" keys.
+        """
+        if 'research_dataset' in rd_or_file_changes:
+            files_and_dirs = rd_or_file_changes['research_dataset']
+        else:
+            files_and_dirs = rd_or_file_changes
+
+        return files_and_dirs
+
+    def _add_directory(self, ds, path, project=None):
+        """
+        Add directory to research_dataset object or file_changes object.
+        """
+        params = { 'directory_path': path }
+        if project:
+            params['project_identifier'] = project
+
+        identifier = Directory.objects.get(**params).identifier
+
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        if 'directories' not in files_and_dirs:
+            files_and_dirs['directories'] = []
+
+        files_and_dirs['directories'].append({
+            "identifier": identifier,
+            "title": "Directory Title",
+            "description": "This is directory at %s" % path,
+            "use_category": {
+                "identifier": "method"
+            }
+        })
+
+    def _add_file(self, ds, path):
+        """
+        Add file to research_dataset object or file_changes object.
+        """
+        identifier = File.objects.filter(file_path__startswith=path).first().identifier
+
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        if 'files' not in files_and_dirs:
+            files_and_dirs['files'] = []
+
+        files_and_dirs['files'].append({
+            "identifier": identifier,
+            "title": "File Title",
+            "description": "This is file at %s" % path,
+            "use_category": {
+                "identifier": "method"
+            }
+        })
+
+    def _add_nonexisting_directory(self, ds):
+        """
+        Add non-existing directory to research_dataset object or file_changes object.
+        """
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        files_and_dirs['directories'] = [{
+            "identifier": "doesnotexist",
+            "title": "Directory Title",
+            "description": "This is directory does not exist",
+            "use_category": {
+                "identifier": "method"
+            }
+        }]
+
+    def _add_nonexisting_file(self, ds):
+        """
+        Add non-existing file to research_dataset object or file_changes object.
+        """
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        files_and_dirs['files'] = [{
+            "identifier": "doesnotexist",
+            "title": "File Title",
+            "description": "This is file does not exist",
+            "use_category": {
+                "identifier": "method"
+            }
+        }]
+
+    def _remove_directory(self, ds, path):
+        """
+        Remove directory from research_dataset object or file_changes object.
+        """
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        if 'directories' not in files_and_dirs:
+            raise Exception('ds has no dirs')
+
+        identifier = Directory.objects.get(directory_path=path).identifier
+
+        for i, dr in enumerate(files_and_dirs['directories']):
+            if dr['identifier'] == identifier:
+                ds['research_dataset']['directories'].pop(i)
+                return
+        raise Exception('path %s not found in directories' % path)
+
+    def _remove_file(self, ds, path):
+        """
+        Remove file from research_dataset object or file_changes object.
+        """
+        files_and_dirs = self._research_dataset_or_file_changes(ds)
+
+        if 'files' not in files_and_dirs:
+            raise Exception('ds has no files')
+
+        identifier = File.objects.get(file_path=path).identifier
+
+        for i, f in enumerate(files_and_dirs['files']):
+            if f['identifier'] == identifier:
+                ds['research_dataset']['files'].pop(i)
+                return
+        raise Exception('path %s not found in files' % path)
+
+    def _freeze_new_files(self):
+        file_data = [
+            {
+                "file_name": "file_90.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_3/file_90.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_91.txt",
+                "file_path": "/TestExperiment/Directory_2/Group_3/file_91.txt",
+                'project_identifier': 'testproject',
+            },
+        ]
+
+        file_template = self._get_file_from_test_data()
+        del file_template['id']
+        self._single_file_byte_size = file_template['byte_size']
+        files = []
+
+        for i, f in enumerate(file_data):
+            file = deepcopy(file_template)
+            file.update(f, identifier='frozen:later:file:%s' % f['file_name'][-6:-4])
+            files.append(file)
+        response = self.client.post('/rest/v2/files', files, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def _freeze_files_to_root(self):
+        file_data = [
+            {
+                "file_name": "file_56.txt",
+                "file_path": "/TestExperiment/Directory_2/file_56.txt",
+                'project_identifier': 'testproject',
+            },
+            {
+                "file_name": "file_57.txt",
+                "file_path": "/TestExperiment/Directory_2/file_57.txt",
+                'project_identifier': 'testproject',
+            },
+        ]
+
+        file_template = self._get_file_from_test_data()
+        del file_template['id']
+        self._single_file_byte_size = file_template['byte_size']
+        files = []
+
+        for i, f in enumerate(file_data):
+            file = deepcopy(file_template)
+            file.update(f, identifier='frozen:later:file:%s' % f['file_name'][-6:-4])
+            files.append(file)
+        response = self.client.post('/rest/v2/files', files, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def setUp(self):
+        """
+        For each test:
+        - remove files and dirs from the metadata record that is being created
+        - create 12 new files in a new project
+        """
+        super().setUp()
+        self.cr_test_data['research_dataset'].pop('id', None)
+        self.cr_test_data['research_dataset'].pop('preferred_identifier', None)
+        self.cr_test_data['research_dataset'].pop('files', None)
+        self.cr_test_data['research_dataset'].pop('directories', None)
+        project_files = self._form_test_file_hierarchy()
+        for p_files in project_files:
+            response = self.client.post('/rest/v2/files', p_files, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def assert_preferred_identifier_changed(self, response, true_or_false):
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('next_dataset_version' in response.data, true_or_false,
+            'this field should only be present if preferred_identifier changed')
+        if true_or_false is True:
+            self.assertEqual(response.data['research_dataset']['preferred_identifier'] !=
+                response.data['next_dataset_version']['preferred_identifier'], true_or_false)
+
+    def assert_file_count(self, cr, expected_file_count):
+        self.assertEqual(
+            CatalogRecordV2.objects.get(pk=cr if type(cr) is int else cr['id']).files.count(), expected_file_count
         )
+
+    def assert_total_files_byte_size(self, cr, expected_size):
+        self.assertEqual(cr['research_dataset']['total_files_byte_size'], expected_size)
 
 
 class CatalogRecordApiWriteAssignFilesCommonV2(CatalogRecordApiWriteAssignFilesCommon):
@@ -171,6 +536,18 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         self.assertEqual(len(response.data['research_dataset']['files']), 1)
         self.assert_file_count(response.data, 2)
         self.assert_total_files_byte_size(response.data, self._single_file_byte_size * 2)
+
+    def test_allowed_projects(self):
+        """
+        Test the ?allowed_projects=x,y parameter when adding files.
+        """
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/file_05.txt')
+
+        response = self.client.post('/rest/v2/datasets?allowed_projects=testproject', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.post('/rest/v2/datasets?allowed_projects=no,projects', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_create_directories_are_saved(self):
         """
@@ -340,10 +717,10 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         self.assertEqual('Changing files of a published dataset' in response.data['detail'][0], True, response.data)
 
 
-class CatalogRecordDatasetSpecificFileMetadata(CatalogRecordApiWriteAssignFilesCommonV2):
+class CatalogRecordUserMetadata(CatalogRecordApiWriteAssignFilesCommonV2):
 
     """
-    aka User Metadata related tests.
+    Dataset-specific metadata aka User Metadata related tests.
     """
 
     def test_retrieve_file_metadata_only(self):
@@ -571,7 +948,7 @@ class CatalogRecordFileHandlingCumulativeDatasets(CatalogRecordApiWriteAssignFil
         self.assertEqual(cr.files.count(), 2)
         self.assertEqual(cr.date_last_cumulative_addition, cr.date_modified)
 
-    def test_exclude_files_to_cumulative_dataset(self):
+    def test_exclude_files_from_cumulative_dataset(self):
         """
         Excluding files from an existing cumulative dataset should be prevented.
         """
@@ -583,327 +960,10 @@ class CatalogRecordFileHandlingCumulativeDatasets(CatalogRecordApiWriteAssignFil
         self.assertEqual('Excluding files from a cumulative' in response.data['detail'][0], True, response.data)
         self.assertEqual(CR.objects.get(pk=self.cr_id).files.count(), 1)
 
-
-class CatalogRecordPublishing(CatalogRecordApiWriteCommon):
-
-    """
-    todo move to rpc api v2 tests directory
-    """
-
-    def test_publish_new_dataset_draft(self):
-
-        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        cr_id = response.data['id']
-
-        response = self.client.post('/rpc/v2/datasets/publish_dataset?identifier=%d' % cr_id, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertTrue(response.data.get('preferred_identifier') is not None)
-
-        response = self.client.get('/rest/v2/datasets/%d' % cr_id, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['state'], 'published')
-        self.assertEqual(
-            response.data['research_dataset']['preferred_identifier'] == response.data['identifier'], False
-        )
-
-    @responses.activate
-    def test_authorization(self):
+    def test_change_preservation_state(self):
         """
-        Test authorization for publishing draft datasets. Note: General visibility of draft datasets has
-        been tested elsewhere,so authorization failure is not tested here since unauthorized people
-        should not even see the records.
+        PAS process should not be started while cumulative period is open.
         """
-
-        # test with service
-        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        response = self.client.post(
-            '/rpc/v2/datasets/publish_dataset?identifier=%d' % response.data['id'], format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        # test with end user
-        self.token = get_test_oidc_token(new_proxy=True)
-        self._mock_token_validation_succeeds()
-        self._use_http_authorization(method='bearer', token=self.token)
-        create_end_user_catalogs()
-
-        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0]
-        self.cr_test_data['research_dataset'].pop('files', None)
-        self.cr_test_data['research_dataset'].pop('directories', None)
-
-        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        response = self.client.post(
-            '/rpc/v2/datasets/publish_dataset?identifier=%d' % response.data['id'], format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-
-class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
-
-    """
-    Tests related to drafts of published records.
-    """
-
-    def _create_dataset(self, cumulative=False, draft=False, with_files=False):
-        draft = 'true' if draft else 'false'
-        cumulative_state = 1 if cumulative else 0
-
-        self.cr_test_data['cumulative_state'] = cumulative_state
-
-        if with_files is False:
-            self.cr_test_data['research_dataset'].pop('files', None)
-            self.cr_test_data['research_dataset'].pop('directories', None)
-
-        response = self.client.post('/rest/v2/datasets?draft=%s' % draft, self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        return response.data
-
-    def _create_draft(self, id):
-        # create draft
-        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=%d' % id, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        draft_id = response.data['id']
-
-        # retrieve draft data for modifications
-        response = self.client.get('/rest/v2/datasets/%s' % draft_id, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual('draft_of' in response.data, True, response.data)
-        self.assertEqual(response.data['draft_of']['id'], id, response.data)
-
-        return response.data
-
-    def _merge_draft_changes(self, draft_id):
-        response = self.client.post('/rpc/v2/datasets/merge_draft?identifier=%d' % draft_id, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        # draft should be permanently destroyed
-        draft_found = CR.objects_unfiltered.filter(pk=draft_id).exists()
-        self.assertEqual(draft_found, False)
-
-    def test_create_and_merge_draft(self):
-        """
-        A simple test to create a draft, change some metadata, and publish the changes.
-        """
-        cr = self._create_dataset()
-        initial_title = cr['research_dataset']['title']
-
-        # create draft
-        draft_cr = self._create_draft(cr['id'])
-        draft_cr['research_dataset']['title']['en'] = 'modified title'
-
-        # ensure original now has a link to next_draft
-        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual('next_draft' in response.data, True, response.data)
-        self.assertEqual(response.data['next_draft']['id'], draft_cr['id'], response.data)
-
-        # update the draft
-        response = self.client.put('/rest/v2/datasets/%d' % draft_cr['id'], draft_cr, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        # ensure original dataset
-        # - does not have the changes yet, since draft has not been published
-        # - has next_draft link, pointing to the preciously created draft
-        original_cr = CR.objects.get(pk=cr['id'])
-        self.assertEqual(original_cr.research_dataset['title'], initial_title, original_cr.research_dataset['title'])
-        self.assertEqual(original_cr.next_draft_id, draft_cr['id'])
-
-        # merge draft changes back to original published dataset
-        self._merge_draft_changes(draft_cr['id'])
-
-        # changes should now reflect on original published dataset
-        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(
-            response.data['research_dataset']['title'],
-            draft_cr['research_dataset']['title'],
-            response.data
-        )
-        self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
-
-    def test_add_files_to_draft_normal_dataset(self):
-        """
-        Test case where dataset has 0 files in the beginning.
-        """
-        cr = self._create_dataset(with_files=False)
-        draft_cr = self._create_draft(cr['id'])
-
-        # add file to draft
-        file_changes = { 'files': [{ 'identifier': 'pid:urn:1' }]}
-        response = self.client.post('/rest/v2/datasets/%d/files' % draft_cr['id'], file_changes, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        # ensure original has no files
-        self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 0)
-
-        # merge draft changes back to original published dataset
-        self._merge_draft_changes(draft_cr['id'])
-
-        # ensure original now has the files
-        self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 1)
-
-    def test_add_files_to_draft_when_files_already_exist(self):
-        """
-        Dataset already has files, so only metadata changes should be allowed. Adding
-        or removing files should be prevented.
-        """
-        cr = self._create_dataset(with_files=True)
-        draft_cr = self._create_draft(cr['id'])
-
-        # add file to draft
-        file_changes = { 'files': [{ 'identifier': 'pid:urn:10' }]}
-        response = self.client.post('/rest/v2/datasets/%d/files' % draft_cr['id'], file_changes, format="json")
+        cr = { 'preservation_state': 10 }
+        response = self.client.patch('/rest/v2/datasets/%s' % self.cr_id, cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-    def test_add_files_to_draft_cumulative_dataset(self):
-        """
-        Adding new files to cumulative draft should be ok. Removing files should be prevented.
-        """
-        cr = self._create_dataset(cumulative=True, with_files=True)
-        draft_cr = self._create_draft(cr['id'])
-
-        # try to remove a file. should be stopped
-        file_changes = { 'files': [{ 'identifier': 'pid:urn:1', 'exclude': True }]}
-        response = self.client.post('/rest/v2/datasets/%d/files' % draft_cr['id'], file_changes, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
-        # now add files
-        file_changes = { 'files': [{ 'identifier': 'pid:urn:10' }]}
-        response = self.client.post('/rest/v2/datasets/%d/files' % draft_cr['id'], file_changes, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        # ensure original has no files YET
-        self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 2)
-
-        # merge draft changes back to original published dataset
-        self._merge_draft_changes(draft_cr['id'])
-
-        # ensure original now has the files
-        self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 3)
-
-    def test_delete_draft(self):
-        """
-        Delete draft of a published dataset.
-        """
-        cr = self._create_dataset(with_files=False)
-        draft_cr = self._create_draft(cr['id'])
-
-        response = self.client.delete('/rest/v2/datasets/%d' % draft_cr['id'], format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-
-        # draft should be deleted permanently
-        draft_found = CR.objects_unfiltered.filter(pk=draft_cr['id']).exists()
-        self.assertEqual(draft_found, False)
-
-        # ensure original now has a link to next_draft
-        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
-
-class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
-
-    """
-    New dataset versions are not created automatically when changing files of a dataset.
-    New dataset versions can only be created by explicitly calling related RPC API.
-
-    todo move to rpc api v2 tests directory
-    """
-
-    def test_create_new_version(self):
-        """
-        A new dataset version can be created for datasets in data catalogs that support versioning.
-        """
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        next_version_identifier = response.data.get('identifier')
-
-        response = self.client.get('/rest/v2/datasets/1', format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data.get('next_dataset_version', {}).get('identifier'), next_version_identifier)
-
-        response2 = self.client.get('/rest/v2/datasets/%s' % next_version_identifier, format="json")
-        self.assertEqual(response2.status_code, status.HTTP_200_OK, response2.data)
-        self.assertEqual(
-            response2.data.get('previous_dataset_version', {}).get('identifier'), response.data['identifier']
-        )
-
-    def test_delete_new_version_draft(self):
-        """
-        Ensure a new version that is created into draft state can be deleted, and is permanently deleted.
-        """
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        next_version_identifier = response.data.get('identifier')
-
-        response = self.client.delete('/rest/v2/datasets/%s' % next_version_identifier, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
-
-        num_found = CR.objects_unfiltered.filter(identifier=next_version_identifier).count()
-        self.assertEqual(num_found, 0, 'draft should have been permanently deleted')
-        self.assertEqual(CR.objects.get(pk=1).next_dataset_version, None)
-
-    def test_version_already_exists(self):
-        """
-        If a dataset already has a next version, then a new version cannot be created.
-        """
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        response = self.client.post(
-            '/rpc/v2/datasets/create_new_version?identifier=1', format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('already has a next version' in response.data['detail'][0], True, response.data)
-
-    def test_new_version_removes_deprecated_files(self):
-        """
-        If a new version is created from a deprecated dataset, then the new version should have deprecated=False
-        status, and all files that are no longer available should be removed from the dataset.
-        """
-        original_cr = CR.objects.get(pk=1)
-
-        response = self.client.delete('/rest/v2/files/1', format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        new_cr = CR.objects.get(pk=response.data['id'])
-        self.assertEqual(new_cr.deprecated, False)
-        self.assertTrue(len(new_cr.research_dataset['files']) < len(original_cr.research_dataset['files']))
-        self.assertTrue(new_cr.files.count() < original_cr.files(manager='objects_unfiltered').count())
-
-    @responses.activate
-    def test_authorization(self):
-        """
-        Creating a new dataset version should have the same authorization rules as when normally editing a dataset.
-        """
-
-        # service use should be OK
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=2', format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        # test with end user, should fail
-        self.token = get_test_oidc_token(new_proxy=True)
-        self._mock_token_validation_succeeds()
-        self._use_http_authorization(method='bearer', token=self.token)
-
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
-
-        # change owner, try again. should be OK
-        cr = CR.objects.get(pk=1)
-        cr.metadata_provider_user = self.token['CSCUserName']
-        cr.editor = None
-        cr.force_save()
-
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

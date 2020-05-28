@@ -855,6 +855,11 @@ paths:
           type: string
         - name: state
           in: query
+          description: Filter by state field. Possible values are&#58; draft, publihed.
+          required: false
+          type: string
+        - name: preservation_state
+          in: query
           description: TPAS state (field preservation_state). Multiple states using OR-logic are queriable in the same request, e.g. state=5,6. See valid values from http://iow.csc.fi/model/mrd/CatalogRecord/ field preservation_state
           required: false
           type: string

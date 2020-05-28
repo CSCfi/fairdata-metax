@@ -52,77 +52,77 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         """
         Each requesting resulting in an error should leave behind one API error entry.
         """
-        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1 = self.client.get('/rest/v2/datasets/1').data
         cr_1.pop('id')
         cr_1.pop('identifier')
         cr_1.pop('data_catalog') # causes an error
 
-        response = self.client.post('/rest/datasets', cr_1, format='json')
+        response = self.client.post('/rest/v2/datasets', cr_1, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        response = self.client.post('/rest/datasets', cr_1, format='json')
+        response = self.client.post('/rest/v2/datasets', cr_1, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get('/rest/apierrors')
+        response = self.client.get('/rest/v2/apierrors')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 2, response.data)
 
     def test_get_error_details(self):
-        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1 = self.client.get('/rest/v2/datasets/1').data
         cr_1.pop('id')
         cr_1.pop('identifier')
         cr_1.pop('data_catalog') # causes an error
         cr_1['research_dataset']['title'] = { 'en': 'Abc' }
 
-        response = self.client.post('/rest/datasets', cr_1, format='json')
+        response = self.client.post('/rest/v2/datasets', cr_1, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # list errors in order to get error identifier
-        response = self.client.get('/rest/apierrors')
+        response = self.client.get('/rest/v2/apierrors')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('identifier' in response.data[0], True, response.data)
 
-        response = self.client.get('/rest/apierrors/%s' % response.data[0]['identifier'])
+        response = self.client.get('/rest/v2/apierrors/%s' % response.data[0]['identifier'])
         self._assert_fields_presence(response)
         self.assertEqual('data_catalog' in response.data['response'], True, response.data['response'])
         self.assertEqual(response.data['data']['research_dataset']['title']['en'], 'Abc',
             response.data['data']['research_dataset']['title'])
 
     def test_delete_error_details(self):
-        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1 = self.client.get('/rest/v2/datasets/1').data
         cr_1.pop('id')
         cr_1.pop('identifier')
         cr_1.pop('data_catalog') # causes an error
 
-        response = self.client.post('/rest/datasets', cr_1, format='json')
+        response = self.client.post('/rest/v2/datasets', cr_1, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get('/rest/apierrors')
-        response = self.client.delete('/rest/apierrors/%s' % response.data[0]['identifier'])
+        response = self.client.get('/rest/v2/apierrors')
+        response = self.client.delete('/rest/v2/apierrors/%s' % response.data[0]['identifier'])
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
-        response = self.client.get('/rest/apierrors')
+        response = self.client.get('/rest/v2/apierrors')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 0, response.data)
 
     def test_delete_all_error_details(self):
-        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1 = self.client.get('/rest/v2/datasets/1').data
         cr_1.pop('id')
         cr_1.pop('identifier')
         cr_1.pop('data_catalog') # causes an error
 
-        response = self.client.post('/rest/datasets', cr_1, format='json')
+        response = self.client.post('/rest/v2/datasets', cr_1, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        response = self.client.post('/rest/datasets', cr_1, format='json')
+        response = self.client.post('/rest/v2/datasets', cr_1, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
         # ensure something was produced...
-        response = self.client.get('/rest/apierrors')
+        response = self.client.get('/rest/v2/apierrors')
         self.assertEqual(len(response.data), 2, response.data)
 
-        response = self.client.post('/rest/apierrors/flush')
+        response = self.client.post('/rest/v2/apierrors/flush')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        response = self.client.get('/rest/apierrors')
+        response = self.client.get('/rest/v2/apierrors')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 0, response.data)
 
@@ -130,18 +130,18 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         """
         Ensure also bulk operations produce error entries.
         """
-        cr_1 = self.client.get('/rest/datasets/1').data
+        cr_1 = self.client.get('/rest/v2/datasets/1').data
         cr_1.pop('id')
         cr_1.pop('identifier')
         cr_1.pop('data_catalog') # causes an error
-        response = self.client.post('/rest/datasets', [cr_1, cr_1], format='json')
+        response = self.client.post('/rest/v2/datasets', [cr_1, cr_1], format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get('/rest/apierrors')
+        response = self.client.get('/rest/v2/apierrors')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 1, response.data)
 
-        response = self.client.get('/rest/apierrors/%s' % response.data[0]['identifier'])
+        response = self.client.get('/rest/v2/apierrors/%s' % response.data[0]['identifier'])
         self._assert_fields_presence(response)
         self.assertEqual('other' in response.data, True, response.data)
         self.assertEqual('bulk_request' in response.data['other'], True, response.data)
@@ -150,11 +150,11 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
     def test_api_permitted_only_to_metax_user(self):
         # uses testuser by default
         self._use_http_authorization()
-        response = self.client.get('/rest/apierrors')
+        response = self.client.get('/rest/v2/apierrors')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        response = self.client.get('/rest/apierrors/123')
+        response = self.client.get('/rest/v2/apierrors/123')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        response = self.client.delete('/rest/apierrors/123')
+        response = self.client.delete('/rest/v2/apierrors/123')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        response = self.client.post('/rest/apierrors/flush_errors')
+        response = self.client.post('/rest/v2/apierrors/flush_errors')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

@@ -94,9 +94,13 @@ def generate_test_token(payload):
 
 
 class TestClassUtils():
+
     """
     Test classes may (multi-)inherit this class in addition to APITestCase to use these helpers
     """
+
+    # default api version is v1. v2 api tests will set it to v2
+    api_version = 'v1'
 
     def create_end_user_data_catalogs(self):
         from metax_api.utils import get_tz_aware_now_without_micros
@@ -220,7 +224,7 @@ class TestClassUtils():
         data.pop('identifier', None)
         data['research_dataset'].pop('preferred_identifier', None)
 
-        response = self.client.post('/rest/datasets', data, format='json')
+        response = self.client.post(f'/rest/{self.api_version}/datasets', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         return response.data['id']
 
@@ -233,20 +237,22 @@ class TestClassUtils():
         pk = 13
 
         if set_owner:
-            response = self.client.get('/rest/datasets/{0}'.format(pk))
+            response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata')
             pk = self._create_cr_for_owner(pk, response.data)
 
         CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
 
         if use_login_access_type:
-            response_data = self.client.get('/rest/datasets/{0}'.format(pk)).data
+            response_data = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata').data
             response_data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['login']
-            response = self.client.put('/rest/datasets/{0}'.format(pk), response_data, format='json')
+            response = self.client.put(
+                f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata', response_data, format='json'
+            )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+            response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details')
             rd = response.data['research_dataset']
         else:
-            response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+            response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details')
             rd = response.data['research_dataset']
             # Verify we are dealing with an open research dataset
             assert_catalog_record_is_open_access(response.data)
@@ -268,7 +274,8 @@ class TestClassUtils():
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
         pk = 13
 
-        response = self.client.get('/rest/datasets/{0}'.format(pk))
+        response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         data = response.data
 
         # Set access_type to restricted
@@ -277,11 +284,13 @@ class TestClassUtils():
         if set_owner:
             pk = self._create_cr_for_owner(pk, data)
         else:
-            response = self.client.put('/rest/datasets/{0}'.format(pk), data, format='json')
+            response = self.client.put(
+                f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata', data, format='json'
+            )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+        response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details')
 
         # Verify we are dealing with restricted research dataset
         assert_catalog_record_not_open_access(response.data)
@@ -304,7 +313,8 @@ class TestClassUtils():
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
         pk = 13
 
-        response = self.client.get('/rest/datasets/{0}'.format(pk))
+        response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         data = response.data
 
         # Set access_type to embargo
@@ -315,11 +325,11 @@ class TestClassUtils():
         else:
             data['research_dataset']['access_rights']['available'] = '3000-01-01'
 
-        response = self.client.put('/rest/datasets/13', data, format='json')
+        response = self.client.put(f'/rest/{self.api_version}/datasets/13', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+        response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details')
 
         # Verify we are dealing with restricted research dataset
         assert_catalog_record_not_open_access(response.data)
