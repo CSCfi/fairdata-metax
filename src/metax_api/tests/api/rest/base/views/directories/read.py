@@ -1082,7 +1082,6 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
         # should have one file from directory with the rest of filtered files
         response = self.client.get('/rest/directories/24/files?directory_name=dir_5&file_name=5&recursive&depth=*')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        #print(response.data)
         self.assertEqual(len(response.data), 6)
 
     def test_browsing_directory_with_directory_and_file_name_and_cr_identifier_and_not_cr_identifier(self):
@@ -1099,11 +1098,10 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['directories']), 2)
 
-        # UNCOMMENT WHEN MERGED WITH CSCFAIRMETA-510-file-not-part-of-dataset-parameter
         # tests for directory_name and not_cr_identifier
-        # response = self.client.get('/rest/directories/17/files?directory_name=phase&not_cr_identifier=13')
-        # self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        # self.assertEqual(len(response.data['directories']), 0)
+        response = self.client.get('/rest/directories/17/files?directory_name=phase&not_cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['directories']), 0)
 
         # tests for file_name and cr_identifier
         response = self.client.get('/rest/directories/12/files?file_name=22&cr_identifier=13')
@@ -1122,12 +1120,15 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data.get('files'), None)
 
-        # UNCOMMENT WHEN MERGED WITH CSCFAIRMETA-510-file-not-part-of-dataset-parameter
         # tests for file_name and not_cr_identifier
-        # response = self.client.get('/rest/directories/4/files?file_name=name&not_cr_identifier=13')
-        # self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        # self.assertEqual(len(response.data['files']), 3)
+        response = self.client.get('/rest/directories/16/files?file_name=name&not_cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['files']), 1)
 
-        # response = self.client.get('/rest/directories/4/files?file_name=name_9&not_cr_identifier=13')
-        # self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        # self.assertEqual(len(response.data['files']), 1)
+        response = self.client.get('/rest/directories/16/files?file_name=name_2&not_cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['files']), 1)
+
+        response = self.client.get('/rest/directories/16/files?file_name=name_1&not_cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['files']), 0)
