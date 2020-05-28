@@ -20,6 +20,7 @@ paths:
           description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
           required: false
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         "200":
           description: Return list of file storages
@@ -51,6 +52,7 @@ paths:
           description: Identifier of file storage
           required: true
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         '200':
           description: Return file storage metadata
@@ -151,6 +153,13 @@ paths:
         - name: ordering
           in: query
           description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
+        - name: fields
+          in: query
+          description: |
+            Comma separated list of fields that is returned. Checksum -field can be further selected with separating the inner key
+            with colon. Example: ?fields=checksum:value.
           required: false
           type: string
       responses:
@@ -263,6 +272,13 @@ paths:
           in: path
           description: Persistent ID of file OR the internal pk
           required: true
+          type: string
+        - name: fields
+          in: query
+          description: |
+            Comma separated list of fields that is returned. Checksum -field can be further selected with separating the inner key
+            with colon. Example: ?fields=checksum:value.
+          required: false
           type: string
       responses:
         '200':
@@ -518,6 +534,7 @@ paths:
           description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         '200':
           description: Return directory details
@@ -693,6 +710,7 @@ paths:
           description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
           required: false
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         "200":
           description: Return list of file data catalogs
@@ -730,6 +748,7 @@ paths:
           description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         '200':
           description: Return data catalog metadata
@@ -923,6 +942,7 @@ paths:
           required: false
           type: string
         - $ref: "#/parameters/include_user_metadata"
+        - $ref: "#/parameters/fields"
       responses:
         "200":
           description: Successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. When using query parameters, search result can be an empty list.
@@ -1143,6 +1163,7 @@ paths:
           required: false
           type: boolean
         - $ref: "#/parameters/include_user_metadata"
+        - $ref: "#/parameters/fields"
       responses:
         '200':
           description: Return dataset metadata
@@ -1492,6 +1513,7 @@ paths:
           description: Specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
           required: false
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         "200":
           description: Successful operation, return list of contracts
@@ -2114,6 +2136,13 @@ parameters:
     in: query
     description: Identifier of the target dataset.
     required: true
+    type: string
+
+  fields:
+    name: fields
+    in: query
+    description: Comma separated list of fields that is returned. Note that nested fields are not supported.
+    required: false
     type: string
 
 

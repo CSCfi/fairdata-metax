@@ -234,6 +234,11 @@ class ApiReadQueryParamTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets/1?fields=not_found')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        # Anonymous user using fields parameter and not including research_dataset should not cause crashing
+        self.client._credentials = {}
+        response = self.client.get('/rest/datasets/1?fields=identifier')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_checksum_field_for_file(self):
         """
         Check that checksum field works correctly

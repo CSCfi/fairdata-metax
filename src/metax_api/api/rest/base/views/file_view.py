@@ -108,8 +108,10 @@ class FileViewSet(CommonViewSet):
 
     def get_queryset(self):
         """
-        Handle with fields parameter that does not match with the model:
+        Handle with fields parameter here, because checksum has different values in model
+        than what the api returns:
 
+        Examples:
         checksum:value --> checksum_value
         checksum --> checksum_algorithm/checked/value
         """

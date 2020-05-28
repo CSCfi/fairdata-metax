@@ -43,8 +43,8 @@ class CommonViewSet(ModelViewSet):
     # queryset to the caller
     select_related = []
 
-    # if fields -parameter is used, inheriting classes can use this variable to deal with field names
-    # that does not map straight to model fields
+    # If some field name is different in models than what is returned from api, inherit get_queryset() in
+    # that view and save the model field names here to be fetched from db. (example in file_view)
     fields = []
 
     # assigning the create_bulk method here allows for other views to assing their other,
