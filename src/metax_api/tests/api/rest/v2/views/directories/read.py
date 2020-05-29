@@ -1091,7 +1091,8 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
         self.assertEqual(len(response.data), 10)
 
         # should have one file from directory with the rest of filtered files
-        response = self.client.get('name/rest/v2/directories/24/files?directory_name=dir_5&file_name=5&recursive&depth=*')
+        response = self.client.get(
+            'name/rest/v2/directories/24/files?directory_name=dir_5&file_name=5&recursive&depth=*')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 6)
 
