@@ -139,12 +139,6 @@ paths:
           description: Filters files by path. Requires query parameter project_identifier.
           required: false
           type: string
-        - name: pagination
-          in: query
-          description: Parameter should be used when paging is not desired ergo pagination=false
-          required: false
-          type: boolean
-          default: true
         - name: offset
           in: query
           description: Offset for paging
@@ -588,7 +582,17 @@ paths:
           type: boolean
         - name: cr_identifier
           in: query
-          description: Identifier of a catalog record. Browse only files that have been selected for that record.
+          description: |
+            Identifier of a catalog record. browse only files that have been selected for that record.
+            This parameter is incompatible with `not_cr_identifier` parameter.
+          required: false
+          type: string
+        - name: not_cr_identifier
+          in: query
+          description: |
+            Identifier of a catalog record. Browse only files that have not been selected for that record.
+            Parameter is only usable by the owner of the dataset and it's primary use is for editing datasets.
+            This parameter is incompatible with `cr_identifier` parameter.
           required: false
           type: string
         - name: file_fields
@@ -599,6 +603,16 @@ paths:
         - name: directory_fields
           in: query
           description: Comma-separated list of field names to retrieve for directories
+          required: false
+          type: string
+        - name: file_name
+          in: query
+          description: Substring search from file names in current directory. With recursive filter also matches files in subdirectories. Only matching files are returned.
+          required: false
+          type: string
+        - name: directory_name
+          in: query
+          description: Substring search from directory names in current directory. With recursive filter also matches subdirectories. Only matching directories are returned.
           required: false
           type: string
         - name: pagination
@@ -916,12 +930,6 @@ paths:
           in: query
           description: Filter by data catalog urn identifier
           type: string
-        - name: pagination
-          in: query
-          description: Parameter should be used when paging is not desired ergo pagination=false
-          required: false
-          type: boolean
-          default: true
         - name: offset
           in: query
           description: Offset for paging
@@ -1510,12 +1518,6 @@ paths:
           description: Organization ID (field contract_json-> organization-> organization_identifier)
           required: false
           type: string
-        - name: pagination
-          in: query
-          description: Parameter should be used when paging is not desired ergo pagination=false
-          required: false
-          type: boolean
-          default: true
         - name: offset
           in: query
           description: Offset for paging
