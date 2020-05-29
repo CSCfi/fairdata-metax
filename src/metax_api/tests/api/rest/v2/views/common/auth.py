@@ -34,7 +34,7 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         """
         User api_auth_user should have read access to files api.
         """
-        response = self.client.get('/rest/files/1')
+        response = self.client.get('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_access_fail(self):
@@ -43,36 +43,36 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         about the existence of requested file.
         """
         self.client._credentials = {}
-        response = self.client.get('/rest/files/1')
+        response = self.client.get('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_access_ok(self):
         """
         User api_auth_user should have create access to datasets api.
         """
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         cr = response.data
         cr['contract'] = 1
-        response = self.client.put('/rest/datasets/1', cr, format='json')
+        response = self.client.put('/rest/v2/datasets/1', cr, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_update_access_error(self):
         """
         User api_auth_user should not have update access to files api.
         """
-        response = self.client.get('/rest/files/1')
+        response = self.client.get('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         file = response.data
         file['file_format'] = 'text/html'
 
-        response = self.client.put('/rest/files/1', file, format='json')
+        response = self.client.put('/rest/v2/files/1', file, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_access_error(self):
         """
         User api_auth_user should not have delete access to files api.
         """
-        response = self.client.delete('/rest/files/1')
+        response = self.client.delete('/rest/v2/files/1')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_read_for_world_ok(self):
@@ -80,7 +80,7 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         Reading datasets api should be permitted even without any authorization.
         """
         self.client._credentials = {}
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -105,7 +105,7 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         valid authentication works. Should return successfully.
         """
         self._mock_token_validation_succeeds()
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @responses.activate
@@ -127,7 +127,7 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         In all cases, metax code execution stops at the middleware where authentication failed.
         """
         self._mock_token_validation_fails()
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @responses.activate
@@ -138,11 +138,11 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         self._mock_token_validation_succeeds()
 
         # datasets-api should be allowed for end users
-        response = self.client.get('/rest/datasets/1')
+        response = self.client.get('/rest/v2/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # contracts-api should not be allowed for end users
-        response = self.client.get('/rest/contracts/1')
+        response = self.client.get('/rest/v2/contracts/1')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     @responses.activate
@@ -152,7 +152,7 @@ class ApiEndUserAccessAuthorization(CatalogRecordApiWriteCommon):
         """
         self._mock_token_validation_succeeds()
         # end users should not have create access to files api.
-        response = self.client.post('/rest/files', {}, format='json')
+        response = self.client.post('/rest/v2/files', {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     def test_removing_bearer_from_allowed_auth_methods_disables_oidc(self):
@@ -187,7 +187,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
 
-        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        response = self.client.get('/rest/v2/files?project_identifier=project_x', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     @responses.activate
@@ -200,7 +200,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o100)
 
-        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        response = self.client.get('/rest/v2/files?project_identifier=project_x', format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     @responses.activate
@@ -208,7 +208,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
         """
         Projects are fetched from token when local file is not available.
         """
-        response = self.client.get('/rest/files?project_identifier=2001036', format='json')
+        response = self.client.get('/rest/v2/files?project_identifier=2001036', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     @responses.activate
@@ -221,7 +221,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
 
-        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        response = self.client.get('/rest/v2/files?project_identifier=project_x', format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     @responses.activate
@@ -234,7 +234,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
 
-        response = self.client.get('/rest/files?project_identifier=project_x', format='json')
+        response = self.client.get('/rest/v2/files?project_identifier=project_x', format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     @responses.activate
@@ -247,5 +247,5 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
 
-        response = self.client.get('/rest/files?project_identifier=2001036', format='json')
+        response = self.client.get('/rest/v2/files?project_identifier=2001036', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
