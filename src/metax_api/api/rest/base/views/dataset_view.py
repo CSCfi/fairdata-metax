@@ -83,6 +83,7 @@ class DatasetViewSet(CommonViewSet):
         self.kwargs[self.lookup_field] = lookup_value
         self.request.GET._mutable = True
         self.request.query_params['no_pagination'] = 'true'
+        self.request.query_params['pagination'] = 'false'
         self.request.GET._mutable = False # hehe
         return self.retrieve(request, *args, **kwargs)
 

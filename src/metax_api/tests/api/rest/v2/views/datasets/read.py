@@ -191,7 +191,7 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         for obj in response.data['results']:
             _check_fields(obj)
 
-        response = self.client.get('/rest/v2/datasets?no_pagination')
+        response = self.client.get('/rest/datasets?pagination=false')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         for obj in response.data:
             _check_fields(obj)

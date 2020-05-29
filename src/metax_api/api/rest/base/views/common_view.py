@@ -130,11 +130,19 @@ class CommonViewSet(ModelViewSet):
 
         return response
 
+    # TODO: supporting both parameters over a transition period and eventually will get rid of no_pagination.
     def paginate_queryset(self, queryset):
-        if CS.get_boolean_query_param(self.request, 'no_pagination'):
-            return None
-
-        return super(CommonViewSet, self).paginate_queryset(queryset)
+        keys = self.request.query_params.keys()
+        if 'pagination' in keys:
+            if not CS.get_boolean_query_param(self.request, 'pagination'):
+                return None
+            return super(CommonViewSet, self).paginate_queryset(queryset)
+        elif 'no_pagination' in keys:
+            if CS.get_boolean_query_param(self.request, 'no_pagination'):
+                return None
+            return super(CommonViewSet, self).paginate_queryset(queryset)
+        else:
+            return super(CommonViewSet, self).paginate_queryset(queryset)
 
     def get_queryset(self):
         """

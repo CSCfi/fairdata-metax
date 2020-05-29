@@ -44,7 +44,7 @@ def retrieve_and_update_all_datasets_in_db(headers):
     print('-- begin retrieving and updating all datasets in the db --')
 
     print('retrieving all datasets...')
-    response = requests.get('https://localhost/rest/datasets?no_pagination',
+    response = requests.get('https://localhost/rest/datasets?pagination=false',
         headers=headers, verify=False)
     if response.status_code != 200:
         raise Exception(response.content)

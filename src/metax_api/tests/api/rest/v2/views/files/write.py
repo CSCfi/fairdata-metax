@@ -1182,7 +1182,7 @@ class FileApiWriteRestoreTests(FileApiWriteCommon):
         """
         proj = File.objects.get(pk=1).project_identifier
 
-        response = self.client.get('/rest/v2/files?project_identifier=%s&fields=identifier&no_pagination=true'
+        response = self.client.get('/rest/files?project_identifier=%s&fields=identifier&pagination=false'
             % proj, format='json')
         file_identifiers = [ f['identifier'] for f in response.data ]
 
