@@ -1,11 +1,15 @@
 *~
 *.pyc
 *.DS_Store
+/docs/*build/*
 /docs/*/build/*
 /src/__pycache__/*
 /src/static/*
 /src/.coverage
+/swagger/*index.html
 /swagger/*/index.html
 .idea/
+.vscode/
 ubuntu-xenial-16.04-cloudimg-console.log
 .ropeproject/
+.venv_metax/

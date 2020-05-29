@@ -60,6 +60,7 @@ class DirectoryViewSet(CommonViewSet):
         and then call FS.get_directory_contents().
         """
         paginate = CommonService.get_boolean_query_param(request, 'pagination')
+        path = request.query_params.get('path', None)
         include_parent = CommonService.get_boolean_query_param(request, 'include_parent')
         dirs_only = CommonService.get_boolean_query_param(request, 'directories_only')
         recursive = CommonService.get_boolean_query_param(request, 'recursive')
@@ -67,6 +68,8 @@ class DirectoryViewSet(CommonViewSet):
         project_identifier = request.query_params.get('project', None)
         cr_identifier = request.query_params.get('cr_identifier', None)
         not_cr_identifier = request.query_params.get('not_cr_identifier', None)
+        file_name = request.query_params.get('file_name')
+        directory_name = request.query_params.get('directory_name')
 
         # max_depth can be an integer > 0, or * for everything.
         try:
@@ -84,7 +87,7 @@ class DirectoryViewSet(CommonViewSet):
 
         files_and_dirs = FileService.get_directory_contents(
             identifier=identifier,
-            path=request.query_params.get('path', None),
+            path=path,
             project_identifier=project_identifier,
             recursive=recursive,
             max_depth=max_depth,
@@ -92,6 +95,8 @@ class DirectoryViewSet(CommonViewSet):
             include_parent=include_parent,
             cr_identifier=cr_identifier,
             not_cr_identifier=not_cr_identifier,
+            file_name=file_name,
+            directory_name=directory_name,
             request=request
         )
 
