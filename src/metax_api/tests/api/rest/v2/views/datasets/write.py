@@ -12,6 +12,7 @@ from django.conf import settings as django_settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
+from metax_api.models.catalog_record import ACCESS_TYPES
 
 from metax_api.models import (
     AlternateRecordSet,
@@ -1722,7 +1723,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         _check_fields(response.data)
 
 
-class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
+class CatalogRecordExternalServicesAccess(CatalogRecordApiWriteCommon):
 
     """
     Testing access of services to external catalogs with harvested flag and vice versa.
@@ -1747,6 +1748,35 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
 
         self._use_http_authorization(username=django_settings.API_EXT_USER['username'],
             password=django_settings.API_EXT_USER['password'])
+
+    def test_external_service_can_not_read_all_metadata_in_other_catalog(self):
+        ''' External service should get the same output from someone elses catalog than anonymous user '''
+        # create a catalog that does not belong to our external service
+        dc2 = DataCatalog.objects.get(pk=2)
+        dc2.catalog_json['identifier'] = 'Some other catalog'
+        dc2.catalog_record_services_read = 'metax'
+        dc2.force_save()
+
+        # Create a catalog record that belongs to some other user & our catalog nr2
+        cr = CatalogRecordV2.objects.get(pk=12)
+        cr.user_created = '#### Some owner who is not you ####'
+        cr.metadata_provider_user = '#### Some owner who is not you ####'
+        cr.data_catalog = dc2
+        cr.editor = None
+        cr.research_dataset['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted']
+        cr.force_save()
+
+        # Let's try to return the data with our external services credentials
+        response_service_user = self.client.get('/rest/v2/datasets/12')
+        self.assertEqual(response_service_user.status_code, status.HTTP_200_OK, response_service_user.data)
+
+        # Test access as unauthenticated user
+        self.client._credentials = {}
+        response_anonymous = self.client.get('/rest/v2/datasets/12')
+        self.assertEqual(response_anonymous.status_code, status.HTTP_200_OK, response_anonymous.data)
+
+        self.assertEqual(response_anonymous.data, response_service_user.data,
+            "External service with no read-rights should not see any more metadata than anonymous user from a catalog")
 
     def test_external_service_can_add_catalog_record_to_own_catalog(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
