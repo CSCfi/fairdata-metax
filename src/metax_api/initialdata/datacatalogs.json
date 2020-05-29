@@ -147,8 +147,6 @@
     }
 },
 {
-    "catalog_record_group_edit": "pas_edit",
-    "catalog_record_group_create": "pas_create",
     "catalog_json": {
         "title": {
             "en": "Fairdata PAS datasets",
