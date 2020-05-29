@@ -14,7 +14,7 @@ from rest_framework.response import Response
 
 from metax_api.api.rpc.base.views import DatasetRPC
 from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
-from metax_api.exceptions import Http400
+from metax_api.exceptions import Http400, Http501
 from metax_api.models import CatalogRecordV2
 
 
@@ -51,6 +51,22 @@ class DatasetRPC(DatasetRPC):
         cr.request = self.request
 
         return cr
+
+    @list_route(methods=['post'], url_path="change_cumulative_state")
+    def change_cumulative_state(self, request):
+
+        state_value = request.query_params.get('cumulative_state', False)
+
+        if not state_value:
+            raise Http400('Query param \'cumulative_state\' missing')
+
+        cr = self.get_object()
+
+        cr.request = request
+
+        cr.change_cumulative_state(state_value)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @list_route(methods=['post'], url_path="create_draft")
     def create_draft(self, request):
@@ -107,3 +123,13 @@ class DatasetRPC(DatasetRPC):
             data={ 'identifier': identifier_of_published },
             status=status.HTTP_200_OK
         )
+
+    # ensure some v1 api endpoints cant be called in v2 api
+
+    @list_route(methods=['post'], url_path="refresh_directory_content")
+    def refresh_directory_content(self, request):
+        raise Http501()
+
+    @list_route(methods=['post'], url_path="fix_deprecated")
+    def fix_deprecated(self, request):
+        raise Http501()

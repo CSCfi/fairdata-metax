@@ -714,7 +714,12 @@ class CatalogRecordV2(CatalogRecord):
                 # a couple of exceptions: files are being added to the dataset for the first time,
                 # or the dataset is cumulative.
 
-                if self._files_added_for_first_time():
+                if self.next_draft:
+                    raise Http400(
+                        'The dataset has an existing unmerged draft. While the draft exists, new files can only be '
+                        'added to the draft record.'
+                    )
+                elif self._files_added_for_first_time():
                     # first update from 0 to n files should be allowed even for a published dataset, and
                     # without needing to create new dataset versions, so this is permitted. subsequent
                     # file changes will require creating a new draft version first.
@@ -1241,6 +1246,118 @@ class CatalogRecordV2(CatalogRecord):
             = new_version.previous_dataset_version.preferred_identifier
 
         self.add_post_request_callable(DelayedLog(**log_args))
+
+    def change_cumulative_state(self, new_state):
+        """
+        Change field cumulative_state to new_state.
+        - In draft state the value can be changed with less restrictions.
+        - When dataset is published, cumulative_state can be closed, but opening requires
+          creating a new version into draft state first.
+        """
+        if self.next_dataset_version:
+            raise Http400('Cannot change cumulative_state on old dataset version')
+
+        cumulative_state_valid_values = [ choice[0] for choice in self.CUMULATIVE_STATE_CHOICES ]
+
+        try:
+            new_state = int(new_state)
+            assert new_state in cumulative_state_valid_values
+        except:
+            raise Http400(
+                'cumulative_state must be one of: %s' % ', '.join(str(x) for x in cumulative_state_valid_values)
+            )
+
+        if self.cumulative_state == new_state:
+            _logger.info('No change in cumulative_state')
+            return
+
+        _logger.info('Changing cumulative_state from %d to %d' % (self.cumulative_state, new_state))
+
+        self.date_modified = get_tz_aware_now_without_micros()
+        self.service_modified = self.request.user.username if self.request.user.is_service else None
+
+        if not self.user_modified:
+            # for now this will probably be true enough, since dataset ownership can not change
+            self.user_modified = self.user_created
+
+        comparison_cr = self
+        publish_update = True
+
+        if self.is_draft_for_another_dataset():
+            # draft of a published dataset
+            comparison_cr = self.draft_of
+            publish_update = False
+
+        elif self.state == self.STATE_DRAFT:
+
+            # draft of a new cr. permit change with less restrictions
+
+            if new_state == self.CUMULATIVE_STATE_NO:
+                self.date_cumulation_started = None
+                self.date_cumulation_ended = None
+                self.date_last_cumulative_addition = None
+
+            elif new_state == self.CUMULATIVE_STATE_CLOSED:
+                raise Http400('For a new dataset, cumulative_state must be \'not cumulative\' or \'open\'')
+
+            elif new_state == self.CUMULATIVE_STATE_YES:
+                # start date is set during publishing
+                self.date_cumulation_started = None
+                self.date_cumulation_ended = None
+                self.date_last_cumulative_addition = None
+
+            self.cumulative_state = new_state
+
+            super(CatalogRecord, self).save()
+
+            return
+
+        # published dataset, or draft of published dataset ->
+
+        if new_state == self.CUMULATIVE_STATE_NO:
+            raise Http400(
+                'Cumulative dataset cannot be set to non-cumulative dataset. '
+                'If you want to stop active cumulation, set cumulative status to closed.'
+            )
+
+        elif new_state == self.CUMULATIVE_STATE_CLOSED:
+
+            if comparison_cr.cumulative_state == self.CUMULATIVE_STATE_NO:
+                raise Http400('Cumulation cannot be closed for non-cumulative dataset')
+            elif self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
+                _logger.info('Note: cumulative_state is already CLOSED. Doing nothing')
+                return
+
+            self.date_cumulation_ended = self.date_modified
+
+            self.cumulative_state = new_state
+
+        elif new_state == self.CUMULATIVE_STATE_YES:
+
+            if comparison_cr.preservation_state > self.PRESERVATION_STATE_INITIALIZED:
+                raise Http400(
+                    'Cumulative datasets are not allowed in PAS process. Change preservation_state '
+                    'to 0 in order to change the dataset to cumulative.'
+                )
+            elif comparison_cr.files.count() > 0:
+                # permits opening cumulativity for a published dataset that does not yet
+                # have any files.
+                raise Http400(
+                    'Can\'t set dataset cumulative: Dataset already has files. Please create '
+                    'a new dataset version first.'
+                )
+            elif self.cumulative_state == self.CUMULATIVE_STATE_YES:
+                _logger.info('Note: cumulative_state is already YES. Doing nothing')
+                return
+
+            self.date_cumulation_started = self.date_modified
+            self.date_cumulation_ended = None
+            self.cumulative_state = new_state
+
+        super(CatalogRecord, self).save()
+
+        if publish_update:
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
     def calculate_directory_byte_sizes_and_file_counts(self):
         """

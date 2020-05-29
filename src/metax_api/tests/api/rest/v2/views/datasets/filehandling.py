@@ -960,6 +960,168 @@ class CatalogRecordFileHandlingCumulativeDatasets(CatalogRecordApiWriteAssignFil
         self.assertEqual('Excluding files from a cumulative' in response.data['detail'][0], True, response.data)
         self.assertEqual(CR.objects.get(pk=self.cr_id).files.count(), 1)
 
+    def test_change_cumulative_states_on_draft(self):
+        """
+        Ensure changing cumulative states on a new cr draft works as expected.
+        """
+        response = self.client.post('/rest/v2/datasets?draft=true', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_id = response.data['id']
+
+        # set to NO -> should remove all trace of ever being cumulative
+        response = self.client.post(
+            f'/rpc/v2/datasets/change_cumulative_state?identifier={cr_id}&cumulative_state={CR.CUMULATIVE_STATE_NO}',
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # ensure everything related to being cumulative is nuked
+        cr = CR.objects.get(pk=cr_id)
+        self.assertEqual(cr.cumulative_state, CR.CUMULATIVE_STATE_NO)
+        self.assertEqual(cr.date_last_cumulative_addition, None)
+        self.assertEqual(cr.date_cumulation_started, None)
+
+        # set back to YES
+        response = self.client.post(
+            f'/rpc/v2/datasets/change_cumulative_state?identifier={cr_id}&cumulative_state={CR.CUMULATIVE_STATE_YES}',
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # check dataset looks cumulative. dates should not be set, since this is still just a draft
+        cr = CR.objects.get(pk=cr_id)
+        self.assertEqual(cr.cumulative_state, CR.CUMULATIVE_STATE_YES)
+        self.assertEqual(cr.date_last_cumulative_addition, None)
+        self.assertEqual(cr.date_cumulation_started, None)
+
+        # set back to CLOSED -> does not make sense on a draft
+        # note: too long url... yes its ugly
+        response = self.client.post(
+            '/rpc/v2/datasets/change_cumulative_state'
+            f'?identifier={cr_id}&cumulative_state={CR.CUMULATIVE_STATE_CLOSED}',
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual(
+            'For a new dataset, cumulative_state must be' in response.data['detail'][0], True, response.data
+        )
+
+    def test_change_cumulative_states_on_published_draft(self):
+        """
+        Ensure changing cumulative states on a draft of a published record works as expected.
+        Essentially, only closing should be possible.
+        """
+
+        # create draft of the cumulative dataset
+        response = self.client.post(f'/rpc/v2/datasets/create_draft?identifier={self.cr_id}', format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        draft_id = response.data['id']
+
+        # set to NO -> should be prevented
+        response = self.client.post(
+            '/rpc/v2/datasets/change_cumulative_state'
+            f'?identifier={draft_id}&cumulative_state={CR.CUMULATIVE_STATE_NO}',
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue(
+            'Cumulative dataset cannot be set to non-cumulative' in response.data['detail'][0], response.data
+        )
+
+        # set to YES -> should do nothing, since is already cumulative
+        response = self.client.post(
+            '/rpc/v2/datasets/change_cumulative_state'
+            f'?identifier={draft_id}&cumulative_state={CR.CUMULATIVE_STATE_YES}',
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # set to CLOSED -> should work
+        response = self.client.post(
+            '/rpc/v2/datasets/change_cumulative_state'
+            f'?identifier={draft_id}&cumulative_state={CR.CUMULATIVE_STATE_CLOSED}',
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # merge draft changes
+        response = self.client.post(f'/rpc/v2/datasets/merge_draft?identifier={draft_id}', format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # check updates were applied
+        cr = CR.objects.get(pk=self.cr_id)
+        self.assertEqual(cr.cumulative_state, CR.CUMULATIVE_STATE_CLOSED)
+
+    def test_add_files_to_cumulative_published_draft_dataset(self):
+        """
+        Adding files to a draft of an existing cumulative dataset should be ok.
+        """
+
+        # dataset created in setUp() already has one file in it
+        num_files_added = 1
+
+        # create draft of the cumulative dataset
+        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=%d' % self.cr_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        draft_id = response.data['id']
+
+        # add files to draft
+        file_data = {}
+        self._add_file(file_data, '/TestExperiment/Directory_1/Group_1/file_01.txt')
+        self._add_file(file_data, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+
+        num_files_added += len(file_data['files'])
+
+        response = self.client.post('/rest/v2/datasets/%d/files' % draft_id, file_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure excluding is prevented
+        file_data = {}
+        self._exclude_file(file_data, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+        response = self.client.post('/rest/v2/datasets/%d/files' % draft_id, file_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # ensure files were added to draft
+        cr = CR.objects.get(pk=draft_id)
+        self.assertEqual(cr.files.count(), num_files_added)
+
+        # ensure published dataset has only the originally added file in it
+        cr = CR.objects.get(pk=self.cr_id)
+        self.assertEqual(cr.files.count(), 1)
+
+        # merge draft changes
+        response = self.client.post('/rpc/v2/datasets/merge_draft?identifier=%d' % draft_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # published dataset should now have files added
+        cr = CR.objects.get(pk=self.cr_id)
+        self.assertEqual(cr.files.count(), num_files_added)
+
+        # create another draft
+        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=%d' % self.cr_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        draft_id = response.data['id']
+
+        # close cumulative period on draft
+        response = self.client.post(
+            '/rpc/v2/datasets/change_cumulative_state'
+            f'?identifier={draft_id}&cumulative_state={CR.CUMULATIVE_STATE_CLOSED}',
+            format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # merge draft changes again
+        response = self.client.post('/rpc/v2/datasets/merge_draft?identifier=%d' % draft_id, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # published dataset should now have cumulativity closed
+        cr = CR.objects.get(pk=self.cr_id)
+        self.assertEqual(cr.cumulative_state, CR.CUMULATIVE_STATE_CLOSED)
+
     def test_change_preservation_state(self):
         """
         PAS process should not be started while cumulative period is open.

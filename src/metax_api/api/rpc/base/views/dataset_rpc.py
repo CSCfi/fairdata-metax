@@ -28,6 +28,7 @@ _logger = logging.getLogger(__name__)
 class DatasetRPC(CommonRPC):
 
     serializer_class = CatalogRecordSerializer
+    object = CatalogRecord
 
     @list_route(methods=['get'], url_path="get_minimal_dataset_template")
     def get_minimal_dataset_template(self, request):
@@ -55,8 +56,8 @@ class DatasetRPC(CommonRPC):
             })
 
         try:
-            cr = CatalogRecord.objects.get(identifier=request.query_params['identifier'])
-        except CatalogRecord.DoesNotExist:
+            cr = self.object.objects.get(identifier=request.query_params['identifier'])
+        except self.object.DoesNotExist:
             raise Http404
 
         if cr.preservation_identifier:
@@ -96,8 +97,8 @@ class DatasetRPC(CommonRPC):
             raise Http400('Query param \'cumulative_state\' missing')
 
         try:
-            cr = CatalogRecord.objects.get(identifier=identifier)
-        except CatalogRecord.DoesNotExist:
+            cr = self.object.objects.get(identifier=identifier)
+        except self.object.DoesNotExist:
             raise Http404
 
         if not cr.user_has_access(request):
@@ -126,8 +127,8 @@ class DatasetRPC(CommonRPC):
             raise Http400('Query param \'dir_identifier\' missing.')
 
         try:
-            cr = CatalogRecord.objects.get(identifier=cr_identifier)
-        except CatalogRecord.DoesNotExist:
+            cr = self.object.objects.get(identifier=cr_identifier)
+        except self.object.DoesNotExist:
             raise Http404(f'CatalogRecord \'{cr_identifier}\' could not be found')
 
         if not cr.user_has_access(request):
@@ -150,8 +151,8 @@ class DatasetRPC(CommonRPC):
             raise Http400('Query param \'identifier\' missing. Please specify ?identifier=<catalog record identifier>')
 
         try:
-            cr = CatalogRecord.objects.get(identifier=request.query_params['identifier'])
-        except CatalogRecord.DoesNotExist:
+            cr = self.object.objects.get(identifier=request.query_params['identifier'])
+        except self.object.DoesNotExist:
             raise Http404
 
         if not cr.deprecated:

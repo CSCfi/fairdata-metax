@@ -1735,6 +1735,30 @@ paths:
             $ref: '#/definitions/CatalogRecord'
       tags:
         - Dataset RPC
+  /rpc/v2/datasets/change_cumulative_state:
+    post:
+      summary: Change cumulative state of a dataset.
+      description: |
+        - When an existing published dataset is cumulative, it's cumulative period can be closed (state 2).
+        - When a new dataset is in draft state, it's cumulative state can be set to 'not cumulative' (value 0) or open (value 1).
+      parameters:
+        - $ref: "#/parameters/rpc_dataset_identifier"
+        - name: cumulative_state
+          in: query
+          description: New value for cumulative_state. Accepted values&#58; 0 (not cumulative), 1 (open), 2 (closed).
+          required: true
+          type: string
+      responses:
+        '204':
+          description: Successful operation.
+        '400':
+          description: Operation ended in an error, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource
+        '404':
+          description: Not found
+      tags:
+        - Dataset RPC
   /rpc/v2/datasets/create_draft:
     post:
       summary: Create draft of a published dataset.
