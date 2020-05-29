@@ -106,6 +106,30 @@ class FileViewSet(CommonViewSet):
 
         return super().partial_update(request, *args, **kwargs)
 
+    def get_queryset(self):
+        """
+        Handle with fields parameter here, because checksum has different values in model
+        than what the api returns:
+
+        Examples:
+        checksum:value --> checksum_value
+        checksum --> checksum_algorithm/checked/value
+        """
+        if 'fields' in self.request.query_params:
+            self.fields = []
+            for field in self.request.query_params['fields'].split(','):
+                field_names = field.split(':')
+                if 'checksum' == field_names[0] and len(field_names) > 1:
+                    self.fields.append(f'{field_names[0]}_{field_names[1]}')
+
+                elif 'checksum' == field_names[0]:
+                    self.fields.extend([f'checksum_{k}' for k in FileSerializer.checksum_fields])
+
+                else:
+                    self.fields.append(field_names[0])
+
+        return super().get_queryset()
+
     def get_object(self, search_params=None):
         """
         Deals with allowed_projects query parameter. This is done here to avoid multiple

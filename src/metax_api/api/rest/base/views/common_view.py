@@ -16,7 +16,7 @@ from rest_framework.response import Response
 from rest_framework.views import set_rollback
 from rest_framework.viewsets import ModelViewSet
 
-from metax_api.exceptions import Http403, Http500
+from metax_api.exceptions import Http400, Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
 from metax_api.services import CommonService as CS, ApiErrorService, CallableService, RedisCacheService
 
@@ -42,6 +42,10 @@ class CommonViewSet(ModelViewSet):
     # get_queryset() automatically includes these in .select_related(field1, field2...) when returning
     # queryset to the caller
     select_related = []
+
+    # If some field name is different in models than what is returned from api, inherit get_queryset() in
+    # that view and save the model field names here to be fetched from db. (example in file_view)
+    fields = []
 
     # assigning the create_bulk method here allows for other views to assing their other,
     # customized method to be called instead instead of the generic one.
@@ -155,17 +159,21 @@ class CommonViewSet(ModelViewSet):
             additional_filters.update({'removed': True})
             self.queryset = self.queryset_unfiltered
 
-        if self.request.query_params.get('fields', False):
-            # only specified fields are requested to be returned
+        if 'fields' in self.request.query_params:
+            if not self.fields:
+                # save fields when no inheriting view has done it yet
+                self.fields = self.request.query_params['fields'].split(',')
 
-            fields = self.request.query_params['fields'].split(',')
+            for field in self.fields:
+                if field not in self.get_serializer_class().Meta.fields:
+                    raise Http400(f'field \'{field}\' is not part of {self.object.__name__}')
 
             # causes only requested fields to be loaded from the db
-            self.queryset = self.queryset.only(*fields)
+            self.queryset = self.queryset.only(*self.fields)
 
             # check if requested fields are relations, so that we know to include them in select_related.
             # if no fields is relation, select_related will be made empty.
-            self.select_related = [ rel for rel in self.select_related if rel in fields ]
+            self.select_related = [ rel for rel in self.select_related if rel in self.fields ]
 
         queryset = super().get_queryset().filter(*q_filters, **additional_filters)
 
