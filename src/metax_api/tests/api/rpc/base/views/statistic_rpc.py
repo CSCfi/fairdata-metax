@@ -265,6 +265,12 @@ class StatisticRPCCommon(APITestCase, TestClassUtils):
         """
         return CatalogRecord.objects_unfiltered.filter(date_created__startswith=date).count()
 
+    def _get_dataset_count_after(self, date):
+        """
+        Return the total count after the date provided (inclusive). date is in format 'YYYY-MM-DD'
+        """
+        return CatalogRecord.objects_unfiltered.filter(date_created__gte=f'{date}T00:00:00+03:00').count()
+
     def _get_total_dataset_count(self):
         """
         Returns dataset count of entire database
@@ -384,6 +390,30 @@ class StatisticRPCCountDatasets(StatisticRPCCommon, CatalogRecordApiWriteCommon)
         self.assertEqual(leg_not_lat['count'], 3)
         self.assertEqual(not_leg_not_lat['count'], total_count - 3)
 
+    def test_count_datasets_from_date(self):
+        total_count = CatalogRecord.objects_unfiltered.count()
+
+        june_count = self._get_dataset_count_of_month('2018-06')
+        july_count = self._get_dataset_count_of_month('2018-07')
+        aug_count = self._get_dataset_count_of_month('2018-08')
+
+        res = self.client.get('/rpc/statistics/count_datasets?from_date=2018-07-01').data
+        self.assertEqual(res['count'], total_count - june_count)
+
+        res = self.client.get('/rpc/statistics/count_datasets?from_date=2018-09-02').data
+        self.assertEqual(res['count'], total_count - june_count - july_count - aug_count)
+
+    def test_count_datasets_to_date(self):
+        total_count = CatalogRecord.objects_unfiltered.count()
+
+        after_jan_count = self._get_dataset_count_after('2019-01-02')
+        after_feb_count = self._get_dataset_count_after('2019-02-02')
+
+        res = self.client.get('/rpc/statistics/count_datasets?to_date=2019-01-01').data
+        self.assertEqual(res['count'], total_count - after_jan_count)
+
+        res = self.client.get('/rpc/statistics/count_datasets?to_date=2019-02-01').data
+        self.assertEqual(res['count'], total_count - after_feb_count)
 
 class StatisticRPCAllDatasetsCumulative(StatisticRPCCommon, CatalogRecordApiWriteCommon):
     """

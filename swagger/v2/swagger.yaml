@@ -1882,29 +1882,29 @@ paths:
           description: Not found
       tags:
         - Dataset RPC
-  # /rpc/v2/statistics/count_datasets:
-  #   get:
-  #     summary: Get the total number of datasets and file sizes.
-  #     description: Calculates the total number of datasets and file sizes.
-  #     parameters:
-  #       - $ref: "#/parameters/from_date_non_required"
-  #       - $ref: "#/parameters/to_date_non_required"
-  #       - $ref: "#/parameters/access_type_filter"
-  #       - $ref: "#/parameters/data_catalog_filter"
-  #       - $ref: "#/parameters/deprecated_filter"
-  #       - $ref: "#/parameters/harvested_filter"
-  #       - $ref: "#/parameters/latest_filter"
-  #       - $ref: "#/parameters/metadata_owner_org_filter"
-  #       - $ref: "#/parameters/metadata_provider_org_filter"
-  #       - $ref: "#/parameters/metadata_provider_user_filter"
-  #       - $ref: "#/parameters/preservation_state_filter"
-  #     responses:
-  #       '200':
-  #         description: successful operation.
-  #         schema:
-  #           $ref: "#/examples/count_datasets"
-  #     tags:
-  #       - Statistics RPC
+  /rpc/v2/statistics/count_datasets:
+    get:
+      summary: Get the total number of datasets and file sizes.
+      description: Calculates the total number of datasets and file sizes.
+      parameters:
+        - $ref: "#/parameters/from_date_non_required"
+        - $ref: "#/parameters/to_date_non_required"
+        - $ref: "#/parameters/access_type_filter"
+        - $ref: "#/parameters/data_catalog_filter"
+        - $ref: "#/parameters/deprecated_filter"
+        - $ref: "#/parameters/harvested_filter"
+        - $ref: "#/parameters/latest_filter"
+        - $ref: "#/parameters/metadata_owner_org_filter"
+        - $ref: "#/parameters/metadata_provider_org_filter"
+        - $ref: "#/parameters/metadata_provider_user_filter"
+        - $ref: "#/parameters/preservation_state_filter"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/count_datasets"
+      tags:
+        - Statistics RPC
   /rpc/v2/statistics/all_datasets_cumulative:
     get:
       summary: Get cumulative list of dataset information in given interval.
@@ -2296,14 +2296,14 @@ definitions:
 
 
 examples:
-  # count_datasets:
-  #   type: object
-  #   properties:
-  #     count:
-  #       type: integer
-  #     ida_byte_size:
-  #       type: number
-  #       format: float
+  count_datasets:
+    type: object
+    properties:
+      count:
+        type: integer
+      ida_byte_size:
+        type: number
+        format: float
   all_datasets_cumulative:
     type: array
     items:
