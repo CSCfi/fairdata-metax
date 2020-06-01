@@ -265,6 +265,12 @@ class StatisticRPCCommon(APITestCase, TestClassUtils):
 
         return sum(list_of_sizes)
 
+    def _get_dataset_count_after(self, date):
+        """
+        Return the total count after the date provided (inclusive). date is in format 'YYYY-MM-DD'
+        """
+        return CatalogRecord.objects_unfiltered.filter(date_created__gte=f'{date}T00:00:00+03:00').count()
+
     def _get_dataset_count_of_month(self, date):
         """
         Returns the count for given date. date is in format 'YYYY-MM'
