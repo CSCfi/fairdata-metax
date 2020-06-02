@@ -325,6 +325,9 @@ class CatalogRecord(Common):
     rems_identifier = models.CharField(max_length=200, null=True, default=None,
         help_text='Defines corresponding catalog item in REMS service')
 
+    api_meta = JSONField(null=True, default=None,
+        help_text='Saves api related info about the dataset. E.g. api version')
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """
@@ -347,6 +350,12 @@ class CatalogRecord(Common):
     to define their own preference without hardcoding it everywhere.
     """
     serializer_class = None
+
+    """
+    Version is used to separate different api versions from each other so that they cannot be cross-edited.
+    Inheriting classes should define this in their init.
+    """
+    api_version = 0
 
     objects = CatalogRecordManager()
 
@@ -380,6 +389,7 @@ class CatalogRecord(Common):
         )
         from metax_api.api.rest.base.serializers import CatalogRecordSerializer
         self.serializer_class = CatalogRecordSerializer
+        self.api_version = 1
 
     def print_files(self): # pragma: no cover
         for f in self.files.all():

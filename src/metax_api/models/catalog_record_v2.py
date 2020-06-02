@@ -63,6 +63,7 @@ class CatalogRecordV2(CatalogRecord):
         super().__init__(*args, **kwargs)
         from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
         self.serializer_class = CatalogRecordSerializerV2
+        self.api_version = 2
 
     def save(self, *args, **kwargs):
         """
