@@ -395,24 +395,24 @@ class StatisticRPCCountDatasets(StatisticRPCCommon, CatalogRecordApiWriteCommon)
 
         june_count = self._get_dataset_count_of_month('2018-06')
         july_count = self._get_dataset_count_of_month('2018-07')
-        aug_count = self._get_dataset_count_of_month('2018-08')
 
         res = self.client.get('/rpc/statistics/count_datasets?from_date=2018-07-01').data
         self.assertEqual(res['count'], total_count - june_count)
 
-        res = self.client.get('/rpc/statistics/count_datasets?from_date=2018-09-02').data
-        self.assertEqual(res['count'], total_count - june_count - july_count - aug_count)
+        # datasets are created on 13th so this should include august count
+        res = self.client.get('/rpc/statistics/count_datasets?from_date=2018-08-13').data
+        self.assertEqual(res['count'], total_count - june_count - july_count)
 
     def test_count_datasets_to_date(self):
         total_count = CatalogRecord.objects_unfiltered.count()
 
-        after_jan_count = self._get_dataset_count_after('2019-01-02')
-        after_feb_count = self._get_dataset_count_after('2019-02-02')
+        after_jan_count = self._get_dataset_count_after('2019-01-01')
+        after_feb_count = self._get_dataset_count_after('2019-02-14')
 
         res = self.client.get('/rpc/statistics/count_datasets?to_date=2019-01-01').data
         self.assertEqual(res['count'], total_count - after_jan_count)
 
-        res = self.client.get('/rpc/statistics/count_datasets?to_date=2019-02-01').data
+        res = self.client.get('/rpc/statistics/count_datasets?to_date=2019-02-13').data
         self.assertEqual(res['count'], total_count - after_feb_count)
 
 class StatisticRPCAllDatasetsCumulative(StatisticRPCCommon, CatalogRecordApiWriteCommon):

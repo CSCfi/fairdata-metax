@@ -529,7 +529,8 @@ if executing_in_travis:
     }
 else:
     ELASTICSEARCH = {
-        'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
+        'HOSTS': ['metax.fairdata.fi/es'],
+        'USE_SSL': True,
         # normally cache is reloaded from elasticsearch only if reference data is missing.
         # for one-off reload / debugging / development, use below flag
         'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': app_config_dict['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART'],
