@@ -1882,29 +1882,41 @@ paths:
           description: Not found
       tags:
         - Dataset RPC
-  # /rpc/v2/statistics/count_datasets:
-  #   get:
-  #     summary: Get the total number of datasets and file sizes.
-  #     description: Calculates the total number of datasets and file sizes.
-  #     parameters:
-  #       - $ref: "#/parameters/from_date_non_required"
-  #       - $ref: "#/parameters/to_date_non_required"
-  #       - $ref: "#/parameters/access_type_filter"
-  #       - $ref: "#/parameters/data_catalog_filter"
-  #       - $ref: "#/parameters/deprecated_filter"
-  #       - $ref: "#/parameters/harvested_filter"
-  #       - $ref: "#/parameters/latest_filter"
-  #       - $ref: "#/parameters/metadata_owner_org_filter"
-  #       - $ref: "#/parameters/metadata_provider_org_filter"
-  #       - $ref: "#/parameters/metadata_provider_user_filter"
-  #       - $ref: "#/parameters/preservation_state_filter"
-  #     responses:
-  #       '200':
-  #         description: successful operation.
-  #         schema:
-  #           $ref: "#/examples/count_datasets"
-  #     tags:
-  #       - Statistics RPC
+  /rpc/v2/statistics/count_datasets:
+    get:
+      summary: Get the total number of datasets and file sizes.
+      description: Calculates the total number of datasets and file sizes.
+      parameters:
+        - name: from_date
+          in: query
+          description: Includes datasets that are created after this date (including given date). Given in format 'YYYY-MM-DD'.
+          required: false
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: to_date
+          in: query
+          description: Includes datasets that are created before this date (excluding given date). Given in format 'YYYY-MM-DD'.
+          required: false
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        - $ref: "#/parameters/access_type_filter"
+        - $ref: "#/parameters/data_catalog_filter"
+        - $ref: "#/parameters/deprecated_filter"
+        - $ref: "#/parameters/harvested_filter"
+        - $ref: "#/parameters/latest_filter"
+        - $ref: "#/parameters/metadata_owner_org_filter"
+        - $ref: "#/parameters/metadata_provider_org_filter"
+        - $ref: "#/parameters/metadata_provider_user_filter"
+        - $ref: "#/parameters/preservation_state_filter"
+        - $ref: "#/parameters/removed_filter"
+        - $ref: "#/parameters/legacy_filter"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/count_datasets"
+      tags:
+        - Statistics RPC
   /rpc/v2/statistics/all_datasets_cumulative:
     get:
       summary: Get cumulative list of dataset information in given interval.
@@ -1922,21 +1934,9 @@ paths:
           required: true
           type: string
           pattern: '^\d{4}-\d{2}$'
-        - name: latest
-          in: query
-          description: Only return latest versions. Default value is true.
-          required: false
-          type: boolean
-        - name: removed
-          in: query
-          description: Only return removed datasets. If set to false, return non-removed datasets. When parameter is not given, return both removed and non-removed datasets.
-          required: false
-          type: boolean
-        - name: legacy
-          in: query
-          description: Only return legacy datasets. If set to false, return non-legacy datasets. When parameter is not given, return both legacy and non-legacy datasets.
-          required: false
-          type: boolean
+        - $ref: "#/parameters/latest_filter"
+        - $ref: "#/parameters/removed_filter"
+        - $ref: "#/parameters/legacy_filter"
       responses:
         '200':
           description: Successful operation.
@@ -2080,27 +2080,11 @@ parameters:
     type: string
     format: date
 
-  from_date_non_required:
-    name: from_date
-    in: query
-    description: Query returns objects that are created after this date. to_date parameter is required with this.
-    required: false
-    type: string
-    format: date
-
   to_date:
     name: to_date
     in: query
     description: Query returns objects that are created before this date. from_date parameter is required with this.
     required: true
-    type: string
-    format: date
-
-  to_date_non_required:
-    name: to_date
-    in: query
-    description: Query returns objects that are created before this date. from_date parameter is required with this.
-    required: false
     type: string
     format: date
 
@@ -2164,6 +2148,20 @@ parameters:
     name: deprecated
     in: query
     description: only return deprecated datasets
+    required: false
+    type: boolean
+
+  removed_filter:
+    name: removed
+    in: query
+    description: Only return removed datasets. If set to false, return non-removed datasets. When parameter is not given, return both removed and non-removed datasets.
+    required: false
+    type: boolean
+
+  legacy_filter:
+    name: legacy
+    in: query
+    description: Only return legacy datasets. If set to false, return non-legacy datasets. When parameter is not given, return both legacy and non-legacy datasets.
     required: false
     type: boolean
 
@@ -2296,14 +2294,14 @@ definitions:
 
 
 examples:
-  # count_datasets:
-  #   type: object
-  #   properties:
-  #     count:
-  #       type: integer
-  #     ida_byte_size:
-  #       type: number
-  #       format: float
+  count_datasets:
+    type: object
+    properties:
+      count:
+        type: integer
+      ida_byte_size:
+        type: number
+        format: float
   all_datasets_cumulative:
     type: array
     items:
