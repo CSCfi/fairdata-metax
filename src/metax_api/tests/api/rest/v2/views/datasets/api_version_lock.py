@@ -9,7 +9,6 @@ from rest_framework import status
 
 from metax_api.models import (
     CatalogRecordV2,
-    Directory
 )
 from .write import CatalogRecordApiWriteCommon
 
@@ -25,9 +24,12 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
     def setUp(self):
         super().setUp()
 
-    def _create_v1_dataset(self, cr=None):
+    def _create_v1_dataset(self, cumulative=False, cr=None):
         if not cr:
             cr = self.cr_test_data
+
+        if cumulative:
+            cr['cumulative_state'] = 1
 
         response = self.client.post('/rest/datasets', cr, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -58,14 +60,10 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         another_cr_v1['research_dataset']['title']['en'] = 'this title update should be file'
 
         response = self.client.put('/rest/datasets', [another_cr_v1, cr_v2], format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, 'response should return ok even though one failed')
-        self.assertEqual(len(response.data['success']), 1)
-        self.assertEqual(len(response.data['failed']), 1)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
 
         response = self.client.patch('/rest/datasets', [another_cr_v1, cr_v2], format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, 'response should return ok even though one failed')
-        self.assertEqual(len(response.data['success']), 1)
-        self.assertEqual(len(response.data['failed']), 1)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
 
     def _try_v1_change_cumulative_state(self, cr_v2):
         """
@@ -107,6 +105,7 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should be 2')
 
+        cr_dirs = response.data
         # test refresh_directory_content
         # the directory does not have anything to add but it is not relevant here, since
         # api should return error about the api version before that
@@ -159,7 +158,8 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         self._try_v1_change_cumulative_state(response.data)
 
         # test POST /rest/v2/datasets/{PID}/files updates api version
-        cr_v1 = self._create_v1_dataset()
+        # make dataset cumulative so that file additions are allowed for published datasets
+        cr_v1 = self._create_v1_dataset(cumulative=True)
 
         file_changes = {
             'files': [

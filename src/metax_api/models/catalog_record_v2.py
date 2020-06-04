@@ -821,6 +821,11 @@ class CatalogRecordV2(CatalogRecord):
         # after all is said and done, ensure we are still adhering to the schema.
         serializer.validate_json_schema(self.research_dataset)
 
+        # v2 api successfully invoked, change the api version to prevent further updates
+        # on v1 api. TODO: Can possibly be deleted when v1 api is removed from use and all
+        # datasets have been migrated to v2
+        self.api_meta['version'] = self.api_version
+
         # ensure everything is saved, even if some of the methods do a save by themselves
         super(Common, self).save()
 
@@ -1082,6 +1087,11 @@ class CatalogRecordV2(CatalogRecord):
                 files_and_dirs[object_type] = self.research_dataset[object_type]
 
         serializer.validate_research_dataset_files(files_and_dirs)
+
+        # v2 api successfully invoked, change the api version to prevent further updates
+        # on v1 api. TODO: Can possibly be deleted when v1 api is removed from use and all
+        # datasets have been migrated to v2
+        self.api_meta['version'] = self.api_version
 
         self.user_modified = self.metadata_provider_user
         self.date_modified = get_tz_aware_now_without_micros()
