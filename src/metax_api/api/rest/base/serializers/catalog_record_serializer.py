@@ -56,7 +56,6 @@ LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 class CatalogRecordSerializer(CommonSerializer):
 
     class Meta:
-        model = CatalogRecord
         fields = (
             'id',
             'identifier',
@@ -88,7 +87,8 @@ class CatalogRecordSerializer(CommonSerializer):
             'date_cumulation_ended',
             'date_last_cumulative_addition',
             'rems_identifier',
-            'access_granter'
+            'access_granter',
+            'api_meta'
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -108,6 +108,10 @@ class CatalogRecordSerializer(CommonSerializer):
 
     # schemas dir is effectively ../schemas/
     _schemas_directory_path = path.join(path.dirname(path.dirname(__file__)), 'schemas')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Meta.model = CatalogRecord
 
     def is_valid(self, raise_exception=False):
         if self._request_by_end_user():
