@@ -102,6 +102,7 @@ class CatalogRecordV2(CatalogRecord):
         self.identifier = generate_uuid_identifier()
 
     def _post_create_operations(self, pid_type=None):
+        self._set_api_version()
 
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
 
@@ -347,6 +348,11 @@ class CatalogRecordV2(CatalogRecord):
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
                 self.data_catalog.catalog_record_services_edit):
             raise Http403({ 'detail': [ 'You are not permitted to edit datasets in this data catalog.' ]})
+
+        if self.field_changed('api_meta'):
+            self.api_meta = self._initial_data['api_meta']
+
+        self._set_api_version()
 
         if self.field_changed('identifier'):
             # read-only

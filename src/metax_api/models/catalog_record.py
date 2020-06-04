@@ -325,7 +325,7 @@ class CatalogRecord(Common):
     rems_identifier = models.CharField(max_length=200, null=True, default=None,
         help_text='Defines corresponding catalog item in REMS service')
 
-    api_meta = JSONField(null=True, default=None,
+    api_meta = JSONField(null=True, default=dict,
         help_text='Saves api related info about the dataset. E.g. api version')
 
     # END OF MODEL FIELD DEFINITIONS #
@@ -369,6 +369,7 @@ class CatalogRecord(Common):
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
+            'api_meta',
             'access_granter',
             'cumulative_state',
             'date_deprecated',
@@ -1101,6 +1102,18 @@ class CatalogRecord(Common):
         if self.request.user.is_service and not self.access_granter:
             raise Http400('Missing access_granter')
 
+    def _match_api_version(self):
+        if not self.api_meta:
+            # This should be possible only for test data
+            _logger.warning(f'no api_meta found for {self.identifier}')
+            return
+
+        if not self.api_meta['version'] == self.api_version:
+            raise Http400('Please use the correct api version to edit this dataset')
+
+    def _set_api_version(self):
+        self.api_meta['version'] = self.api_version
+
     def _pre_create_operations(self, pid_type=None):
 
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create,
@@ -1172,6 +1185,7 @@ class CatalogRecord(Common):
             self.date_cumulation_started = self.date_created
 
     def _post_create_operations(self):
+        self._set_api_version()
 
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
@@ -1245,6 +1259,12 @@ class CatalogRecord(Common):
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
                 self.data_catalog.catalog_record_services_edit):
             raise Http403({ 'detail': [ 'You are not permitted to edit datasets in this data catalog.' ]})
+
+        if self.field_changed('api_meta'):
+            self.api_meta = self._initial_data['api_meta']
+
+        # possibly raises 400
+        self._match_api_version()
 
         if self.field_changed('identifier'):
             # read-only
@@ -2308,6 +2328,8 @@ class CatalogRecord(Common):
         Change field cumulative_state to new_state. Creates a new dataset version when
         a new cumulative period is started. Returns True if new dataset version is created, otherwise False.
         """
+        # might raise 400
+        self._match_api_version()
 
         if self.next_dataset_version:
             raise Http400('Cannot change cumulative_state on old dataset version')
@@ -2389,6 +2411,8 @@ class CatalogRecord(Common):
         Creates new version on file addition if dataset is not cumulative.
         Returns True if new dataset version is created, False otherwise.
         """
+        # might raise 400
+        self._match_api_version()
 
         if self.deprecated:
             raise Http400('Cannot update files on deprecated dataset. '
@@ -2461,6 +2485,9 @@ class CatalogRecord(Common):
         """
         Deletes all removed files and directories from dataset and creates new, non-deprecated version.
         """
+        # might raise 400
+        self._match_api_version()
+
         new_version = self._create_new_dataset_version_template()
         self._new_version = new_version
         self._fix_deprecated_research_dataset()

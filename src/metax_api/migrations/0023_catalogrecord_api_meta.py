@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='catalogrecord',
             name='api_meta',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=None, help_text='Saves api related info about the dataset. E.g. api version', null=True),
+            field=django.contrib.postgres.fields.jsonb.JSONField(default=dict, help_text='Saves api related info about the dataset. E.g. api version', null=True),
         ),
     ]
