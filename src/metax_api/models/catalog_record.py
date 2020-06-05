@@ -1112,6 +1112,8 @@ class CatalogRecord(Common):
             raise Http400('Please use the correct api version to edit this dataset')
 
     def _set_api_version(self):
+        # TODO: Can possibly be deleted when v1 api is removed from use and all
+        # datasets have been migrated to v2
         self.api_meta['version'] = self.api_version
 
     def _pre_create_operations(self, pid_type=None):
@@ -1833,6 +1835,7 @@ class CatalogRecord(Common):
         new_version_template.identifier = generate_uuid_identifier()
         new_version_template.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
         new_version_template.preservation_identifier = None
+        new_version_template.api_meta['version'] = self.api_version
         super(Common, new_version_template).save()
         return new_version_template
 

@@ -821,10 +821,8 @@ class CatalogRecordV2(CatalogRecord):
         # after all is said and done, ensure we are still adhering to the schema.
         serializer.validate_json_schema(self.research_dataset)
 
-        # v2 api successfully invoked, change the api version to prevent further updates
-        # on v1 api. TODO: Can possibly be deleted when v1 api is removed from use and all
-        # datasets have been migrated to v2
-        self.api_meta['version'] = self.api_version
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         # ensure everything is saved, even if some of the methods do a save by themselves
         super(Common, self).save()
@@ -1088,10 +1086,8 @@ class CatalogRecordV2(CatalogRecord):
 
         serializer.validate_research_dataset_files(files_and_dirs)
 
-        # v2 api successfully invoked, change the api version to prevent further updates
-        # on v1 api. TODO: Can possibly be deleted when v1 api is removed from use and all
-        # datasets have been migrated to v2
-        self.api_meta['version'] = self.api_version
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         self.user_modified = self.metadata_provider_user
         self.date_modified = get_tz_aware_now_without_micros()
@@ -1126,6 +1122,9 @@ class CatalogRecordV2(CatalogRecord):
             draft_cr.files.add(*origin_cr.files.all())
 
         origin_cr.next_draft = draft_cr
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         super(CatalogRecord, origin_cr).save()
 
@@ -1240,6 +1239,9 @@ class CatalogRecordV2(CatalogRecord):
             if 'identifier' in old_editor:
                 # todo this probably does not make sense... ?
                 new_version.editor['identifier'] = old_editor['identifier']
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         super(Common, new_version).save()
         super(Common, old_version).save()
@@ -1370,6 +1372,9 @@ class CatalogRecordV2(CatalogRecord):
             self.date_cumulation_started = self.date_modified
             self.date_cumulation_ended = None
             self.cumulative_state = new_state
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         super(CatalogRecord, self).save()
 

@@ -226,4 +226,66 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         Tests that when v1 datasets are updated using any v2 rpc api, their api version is changed to v2
         and thus further updates by v1 api should be prevented
         """
-        pass
+
+        # test change_cumulative_state
+        cr_v1_cum = self._create_v1_dataset(cumulative=True)
+
+        # create one non-cumulative dataset without files so it can be edited with this rpc
+        cr_v1_non_cum = self.cr_test_data
+        cr_v1_non_cum['cumulative_state'] = 0
+        del cr_v1_non_cum['research_dataset']['files']
+        cr_v1_non_cum = self._create_v1_dataset(cr=cr_v1_non_cum)
+
+        params = f'identifier={cr_v1_non_cum["identifier"]}&cumulative_state=1'
+        response = self.client.post(f'/rpc/v2/datasets/change_cumulative_state?{params}', format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        response = self.client.get(f'/rest/datasets/{cr_v1_non_cum["identifier"]}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should have been changed')
+
+        params = f'identifier={cr_v1_cum["identifier"]}&cumulative_state=2'
+        response = self.client.post(f'/rpc/v2/datasets/change_cumulative_state?{params}', format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        response = self.client.get(f'/rest/datasets/{cr_v1_non_cum["identifier"]}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should have been changed')
+
+        # test create_draft
+        cr_v1 = self._create_v1_dataset()
+
+        params = f'identifier={cr_v1["identifier"]}'
+        response = self.client.post(f'/rpc/v2/datasets/create_draft?{params}', format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.get(f'/rest/datasets/{cr_v1["identifier"]}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr_v1 = response.data
+
+        new_id = response.data['identifier']
+        response = self.client.get(f'/rest/datasets/{new_id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        new_dataset = response.data
+
+        self.assertEqual(cr_v1['api_meta']['version'], 2, 'origin dataset api_version should have been changed')
+        self.assertEqual(new_dataset['api_meta']['version'], 2, 'api_version should have been changed')
+
+        # test create_new_version
+        cr_v1 = self._create_v1_dataset()
+
+        params = f'identifier={cr_v1["identifier"]}'
+        response = self.client.post(f'/rpc/v2/datasets/create_new_version?{params}', format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.get(f'/rest/datasets/{cr_v1["identifier"]}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr_v1 = response.data
+
+        new_id = response.data['identifier']
+        response = self.client.get(f'/rest/datasets/{new_id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        new_dataset = response.data
+        self.assertEqual(cr_v1['api_meta']['version'], 2, 'origin dataset api_version should have been changed')
+        self.assertEqual(new_dataset['api_meta']['version'], 2, 'api_version should have been changed')
