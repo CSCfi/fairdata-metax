@@ -1186,9 +1186,9 @@ class CatalogRecord(Common):
 
             self.date_cumulation_started = self.date_created
 
-    def _post_create_operations(self):
         self._set_api_version()
 
+    def _post_create_operations(self):
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
             # to insert into a many2many relation.
