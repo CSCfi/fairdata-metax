@@ -105,6 +105,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params['data_catalog__catalog_json__identifier__iregex'] = \
                 request.query_params['data_catalog']
 
+        if request.query_params.get('api_version', False):
+            try:
+                value = int(request.query_params['api_version'])
+            except ValueError:
+                value = request.query_params['api_version']
+                raise Http400({ 'api_version': ['Value \'%s\' is not an integer' % value] })
+
+            queryset_search_params['api_meta__contains'] = { 'version': value }
+
         return queryset_search_params
 
     @staticmethod
