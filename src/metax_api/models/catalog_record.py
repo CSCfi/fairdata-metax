@@ -1102,7 +1102,7 @@ class CatalogRecord(Common):
         if self.request.user.is_service and not self.access_granter:
             raise Http400('Missing access_granter')
 
-    def _match_api_version(self):
+    def _assert_api_version(self):
         if not self.api_meta:
             # This should be possible only for test data
             _logger.warning(f'no api_meta found for {self.identifier}')
@@ -1186,9 +1186,9 @@ class CatalogRecord(Common):
 
             self.date_cumulation_started = self.date_created
 
-    def _post_create_operations(self):
         self._set_api_version()
 
+    def _post_create_operations(self):
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
             # to insert into a many2many relation.
@@ -1266,7 +1266,7 @@ class CatalogRecord(Common):
             self.api_meta = self._initial_data['api_meta']
 
         # possibly raises 400
-        self._match_api_version()
+        self._assert_api_version()
 
         if self.field_changed('identifier'):
             # read-only
@@ -2332,7 +2332,7 @@ class CatalogRecord(Common):
         a new cumulative period is started. Returns True if new dataset version is created, otherwise False.
         """
         # might raise 400
-        self._match_api_version()
+        self._assert_api_version()
 
         if self.next_dataset_version:
             raise Http400('Cannot change cumulative_state on old dataset version')
@@ -2415,7 +2415,7 @@ class CatalogRecord(Common):
         Returns True if new dataset version is created, False otherwise.
         """
         # might raise 400
-        self._match_api_version()
+        self._assert_api_version()
 
         if self.deprecated:
             raise Http400('Cannot update files on deprecated dataset. '
@@ -2489,7 +2489,7 @@ class CatalogRecord(Common):
         Deletes all removed files and directories from dataset and creates new, non-deprecated version.
         """
         # might raise 400
-        self._match_api_version()
+        self._assert_api_version()
 
         new_version = self._create_new_dataset_version_template()
         self._new_version = new_version

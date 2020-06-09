@@ -101,9 +101,9 @@ class CatalogRecordV2(CatalogRecord):
         self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
 
-    def _post_create_operations(self, pid_type=None):
         self._set_api_version()
 
+    def _post_create_operations(self, pid_type=None):
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
 
             # files must be added after the record itself has been created, to be able
@@ -253,6 +253,9 @@ class CatalogRecordV2(CatalogRecord):
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
             self._pre_rems_creation()
+
+        if self.api_version != self.api_meta['version']:
+            self._set_api_version()
 
         super(Common, self).save()
 

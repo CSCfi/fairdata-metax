@@ -5,10 +5,13 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from copy import deepcopy
+
 from rest_framework import status
 
 from metax_api.models import (
-    CatalogRecordV2,
+    CatalogRecord,
+    CatalogRecordV2
 )
 from .write import CatalogRecordApiWriteCommon
 
@@ -24,71 +27,105 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
     def setUp(self):
         super().setUp()
 
-    def _create_v1_dataset(self, cumulative=False, cr=None):
+    def _create_v1_dataset(self, cumulative=False, cr=None, draft=False):
         if not cr:
             cr = self.cr_test_data
 
         if cumulative:
+            # not to mess up with the original test dataset
+            cr = deepcopy(cr)
             cr['cumulative_state'] = 1
 
-        response = self.client.post('/rest/datasets', cr, format='json')
+        if draft:
+            params = 'draft'
+        else:
+            params = ''
+
+        response = self.client.post(f'/rest/datasets?{params}', cr, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['api_meta']['version'], 1)
+
+        cr = CatalogRecord.objects.get(pk=response.data['id'])
+        self.assertEqual(cr.api_meta['version'], 1, 'api_version should be 1')
 
         return response.data
 
-    def _try_v1_rest_updates(self, cr_v2):
-        """
-        Modify given v2 dataset and try to update it with put and patch using single and bulk update and
-        make sure it does not work.
-        """
-        cr_v2['research_dataset']['title']['en'] = 'totally unique changes to the english title'
+    def _create_v2_dataset(self, cumulative=False, cr=None, draft=False):
+        if not cr:
+            cr = self.cr_test_data
 
-        response = self.client.put(f'/rest/datasets/{cr_v2["id"]}', cr_v2, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        if cumulative:
+            # not to mess up with the original test dataset
+            cr = deepcopy(cr)
+            cr['cumulative_state'] = 1
 
-        response = self.client.patch(f'/rest/datasets/{cr_v2["id"]}', cr_v2, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        if draft:
+            params = 'draft'
+        else:
+            params = ''
 
-        # try bulk update where one dataset is v2 and other v1
-        # should return one successful and one failed update
-        response = self.client.post('/rest/datasets', self.cr_test_data, format='json')
+        response = self.client.post(f'/rest/v2/datasets?{params}', cr, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['api_meta']['version'], 1)
+        self.assertEqual(response.data['api_meta']['version'], 2)
 
-        another_cr_v1 = response.data
-        another_cr_v1['research_dataset']['title']['en'] = 'this title update should be file'
+        cr = CatalogRecord.objects.get(pk=response.data['id'])
+        self.assertEqual(cr.api_meta['version'], 2, 'api_version should be 2')
 
-        response = self.client.put('/rest/datasets', [another_cr_v1, cr_v2], format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        return response.data
 
-        response = self.client.patch('/rest/datasets', [another_cr_v1, cr_v2], format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+    def _assert_api_version(self, identifier, version):
+        response = self.client.get(f'/rest/datasets/{identifier}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data['api_meta']['version'], version, 'api_version should have been changed')
 
-    def _try_v1_change_cumulative_state(self, cr_v2):
+    def test_datasets_are_assigned_to_correct_api_version_on_create(self):
         """
-        Try to update given v2 dataset with v1 change_cumulative_state and make sure that it does not work.
-        Other rpc apis are tested in separate test case because they have special needs for the updated dataset.
+        Test that api versions are correctly set on dataset creation
         """
-        params = f'identifier={cr_v2["identifier"]}&cumulative_state=1'
-        response = self.client.post(f'/rpc/datasets/change_cumulative_state?{params}', format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
 
-    def test_version_blocks_all_v1_apis(self):
+        self._create_v1_dataset()
+        self._create_v2_dataset()
+
+    def test_version_v2_blocks_all_v1_apis(self):
         """
         Test that none of the v1 update apis are working when dataset version is 2
         """
 
-        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should be 2')
+        cr_v2 = self._create_v2_dataset()
 
-        self._try_v1_rest_updates(response.data)
-        self._try_v1_change_cumulative_state(response.data)
+        cr_v2['research_dataset']['title']['en'] = 'totally unique changes to the english title'
+
+        # test basic update operations
+
+        response = self.client.put(f'/rest/datasets/{cr_v2["id"]}', cr_v2, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        self.assertTrue('correct api version' in response.data['detail'][0], 'msg should be about api version')
+
+        response = self.client.patch(f'/rest/datasets/{cr_v2["id"]}', cr_v2, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        self.assertTrue('correct api version' in response.data['detail'][0], 'msg should be about api version')
+
+        cr_v1 = self._create_v1_dataset()
+        cr_v1['research_dataset']['title']['en'] = 'this title update should be file'
+
+        response = self.client.put('/rest/datasets', [cr_v1, cr_v2], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        self.assertTrue('correct api version' in response.data['detail'][0], 'msg should be about api version')
+
+        response = self.client.patch('/rest/datasets', [cr_v1, cr_v2], format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        self.assertTrue('correct api version' in response.data['detail'][0], 'msg should be about api version')
+
+        # test change_cumulative_state
+
+        params = f'identifier={cr_v2["identifier"]}&cumulative_state=1'
+        response = self.client.post(f'/rpc/datasets/change_cumulative_state?{params}', format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        self.assertTrue('correct api version' in response.data['detail'][0], 'msg should be about api version')
 
         # add directory with some files in it to test other rpc apis
         # dir contains first 5 files 'pid:urn:n'
-        cr_dirs = self.cr_test_data
+        cr_dirs = deepcopy(self.cr_test_data)
         cr_dirs['research_dataset']['directories'] = [
             {
                 "title": "dir_name",
@@ -101,63 +138,66 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
             }
         ]
 
-        response = self.client.post('/rest/v2/datasets', cr_dirs, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should be 2')
+        cr_dirs = self._create_v2_dataset(cr=cr_dirs)
 
-        cr_dirs = response.data
         # test refresh_directory_content
+
         # the directory does not have anything to add but it is not relevant here, since
         # api should return error about the api version before that
         params = f'cr_identifier={cr_dirs["identifier"]}&dir_identifier=pid:urn:dir:3'
         response = self.client.post(f'/rpc/datasets/refresh_directory_content?{params}', format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        self.assertTrue('correct api version' in response.data['detail'][0], 'msg should be about api version')
 
-        # deprecate the dataset
+        # test fix_deprecated
+
         response = self.client.delete(f'/rest/files/pid:urn:1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # test fix_deprecated
         params = f'identifier={cr_dirs["identifier"]}'
         response = self.client.post(f'/rpc/datasets/fix_deprecated?{params}', format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, 'v1 modifications should have been blocked')
+        self.assertTrue('correct api version' in response.data['detail'][0], 'msg should be about api version')
 
-    def test_create_lock(self):
-        """
-        Test that v2 is locked on creation
-        """
-        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should be 2')
-
-        response.data['research_dataset']['title']['en'] = 'some new title'
-        cr_v2 = response.data
-
-        self._try_v1_rest_updates(cr_v2)
-        self._try_v1_change_cumulative_state(response.data)
-
-    def test_rest_api_modification_lock(self):
+    def test_v2_rest_api_modification_updates_api_version(self):
         """
         Tests that when v1 datasets are updated using any v2 rest api, their api version is changed to v2
         and thus further updates by v1 api should be prevented
         """
 
-        cr_v1 = self._create_v1_dataset()
+        # test basic single PUT/PATCH updates
 
-        # edit it and make it v2 dataset
-        cr_v1['research_dataset']['title']['en'] = 'some new title'
+        for http_verb in ['put', 'patch']:
+            update_request = getattr(self.client, http_verb)
+            cr_v1 = self._create_v1_dataset()
 
-        response = self.client.put(f'/rest/v2/datasets/{cr_v1["id"]}', cr_v1, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should have been changed')
-        self.assertEqual(
-            response.data['research_dataset']['title']['en'], 'some new title', 'new title should\'ve be added'
-        )
+            cr_v1['research_dataset']['title']['en'] = 'some new title'
 
-        self._try_v1_rest_updates(response.data)
-        self._try_v1_change_cumulative_state(response.data)
+            response = update_request(f'/rest/v2/datasets/{cr_v1["id"]}', cr_v1, format='json')
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+            self._assert_api_version(cr_v1['identifier'], 2)
+
+        # test basic bulk PUT/PATCH updates
+
+        for http_verb in ['put', 'patch']:
+            update_request = getattr(self.client, http_verb)
+            cr_v1_0 = self._create_v1_dataset()
+            cr_v1_1 = self._create_v1_dataset()
+
+            cr_v1_0['research_dataset']['title']['en'] = 'some new title'
+            cr_v1_1['research_dataset']['title']['en'] = 'some new title for another'
+
+            response = update_request(f'/rest/v2/datasets', [cr_v1_0, cr_v1_1], format='json')
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+            self._assert_api_version(cr_v1_0['identifier'], 2)
+            self._assert_api_version(cr_v1_1['identifier'], 2)
 
         # test POST /rest/v2/datasets/{PID}/files updates api version
+
         # make dataset cumulative so that file additions are allowed for published datasets
         cr_v1 = self._create_v1_dataset(cumulative=True)
 
@@ -171,14 +211,10 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         response = self.client.post(f'/rest/v2/datasets/{cr_v1["id"]}/files', file_changes, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        response = self.client.get(f'/rest/datasets/{cr_v1["id"]}')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should have been changed')
-
-        self._try_v1_rest_updates(response.data)
-        self._try_v1_change_cumulative_state(response.data)
+        self._assert_api_version(cr_v1['id'], 2)
 
         # test PUT/PATCH /rest/v2/datasets/{PID}/files/user_metadata
+
         for http_verb in ['put', 'patch']:
             update_request = getattr(self.client, http_verb)
             cr = self.cr_test_data
@@ -214,14 +250,9 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-            response = self.client.get(f'/rest/datasets/{cr_v1["id"]}')
-            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-            self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should have been changed')
+            self._assert_api_version(cr_v1['id'], 2)
 
-            self._try_v1_rest_updates(response.data)
-            self._try_v1_change_cumulative_state(response.data)
-
-    def test_rpc_api_modification_lock(self):
+    def test_v2_rpc_api_modification_updates_api_version(self):
         """
         Tests that when v1 datasets are updated using any v2 rpc api, their api version is changed to v2
         and thus further updates by v1 api should be prevented
@@ -240,17 +271,13 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         response = self.client.post(f'/rpc/v2/datasets/change_cumulative_state?{params}', format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
-        response = self.client.get(f'/rest/datasets/{cr_v1_non_cum["identifier"]}')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should have been changed')
+        self._assert_api_version(cr_v1_non_cum["identifier"], 2)
 
         params = f'identifier={cr_v1_cum["identifier"]}&cumulative_state=2'
         response = self.client.post(f'/rpc/v2/datasets/change_cumulative_state?{params}', format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
-        response = self.client.get(f'/rest/datasets/{cr_v1_non_cum["identifier"]}')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['api_meta']['version'], 2, 'api_version should have been changed')
+        self._assert_api_version(cr_v1_cum["identifier"], 2)
 
         # test create_draft
         cr_v1 = self._create_v1_dataset()
@@ -268,8 +295,8 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         new_dataset = response.data
 
-        self.assertEqual(cr_v1['api_meta']['version'], 2, 'origin dataset api_version should have been changed')
-        self.assertEqual(new_dataset['api_meta']['version'], 2, 'api_version should have been changed')
+        self._assert_api_version(cr_v1["identifier"], 2)
+        self._assert_api_version(new_dataset["identifier"], 2)
 
         # test create_new_version
         cr_v1 = self._create_v1_dataset()
@@ -287,5 +314,18 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         new_dataset = response.data
-        self.assertEqual(cr_v1['api_meta']['version'], 2, 'origin dataset api_version should have been changed')
-        self.assertEqual(new_dataset['api_meta']['version'], 2, 'api_version should have been changed')
+
+        self._assert_api_version(cr_v1["identifier"], 2)
+        self._assert_api_version(new_dataset["identifier"], 2)
+
+        # test publish dataset
+
+        cr_v1 = self._create_v1_dataset(draft=True)
+
+        params = f'identifier={cr_v1["identifier"]}'
+        response = self.client.post(f'/rpc/v2/datasets/publish_dataset?{params}', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self._assert_api_version(cr_v1['identifier'], 2)
+
+        # merge draft does not need to be checked because v1 datasets cannot have "parent" dataset
