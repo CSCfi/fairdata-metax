@@ -101,9 +101,9 @@ class CatalogRecordV2(CatalogRecord):
         self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
 
+    def _post_create_operations(self, pid_type=None):
         self._set_api_version()
 
-    def _post_create_operations(self, pid_type=None):
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
 
             # files must be added after the record itself has been created, to be able
@@ -151,11 +151,6 @@ class CatalogRecordV2(CatalogRecord):
     def is_draft_for_another_dataset(self):
         return hasattr(self, 'draft_of') and self.draft_of is not None
 
-    def _save_as_draft(self):
-        # overwrite the v1 model to always allow drafts for v2 api
-        from metax_api.services import CommonService
-        return CommonService.get_boolean_query_param(self.request, 'draft')
-
     def publish_dataset(self, pid_type=None):
         """
         Execute actions necessary to make the dataset publicly findable, in the following order:
@@ -177,10 +172,6 @@ class CatalogRecordV2(CatalogRecord):
                 'This dataset is a draft for another published dataset. To publish the draft changes, '
                 'use API /rpc/v2/datasets/publish_draft'
             )
-
-        # v1 api should have drafts disabled so this should never fail
-        # might raise error
-        self._match_api_version()
 
         self.state = self.STATE_PUBLISHED
 
@@ -361,8 +352,7 @@ class CatalogRecordV2(CatalogRecord):
         if self.field_changed('api_meta'):
             self.api_meta = self._initial_data['api_meta']
 
-        # might raise error
-        self._match_api_version()
+        self._set_api_version()
 
         if self.field_changed('identifier'):
             # read-only
@@ -666,9 +656,6 @@ class CatalogRecordV2(CatalogRecord):
                 'Changing files of a deprecated dataset is not permitted. Please create a new dataset version first.'
             )
 
-        # might raise error
-        self._match_api_version()
-
         assert type(file_changes) is dict
         assert hasattr(self, 'request') and self.request is not None
 
@@ -833,6 +820,9 @@ class CatalogRecordV2(CatalogRecord):
 
         # after all is said and done, ensure we are still adhering to the schema.
         serializer.validate_json_schema(self.research_dataset)
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         # ensure everything is saved, even if some of the methods do a save by themselves
         super(Common, self).save()
@@ -1069,9 +1059,6 @@ class CatalogRecordV2(CatalogRecord):
         """
         _logger.info('Updating dataset file metadata...')
 
-        # might raise error
-        self._match_api_version()
-
         serializer = self.serializer_class(self)
 
         # note: this does json schema validation, and its output from the api is not user friendly
@@ -1099,6 +1086,9 @@ class CatalogRecordV2(CatalogRecord):
 
         serializer.validate_research_dataset_files(files_and_dirs)
 
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
+
         self.user_modified = self.metadata_provider_user
         self.date_modified = get_tz_aware_now_without_micros()
 
@@ -1117,9 +1107,6 @@ class CatalogRecordV2(CatalogRecord):
             # a new dataset in draft state
             raise Http400('Dataset is already draft.')
 
-        # might raise error
-        self._match_api_version()
-
         origin_cr = self
 
         draft_cr = origin_cr._create_new_dataset_version_template()
@@ -1135,6 +1122,9 @@ class CatalogRecordV2(CatalogRecord):
             draft_cr.files.add(*origin_cr.files.all())
 
         origin_cr.next_draft = draft_cr
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         super(CatalogRecord, origin_cr).save()
 
@@ -1167,9 +1157,6 @@ class CatalogRecordV2(CatalogRecord):
             )
         elif not self.catalog_versions_datasets():
             raise Http400('Data catalog does not allow dataset versioning')
-
-        # might raise error
-        self._match_api_version()
 
         self._new_version = self._create_new_dataset_version_template()
         self._create_new_dataset_version()
@@ -1253,6 +1240,9 @@ class CatalogRecordV2(CatalogRecord):
                 # todo this probably does not make sense... ?
                 new_version.editor['identifier'] = old_editor['identifier']
 
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
+
         super(Common, new_version).save()
         super(Common, old_version).save()
 
@@ -1285,9 +1275,6 @@ class CatalogRecordV2(CatalogRecord):
         """
         if self.next_dataset_version:
             raise Http400('Cannot change cumulative_state on old dataset version')
-
-        # might raise error
-        self._match_api_version()
 
         cumulative_state_valid_values = [ choice[0] for choice in self.CUMULATIVE_STATE_CHOICES ]
 
@@ -1385,6 +1372,9 @@ class CatalogRecordV2(CatalogRecord):
             self.date_cumulation_started = self.date_modified
             self.date_cumulation_ended = None
             self.cumulative_state = new_state
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         super(CatalogRecord, self).save()
 
