@@ -624,6 +624,7 @@ else:
         'FORM_ID':          int(app_config_dict.get('REMS', {}).get('FORM_ID')),
     }
 
+# draft_enabled flag controls v1 drafts. v2 api has always drafts enabled
 if executing_in_test_case or executing_in_travis:
     DRAFT_ENABLED = True
 else:

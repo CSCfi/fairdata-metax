@@ -151,6 +151,14 @@ class CatalogRecordV2(CatalogRecord):
     def is_draft_for_another_dataset(self):
         return hasattr(self, 'draft_of') and self.draft_of is not None
 
+    def _save_as_draft(self):
+        """
+        Inherit here to always allow drafts in v2 api since the whole workflow is based on them
+        and to be able to differentiate between v1 and v2 drafts.
+        """
+        from metax_api.services import CommonService
+        return CommonService.get_boolean_query_param(self.request, 'draft')
+
     def publish_dataset(self, pid_type=None):
         """
         Execute actions necessary to make the dataset publicly findable, in the following order:
