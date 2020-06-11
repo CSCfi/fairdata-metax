@@ -122,7 +122,7 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data=research_dataset, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], name="metadata_versions")
+    @action(detail=True, methods=['get'], url_path="metadata_versions")
     def metadata_versions_list(self, request, pk=None):
         """
         List all research_dataset version associated with this dataset.
@@ -131,7 +131,7 @@ class DatasetViewSet(CommonViewSet):
         entries = cr.get_metadata_version_listing()
         return Response(data=entries, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], name="files")
+    @action(detail=True, methods=['get'], url_path="files")
     def files_list(self, request, pk=None):
         """
         Get files associated to this dataset. Can be used to retrieve a list of only
@@ -163,14 +163,14 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data=files, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], name="identifiers")
+    @action(detail=False, methods=['get'], url_path="identifiers")
     def get_all_identifiers(self, request):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
         q = self.get_queryset().values('identifier')
         identifiers = [item['identifier'] for item in q]
         return Response(identifiers)
 
-    @action(detail=False, methods=['get'], name="metadata_version_identifiers")
+    @action(detail=False, methods=['get'], url_path="metadata_version_identifiers")
     def get_all_metadata_version_identifiers(self, request):
         # todo probably remove at some point
         self.queryset_search_params = CRS.get_queryset_search_params(request)
@@ -178,7 +178,7 @@ class DatasetViewSet(CommonViewSet):
         identifiers = [item['research_dataset']['metadata_version_identifier'] for item in q]
         return Response(identifiers)
 
-    @action(detail=False, methods=['get'], name="unique_preferred_identifiers")
+    @action(detail=False, methods=['get'], url_path="unique_preferred_identifiers")
     def get_all_unique_preferred_identifiers(self, request):
         self.queryset_search_params = CRS.get_queryset_search_params(request)
 
@@ -220,7 +220,7 @@ class DatasetViewSet(CommonViewSet):
 
         return super(DatasetViewSet, self).get_object(search_params={ 'identifier': lookup_value })
 
-    @action(detail=True, methods=['get'], name="redis")
+    @action(detail=True, methods=['get'], url_path="redis")
     def redis_test(self, request, pk=None): # pragma: no cover
         if request.user.username != 'metax':
             raise Http403()
@@ -245,7 +245,7 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data=data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], name="rabbitmq")
+    @action(detail=True, methods=['get'], url_path="rabbitmq")
     def rabbitmq_test(self, request, pk=None): # pragma: no cover
         if request.user.username != 'metax':
             raise Http403()
@@ -253,7 +253,7 @@ class DatasetViewSet(CommonViewSet):
         rabbitmq.publish({ 'msg': 'hello update'}, routing_key='update', exchange='datasets')
         return Response(data={}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], name="update_cr_total_files_byte_sizes")  # pragma: no cover
+    @action(detail=False, methods=['get'], url_path="update_cr_total_files_byte_sizes")  # pragma: no cover
     def update_cr_total_files_byte_sizes(self, request):
         """
         Meant only for updating test data having wrong total ida byte size
@@ -277,7 +277,7 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data={}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], name="update_cr_directory_browsing_data")  # pragma: no cover
+    @action(detail=False, methods=['get'], url_path="update_cr_directory_browsing_data")  # pragma: no cover
     def update_cr_directory_browsing_data(self, request):
         """
         Meant only for updating test data: Updates cr field _directory_data with cr specific
@@ -309,7 +309,7 @@ class DatasetViewSet(CommonViewSet):
 
         return Response(data={}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], name="flush_password")
+    @action(detail=False, methods=['post'], url_path="flush_password")
     def flush_password(self, request): # pragma: no cover
         """
         Set a password for flush api
@@ -322,7 +322,7 @@ class DatasetViewSet(CommonViewSet):
         _logger.debug('FLUSH password set')
         return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['post'], name="flush")
+    @action(detail=False, methods=['post'], url_path="flush")
     def flush_records(self, request): # pragma: no cover
         """
         Delete all catalog records and files. Requires a password
