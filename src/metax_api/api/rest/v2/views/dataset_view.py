@@ -33,7 +33,7 @@ class DatasetViewSet(DatasetViewSet):
     serializer_class = CatalogRecordSerializerV2
     object = CatalogRecordV2
 
-    @action(detail=True, methods=['get'], name="projects")
+    @action(detail=True, methods=['get'], url_path="projects")
     def projects_list(self, request, pk=None):
 
         # note: checks permissions
@@ -172,7 +172,7 @@ class DatasetViewSet(DatasetViewSet):
 
         return Response(data=None, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], name="files/(?P<obj_identifier>.+)/user_metadata")
+    @action(detail=True, methods=['get'], url_path="files/(?P<obj_identifier>.+)/user_metadata")
     def files_user_metadata_retrieve(self, request, pk=None, obj_identifier=None):
         """
         Retrieve user-provided dataset-specific metadata for a file or a directory associated with a dataset.

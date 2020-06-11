@@ -61,7 +61,7 @@ class ApiErrorViewSet(CommonViewSet):
         ApiErrorService.remove_error_file(kwargs['pk'])
         return Response(status=204)
 
-    @action(detail=False, methods=['post'], name="flush")
+    @action(detail=False, methods=['post'], url_path="flush")
     def flush_errors(self, request):
         _logger.info('%s called by %s' % (request.META['PATH_INFO'], request.user.username))
         files_deleted_count = ApiErrorService.flush_errors()

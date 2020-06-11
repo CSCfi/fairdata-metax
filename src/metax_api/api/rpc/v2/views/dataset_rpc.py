@@ -52,7 +52,7 @@ class DatasetRPC(DatasetRPC):
 
         return cr
 
-    @action(detail=False, methods=['post'], name="change_cumulative_state")
+    @action(detail=False, methods=['post'], url_path="change_cumulative_state")
     def change_cumulative_state(self, request):
 
         state_value = request.query_params.get('cumulative_state', False)
@@ -68,7 +68,7 @@ class DatasetRPC(DatasetRPC):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['post'], name="create_draft")
+    @action(detail=False, methods=['post'], url_path="create_draft")
     def create_draft(self, request):
 
         cr = self.get_object()
@@ -83,7 +83,7 @@ class DatasetRPC(DatasetRPC):
             status=status.HTTP_201_CREATED
         )
 
-    @action(detail=False, methods=['post'], name="create_new_version")
+    @action(detail=False, methods=['post'], url_path="create_new_version")
     def create_new_version(self, request):
 
         cr = self.get_object()
@@ -98,7 +98,7 @@ class DatasetRPC(DatasetRPC):
             status=status.HTTP_201_CREATED
         )
 
-    @action(detail=False, methods=['post'], name="publish_dataset")
+    @action(detail=False, methods=['post'], url_path="publish_dataset")
     def publish_dataset(self, request):
 
         cr = self.get_object()
@@ -110,7 +110,7 @@ class DatasetRPC(DatasetRPC):
             status=status.HTTP_200_OK
         )
 
-    @action(detail=False, methods=['post'], name="merge_draft")
+    @action(detail=False, methods=['post'], url_path="merge_draft")
     def merge_draft(self, request):
 
         cr = self.get_object()
@@ -126,10 +126,10 @@ class DatasetRPC(DatasetRPC):
 
     # ensure some v1 api endpoints cant be called in v2 api
 
-    @action(detail=False, methods=['post'], name="refresh_directory_content")
+    @action(detail=False, methods=['post'], url_path="refresh_directory_content")
     def refresh_directory_content(self, request):
         raise Http501()
 
-    @action(detail=False, methods=['post'], name="fix_deprecated")
+    @action(detail=False, methods=['post'], url_path="fix_deprecated")
     def fix_deprecated(self, request):
         raise Http501()

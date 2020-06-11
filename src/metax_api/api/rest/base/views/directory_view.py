@@ -126,14 +126,14 @@ class DirectoryViewSet(CommonViewSet):
 
         return Response(files_and_dirs)
 
-    @action(detail=True, methods=['get'], name="files")
+    @action(detail=True, methods=['get'], url_path="files")
     def get_files(self, request, pk=None):
         """
         Return a list of child files and directories of a directory.
         """
         return self._get_directory_contents(request, identifier=pk)
 
-    @action(detail=False, methods=['get'], name="files")
+    @action(detail=False, methods=['get'], url_path="files")
     def get_files_by_path(self, request):
         """
         Return a list of child files and directories of a directory, queried
@@ -151,7 +151,7 @@ class DirectoryViewSet(CommonViewSet):
 
         return self._get_directory_contents(request)
 
-    @action(detail=False, methods=['get'], name="root")
+    @action(detail=False, methods=['get'], url_path="root")
     def get_project_root_directory(self, request):
         """
         Return root directory for a project. This is useful when starting
@@ -170,7 +170,7 @@ class DirectoryViewSet(CommonViewSet):
 
         return Response(root_dirs)
 
-    @action(detail=False, methods=['get'], name="update_byte_sizes_and_file_counts")
+    @action(detail=False, methods=['get'], url_path="update_byte_sizes_and_file_counts")
     def update_byte_sizes_and_file_counts(self, request): # pragma: no cover
         """
         Calculate byte sizes and file counts for all dirs in all projects. Intended to be called after

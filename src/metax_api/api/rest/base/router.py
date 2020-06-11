@@ -65,17 +65,21 @@ class CustomRouter(DefaultRouter):
 
 
 router = CustomRouter(trailing_slash=False)
-router.register(r'apierrors/?', ApiErrorViewSet)
-router.register(r'contracts/?', ContractViewSet)
-router.register(r'datasets/?', DatasetViewSet)
-router.register(r'datacatalogs/?', DataCatalogViewSet)
-router.register(r'directories/?', DirectoryViewSet)
-router.register(r'files/?', FileViewSet)
-router.register(r'filestorages/?', FileStorageViewSet)
-router.register(r'schemas/?', SchemaViewSet)
+router.register(r'apierrors/?', ApiErrorViewSet, basename='apierrors')
+router.register(r'contracts/?', ContractViewSet, basename='Contract')
+router.register(r'datasets/?', DatasetViewSet, basename='CatalogRecord')
+router.register(r'datacatalogs/?', DataCatalogViewSet, basename='DataCatalog')
+router.register(r'directories/?', DirectoryViewSet, basename='Directory')
+router.register(r'files/?', FileViewSet, basename='File')
+router.register(r'filestorages/?', FileStorageViewSet, basename='Filestorage')
+router.register(r'schemas/?', SchemaViewSet, basename='schemas')
 
 # note: this somehow maps to list-api... but the end result works when
 # the presence of the parameters is inspected in the list-api method.
-router.register(r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?', DatasetViewSet)
+router.register(
+    r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?',
+    DatasetViewSet,
+    basename='CatalogRecord'
+)
 
 api_urlpatterns = router.urls

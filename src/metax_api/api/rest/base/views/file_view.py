@@ -163,7 +163,7 @@ class FileViewSet(CommonViewSet):
 
         return super().partial_update_bulk(request, *args, **kwargs)
 
-    @action(detail=False, methods=['post'], name="datasets")
+    @action(detail=False, methods=['post'], url_path="datasets")
     def datasets(self, request):
         """
         Find out which datasets a list of files belongs to, and return their
@@ -179,7 +179,7 @@ class FileViewSet(CommonViewSet):
 
         return FileService.get_datasets_where_file_belongs_to(request.data)
 
-    @action(detail=False, methods=['post'], name="restore")
+    @action(detail=False, methods=['post'], url_path="restore")
     def restore_files(self, request):
         """
         Restore removed files.
@@ -287,7 +287,7 @@ class FileViewSet(CommonViewSet):
         new_xml_metadata.update(common_info)
         return new_xml_metadata
 
-    @action(detail=False, methods=['post'], name="flush_project")
+    @action(detail=False, methods=['post'], url_path="flush_project")
     def flush_project(self, request): # pragma: no cover
         # todo remove api when comfortable
         raise ValidationError({ 'detail': ['API has been moved to RPC API: /rpc/files/flush_project'] })

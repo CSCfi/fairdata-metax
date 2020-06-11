@@ -90,20 +90,22 @@ class CustomRouterV2(CustomRouter):
 # v2 urls, but using v1 view classes, because nothing changes
 
 router_v1 = CustomRouter(trailing_slash=False)
-router_v1.register(r'apierrors/?', ApiErrorViewSet)
-router_v1.register(r'contracts/?', ContractViewSet)
-router_v1.register(r'datacatalogs/?', DataCatalogViewSet)
-router_v1.register(r'directories/?', DirectoryViewSet)
-router_v1.register(r'files/?', FileViewSet)
-router_v1.register(r'filestorages/?', FileStorageViewSet)
-router_v1.register(r'schemas/?', SchemaViewSet)
+router_v1.register(r'apierrors/?', ApiErrorViewSet, basename='apierrors')
+router_v1.register(r'contracts/?', ContractViewSet, basename='Contract')
+router_v1.register(r'datacatalogs/?', DataCatalogViewSet, basename='DataCatalog')
+router_v1.register(r'directories/?', DirectoryViewSet, basename='Directory')
+router_v1.register(r'files/?', FileViewSet, basename='File')
+router_v1.register(r'filestorages/?', FileStorageViewSet, basename='Filestorage')
+router_v1.register(r'schemas/?', SchemaViewSet, basename='schemas')
 
 # v2 urls, using v2 view classes with changes
 
 router_v2 = CustomRouterV2(trailing_slash=False)
-router_v2.register(r'datasets/?', DatasetViewSet)
+router_v2.register(r'datasets/?', DatasetViewSet, basename='CatalogRecord')
 router_v2.register(
-    r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?', DatasetViewSet
+    r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?',
+    DatasetViewSet,
+    basename='CatalogRecord'
 )
 
 api_urlpatterns = router_v1.urls + router_v2.urls
