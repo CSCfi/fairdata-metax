@@ -1,31 +1,31 @@
-coveralls==1.8.2 # code coverage reportin in travis
+coveralls==2.0.0 # code coverage reportin in travis
 datacite==1.0.1 # BSD-license. convert datasets to datacite xml. datacite metadata store api wrappers
-python-dateutil==2.8.0
-Django==2.2.10  # BSD-license
+python-dateutil==2.8.1
+Django==3.0.7  # BSD-license
 elasticsearch<6.0.0
-hiredis==1.0.0 # Used by redis (redis-py) for parser
-djangorestframework==3.9.4  # BSD-license
+hiredis==1.0.1 # Used by redis (redis-py) for parser
+djangorestframework==3.11.0  # BSD-license
 django-rainbowtests==0.6.0 # colored test output
-flake8==3.7.8 # MIT-license
-gevent==1.4.0 # gunicorn dep
-gunicorn==19.9.0 # MIT-license
-ipdb==0.12.2 # dev tool
-jsonschema==2.6.0
-lxml==4.4.1
+flake8==3.8.3 # MIT-license
+gevent==20.6.1 # gunicorn dep
+gunicorn==20.0.4 # MIT-license
+ipdb==0.13.2 # dev tool
+jsonschema==3.2.0
+lxml==4.5.1
 pika==1.1.0
-psycopg2-binary==2.8.3  # LGPL with exceptions or ZPL
+psycopg2-binary==2.8.5  # LGPL with exceptions or ZPL
 PyJWT==1.7.1 # MIT-license
 pyoai==2.5.0
 python-simplexquery==1.0.5.3
-pytz==2019.2
-pyyaml==5.1.2
-redis==3.3.8
-requests==2.22.0  # Apache 2.0-license
-responses==0.10.6  # Apache 2.0-license
-Sphinx==1.8.5  # custom license
+pytz==2020.1
+pyyaml==5.3.1
+redis==3.5.3
+requests==2.23.0  # Apache 2.0-license
+responses==0.10.14  # Apache 2.0-license
+Sphinx==3.1.0  # custom license
 sphinx-autobuild==0.7.1 # MIT-license
 sphinx-rtd-theme==0.4.3 # MIT-license
-structlog==19.1.0 # Apache 2.0-license, MIT
-simplejson==3.16.0  # MIT-license
-urllib3==1.25.6
+structlog==20.1.0 # Apache 2.0-license, MIT
+simplejson==3.17.0  # MIT-license
+urllib3==1.25.9
 xmltodict==0.12.0 # MIT-license

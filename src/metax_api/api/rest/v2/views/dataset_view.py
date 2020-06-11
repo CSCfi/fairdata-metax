@@ -9,7 +9,7 @@ import logging
 
 from django.http import Http404
 from rest_framework import status
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from metax_api.exceptions import Http400, Http403
@@ -33,7 +33,7 @@ class DatasetViewSet(DatasetViewSet):
     serializer_class = CatalogRecordSerializerV2
     object = CatalogRecordV2
 
-    @detail_route(methods=['get'], url_path="projects")
+    @action(detail=True, methods=['get'], name="projects")
     def projects_list(self, request, pk=None):
 
         # note: checks permissions
@@ -172,7 +172,7 @@ class DatasetViewSet(DatasetViewSet):
 
         return Response(data=None, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], url_path="files/(?P<obj_identifier>.+)/user_metadata")
+    @action(detail=True, methods=['get'], name="files/(?P<obj_identifier>.+)/user_metadata")
     def files_user_metadata_retrieve(self, request, pk=None, obj_identifier=None):
         """
         Retrieve user-provided dataset-specific metadata for a file or a directory associated with a dataset.

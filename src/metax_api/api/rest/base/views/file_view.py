@@ -12,7 +12,7 @@ from django.db import transaction
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from rest_framework import status
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -163,7 +163,7 @@ class FileViewSet(CommonViewSet):
 
         return super().partial_update_bulk(request, *args, **kwargs)
 
-    @list_route(methods=['post'], url_path="datasets")
+    @action(detail=False, methods=['post'], name="datasets")
     def datasets(self, request):
         """
         Find out which datasets a list of files belongs to, and return their
@@ -179,7 +179,7 @@ class FileViewSet(CommonViewSet):
 
         return FileService.get_datasets_where_file_belongs_to(request.data)
 
-    @list_route(methods=['post'], url_path="restore")
+    @action(detail=False, methods=['post'], name="restore")
     def restore_files(self, request):
         """
         Restore removed files.
@@ -192,7 +192,7 @@ class FileViewSet(CommonViewSet):
     def destroy_bulk(self, request, *args, **kwargs):
         return FileService.destroy_bulk(request.data)
 
-    @detail_route(methods=['get', 'post', 'put', 'delete'], url_path='xml')
+    @action(detail=True, methods=['get', 'post', 'put', 'delete'], name='xml')
     def xml_handler(self, request, pk=None):
         file = self.get_object()
 
@@ -287,7 +287,7 @@ class FileViewSet(CommonViewSet):
         new_xml_metadata.update(common_info)
         return new_xml_metadata
 
-    @list_route(methods=['post'], url_path="flush_project")
+    @action(detail=False, methods=['post'], name="flush_project")
     def flush_project(self, request): # pragma: no cover
         # todo remove api when comfortable
         raise ValidationError({ 'detail': ['API has been moved to RPC API: /rpc/files/flush_project'] })
