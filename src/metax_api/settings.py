@@ -630,9 +630,9 @@ else:
     DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)
 
 if executing_in_test_case or executing_in_travis:
-    API_VERSIONS_ENABLED = {
-        "v1": True,
-        "v2": True,
-    }
+    API_VERSIONS_ENABLED = [
+        "v1",
+        "v2"
+    ]
 else:
-    API_VERSIONS_ENABLED = app_config_dict.get('API_VERSIONS_ENABLED', {})
+    API_VERSIONS_ENABLED = app_config_dict.get('API_VERSIONS_ENABLED', [])
