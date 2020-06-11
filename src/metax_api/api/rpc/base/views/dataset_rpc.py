@@ -11,7 +11,7 @@ import logging
 from django.conf import settings as django_settings
 from django.http import Http404
 from rest_framework import status
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from metax_api.api.rest.base.serializers import CatalogRecordSerializer
@@ -29,7 +29,7 @@ class DatasetRPC(CommonRPC):
 
     serializer_class = CatalogRecordSerializer
 
-    @list_route(methods=['get'], url_path="get_minimal_dataset_template")
+    @action(detail=True, methods=['get'], name="get_minimal_dataset_template")
     def get_minimal_dataset_template(self, request):
         if request.query_params.get('type', None) not in ['service', 'enduser']:
             raise Http400({
@@ -47,7 +47,7 @@ class DatasetRPC(CommonRPC):
 
         return Response(example_ds)
 
-    @list_route(methods=['post'], url_path="set_preservation_identifier")
+    @action(detail=True, methods=['post'], name="set_preservation_identifier")
     def set_preservation_identifier(self, request):
         if not request.query_params.get('identifier', False):
             raise Http400({
@@ -85,7 +85,7 @@ class DatasetRPC(CommonRPC):
 
         return Response(cr.preservation_identifier)
 
-    @list_route(methods=['post'], url_path="change_cumulative_state")
+    @action(detail=True, methods=['post'], name="change_cumulative_state")
     def change_cumulative_state(self, request):
         identifier = request.query_params.get('identifier', False)
         state_value = request.query_params.get('cumulative_state', False)
@@ -115,7 +115,7 @@ class DatasetRPC(CommonRPC):
 
         return Response(data=data, status=return_status)
 
-    @list_route(methods=['post'], url_path="refresh_directory_content")
+    @action(detail=True, methods=['post'], name="refresh_directory_content")
     def refresh_directory_content(self, request):
         cr_identifier = request.query_params.get('cr_identifier', False)
         dir_identifier = request.query_params.get('dir_identifier', False)
@@ -144,7 +144,7 @@ class DatasetRPC(CommonRPC):
 
         return Response(data=data, status=status.HTTP_200_OK)
 
-    @list_route(methods=['post'], url_path="fix_deprecated")
+    @action(detail=True, methods=['post'], name="fix_deprecated")
     def fix_deprecated(self, request):
         if not request.query_params.get('identifier', False):
             raise Http400('Query param \'identifier\' missing. Please specify ?identifier=<catalog record identifier>')

@@ -8,7 +8,7 @@
 import logging
 
 from django.http import Http404
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from metax_api.exceptions import Http403, Http501
@@ -61,7 +61,7 @@ class ApiErrorViewSet(CommonViewSet):
         ApiErrorService.remove_error_file(kwargs['pk'])
         return Response(status=204)
 
-    @list_route(methods=['post'], url_path="flush")
+    @action(detail=False, methods=['post'], name="flush")
     def flush_errors(self, request):
         _logger.info('%s called by %s' % (request.META['PATH_INFO'], request.user.username))
         files_deleted_count = ApiErrorService.flush_errors()
