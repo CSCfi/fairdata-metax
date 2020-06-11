@@ -168,7 +168,7 @@ class FileViewSet(CommonViewSet):
     def destroy_bulk(self, request, *args, **kwargs):
         return FileService.destroy_bulk(request.data)
 
-    @action(detail=True, methods=['get', 'post', 'put', 'delete'], name='xml')
+    @action(detail=True, methods=['get', 'post', 'put', 'delete'], url_path='xml')
     def xml_handler(self, request, pk=None):
         file = self.get_object()
 
