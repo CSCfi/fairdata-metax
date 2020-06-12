@@ -572,6 +572,24 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/v2/datasets?deprecated=badbool')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_filter_by_api_version(self):
+
+        # update one dataset to v2 so that we get non-zero values for that as well
+        response = self.client.put('/rest/v2/datasets', [self.cr_from_test_data], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # both models return correct count because v2 model is just a proxy
+        v1_count = CatalogRecordV2.objects.filter(api_meta__contains={'version': 1}).count()
+
+        response = self.client.get('/rest/v2/datasets?api_version=1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(v1_count, response.data['count'], response.data)
+
+        v2_count = CatalogRecordV2.objects.filter(api_meta__contains={'version': 2}).count()
+
+        response = self.client.get('/rest/v2/datasets?api_version=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(v2_count, response.data['count'], response.data)
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
