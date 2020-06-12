@@ -170,9 +170,9 @@ class REMSService():
 
         # no search parameter provided for license so have to check by hand
         rems_licenses = self._get_rems('license', 'disabled=true&archived=true')
-        for l in rems_licenses:
-            if any( [v['textcontent'] == license_url for v in l['localizations'].values()] ):
-                return l['id']
+        for lic in rems_licenses:
+            if any( [v['textcontent'] == license_url for v in lic['localizations'].values()] ):
+                return lic['id']
 
         body = {
             "licensetype": 'link',
