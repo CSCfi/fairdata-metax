@@ -4331,7 +4331,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
 
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # change to rems managed
@@ -4356,7 +4356,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
 
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # change to rems managed
@@ -4455,7 +4455,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # end user doesn't have permissions to the files and they are also not needed in this test
         del self.cr_test_data['research_dataset']['files']
 
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
     @responses.activate
@@ -4525,7 +4525,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         # test on update
         self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
-        response = self.client.post(f'/rest/datasets', self.cr_test_data, format="json")
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         cr = response.data
