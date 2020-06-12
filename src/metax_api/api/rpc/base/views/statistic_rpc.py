@@ -24,7 +24,7 @@ date_re = re.compile(
 
 class StatisticRPC(CommonRPC):
 
-    @action(detail=False, methods=['get'], name='all_datasets_cumulative')
+    @action(detail=False, methods=['get'], url_path='all_datasets_cumulative')
     def all_datasets_cumulative(self, request):
         if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
             raise Http400('from_date and to_date parameters are required')
@@ -45,7 +45,7 @@ class StatisticRPC(CommonRPC):
 
         return Response(StatisticService.total_datasets(**params))
 
-    @action(detail=False, methods=['get'], name='catalog_datasets_cumulative')
+    @action(detail=False, methods=['get'], url_path='catalog_datasets_cumulative')
     def catalog_datasets_cumulative(self, request):
         if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
             raise Http400('from_date and to_date parameters are required')
@@ -57,7 +57,7 @@ class StatisticRPC(CommonRPC):
         }
         return Response(StatisticService.total_data_catalog_datasets(**params))
 
-    @action(detail=False, methods=['get'], name='count_datasets')
+    @action(detail=False, methods=['get'], url_path='count_datasets')
     def count_datasets(self, request):
         str_params = [
             'access_type',
@@ -78,7 +78,7 @@ class StatisticRPC(CommonRPC):
 
         return Response(StatisticService.count_datasets(**params))
 
-    @action(detail=False, methods=['get'], name='deprecated_datasets_cumulative')
+    @action(detail=False, methods=['get'], url_path='deprecated_datasets_cumulative')
     def deprecated_datasets_cumulative(self, request):
         if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
             raise Http400('from_date and to_date parameters are required')
@@ -89,7 +89,7 @@ class StatisticRPC(CommonRPC):
         }
         return Response(StatisticService.deprecated_datasets_cumulative(**params))
 
-    @action(detail=False, methods=['get'], name='end_user_datasets_cumulative')
+    @action(detail=False, methods=['get'], url_path='end_user_datasets_cumulative')
     def end_user_datasets_cumulative(self, request):
         if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
             raise Http400('from_date and to_date parameters are required')
@@ -100,7 +100,7 @@ class StatisticRPC(CommonRPC):
         }
         return Response(StatisticService.total_end_user_datasets(**params))
 
-    @action(detail=False, methods=['get'], name='harvested_datasets_cumulative')
+    @action(detail=False, methods=['get'], url_path='harvested_datasets_cumulative')
     def harvested_datasets_cumulative(self, request):
         if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
             raise Http400('from_date and to_date parameters are required')
@@ -111,7 +111,7 @@ class StatisticRPC(CommonRPC):
         }
         return Response(StatisticService.total_harvested_datasets(**params))
 
-    @action(detail=False, methods=['get'], name='organization_datasets_cumulative')
+    @action(detail=False, methods=['get'], url_path='organization_datasets_cumulative')
     def organization_datasets_cumulative(self, request):
         if not request.query_params.get('from_date', None) or not request.query_params.get('to_date', None):
             raise Http400('from_date and to_date parameters are required')
@@ -123,6 +123,6 @@ class StatisticRPC(CommonRPC):
         }
         return Response(StatisticService.total_organization_datasets(**params))
 
-    @action(detail=False, methods=['get'], name='unused_files')
+    @action(detail=False, methods=['get'], url_path='unused_files')
     def unused_files(self, request):
         return Response(StatisticService.unused_files())
