@@ -103,7 +103,8 @@ router_v1.register(r'schemas/?', SchemaViewSet)
 router_v2 = CustomRouterV2(trailing_slash=False)
 router_v2.register(r'datasets/?', DatasetViewSet)
 router_v2.register(
-    r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?', DatasetViewSet
+    r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?',
+    DatasetViewSet
 )
 
 api_urlpatterns = router_v1.urls + router_v2.urls

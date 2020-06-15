@@ -258,7 +258,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         relation = []
         relation_data = json.get('relation', [])
         for value in relation_data:
-            if 'identifier'in value.get('entity', {}):
+            if 'identifier' in value.get('entity', {}):
                 relation.append(self._get_oaic_dc_value(value['entity']['identifier']))
 
         coverage = []
