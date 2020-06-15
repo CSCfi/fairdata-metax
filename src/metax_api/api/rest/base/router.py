@@ -56,7 +56,7 @@ class CustomRouter(DefaultRouter):
         ))
         super(CustomRouter, self).__init__(*args, **kwargs)
 
-    def get_default_base_name(self, viewset):
+    def get_default_basename(self, viewset):
         """
         When a viewset has no queryset set, or base_name is not passed to a router as the
         3rd parameter, automatically determine base name.
@@ -65,21 +65,20 @@ class CustomRouter(DefaultRouter):
 
 
 router = CustomRouter(trailing_slash=False)
-router.register(r'apierrors/?', ApiErrorViewSet, basename='apierrors')
-router.register(r'contracts/?', ContractViewSet, basename='Contract')
-router.register(r'datasets/?', DatasetViewSet, basename='CatalogRecord')
-router.register(r'datacatalogs/?', DataCatalogViewSet, basename='DataCatalog')
-router.register(r'directories/?', DirectoryViewSet, basename='Directory')
-router.register(r'files/?', FileViewSet, basename='File')
-router.register(r'filestorages/?', FileStorageViewSet, basename='Filestorage')
-router.register(r'schemas/?', SchemaViewSet, basename='schemas')
+router.register(r'apierrors/?', ApiErrorViewSet)
+router.register(r'contracts/?', ContractViewSet)
+router.register(r'datasets/?', DatasetViewSet)
+router.register(r'datacatalogs/?', DataCatalogViewSet)
+router.register(r'directories/?', DirectoryViewSet)
+router.register(r'files/?', FileViewSet)
+router.register(r'filestorages/?', FileStorageViewSet)
+router.register(r'schemas/?', SchemaViewSet)
 
 # note: this somehow maps to list-api... but the end result works when
 # the presence of the parameters is inspected in the list-api method.
 router.register(
     r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?',
-    DatasetViewSet,
-    basename='CatalogRecord'
+    DatasetViewSet
 )
 
 api_urlpatterns = router.urls
