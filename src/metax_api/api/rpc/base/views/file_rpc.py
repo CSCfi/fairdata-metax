@@ -9,7 +9,7 @@ import logging
 
 from django.conf import settings as django_settings
 from django.db import connection
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -22,7 +22,7 @@ _logger = logging.getLogger(__name__)
 
 class FileRPC(CommonRPC):
 
-    @list_route(methods=['post'], url_path="delete_project")
+    @action(detail=False, methods=['post'], url_path="delete_project")
     def delete_project(self, request):
         """
         Marks files deleted, deprecates related datasets and removes all directories.
@@ -32,7 +32,7 @@ class FileRPC(CommonRPC):
 
         return FileService.delete_project(request.query_params['project_identifier'])
 
-    @list_route(methods=['post'], url_path="flush_project")
+    @action(detail=False, methods=['post'], url_path="flush_project")
     def flush_project(self, request): # pragma: no cover
         """
         Permanently delete an entire project's files and directories.
