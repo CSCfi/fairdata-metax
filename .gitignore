@@ -1,7 +1,7 @@
 *~
 *.pyc
 *.DS_Store
-/docs/build/*
+/docs/v1/build/*
 /src/__pycache__/*
 /src/static/*
 /src/.coverage
