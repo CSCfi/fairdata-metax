@@ -2636,7 +2636,7 @@ class REMSUpdate():
         except Exception as e:
             _logger.error(e)
             raise Http503({ 'detail': [
-                f'failed to publish updates to rems. request is aborted.'
+                'failed to publish updates to rems. request is aborted.'
             ]})
 
 

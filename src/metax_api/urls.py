@@ -46,8 +46,8 @@ v2_urls = [
 
 urlpatterns = []
 
-if django_settings.API_VERSIONS_ENABLED.get('v1'):
+if 'v1' in django_settings.API_VERSIONS_ENABLED:
     urlpatterns += v1_urls
 
-if django_settings.API_VERSIONS_ENABLED.get('v2'):
+if 'v2' in django_settings.API_VERSIONS_ENABLED:
     urlpatterns += v2_urls

@@ -209,7 +209,7 @@ class TestClassUtils():
 
         raise Exception('Could not find model %s from test data with index == %d. '
                         'Are you certain you generated rows for model %s in generate_test_data.py?'
-                        % (model_name, requested_index))
+                        % (model_name, requested_index, model_name))
 
     def _create_cr_for_owner(self, pk_for_template_cr, data):
         self.token = get_test_oidc_token()
