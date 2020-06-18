@@ -151,7 +151,7 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
 
         # test fix_deprecated
 
-        response = self.client.delete(f'/rest/files/pid:urn:1')
+        response = self.client.delete('/rest/files/pid:urn:1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         params = f'identifier={cr_dirs["identifier"]}'
@@ -189,7 +189,7 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
             cr_v1_0['research_dataset']['title']['en'] = 'some new title'
             cr_v1_1['research_dataset']['title']['en'] = 'some new title for another'
 
-            response = update_request(f'/rest/v2/datasets', [cr_v1_0, cr_v1_1], format='json')
+            response = update_request('/rest/v2/datasets', [cr_v1_0, cr_v1_1], format='json')
 
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
