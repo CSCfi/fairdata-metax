@@ -1345,7 +1345,7 @@ class FileService(CommonService, ReferenceDataMixin):
                 elif not versions and fv:
                     errors['file_characteristics.format_version']. \
                         append('Any non-empty value for format_version not allowed for the given file_format value '
-                               '\'{1}\' in reference data'.format(fv, ff))
+                               '\'{0}\' in reference data'.format(ff))
         # If format_version was given but no file_format was given, it's an error
         elif 'format_version' in file_characteristics:
             errors['file_characteristics.file_format'].append('Value missing')

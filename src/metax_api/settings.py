@@ -369,7 +369,7 @@ else:
         }
     }
 
-DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
 DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 """

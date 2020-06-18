@@ -56,7 +56,7 @@ class CustomRouter(DefaultRouter):
         ))
         super(CustomRouter, self).__init__(*args, **kwargs)
 
-    def get_default_base_name(self, viewset):
+    def get_default_basename(self, viewset):
         """
         When a viewset has no queryset set, or base_name is not passed to a router as the
         3rd parameter, automatically determine base name.
@@ -76,6 +76,9 @@ router.register(r'schemas/?', SchemaViewSet)
 
 # note: this somehow maps to list-api... but the end result works when
 # the presence of the parameters is inspected in the list-api method.
-router.register(r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?', DatasetViewSet)
+router.register(
+    r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?',
+    DatasetViewSet
+)
 
 api_urlpatterns = router.urls
