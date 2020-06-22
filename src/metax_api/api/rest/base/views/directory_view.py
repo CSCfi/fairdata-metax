@@ -22,7 +22,6 @@ from .common_view import CommonViewSet
 class DirectoryViewSet(CommonViewSet):
 
     serializer_class = DirectorySerializer
-    pagination_class = DirectoryPagination
     object = Directory
     select_related = ['parent_directory']
     lookup_field_other = 'identifier'
@@ -97,32 +96,12 @@ class DirectoryViewSet(CommonViewSet):
             not_cr_identifier=not_cr_identifier,
             file_name=file_name,
             directory_name=directory_name,
+            paginate=paginate,
             request=request
         )
 
-        if isinstance(files_and_dirs, dict):
-            if files_and_dirs.get('directories') and files_and_dirs['directories'][0].get('directory_path'):
-                files_and_dirs['directories'] = sorted(files_and_dirs['directories'],
-                    key=lambda k: k['directory_path'].lower())
-
-            if files_and_dirs.get('files') and files_and_dirs['files'][0].get('file_path'):
-                files_and_dirs['files'] = sorted(files_and_dirs['files'], key=lambda k: k['file_path'].lower())
-
-        elif files_and_dirs and files_and_dirs[0].get('file_path'):
-            files_and_dirs = sorted(files_and_dirs, key=lambda k: k['file_path'].lower())
-
         if paginate:
-            if isinstance(files_and_dirs, dict):
-                paginated = self.paginate_queryset(files_and_dirs)
-                if include_parent:
-                    for k, v in files_and_dirs.items():
-                        if k not in ['directories', 'files']:
-                            paginated[k] = v
-                return self.get_paginated_response(paginated)
-            else:
-                paginator = LimitOffsetPagination()
-                context = paginator.paginate_queryset(files_and_dirs, request)
-                return paginator.get_paginated_response(context)
+            return files_and_dirs
 
         return Response(files_and_dirs)
 
