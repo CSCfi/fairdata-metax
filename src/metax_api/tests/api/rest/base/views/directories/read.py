@@ -4,13 +4,14 @@
 #
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
+import copy
+import responses
 
-from django.db.models import Sum
+from django.db import transaction
+from django.db.models import Count, Sum
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
-from django.db import transaction
 
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.models.catalog_record import ACCESS_TYPES
@@ -404,6 +405,10 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
     only dispaly those files that were selected for that CR, and only those dirs,
     that contained suchs files, or would contain such files further down the tree.
     """
+    def setUp(self):
+        self._set_http_authorization('service')
+        self.client.get('/rest/directories/update_byte_sizes_and_file_counts')
+        self.client.get('/rest/datasets/update_cr_directory_browsing_data')
 
     def test_read_directory_catalog_record_and_not_catalog_record_not_ok(self):
         """
@@ -568,6 +573,75 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
             % (dr.id, cr.identifier))
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         _assert_dir_calculations(cr, response.data)
+
+    def test_directory_byte_size_and_file_count_in_parent_directories(self):
+        cr_id = 13
+
+        def _assertDirectoryData(id, parent_data):
+            response = self.client.get('/rest/directories/%d/files?cr_identifier=%d&include_parent' % (id, cr_id))
+
+            self.assertEqual(response.data['byte_size'], parent_data[id][0], response.data['id'])
+            self.assertEqual(response.data['file_count'], parent_data[id][1])
+
+            if response.data.get('parent_directory'):
+                return _assertDirectoryData(response.data['parent_directory']['id'], parent_data)
+
+        def _assertDirectoryData_not_cr_id(id, parent_data):
+            total_dir_res = self.client.get('/rest/directories/%d' % id)
+            total_dir_size = (total_dir_res.data.get('byte_size', None), total_dir_res.data.get('file_count', None))
+
+            response = self.client.get('/rest/directories/%d/files?not_cr_identifier=%d&include_parent' % (id, cr_id))
+            if response.data.get('id'):
+                self.assertEqual(response.data['byte_size'], total_dir_size[0] - parent_data[id][0])
+                self.assertEqual(response.data['file_count'], total_dir_size[1] - parent_data[id][1])
+
+            if response.data.get('parent_directory'):
+                return _assertDirectoryData_not_cr_id(response.data['parent_directory']['id'], parent_data)
+
+        def _get_parent_dir_data_for_cr(id):
+
+            def _get_parents(pk):
+                pk = Directory.objects.get(pk=pk).parent_directory_id
+                if pk:
+                    pks.append(pk)
+                    _get_parents(pk)
+
+            cr_data = CatalogRecord.objects.get(pk=id).files.order_by('parent_directory_id').values_list(
+                'parent_directory_id').annotate(Sum('byte_size'), Count('id'))
+
+            grouped_cr_data = {}
+            for i in cr_data:
+                grouped_cr_data[i[0]] = [ int(i[1]), i[2] ]
+
+            drs = {}
+            for dir in grouped_cr_data.keys():
+                pks = []
+                _get_parents(dir)
+                drs[dir] = pks
+
+            for key, value in drs.items():
+                for v in value:
+                    if grouped_cr_data.get(v):
+                        grouped_cr_data[v][0] += grouped_cr_data[key][0]
+                        grouped_cr_data[v][1] += grouped_cr_data[key][1]
+                    else:
+                        grouped_cr_data[v] = copy.deepcopy(grouped_cr_data[key])
+            return grouped_cr_data
+
+        # begin tests
+
+        cr = self.client.get('/rest/datasets/%d?fields=research_dataset' % cr_id)
+
+        dirs = set([Directory.objects.get(identifier=dr['identifier']).id
+            for dr in cr.data['research_dataset'].get('directories', [])] +
+            [File.objects.get(identifier=file['identifier']).parent_directory.id
+            for file in cr.data['research_dataset'].get('files', [])])
+
+        parent_data = _get_parent_dir_data_for_cr(cr_id)
+
+        for id in dirs:
+            _assertDirectoryData(id, parent_data)
+            _assertDirectoryData_not_cr_id(id, parent_data)
 
 
 class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiReadCommon):

@@ -307,7 +307,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     continue
 
                 FileService.retrieve_directory_byte_sizes_and_file_counts_for_cr(dr['details'],
-                    cr_json['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
+                    not_cr_id=None, directory_fields=directory_fields, cr_directory_data=_directory_data)
 
         # cleanup identifiers, if they were not actually requested
         if not dir_identifier_requested:

@@ -553,6 +553,7 @@ class FileService(CommonService, ReferenceDataMixin):
         being retrieved in the results. Example: /directories/3/files?include_parent=true also
         includes the data about directory id 3 in the results. Normally its data would not be
         present, and instead would need to be retrieved by calling /directories/3.
+
         file_name: substring search from file names. Only matching files are returned.
         Can be used with directory_name.
 
@@ -587,7 +588,7 @@ class FileService(CommonService, ReferenceDataMixin):
         if cr_identifier:
             cr_id, cr_directory_data = cls._get_cr_if_relevant(cr_identifier, directory, request)
         elif not_cr_identifier:
-            not_cr_id, not_cr_directory_data = cls._get_cr_if_relevant(not_cr_identifier, directory, request)
+            not_cr_id, cr_directory_data = cls._get_cr_if_relevant(not_cr_identifier, directory, request)
         else:
             # generally browsing the directory - NOT in the context of a cr! check user permissions
             if not request.user.is_service:
@@ -630,8 +631,8 @@ class FileService(CommonService, ReferenceDataMixin):
         if include_parent:
             contents.update(LightDirectorySerializer.serialize(directory))
 
-        if cls._include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
-            cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id,
+        if cls._include_total_byte_sizes_and_file_counts(cr_id, not_cr_id, directory_fields):
+            cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(contents, not_cr_id,
                 directory_fields, cr_directory_data)
 
         return contents
@@ -708,8 +709,8 @@ class FileService(CommonService, ReferenceDataMixin):
         return LightFileSerializer.serialize(files)
 
     @staticmethod
-    def _include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
-        if not cr_id:
+    def _include_total_byte_sizes_and_file_counts(cr_id, not_cr_id, directory_fields):
+        if not any([cr_id, not_cr_id]):
             # totals are counted only when browsing files for a specific record.
             # for non-cr file browsing, those numbers have been counted when the
             # files were first created.
@@ -882,7 +883,7 @@ class FileService(CommonService, ReferenceDataMixin):
             elif not_cr_id:
                 sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql, '!=')
 
-                sql_params = [directory_id, directory_name, cr_id] if directory_name else [directory_id, not_cr_id]
+                sql_params = [directory_id, directory_name, not_cr_id] if directory_name else [directory_id, not_cr_id]
 
                 cr.execute(sql_select_dirs_for_cr, sql_params)
 
@@ -903,7 +904,7 @@ class FileService(CommonService, ReferenceDataMixin):
         return dirs, files
 
     @classmethod
-    def retrieve_directory_byte_sizes_and_file_counts_for_cr(cls, directory, cr_id,
+    def retrieve_directory_byte_sizes_and_file_counts_for_cr(cls, directory, not_cr_id=None,
             directory_fields=[], cr_directory_data={}):
         """
         Retrieve total byte size and file counts of a directory, sub-directories included,
@@ -919,30 +920,27 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if len(directory.get('directories', [])):
             for sub_dir in directory.get('directories', []):
-                cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(sub_dir, cr_id,
+                cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(sub_dir, not_cr_id,
                     directory_fields, cr_directory_data)
 
-            # this block is not executed for the top-level directory, unless query param
-            # include_parent is used.
-            if 'id' in directory:
-
-                current_dir = cr_directory_data.get(str(directory['id']), [0, 0])
-
-                if BYTE_SIZE:
-                    directory['byte_size'] = current_dir[0]
-
-                if FILE_COUNT:
-                    directory['file_count'] = current_dir[1]
-
-        elif 'id' in directory:
+        if 'id' in directory:
             # bottom dir - retrieve total byte_size and file_count for this cr
             current_dir = cr_directory_data.get(str(directory['id']), [0, 0])
 
+            if not_cr_id:
+                dr_total = Directory.objects.values('id', 'byte_size', 'file_count').get(id=directory['id'])
+
             if BYTE_SIZE:
-                directory['byte_size'] = current_dir[0]
+                if not_cr_id:
+                    directory['byte_size'] = dr_total['byte_size'] - current_dir[0]
+                else:
+                    directory['byte_size'] = current_dir[0]
 
             if FILE_COUNT:
-                directory['file_count'] = current_dir[1]
+                if not_cr_id:
+                    directory['file_count'] = dr_total['file_count'] - current_dir[1]
+                else:
+                    directory['file_count'] = current_dir[1]
 
     @classmethod
     def get_project_root_directory(cls, project_identifier):
