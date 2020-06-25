@@ -50,6 +50,7 @@ class DirectoryPagination(LimitOffsetPagination):
             dirs = dirs[self.offset:self.offset + self.limit]
             if files:
                 files = []
+
         return dirs, files
 
     def get_count(self, contents):

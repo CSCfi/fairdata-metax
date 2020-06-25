@@ -3000,15 +3000,6 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFiles
     CatalogRecordApiWriteDatasetVersioning -suite.
     """
 
-    def test_adding_filesystem_root_dir_not_permitted(self):
-        """
-        The root dir of a filesystem ("/") should not be permitted to be added to a dataset.
-        """
-        self._add_directory(self.cr_test_data, '/', project='testproject')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-
     def test_files_are_saved_during_create(self):
         """
         A very simple "add two individual files" test.
