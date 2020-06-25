@@ -634,14 +634,17 @@ class FileService(CommonService, ReferenceDataMixin):
                 if paginate:
                     return cls.dp.get_paginated_response(contents.get('files', []))
                 return contents.get('files', [])
+
         if include_parent:
             contents.update(LightDirectorySerializer.serialize(directory))
 
         if cls._include_total_byte_sizes_and_file_counts(cr_id, not_cr_id, directory_fields):
             cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(contents, not_cr_id,
                 directory_fields, cr_directory_data)
+
         if paginate:
             contents = cls.dp.get_paginated_response(contents)
+
         return contents
 
     @classmethod
@@ -728,13 +731,6 @@ class FileService(CommonService, ReferenceDataMixin):
         if 'byte_size' in directory_fields or 'file_count' in directory_fields:
             return True
         return False
-
-    # @classmethod
-    # def _form_file_list(cls, contents, file_list_append):
-    #     for f in contents.get('files', []):
-    #         file_list_append(f)
-    #     for d in contents.get('directories', []):
-    #         cls._form_file_list(d, file_list_append)
 
     @classmethod
     def _get_directory_contents(cls, directory_id, request=None, recursive=False, max_depth=1, depth=0, dirs_only=False,
@@ -871,7 +867,8 @@ class FileService(CommonService, ReferenceDataMixin):
 
             directory_fields_string_sql = ', '.join(directory_fields_sql)
 
-            dir_name_sql = '' if not directory_name else "AND d.directory_name LIKE ('%%' || %s || '%%')"
+            dir_name_sql = '' if not directory_name or not_cr_id else \
+                "AND d.directory_name LIKE ('%%' || %s || '%%')"
 
             sql_select_dirs_for_cr = """
                 SELECT {}
@@ -893,7 +890,8 @@ class FileService(CommonService, ReferenceDataMixin):
                 """
             with connection.cursor() as cr:
                 sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql)
-                sql_params = [directory_id, directory_name, cr_id] if directory_name else [directory_id, cr_id]
+                sql_params = [directory_id, directory_name, cr_id] if directory_name and not not_cr_id \
+                    else [directory_id, cr_id]
                 cr.execute(sql_select_dirs_for_cr, sql_params)
 
                 dirs = [dict(zip(directory_fields, row)) for row in cr.fetchall()]
@@ -912,6 +910,8 @@ class FileService(CommonService, ReferenceDataMixin):
             if not recursive:
                 dirs = Directory.objects.filter(parent_directory=directory_id).exclude(
                     id__in=[dir['id'] for dir in dirs]).values(*directory_fields)
+                if directory_name:
+                    dirs = dirs.filter(directory_name__icontains=directory_name)
 
             files = None if dirs_only else File.objects.exclude(record__pk=not_cr_id) \
                 .filter(parent_directory=directory_id).order_by('file_path').values(*file_fields)

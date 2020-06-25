@@ -6,7 +6,7 @@ class DirectoryPagination(LimitOffsetPagination):
 
     page_size = 10
     page_size_query_param = 'page_size'
- 
+
     def paginate_queryset(self, dirs, files, request, view=None):
         self.count = self.get_count([dirs, files])
 

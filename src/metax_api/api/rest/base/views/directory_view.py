@@ -11,8 +11,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from metax_api.api.rest.base.serializers import DirectorySerializer
-from metax_api.services.pagination import DirectoryPagination
-from rest_framework.pagination import LimitOffsetPagination
 from metax_api.exceptions import Http400, Http403, Http501
 from metax_api.models import Directory
 from metax_api.services import CommonService, FileService

@@ -1154,6 +1154,10 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['directories']), 0)
 
+        response = self.client.get('/rest/directories/17/files?directory_name=2&not_cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['directories']), 0)
+
         # tests for file_name and cr_identifier
         response = self.client.get('/rest/directories/12/files?file_name=22&cr_identifier=13')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)

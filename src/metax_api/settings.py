@@ -525,16 +525,14 @@ if executing_in_test_case or executing_in_travis:
     ELASTICSEARCH = {
         'HOSTS': ['metax.fairdata.fi/es'],
         'USE_SSL': True,
-        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False # True,
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
     }
 else:
     ELASTICSEARCH = {
-        'HOSTS': ['metax.fairdata.fi/es'],
-        'USE_SSL': True,
-        # 'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
+        'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
         # normally cache is reloaded from elasticsearch only if reference data is missing.
         # for one-off reload / debugging / development, use below flag
-        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False # app_config_dict['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART'],
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': app_config_dict['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART'],
     }
 
 # given in seconds. Used only if ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART=false
@@ -629,7 +627,7 @@ else:
 if executing_in_test_case or executing_in_travis:
     DRAFT_ENABLED = True
 else:
-    DRAFT_ENABLED = True # app_config_dict.get('DRAFT_ENABLED', False)
+    DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)
 
 if executing_in_test_case or executing_in_travis:
     API_VERSIONS_ENABLED = [
