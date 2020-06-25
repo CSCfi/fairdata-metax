@@ -1731,11 +1731,6 @@ class CatalogRecord(Common):
         dirs_by_project = defaultdict(list)
 
         for dr in dirs:
-            if dr['directory_path'] == '/':
-                raise ValidationError({ 'detail': [
-                    'Adding the filesystem root directory ("/") to a dataset is not allowed. Identifier of the '
-                    'offending directory: %s' % dr['directory_path']
-                ]})
             dirs_by_project[dr['project_identifier']].append(dr['directory_path'])
 
         top_level_dirs_by_project = defaultdict(list)
@@ -2048,12 +2043,21 @@ class CatalogRecord(Common):
         """
         Calculate directory byte_sizes and file_counts for all dirs selected for this cr.
         """
-        if not self.research_dataset.get('directories', None):
-            return
-
         _logger.info('Calculating directory byte_sizes and file_counts...')
 
-        dir_identifiers = [ d['identifier'] for d in self.research_dataset['directories'] ]
+        dir_identifiers = file_dir_identifiers = []
+
+        if self.research_dataset.get('directories', None):
+            dir_identifiers = [d['identifier'] for d in self.research_dataset['directories']]
+
+        if self.research_dataset.get('files', None):
+            file_dir_identifiers = [File.objects.get(identifier=f['identifier']).parent_directory.identifier
+                for f in self.research_dataset['files']]
+
+        if not dir_identifiers and not file_dir_identifiers:
+            return
+
+        dir_identifiers = set(dir_identifiers + file_dir_identifiers)
 
         highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
 
@@ -2064,8 +2068,31 @@ class CatalogRecord(Common):
             for dr in dirs:
                 dr.calculate_byte_size_and_file_count_for_cr(self.id, directory_data)
 
+        # assigning dir data to parent directories
+        self.get_dirs_by_parent(dirs, directory_data)
+
         self._directory_data = directory_data
         super(Common, self).save(update_fields=['_directory_data'])
+
+    def get_dirs_by_parent(self, ids, directory_data):
+        dirs = Directory.objects.filter(id__in=ids, parent_directory_id__isnull=False) \
+            .values_list('id', 'parent_directory_id')
+        ids = []
+
+        if dirs:
+            for dir in dirs:
+                ids.append(dir[1])
+                if directory_data.get(dir[1]):
+                    children = Directory.objects.get(pk=dir[1]).child_directories.all()
+                    if len(children) == 1 and children.first() == Directory.objects.get(pk=dir[0]):
+                        directory_data[dir[1]] = deepcopy(directory_data[dir[0]])
+                    else:
+                        directory_data[dir[1]][0] += directory_data[dir[0]][0]
+                        directory_data[dir[1]][1] += directory_data[dir[0]][1]
+                else:
+                    directory_data[dir[1]] = deepcopy(directory_data[dir[0]])
+            return self.get_dirs_by_parent(ids, directory_data)
+        return directory_data
 
     def _handle_preferred_identifier_changed(self):
         if self.has_alternate_records():

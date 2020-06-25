@@ -6,13 +6,10 @@
 # :license: MIT
 
 from django.core.management import call_command
-# from rest_framework import status
+from rest_framework import status
 from rest_framework.test import APITestCase
 
-# from metax_api.models import Directory
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
-
-d = print
 
 
 class DirectoryApiWriteCommon(APITestCase, TestClassUtils):
@@ -54,3 +51,129 @@ class DirectoryApiWriteCommon(APITestCase, TestClassUtils):
             "identifier": "urn:nbn:fi:csc-ida201401200000000002",
         })
         return from_test_data
+
+
+class DirectoryApiWriteTests(DirectoryApiWriteCommon):
+
+    def _test_create_files_for_catalog_record(self):
+        """
+        Tests flow of creating files and assigning them to dataset.
+        """
+
+        project = 'project-test-files'
+        directory_path = '/dir/'
+        files = []
+        for n in range(1, 4):
+            file_path = directory_path + 'file' + str(n)
+            f = self._get_new_file_data(str(n), project=project, file_path=file_path,
+                directory_path=directory_path, open_access=True)
+            f.pop('parent_directory', None)
+            files.append(f)
+
+        cr = self._get_ida_dataset_without_files()
+
+        fields = 'file_fields=id,identifier,file_path&directory_fields=id,identifier,directory_path,file_count'
+
+        # start test #
+        self._set_http_authorization('service')
+
+        # adding file1 to /dir/
+        response = self.client.post('/rest/files', files[0], format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        file1_id = response.data['identifier']
+
+        # adding file2 to /dir/
+        response = self.client.post('/rest/files', files[1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        file2_id = response.data['identifier']
+
+        # adding file3 to /dir/
+        response = self.client.post('/rest/files', files[2], format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        file3_id = response.data['identifier']
+
+        # creating dataset
+        response = self.client.post('/rest/datasets?draft=true', cr, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_id = response.data['id']
+
+        # getting dataset root directory identifier (%2F=='/')
+        root_dir = self.client.get('/rest/directories/files?project={}&path=%2F&include_parent'.format(project))
+        root_id = root_dir.data['id']
+
+        # getting dataset files from /
+        response = self.client.get('/rest/directories/files?cr_identifier={}&project={}&path=%2F&{}'
+            .format(cr_id, project, fields))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Directory must be empty')
+
+        # adding file1 to dataset
+        firs_file = {
+            'files': [
+                {"identifier": file1_id}
+            ]}
+
+        response = self.client.post('/rest/datasets/{}/files'.format(cr_id), firs_file, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # getting dataset files from /
+        response = self.client.get('/rest/directories/{}/files?cr_identifier={}&fields'.format(root_id, cr_id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        dirs = response.data['directories']
+        self.assertEqual(len(dirs), 1, 'Expected 1 directory')
+        self.assertEqual(dirs[0]['file_count'], 1, 'Expected 1 file in directory %s' % dirs[0]['directory_path'])
+
+        # getting dataset files from /dir/
+        response = self.client.get('/rest/directories/{}/files?cr_identifier={}&include_parent&{}'
+            .format(dirs[0]['id'], cr_id, fields))
+        self.assertEqual(len(response.data['files']), 1, 'Expected 1 file in directory {}'
+            .format(dirs[0]['directory_path']))
+        self.assertEqual(response.data['file_count'], len(response.data['files']),
+            'Expected 1 file in parent file_count')
+
+        # getting non-dataset files from /dir/
+        response = self.client.get('/rest/directories/{}/files?not_cr_identifier={}&include_parent&{}'
+            .format(dirs[0]['id'], cr_id, fields))
+        self.assertEqual(len(response.data['files']), 2, 'Expected 2 file in directory {}'
+            .format(dirs[0]['directory_path']))
+        self.assertEqual(response.data['file_count'], len(response.data['files']),
+            'Expected 2 file in parent file_count')
+
+        # adding file2 and file3 to dataset
+
+        last_files = {
+            'files': [
+                {'identifier': file2_id},
+                {'identifier': file3_id}
+            ]}
+
+        response = self.client.post('/rest/datasets/{}/files'.format(cr_id), last_files, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # getting dataset files from /dir/
+        response = self.client.get('/rest/directories/{}/files?cr_identifier={}&include_parent&{}'
+            .format(dirs[0]['id'], cr_id, fields))
+        self.assertEqual(len(response.data['files']), 3, 'Expected 3 file in directory {}'
+            .format(dirs[0]['directory_path']))
+        self.assertEqual(response.data['file_count'], len(response.data['files']),
+            'Expected 3 file in parent file_count')
+
+        # getting non-dataset files from /dir/
+        response = self.client.get('/rest/directories/{}/files?not_cr_identifier={}&include_parent&{}'
+            .format(dirs[0]['id'], cr_id, fields))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Directory must be empty')
+
+        # getting dataset files from /
+        response = self.client.get('/rest/directories/{}/files?cr_identifier={}&fields'.format(root_id, cr_id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        dirs = response.data['directories']
+        self.assertEqual(len(dirs), 1, 'Expected 1 directory')
+        self.assertEqual(dirs[0]['file_count'], 3, 'Expected 3 file in directory %s' % dirs[0]['directory_path'])
+
+        # getting dataset files from /
+        response = self.client.get('/rest/directories/{}/files?not_cr_identifier={}&fields'.format(root_id, cr_id))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Directory must be empty')
