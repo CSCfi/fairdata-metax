@@ -517,9 +517,9 @@ class FileService(CommonService, ReferenceDataMixin):
             CallableService.add_post_request_callable(RabbitMQPublishRecord(cr, 'update'))
 
     @classmethod
-    def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
-            recursive=False, max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None,
-            not_cr_identifier=None, file_name=None, directory_name=None, request=None):
+    def get_directory_contents(cls, identifier=None, path=None, project_identifier=None, recursive=False,
+            max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None, not_cr_identifier=None,
+            file_name=None, directory_name=None, request=None):
         """
         Get files and directories contained by a directory.
 
@@ -553,6 +553,13 @@ class FileService(CommonService, ReferenceDataMixin):
         being retrieved in the results. Example: /directories/3/files?include_parent=true also
         includes the data about directory id 3 in the results. Normally its data would not be
         present, and instead would need to be retrieved by calling /directories/3.
+
+        file_name: substring search from file names. Only matching files are returned.
+        Can be used with directory_name.
+
+        directory_name: substring search from directory names. Only matching directories are returned.
+        Can be used with file_name.
+
         file_name: substring search from file names. Only matching files are returned.
         Can be used with directory_name.
 
@@ -560,6 +567,7 @@ class FileService(CommonService, ReferenceDataMixin):
         Can be used with file_name.
 
         request: the web request object.
+
         """
         assert request is not None, 'kw parameter request must be specified'
         from metax_api.api.rest.base.serializers import LightDirectorySerializer
@@ -587,12 +595,12 @@ class FileService(CommonService, ReferenceDataMixin):
         if cr_identifier:
             cr_id, cr_directory_data = cls._get_cr_if_relevant(cr_identifier, directory, request)
         elif not_cr_identifier:
-            not_cr_id, not_cr_directory_data = cls._get_cr_if_relevant(not_cr_identifier, directory, request)
+            not_cr_id, cr_directory_data = cls._get_cr_if_relevant(not_cr_identifier, directory, request)
         else:
             # generally browsing the directory - NOT in the context of a cr! check user permissions
             if not request.user.is_service:
                 cls.check_user_belongs_to_project(request, directory['project_identifier'])
-            cr_id = None
+
             cr_directory_data = {}
 
         # get list of field names to retrieve. note: by default all fields are retrieved
@@ -630,8 +638,8 @@ class FileService(CommonService, ReferenceDataMixin):
         if include_parent:
             contents.update(LightDirectorySerializer.serialize(directory))
 
-        if cls._include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
-            cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(contents, cr_id,
+        if cls._include_total_byte_sizes_and_file_counts(cr_id, not_cr_id, directory_fields):
+            cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(contents, not_cr_id,
                 directory_fields, cr_directory_data)
 
         return contents
@@ -708,8 +716,8 @@ class FileService(CommonService, ReferenceDataMixin):
         return LightFileSerializer.serialize(files)
 
     @staticmethod
-    def _include_total_byte_sizes_and_file_counts(cr_id, directory_fields):
-        if not cr_id:
+    def _include_total_byte_sizes_and_file_counts(cr_id, not_cr_id, directory_fields):
+        if not any([cr_id, not_cr_id]):
             # totals are counted only when browsing files for a specific record.
             # for non-cr file browsing, those numbers have been counted when the
             # files were first created.
@@ -745,6 +753,7 @@ class FileService(CommonService, ReferenceDataMixin):
         If directory_fields and/or file_fields are specified, then only specified fields are retrieved
         for directories and files respectively.
         """
+
         if recursive and max_depth != '*':
             if depth > max_depth:
                 raise MaxRecursionDepthExceeded('max depth is %d' % max_depth)
@@ -756,6 +765,7 @@ class FileService(CommonService, ReferenceDataMixin):
                     directory_id,
                     cr_id,
                     not_cr_id,
+                    recursive=recursive,
                     dirs_only=dirs_only,
                     directory_fields=directory_fields,
                     file_fields=file_fields,
@@ -813,83 +823,88 @@ class FileService(CommonService, ReferenceDataMixin):
                 directory['directories'] = sub_dir_contents['directories']
                 if 'files' in sub_dir_contents:
                     directory['files'] = sub_dir_contents['files']
-
         return contents
 
     @classmethod
     def _get_directory_contents_for_catalog_record(cls, directory_id, cr_id, not_cr_id, file_name, directory_name,
-            dirs_only=False, directory_fields=[], file_fields=[]):
+            recursive, dirs_only=False, directory_fields=[], file_fields=[]):
         """
         Browsing files in the context of a specific CR id.
         """
 
-        # select dirs which are contained by the directory,
-        # AND which contain files belonging to the cr <-> files m2m relation table,
-        # AND there exists files for CR which begin with the same path as the dir path,
-        # to successfully also include files which did not DIRECTLY contain any files, but do
-        # contain files further down the tree.
-        # dirs which otherwise contained files, but not any files that were selected for
-        # the cr, are not returned.
+        def _cr_belongin_to_directory(cr_id):
+            if recursive:
+                return Directory.objects.filter(parent_directory_id=directory_id).values('id')
 
-        # directory_fields are validated in LightDirectorySerializer against allowed fields
-        # which is set(DirectorySerializer.Meta.fields). Should be safe to use in raw SQL,
-        # but considered to be more safe to sanitize here once more.
+            # select dirs which are contained by the directory,
+            # AND which contain files belonging to the cr <-> files m2m relation table,
+            # AND there exists files for CR which begin with the same path as the dir path,
+            # to successfully also include files which did not DIRECTLY contain any files, but do
+            # contain files further down the tree.
+            # dirs which otherwise contained files, but not any files that were selected for
+            # the cr, are not returned.
 
-        from metax_api.api.rest.base.serializers import DirectorySerializer
+            # directory_fields are validated in LightDirectorySerializer against allowed fields
+            # which is set(DirectorySerializer.Meta.fields). Should be safe to use in raw SQL,
+            # but considered to be more safe to sanitize here once more.
 
-        allowed_fields = set(DirectorySerializer.Meta.fields)
+            from metax_api.api.rest.base.serializers import DirectorySerializer
 
-        directory_fields_sql = []
+            allowed_fields = set(DirectorySerializer.Meta.fields)
 
-        for field in directory_fields:
-            if field in allowed_fields:
-                directory_fields_sql.append('d.' + field)
-            elif 'parent_directory__' in field and field.split('parent_directory__')[1] in allowed_fields:
-                directory_fields_sql.append(field.replace('parent_directory__', 'parent_d.'))
+            directory_fields_sql = []
 
-        directory_fields_string_sql = ', '.join(directory_fields_sql)
+            for field in directory_fields:
+                if field in allowed_fields:
+                    directory_fields_sql.append('d.' + field)
+                elif 'parent_directory__' in field and field.split('parent_directory__')[1] in allowed_fields:
+                    directory_fields_sql.append(field.replace('parent_directory__', 'parent_d.'))
 
-        dir_name_sql = '' if not directory_name else "AND d.directory_name LIKE ('%%' || %s || '%%')"
+            directory_fields_string_sql = ', '.join(directory_fields_sql)
 
-        sql_select_dirs_for_cr = """
-            SELECT {}
-            FROM metax_api_directory d
-            JOIN metax_api_directory parent_d
-                ON d.parent_directory_id = parent_d.id
-            WHERE d.parent_directory_id = %s
-                {}
-            AND EXISTS(
-                SELECT 1
-                FROM metax_api_file f
-                INNER JOIN metax_api_catalogrecord_files cr_f ON cr_f.file_id = f.id
-                WHERE f.file_path LIKE (d.directory_path || '/%%')
-                AND cr_f.catalogrecord_id {} %s
-                AND f.removed = false
-                AND f.active = true
-            )
-            """
+            dir_name_sql = '' if not directory_name else "AND d.directory_name LIKE ('%%' || %s || '%%')"
 
-        with connection.cursor() as cr:
-            if cr_id:
-                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql, '=')
-
+            sql_select_dirs_for_cr = """
+                SELECT {}
+                FROM metax_api_directory d
+                JOIN metax_api_directory parent_d
+                    ON d.parent_directory_id = parent_d.id
+                WHERE d.parent_directory_id = %s
+                    {}
+                AND EXISTS(
+                    SELECT 1
+                    FROM metax_api_file f
+                    INNER JOIN metax_api_catalogrecord_files cr_f ON cr_f.file_id = f.id
+                    WHERE f.file_path LIKE (d.directory_path || '/%%')
+                    AND cr_f.catalogrecord_id = %s
+                    AND f.removed = false
+                    AND f.active = true
+                )
+                """
+            with connection.cursor() as cr:
+                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql)
                 sql_params = [directory_id, directory_name, cr_id] if directory_name else [directory_id, cr_id]
-
                 cr.execute(sql_select_dirs_for_cr, sql_params)
 
-                files = None if dirs_only else File.objects \
-                    .filter(record__pk=cr_id, parent_directory=directory_id).values(*file_fields)
-            elif not_cr_id:
-                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql, '!=')
+                dirs = [dict(zip(directory_fields, row)) for row in cr.fetchall()]
 
-                sql_params = [directory_id, directory_name, cr_id] if directory_name else [directory_id, not_cr_id]
+            return dirs
 
-                cr.execute(sql_select_dirs_for_cr, sql_params)
+        if cr_id:
+            dirs = _cr_belongin_to_directory(cr_id)
 
-                files = None if dirs_only else File.objects.exclude(record__pk=not_cr_id) \
-                    .filter(parent_directory=directory_id).values(*file_fields)
+            files = None if dirs_only else File.objects \
+                .filter(record__pk=cr_id, parent_directory=directory_id).values(*file_fields)
 
-            dirs = [dict(zip(directory_fields, row)) for row in cr.fetchall()]
+        elif not_cr_id:
+            dirs = _cr_belongin_to_directory(not_cr_id)
+
+            if not recursive:
+                dirs = Directory.objects.filter(parent_directory=directory_id).exclude(
+                    id__in=[dir['id'] for dir in dirs]).values(*directory_fields)
+
+            files = None if dirs_only else File.objects.exclude(record__pk=not_cr_id) \
+                .filter(parent_directory=directory_id).values(*file_fields)
 
         if not dirs and not files:
             # for this specific version of the record, the requested directory either
@@ -903,14 +918,13 @@ class FileService(CommonService, ReferenceDataMixin):
         return dirs, files
 
     @classmethod
-    def retrieve_directory_byte_sizes_and_file_counts_for_cr(cls, directory, cr_id,
+    def retrieve_directory_byte_sizes_and_file_counts_for_cr(cls, directory, not_cr_id=None,
             directory_fields=[], cr_directory_data={}):
         """
         Retrieve total byte size and file counts of a directory, sub-directories included,
         in the context of a specific catalog record.
         Note: Called recursively.
         """
-
         if not directory_fields:
             BYTE_SIZE = FILE_COUNT = True
         else:
@@ -919,30 +933,27 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if len(directory.get('directories', [])):
             for sub_dir in directory.get('directories', []):
-                cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(sub_dir, cr_id,
+                cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(sub_dir, not_cr_id,
                     directory_fields, cr_directory_data)
 
-            # this block is not executed for the top-level directory, unless query param
-            # include_parent is used.
-            if 'id' in directory:
-
-                current_dir = cr_directory_data.get(str(directory['id']), [0, 0])
-
-                if BYTE_SIZE:
-                    directory['byte_size'] = current_dir[0]
-
-                if FILE_COUNT:
-                    directory['file_count'] = current_dir[1]
-
-        elif 'id' in directory:
+        if 'id' in directory:
             # bottom dir - retrieve total byte_size and file_count for this cr
             current_dir = cr_directory_data.get(str(directory['id']), [0, 0])
 
+            if not_cr_id:
+                dr_total = Directory.objects.values('id', 'byte_size', 'file_count').get(id=directory['id'])
+
             if BYTE_SIZE:
-                directory['byte_size'] = current_dir[0]
+                if not_cr_id:
+                    directory['byte_size'] = dr_total['byte_size'] - current_dir[0]
+                else:
+                    directory['byte_size'] = current_dir[0]
 
             if FILE_COUNT:
-                directory['file_count'] = current_dir[1]
+                if not_cr_id:
+                    directory['file_count'] = dr_total['file_count'] - current_dir[1]
+                else:
+                    directory['file_count'] = current_dir[1]
 
     @classmethod
     def get_project_root_directory(cls, project_identifier):
@@ -1407,7 +1418,7 @@ class FileService(CommonService, ReferenceDataMixin):
                 elif not versions and fv:
                     errors['file_characteristics.format_version']. \
                         append('Any non-empty value for format_version not allowed for the given file_format value '
-                               '\'{1}\' in reference data'.format(fv, ff))
+                               '\'{0}\' in reference data'.format(ff))
         # If format_version was given but no file_format was given, it's an error
         elif 'format_version' in file_characteristics:
             errors['file_characteristics.file_format'].append('Value missing')

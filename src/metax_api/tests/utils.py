@@ -209,7 +209,7 @@ class TestClassUtils():
 
         raise Exception('Could not find model %s from test data with index == %d. '
                         'Are you certain you generated rows for model %s in generate_test_data.py?'
-                        % (model_name, requested_index))
+                        % (model_name, requested_index, model_name))
 
     def _create_cr_for_owner(self, pk_for_template_cr, data):
         self.token = get_test_oidc_token()
@@ -343,3 +343,38 @@ class TestClassUtils():
         self.client.credentials()
 
         return response.data
+
+    def _get_ida_dataset_without_files(self):
+        data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+
+        data.pop('identifier', None)
+        data['research_dataset'].pop('preferred_identifier', None)
+
+        data.pop('files', None)
+        data['research_dataset'].pop('files', None)
+        data['research_dataset']['total_files_byte_size'] = 0
+
+        return data
+
+    def _get_new_file_data(self, file_n, project=None, file_path=None, directory_path=None, open_access=False):
+        from_test_data = self._get_object_from_test_data('file', requested_index=0)
+
+        if not project:
+            project = 'research_project_112'
+        if not directory_path:
+            directory_path = '/prj_112_root/science_data_C/phase_2/2017/10/dir_' + file_n
+        if not file_path:
+            file_path = directory_path + '/file_' + file_n
+
+        identifier = 'urn:nbn:fi:100' + file_n
+
+        from_test_data.update({
+            "file_name": "tiedosto_name_" + file_n,
+            "file_path": file_path,
+            "identifier": identifier,
+            'parent_directory': 24,
+            'project_identifier': project,
+            'open_access': open_access,
+        })
+        del from_test_data['id']
+        return from_test_data

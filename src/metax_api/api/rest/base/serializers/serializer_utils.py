@@ -30,7 +30,18 @@ def validate_json(value, schema):
     try:
         json_validate(value, schema, format_checker=FormatChecker())
     except JsonValidationError as e:
-        raise ValidationError('%s. Json path: %s. Schema: %s' % (e.message, [p for p in e.path], e.schema))
+        # use parent class for output messages if possible, because jsonschema 3.2.0 introduced errors in more depth
+        # which caused the error messages to be too spesific
+        if e.parent:
+            message = e.parent.message
+            path = e.parent.path
+            schema = e.parent.schema
+        else:
+            message = e.message
+            path = e.path
+            schema = e.schema
+
+        raise ValidationError('%s. Json path: %s. Schema: %s' % (message, [p for p in path], schema))
 
 # helper methods for date and datetime validation
 @FormatChecker.checks(FormatChecker, format='date')
