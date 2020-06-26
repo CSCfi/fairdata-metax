@@ -63,6 +63,7 @@ class CatalogRecordV2(CatalogRecord):
         super().__init__(*args, **kwargs)
         from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
         self.serializer_class = CatalogRecordSerializerV2
+        self.api_version = 2
 
     def save(self, *args, **kwargs):
         """
@@ -100,8 +101,9 @@ class CatalogRecordV2(CatalogRecord):
         self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
 
-    def _post_create_operations(self, pid_type=None):
+        self._set_api_version()
 
+    def _post_create_operations(self, pid_type=None):
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
 
             # files must be added after the record itself has been created, to be able
@@ -148,6 +150,14 @@ class CatalogRecordV2(CatalogRecord):
 
     def is_draft_for_another_dataset(self):
         return hasattr(self, 'draft_of') and self.draft_of is not None
+
+    def _save_as_draft(self):
+        """
+        Inherit here to always allow drafts in v2 api since the whole workflow is based on them
+        and to be able to differentiate between v1 and v2 drafts.
+        """
+        from metax_api.services import CommonService
+        return CommonService.get_boolean_query_param(self.request, 'draft')
 
     def publish_dataset(self, pid_type=None):
         """
@@ -252,6 +262,9 @@ class CatalogRecordV2(CatalogRecord):
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
             self._pre_rems_creation()
 
+        if self.api_version != self.api_meta['version']:
+            self._set_api_version()
+
         super(Common, self).save()
 
         _logger.info(
@@ -346,6 +359,11 @@ class CatalogRecordV2(CatalogRecord):
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
                 self.data_catalog.catalog_record_services_edit):
             raise Http403({ 'detail': [ 'You are not permitted to edit datasets in this data catalog.' ]})
+
+        if self.field_changed('api_meta'):
+            self.api_meta = self._initial_data['api_meta']
+
+        self._set_api_version()
 
         if self.field_changed('identifier'):
             # read-only
@@ -814,6 +832,9 @@ class CatalogRecordV2(CatalogRecord):
         # after all is said and done, ensure we are still adhering to the schema.
         serializer.validate_json_schema(self.research_dataset)
 
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
+
         # ensure everything is saved, even if some of the methods do a save by themselves
         super(Common, self).save()
 
@@ -1076,6 +1097,9 @@ class CatalogRecordV2(CatalogRecord):
 
         serializer.validate_research_dataset_files(files_and_dirs)
 
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
+
         self.user_modified = self.metadata_provider_user
         self.date_modified = get_tz_aware_now_without_micros()
 
@@ -1109,6 +1133,9 @@ class CatalogRecordV2(CatalogRecord):
             draft_cr.files.add(*origin_cr.files.all())
 
         origin_cr.next_draft = draft_cr
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         super(CatalogRecord, origin_cr).save()
 
@@ -1223,6 +1250,9 @@ class CatalogRecordV2(CatalogRecord):
             if 'identifier' in old_editor:
                 # todo this probably does not make sense... ?
                 new_version.editor['identifier'] = old_editor['identifier']
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         super(Common, new_version).save()
         super(Common, old_version).save()
@@ -1353,6 +1383,9 @@ class CatalogRecordV2(CatalogRecord):
             self.date_cumulation_started = self.date_modified
             self.date_cumulation_ended = None
             self.cumulative_state = new_state
+
+        # v2 api successfully invoked, change the api version to prevent further updates on v1 api
+        self._set_api_version()
 
         super(CatalogRecord, self).save()
 
