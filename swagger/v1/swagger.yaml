@@ -971,6 +971,11 @@ paths:
             '?publisher_organization=some organisation&creator_person=person_name&condition_separator=or'
           required: false
           type: string
+        - name: api_version
+          in: query
+          description: returns datasets that can be edited with certain api version. Possible values are 1 and 2
+          type: integer
+          required: false
         - $ref: "#/parameters/fields"
       responses:
         "200":
