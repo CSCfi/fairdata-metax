@@ -723,6 +723,10 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(v2_count, response.data['count'], response.data)
 
+        response = self.client.get('/rest/datasets?api_version=not_int')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('not an integer' in response.data['api_version'][0], response.data)
+
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
     """
