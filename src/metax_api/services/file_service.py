@@ -19,10 +19,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
-from metax_api.services.pagination import DirectoryPagination
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Directory, File, FileStorage
 from metax_api.services import AuthService
+from metax_api.services.pagination import DirectoryPagination
 from metax_api.utils.utils import get_tz_aware_now_without_micros, DelayedLog
 from .callable_service import CallableService
 from .common_service import CommonService
@@ -606,7 +606,11 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if cr_id and recursive and max_depth == '*':
             # optimized for downloading full file list of an entire directory
-            return cls._get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields)
+            files = cls._get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields)
+            if paginate:
+                dirs, files = cls.dp.paginate_directory_data(None, files, request)
+                return cls.dp.get_paginated_response(files)
+            return files
 
         contents = cls._get_directory_contents(
             directory['id'],
@@ -625,14 +629,18 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if recursive:
             if paginate:
-                dirs, contents['files'] = cls.dp.paginate_queryset(None, contents['files'], request)
+                if dirs_only:
+                    contents['directories'], contents['files'] = cls.dp.paginate_directory_data(contents['directories'],
+                        None, request)
+                    del contents['files']
+                else:
+                    dirs, files = cls.dp.paginate_directory_data(None, contents['files'], request)
+                    return cls.dp.get_paginated_response(files)
             if dirs_only:
                 # taken care of the in the called methods. can return the result as is
                 # as a directory tree
                 pass
             else:
-                if paginate:
-                    return cls.dp.get_paginated_response(contents.get('files', []))
                 return contents.get('files', [])
 
         if include_parent:
@@ -792,8 +800,7 @@ class FileService(CommonService, ReferenceDataMixin):
                     files = files.filter(file_name__icontains=file_name)
 
         if paginate and not recursive:
-            dirs, files = cls.dp.paginate_queryset(dirs, files, request)
-
+            dirs, files = cls.dp.paginate_directory_data(dirs, files, request)
         from metax_api.api.rest.base.serializers import LightDirectorySerializer
         contents = { 'directories': LightDirectorySerializer.serialize(dirs) }
 

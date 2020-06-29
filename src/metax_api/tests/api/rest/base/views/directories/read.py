@@ -740,6 +740,126 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 0)
 
+
+class DirectoryApiReadQueryFiltersTogetherTests(DirectoryApiReadCommon):
+    """
+    Test browsing files and directories with different filtering combinations:
+    return ok if should work together and not ok if on opposite.
+    - recursive : If directories_only=true is also specified, returns a hierarchial directory tree instead, of x depth.
+    - depth: Max depth of recursion. Value must be an integer > 0, or *. default value is 1.
+    - directories_only: Omit files entirely from the returned results. Use together with recursive=true and depth=x
+            to get a directory tree.
+    - include_parent: Includes the 'parent directory' of the contents being fetched in the results also
+    - cr_identifier: Browse only files that have been selected for that record.
+            Incompatible with `not_cr_identifier` parameter.
+    - not_cr_identifier: Browse only files that have not been selected for that record.
+            Incompatible with `cr_identifier` parameter.
+    - file_fields: Field names to retrieve for files
+    - directory_fields: Field names to retrieve for directories
+    - file_name: Substring search from file names
+    - directory_name: Substring search from directory names
+    - pagination
+        - offset
+        - limit
+    """
+
+    def test_browsing_directories_with_filters(self):
+        # directory filters including directories_only
+        response = self.client.get('/rest/directories/17/files? \
+            directories_only&include_parent&directory_fields=id&directory_name=phase')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # file filters are not suppose to break anything with directories_only
+        response = self.client.get('/rest/directories/17/files? \
+            directories_only&include_parent&directory_fields=id&directory_name=phase& \
+            file_fields=id&file_name=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds cr_identifier
+        response = self.client.get('/rest/directories/17/files? \
+            directories_only&include_parent&cr_identifier=13&directory_fields=id&directory_name=phase& \
+            file_fields=id&file_name=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds not_cr_identifier
+        response = self.client.get('/rest/directories/17/files? \
+            directories_only&include_parent&not_cr_identifier=13&directory_fields=id&directory_name=phase& \
+            file_fields=id&file_name=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # cr_identifier and not_cr_identifier are NOT suppose to work together
+        response = self.client.get('/rest/directories/17/files? \
+            directories_only&include_parent&cr_identifier=11&not_cr_identifier=13& \
+            directory_fields=id&directory_name=phase&file_fields=id&file_name=2')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # adds pagination
+        response = self.client.get('/rest/directories/17/files? \
+            directories_only&include_parent&cr_identifier=13&directory_fields=id&directory_name=phase& \
+            file_fields=id&file_name=2&pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds recursive
+        response = self.client.get('/rest/directories/17/files? \
+            directories_only&include_parent&cr_identifier=13&directory_fields=id&directory_name=phase& \
+            file_fields=id&file_name=2&recursive&depth=*')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds recursive and pagination
+        response = self.client.get('/rest/directories/17/files? \
+            directories_only&include_parent&cr_identifier=13&directory_fields=id&directory_name=phase& \
+            file_fields=id&file_name=2&recursive&depth=*')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_browsing_files_and_directories_with_filters(self):
+        # file filters
+        response = self.client.get('/rest/directories/17/files? \
+            include_parent&file_fields=id&file_name=file')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds directory filters
+        response = self.client.get('/rest/directories/17/files? \
+            include_parent&file_fields=id&file_name=file& \
+            directory_fields=id&directory_name=phase')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds cr_identifier
+        response = self.client.get('/rest/directories/17/files? \
+            include_parent&cr_identifier=13&file_fields=id&file_name=file& \
+            directory_fields=id&directory_name=phase')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds not_cr_identifier
+        response = self.client.get('/rest/directories/17/files? \
+            include_parent&not_cr_identifier=13&file_fields=id&file_name=file& \
+            directory_fields=id&directory_name=phase')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # cr_identifier and not_cr_identifier are NOT suppose to work together
+        response = self.client.get('/rest/directories/17/files? \
+            include_parent&cr_identifier=13&not_cr_identifier=11&file_fields=id&file_name=file& \
+            directory_fields=id&directory_name=phase')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+        # adds recursive, directory filters are not suppose to break anything
+        response = self.client.get('/rest/directories/17/files? \
+            include_parent&cr_identifier=13&file_fields=id&file_name=file& \
+            directory_fields=id&directory_name=phase&recursive&depth=*')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds pagination
+        response = self.client.get('/rest/directories/17/files? \
+            include_parent&cr_identifier=13&file_fields=id&file_name=file& \
+            directory_fields=id&directory_name=phase&pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # adds recursive and pagination
+        response = self.client.get('/rest/directories/17/files? \
+            include_parent&cr_identifier=13&file_fields=id&file_name=file& \
+            directory_fields=id&directory_name=phase&recursive&depth=*&pagination')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+
 class DirectoryApiReadCatalogRecordFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
 
     def setUp(self):

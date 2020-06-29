@@ -1,5 +1,4 @@
 from rest_framework.pagination import LimitOffsetPagination
-# from django.db.models.query import QuerySet
 
 
 class DirectoryPagination(LimitOffsetPagination):
@@ -7,7 +6,11 @@ class DirectoryPagination(LimitOffsetPagination):
     page_size = 10
     page_size_query_param = 'page_size'
 
-    def paginate_queryset(self, dirs, files, request, view=None):
+    def paginate_directory_data(self, dirs, files, request, view=None):
+        '''
+        Takes in directories and files as lists or querysets.
+        Output is list tuple.
+        '''
         self.count = self.get_count([dirs, files])
 
         self.request = request
@@ -56,6 +59,7 @@ class DirectoryPagination(LimitOffsetPagination):
     def get_count(self, contents):
         """
         Determine a count of directory dictionary.
+        Accepts lists and querysets.
         """
         count = 0
 

@@ -583,7 +583,7 @@ paths:
         - name: cr_identifier
           in: query
           description: |
-            Identifier or the internal pk of a catalog record. browse only files that have been selected for that record.
+            Identifier or the internal pk of a catalog record. Browse only files that have been selected for that record.
             This parameter is incompatible with `not_cr_identifier` parameter.
           required: false
           type: string
