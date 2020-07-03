@@ -117,9 +117,9 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
             }
 
         refs['organization'] = {
-            'uri': orgdata['organization'][0]['uri'],
-            'code': orgdata['organization'][0]['code'],
-            'label': orgdata['organization'][0]['label'],
+            'uri': orgdata['organization'][1]['uri'],
+            'code': orgdata['organization'][1]['code'],
+            'label': orgdata['organization'][1]['label'],
         }
 
         # replace the relations with objects that have only the identifier set with code as value,
