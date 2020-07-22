@@ -169,26 +169,27 @@ class ReferenceDataLoader():
         """
         Returns correct version of the elasticsearch python client.
         This is needed in the transition between elasticsearch major versions because
-        clients are not compatible with each other. When Elasticsearch has been updated
-        in every environment, this can be removed and just import the client as usual.
+        clients are not compatible with each other and at least travis using production ES. When Elasticsearch
+        has been updated in every environment, this can be removed and just import the client as usual.
+        
+        Checking the correct version of the used elasticsearch is difficult, because version cannot be
+        queried from clusters behind nginx. Only way found was to find some change in the responses of
+        different versions and based on that decide which client to use.
 
         NOTE: Whenever there is an major version update of the es cluster, this incompatibility
         issue raises. It might be also good to leave this function here and utilize it on
         coming ES updates as well.
         """
-        try:
-            # try with the newest client first
+        from elasticsearch5 import Elasticsearch
+        from elasticsearch5.helpers import scan
+
+        es = Elasticsearch(hosts, **conn_params)
+
+        # from ES 7.0 onwards, total attribute changed from int to object
+        if isinstance(es.search(index='reference_data')['hits']['total'], dict):
             from elasticsearch import Elasticsearch
             from elasticsearch.helpers import scan
 
-            es = Elasticsearch(hosts, **conn_params)
-            # raises error if not compatible
-            es.search('reference_data')
-
-        except:
-            from elasticsearch5 import Elasticsearch
-            from elasticsearch5.helpers import scan
-
-            es = Elasticsearch(hosts, **conn_params)
+            es = Elasticsearch(hosts, **conn_params)      
 
         return es, scan
