@@ -22,6 +22,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Directory, File, FileStorage
 from metax_api.services import AuthService
+from metax_api.services.pagination import DirectoryPagination
 from metax_api.utils.utils import get_tz_aware_now_without_micros, DelayedLog
 from .callable_service import CallableService
 from .common_service import CommonService
@@ -56,6 +57,8 @@ class MaxRecursionDepthExceeded(Exception):
 
 
 class FileService(CommonService, ReferenceDataMixin):
+
+    dp = DirectoryPagination()
 
     @staticmethod
     def check_user_belongs_to_project(request, project_identifier):
@@ -517,9 +520,9 @@ class FileService(CommonService, ReferenceDataMixin):
             CallableService.add_post_request_callable(RabbitMQPublishRecord(cr, 'update'))
 
     @classmethod
-    def get_directory_contents(cls, identifier=None, path=None, project_identifier=None, recursive=False,
-            max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None, not_cr_identifier=None,
-            file_name=None, directory_name=None, request=None):
+    def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
+            recursive=False, max_depth=1, dirs_only=False, include_parent=False, cr_identifier=None,
+            not_cr_identifier=None, file_name=None, directory_name=None, paginate=None, request=None):
         """
         Get files and directories contained by a directory.
 
@@ -560,12 +563,6 @@ class FileService(CommonService, ReferenceDataMixin):
         directory_name: substring search from directory names. Only matching directories are returned.
         Can be used with file_name.
 
-        file_name: substring search from file names. Only matching files are returned.
-        Can be used with directory_name.
-
-        directory_name: substring search from directory names. Only matching directories are returned.
-        Can be used with file_name.
-
         request: the web request object.
 
         """
@@ -592,6 +589,7 @@ class FileService(CommonService, ReferenceDataMixin):
             raise Http404
 
         cr_id = not_cr_id = None
+
         if cr_identifier:
             cr_id, cr_directory_data = cls._get_cr_if_relevant(cr_identifier, directory, request)
         elif not_cr_identifier:
@@ -608,7 +606,11 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if cr_id and recursive and max_depth == '*':
             # optimized for downloading full file list of an entire directory
-            return cls._get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields)
+            files = cls._get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields)
+            if paginate:
+                dirs, files = cls.dp.paginate_directory_data(None, files, request)
+                return cls.dp.get_paginated_response(files)
+            return files
 
         contents = cls._get_directory_contents(
             directory['id'],
@@ -620,20 +622,26 @@ class FileService(CommonService, ReferenceDataMixin):
             directory_fields=directory_fields,
             file_fields=file_fields,
             file_name=file_name,
-            directory_name=directory_name
+            directory_name=directory_name,
+            paginate=paginate,
+            request=request
         )
 
         if recursive:
+            if paginate:
+                if dirs_only:
+                    contents['directories'], contents['files'] = cls.dp.paginate_directory_data(contents['directories'],
+                        None, request)
+                    del contents['files']
+                else:
+                    dirs, files = cls.dp.paginate_directory_data(None, contents['files'], request)
+                    return cls.dp.get_paginated_response(files)
             if dirs_only:
                 # taken care of the in the called methods. can return the result as is
                 # as a directory tree
                 pass
             else:
-                # create a flat file list of the contents
-                file_list = []
-                file_list_append = file_list.append
-                cls._form_file_list(contents, file_list_append)
-                return file_list
+                return contents.get('files', [])
 
         if include_parent:
             contents.update(LightDirectorySerializer.serialize(directory))
@@ -641,6 +649,9 @@ class FileService(CommonService, ReferenceDataMixin):
         if cls._include_total_byte_sizes_and_file_counts(cr_id, not_cr_id, directory_fields):
             cls.retrieve_directory_byte_sizes_and_file_counts_for_cr(contents, not_cr_id,
                 directory_fields, cr_directory_data)
+
+        if paginate:
+            contents = cls.dp.get_paginated_response(contents)
 
         return contents
 
@@ -730,15 +741,9 @@ class FileService(CommonService, ReferenceDataMixin):
         return False
 
     @classmethod
-    def _form_file_list(cls, contents, file_list_append):
-        for f in contents.get('files', []):
-            file_list_append(f)
-        for d in contents.get('directories', []):
-            cls._form_file_list(d, file_list_append)
-
-    @classmethod
-    def _get_directory_contents(cls, directory_id, recursive=False, max_depth=1, depth=0, dirs_only=False,
-            cr_id=None, not_cr_id=None, directory_fields=[], file_fields=[], file_name=None, directory_name=None):
+    def _get_directory_contents(cls, directory_id, request=None, recursive=False, max_depth=1, depth=0, dirs_only=False,
+            cr_id=None, not_cr_id=None, directory_fields=[], file_fields=[], file_name=None, directory_name=None,
+            paginate=None):
         """
         Get files and directories contained by a directory.
 
@@ -765,20 +770,22 @@ class FileService(CommonService, ReferenceDataMixin):
                     directory_id,
                     cr_id,
                     not_cr_id,
+                    file_name=file_name,
+                    directory_name=directory_name,
                     recursive=recursive,
                     dirs_only=dirs_only,
                     directory_fields=directory_fields,
-                    file_fields=file_fields,
-                    file_name=file_name,
-                    directory_name=directory_name
+                    file_fields=file_fields
                 )
+
             except Http404:
                 if recursive:
                     return {'directories': []}
                 raise
         else:
             # browsing from ALL files, not cr specific
-            dirs = Directory.objects.filter(parent_directory_id=directory_id).values(*directory_fields)
+            dirs = Directory.objects.filter(parent_directory_id=directory_id).order_by('directory_path').values(
+                *directory_fields)
 
             # icontains returns exception on None and with empty string does unnecessary db hits
             if directory_name:
@@ -788,10 +795,12 @@ class FileService(CommonService, ReferenceDataMixin):
                 files = None
 
             else:
-                files = File.objects.filter(parent_directory_id=directory_id).values(*file_fields)
+                files = File.objects.filter(parent_directory_id=directory_id).order_by('file_path').values(*file_fields)
                 if file_name:
                     files = files.filter(file_name__icontains=file_name)
 
+        if paginate and not recursive:
+            dirs, files = cls.dp.paginate_directory_data(dirs, files, request)
         from metax_api.api.rest.base.serializers import LightDirectorySerializer
         contents = { 'directories': LightDirectorySerializer.serialize(dirs) }
 
@@ -815,14 +824,17 @@ class FileService(CommonService, ReferenceDataMixin):
                         directory_fields=directory_fields,
                         file_fields=file_fields,
                         file_name=file_name,
-                        directory_name=directory_name
+                        directory_name=directory_name,
+                        paginate=paginate,
+                        request=request
                     )
                 except MaxRecursionDepthExceeded:
                     continue
 
                 directory['directories'] = sub_dir_contents['directories']
                 if 'files' in sub_dir_contents:
-                    directory['files'] = sub_dir_contents['files']
+                    contents['files'] += sub_dir_contents['files']
+
         return contents
 
     @classmethod
@@ -862,7 +874,8 @@ class FileService(CommonService, ReferenceDataMixin):
 
             directory_fields_string_sql = ', '.join(directory_fields_sql)
 
-            dir_name_sql = '' if not directory_name else "AND d.directory_name LIKE ('%%' || %s || '%%')"
+            dir_name_sql = '' if not directory_name or not_cr_id else \
+                "AND d.directory_name LIKE ('%%' || %s || '%%')"
 
             sql_select_dirs_for_cr = """
                 SELECT {}
@@ -880,10 +893,12 @@ class FileService(CommonService, ReferenceDataMixin):
                     AND f.removed = false
                     AND f.active = true
                 )
+                ORDER BY d.directory_path
                 """
             with connection.cursor() as cr:
                 sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql)
-                sql_params = [directory_id, directory_name, cr_id] if directory_name else [directory_id, cr_id]
+                sql_params = [directory_id, directory_name, cr_id] if directory_name and not not_cr_id \
+                    else [directory_id, cr_id]
                 cr.execute(sql_select_dirs_for_cr, sql_params)
 
                 dirs = [dict(zip(directory_fields, row)) for row in cr.fetchall()]
@@ -894,7 +909,7 @@ class FileService(CommonService, ReferenceDataMixin):
             dirs = _cr_belongin_to_directory(cr_id)
 
             files = None if dirs_only else File.objects \
-                .filter(record__pk=cr_id, parent_directory=directory_id).values(*file_fields)
+                .filter(record__pk=cr_id, parent_directory=directory_id).order_by('file_path').values(*file_fields)
 
         elif not_cr_id:
             dirs = _cr_belongin_to_directory(not_cr_id)
@@ -902,9 +917,11 @@ class FileService(CommonService, ReferenceDataMixin):
             if not recursive:
                 dirs = Directory.objects.filter(parent_directory=directory_id).exclude(
                     id__in=[dir['id'] for dir in dirs]).values(*directory_fields)
+                if directory_name:
+                    dirs = dirs.filter(directory_name__icontains=directory_name)
 
             files = None if dirs_only else File.objects.exclude(record__pk=not_cr_id) \
-                .filter(parent_directory=directory_id).values(*file_fields)
+                .filter(parent_directory=directory_id).order_by('file_path').values(*file_fields)
 
         if not dirs and not files:
             # for this specific version of the record, the requested directory either
@@ -914,7 +931,6 @@ class FileService(CommonService, ReferenceDataMixin):
         # icontains returns exception on None and with empty string does unnecessary db hits
         if files and file_name:
             files = files.filter(file_name__icontains=file_name)
-
         return dirs, files
 
     @classmethod
