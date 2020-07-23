@@ -932,6 +932,8 @@ class FileService(CommonService, ReferenceDataMixin):
             if dirs_only or not recursive:
                 dirs = Directory.objects.filter(parent_directory=directory_id).exclude(
                     id__in=[dir['id'] for dir in dirs]).values(*directory_fields)
+                if directory_name:
+                    dirs = dirs.filter(directory_name__icontains=directory_name)
 
                 if directory_name:
                     dirs = dirs.filter(directory_name__icontains=directory_name)

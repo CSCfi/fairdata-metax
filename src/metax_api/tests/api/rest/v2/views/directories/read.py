@@ -802,7 +802,6 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
 
 
 class DirectoryApiReadQueryFiltersTogetherTests(DirectoryApiReadCommon):
-
     """
     Test browsing files and directories with different filtering combinations:
     return ok if should work together and not ok if on opposite.
