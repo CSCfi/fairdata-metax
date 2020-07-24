@@ -581,6 +581,14 @@ class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
         self.assertEqual('project_identifier' in response.data, True)
         self.assertEqual('multiple projects' in response.data['project_identifier'][0], True)
 
+    def test_filepath_starts_with_slash(self):
+        file = self._get_new_test_data()
+        file['file_path'] = file['file_path'][1:]
+
+        response = self.client.post('/rest/v2/files', file, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue("file path should start with '/' to point to the root" in response.data['file_path'][0])
+
     def _assert_directory_parent_dirs(self, project_identifier):
         """
         Check dirs created during the request have parent dirs as expected.

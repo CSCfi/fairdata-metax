@@ -57,7 +57,7 @@ class DirectoryApiWriteCommon(APITestCase, TestClassUtils):
 
 class DirectoryApiWriteTests(DirectoryApiWriteCommon):
 
-    def _test_create_files_for_catalog_record(self):
+    def test_create_files_for_catalog_record(self):
         """
         Tests flow of creating files and assigning them to dataset.
         """
@@ -113,12 +113,12 @@ class DirectoryApiWriteTests(DirectoryApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'Directory must be empty')
 
         # adding file1 to dataset
-        firs_file = {
+        first_file = {
             'files': [
                 {"identifier": file1_id}
             ]}
 
-        response = self.client.post('/rest/v2/datasets/{}/files'.format(cr_id), firs_file, format='json')
+        response = self.client.post('/rest/v2/datasets/{}/files'.format(cr_id), first_file, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         # getting dataset files from /
@@ -139,7 +139,7 @@ class DirectoryApiWriteTests(DirectoryApiWriteCommon):
         # getting non-dataset files from /dir/
         response = self.client.get('/rest/v2/directories/{}/files?not_cr_identifier={}&include_parent&{}'
             .format(dirs[0]['id'], cr_id, fields))
-        self.assertEqual(len(response.data['files']), 2, 'Expected 2 file in directory {}'
+        self.assertEqual(len(response.data['files']), 2, 'Expected 2 files in directory {}'
             .format(dirs[0]['directory_path']))
         self.assertEqual(response.data['file_count'], len(response.data['files']),
             'Expected 2 file in parent file_count')
@@ -158,7 +158,7 @@ class DirectoryApiWriteTests(DirectoryApiWriteCommon):
         # getting dataset files from /dir/
         response = self.client.get('/rest/v2/directories/{}/files?cr_identifier={}&include_parent&{}'
             .format(dirs[0]['id'], cr_id, fields))
-        self.assertEqual(len(response.data['files']), 3, 'Expected 3 file in directory {}'
+        self.assertEqual(len(response.data['files']), 3, 'Expected 3 files in directory {}'
             .format(dirs[0]['directory_path']))
         self.assertEqual(response.data['file_count'], len(response.data['files']),
             'Expected 3 file in parent file_count')
@@ -174,7 +174,7 @@ class DirectoryApiWriteTests(DirectoryApiWriteCommon):
 
         dirs = response.data['directories']
         self.assertEqual(len(dirs), 1, 'Expected 1 directory')
-        self.assertEqual(dirs[0]['file_count'], 3, 'Expected 3 file in directory %s' % dirs[0]['directory_path'])
+        self.assertEqual(dirs[0]['file_count'], 3, 'Expected 3 files in directory %s' % dirs[0]['directory_path'])
 
         # getting dataset files from /
         response = self.client.get('/rest/v2/directories/{}/files?not_cr_identifier={}&fields'.format(root_id, cr_id))
