@@ -19,6 +19,7 @@ from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, Test
 
 
 class DirectoryApiReadCommon(APITestCase, TestClassUtils):
+
     @classmethod
     def setUpClass(cls):
         """
@@ -72,6 +73,7 @@ class DirectoryApiReadCommon(APITestCase, TestClassUtils):
 
 
 class DirectoryApiReadBasicTests(DirectoryApiReadCommon):
+
     def test_read_directory_list(self):
         response = self.client.get('/rest/v2/directories')
         self.assertEqual(response.status_code, 501)
@@ -340,11 +342,22 @@ class DirectoryApiReadFileBrowsingTests(DirectoryApiReadCommon):
 class DirectoryApiReadFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCommon):
 
     def test_retrieve_requested_directory_fields_only(self):
+
         response = self.client.get('/rest/v2/directories/3/files?directory_fields=identifier,directory_path')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['directories'][0].keys()), 2)
         self.assertEqual('identifier' in response.data['directories'][0], True)
         self.assertEqual('directory_path' in response.data['directories'][0], True)
+
+        self._use_http_authorization(username='metax')
+
+        response = self.client.get('/rest/v2/directories/17/files? \
+            cr_identifier=13&directory_fields=directory_name&directories_only&recursive')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertTrue('directories' in response.data['directories'][0])
+        self.assertTrue('directory_name' in response.data['directories'][0])
+        self.assertFalse('id' in response.data['directories'][0])
 
     def test_retrieve_directory_byte_size_and_file_count(self):
         """
@@ -358,6 +371,20 @@ class DirectoryApiReadFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCo
         self.assertEqual('byte_size' in response.data['directories'][0], True)
 
         response = self.client.get('/rest/v2/directories/3/files?directory_fields=identifier,file_count')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['directories'][0], True)
+        self.assertEqual('file_count' in response.data['directories'][0], True)
+
+        response = self.client.get(
+            '/rest/v2/directories/3/files?directory_fields=identifier,file_count&cr_identifier=3')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories'][0].keys()), 2)
+        self.assertEqual('identifier' in response.data['directories'][0], True)
+        self.assertEqual('file_count' in response.data['directories'][0], True)
+
+        response = self.client.get(
+            '/rest/v2/directories/3/files?directory_fields=identifier,file_count&not_cr_identifier=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['directories'][0].keys()), 2)
         self.assertEqual('identifier' in response.data['directories'][0], True)
@@ -399,6 +426,7 @@ class DirectoryApiReadFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCo
         response = self.client.get('/rest/v2/directories/3/files?directory_fields=or')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+
 class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
     """
@@ -406,6 +434,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
     only dispaly those files that were selected for that CR, and only those dirs,
     that contained suchs files, or would contain such files further down the tree.
     """
+
     def setUp(self):
         self._set_http_authorization('service')
         self.client.get('/rest/v2/directories/update_byte_sizes_and_file_counts')
@@ -496,6 +525,13 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
         self.assertEqual(len(response.data), len(file_list))
         for f in response.data:
             self.assertTrue(f['id'] in file_list)
+
+        response = self.client.get('/rest/v2/directories/1/files?recursive&cr_identifier=1&depth=*&directories_only')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['directories']), 1)
+        self.assertEqual(len(response.data['directories'][0]['directories']), 1)
+        self.assertEqual(len(response.data['directories'][0]['directories'][0]['directories']), 0)
+        self.assertFalse(response.data.get('files'))
 
         # not found cr_identifier should raise 400 instead of 404, which is raised when the
         # directory itself is not found. the error contains details about the 400
@@ -645,6 +681,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingTests(DirectoryApiReadCommon):
 
 
 class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiReadCommon):
+
     """
     Test browsing files in the context of a specific CatalogRecord from authorization perspective
     """
@@ -1189,6 +1226,7 @@ class DirectoryApiReadPaginationTests(DirectoryApiReadCommon):
 
 
 class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
+
     """
     Test browsing files with queries on file and directory names.
     """
@@ -1304,6 +1342,10 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
 
         # tests for directory_name and not_cr_identifier
         response = self.client.get('/rest/v2/directories/17/files?directory_name=phase&not_cr_identifier=13')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(response.data['directories']), 0)
+
+        response = self.client.get('/rest/v2/directories/17/files?directory_name=2&not_cr_identifier=13')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data['directories']), 0)
 

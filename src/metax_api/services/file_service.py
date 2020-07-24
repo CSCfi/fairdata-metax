@@ -604,13 +604,18 @@ class FileService(CommonService, ReferenceDataMixin):
         # get list of field names to retrieve. note: by default all fields are retrieved
         directory_fields, file_fields = cls._get_requested_file_browsing_fields(request)
 
-        if cr_id and recursive and max_depth == '*':
+        if cr_id and recursive and max_depth == '*' and not dirs_only:
             # optimized for downloading full file list of an entire directory
             files = cls._get_directory_file_list_recursively_for_cr(directory, cr_id, file_fields)
             if paginate:
                 dirs, files = cls.dp.paginate_directory_data(None, files, request)
                 return cls.dp.get_paginated_response(files)
             return files
+
+        exclude_id = False
+        if (recursive or not_cr_id) and directory_fields and 'id' not in directory_fields:
+            exclude_id = True
+            directory_fields.append('id')
 
         contents = cls._get_directory_contents(
             directory['id'],
@@ -626,6 +631,15 @@ class FileService(CommonService, ReferenceDataMixin):
             paginate=paginate,
             request=request
         )
+
+        def _remove_id(dirs):
+            for dir in dirs['directories']:
+                if dir.get('directories'):
+                    _remove_id(dir)
+                dir.pop('id')
+
+        if exclude_id:
+            _remove_id(contents)
 
         if recursive:
             if paginate:
@@ -801,6 +815,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         if paginate and not recursive:
             dirs, files = cls.dp.paginate_directory_data(dirs, files, request)
+
         from metax_api.api.rest.base.serializers import LightDirectorySerializer
         contents = { 'directories': LightDirectorySerializer.serialize(dirs) }
 
@@ -832,6 +847,7 @@ class FileService(CommonService, ReferenceDataMixin):
                     continue
 
                 directory['directories'] = sub_dir_contents['directories']
+
                 if 'files' in sub_dir_contents:
                     contents['files'] += sub_dir_contents['files']
 
@@ -844,8 +860,8 @@ class FileService(CommonService, ReferenceDataMixin):
         Browsing files in the context of a specific CR id.
         """
 
-        def _cr_belongin_to_directory(cr_id):
-            if recursive:
+        def _cr_belongin_to_directory(id):
+            if recursive and not dirs_only:
                 return Directory.objects.filter(parent_directory_id=directory_id).values('id')
 
             # select dirs which are contained by the directory,
@@ -871,7 +887,6 @@ class FileService(CommonService, ReferenceDataMixin):
                     directory_fields_sql.append('d.' + field)
                 elif 'parent_directory__' in field and field.split('parent_directory__')[1] in allowed_fields:
                     directory_fields_sql.append(field.replace('parent_directory__', 'parent_d.'))
-
             directory_fields_string_sql = ', '.join(directory_fields_sql)
 
             dir_name_sql = '' if not directory_name or not_cr_id else \
@@ -897,8 +912,8 @@ class FileService(CommonService, ReferenceDataMixin):
                 """
             with connection.cursor() as cr:
                 sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(directory_fields_string_sql, dir_name_sql)
-                sql_params = [directory_id, directory_name, cr_id] if directory_name and not not_cr_id \
-                    else [directory_id, cr_id]
+                sql_params = [directory_id, directory_name, id] if directory_name and not not_cr_id \
+                    else [directory_id, id]
                 cr.execute(sql_select_dirs_for_cr, sql_params)
 
                 dirs = [dict(zip(directory_fields, row)) for row in cr.fetchall()]
@@ -914,9 +929,12 @@ class FileService(CommonService, ReferenceDataMixin):
         elif not_cr_id:
             dirs = _cr_belongin_to_directory(not_cr_id)
 
-            if not recursive:
+            if dirs_only or not recursive:
                 dirs = Directory.objects.filter(parent_directory=directory_id).exclude(
                     id__in=[dir['id'] for dir in dirs]).values(*directory_fields)
+                if directory_name:
+                    dirs = dirs.filter(directory_name__icontains=directory_name)
+
                 if directory_name:
                     dirs = dirs.filter(directory_name__icontains=directory_name)
 
