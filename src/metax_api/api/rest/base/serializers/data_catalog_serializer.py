@@ -26,6 +26,8 @@ class DataCatalogSerializer(CommonSerializer):
             'catalog_record_group_create',
             'catalog_record_services_edit',
             'catalog_record_services_create',
+            'catalog_record_group_read',
+            'catalog_record_services_read',
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = CommonSerializer.Meta.extra_kwargs

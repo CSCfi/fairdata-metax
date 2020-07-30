@@ -20,6 +20,7 @@ paths:
           description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
           required: false
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         "200":
           description: Return list of file storages
@@ -51,6 +52,7 @@ paths:
           description: Identifier of file storage
           required: true
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         '200':
           description: Return file storage metadata
@@ -151,6 +153,13 @@ paths:
         - name: ordering
           in: query
           description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
+          required: false
+          type: string
+        - name: fields
+          in: query
+          description: |
+            Comma separated list of fields that is returned. Checksum -field can be further selected with separating the inner key
+            with colon. Example: ?fields=checksum:value.
           required: false
           type: string
       responses:
@@ -263,6 +272,13 @@ paths:
           in: path
           description: Persistent ID of file OR the internal pk
           required: true
+          type: string
+        - name: fields
+          in: query
+          description: |
+            Comma separated list of fields that is returned. Checksum -field can be further selected with separating the inner key
+            with colon. Example: ?fields=checksum:value.
+          required: false
           type: string
       responses:
         '200':
@@ -518,6 +534,7 @@ paths:
           description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         '200':
           description: Return directory details
@@ -565,7 +582,17 @@ paths:
           type: boolean
         - name: cr_identifier
           in: query
-          description: Identifier of a catalog record. Browse only files that have been selected for that record.
+          description: |
+            Identifier or the internal pk of a catalog record. Browse only files that have been selected for that record.
+            This parameter is incompatible with `not_cr_identifier` parameter.
+          required: false
+          type: string
+        - name: not_cr_identifier
+          in: query
+          description: |
+            Identifier or the internal pk of a catalog record. Browse only files that have not been selected for that record.
+            Parameter is only usable by the owner of the dataset and it's primary use is for editing datasets.
+            This parameter is incompatible with `cr_identifier` parameter.
           required: false
           type: string
         - name: file_fields
@@ -576,6 +603,16 @@ paths:
         - name: directory_fields
           in: query
           description: Comma-separated list of field names to retrieve for directories
+          required: false
+          type: string
+        - name: file_name
+          in: query
+          description: Substring search from file names in current directory. With recursive filter also matches files in subdirectories. Only matching files are returned.
+          required: false
+          type: string
+        - name: directory_name
+          in: query
+          description: Substring search from directory names in current directory. With recursive filter also matches subdirectories. Only matching directories are returned.
           required: false
           type: string
         - name: pagination
@@ -629,6 +666,21 @@ paths:
         - name: depth
           in: query
           description: Max depth of recursion. Value must be an integer > 0, or *. Default value is 1.
+          required: false
+          type: string
+        - name: cr_identifier
+          in: query
+          description: |
+            Identifier or the internal pk of a catalog record. browse only files that have been selected for that record.
+            This parameter is incompatible with `not_cr_identifier` parameter.
+          required: false
+          type: string
+        - name: not_cr_identifier
+          in: query
+          description: |
+            Identifier or the internal pk of a catalog record. Browse only files that have not been selected for that record.
+            Parameter is only usable by the owner of the dataset and it's primary use is for editing datasets.
+            This parameter is incompatible with `cr_identifier` parameter.
           required: false
           type: string
         - name: directories_only
@@ -693,6 +745,7 @@ paths:
           description: Specify ordering of results by fields. Accepts a list of field names separated by a comma. Ordering can be reversed by prefixing field name with a '-' char.
           required: false
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         "200":
           description: Return list of file data catalogs
@@ -730,6 +783,7 @@ paths:
           description: Persistent ID of the resource OR the internal pk
           required: true
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         '200':
           description: Return data catalog metadata
@@ -917,6 +971,12 @@ paths:
             '?publisher_organization=some organisation&creator_person=person_name&condition_separator=or'
           required: false
           type: string
+        - name: api_version
+          in: query
+          description: returns datasets that can be edited with certain api version. Possible values are 1 and 2
+          type: integer
+          required: false
+        - $ref: "#/parameters/fields"
       responses:
         "200":
           description: Successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. When using query parameters, search result can be an empty list.
@@ -1122,6 +1182,7 @@ paths:
             Return a hit only if the given PID is a preferred identifier.
           required: false
           type: boolean
+        - $ref: "#/parameters/fields"
       responses:
         '200':
           description: Return dataset metadata
@@ -1303,6 +1364,7 @@ paths:
           description: Specify ordering of results by fields. accepts a list of field names separated by a comma. ordering can be reversed by prefixing field name with a '-' char.
           required: false
           type: string
+        - $ref: "#/parameters/fields"
       responses:
         "200":
           description: Successful operation, return list of contracts
@@ -1539,6 +1601,8 @@ paths:
           description: Successful operation. Files were added and new dataset version was created. Returns information about the new dataset version.
         '204':
           description: Successful operation. Files were added and new dataset version was not created or no new files were found. Returns no content.
+      tags:
+        - Dataset RPC
   /rpc/datasets/fix_deprecated:
     post:
       summary: Fixes deprecated dataset
@@ -1554,29 +1618,41 @@ paths:
           description: Successful operation, returns information about the new dataset version.
       tags:
         - Dataset RPC
-  # /rpc/statistics/count_datasets:
-  #   get:
-  #     summary: Get the total number of datasets and file sizes.
-  #     description: Calculates the total number of datasets and file sizes.
-  #     parameters:
-  #       - $ref: "#/parameters/from_date_non_required"
-  #       - $ref: "#/parameters/to_date_non_required"
-  #       - $ref: "#/parameters/access_type_filter"
-  #       - $ref: "#/parameters/data_catalog_filter"
-  #       - $ref: "#/parameters/deprecated_filter"
-  #       - $ref: "#/parameters/harvested_filter"
-  #       - $ref: "#/parameters/latest_filter"
-  #       - $ref: "#/parameters/metadata_owner_org_filter"
-  #       - $ref: "#/parameters/metadata_provider_org_filter"
-  #       - $ref: "#/parameters/metadata_provider_user_filter"
-  #       - $ref: "#/parameters/preservation_state_filter"
-  #     responses:
-  #       '200':
-  #         description: successful operation.
-  #         schema:
-  #           $ref: "#/examples/count_datasets"
-  #     tags:
-  #       - Statistics RPC
+  /rpc/statistics/count_datasets:
+    get:
+      summary: Get the total number of datasets and file sizes.
+      description: Calculates the total number of datasets and file sizes.
+      parameters:
+        - name: from_date
+          in: query
+          description: Includes datasets that are created after this date (including given date). Given in format 'YYYY-MM-DD'.
+          required: false
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: to_date
+          in: query
+          description: Includes datasets that are created before this date (excluding given date). Given in format 'YYYY-MM-DD'.
+          required: false
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+        - $ref: "#/parameters/access_type_filter"
+        - $ref: "#/parameters/data_catalog_filter"
+        - $ref: "#/parameters/deprecated_filter"
+        - $ref: "#/parameters/harvested_filter"
+        - $ref: "#/parameters/latest_filter"
+        - $ref: "#/parameters/metadata_owner_org_filter"
+        - $ref: "#/parameters/metadata_provider_org_filter"
+        - $ref: "#/parameters/metadata_provider_user_filter"
+        - $ref: "#/parameters/preservation_state_filter"
+        - $ref: "#/parameters/removed_filter"
+        - $ref: "#/parameters/legacy_filter"
+      responses:
+        '200':
+          description: successful operation.
+          schema:
+            $ref: "#/examples/count_datasets"
+      tags:
+        - Statistics RPC
   /rpc/statistics/all_datasets_cumulative:
     get:
       summary: Get cumulative list of dataset information in given interval.
@@ -1594,21 +1670,9 @@ paths:
           required: true
           type: string
           pattern: '^\d{4}-\d{2}$'
-        - name: latest
-          in: query
-          description: Only return latest versions. Default value is true.
-          required: false
-          type: boolean
-        - name: removed
-          in: query
-          description: Only return removed datasets. If set to false, return non-removed datasets. When parameter is not given, return both removed and non-removed datasets.
-          required: false
-          type: boolean
-        - name: legacy
-          in: query
-          description: Only return legacy datasets. If set to false, return non-legacy datasets. When parameter is not given, return both legacy and non-legacy datasets.
-          required: false
-          type: boolean
+        - $ref: "#/parameters/latest_filter"
+        - $ref: "#/parameters/removed_filter"
+        - $ref: "#/parameters/legacy_filter"
       responses:
         '200':
           description: Successful operation.
@@ -1751,27 +1815,11 @@ parameters:
     type: string
     format: date
 
-  from_date_non_required:
-    name: from_date
-    in: query
-    description: Query returns objects that are created after this date. to_date parameter is required with this.
-    required: false
-    type: string
-    format: date
-
   to_date:
     name: to_date
     in: query
     description: Query returns objects that are created before this date. from_date parameter is required with this.
     required: true
-    type: string
-    format: date
-
-  to_date_non_required:
-    name: to_date
-    in: query
-    description: Query returns objects that are created before this date. from_date parameter is required with this.
-    required: false
     type: string
     format: date
 
@@ -1820,7 +1868,7 @@ parameters:
   latest_filter:
     name: latest
     in: query
-    description: Only return latest versions
+    description: Only return latest versions. Default value is true.
     required: false
     type: boolean
 
@@ -1837,6 +1885,27 @@ parameters:
     description: only return deprecated datasets
     required: false
     type: boolean
+
+  removed_filter:
+    name: removed
+    in: query
+    description: Only return removed datasets. If set to false, return non-removed datasets. When parameter is not given, return both removed and non-removed datasets.
+    required: false
+    type: boolean
+
+  legacy_filter:
+    name: legacy
+    in: query
+    description: Only return legacy datasets. If set to false, return non-legacy datasets. When parameter is not given, return both legacy and non-legacy datasets.
+    required: false
+    type: boolean
+
+  fields:
+    name: fields
+    in: query
+    description: Comma separated list of fields that is returned. Note that nested fields are not supported.
+    required: false
+    type: string
 
 
 definitions:
@@ -1893,14 +1962,14 @@ definitions:
 
 
 examples:
-  # count_datasets:
-  #   type: object
-  #   properties:
-  #     count:
-  #       type: integer
-  #     ida_byte_size:
-  #       type: number
-  #       format: float
+  count_datasets:
+    type: object
+    properties:
+      count:
+        type: integer
+      ida_byte_size:
+        type: number
+        format: float
   all_datasets_cumulative:
     type: array
     items:

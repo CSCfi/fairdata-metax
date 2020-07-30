@@ -29,19 +29,6 @@ from .reference_data_mixin import ReferenceDataMixin
 
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
-
-
-# avoiding circular imports
-def DirectorySerializer(*args, **kwargs):
-    from metax_api.api.rest.base.serializers import DirectorySerializer as DS
-    DirectorySerializer = DS
-    return DirectorySerializer(*args, **kwargs)
-
-def FileSerializer(*args, **kwargs):
-    from metax_api.api.rest.base.serializers import FileSerializer as FS
-    FileSerializer = FS
-    return FileSerializer(*args, **kwargs)
 
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
@@ -117,6 +104,15 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if request.query_params.get('data_catalog', False):
             queryset_search_params['data_catalog__catalog_json__identifier__iregex'] = \
                 request.query_params['data_catalog']
+
+        if request.query_params.get('api_version', False):
+            try:
+                value = int(request.query_params['api_version'])
+            except ValueError:
+                value = request.query_params['api_version']
+                raise Http400({ 'api_version': ['Value \'%s\' is not an integer' % value] })
+
+            queryset_search_params['api_meta__contains'] = { 'version': value }
 
         return queryset_search_params
 
@@ -320,7 +316,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     continue
 
                 FileService.retrieve_directory_byte_sizes_and_file_counts_for_cr(dr['details'],
-                    cr_json['id'], directory_fields=directory_fields, cr_directory_data=_directory_data)
+                    not_cr_id=None, directory_fields=directory_fields, cr_directory_data=_directory_data)
 
         # cleanup identifiers, if they were not actually requested
         if not dir_identifier_requested:

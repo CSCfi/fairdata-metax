@@ -5,10 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from base64 import urlsafe_b64encode
 from copy import deepcopy
 from datetime import datetime, timedelta
-import json
 from time import sleep
 import unittest
 
@@ -20,10 +18,9 @@ from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
 from metax_api.services import ReferenceDataMixin as RDM, RedisCacheService as cache
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
-from metax_api.tests.utils import get_test_oidc_token
-
+from metax_api.models.catalog_record import ACCESS_TYPES
 
 VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
@@ -171,7 +168,8 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
                 catalog_json=catalog_json,
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create='testuser,api_auth_user,metax',
-                catalog_record_services_edit='testuser,api_auth_user,metax'
+                catalog_record_services_edit='testuser,api_auth_user,metax',
+                catalog_record_services_read='testuser,api_auth_user,metax'
             )
 
         self.token = get_test_oidc_token(new_proxy=True)
@@ -261,6 +259,7 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
 
         response = self.client.get('/rest/datasets/1')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         response = self.client.get('/rest/datasets/2')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
         response = self.client.get('/rest/datasets/3')
@@ -388,7 +387,7 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
 
         pid = response.data['research_dataset']['preferred_identifier']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue(pid == response.data['identifier'], response.data)
+        self.assertTrue(pid == 'draft:%s' % response.data['identifier'], response.data)
         self.assertTrue('urn' not in pid, response.data)
         self.assertTrue('doi' not in pid, response.data)
         self.assertTrue(response.data['state'] == 'draft', response.data)
@@ -1231,7 +1230,8 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
             catalog_json=catalog_json,
             date_created=get_tz_aware_now_without_micros(),
             catalog_record_services_create='testuser,api_auth_user,metax',
-            catalog_record_services_edit='testuser,api_auth_user,metax'
+            catalog_record_services_edit='testuser,api_auth_user,metax',
+            catalog_record_services_read='testuser,api_auth_user,metax'
         )
 
     def test_update_catalog_record_pas_state_allowed_value(self):
@@ -1398,7 +1398,7 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
 
         response = self.client.put('/rest/datasets/%d' % pas_dataset['id'], pas_dataset, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('Cannot change files in' in response.data['detail'], True)
+        self.assertEqual('Cannot change files in' in response.data['detail'][0], True)
 
     def test_pas_dataset_files_equal_origin_dataset(self):
         """
@@ -2753,7 +2753,7 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('PAS' in response.data['detail'], 'error message should concern PAS process')
+        self.assertTrue('PAS' in response.data['detail'][0], response.data)
 
     def test_create_cumulative_dataset_sets_date_cumulation_started(self):
         self.cr_test_data['cumulative_state'] = 1
@@ -2999,15 +2999,6 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFiles
     except: Tests related to file updates/versioning are handled in the
     CatalogRecordApiWriteDatasetVersioning -suite.
     """
-
-    def test_adding_filesystem_root_dir_not_permitted(self):
-        """
-        The root dir of a filesystem ("/") should not be permitted to be added to a dataset.
-        """
-        self._add_directory(self.cr_test_data, '/', project='testproject')
-        self._add_directory(self.cr_test_data, '/TestExperiment/Directory_1/Group_2')
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_files_are_saved_during_create(self):
         """
@@ -3609,7 +3600,8 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
                 catalog_json=catalog_json,
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create='testuser,api_auth_user,metax',
-                catalog_record_services_edit='testuser,api_auth_user,metax'
+                catalog_record_services_edit='testuser,api_auth_user,metax',
+                catalog_record_services_read='testuser,api_auth_user,metax'
             )
 
         self.token = get_test_oidc_token()
@@ -3887,8 +3879,7 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         _check_fields(response.data)
 
-
-class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
+class CatalogRecordExternalServicesAccess(CatalogRecordApiWriteCommon):
 
     """
     Testing access of services to external catalogs with harvested flag and vice versa.
@@ -3913,6 +3904,40 @@ class CatalogRecordServicesAccess(CatalogRecordApiWriteCommon):
 
         self._use_http_authorization(username=django_settings.API_EXT_USER['username'],
             password=django_settings.API_EXT_USER['password'])
+
+    def test_external_service_can_not_read_all_metadata_in_other_catalog(self):
+        ''' External service should get the same output from someone elses catalog than anonymous user '''
+        # create a catalog that does not belong to our external service
+        dc2 = DataCatalog.objects.get(pk=2)
+        dc2.catalog_json['identifier'] = 'Some other catalog'
+        dc2.catalog_record_services_read = 'metax'
+        dc2.force_save()
+
+        # Create a catalog record that belongs to some other user & our catalog nr2
+        cr = CatalogRecord.objects.get(pk=12)
+        cr.user_created = '#### Some owner who is not you ####'
+        cr.metadata_provider_user = '#### Some owner who is not you ####'
+        cr.data_catalog = dc2
+        cr.editor = None
+        cr.research_dataset['access_rights']['access_type']['identifier'] = ACCESS_TYPES['restricted']
+        cr.force_save()
+
+        # Let's try to return the data with our external services credentials
+        response_service_user = self.client.get('/rest/datasets/12')
+        self.assertEqual(response_service_user.status_code, status.HTTP_200_OK, response_service_user.data)
+
+        # Test access as unauthenticated user
+        self.client._credentials = {}
+        response_anonymous = self.client.get('/rest/datasets/12')
+        self.assertEqual(response_anonymous.status_code, status.HTTP_200_OK, response_anonymous.data)
+
+        self.assertEqual(response_anonymous.data, response_service_user.data,
+            "External service with no read-rights should not see any more metadata than anonymous user from a catalog")
+
+    def assert_catalog_record_not_open_access(self, cr):
+        from metax_api.models.catalog_record import ACCESS_TYPES
+        access_type = cr['research_dataset'].get('access_rights', {}).get('access_type', {}).get('identifier', '')
+        assert(access_type != ACCESS_TYPES['open'])
 
     def test_external_service_can_add_catalog_record_to_own_catalog(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = '123456'
@@ -4051,7 +4076,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
     def _get_access_granter(self, malformed=False):
         """
-        Returns encoded user information
+        Returns user information
         """
         access_granter = {
             "userid": "testcaseuser" if not malformed else 1234,
@@ -4059,9 +4084,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             "email": "testcase@user.com"
         }
 
-        ag_bytes = json.dumps(access_granter).encode('utf-8')
-
-        return urlsafe_b64encode(ag_bytes).decode('utf-8')
+        return access_granter
 
     def _mock_rems_write_access_succeeds(self, method, entity, action):
         """
@@ -4272,10 +4295,9 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
+        self.cr_test_data['access_granter'] = self._get_access_granter()
 
-        granter = self._get_access_granter()
-
-        response = self.client.post(f'/rest/datasets?access_granter={granter}', self.cr_test_data, format="json")
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
 
         return response
 
@@ -4337,10 +4359,9 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # change to rems managed
         cr = response.data
         cr['research_dataset']['access_rights'] = self.permit_rights
+        cr['access_granter'] = self._get_access_granter()
 
-        granter = self._get_access_granter()
-
-        response = self.client.put(f'/rest/datasets/{cr["id"]}?access_granter={granter}', cr, format="json")
+        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data.get('rems_identifier') is not None, 'rems_identifier should be present')
         self.assertTrue(response.data.get('access_granter') is not None, 'access_granter should be present')
@@ -4362,10 +4383,9 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         # change to rems managed
         cr = response.data
         cr['research_dataset']['access_rights'] = self.permit_rights
+        cr['access_granter'] = self._get_access_granter()
 
-        granter = self._get_access_granter()
-
-        response = self.client.put(f'/rest/datasets/{cr["id"]}?access_granter={granter}', cr, format="json")
+        response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
 
     @responses.activate
@@ -4416,6 +4436,30 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         cr_after = response.data
         self.assertNotEqual(rems_id_before, cr_after['rems_identifier'], 'REMS identifier should have been changed')
+
+    @responses.activate
+    def test_changing_license_dont_allow_access_granter_changes(self):
+        """
+        Create REMS dataset and change it's license. Ensure that
+        request is successful and that dataset's access_granter is not changed.
+        """
+        response = self._create_new_rems_dataset()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr_before = response.data
+
+        cr_before['access_granter']['userid'] = 'newid'
+        cr_before['research_dataset']['access_rights']['license'] = [
+            {
+                "identifier": self.other_license['uri']
+            }
+        ]
+
+        response = self.client.put(f'/rest/datasets/{cr_before["id"]}', cr_before, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr_after = response.data
+        self.assertNotEqual('newid', cr_after['access_granter']['userid'], 'userid should not have been changed')
 
     @responses.activate
     def test_deleting_license_updates_rems(self):
@@ -4510,9 +4554,10 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE, response.data)
         self.assertTrue('failed to publish' in response.data['detail'][0], response.data)
 
-    def test_missing_access_granter_parameter(self):
+    def test_missing_access_granter(self):
         """
-        Access_granter parameter is required when user is service
+        Access_granter field is required when dataset is made REMS managed and
+        user is service.
         """
 
         # test on create
@@ -4521,7 +4566,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
         response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('access_granter' in response.data['detail'], response.data)
+        self.assertTrue('access_granter' in response.data['detail'][0], response.data)
 
         # test on update
         self.cr_test_data['research_dataset']['access_rights'] = self.open_rights
@@ -4532,7 +4577,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         cr['research_dataset']['access_rights'] = self.permit_rights
         response = self.client.put(f'/rest/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('access_granter' in response.data['detail'], response.data)
+        self.assertTrue('access_granter' in response.data['detail'][0], response.data)
 
     def test_bad_access_granter_parameter(self):
         """
@@ -4540,16 +4585,15 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         """
         self.cr_test_data['research_dataset']['access_rights'] = self.permit_rights
         self.cr_test_data['data_catalog'] = IDA_CATALOG
-
-        granter = self._get_access_granter(malformed=True)
+        self.cr_test_data['access_granter'] = self._get_access_granter(malformed=True)
 
         response = self.client.post(
-            f'/rest/datasets?access_granter={granter}',
+            '/rest/datasets',
             self.cr_test_data,
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('must be string' in response.data['detail'], response.data)
+        self.assertTrue('must be string' in response.data['detail'][0], response.data)
 
     def test_missing_license_in_dataset(self):
         """
@@ -4565,7 +4609,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('must define license' in response.data['detail'], response.data)
+        self.assertTrue('must define license' in response.data['detail'][0], response.data)
 
     @responses.activate
     def test_only_return_rems_info_to_privileged(self):

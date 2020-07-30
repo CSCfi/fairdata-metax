@@ -17,7 +17,7 @@ import yaml
 from metax_api.exceptions import Http403, Http400
 from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
 from metax_api.renderers import XMLRenderer
-from metax_api.services import CatalogRecordService as CRS, CommonService as CS, RabbitMQService as rabbitmq
+from metax_api.services import CatalogRecordService, CommonService as CS, RabbitMQService as rabbitmq
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, LightFileSerializer
 
@@ -25,6 +25,13 @@ _logger = logging.getLogger(__name__)
 
 
 class DatasetViewSet(CommonViewSet):
+
+    # main "service class" relevant for this api endpoint. in case more service classes need to be
+    # versioned, such as CommonService, one way to do it could be to define a separate class variable
+    # for each service, so that they can be re-assigned to a different version in different viewsets
+    # for different API versions. e.g. cr_service_class = CatalogRecordServiceV2,
+    # or file_service_class = FileServiceV2
+    service_class = CatalogRecordService
 
     serializer_class = CatalogRecordSerializer
     object = CatalogRecord
@@ -38,14 +45,21 @@ class DatasetViewSet(CommonViewSet):
         super(DatasetViewSet, self).__init__(*args, **kwargs)
 
     def get_object(self):
+        cr = None
+
         try:
-            return super(DatasetViewSet, self).get_object()
+            cr = super(DatasetViewSet, self).get_object()
         except Http404:
-            if CRS.is_primary_key(self.kwargs.get(self.lookup_field, False)):
+            if self.service_class.is_primary_key(self.kwargs.get(self.lookup_field, False)):
                 # fail on pk search is clear...
                 raise
 
-        return self._search_using_dataset_identifiers()
+        if cr is None:
+            cr = self._search_using_dataset_identifiers()
+
+        cr.request = self.request
+
+        return cr
 
     def retrieve(self, request, *args, **kwargs):
         from metax_api.services.datacite_service import DataciteException
@@ -56,7 +70,7 @@ class DatasetViewSet(CommonViewSet):
 
         if 'dataset_format' in request.query_params:
             try:
-                res.data = CRS.transform_datasets_to_format(
+                res.data = self.service_class.transform_datasets_to_format(
                     res.data, request.query_params['dataset_format'], request=request)
             except DataciteException as e:
                 raise Http400(str(e))
@@ -69,6 +83,7 @@ class DatasetViewSet(CommonViewSet):
         self.kwargs[self.lookup_field] = lookup_value
         self.request.GET._mutable = True
         self.request.query_params['no_pagination'] = 'true'
+        self.request.query_params['pagination'] = 'false'
         self.request.GET._mutable = False # hehe
         return self.retrieve(request, *args, **kwargs)
 
@@ -76,7 +91,7 @@ class DatasetViewSet(CommonViewSet):
         # best to specify a variable for parameters intended for filtering purposes in get_queryset(),
         # because other api's may use query parameters of the same name, which can
         # mess up filtering if get_queryset() uses request.query_parameters directly.
-        self.queryset_search_params = CRS.get_queryset_search_params(request)
+        self.queryset_search_params = self.service_class.get_queryset_search_params(request)
 
         if 'preferred_identifier' in request.query_params:
             return self._retrieve_by_preferred_identifier(request, *args, **kwargs)
@@ -100,7 +115,7 @@ class DatasetViewSet(CommonViewSet):
         cr = self.get_object()
         search_params = { 'catalog_record_id': cr.id }
 
-        if CRS.is_primary_key(kwargs['metadata_version_identifier']):
+        if self.service_class.is_primary_key(kwargs['metadata_version_identifier']):
             search_params['id'] = kwargs['metadata_version_identifier']
         else:
             search_params['metadata_version_identifier'] = kwargs['metadata_version_identifier']
@@ -117,8 +132,8 @@ class DatasetViewSet(CommonViewSet):
             # possible to use the serializer, since an older metadata version of a ds
             # is not stored as part of the cr, but in the table ResearchDatasetVersion.
             # therefore, perform this checking and stripping separately here.
-            research_dataset = CRS.check_and_remove_metadata_based_on_access_type(
-                CRS.remove_contact_info_metadata(research_dataset))
+            research_dataset = self.service_class.check_and_remove_metadata_based_on_access_type(
+                self.service_class.remove_contact_info_metadata(research_dataset))
 
         return Response(data=research_dataset, status=status.HTTP_200_OK)
 
@@ -165,7 +180,7 @@ class DatasetViewSet(CommonViewSet):
 
     @action(detail=False, methods=['get'], url_path="identifiers")
     def get_all_identifiers(self, request):
-        self.queryset_search_params = CRS.get_queryset_search_params(request)
+        self.queryset_search_params = self.service_class.get_queryset_search_params(request)
         q = self.get_queryset().values('identifier')
         identifiers = [item['identifier'] for item in q]
         return Response(identifiers)
@@ -173,14 +188,14 @@ class DatasetViewSet(CommonViewSet):
     @action(detail=False, methods=['get'], url_path="metadata_version_identifiers")
     def get_all_metadata_version_identifiers(self, request):
         # todo probably remove at some point
-        self.queryset_search_params = CRS.get_queryset_search_params(request)
+        self.queryset_search_params = self.service_class.get_queryset_search_params(request)
         q = self.get_queryset().values('research_dataset')
         identifiers = [item['research_dataset']['metadata_version_identifier'] for item in q]
         return Response(identifiers)
 
     @action(detail=False, methods=['get'], url_path="unique_preferred_identifiers")
     def get_all_unique_preferred_identifiers(self, request):
-        self.queryset_search_params = CRS.get_queryset_search_params(request)
+        self.queryset_search_params = self.service_class.get_queryset_search_params(request)
 
         if CS.get_boolean_query_param(request, 'latest'):
             queryset = self.get_queryset().filter(next_dataset_version_id=None).values('research_dataset')
@@ -235,7 +250,7 @@ class DatasetViewSet(CommonViewSet):
             _logger.debug('found in cache, returning')
             return Response(data=cached, status=status.HTTP_200_OK)
 
-        data = self.get_serializer(CatalogRecord.objects.get(pk=1)).data
+        data = self.get_serializer(self.object.objects.get(pk=1)).data
 
         try:
             self.cache.set('cr-1211%s' % pk, data)
@@ -270,7 +285,7 @@ class DatasetViewSet(CommonViewSet):
 
         # Update IDA CR total_files_byte_size field value without creating a new version
         # Skip CatalogRecord save since it prohibits changing the value of total_files_byte_size
-        for cr in CatalogRecord.objects.filter(data_catalog_id__in=ida_catalog_ids):
+        for cr in self.object.objects.filter(data_catalog_id__in=ida_catalog_ids):
             cr.research_dataset['total_files_byte_size'] = sum(f.byte_size for f in cr.files.all())
             cr.preserve_version = True
             super(Common, cr).save()
@@ -291,9 +306,9 @@ class DatasetViewSet(CommonViewSet):
 
         if 'id' in request.query_params:
             # in order to update one record only, use query param ?id=integer. useful for testcases
-            records = CatalogRecord.objects.filter(pk=request.query_params['id']).only('id')
+            records = self.object.objects.filter(pk=request.query_params['id']).only('id')
         else:
-            records = CatalogRecord.objects.filter(data_catalog__catalog_json__research_dataset_schema='ida') \
+            records = self.object.objects.filter(data_catalog__catalog_json__research_dataset_schema='ida') \
                 .only('id')
 
         from time import time
@@ -346,7 +361,7 @@ class DatasetViewSet(CommonViewSet):
         for dr in Directory.objects_unfiltered.all():
             super(Common, dr).delete()
 
-        for f in CatalogRecord.objects_unfiltered.all():
+        for f in self.object.objects_unfiltered.all():
             super(Common, f).delete()
 
         _logger.debug('FLUSH called by %s' % request.user.username)

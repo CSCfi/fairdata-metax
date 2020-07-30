@@ -16,13 +16,14 @@ from rest_framework.response import Response
 from rest_framework.views import set_rollback
 from rest_framework.viewsets import ModelViewSet
 
-from metax_api.exceptions import Http403, Http500
+from metax_api.exceptions import Http400, Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
 from metax_api.services import CommonService as CS, ApiErrorService, CallableService, RedisCacheService
 
 _logger = logging.getLogger(__name__)
 
 RESPONSE_SUCCESS_CODES = (200, 201, 204)
+WRITE_OPERATIONS = ('PUT', 'PATCH', 'POST')
 
 
 class CommonViewSet(ModelViewSet):
@@ -41,6 +42,10 @@ class CommonViewSet(ModelViewSet):
     # get_queryset() automatically includes these in .select_related(field1, field2...) when returning
     # queryset to the caller
     select_related = []
+
+    # If some field name is different in models than what is returned from api, inherit get_queryset() in
+    # that view and save the model field names here to be fetched from db. (example in file_view)
+    fields = []
 
     # assigning the create_bulk method here allows for other views to assing their other,
     # customized method to be called instead instead of the generic one.
@@ -125,11 +130,19 @@ class CommonViewSet(ModelViewSet):
 
         return response
 
+    # TODO: supporting both parameters over a transition period and eventually will get rid of no_pagination.
     def paginate_queryset(self, queryset):
-        if CS.get_boolean_query_param(self.request, 'no_pagination'):
-            return None
-
-        return super(CommonViewSet, self).paginate_queryset(queryset)
+        keys = self.request.query_params.keys()
+        if 'pagination' in keys:
+            if not CS.get_boolean_query_param(self.request, 'pagination'):
+                return None
+            return super(CommonViewSet, self).paginate_queryset(queryset)
+        elif 'no_pagination' in keys:
+            if CS.get_boolean_query_param(self.request, 'no_pagination'):
+                return None
+            return super(CommonViewSet, self).paginate_queryset(queryset)
+        else:
+            return super(CommonViewSet, self).paginate_queryset(queryset)
 
     def get_queryset(self):
         """
@@ -154,21 +167,36 @@ class CommonViewSet(ModelViewSet):
             additional_filters.update({'removed': True})
             self.queryset = self.queryset_unfiltered
 
-        if self.request.query_params.get('fields', False):
-            # only specified fields are requested to be returned
+        if 'fields' in self.request.query_params:
+            if not self.fields:
+                # save fields when no inheriting view has done it yet
+                self.fields = self.request.query_params['fields'].split(',')
 
-            fields = self.request.query_params['fields'].split(',')
+            for field in self.fields:
+                if field not in self.get_serializer_class().Meta.fields:
+                    raise Http400(f'field \'{field}\' is not part of {self.object.__name__}')
 
             # causes only requested fields to be loaded from the db
-            self.queryset = self.queryset.only(*fields)
+            self.queryset = self.queryset.only(*self.fields)
 
             # check if requested fields are relations, so that we know to include them in select_related.
             # if no fields is relation, select_related will be made empty.
-            self.select_related = [ rel for rel in self.select_related if rel in fields ]
+            self.select_related = [ rel for rel in self.select_related if rel in self.fields ]
 
-        return super(CommonViewSet, self).get_queryset() \
-            .select_related(*self.select_related) \
-            .filter(*q_filters, **additional_filters)
+        queryset = super().get_queryset().filter(*q_filters, **additional_filters)
+
+        if self.request.META['REQUEST_METHOD'] in WRITE_OPERATIONS:
+            # for update operations, do not select relations in the original queryset
+            # so that select_for_update() can be used to lock the row for the duration
+            # of the update-operation. when the full object is returned, it is possible
+            # that additional queres need to be executed to the db to retrieve relation
+            # data, but that seems to be the price to pay to be able the lock rows being
+            # written to.
+            queryset = queryset.select_for_update(nowait=False, of=('self',))
+        else:
+            queryset = queryset.select_related(*self.select_related)
+
+        return queryset
 
     def get_object(self, search_params=None):
         """

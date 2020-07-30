@@ -1,5 +1,6 @@
 {
   "data_catalog": null,
+  "state": "published",
   "metadata_owner_org": "abc-org-123",
   "metadata_provider_org": "abc-org-123",
   "metadata_provider_user": "abc-user-123",
@@ -685,5 +686,8 @@
       }
     ]
   },
-  "service_created": "metax"
+  "service_created": "metax",
+  "api_meta": {
+    "version": 1
+  }
 }

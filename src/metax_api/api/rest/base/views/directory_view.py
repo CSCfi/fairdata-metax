@@ -11,8 +11,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from metax_api.api.rest.base.serializers import DirectorySerializer
-from metax_api.services.pagination import DirectoryPagination
-from rest_framework.pagination import LimitOffsetPagination
 from metax_api.exceptions import Http400, Http403, Http501
 from metax_api.models import Directory
 from metax_api.services import CommonService, FileService
@@ -22,7 +20,6 @@ from .common_view import CommonViewSet
 class DirectoryViewSet(CommonViewSet):
 
     serializer_class = DirectorySerializer
-    pagination_class = DirectoryPagination
     object = Directory
     select_related = ['parent_directory']
     lookup_field_other = 'identifier'
@@ -60,11 +57,16 @@ class DirectoryViewSet(CommonViewSet):
         and then call FS.get_directory_contents().
         """
         paginate = CommonService.get_boolean_query_param(request, 'pagination')
+        path = request.query_params.get('path', None)
         include_parent = CommonService.get_boolean_query_param(request, 'include_parent')
         dirs_only = CommonService.get_boolean_query_param(request, 'directories_only')
         recursive = CommonService.get_boolean_query_param(request, 'recursive')
         max_depth = request.query_params.get('depth', 1)
         project_identifier = request.query_params.get('project', None)
+        cr_identifier = request.query_params.get('cr_identifier', None)
+        not_cr_identifier = request.query_params.get('not_cr_identifier', None)
+        file_name = request.query_params.get('file_name')
+        directory_name = request.query_params.get('directory_name')
 
         # max_depth can be an integer > 0, or * for everything.
         try:
@@ -76,32 +78,28 @@ class DirectoryViewSet(CommonViewSet):
             if max_depth <= 0:
                 raise Http400({ 'detail': ['value of depth must be higher than 0'] })
 
-        cr_identifier = request.query_params.get('cr_identifier', None)
+        if cr_identifier and not_cr_identifier:
+            raise Http400({ 'detail':
+                ["there can only be one query parameter of 'cr_identifier' and 'not_cr_identifier'"] })
 
         files_and_dirs = FileService.get_directory_contents(
             identifier=identifier,
-            path=request.query_params.get('path', None),
+            path=path,
             project_identifier=project_identifier,
             recursive=recursive,
             max_depth=max_depth,
             dirs_only=dirs_only,
             include_parent=include_parent,
             cr_identifier=cr_identifier,
+            not_cr_identifier=not_cr_identifier,
+            file_name=file_name,
+            directory_name=directory_name,
+            paginate=paginate,
             request=request
         )
 
         if paginate:
-            if isinstance(files_and_dirs, dict):
-                paginated = self.paginate_queryset(files_and_dirs)
-                if include_parent:
-                    for k, v in files_and_dirs.items():
-                        if k not in ['directories', 'files']:
-                            paginated[k] = v
-                return self.get_paginated_response(paginated)
-            else:
-                paginator = LimitOffsetPagination()
-                context = paginator.paginate_queryset(files_and_dirs, request)
-                return paginator.get_paginated_response(context)
+            return files_and_dirs
 
         return Response(files_and_dirs)
 

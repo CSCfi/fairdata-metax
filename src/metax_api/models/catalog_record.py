@@ -5,10 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from base64 import urlsafe_b64decode
 from collections import defaultdict
 from copy import deepcopy
-import json
 import logging
 
 from django.conf import settings
@@ -84,6 +82,9 @@ class DatasetVersionSet(models.Model):
         Return a list of record preferred_identifiers that belong in the same dataset version chain.
         Latest first.
         """
+        records = self.records(manager='objects_unfiltered') \
+            .filter(state=CatalogRecord.STATE_PUBLISHED) \
+            .order_by('-date_created')
 
         versions = [
             {
@@ -93,9 +94,10 @@ class DatasetVersionSet(models.Model):
                 'date_created': r.date_created.astimezone().isoformat(),
                 'date_removed': r.date_removed.astimezone().isoformat() if r.date_removed else None
             }
-            for r in self.records(manager='objects_unfiltered').all().order_by('-date_created')
+            for r in records
         ]
 
+        # dont show the date_removed field at all if the value is None (record has not been removed)
         versions = [{key: value for (key, value) in i.items() if value is not None} for i in versions]
 
         return versions
@@ -241,7 +243,7 @@ class CatalogRecord(Common):
 
     state = models.CharField(
         choices=STATE_CHOICES,
-        default=STATE_PUBLISHED,
+        default=STATE_DRAFT,
         max_length=200,
         help_text='Publishing state (published / draft) of the dataset.'
     )
@@ -257,7 +259,7 @@ class CatalogRecord(Common):
 
     _directory_data = JSONField(null=True, help_text='Stores directory data related to browsing files and directories')
 
-    files = models.ManyToManyField(File)
+    files = models.ManyToManyField(File, related_query_name='record')
 
     identifier = models.CharField(max_length=200, unique=True, null=False)
 
@@ -291,6 +293,13 @@ class CatalogRecord(Common):
 
     research_dataset = JSONField()
 
+    next_draft = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+        related_name='draft_of',
+        help_text='A draft of the next changes to be published on this dataset, in order to be able '
+                  'to save progress, and continue later. Is created from a published dataset. '
+                  'When the draft is published, changes are saved on top of the original dataset, '
+                  'and the draft record is destroyed.')
+
     next_dataset_version = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
         related_name='+')
 
@@ -316,6 +325,9 @@ class CatalogRecord(Common):
     rems_identifier = models.CharField(max_length=200, null=True, default=None,
         help_text='Defines corresponding catalog item in REMS service')
 
+    api_meta = JSONField(null=True, default=dict,
+        help_text='Saves api related info about the dataset. E.g. api version')
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """
@@ -333,6 +345,18 @@ class CatalogRecord(Common):
     """
     new_dataset_version_created = None
 
+    """
+    Serializer class to use withing this class, where needed. Allows inheriting classes
+    to define their own preference without hardcoding it everywhere.
+    """
+    serializer_class = None
+
+    """
+    Version is used to separate different api versions from each other so that they cannot be cross-edited.
+    Inheriting classes should define this in their init.
+    """
+    api_version = 0
+
     objects = CatalogRecordManager()
 
     class Meta:
@@ -345,6 +369,8 @@ class CatalogRecord(Common):
     def __init__(self, *args, **kwargs):
         super(CatalogRecord, self).__init__(*args, **kwargs)
         self.track_fields(
+            'api_meta',
+            'access_granter',
             'cumulative_state',
             'date_deprecated',
             'deprecated',
@@ -362,6 +388,9 @@ class CatalogRecord(Common):
             'research_dataset.metadata_version_identifier',
             'research_dataset.preferred_identifier',
         )
+        from metax_api.api.rest.base.serializers import CatalogRecordSerializer
+        self.serializer_class = CatalogRecordSerializer
+        self.api_version = 1
 
     def print_files(self): # pragma: no cover
         for f in self.files.all():
@@ -398,6 +427,9 @@ class CatalogRecord(Common):
 
     def user_is_owner(self, request):
         if self.state == self.STATE_DRAFT and self.metadata_provider_user != request.user.username:
+            _logger.debug('404 due to state == draft and metadata_provider_user != request.user.username')
+            _logger.debug('metadata_provider_user = %s', self.metadata_provider_user)
+            _logger.debug('request.user.username = %s', request.user.username)
             raise Http404
 
         if self.editor and 'owner_id' in self.editor:
@@ -417,8 +449,14 @@ class CatalogRecord(Common):
         :return:
         """
         if request.user.is_service:
-            # knows what they are doing
-            return True
+            if request.method == 'GET':
+                if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_read,
+                self.data_catalog.catalog_record_services_read, request):
+                    return False
+                else:
+                    return True
+            else:
+                return True
         elif self.user_is_owner(request):
             # can see sensitive fields
             return True
@@ -499,6 +537,10 @@ class CatalogRecord(Common):
             (self._access_type_is_embargo() and self._embargo_is_available())
 
     def save(self, *args, **kwargs):
+        """
+        Note: keys are popped from kwargs, because super().save() will complain if it receives
+        unknown keyword arguments.
+        """
         if self._operation_is_create():
             self._pre_create_operations(pid_type=kwargs.pop('pid_type', None))
             super(CatalogRecord, self).save(*args, **kwargs)
@@ -897,7 +939,12 @@ class CatalogRecord(Common):
 
     def delete(self, *args, **kwargs):
         if self.state == self.STATE_DRAFT:
-            # delete permanently instead of only marking as 'removed'
+            _logger.info('Deleting draft dataset %s permanently' % self.identifier)
+
+            if self.previous_dataset_version:
+                self.previous_dataset_version.next_dataset_version = None
+                super(Common, self.previous_dataset_version).save()
+
             super(Common, self).delete()
             return
 
@@ -1001,7 +1048,7 @@ class CatalogRecord(Common):
     def has_alternate_records(self):
         return bool(self.alternate_record_set)
 
-    def _save_as_draft(self, request):
+    def _save_as_draft(self):
         from metax_api.services import CommonService
         return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
 
@@ -1023,8 +1070,12 @@ class CatalogRecord(Common):
         Parses query parameter or token to fetch needed information for REMS user
         """
         if self.request.user.is_service:
-            b64_access_granter = self.request.query_params.get('access_granter')
-            user_info = json.loads(urlsafe_b64decode(f'{b64_access_granter}===').decode('utf-8'))
+            # use constant keys for easier validation
+            user_info = {
+                'userid':   self.access_granter.get('userid'),
+                'name':     self.access_granter.get('name'),
+                'email':    self.access_granter.get('email')
+            }
         else:
             # end user api
             user_info = {
@@ -1048,8 +1099,22 @@ class CatalogRecord(Common):
         if self._access_type_is_permit() and not self.research_dataset['access_rights'].get('license', False):
             raise Http400('You must define license for dataset in order to make it REMS manageable')
 
-        if self.request.user.is_service and not self.request.query_params.get('access_granter', False):
-            raise Http400('Missing query parameter access_granter')
+        if self.request.user.is_service and not self.access_granter:
+            raise Http400('Missing access_granter')
+
+    def _assert_api_version(self):
+        if not self.api_meta:
+            # This should be possible only for test data
+            _logger.warning(f'no api_meta found for {self.identifier}')
+            return
+
+        if not self.api_meta['version'] == self.api_version:
+            raise Http400('Please use the correct api version to edit this dataset')
+
+    def _set_api_version(self):
+        # TODO: Can possibly be deleted when v1 api is removed from use and all
+        # datasets have been migrated to v2
+        self.api_meta['version'] = self.api_version
 
     def _pre_create_operations(self, pid_type=None):
 
@@ -1086,9 +1151,9 @@ class CatalogRecord(Common):
                 'Catalog %s is a legacy catalog - not generating pid'
                 % self.data_catalog.catalog_json['identifier']
             )
-        elif self._save_as_draft(self.request):
+        elif self._save_as_draft():
             self.state = self.STATE_DRAFT
-            self.research_dataset['preferred_identifier'] = self.identifier
+            self.research_dataset['preferred_identifier'] = 'draft:%s' % self.identifier
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -1121,8 +1186,9 @@ class CatalogRecord(Common):
 
             self.date_cumulation_started = self.date_created
 
-    def _post_create_operations(self):
+        self._set_api_version()
 
+    def _post_create_operations(self):
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
             # files must be added after the record itself has been created, to be able
             # to insert into a many2many relation.
@@ -1138,10 +1204,13 @@ class CatalogRecord(Common):
         if other_record:
             self._create_or_update_alternate_record_set(other_record)
 
-        if self._save_as_draft(self.request):
+        if self._save_as_draft():
             # do nothing
             pass
         else:
+
+            self.state = self.STATE_PUBLISHED
+
             if self.catalog_versions_datasets():
                 dvs = DatasetVersionSet()
                 dvs.save()
@@ -1155,6 +1224,8 @@ class CatalogRecord(Common):
             if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
                 self._pre_rems_creation()
                 super().save(update_fields=['rems_identifier', 'access_granter'])
+
+            super().save()
 
             self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
@@ -1190,6 +1261,12 @@ class CatalogRecord(Common):
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
                 self.data_catalog.catalog_record_services_edit):
             raise Http403({ 'detail': [ 'You are not permitted to edit datasets in this data catalog.' ]})
+
+        if self.field_changed('api_meta'):
+            self.api_meta = self._initial_data['api_meta']
+
+        # possibly raises 400
+        self._assert_api_version()
 
         if self.field_changed('identifier'):
             # read-only
@@ -1247,22 +1324,7 @@ class CatalogRecord(Common):
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
         if settings.REMS['ENABLED']:
-            if self._dataset_rems_changed():
-                if self._dataset_rems_access_type_changed():
-                    if self._dataset_has_rems_managed_access():
-                        self._pre_rems_creation()
-                    else:
-                        self._pre_rems_deletion(reason='access type change')
-
-                elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
-                    if self._dataset_has_license():
-                        self.add_post_request_callable(
-                            REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
-                        )
-                        self.rems_identifier = generate_uuid_identifier()
-
-                    else:
-                        self._pre_rems_deletion(reason='license deletion')
+            self._pre_update_handle_rems()
 
         if self.field_changed('research_dataset'):
             if self.preservation_state in (
@@ -1380,6 +1442,30 @@ class CatalogRecord(Common):
                 convert_cr_to_datacite_cr_json(self), True)
         except DataciteException as e:
             raise Http400(str(e))
+
+    def _pre_update_handle_rems(self):
+        if self._dataset_rems_changed():
+            if self._dataset_rems_access_type_changed():
+                if self._dataset_has_rems_managed_access():
+                    self._pre_rems_creation()
+                else:
+                    self._pre_rems_deletion(reason='access type change')
+
+            elif self._dataset_license_changed() and self._dataset_has_rems_managed_access():
+                if self._dataset_has_license():
+                    self.add_post_request_callable(
+                        REMSUpdate(self, 'update', rems_id=self.rems_identifier, reason='license change')
+                    )
+                    self.rems_identifier = generate_uuid_identifier()
+                    # make sure that access_granter is not changed during license update
+                    self.access_granter = self._initial_data['access_granter']
+
+                else:
+                    self._pre_rems_deletion(reason='license deletion')
+
+        elif self.field_changed('access_granter'):
+            # do not allow access_granter changes if no real REMS changes occur
+            self.access_granter = self._initial_data['access_granter']
 
     def _handle_cumulative_file_addition(self, file_changes):
         """
@@ -1530,7 +1616,7 @@ class CatalogRecord(Common):
     def _calculate_total_files_byte_size(self):
         rd = self.research_dataset
         if 'files' in rd or 'directories' in rd:
-            rd['total_files_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum']
+            rd['total_files_byte_size'] = self.files.aggregate(Sum('byte_size'))['byte_size__sum'] or 0
         else:
             rd['total_files_byte_size'] = 0
 
@@ -1645,11 +1731,6 @@ class CatalogRecord(Common):
         dirs_by_project = defaultdict(list)
 
         for dr in dirs:
-            if dr['directory_path'] == '/':
-                raise ValidationError({ 'detail': [
-                    'Adding the filesystem root directory ("/") to a dataset is not allowed. Identifier of the '
-                    'offending directory: %s' % dr['directory_path']
-                ]})
             dirs_by_project[dr['project_identifier']].append(dr['directory_path'])
 
         top_level_dirs_by_project = defaultdict(list)
@@ -1741,7 +1822,7 @@ class CatalogRecord(Common):
         The record is saved once immediately, so that it will have a proper db id for later changes,
         such as adding relations.
         """
-        new_version_template = CatalogRecord.objects.get(pk=self.id)
+        new_version_template = self.__class__.objects.get(pk=self.id)
         new_version_template.id = None
         new_version_template.next_dataset_version = None
         new_version_template.previous_dataset_version = None
@@ -1749,6 +1830,7 @@ class CatalogRecord(Common):
         new_version_template.identifier = generate_uuid_identifier()
         new_version_template.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
         new_version_template.preservation_identifier = None
+        new_version_template.api_meta['version'] = self.api_version
         super(Common, new_version_template).save()
         return new_version_template
 
@@ -1961,12 +2043,21 @@ class CatalogRecord(Common):
         """
         Calculate directory byte_sizes and file_counts for all dirs selected for this cr.
         """
-        if not self.research_dataset.get('directories', None):
-            return
-
         _logger.info('Calculating directory byte_sizes and file_counts...')
 
-        dir_identifiers = [ d['identifier'] for d in self.research_dataset['directories'] ]
+        dir_identifiers = file_dir_identifiers = []
+
+        if self.research_dataset.get('directories', None):
+            dir_identifiers = [d['identifier'] for d in self.research_dataset['directories']]
+
+        if self.research_dataset.get('files', None):
+            file_dir_identifiers = [File.objects.get(identifier=f['identifier']).parent_directory.identifier
+                for f in self.research_dataset['files']]
+
+        if not dir_identifiers and not file_dir_identifiers:
+            return
+
+        dir_identifiers = set(dir_identifiers + file_dir_identifiers)
 
         highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
 
@@ -1977,8 +2068,31 @@ class CatalogRecord(Common):
             for dr in dirs:
                 dr.calculate_byte_size_and_file_count_for_cr(self.id, directory_data)
 
+        # assigning dir data to parent directories
+        self.get_dirs_by_parent(dirs, directory_data)
+
         self._directory_data = directory_data
         super(Common, self).save(update_fields=['_directory_data'])
+
+    def get_dirs_by_parent(self, ids, directory_data):
+        dirs = Directory.objects.filter(id__in=ids, parent_directory_id__isnull=False) \
+            .values_list('id', 'parent_directory_id')
+        ids = []
+
+        if dirs:
+            for dir in dirs:
+                ids.append(dir[1])
+                if directory_data.get(dir[1]):
+                    children = Directory.objects.get(pk=dir[1]).child_directories.all()
+                    if len(children) == 1 and children.first() == Directory.objects.get(pk=dir[0]):
+                        directory_data[dir[1]] = deepcopy(directory_data[dir[0]])
+                    else:
+                        directory_data[dir[1]][0] += directory_data[dir[0]][0]
+                        directory_data[dir[1]][1] += directory_data[dir[0]][1]
+                else:
+                    directory_data[dir[1]] = deepcopy(directory_data[dir[0]])
+            return self.get_dirs_by_parent(ids, directory_data)
+        return directory_data
 
     def _handle_preferred_identifier_changed(self):
         if self.has_alternate_records():
@@ -2119,7 +2233,7 @@ class CatalogRecord(Common):
         CRS.validate_reference_data(params['research_dataset'], cache)
 
         # finally create the pas copy dataset
-        pas_version = CatalogRecord(**params)
+        pas_version = self.__class__(**params)
         pas_version.request = origin_version.request
         pas_version.save(pid_type=IdentifierType.DOI)
 
@@ -2244,6 +2358,8 @@ class CatalogRecord(Common):
         Change field cumulative_state to new_state. Creates a new dataset version when
         a new cumulative period is started. Returns True if new dataset version is created, otherwise False.
         """
+        # might raise 400
+        self._assert_api_version()
 
         if self.next_dataset_version:
             raise Http400('Cannot change cumulative_state on old dataset version')
@@ -2325,6 +2441,8 @@ class CatalogRecord(Common):
         Creates new version on file addition if dataset is not cumulative.
         Returns True if new dataset version is created, False otherwise.
         """
+        # might raise 400
+        self._assert_api_version()
 
         if self.deprecated:
             raise Http400('Cannot update files on deprecated dataset. '
@@ -2397,6 +2515,9 @@ class CatalogRecord(Common):
         """
         Deletes all removed files and directories from dataset and creates new, non-deprecated version.
         """
+        # might raise 400
+        self._assert_api_version()
+
         new_version = self._create_new_dataset_version_template()
         self._new_version = new_version
         self._fix_deprecated_research_dataset()
@@ -2495,8 +2616,8 @@ class RabbitMQPublishRecord():
             ]})
 
     def _to_json(self):
-        from metax_api.api.rest.base.serializers import CatalogRecordSerializer
-        return CatalogRecordSerializer(self.cr).data
+        serializer_class = self.cr.serializer_class
+        return serializer_class(self.cr).data
 
 
 class REMSUpdate():

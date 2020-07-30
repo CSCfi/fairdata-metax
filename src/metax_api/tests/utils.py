@@ -94,9 +94,13 @@ def generate_test_token(payload):
 
 
 class TestClassUtils():
+
     """
     Test classes may (multi-)inherit this class in addition to APITestCase to use these helpers
     """
+
+    # default api version is v1. v2 api tests will set it to v2
+    api_version = 'v1'
 
     def create_end_user_data_catalogs(self):
         from metax_api.utils import get_tz_aware_now_without_micros
@@ -220,8 +224,8 @@ class TestClassUtils():
         data.pop('identifier', None)
         data['research_dataset'].pop('preferred_identifier', None)
 
-        response = self.client.post('/rest/datasets', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(f'/rest/{self.api_version}/datasets', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         return response.data['id']
 
     def get_open_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False, use_login_access_type=False):
@@ -233,20 +237,22 @@ class TestClassUtils():
         pk = 13
 
         if set_owner:
-            response = self.client.get('/rest/datasets/{0}'.format(pk))
+            response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata')
             pk = self._create_cr_for_owner(pk, response.data)
 
         CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
 
         if use_login_access_type:
-            response_data = self.client.get('/rest/datasets/{0}'.format(pk)).data
+            response_data = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata').data
             response_data['research_dataset']['access_rights']['access_type']['identifier'] = ACCESS_TYPES['login']
-            response = self.client.put('/rest/datasets/{0}'.format(pk), response_data, format='json')
+            response = self.client.put(
+                f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata', response_data, format='json'
+            )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+            response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details')
             rd = response.data['research_dataset']
         else:
-            response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+            response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details')
             rd = response.data['research_dataset']
             # Verify we are dealing with an open research dataset
             assert_catalog_record_is_open_access(response.data)
@@ -268,7 +274,8 @@ class TestClassUtils():
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
         pk = 13
 
-        response = self.client.get('/rest/datasets/{0}'.format(pk))
+        response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         data = response.data
 
         # Set access_type to restricted
@@ -277,11 +284,13 @@ class TestClassUtils():
         if set_owner:
             pk = self._create_cr_for_owner(pk, data)
         else:
-            response = self.client.put('/rest/datasets/{0}'.format(pk), data, format='json')
+            response = self.client.put(
+                f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata', data, format='json'
+            )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+        response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details')
 
         # Verify we are dealing with restricted research dataset
         assert_catalog_record_not_open_access(response.data)
@@ -304,7 +313,8 @@ class TestClassUtils():
         self._use_http_authorization(username=metax_user['username'], password=metax_user['password'])
         pk = 13
 
-        response = self.client.get('/rest/datasets/{0}'.format(pk))
+        response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         data = response.data
 
         # Set access_type to embargo
@@ -315,11 +325,11 @@ class TestClassUtils():
         else:
             data['research_dataset']['access_rights']['available'] = '3000-01-01'
 
-        response = self.client.put('/rest/datasets/13', data, format='json')
+        response = self.client.put(f'/rest/{self.api_version}/datasets/13', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
-        response = self.client.get('/rest/datasets/{0}?file_details'.format(pk))
+        response = self.client.get(f'/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details')
 
         # Verify we are dealing with restricted research dataset
         assert_catalog_record_not_open_access(response.data)
@@ -333,3 +343,38 @@ class TestClassUtils():
         self.client.credentials()
 
         return response.data
+
+    def _get_ida_dataset_without_files(self):
+        data = self._get_object_from_test_data('catalogrecord', requested_index=0)
+
+        data.pop('identifier', None)
+        data['research_dataset'].pop('preferred_identifier', None)
+
+        data.pop('files', None)
+        data['research_dataset'].pop('files', None)
+        data['research_dataset']['total_files_byte_size'] = 0
+
+        return data
+
+    def _get_new_file_data(self, file_n, project=None, file_path=None, directory_path=None, open_access=False):
+        from_test_data = self._get_object_from_test_data('file', requested_index=0)
+
+        if not project:
+            project = 'research_project_112'
+        if not directory_path:
+            directory_path = '/prj_112_root/science_data_C/phase_2/2017/10/dir_' + file_n
+        if not file_path:
+            file_path = directory_path + '/file_' + file_n
+
+        identifier = 'urn:nbn:fi:100' + file_n
+
+        from_test_data.update({
+            "file_name": "tiedosto_name_" + file_n,
+            "file_path": file_path,
+            "identifier": identifier,
+            'parent_directory': 24,
+            'project_identifier': project,
+            'open_access': open_access,
+        })
+        del from_test_data['id']
+        return from_test_data
