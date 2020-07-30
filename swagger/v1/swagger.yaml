@@ -1910,13 +1910,13 @@ parameters:
 
 definitions:
   CatalogRecord:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v1/catalogrecord.json#/definitions/CatalogRecord'
   DataCatalog:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/datacatalog.json#/definitions/Catalog'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v1/datacatalog.json#/definitions/Catalog'
   File:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/file.json#/definitions/File'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v1/file.json#/definitions/File'
   Directory:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/file.json#/definitions/Directory'
+    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v1/file.json#/definitions/Directory'
   StringList:
     type: array
     items:

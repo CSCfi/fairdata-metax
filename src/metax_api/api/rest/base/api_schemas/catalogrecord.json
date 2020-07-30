@@ -327,7 +327,7 @@
                     "description":"Catalog record deprecation state.",
                     "type":"string",
                     "readonly": true
-                },
+                }
             }
         },
         "CatalogRecordVersionCreatedInfo":{
@@ -359,7 +359,7 @@
                     "readonly": true,
                     "enum":[
                         "dataset",
-                        "pas",
+                        "pas"
                     ]
                 }
             },
