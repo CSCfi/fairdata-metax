@@ -255,6 +255,12 @@ class CatalogRecord(Common):
     deprecated = models.BooleanField(
         default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
 
+    use_doi_for_draft = models.BooleanField(
+        default=None,
+        blank=True,
+        null=True,
+        help_text='Is True when "Use_DOI" field is checked in Qvain Light for draft.')
+
     date_deprecated = models.DateTimeField(null=True)
 
     _directory_data = JSONField(null=True, help_text='Stores directory data related to browsing files and directories')
@@ -1117,7 +1123,6 @@ class CatalogRecord(Common):
         self.api_meta['version'] = self.api_version
 
     def _pre_create_operations(self, pid_type=None):
-
         if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create,
                 self.data_catalog.catalog_record_services_create):
             raise Http403({ 'detail': [ 'You are not permitted to create datasets in this data catalog.' ]})
@@ -1154,6 +1159,8 @@ class CatalogRecord(Common):
         elif self._save_as_draft():
             self.state = self.STATE_DRAFT
             self.research_dataset['preferred_identifier'] = 'draft:%s' % self.identifier
+            if self._get_preferred_identifier_type_from_request() == IdentifierType.DOI:
+                self.use_doi_for_draft = True
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -1217,6 +1224,11 @@ class CatalogRecord(Common):
                 dvs.records.add(self)
 
             if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
+                self._validate_cr_against_datacite_schema()
+                self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                                'create'))
+
+            if self.use_doi_for_draft is True:
                 self._validate_cr_against_datacite_schema()
                 self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                                 'create'))

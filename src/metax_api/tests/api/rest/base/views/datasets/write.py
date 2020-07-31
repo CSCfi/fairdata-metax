@@ -397,6 +397,26 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
             self.assertTrue(response.data['state'] == 'published', response.data)
 
+    ###
+    # Tests for use_doi_for_draft -field
+    ###
+
+    def test_use_doi_for_draft_field(self):
+
+        ''' Drafts with 'use_doi' checkbox checked should have 'use_doi_for_draft' == True
+         to tell that pid will be of type DOI when draft is published '''
+
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+        response = self.client.post('/rest/datasets?pid_type=doi&draft=true', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue('use_doi_for_draft' in response.data)
+        self.assertTrue(response.data['use_doi_for_draft'] is True, response.data)
+
+        # Published dataset should not return 'use_doi_for_draft'
+        response = self.client.get('/rest/datasets/1', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('use_doi_for_draft' not in response.data)
+
 
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #

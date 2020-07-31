@@ -20,7 +20,7 @@ from .write import CatalogRecordApiWriteCommon
 
 CR = CatalogRecordV2
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
-
+IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 
 class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
     """
@@ -265,6 +265,31 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
             self.assertTrue(response.data['state'] == 'published', response.data)
 
+    ###
+    # Tests for use_doi_for_draft -field
+    ###
+
+    def test_use_doi_for_draft_field(self):
+        ''' Drafts with 'use_doi' checkbox checked should have 'use_doi_for_draft' == True
+         to tell that pid will be of type DOI when draft is published '''
+
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+        response = self.client.post('/rest/v2/datasets?pid_type=doi&draft=true', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue('use_doi_for_draft' in response.data)
+        self.assertTrue(response.data['use_doi_for_draft'] is True, response.data)
+
+        # publish the draft
+        identifier = response.data['identifier']
+        publish = self.client.post(f'/rpc/v2/datasets/publish_dataset?identifier={identifier}', format="json")
+        self.assertEqual(publish.status_code, status.HTTP_200_OK, publish.data)
+
+        # Published dataset should not return 'use_doi_for_draft'
+        # PID should be of type DOI when dataset is published
+        response = self.client.get('/rest/v2/datasets/%s?include_user_metadata' % identifier, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('use_doi_for_draft' not in response.data)
+        self.assertTrue('doi' in response.data['research_dataset']['preferred_identifier'], response.data)
 
 class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
 
