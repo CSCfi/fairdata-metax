@@ -46,6 +46,18 @@
                     "maxItems":1,
                     "type":"string"
                 },
+                "catalog_record_group_read":{
+                    "title":"Reader group",
+                    "description":"Comma-separated list of groups which are allowed to read catalog records in the catalog.",
+                    "maxItems":1,
+                    "type":"string"
+                },
+                "catalog_record_services_read":{
+                    "title":"Reader services",
+                    "description":"Comma-separated list of services which are allowed to read catalog records in the catalog.",
+                    "maxItems":1,
+                    "type":"string"
+                },
                 "date_modified":{
                     "title":"Date Modified",
                     "description":"Date on which the resource was changed.",

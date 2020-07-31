@@ -120,7 +120,7 @@ class FileSerializer(CommonSerializer):
                     'identifier': instance.parent_directory.identifier,
                 }
 
-        if not self.requested_fields or 'checksum' in self.requested_fields:
+        if not self.requested_fields or any('checksum' in f for f in self.requested_fields):
             res['checksum'] = self.form_checksum(res)
 
         return res

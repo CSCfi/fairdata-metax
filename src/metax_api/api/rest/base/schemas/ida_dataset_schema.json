@@ -345,16 +345,81 @@
             "type":"object",
             "@id":"http://www.w3.org/ns/dcat#Distribution",
             "description":"Directory that links to its contained resources.",
+            "oneOf":[
+                {"$ref": "#/definitions/DirectoryAdditionEvent"},
+                {"$ref": "#/definitions/DirectoryMetadataDeleteEvent"},
+                {"$ref": "#/definitions/DirectoryMetadata"}
+            ]
+        },
+        "DirectoryAdditionEvent":{
+            "title":"Directory addition event",
+            "type":"object",
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "description":"Directory addition that only adds files to a dataset from directory and its subdirectories, or excludes them. Entry is not persisted in dataset metadata.",
             "minProperties":1,
             "properties":{
                 "identifier":{
                     "@id":"http://purl.org/dc/terms/identifier",
                     "title":"Identifier",
-                    "description":"Unique identifier for the distribution",
+                    "description":"Unique identifier of the directory in Metax",
                     "@type":"@id",
                     "minLength":1,
-                    "type":"string",
-                    "format":"uri"
+                    "type":"string"
+                },
+                "exclude":{
+                    "title":"Exclude",
+                    "description":"Directory is excluded from dataset.",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "type":"boolean"
+                }
+            },
+            "required":[
+                "identifier"
+            ],
+            "additionalProperties": false
+        },
+        "DirectoryMetadataDeleteEvent":{
+            "title":"Directory metadata delete event",
+            "type":"object",
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "description":"Delete directory user metadata. Does not remove actual files from the dataset. Entry is not persisted in dataset metadata.",
+            "minProperties":1,
+            "properties":{
+                "identifier":{
+                    "@id":"http://purl.org/dc/terms/identifier",
+                    "title":"Identifier",
+                    "description":"Unique identifier of the directory in Metax",
+                    "@type":"@id",
+                    "minLength":1,
+                    "type":"string"
+                },
+                "delete":{
+                    "title":"Exclude",
+                    "description":"Directory user metadata is deleted.",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "type":"boolean"
+                }
+            },
+            "required":[
+                "identifier",
+                "delete"
+            ],
+            "additionalProperties": false
+        },
+        "DirectoryMetadata":{
+            "title":"Directory in file storage",
+            "type":"object",
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "description":"Metadata about a directory and its contained files.",
+            "minProperties":1,
+            "properties":{
+                "identifier":{
+                    "@id":"http://purl.org/dc/terms/identifier",
+                    "title":"Identifier",
+                    "description":"Unique identifier of the directory in Metax",
+                    "@type":"@id",
+                    "minLength":1,
+                    "type":"string"
                 },
                 "title":{
                     "@id":"http://purl.org/dc/terms/title",
@@ -504,6 +569,17 @@
             "type":"object",
             "@id":"http://www.w3.org/ns/dcat#Distribution",
             "description":"File in file storage",
+            "oneOf":[
+                {"$ref": "#/definitions/FileAdditionEvent"},
+                {"$ref": "#/definitions/FileMetadataDeleteEvent"},
+                {"$ref": "#/definitions/FileMetadata"}
+            ]
+        },
+        "FileMetadata":{
+            "title":"File in file storage",
+            "type":"object",
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "description":"File in file storage",
             "minProperties":1,
             "properties":{
                 "identifier":{
@@ -552,6 +628,62 @@
                 "identifier",
                 "use_category",
                 "title"
+            ],
+            "additionalProperties": false
+        },
+        "FileAdditionEvent":{
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "title":"File addition event",
+            "type":"object",
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "description":"File addition that only adds files to a dataset, or excludes them. Entry is not persisted in dataset metadata.",
+            "minProperties":1,
+            "properties":{
+                "identifier":{
+                    "@id":"http://purl.org/dc/terms/identifier",
+                    "title":"Identifier",
+                    "description":"Unique identifier of the file in Metax",
+                    "@type":"@id",
+                    "minLength":1,
+                    "type":"string"
+                },
+                "exclude":{
+                    "title":"Exclude",
+                    "description":"File is excluded from dataset.",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "type":"boolean"
+                }
+            },
+            "required":[
+                "identifier"
+            ],
+            "additionalProperties": false
+        },
+        "FileMetadataDeleteEvent":{
+            "title":"File metadata delete event",
+            "type":"object",
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "description":"Delete file user metadata. Does not remove actual files from the dataset. Entry is not persisted in dataset metadata.",
+            "minProperties":1,
+            "properties":{
+                "identifier":{
+                    "@id":"http://purl.org/dc/terms/identifier",
+                    "title":"Identifier",
+                    "description":"Unique identifier of the directory in Metax",
+                    "@type":"@id",
+                    "minLength":1,
+                    "type":"string"
+                },
+                "delete":{
+                    "title":"Exclude",
+                    "description":"File user metadata is deleted.",
+                    "@type":"http://www.w3.org/2001/XMLSchema#boolean",
+                    "type":"boolean"
+                }
+            },
+            "required":[
+                "identifier",
+                "delete"
             ],
             "additionalProperties": false
         },
@@ -1019,10 +1151,16 @@
                 }
             },
             "anyOf":[
-                {"required":
-                  ["identifier"]},
-                {"required":
-                  ["license"]}
+                {
+                    "required": [
+                        "identifier"
+                    ]
+                },
+                {
+                    "required": [
+                        "license"
+                    ]
+                }
             ],
             "additionalProperties": false
         },

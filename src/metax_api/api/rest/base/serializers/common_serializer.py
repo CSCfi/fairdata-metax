@@ -15,6 +15,7 @@ from rest_framework.fields import SkipField
 from rest_framework.relations import PKOnlyObject
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
+from metax_api.exceptions import Http400
 
 from metax_api.models import Common
 
@@ -25,7 +26,7 @@ _logger = logging.getLogger(__name__)
 class CommonSerializer(ModelSerializer):
 
     # when query parameter ?fields=x,y is used, will include a list of fields to return
-    requested_fields = None
+    requested_fields = []
 
     class Meta:
         model = Common
@@ -65,8 +66,6 @@ class CommonSerializer(ModelSerializer):
         in the kw arg 'only_fields', when serializing objects outside of the common GET
         api's.
         """
-        if 'only_fields' in kwargs:
-            self.requested_fields = kwargs.pop('only_fields')
 
         super(CommonSerializer, self).__init__(*args, **kwargs)
 
@@ -91,8 +90,11 @@ class CommonSerializer(ModelSerializer):
             # to do so. solution: read the docs and be aware of it.
             self.partial = True
 
-        if not self.requested_fields and 'request' in self.context and 'fields' in self.context['request'].query_params:
-            self.requested_fields = self.context['request'].query_params['fields'].split(',')
+        if 'only_fields' in kwargs:
+            self.requested_fields = kwargs.pop('only_fields')
+
+        elif 'request' in self.context and 'fields' in self.context['request'].query_params:
+            self.requested_fields = self.context['view'].fields
 
     @transaction.atomic
     def save(self, *args, **kwargs):
@@ -308,10 +310,9 @@ class LightSerializer():
             # fields to the db will cause crash.
             field_list = [ field for field in received_field_list if field in cls.allowed_fields ]
             if not field_list:
-                raise Exception(
-                    'uh oh, none of the fields you requested are listed in allowed_fields. '
-                    'received fields: %s' % str(received_field_list)
-                )
+                raise Http400({ 'detail': ['uh oh, none of the fields you requested are listed in allowed_fields. '
+                    'received fields: %s' % str(received_field_list)] })
+
         else:
             # get all fields
             field_list = cls.allowed_fields
@@ -327,7 +328,7 @@ class LightSerializer():
 
         The end result is supposed to look the same as normally from a serializer.
         """
-        assert type(unserialized_data) in (QuerySet, dict), 'unserialized_data type must be QuerySet or dict'
+        assert type(unserialized_data) in (QuerySet, dict, list), 'unserialized_data type must be QuerySet or dict'
         assert isinstance(cls.special_fields, set), 'light serializer must specify special_fields as a set()'
         assert isinstance(cls.relation_fields, set), 'light serializer must specify relation_fields as a set()'
 
@@ -339,10 +340,10 @@ class LightSerializer():
         for field in relation_fields:
             _relation_id_fields.add('%s_id' % field)
 
-        if isinstance(unserialized_data, QuerySet):
+        if isinstance(unserialized_data, (QuerySet, list)):
             unserialized_data = unserialized_data
             multi = True
-        else:
+        if isinstance(unserialized_data, dict):
             unserialized_data = [unserialized_data]
             multi = False
 

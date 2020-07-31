@@ -192,9 +192,10 @@ class ApiStreamHttpResponse(CatalogRecordApiWriteCommon):
         self.assertEqual(response.streaming, False)
 
     def test_streaming_json(self):
-        response = self.client.get('/rest/datasets?no_pagination=true&stream=true')
+        response = self.client.get('/rest/datasets?pagination=false&stream=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.streaming, True)
-        response = self.client.get('/rest/files?no_pagination=true&stream=true')
+
+        response = self.client.get('/rest/files?pagination=false&stream=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.streaming, True)

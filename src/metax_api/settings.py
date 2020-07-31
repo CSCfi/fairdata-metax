@@ -128,7 +128,11 @@ if executing_in_test_case or executing_in_travis:
                 "get_minimal_dataset_template": { "use": ["all"] },
                 "refresh_directory_content": { "use": ["all"]},
                 "fix_deprecated": { "use": ["all"] },
-                "set_preservation_identifier": { "use": ["metax", "tpas"] }
+                "set_preservation_identifier": { "use": ["metax", "tpas"] },
+                "create_new_version": { "use": ["all"] },
+                "publish_dataset": { "use": ["all"] },
+                "create_draft": { "use": ["all"] },
+                "merge_draft": { "use": ["all"] },
             },
             "files": {
                 "delete_project": { "use": ["testuser", "metax"] }
@@ -155,6 +159,10 @@ elif METAX_ENV == 'test':
         perms['create'] = ['all']
         perms['update'] = ['all']
         perms['delete'] = ['all']
+
+    for api, functions in API_ACCESS['rpc'].items():
+        for function, perms in functions.items():
+            perms['use'] = ['all']
 else:
     # localdev, stable, production
     API_ACCESS = app_config_dict['API_ACCESS']
@@ -513,7 +521,7 @@ if not executing_in_travis:
         }
     }
 
-if executing_in_travis:
+if executing_in_test_case or executing_in_travis:
     ELASTICSEARCH = {
         'HOSTS': ['metax.fairdata.fi/es'],
         'USE_SSL': True,
@@ -616,7 +624,16 @@ else:
         'FORM_ID':          int(app_config_dict.get('REMS', {}).get('FORM_ID')),
     }
 
+# draft_enabled flag controls v1 drafts. v2 api has always drafts enabled
 if executing_in_test_case or executing_in_travis:
     DRAFT_ENABLED = True
 else:
     DRAFT_ENABLED = app_config_dict.get('DRAFT_ENABLED', False)
+
+if executing_in_test_case or executing_in_travis:
+    API_VERSIONS_ENABLED = [
+        "v1",
+        "v2"
+    ]
+else:
+    API_VERSIONS_ENABLED = app_config_dict.get('API_VERSIONS_ENABLED', [])
