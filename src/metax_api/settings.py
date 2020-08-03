@@ -532,7 +532,7 @@ else:
         'HOSTS': app_config_dict['ELASTICSEARCH']['HOSTS'],
         # normally cache is reloaded from elasticsearch only if reference data is missing.
         # for one-off reload / debugging / development, use below flag
-        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': app_config_dict['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART'],
     }
 
 # given in seconds. Used only if ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART=false

@@ -3,7 +3,7 @@ datacite==1.0.1 # BSD-license. convert datasets to datacite xml. datacite metada
 python-dateutil==2.8.1
 Django==3.0.7  # BSD-license
 elasticsearch5 # only needed before ES has been updated in all envs
-elasticsearch==7.8.0
+elasticsearch>=7.0.0,<8.0.0
 hiredis==1.0.1 # Used by redis (redis-py) for parser
 djangorestframework==3.11.0  # BSD-license
 django-rainbowtests==0.6.0 # colored test output

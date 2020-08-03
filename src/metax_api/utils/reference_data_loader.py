@@ -80,7 +80,7 @@ class ReferenceDataLoader():
             reference_data[index_name] = {}
 
             # a cumbersome way to fetch the types, but supposedly the only way because nginx restricts ES usage
-            # if localhost is not used.
+            # if local elasticsearch is not used.
             aggr_types = esclient.search(
                 index=index_name,
                 body={"aggs": { "types": {"terms": {"field": "type", "size": 30}}}},
@@ -171,7 +171,7 @@ class ReferenceDataLoader():
         This is needed in the transition between elasticsearch major versions because
         clients are not compatible with each other and at least travis using production ES. When Elasticsearch
         has been updated in every environment, this can be removed and just import the client as usual.
-        
+
         Checking the correct version of the used elasticsearch is difficult, because version cannot be
         queried from clusters behind nginx. Only way found was to find some change in the responses of
         different versions and based on that decide which client to use.
@@ -180,16 +180,18 @@ class ReferenceDataLoader():
         issue raises. It might be also good to leave this function here and utilize it on
         coming ES updates as well.
         """
-        from elasticsearch5 import Elasticsearch
-        from elasticsearch5.helpers import scan
+        from elasticsearch5 import Elasticsearch as es5
+        from elasticsearch5.helpers import scan as scan5
 
-        es = Elasticsearch(hosts, **conn_params)
+        es = es5(hosts, **conn_params)
+        scan = scan5
 
         # from ES 7.0 onwards, total attribute changed from int to object
         if isinstance(es.search(index='reference_data')['hits']['total'], dict):
-            from elasticsearch import Elasticsearch
-            from elasticsearch.helpers import scan
+            from elasticsearch import Elasticsearch as es7
+            from elasticsearch.helpers import scan as scan7
 
-            es = Elasticsearch(hosts, **conn_params)      
+            es = es7(hosts, **conn_params)
+            scan = scan7
 
         return es, scan
