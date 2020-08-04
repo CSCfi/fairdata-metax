@@ -255,7 +255,7 @@ class CatalogRecord(Common):
     deprecated = models.BooleanField(
         default=False, help_text='Is True when files attached to a dataset have been deleted in IDA.')
 
-    use_doi_for_draft = models.BooleanField(
+    use_doi_for_published = models.BooleanField(
         default=None,
         blank=True,
         null=True,
@@ -1160,7 +1160,9 @@ class CatalogRecord(Common):
             self.state = self.STATE_DRAFT
             self.research_dataset['preferred_identifier'] = 'draft:%s' % self.identifier
             if self._get_preferred_identifier_type_from_request() == IdentifierType.DOI:
-                self.use_doi_for_draft = True
+                self.use_doi_for_published = True
+            else:
+                self.use_doi_for_published = False
         else:
             if pref_id_type == IdentifierType.URN:
                 self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
@@ -1223,12 +1225,8 @@ class CatalogRecord(Common):
                 dvs.save()
                 dvs.records.add(self)
 
-            if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-                self._validate_cr_against_datacite_schema()
-                self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
-                                                                'create'))
-
-            if self.use_doi_for_draft is True:
+            if (get_identifier_type(self.preferred_identifier) == IdentifierType.DOI or
+            self.use_doi_for_published is True):
                 self._validate_cr_against_datacite_schema()
                 self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                                 'create'))

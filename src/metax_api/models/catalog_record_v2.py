@@ -102,12 +102,6 @@ class CatalogRecordV2(CatalogRecord):
 
         self._set_api_version()
 
-        if self._save_as_draft():
-            self.state = self.STATE_DRAFT
-            self.research_dataset['preferred_identifier'] = 'draft:%s' % self.identifier
-            if self._get_preferred_identifier_type_from_request() == IdentifierType.DOI:
-                self.use_doi_for_draft = True
-
     def _post_create_operations(self, pid_type=None):
         if 'files' in self.research_dataset or 'directories' in self.research_dataset:
 
@@ -127,6 +121,11 @@ class CatalogRecordV2(CatalogRecord):
 
             self.research_dataset['preferred_identifier'] = 'draft:%s' % self.identifier
 
+            if self._get_preferred_identifier_type_from_request() == IdentifierType.DOI:
+                self.use_doi_for_published = True
+            else:
+                self.use_doi_for_published = False
+
             super(Common, self).save(update_fields=['research_dataset'])
 
             _logger.info(
@@ -135,9 +134,6 @@ class CatalogRecordV2(CatalogRecord):
             )
 
         else:
-            if self.use_doi_for_draft is True:
-                pid_type = IdentifierType.DOI
-
             self.publish_dataset(pid_type=pid_type)
 
         # logs correctly whether dataset is created into draft state, or also published
@@ -195,11 +191,12 @@ class CatalogRecordV2(CatalogRecord):
             _logger.debug('Catalog is PAS - Using DOI as pref_id_type')
             # todo: default identifier type could probably be a parameter of the data catalog
             pref_id_type = IdentifierType.DOI
-        elif self.use_doi_for_draft is True:
+        elif self.use_doi_for_published is True:
             pref_id_type = IdentifierType.DOI
-            self.use_doi_for_draft = None
         else:
             pref_id_type = pid_type or self._get_preferred_identifier_type_from_request()
+
+        self.use_doi_for_published = None
 
         if self.catalog_is_harvested():
             _logger.debug('Note: Catalog is harvested')

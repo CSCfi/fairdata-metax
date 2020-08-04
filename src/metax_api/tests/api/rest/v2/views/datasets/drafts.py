@@ -266,30 +266,71 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
             self.assertTrue(response.data['state'] == 'published', response.data)
 
     ###
-    # Tests for use_doi_for_draft -field
+    # Tests for use_doi_for_published -field
     ###
 
-    def test_use_doi_for_draft_field(self):
-        ''' Drafts with 'use_doi' checkbox checked should have 'use_doi_for_draft' == True
+    def test_use_doi_for_published_field(self):
+        ''' Drafts with 'use_doi' checkbox checked should have 'use_doi_for_published' == True
          to tell that pid will be of type DOI when draft is published '''
 
         self.cr_test_data['data_catalog'] = IDA_CATALOG
         response = self.client.post('/rest/v2/datasets?pid_type=doi&draft=true', self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue('use_doi_for_draft' in response.data)
-        self.assertTrue(response.data['use_doi_for_draft'] is True, response.data)
+        self.assertTrue('use_doi_for_published' in response.data)
+        self.assertTrue(response.data['use_doi_for_published'] is True, response.data)
+
+        # update draft & toggle use_doi_for_published-field
+        identifier = response.data['identifier']
+
+        response.data['use_doi_for_published'] = False
+        update = self.client.put(f'/rest/v2/datasets/{identifier}', response.data, format="json")
+        self.assertEqual(update.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['use_doi_for_published'] is False, response.data)
+
+        update.data['use_doi_for_published'] = True
+        toggle = self.client.put(f'/rest/v2/datasets/{identifier}', update.data, format="json")
+        self.assertTrue(toggle.data['use_doi_for_published'] is True, toggle.data)
 
         # publish the draft
-        identifier = response.data['identifier']
         publish = self.client.post(f'/rpc/v2/datasets/publish_dataset?identifier={identifier}', format="json")
         self.assertEqual(publish.status_code, status.HTTP_200_OK, publish.data)
 
-        # Published dataset should not return 'use_doi_for_draft'
+        # Published dataset should not return 'use_doi_for_published'
         # PID should be of type DOI when dataset is published
-        response = self.client.get('/rest/v2/datasets/%s?include_user_metadata' % identifier, format='json')
+        response = self.client.get(f'/rest/v2/datasets/{identifier}?include_user_metadata', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue('use_doi_for_draft' not in response.data)
+        self.assertTrue('use_doi_for_published' not in response.data)
         self.assertTrue('doi' in response.data['research_dataset']['preferred_identifier'], response.data)
+
+    def test_use_doi_for_published_field_not_in_use(self):
+        ''' Drafts with 'use_doi' checkbox unchecked should have
+         pid of type URN when draft is published '''
+
+        for call in ('/rest/v2/datasets?pid_type=urn&draft=true', '/rest/v2/datasets?draft=true'):
+            self.cr_test_data['data_catalog'] = IDA_CATALOG
+            response = self.client.post(call, self.cr_test_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertTrue('use_doi_for_published' in response.data)
+            self.assertTrue(response.data['use_doi_for_published'] is False, response.data)
+
+            # update draft & toggle use_doi_for_published-field
+            identifier = response.data['identifier']
+
+            response.data['use_doi_for_published'] = True
+            update = self.client.put(f'/rest/v2/datasets/{identifier}', response.data, format="json")
+            self.assertTrue(response.data['use_doi_for_published'] is True, response.data)
+
+            update.data['use_doi_for_published'] = False
+            toggle = self.client.put(f'/rest/v2/datasets/{identifier}', update.data, format="json")
+            self.assertTrue(toggle.data['use_doi_for_published'] is False, toggle.data)
+
+            # publish the draft
+            publish = self.client.post(f'/rpc/v2/datasets/publish_dataset?identifier={identifier}', format="json")
+            self.assertEqual(publish.status_code, status.HTTP_200_OK, publish.data)
+
+            response = self.client.get(f'/rest/v2/datasets/{identifier}?include_user_metadata', format='json')
+            self.assertTrue('use_doi_for_published' not in response.data)
+            self.assertTrue('urn' in response.data['research_dataset']['preferred_identifier'], response.data)
 
 class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
 
