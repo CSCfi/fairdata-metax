@@ -81,6 +81,7 @@ class CatalogRecordSerializer(CommonSerializer):
             'previous_dataset_version',
             'mets_object_identifier',
             'state',
+            'use_doi_for_published',
             'editor',
             'cumulative_state',
             'date_cumulation_started',
