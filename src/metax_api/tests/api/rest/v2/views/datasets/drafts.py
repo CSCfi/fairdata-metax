@@ -291,6 +291,10 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         toggle = self.client.put(f'/rest/v2/datasets/{identifier}', update.data, format="json")
         self.assertTrue(toggle.data['use_doi_for_published'] is True, toggle.data)
 
+        # Get the dataset afterwards and check that new field is there
+        response = self.client.get(f'/rest/v2/datasets/{identifier}', format='json')
+        self.assertTrue('use_doi_for_published' in response.data, response.data)
+
         # publish the draft
         publish = self.client.post(f'/rpc/v2/datasets/publish_dataset?identifier={identifier}', format="json")
         self.assertEqual(publish.status_code, status.HTTP_200_OK, publish.data)

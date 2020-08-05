@@ -1226,10 +1226,10 @@ class CatalogRecord(Common):
                 dvs.records.add(self)
 
             if (get_identifier_type(self.preferred_identifier) == IdentifierType.DOI or
-            self.use_doi_for_published is True):
+                    self.use_doi_for_published is True):
                 self._validate_cr_against_datacite_schema()
-                self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
-                                                                'create'))
+                self.add_post_request_callable(DataciteDOIUpdate(self,
+                                        self.research_dataset['preferred_identifier'], 'create'))
 
             if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
                 self._pre_rems_creation()

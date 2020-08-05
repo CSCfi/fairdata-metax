@@ -126,7 +126,7 @@ class CatalogRecordV2(CatalogRecord):
             else:
                 self.use_doi_for_published = False
 
-            super(Common, self).save(update_fields=['research_dataset'])
+            super(Common, self).save(update_fields=['research_dataset', 'use_doi_for_published'])
 
             _logger.info(
                 'Created a new <CatalogRecord id: %d, identifier: %s, state: draft>'
