@@ -397,6 +397,39 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
             self.assertTrue(response.data['state'] == 'published', response.data)
 
+    ###
+    # Tests for use_doi_for_published -field
+    ###
+
+    def test_use_doi_for_published_field(self):
+
+        ''' Drafts with 'use_doi' checkbox checked should have 'use_doi_for_published' == True
+         to tell that pid will be of type DOI when draft is published
+         Moreover, in v1 drafts can't be published so this test is shorter than in v2 side'''
+
+        #Check for DOI
+        self.cr_test_data['data_catalog'] = IDA_CATALOG
+        response = self.client.post('/rest/datasets?pid_type=doi&draft=true', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue('use_doi_for_published' in response.data)
+        self.assertTrue(response.data['use_doi_for_published'] is True, response.data)
+
+        # Published dataset should not return 'use_doi_for_published'
+        response = self.client.get('/rest/datasets/%s' % self.cr_test_data['id'], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('use_doi_for_published' not in response.data)
+
+        #Same when user doesn't want DOI
+        response = self.client.post('/rest/datasets?pid_type=urn&draft=true', self.cr_test_data, format="json")
+        self.assertTrue(response.data['use_doi_for_published'] is False, response.data)
+
+        response = self.client.post('/rest/datasets?draft=true', self.cr_test_data, format="json")
+        self.assertTrue(response.data['use_doi_for_published'] is False, response.data)
+
+        # Published dataset should not return 'use_doi_for_published'
+        response = self.client.get('/rest/datasets/%s' % self.cr_test_data['id'], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('use_doi_for_published' not in response.data)
 
 class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
