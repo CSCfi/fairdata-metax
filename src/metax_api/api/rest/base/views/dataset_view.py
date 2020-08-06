@@ -306,10 +306,11 @@ class DatasetViewSet(CommonViewSet):
 
         if 'id' in request.query_params:
             # in order to update one record only, use query param ?id=integer. useful for testcases
-            records = self.object.objects.filter(pk=request.query_params['id']).only('id')
+            records = self.object.objects.filter(pk=request.query_params['id'], deprecated=False).only('id')
         else:
-            records = self.object.objects.filter(data_catalog__catalog_json__research_dataset_schema='ida') \
-                .only('id')
+            records = self.object.objects \
+                                 .filter(data_catalog__catalog_json__research_dataset_schema='ida', deprecated=False) \
+                                 .only('id')
 
         from time import time
 
