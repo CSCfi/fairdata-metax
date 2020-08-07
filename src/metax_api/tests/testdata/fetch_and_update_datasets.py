@@ -66,7 +66,7 @@ def retrieve_and_update_all_datasets_in_db(headers):
         print('Received no records. Quiting...')
         return
 
-    print('Checking that received datasets are test datasets...')
+    print('Filtering out possible non-test datasets...')
     test_records = []
     for record in records:
         if _dataset_is_testdata(record):
@@ -74,9 +74,9 @@ def retrieve_and_update_all_datasets_in_db(headers):
 
     # dont want to create new versions from datasets for this operation,
     # so use parameter preserve_version
-    print('updating the datasets...')
+    print('updating the test datasets...')
     response = requests.put('https://localhost/rest/datasets?preserve_version',
-        headers=headers, data=dumps(records), verify=False)
+        headers=headers, data=dumps(test_records), verify=False)
 
     if response.status_code not in (200, 201, 204):
         print(response.status_code)
