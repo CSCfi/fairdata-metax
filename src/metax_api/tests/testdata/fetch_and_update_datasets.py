@@ -40,33 +40,50 @@ def get_auth_header():
             }
 
 
-def retrieve_and_update_all_datasets_in_db(headers):
-    print('-- begin retrieving and updating all datasets in the db --')
+def _dataset_is_testdata(record):
+    # Test datasets have fixed attributes so these should verify that it is a test dataset
+    # Other tests could be added but these should be sufficient
+    end = f'd{record["id"]}' if record['id'] < 10 else f'{record["id"]}'
 
-    print('retrieving all datasets...')
-    response = requests.get('https://localhost/rest/datasets?pagination=false',
+    if record['identifier'] != f'cr955e904-e3dd-4d7e-99f1-3fed446f96{end}' or \
+            record['research_dataset']['creator'][0]['name'] != 'Teppo Testaaja':
+        return False
+
+    return True
+
+def retrieve_and_update_all_datasets_in_db(headers):
+    print('-- begin retrieving and updating test datasets --')
+
+    print('retrieving datasets...')
+    response = requests.get('https://localhost/rest/datasets?metadata_owner_org=abc-org-123&pagination=false',
         headers=headers, verify=False)
     if response.status_code != 200:
         raise Exception(response.content)
 
-    records = response.json() if isinstance(response.json(), list) else []
-    n = 100
-    print('received %d datasets' % len(records))
-    print('updating datasets in batches of %d using bulk update...' % n)
+    records = response.json()
+
+    if not records:
+        print('Received no records. Quiting...')
+        return
+
+    print('Filtering out possible non-test datasets...')
+    test_records = []
+    for record in records:
+        if _dataset_is_testdata(record):
+            test_records.append(record)
 
     # dont want to create new versions from datasets for this operation,
     # so use parameter preserve_version
-    # using loop to spare our dear test server
-    for i in range(0, len(records), n):
-        response = requests.put('https://localhost/rest/datasets?preserve_version',
-            headers=headers, data=dumps(records[i:i + n]), verify=False)
+    print('updating the test datasets...')
+    response = requests.put('https://localhost/rest/datasets?preserve_version',
+        headers=headers, data=dumps(test_records), verify=False)
 
-        if response.status_code not in (200, 201, 204):
-            print(response.status_code)
-            raise Exception(response.text)
-        elif response.text and len(response.json().get('failed', [])) > 0:
-            for fail in response.json().get('failed'):
-                raise Exception(fail)
+    if response.status_code not in (200, 201, 204):
+        print(response.status_code)
+        raise Exception(response.text)
+    elif response.text and len(response.json().get('failed', [])) > 0:
+        for fail in response.json().get('failed'):
+            raise Exception(fail)
 
     print('-- done --')
 
