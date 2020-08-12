@@ -70,6 +70,22 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         cr = self.client.get('/rest/v2/datasets/13').data
         self.assertEqual('state' in cr, True)
 
+    def _test_issued_date_is_mandatory(self):
+        ''' Issued date is mandatory only for ida and att- catalogs '''
+        # ATT
+        self.cr_full_att_test_data['research_dataset'].pop('issued', None)
+
+        response = self.client.post('/rest/v2/datasets?draft=true', self.cr_full_att_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue('issued' in response.data['research_dataset'], response.data)
+
+        # IDA
+        self.cr_full_ida_test_data['research_dataset'].pop('issued', None)
+
+        response = self.client.post('/rest/v2/datasets', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue('issued' in response.data['research_dataset'], response.data)
+
     def test_change_state_field_through_API(self):
         """Fetch a dataset and change its state.
         Value should remain: 'published' """

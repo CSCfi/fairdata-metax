@@ -126,6 +126,8 @@ class CatalogRecordV2(CatalogRecord):
             else:
                 self.use_doi_for_published = False
 
+            self._handle_issued_date()
+
             super(Common, self).save(update_fields=['research_dataset', 'use_doi_for_published'])
 
             _logger.info(
@@ -162,6 +164,14 @@ class CatalogRecordV2(CatalogRecord):
         """
         from metax_api.services import CommonService
         return CommonService.get_boolean_query_param(self.request, 'draft')
+
+    def _handle_issued_date(self):
+        if (self.catalog_is_ida() or self.catalog_is_att()):
+            if 'issued' not in self.research_dataset:
+                try:
+                    self.research_dataset['issued'] = datetime_to_str(self.date_created)[0:10]
+                except:
+                    raise Http400('Issued_date must have a value')
 
     def publish_dataset(self, pid_type=None):
         """
@@ -269,6 +279,8 @@ class CatalogRecordV2(CatalogRecord):
 
         if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
             self._pre_rems_creation()
+
+        self._handle_issued_date()
 
         if self.api_version != self.api_meta['version']:
             self._set_api_version()

@@ -44,6 +44,7 @@ ACCESS_TYPES = {
 LEGACY_CATALOGS = settings.LEGACY_CATALOGS
 IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
 PAS_CATALOG = settings.PAS_DATA_CATALOG_IDENTIFIER
+ATT_CATALOG = settings.ATT_DATA_CATALOG_IDENTIFIER
 
 
 class DiscardRecord(Exception):
@@ -1050,6 +1051,9 @@ class CatalogRecord(Common):
     def catalog_is_ida(self):
         return self.data_catalog.catalog_json['identifier'] == IDA_CATALOG
 
+    def catalog_is_att(self):
+        return self.data_catalog.catalog_json['identifier'] == ATT_CATALOG
+
     def catalog_is_pas(self):
         return self.data_catalog.catalog_json['identifier'] == PAS_CATALOG
 
@@ -1196,6 +1200,13 @@ class CatalogRecord(Common):
                 raise Http400('Dataset cannot be cumulative if it is in PAS process')
 
             self.date_cumulation_started = self.date_created
+
+        if (self.catalog_is_ida() or self.catalog_is_att()):
+            if 'issued' not in self.research_dataset:
+                try:
+                    self.research_dataset['issued'] = datetime_to_str(self.date_created)[0:10]
+                except:
+                    raise Http400('Issued_date must have a value')
 
         self._set_api_version()
 
