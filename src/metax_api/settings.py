@@ -521,7 +521,7 @@ if not executing_in_travis:
         }
     }
 
-if executing_in_test_case or executing_in_travis:
+if executing_in_travis:
     ELASTICSEARCH = {
         'HOSTS': ['metax.fairdata.fi/es'],
         'USE_SSL': True,

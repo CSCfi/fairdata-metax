@@ -5,9 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-import logging
+from copy import deepcopy
 from collections import OrderedDict
 from datetime import datetime
+import logging
 
 from django.db import transaction
 from django.db.models.query import QuerySet
@@ -315,7 +316,8 @@ class LightSerializer():
 
         else:
             # get all fields
-            field_list = cls.allowed_fields
+            # deepcopy prevents inheriting classes from modifying the allowed_fields -set which should be static
+            field_list = deepcopy(cls.allowed_fields)
 
         return field_list
 
