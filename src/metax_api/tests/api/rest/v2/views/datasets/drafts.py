@@ -64,27 +64,19 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         cr.data_catalog_id = DataCatalog.objects.get(catalog_json__identifier=END_USER_ALLOWED_DATA_CATALOGS[0]).id
         cr.force_save()
 
-    def test_field_exists(self):
+    def test_field_state_exists(self):
         """Try fetching any dataset, field 'state' should be returned'"""
 
         cr = self.client.get('/rest/v2/datasets/13').data
         self.assertEqual('state' in cr, True)
 
-    def _test_issued_date_is_mandatory(self):
-        ''' Issued date is mandatory only for ida and att- catalogs '''
-        # ATT
-        self.cr_full_att_test_data['research_dataset'].pop('issued', None)
-
-        response = self.client.post('/rest/v2/datasets?draft=true', self.cr_full_att_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue('issued' in response.data['research_dataset'], response.data)
-
-        # IDA
+    def _test_issued_date_is_not_mandatory(self):
+        ''' Issued date is not mandatory for drafts '''
         self.cr_full_ida_test_data['research_dataset'].pop('issued', None)
 
-        response = self.client.post('/rest/v2/datasets', self.cr_full_ida_test_data, format="json")
+        response = self.client.post('/rest/v2/datasets?draft=true', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue('issued' in response.data['research_dataset'], response.data)
+        self.assertTrue('issued' not in response.data['research_dataset'], response.data)
 
     def test_change_state_field_through_API(self):
         """Fetch a dataset and change its state.

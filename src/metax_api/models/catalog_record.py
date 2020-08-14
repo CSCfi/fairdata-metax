@@ -1064,6 +1064,11 @@ class CatalogRecord(Common):
         from metax_api.services import CommonService
         return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
 
+    def _handle_issued_date(self):
+        if not (self.catalog_is_harvested() or self._save_as_draft()):
+            if 'issued' not in self.research_dataset:
+                self.research_dataset['issued'] = datetime_to_str(self.date_created)[0:10]
+
     def get_metadata_version_listing(self):
         entries = []
         for entry in self.research_dataset_versions.all():
@@ -1201,12 +1206,7 @@ class CatalogRecord(Common):
 
             self.date_cumulation_started = self.date_created
 
-        if (self.catalog_is_ida() or self.catalog_is_att()):
-            if 'issued' not in self.research_dataset:
-                try:
-                    self.research_dataset['issued'] = datetime_to_str(self.date_created)[0:10]
-                except:
-                    raise Http400('Issued_date must have a value')
+        self._handle_issued_date()
 
         self._set_api_version()
 

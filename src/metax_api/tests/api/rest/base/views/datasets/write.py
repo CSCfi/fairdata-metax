@@ -3509,16 +3509,6 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         del self.cr_test_data['research_dataset']['files']
         del self.cr_test_data['research_dataset']['total_files_byte_size']
 
-    def test_issued_date_not_mandatory(self):
-        # Issued date is mandatory only for ida and att- catalogs
-        self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
-        self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
-        self.cr_test_data['research_dataset'].pop('issued', None)
-
-        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue('issued' not in response.data['research_dataset'], response.data)
-
     def test_legacy_catalog_pids_are_not_unique(self):
         # values provided as pid values in legacy catalogs are not required to be unique
         # within the catalog.

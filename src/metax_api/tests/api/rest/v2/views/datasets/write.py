@@ -186,7 +186,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
 
     def test_issued_date_is_mandatory(self):
         ''' Issued date is mandatory only for ida and att- catalogs '''
-        # ATT
+
         for catalog in [ATT_CATALOG, IDA_CATALOG]:
             dc = DataCatalog.objects.get(pk=2)
             dc.catalog_json['identifier'] = catalog
@@ -196,7 +196,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             self.cr_test_data['data_catalog'] = dc.catalog_json
             self.cr_test_data['research_dataset'].pop('issued', None)
 
-            response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+            response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
             self.assertTrue('issued' in response.data['research_dataset'], response.data)
 
@@ -1345,16 +1345,6 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         dc.force_save()
         del self.cr_test_data['research_dataset']['files']
         del self.cr_test_data['research_dataset']['total_files_byte_size']
-
-    def test_issued_date_not_mandatory(self):
-        # Issued date is mandatory only for ida and att- catalogs
-        self.cr_test_data['data_catalog'] = LEGACY_CATALOGS[0]
-        self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
-        self.cr_test_data['research_dataset'].pop('issued', None)
-
-        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue('issued' not in response.data['research_dataset'], response.data)
 
     def test_legacy_catalog_pids_are_not_unique(self):
         # values provided as pid values in legacy catalogs are not required to be unique
