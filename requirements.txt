@@ -2,8 +2,8 @@ coveralls==2.0.0 # code coverage reportin in travis
 datacite==1.0.1 # BSD-license. convert datasets to datacite xml. datacite metadata store api wrappers
 python-dateutil==2.8.1
 Django==3.0.7  # BSD-license
-elasticsearch5 # only needed before ES has been updated in all envs
 elasticsearch>=7.0.0,<8.0.0
+elasticsearch5 # only needed before ES has been updated in all envs
 hiredis==1.0.1 # Used by redis (redis-py) for parser
 djangorestframework==3.11.0  # BSD-license
 django-rainbowtests==0.6.0 # colored test output
