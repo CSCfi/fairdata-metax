@@ -70,13 +70,25 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         cr = self.client.get('/rest/v2/datasets/13').data
         self.assertEqual('state' in cr, True)
 
-    def _test_issued_date_is_not_mandatory(self):
-        ''' Issued date is not mandatory for drafts '''
+    def _test_issued_date_for_drafts(self):
+        '''  Drafts will have the issued date generated
+             Field remains when dataset is published
+        '''
+        # Draft without issued date
         self.cr_full_ida_test_data['research_dataset'].pop('issued', None)
 
+        # Create issued date for drafts
         response = self.client.post('/rest/v2/datasets?draft=true', self.cr_full_ida_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertTrue('issued' not in response.data['research_dataset'], response.data)
+        self.assertTrue('issued' in response.data['research_dataset'], response.data)
+
+        # Field remains when dataset is published
+        publish = self.client.post('/rpc/v2/datasets/publish_dataset?identifier={}'.format(response.data['identifier']))
+        self.assertEqual(publish.status_code, status.HTTP_200_OK, publish.data)
+
+        published = self.client.get('/rest/v2/datasets/{}'.format(response.data['identifier']))
+        self.assertEqual(published.status_code, status.HTTP_200_OK, published.data)
+        self.assertTrue('issued' in published.data['research_dataset'], published.data)
 
     def test_change_state_field_through_API(self):
         """Fetch a dataset and change its state.
@@ -426,6 +438,26 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
             response.data
         )
         self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
+
+    def test_issued_date_remains_in_merged_draft(self):
+        "When draft is created from published dataset, issued_date should remain"
+
+        cr = self._create_dataset()
+        self.assertEqual('issued' in cr['research_dataset'], True, cr)
+
+        # create draft
+        draft_cr = self._create_draft(cr['id'])
+        self.assertEqual('issued' in draft_cr['research_dataset'], True, draft_cr)
+        self.assertEqual(draft_cr['research_dataset']['issued'],
+            cr['research_dataset']['issued'], 'issued should be the same')
+
+        # merge draft back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
+
+        # Issued date should remain in original published dataset
+        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual('issued' in response.data['research_dataset'], True, response.data)
 
     def test_add_files_to_draft_normal_dataset(self):
         """

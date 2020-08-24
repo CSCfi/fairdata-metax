@@ -440,8 +440,8 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
     #
 
-    def test_issued_date_is_mandatory(self):
-        ''' Issued date is mandatory only for ida and att- catalogs '''
+    def test_issued_date_is_generated(self):
+        ''' Issued date is generated for all but harvested catalogs if it doesn't exists '''
         # ATT
         for catalog in [ATT_CATALOG, IDA_CATALOG]:
             dc = DataCatalog.objects.get(pk=2)

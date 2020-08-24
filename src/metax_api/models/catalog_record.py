@@ -1065,7 +1065,7 @@ class CatalogRecord(Common):
         return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
 
     def _handle_issued_date(self):
-        if not (self.catalog_is_harvested() or self._save_as_draft()):
+        if not (self.catalog_is_harvested()):
             if 'issued' not in self.research_dataset:
                 self.research_dataset['issued'] = datetime_to_str(self.date_created)[0:10]
 
