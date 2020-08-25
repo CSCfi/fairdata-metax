@@ -99,7 +99,7 @@ class CatalogRecordV2(CatalogRecord):
 
         self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
-        self._handle_issued_date()
+        self._handle_issued_date() # For drafts to be merged this is called in _pre_update_operations
 
         self._set_api_version()
 
@@ -169,6 +169,7 @@ class CatalogRecordV2(CatalogRecord):
         Execute actions necessary to make the dataset publicly findable, in the following order:
         - set status to 'published'
         - generate preferred_identifier according to requested pid_type
+        - generate issued_date for datasets that were created first as drafts
         - publish objects to REMS as necessary
         - publish metadata to datacite as necessary
         - publish message to rabbitmq
@@ -187,6 +188,8 @@ class CatalogRecordV2(CatalogRecord):
             )
 
         self.state = self.STATE_PUBLISHED
+
+        self._handle_issued_date() # This has to be here for drafts, that are published without modifying
 
         if self.catalog_is_pas():
             _logger.debug('Catalog is PAS - Using DOI as pref_id_type')
@@ -453,6 +456,7 @@ class CatalogRecordV2(CatalogRecord):
         if draft_publish:
             # permit updating files and directories (user metadata) when
             # draft record is being merged into a published record.
+            self._handle_issued_date() # This has to be here for drafts, that are merged back to original
             pass
         else:
             # "normal" PUT or PATCH to the record (draft or published). these fields should
