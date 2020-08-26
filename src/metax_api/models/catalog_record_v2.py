@@ -99,7 +99,9 @@ class CatalogRecordV2(CatalogRecord):
 
         self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
-        self._handle_issued_date() # For drafts to be merged this is called in _pre_update_operations
+
+        if not self._save_as_draft():
+            self._generate_issued_date()
 
         self._set_api_version()
 
@@ -189,7 +191,7 @@ class CatalogRecordV2(CatalogRecord):
 
         self.state = self.STATE_PUBLISHED
 
-        self._handle_issued_date() # This has to be here for drafts, that are published without modifying
+        self._generate_issued_date()
 
         if self.catalog_is_pas():
             _logger.debug('Catalog is PAS - Using DOI as pref_id_type')
@@ -350,6 +352,9 @@ class CatalogRecordV2(CatalogRecord):
         # the save will not raise errors about it
         draft_cr.research_dataset['preferred_identifier'] = origin_cr.preferred_identifier
 
+        if 'issued' not in draft_cr.research_dataset:
+            draft_cr._generate_issued_date()
+
         # other than that, all values from research_dataset should be copied over
         origin_cr.research_dataset = draft_cr.research_dataset
 
@@ -456,7 +461,6 @@ class CatalogRecordV2(CatalogRecord):
         if draft_publish:
             # permit updating files and directories (user metadata) when
             # draft record is being merged into a published record.
-            self._handle_issued_date() # This has to be here for drafts, that are merged back to original
             pass
         else:
             # "normal" PUT or PATCH to the record (draft or published). these fields should
