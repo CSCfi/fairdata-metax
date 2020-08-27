@@ -39,22 +39,8 @@ def get_auth_header():
                 % b64encode(bytes('%s:%s' % (u['username'], u['password']), 'utf-8')).decode('utf-8')
             }
 
-
-def _dataset_is_testdata(record):
-    # Test datasets have fixed attributes so these should verify that it is a test dataset
-    # Other tests could be added but these should be sufficient
-    end = f'd{record["id"]}' if record['id'] < 10 else f'{record["id"]}'
-
-    if record['identifier'] != f'cr955e904-e3dd-4d7e-99f1-3fed446f96{end}' or \
-            record['research_dataset']['creator'][0]['name'] != 'Teppo Testaaja':
-        return False
-
-    return True
-
-def retrieve_and_update_all_datasets_in_db(headers):
-    print('-- begin retrieving and updating test datasets --')
-
-    print('retrieving datasets...')
+def get_test_datasets():
+    print('retrieving test datasets...')
     response = requests.get('https://localhost/rest/datasets?metadata_owner_org=abc-org-123&pagination=false',
         headers=headers, verify=False)
     if response.status_code != 200:
@@ -69,9 +55,26 @@ def retrieve_and_update_all_datasets_in_db(headers):
     print('Filtering out possible non-test datasets...')
     test_records = []
     for record in records:
-        if _dataset_is_testdata(record):
+        if dataset_is_testdata(record):
             test_records.append(record)
 
+    return test_records
+
+def dataset_is_testdata(record):
+    # Test datasets have fixed attributes so these should verify that it is a test dataset
+    # Other tests could be added but these should be sufficient
+    end = f'd{record["id"]}' if record['id'] < 10 else f'{record["id"]}'
+
+    if record['identifier'] != f'cr955e904-e3dd-4d7e-99f1-3fed446f96{end}' or \
+            record['research_dataset']['creator'][0]['name'] != 'Teppo Testaaja':
+        return False
+
+    return True
+
+def retrieve_and_update_all_datasets_in_db(headers):
+    print('-- begin retrieving and updating test datasets --')
+
+    test_records = get_test_datasets()
     # dont want to create new versions from datasets for this operation,
     # so use parameter preserve_version
     print('updating the test datasets...')
@@ -137,11 +140,14 @@ def update_ida_datasets_total_files_byte_size(headers):
 
 
 def update_cr_directory_browsing_data(headers):
-    print('-- begin updating IDA CR directory byte sizes and file counts --')
-    response = requests.get('https://localhost/rest/datasets/update_cr_directory_browsing_data',
-        headers=headers, verify=False)
-    if response.status_code not in (200, 201, 204):
-        raise Exception(response.text)
+    print('-- begin updating test CR directory byte sizes and file counts --')
+    test_records = get_test_datasets()
+
+    for r in test_records:
+        response = requests.get(f'https://localhost/rest/datasets/update_cr_directory_browsing_data?id={r["id"]}',
+            headers=headers, verify=False)
+        if response.status_code not in (200, 201, 204):
+            raise Exception(response.text)
     print('-- done --')
 
 
