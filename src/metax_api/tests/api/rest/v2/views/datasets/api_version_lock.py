@@ -15,7 +15,6 @@ from metax_api.models import (
 )
 from .write import CatalogRecordApiWriteCommon
 
-
 CR = CatalogRecordV2
 
 class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
