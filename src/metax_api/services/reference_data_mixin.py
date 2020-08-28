@@ -157,9 +157,12 @@ class ReferenceDataMixin():
                                                           org_obj_relation_name + '.is_part_of.identifier',
                                                           value_not_found_is_error=False)
                     if parent_ref_entry:
-                        parent_org_obj = {
-                            '@type': 'Organization'
-                        }
+                        parent_org_obj = {}
+
+                        if 'DataCatalog' not in cls.__name__:
+                            # Datacatalogs does not allow @type field to be populated for organizations
+                            parent_org_obj['@type'] = 'Organization'
+
                         cls.populate_from_ref_data(parent_ref_entry, parent_org_obj,
                                                    'identifier', 'name', add_in_scheme=False)
                         org_obj['is_part_of'] = parent_org_obj
