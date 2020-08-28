@@ -7,7 +7,6 @@
 
 from copy import deepcopy
 
-from metax_api.tests.api.rest.v2.views.datasets import __init__
 from rest_framework import status
 
 from metax_api.models import (
@@ -15,8 +14,6 @@ from metax_api.models import (
     CatalogRecordV2
 )
 from .write import CatalogRecordApiWriteCommon
-
-
 
 CR = CatalogRecordV2
 
