@@ -8,14 +8,10 @@
 import logging
 
 from django.conf import settings as django_settings
-from elasticsearch import Elasticsearch
-from elasticsearch.client import IndicesClient
-from elasticsearch.helpers import scan
 
 from .utils import executing_test_case
 
 _logger = logging.getLogger(__name__)
-d = logging.getLogger(__name__).debug
 
 
 class ReferenceDataLoader():
@@ -35,7 +31,6 @@ class ReferenceDataLoader():
         """
 
         if not cache.get_or_set('reference_data_load_executing', True, ex=120):
-            # d('another process is already executing reference_data load from ES')
             return 'reload_started_by_other'
 
         _logger.info('ReferenceDataLoader - populating cache...')
@@ -78,14 +73,32 @@ class ReferenceDataLoader():
             settings = settings.ELASTICSEARCH
 
         connection_params = cls._get_connection_parameters(settings)
-        esclient = Elasticsearch(settings['HOSTS'], **connection_params)
-        indicesclient = IndicesClient(esclient)
+        esclient, scan = cls._get_es_imports(settings['HOSTS'], connection_params)
+
         reference_data = {}
-        for index_name, index_info in indicesclient.get_mapping().items():
+        for index_name in esclient.indices.get_mapping().keys():
             reference_data[index_name] = {}
-            for type_name in index_info['mappings'].keys():
+
+            # a cumbersome way to fetch the types, but supposedly the only way because nginx restricts ES usage
+            # if local elasticsearch is not used.
+            aggr_types = esclient.search(
+                index=index_name,
+                body={"aggs": { "types": {"terms": {"field": "type", "size": 30}}}},
+                filter_path='aggregations',
+                _source='type',
+                scroll='1m'
+            )
+
+            for type_name in [ b['key'] for b in aggr_types['aggregations']['types']['buckets'] ]:
                 reference_data[index_name][type_name] = []
-                all_rows = scan(esclient, query={'query': {'match_all': {}}}, index=index_name, doc_type=type_name)
+                # must use wildcard query here because organization_data does not have their 'type'
+                # field indexed in the old 5.8 version.. This is fixed in the new ES cluster so this could
+                # be changed after all envs is using the new version.
+                all_rows = scan(
+                    esclient,
+                    query={'query': {'wildcard': {'id': {'value': f'{type_name}*'}}}},
+                    index=index_name
+                )
                 for row in all_rows:
 
                     #
@@ -150,3 +163,35 @@ class ReferenceDataLoader():
                 conf.update('port', settings['PORT'])
             return conf
         return {}
+
+    @staticmethod
+    def _get_es_imports(hosts, conn_params):
+        """
+        Returns correct version of the elasticsearch python client.
+        This is needed in the transition between elasticsearch major versions because
+        clients are not compatible with each other and at least travis using production ES. When Elasticsearch
+        has been updated in every environment, this can be removed and just import the client as usual.
+
+        Checking the correct version of the used elasticsearch is difficult, because version cannot be
+        queried from clusters behind nginx. Only way found was to find some change in the responses of
+        different versions and based on that decide which client to use.
+
+        NOTE: Whenever there is an major version update of the es cluster, this incompatibility
+        issue raises. It might be also good to leave this function here and utilize it on
+        coming ES updates as well.
+        """
+        from elasticsearch5 import Elasticsearch as es5
+        from elasticsearch5.helpers import scan as scan5
+
+        es = es5(hosts, **conn_params)
+        scan = scan5
+
+        # from ES 7.0 onwards, total attribute changed from int to object
+        if isinstance(es.search(index='reference_data')['hits']['total'], dict):
+            from elasticsearch import Elasticsearch as es7
+            from elasticsearch.helpers import scan as scan7
+
+            es = es7(hosts, **conn_params)
+            scan = scan7
+
+        return es, scan
