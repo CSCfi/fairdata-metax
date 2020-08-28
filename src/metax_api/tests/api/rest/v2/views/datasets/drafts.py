@@ -71,8 +71,9 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         self.assertEqual('state' in cr, True)
 
     def _test_issued_date_is_not_generated_for_drafts(self):
-        '''  Drafts will not have the issued date generated
-             Field is created when dataset is published
+        '''
+        Drafts will not have the issued date generated
+        Field is created when dataset is published
         '''
         # Dataset without issued date
         self.cr_full_ida_test_data['research_dataset'].pop('issued', None)

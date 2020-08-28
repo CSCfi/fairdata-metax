@@ -34,7 +34,6 @@ END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 EXT_CATALOG = django_settings.EXT_DATA_CATALOG_IDENTIFIER
-ATT_CATALOG = django_settings.ATT_DATA_CATALOG_IDENTIFIER
 
 
 def create_end_user_catalogs():
@@ -186,19 +185,16 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
 
     def test_issued_date_is_generated(self):
         ''' Issued date is generated for all but harvested catalogs if it doesn't exists '''
+        dc = DataCatalog.objects.get(pk=2)
+        dc.catalog_json['identifier'] = IDA_CATALOG # Test with IDA catalog
+        dc.force_save()
 
-        for catalog in [ATT_CATALOG, IDA_CATALOG]:
-            dc = DataCatalog.objects.get(pk=2)
-            dc.catalog_json['identifier'] = catalog
-            dc.force_save()
+        self.cr_test_data['data_catalog'] = dc.catalog_json
+        self.cr_test_data['research_dataset'].pop('issued', None)
 
-            # Create a catalog record in att catalog
-            self.cr_test_data['data_catalog'] = dc.catalog_json
-            self.cr_test_data['research_dataset'].pop('issued', None)
-
-            response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-            self.assertTrue('issued' in response.data['research_dataset'], response.data)
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue('issued' in response.data['research_dataset'], response.data)
 
     def test_create_catalog_record(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'this_should_be_overwritten'

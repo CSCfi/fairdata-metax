@@ -44,7 +44,6 @@ ACCESS_TYPES = {
 LEGACY_CATALOGS = settings.LEGACY_CATALOGS
 IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
 PAS_CATALOG = settings.PAS_DATA_CATALOG_IDENTIFIER
-ATT_CATALOG = settings.ATT_DATA_CATALOG_IDENTIFIER
 
 
 class DiscardRecord(Exception):
@@ -1050,9 +1049,6 @@ class CatalogRecord(Common):
 
     def catalog_is_ida(self):
         return self.data_catalog.catalog_json['identifier'] == IDA_CATALOG
-
-    def catalog_is_att(self):
-        return self.data_catalog.catalog_json['identifier'] == ATT_CATALOG
 
     def catalog_is_pas(self):
         return self.data_catalog.catalog_json['identifier'] == PAS_CATALOG
