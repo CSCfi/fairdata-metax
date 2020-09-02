@@ -27,6 +27,7 @@ from .views import (
     DatasetRPC,
     FileRPC,
     StatisticRPC,
+    ElasticsearchRPC,
 )
 
 
@@ -44,5 +45,6 @@ router = CustomRouter(trailing_slash=False)
 router.register(r'datasets/?', DatasetRPC)
 router.register(r'files/?', FileRPC)
 router.register(r'statistics/?', StatisticRPC)
+router.register(r'elasticsearchs/?', ElasticsearchRPC)
 
 api_urlpatterns = router.urls
