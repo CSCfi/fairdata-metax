@@ -219,7 +219,7 @@ class FileService(CommonService, ReferenceDataMixin):
         """
         _logger.info('Retrieving list of datasets where files belong to')
 
-        file_ids = cls._file_identifiers_to_ids(file_identifiers)
+        file_ids = cls._identifiers_to_ids(file_identifiers)
 
         _logger.info('Looking datasets for the following files (printing first 10):\n%s'
                      % '\n'.join(str(id) for id in file_identifiers[:10]))
@@ -246,7 +246,7 @@ class FileService(CommonService, ReferenceDataMixin):
         return Response(preferred_identifiers, status=status.HTTP_200_OK)
 
     @classmethod
-    def get_detailed_datasets_where_file_belongs_to(cls, file_identifiers):
+    def get_detailed_datasets_where_file_belongs_to(cls, file_identifiers, keysonly):
         """
         Find out which (non-deprecated) datasets a list of files belongs to, and return
         their preferred_identifiers per file as a list in json format.
@@ -255,7 +255,7 @@ class FileService(CommonService, ReferenceDataMixin):
         """
         _logger.info('Retrieving detailed list of datasets where files belong to')
 
-        file_ids = cls._file_identifiers_to_ids(file_identifiers)
+        file_ids = cls._identifiers_to_ids(file_identifiers)
 
         _logger.info('Looking datasets for the following files (printing first 10):\n%s'
                      % '\n'.join(str(id) for id in file_identifiers[:10]))
@@ -281,7 +281,52 @@ class FileService(CommonService, ReferenceDataMixin):
             else:
                 preferred_identifiers = cr.fetchall()
                 _logger.info('Found following datasets:\n%s' % preferred_identifiers)
-        return Response(dict(preferred_identifiers), status=status.HTTP_200_OK)
+        if keysonly:
+            return Response(dict(preferred_identifiers).value(), status=status.HTTP_200_OK)
+        else:
+            return Response(dict(preferred_identifiers), status=status.HTTP_200_OK)
+
+    @classmethod
+    def get_detailed_files_of_a_dataset(cls, dataset_identifiers, keysonly):
+        """
+        Find out all files that belong to a list of (non-deprecated) datasets, and return
+        their identifiers as a list in json format.
+
+        Parameter dataset_identifiers can be a list of pk's (integers), or dataset identifiers (strings).
+        """
+        _logger.info('Retrieving detailed list of files that belong to a dataset')
+
+        dataset_ids = cls._identifiers_to_ids(dataset_identifiers, files=False)
+
+        _logger.info('Looking datasets for the following files (printing first 10):\n%s'
+                     % '\n'.join(str(id) for id in dataset_identifiers[:10]))
+
+        sql_select_related_records = """
+            SELECT cr.research_dataset->>'preferred_identifier', json_agg(f.identifier)
+            FROM metax_api_file f
+            JOIN metax_api_catalogrecord_files cr_f
+                ON f.id=cr_f.file_id
+            JOIN metax_api_catalogrecord cr
+                ON cr.id=cr_f.catalogrecord_id
+            WHERE cr.id IN %s
+                AND cr.removed = false AND cr.active = true
+            GROUP BY cr.id
+            ORDER BY cr.id ASC;
+            """
+
+        with connection.cursor() as cr:
+            cr.execute(sql_select_related_records, [tuple(dataset_ids)])
+            if cr.rowcount == 0:
+                preferred_identifiers = []
+                _logger.info('No files found for datasets')
+            else:
+                preferred_identifiers = cr.fetchall()
+                _logger.info('Found following datasets:\n%s' % preferred_identifiers)
+
+        if keysonly:
+            return Response(dict(preferred_identifiers).values(), status=status.HTTP_200_OK)
+        else:
+            return Response(dict(preferred_identifiers), status=status.HTTP_200_OK)
 
     @classmethod
     def destroy_single(cls, file):
@@ -326,7 +371,7 @@ class FileService(CommonService, ReferenceDataMixin):
         """
         _logger.info('Begin bulk delete files')
 
-        file_ids = cls._file_identifiers_to_ids(file_identifiers)
+        file_ids = cls._identifiers_to_ids(file_identifiers)
 
         deleted_files_count, project_identifier = cls._mark_files_as_deleted(file_ids)
 
@@ -374,23 +419,30 @@ class FileService(CommonService, ReferenceDataMixin):
         return Response({ 'deleted_files_count': deleted_files_count }, status=status.HTTP_200_OK)
 
     @staticmethod
-    def _file_identifiers_to_ids(file_identifiers):
+    def _identifiers_to_ids(identifiers, files=True):
         """
-        In case file_identifiers is identifiers (strings), which they probably are in real use,
+        In case identifiers is identifiers (strings), which they probably are in real use,
         do a query to get a list of pk's instead, since they will be used quite a few times.
         """
-        if not isinstance(file_identifiers, list):
+        if not isinstance(identifiers, list):
             raise Http400('Received identifiers is not a list')
-        elif not file_identifiers:
+        elif not identifiers:
             _logger.info('Received empty list of identifiers. Aborting')
             raise Http400('Received empty list of identifiers')
-        elif isinstance(file_identifiers[0], int):
-            return file_identifiers
+        elif isinstance(identifiers[0], int):
+            return identifiers
         else:
-            ids = [ id for id in File.objects.filter(identifier__in=file_identifiers).values_list('id', flat=True) ]
-            if not ids:
-                raise Http404
-            return ids
+            if files:
+                ids = [ id for id in File.objects.filter(identifier__in=identifiers).values_list('id', flat=True) ]
+                if not ids:
+                    raise Http404
+                return ids
+            else:
+                cr = CatalogRecord
+                ids = [ id for id in cr.objects.filter(identifier__in=identifiers).values_list('id', flat=True) ]
+                if not ids:
+                    raise Http404
+                return ids
 
     @staticmethod
     def _mark_files_as_deleted(file_ids):
