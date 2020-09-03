@@ -28,7 +28,6 @@ LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 EXT_CATALOG = django_settings.EXT_DATA_CATALOG_IDENTIFIER
 
-
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
     """
     Common class for write tests, inherited by other write test classes
@@ -195,7 +194,7 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         cr.data_catalog_id = DataCatalog.objects.get(catalog_json__identifier=END_USER_ALLOWED_DATA_CATALOGS[0]).id
         cr.force_save()
 
-    def test_field_exists(self):
+    def test_field_state_exists(self):
         """Try fetching any dataset, field 'state' should be returned'"""
 
         cr = self.client.get('/rest/datasets/13').data
@@ -439,6 +438,19 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
     #
     #
+
+    def test_issued_date_is_generated(self):
+        ''' Issued date is generated for all but harvested catalogs if it doesn't exists '''
+        dc = DataCatalog.objects.get(pk=2)
+        dc.catalog_json['identifier'] = IDA_CATALOG # Test with IDA catalog
+        dc.force_save()
+
+        self.cr_test_data['data_catalog'] = dc.catalog_json
+        self.cr_test_data['research_dataset'].pop('issued', None)
+
+        response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue('issued' in response.data['research_dataset'], response.data)
 
     def test_create_catalog_record(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'this_should_be_overwritten'

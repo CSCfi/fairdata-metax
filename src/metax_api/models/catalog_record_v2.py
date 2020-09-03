@@ -100,6 +100,9 @@ class CatalogRecordV2(CatalogRecord):
         self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
 
+        if not self._save_as_draft():
+            self._generate_issued_date()
+
         self._set_api_version()
 
     def _post_create_operations(self, pid_type=None):
@@ -168,6 +171,7 @@ class CatalogRecordV2(CatalogRecord):
         Execute actions necessary to make the dataset publicly findable, in the following order:
         - set status to 'published'
         - generate preferred_identifier according to requested pid_type
+        - generate issued_date for datasets that were created first as drafts
         - publish objects to REMS as necessary
         - publish metadata to datacite as necessary
         - publish message to rabbitmq
@@ -186,6 +190,8 @@ class CatalogRecordV2(CatalogRecord):
             )
 
         self.state = self.STATE_PUBLISHED
+
+        self._generate_issued_date()
 
         if self.catalog_is_pas():
             _logger.debug('Catalog is PAS - Using DOI as pref_id_type')
@@ -345,6 +351,9 @@ class CatalogRecordV2(CatalogRecord):
         # replace the "draft:<identifier>" of the draft with the original pid so that
         # the save will not raise errors about it
         draft_cr.research_dataset['preferred_identifier'] = origin_cr.preferred_identifier
+
+        if 'issued' not in draft_cr.research_dataset:
+            draft_cr._generate_issued_date()
 
         # other than that, all values from research_dataset should be copied over
         origin_cr.research_dataset = draft_cr.research_dataset

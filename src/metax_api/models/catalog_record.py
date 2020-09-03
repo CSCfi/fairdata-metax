@@ -1060,6 +1060,12 @@ class CatalogRecord(Common):
         from metax_api.services import CommonService
         return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
 
+    def _generate_issued_date(self):
+        if not (self.catalog_is_harvested()):
+            if 'issued' not in self.research_dataset:
+                current_time = get_tz_aware_now_without_micros()
+                self.research_dataset['issued'] = datetime_to_str(current_time)[0:10]
+
     def get_metadata_version_listing(self):
         entries = []
         for entry in self.research_dataset_versions.all():
@@ -1196,6 +1202,8 @@ class CatalogRecord(Common):
                 raise Http400('Dataset cannot be cumulative if it is in PAS process')
 
             self.date_cumulation_started = self.date_created
+
+        self._generate_issued_date()
 
         self._set_api_version()
 

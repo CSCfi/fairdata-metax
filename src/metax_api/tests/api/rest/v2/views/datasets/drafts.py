@@ -64,11 +64,32 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         cr.data_catalog_id = DataCatalog.objects.get(catalog_json__identifier=END_USER_ALLOWED_DATA_CATALOGS[0]).id
         cr.force_save()
 
-    def test_field_exists(self):
+    def test_field_state_exists(self):
         """Try fetching any dataset, field 'state' should be returned'"""
 
         cr = self.client.get('/rest/v2/datasets/13').data
         self.assertEqual('state' in cr, True)
+
+    def _test_issued_date_is_not_generated_for_drafts(self):
+        '''
+        Drafts will not have the issued date generated
+        Field is created when dataset is published
+        '''
+        # Dataset without issued date
+        self.cr_full_ida_test_data['research_dataset'].pop('issued', None)
+
+        # Create draft
+        response = self.client.post('/rest/v2/datasets?draft=true', self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue('issued' not in response.data['research_dataset'], response.data)
+
+        # Issued_date is generated when dataset is published
+        publish = self.client.post('/rpc/v2/datasets/publish_dataset?identifier={}'.format(response.data['identifier']))
+        self.assertEqual(publish.status_code, status.HTTP_200_OK, publish.data)
+
+        published = self.client.get('/rest/v2/datasets/{}'.format(response.data['identifier']))
+        self.assertEqual(published.status_code, status.HTTP_200_OK, published.data)
+        self.assertTrue('issued' in published.data['research_dataset'], published.data)
 
     def test_change_state_field_through_API(self):
         """Fetch a dataset and change its state.
@@ -418,6 +439,34 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
             response.data
         )
         self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
+
+    def test_missing_issued_date_is_generated_when_draft_is_merged(self):
+        """
+        Testing a case where user removes 'issued_date' from draft before merging
+        it back to original published dataset
+        """
+        cr = self._create_dataset()
+        initial_issued_date = cr['research_dataset']['issued']
+
+        # create draft
+        draft_cr = self._create_draft(cr['id'])
+        draft_cr['research_dataset'].pop('issued', None)
+
+        # update the draft
+        response = self.client.put('/rest/v2/datasets/%d' % draft_cr['id'], draft_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # merge draft changes back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
+
+        # changes should now reflect on original published dataset
+        response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertNotEqual(
+            response.data['research_dataset']['issued'],
+            initial_issued_date,
+            response.data
+        )
 
     def test_add_files_to_draft_normal_dataset(self):
         """
