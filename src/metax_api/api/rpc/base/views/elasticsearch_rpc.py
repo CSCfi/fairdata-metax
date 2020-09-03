@@ -5,13 +5,15 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from rest_framework.decorators import action
-from rest_framework.response import Response
 import logging
 
 from django.conf import settings as django_settings
 from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 from .common_rpc import CommonRPC
+from metax_api.exceptions import Http400
 from metax_api.utils.reference_data_loader import ReferenceDataLoader as RDL
 
 _logger = logging.getLogger(__name__)
@@ -61,18 +63,23 @@ class ElasticsearchRPC(CommonRPC):
 
             elif k == 'q':
                 try:
-                    import re
+                    # new ES client separates filters with a space
+                    v = v.replace('+AND+', ' AND ')
+                    v = v.replace('+OR+', ' OR ')
                     if 'type:' not in v:
-                        params[k] = re.escape(v + f'+AND+type:{type}')
+                        params[k] = v + f' AND type:{type}'
                     else:
-                        params[k] = re.escape(v)
+                        params[k] = v
                 except:
                     _logger.info('Elasticsearch proxy has missing type. This should not happen')
                     return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
             else:
                 params[k] = v
-        print('----params', params)
-        res = esclient.search(index=idx, params=params)
+
+        try:
+            res = esclient.search(index=idx, params=params)
+        except Exception as e:
+            raise Http400(f'Error when accessing elasticsearch. {e}')
 
         return Response(data=res, status=status.HTTP_200_OK)
