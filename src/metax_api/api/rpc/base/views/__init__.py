@@ -8,3 +8,4 @@
 from .dataset_rpc import DatasetRPC
 from .file_rpc import FileRPC
 from .statistic_rpc import StatisticRPC
+from .elasticsearch_rpc import ElasticsearchRPC
