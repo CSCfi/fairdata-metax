@@ -77,6 +77,9 @@ class ElasticsearchRPC(CommonRPC):
             else:
                 params[k] = v
 
+        if 'q' not in params:
+            params['q'] = f'type:{type}'
+
         try:
             res = esclient.search(index=idx, params=params)
         except Exception as e:
