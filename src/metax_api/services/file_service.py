@@ -282,7 +282,10 @@ class FileService(CommonService, ReferenceDataMixin):
                 preferred_identifiers = cr.fetchall()
                 _logger.info('Found following datasets:\n%s' % preferred_identifiers)
         if keysonly:
-            return Response(dict(preferred_identifiers).value(), status=status.HTTP_200_OK)
+            pids = []
+            for valueslist in dict(preferred_identifiers).values():
+                pids.extend(valueslist)
+            return Response(pids, status=status.HTTP_200_OK)
         else:
             return Response(dict(preferred_identifiers), status=status.HTTP_200_OK)
 
@@ -324,7 +327,10 @@ class FileService(CommonService, ReferenceDataMixin):
                 _logger.info('Found following datasets:\n%s' % preferred_identifiers)
 
         if keysonly:
-            return Response(dict(preferred_identifiers).values(), status=status.HTTP_200_OK)
+            pids = []
+            for valueslist in dict(preferred_identifiers).values():
+                pids.extend(valueslist)
+            return Response(pids, status=status.HTTP_200_OK)
         else:
             return Response(dict(preferred_identifiers), status=status.HTTP_200_OK)
 

@@ -107,6 +107,29 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
+    def test_keysonly(self):
+        """
+        Parameter ?keysonly should return just values
+        """
+        response = self.client.post('/rest/files/datasets?keysonly', [1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 3) # returns the same as /rest/files/datasets
+        self.assertEqual(type(response.data), list, type(response.data))
+
+        response = self.client.post('/rest/files/datasets?keys=files&keysonly', [1, 2], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 6) # files 1 and 2 both belong to 3 datasets
+        self.assertEqual(type(response.data), list, type(response.data)) # no dict keys
+
+        response = self.client.post('/rest/files/datasets?keys=files&keysonly=false', [1, 2], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(len(list(response.data.keys())), 2, response.data) # Return by keys
+
+        response = self.client.post('/rest/files/datasets?keys=datasets&keysonly', [1, 2], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 4) # datasets 1 and 2 both have 2 files
+        self.assertEqual(type(response.data), list, type(response.data)) # no dict keys
+
     def test_get_detailed_related_datasets_ok_1(self):
         """
         File identifiers listed below should belong to 5 datasets
@@ -150,16 +173,16 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
 
     def test_get_detailed_related_files_ok_2(self):
         """
-        Tests how many files datasets have
+        Tests that datasets return files correctly
         """
-        file_identifiers = [1, 2, 3, 4, 5]
+        dataset_identifiers = [1, 2, 3, 4, 5]
 
-        response = self.client.post('/rest/files/datasets?keys=datasets', file_identifiers, format='json')
+        response = self.client.post('/rest/files/datasets?keys=datasets', dataset_identifiers, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
         # set of all returned datasets
-        self.assertEqual(len(set(sum(response.data.values(), []))), 5, response.data)
+        self.assertEqual(len(set(sum(response.data.values(), []))), 10, response.data)
 
         # check if identifiers work
         dataset_identifiers = ["cr955e904-e3dd-4d7e-99f1-3fed446f96d1",
@@ -173,7 +196,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         self._assert_results_length(response, 5)
 
         # set of all returned datasets
-        # self.assertEqual(len(set(sum(response.data.values(), []))), 5, response.data)
+        self.assertEqual(len(set(sum(response.data.values(), []))), 10, response.data)
 
     def test_get_related_datasets_files_not_found(self):
         """
