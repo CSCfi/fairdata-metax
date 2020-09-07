@@ -446,9 +446,6 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         )
         self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
 
-        # merge draft changes back to original published dataset
-        self._merge_draft_changes(draft_cr['id'])
-
     def test_missing_issued_date_is_generated_when_draft_is_merged(self):
         """
         Testing a case where user removes 'issued_date' from draft before merging
