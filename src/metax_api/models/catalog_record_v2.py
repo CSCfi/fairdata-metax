@@ -303,6 +303,7 @@ class CatalogRecordV2(CatalogRecord):
         origin_cr = CatalogRecordV2.objects.get(next_draft_id=self.id)
         draft_cr = self
 
+        origin_cr.preservation_state = draft_cr.preservation_state
         origin_cr.date_modified = get_tz_aware_now_without_micros()
         origin_cr.user_modified = draft_cr.user_modified
 

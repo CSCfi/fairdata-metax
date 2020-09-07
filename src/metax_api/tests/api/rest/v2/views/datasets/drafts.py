@@ -409,6 +409,7 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         # create draft
         draft_cr = self._create_draft(cr['id'])
         draft_cr['research_dataset']['title']['en'] = 'modified title'
+        draft_cr['preservation_state'] = 20
 
         # ensure original now has a link to next_draft
         response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
@@ -438,7 +439,15 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
             draft_cr['research_dataset']['title'],
             response.data
         )
+        self.assertEqual(
+            response.data['preservation_state'],
+            draft_cr['preservation_state'],
+            response.data
+        )
         self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
+
+        # merge draft changes back to original published dataset
+        self._merge_draft_changes(draft_cr['id'])
 
     def test_missing_issued_date_is_generated_when_draft_is_merged(self):
         """
