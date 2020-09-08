@@ -28,7 +28,8 @@ class ElasticsearchRPC(CommonRPC):
             settings = django_settings.ELASTICSEARCH
 
         connection_params = RDL.get_connection_parameters(settings)
-        esclient, scan = RDL.get_es_imports(settings['HOSTS'], connection_params)
+        # returns scan object as well but that is not needed here
+        esclient = RDL.get_es_imports(settings['HOSTS'], connection_params)[0]
 
         if not self.request.query_params:
             return Response(status=status.HTTP_200_OK)
