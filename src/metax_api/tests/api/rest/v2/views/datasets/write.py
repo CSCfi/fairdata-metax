@@ -180,6 +180,21 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
     #
     #
+    def setUp(self):
+        super().setUp()
+
+    def test_issued_date_is_generated(self):
+        ''' Issued date is generated for all but harvested catalogs if it doesn't exists '''
+        dc = DataCatalog.objects.get(pk=2)
+        dc.catalog_json['identifier'] = IDA_CATALOG # Test with IDA catalog
+        dc.force_save()
+
+        self.cr_test_data['data_catalog'] = dc.catalog_json
+        self.cr_test_data['research_dataset'].pop('issued', None)
+
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue('issued' in response.data['research_dataset'], response.data)
 
     def test_create_catalog_record(self):
         self.cr_test_data['research_dataset']['preferred_identifier'] = 'this_should_be_overwritten'
