@@ -72,8 +72,8 @@ class ReferenceDataLoader():
         if not isinstance(settings, dict):
             settings = settings.ELASTICSEARCH
 
-        connection_params = cls._get_connection_parameters(settings)
-        esclient, scan = cls._get_es_imports(settings['HOSTS'], connection_params)
+        connection_params = cls.get_connection_parameters(settings)
+        esclient, scan = cls.get_es_imports(settings['HOSTS'], connection_params)
 
         reference_data = {}
         for index_name in esclient.indices.get_mapping().keys():
@@ -151,7 +151,7 @@ class ReferenceDataLoader():
         return reference_data
 
     @staticmethod
-    def _get_connection_parameters(settings):
+    def get_connection_parameters(settings):
         """
         https://docs.objectrocket.com/elastic_python_examples.html
         """
@@ -165,7 +165,7 @@ class ReferenceDataLoader():
         return {}
 
     @staticmethod
-    def _get_es_imports(hosts, conn_params):
+    def get_es_imports(hosts, conn_params):
         """
         Returns correct version of the elasticsearch python client.
         This is needed in the transition between elasticsearch major versions because
