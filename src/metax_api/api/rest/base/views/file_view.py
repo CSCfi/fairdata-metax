@@ -173,7 +173,11 @@ class FileViewSet(CommonViewSet):
         parameters in GET. Also, some clients forcibly shove parameters in body in GET
         requests to query parameters, so using POST instead is more guaranteed to work.
         """
+
         keysonly = CommonService.get_boolean_query_param(self.request, 'keysonly')
+
+        if CommonService.get_boolean_query_param(request, 'detailed'):
+            return FileService.get_detailed_datasets_where_file_belongs_to(request.data, keysonly=False)
 
         if 'keys' in request.query_params:
             if 'datasets' in request.query_params['keys']:
