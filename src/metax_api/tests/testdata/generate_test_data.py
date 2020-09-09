@@ -78,7 +78,7 @@ def generate_file_storages(file_storage_max_rows):
                 'file_storage_json': {
                     'title': title % str(i),
                     'identifier': identifier % str(i),
-                    'url': 'https://metax-test.csc.fi/rest/filestorages/%d' % i,
+                    'url': 'https://metax.fd-test.csc.fi/rest/filestorages/%d' % i,
                 }
             },
             'model': "metax_api.filestorage",

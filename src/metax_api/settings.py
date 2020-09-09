@@ -557,7 +557,7 @@ if not executing_in_travis:
 
 if executing_in_travis:
     OAI = {
-        'BASE_URL': 'http://metax-test.csc.fi/oai/',
+        'BASE_URL': 'http://metax.fd-test.csc.fi/oai/',
         'BATCH_SIZE': 25,
         'REPOSITORY_NAME': 'Metax',
         'ETSIN_URL_TEMPLATE': 'http://etsin.something.fi/dataset/%s',
