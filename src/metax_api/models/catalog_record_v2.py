@@ -1136,6 +1136,11 @@ class CatalogRecordV2(CatalogRecord):
             # a new dataset in draft state
             raise Http400('Dataset is already draft.')
 
+        if self.next_draft:
+            raise Http400(
+                'The dataset already has an existing unmerged draft: {}'.format(self.next_draft.preferred_identifier)
+            )
+
         origin_cr = self
 
         draft_cr = origin_cr._create_new_dataset_version_template()

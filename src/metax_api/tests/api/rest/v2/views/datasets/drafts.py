@@ -399,6 +399,19 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         draft_found = CR.objects_unfiltered.filter(pk=draft_id).exists()
         self.assertEqual(draft_found, False)
 
+    def test_create_draft_not_locked_before_merge(self):
+        """
+        Tests that more than 1 temporary drafts can't be created
+        """
+        cr = self._create_dataset()
+        # create draft
+        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=%d' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # create draft
+        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=%d' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
     def test_create_and_merge_draft(self):
         """
         A simple test to create a draft, change some metadata, and publish the changes.
