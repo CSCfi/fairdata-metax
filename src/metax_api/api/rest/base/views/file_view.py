@@ -166,8 +166,14 @@ class FileViewSet(CommonViewSet):
     @action(detail=False, methods=['post'], url_path="datasets")
     def datasets(self, request):
         """
-        Find out which datasets a list of files belongs to, and return their
+        keys=files: Find out which datasets a list of files belongs to, and return their
         metadata_version_identifiers as a list.
+
+        keys=datasets: Find out which files belong to a list of datasets, and return their
+        identifiers as a list.
+
+        keysonly: return the same list as input, but only with files that belong to some dataset /
+        only with datasets that have files
 
         The method is invoked using POST, because there are limits to length of query
         parameters in GET. Also, some clients forcibly shove parameters in body in GET
@@ -175,17 +181,21 @@ class FileViewSet(CommonViewSet):
         """
 
         keysonly = CommonService.get_boolean_query_param(self.request, 'keysonly')
+        detailed = CommonService.get_boolean_query_param(request, 'detailed')
 
-        if CommonService.get_boolean_query_param(request, 'detailed'):
-            return FileService.get_detailed_datasets_where_file_belongs_to(request.data, keysonly=False)
+        params = request.query_params
 
-        if 'keys' in request.query_params:
-            if 'datasets' in request.query_params['keys']:
-                return FileService.get_detailed_files_of_a_dataset(request.data, keysonly)
-            elif 'files' in request.query_params['keys']:
-                return FileService.get_detailed_datasets_where_file_belongs_to(request.data, keysonly)
+        if not params.keys():
+            return FileService.get_identifiers(request.data, 'noparams', True)
 
-        return FileService.get_datasets_where_file_belongs_to(request.data)
+        if 'keys' in params.keys():
+            if params['keys'] in ['files', 'datasets']:
+                return FileService.get_identifiers(request.data, params['keys'], keysonly)
+
+        if detailed: # This can be removed as soon as front can listen to ?keys=files which returns the same
+            return FileService.get_identifiers(request.data, 'files', False)
+
+        raise Http403({ 'detail': [ 'Invalid parameters' ]})
 
     @action(detail=False, methods=['post'], url_path="restore")
     def restore_files(self, request):
