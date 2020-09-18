@@ -6,10 +6,10 @@ import logging
 _logger = logging.getLogger(__name__)
 
 def change_emails(apps, schema_editor):
+    import json
     CatalogRecord = apps.get_model('metax_api', 'CatalogRecord')
 
     for cr in CatalogRecord.objects.all():
-        import json
         owner = json.loads(json.dumps(cr.metadata_owner_org))
         provider = json.loads(json.dumps(cr.metadata_provider_org))
 
@@ -17,19 +17,20 @@ def change_emails(apps, schema_editor):
 
         owner_data = ''
         prov_data = ''
-        if 'tut.fi' in owner:
-            owner_data = owner.replace("tut.fi", "tuni.fi")
-            cr_changed = True
-        elif 'uta.fi' in owner:
-            owner_data = owner.replace("uta.fi", "tuni.fi")
-            cr_changed = True
-        
-        if 'tut.fi' in provider:
-            prov_data = provider.replace("tut.fi", "tuni.fi")
-            cr_changed = True
-        elif 'uta.fi' in provider:
-            prov_data = provider.replace("uta.fi", "tuni.fi")
-            cr_changed = True
+        if owner:
+            if 'tut.fi' in owner:
+                owner_data = owner.replace("tut.fi", "tuni.fi")
+                cr_changed = True
+            elif 'uta.fi' in owner:
+                owner_data = owner.replace("uta.fi", "tuni.fi")
+                cr_changed = True
+        if provider:
+            if 'tut.fi' in provider:
+                prov_data = provider.replace("tut.fi", "tuni.fi")
+                cr_changed = True
+            elif 'uta.fi' in provider:
+                prov_data = provider.replace("uta.fi", "tuni.fi")
+                cr_changed = True
 
         if cr_changed:
             cr.metadata_owner_org = owner_data
@@ -40,7 +41,6 @@ def change_emails(apps, schema_editor):
         research_dataset_changed = False
 
         dataset = json.loads(json.dumps(cr.research_dataset))
-        #_logger.warning(f'DATASET TYPE IS {type(dataset)}')
 
         roles = ['curator', 'creator', 'contributor', 'publisher', 'rights_holder']
 
