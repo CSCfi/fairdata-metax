@@ -253,31 +253,7 @@ class FileService(CommonService, ReferenceDataMixin):
             ORDER BY f.id ASC;
             """
 
-        files_keysonly = """
-            SELECT f.identifier
-            FROM metax_api_file f
-            JOIN metax_api_catalogrecord_files cr_f
-                ON f.id=cr_f.file_id
-            JOIN metax_api_catalogrecord cr
-                ON cr.id=cr_f.catalogrecord_id
-            WHERE f.id IN %s
-                AND cr.removed = false AND cr.active = true AND cr.deprecated = false
-            GROUP BY f.id
-            ORDER BY f.id ASC;
-            """
-
-        datasets_keysonly = """
-            SELECT cr.research_dataset->>'preferred_identifier' AS preferred_identifier
-            FROM metax_api_file f
-            JOIN metax_api_catalogrecord_files cr_f
-                ON f.id=cr_f.file_id
-            JOIN metax_api_catalogrecord cr
-                ON cr.id=cr_f.catalogrecord_id
-            WHERE cr.id IN %s
-                AND cr.removed = false AND cr.active = true AND cr.deprecated = false
-            GROUP BY cr.id
-            ORDER BY cr.id ASC;
-            """
+        files_keysonly = files.replace(", json_agg(cr.research_dataset->>'preferred_identifier')", "")
 
         datasets = """
             SELECT cr.research_dataset->>'preferred_identifier', json_agg(f.identifier)
@@ -291,6 +267,8 @@ class FileService(CommonService, ReferenceDataMixin):
             GROUP BY cr.id
             ORDER BY cr.id ASC;
             """
+
+        datasets_keysonly = datasets.replace(", json_agg(f.identifier)", "")
 
         if keysonly:
             sql = {'files': files_keysonly, 'datasets': datasets_keysonly, 'noparams': noparams}

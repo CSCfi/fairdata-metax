@@ -180,7 +180,7 @@ class FileViewSet(CommonViewSet):
         requests to query parameters, so using POST instead is more guaranteed to work.
         """
 
-        keysonly = CommonService.get_boolean_query_param(self.request, 'keysonly')
+        keysonly = CommonService.get_boolean_query_param(request, 'keysonly')
         detailed = CommonService.get_boolean_query_param(request, 'detailed')
 
         params = request.query_params
