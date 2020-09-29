@@ -6,7 +6,7 @@
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier1",
                 "title": "Title 1",
-                "url": "https://metax-test.csc.fi/rest/filestorages/1"
+                "url": "https://metax.fd-test.csc.fi/rest/filestorages/1"
             }
         },
         "model": "metax_api.filestorage",
@@ -19,7 +19,7 @@
             "file_storage_json": {
                 "identifier": "pid:urn:storageidentifier2",
                 "title": "Title 2",
-                "url": "https://metax-test.csc.fi/rest/filestorages/2"
+                "url": "https://metax.fd-test.csc.fi/rest/filestorages/2"
             }
         },
         "model": "metax_api.filestorage",
