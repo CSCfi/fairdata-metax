@@ -27,11 +27,20 @@ class ElasticsearchRPC(CommonRPC):
         if not isinstance(django_settings, dict):
             settings = django_settings.ELASTICSEARCH
 
-        connection_params = RDL._get_connection_parameters(settings)
-        esclient, scan = RDL._get_es_imports(settings['HOSTS'], connection_params)
+        connection_params = RDL.get_connection_parameters(settings)
+        # returns scan object as well but that is not needed here
+        esclient = RDL.get_es_imports(settings['HOSTS'], connection_params)[0]
 
         if not self.request.query_params:
             return Response(status=status.HTTP_200_OK)
+
+        elif '_mapping' in self.request.query_params:
+            try:
+                res = esclient.indices.get_mapping()
+            except Exception as e:
+                raise Http400(f'Error when accessing elasticsearch. {e}')
+
+            return Response(data=res, status=status.HTTP_200_OK)
 
         params = {}
         for k, v in self.request.query_params.items():
