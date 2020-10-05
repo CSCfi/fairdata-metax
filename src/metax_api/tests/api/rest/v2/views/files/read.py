@@ -107,11 +107,35 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
+    def test_keysonly(self):
+        """
+        Parameter ?keysonly should return just values
+        """
+        response = self.client.post('/rest/files/datasets?keys=files&keysonly', [1, 2, 121], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 2) # pid:urn:121 does not belong to any dataset
+        self.assertEqual(type(response.data), list, type(response.data)) # no dict keys
+
+        response = self.client.post('/rest/files/datasets?keys=files&keysonly=false', [1, 2], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(type(response.data), dict, response.data) # Return by keys
+
+        response = self.client.post('/rest/files/datasets?keys=datasets&keysonly', [1, 2, 14], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 2) # Only datasets 1 and 2 have files
+        self.assertEqual(type(response.data), list, type(response.data)) # no dict keys
+
     def test_get_detailed_related_datasets_ok_1(self):
         """
         File identifiers listed below should belong to 5 datasets
         """
-        response = self.client.post('/rest/v2/files/datasets?detailed=true', [1], format='json')
+        response = self.client.post('/rest/v2/files/datasets?keys=files', [1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 1)
+        self.assertEqual(len(list(response.data.values())[0]), 3, response.data)
+
+        # Support for ?detailed
+        response = self.client.post('/rest/v2/files/datasets?detailed', [1], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 1)
         self.assertEqual(len(list(response.data.values())[0]), 3, response.data)
@@ -122,7 +146,7 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         """
         file_identifiers = [1, 2, 3, 4, 5]
 
-        response = self.client.post('/rest/v2/files/datasets?detailed=true', file_identifiers, format='json')
+        response = self.client.post('/rest/v2/files/datasets?keys=files', file_identifiers, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
@@ -132,12 +156,48 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         # check if identifiers work
         file_identifiers = ['pid:urn:1', 'pid:urn:2', 'pid:urn:3', 'pid:urn:4', 'pid:urn:5']
 
-        response = self.client.post('/rest/v2/files/datasets?detailed=true', file_identifiers, format='json')
+        response = self.client.post('/rest/v2/files/datasets?keys=files', file_identifiers, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 5)
 
         # set of all returned datasets
         self.assertEqual(len(set(sum(response.data.values(), []))), 5, response.data)
+
+    def test_get_detailed_related_files_ok_1(self):
+        """
+        Dataset identifiers listed below should have 2 files
+        """
+        response = self.client.post('/rest/v2/files/datasets?keys=datasets', [1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 1)
+        self.assertEqual(len(list(response.data.values())[0]), 2, response.data)
+
+    def test_get_detailed_related_files_ok_2(self):
+        """
+        Tests that datasets return files correctly
+        """
+        dataset_identifiers = [1, 2, 3, 4, 5]
+
+        response = self.client.post('/rest/v2/files/datasets?keys=datasets', dataset_identifiers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 5)
+
+        # set of all returned datasets
+        self.assertEqual(len(set(sum(response.data.values(), []))), 10, response.data)
+
+        # check if identifiers work
+        dataset_identifiers = ["cr955e904-e3dd-4d7e-99f1-3fed446f96d1",
+                            "cr955e904-e3dd-4d7e-99f1-3fed446f96d2",
+                            "cr955e904-e3dd-4d7e-99f1-3fed446f96d3",
+                            "cr955e904-e3dd-4d7e-99f1-3fed446f96d4",
+                            "cr955e904-e3dd-4d7e-99f1-3fed446f96d5"]
+
+        response = self.client.post('/rest/v2/files/datasets?keys=datasets', dataset_identifiers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 5)
+
+        # set of all returned datasets
+        self.assertEqual(len(set(sum(response.data.values(), []))), 10, response.data)
 
     def test_get_related_datasets_files_not_found(self):
         """
@@ -146,7 +206,11 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         response = self.client.post('/rest/v2/files/datasets', ['doesnotexist'], format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
 
-        response = self.client.post('/rest/v2/files/datasets?detailed=true', ['doesnotexist'], format='json')
+        response = self.client.post('/rest/v2/files/datasets?keys=files', ['doesnotexist'], format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+
+        # Support for ?detailed
+        response = self.client.post('/rest/v2/files/datasets?detailed', ['doesnotexist'], format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
 
     def test_get_related_datasets_records_not_found(self):
@@ -161,7 +225,12 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 0)
 
-        response = self.client.post('/rest/v2/files/datasets?detailed=true', [1], format='json')
+        response = self.client.post('/rest/v2/files/datasets?keys=files', [1], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 0)
+
+        # Support for ?detailed
+        response = self.client.post('/rest/v2/files/datasets?detailed', [1], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 0)
 

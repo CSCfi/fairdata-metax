@@ -614,7 +614,7 @@
                 "place_uri":{
                     "@id":"http://purl.org/dc/terms/subject",
                     "title":"Place uri",
-                    "description":"URI for the place. Use reference data from: https://metax-test.csc.fi/es/reference_data/location/_search?pretty=true",
+                    "description":"URI for the place. Use reference data from: https://metax.fd-test.csc.fi/es/reference_data/location/_search?pretty=true",
                     "@type":"@id",
                     "type":"object",
                     "$ref":"#/definitions/Concept"
