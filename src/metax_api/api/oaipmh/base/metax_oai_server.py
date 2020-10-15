@@ -17,7 +17,8 @@ from metax_api.models.catalog_record import CatalogRecord, DataCatalog
 from metax_api.services import CatalogRecordService as CRS
 from metax_api.services.datacite_service import DataciteException, convert_cr_to_datacite_cr_json
 
-SYKE_URL_PREFIX_TEMPLATE = 'http://metatieto.ymparisto.fi:8080/geoportal/catalog/search/resource/details.page?uuid=%s'
+# SYKE_IDENTIFIER_PREFIX
+SYKE_URL_PREFIX_TEMPLATE = 'https://metadata.ymparisto.fi/dataset/%s'
 DATACATALOGS_SET = 'datacatalogs'
 DATASETS_SET = 'datasets'
 OAI_DC_MDPREFIX = 'oai_dc'
