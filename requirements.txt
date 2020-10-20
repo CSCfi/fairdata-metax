@@ -7,7 +7,7 @@ elasticsearch5 # only needed before ES has been updated in all envs
 hiredis==1.0.1 # Used by redis (redis-py) for parser
 djangorestframework==3.11.0  # BSD-license
 django-rainbowtests==0.6.0 # colored test output
-flake8==3.8.3 # MIT-license
+flake8==3.8.4 # MIT-license
 gevent==20.6.1 # gunicorn dep
 gunicorn==20.0.4 # MIT-license
 ipdb==0.13.2 # dev tool
