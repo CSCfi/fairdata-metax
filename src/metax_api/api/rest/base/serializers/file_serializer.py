@@ -97,6 +97,11 @@ class FileSerializer(CommonSerializer):
             self.initial_data['parent_directory'] = self._get_id_from_related_object(
                 'parent_directory', self._get_parent_directory_relation)
 
+        if ('file_characteristics' in self.initial_data and 'format_version'
+                in self.initial_data['file_characteristics']):
+            if self.initial_data['file_characteristics']['format_version'] == "":
+                self.initial_data['file_characteristics'].pop('format_version', None)
+
         super(FileSerializer, self).is_valid(raise_exception=raise_exception)
 
     def to_representation(self, instance):

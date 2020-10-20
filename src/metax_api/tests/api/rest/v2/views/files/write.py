@@ -203,6 +203,16 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
         response = self.client.put('/rest/v2/files/%s' % response.data['identifier'], response.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
+    def test_format_version_is_removed(self):
+        """
+        Empty file format version should be removed
+        """
+        self.test_new_data['file_characteristics']['file_format'] = "text/csv"
+        self.test_new_data['file_characteristics']['format_version'] = ""
+
+        response = self.client.post('/rest/v2/files', self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertTrue('format_version' not in response.data['file_characteristics'])
 
 class FileApiWriteCreateTests(FileApiWriteCommon):
     #
