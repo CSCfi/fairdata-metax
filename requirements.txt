@@ -25,7 +25,6 @@ greenlet==0.4.17          # via gevent
 gunicorn==20.0.4          # via -r requirements.in
 hiredis==1.1.0            # via -r requirements.in
 idna==2.10                # via requests
-importlib-metadata==2.0.0  # via flake8, jsonschema
 ipdb==0.13.4              # via -r requirements.in
 ipython-genutils==0.2.0   # via traitlets
 ipython==7.16.1           # via ipdb
@@ -59,10 +58,9 @@ six==1.15.0               # via jsonschema, pip-tools, pyoai, python-dateutil, r
 sqlparse==0.3.1           # via django
 structlog==20.1.0         # via -r requirements.in
 traitlets==4.3.3          # via ipython
-urllib3==1.25.10          # via -r requirements.in, elasticsearch, requests, responses
+urllib3==1.25.11          # via -r requirements.in, elasticsearch, requests, responses
 wcwidth==0.2.5            # via prompt-toolkit
 xmltodict==0.12.0         # via -r requirements.in
-zipp==3.3.0               # via importlib-metadata
 zope.event==4.5.0         # via gevent
 zope.interface==5.1.2     # via gevent
 
