@@ -10,9 +10,9 @@ from copy import deepcopy
 import logging
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
-from django.db.models import Q, Sum
+from django.db.models import JSONField, Q, Sum
 from django.http import Http404
 from rest_framework.serializers import ValidationError
 

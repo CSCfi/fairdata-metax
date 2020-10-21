@@ -1,5 +1,5 @@
-coveralls		    # code coverage reportin in travis
-datacite		    # BSD-license. convert datasets to datacite xml. datacite metadata store api wrappers
+coveralls           # code coverage reportin in travis
+datacite            # BSD-license. convert datasets to datacite xml. datacite metadata store api wrappers
 python-dateutil
 django              # BSD-license
 elasticsearch>=7.0.0,<8.0.0
@@ -27,3 +27,4 @@ simplejson          # MIT-license
 urllib3
 xmltodict           # MIT-license
 pip-tools           # keeping dependencies updated
+
