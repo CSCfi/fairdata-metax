@@ -547,7 +547,7 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         # ensure original now has the files
         self.assertEqual(CR.objects.get(pk=cr['id']).files.count(), 3)
 
-    def test_delete_draft(self):
+    def test_delete_draft_of_published_dataset(self):
         """
         Delete draft of a published dataset.
         """
@@ -588,3 +588,21 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         response = self.client.post('/rpc/v2/datasets/merge_draft?identifier=%d' % draft_cr.data['id'], format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertTrue('The origin dataset of this draft is deprecated' in response.data['detail'][0], response.data)
+
+    def test_delete_published_dataset_with_an_unmerged_draft(self):
+        """
+        Delete published dataset that has an unmerged draft
+        """
+        cr = self._create_dataset(with_files=False)
+        draft_cr = self._create_draft(cr['id'])
+
+        response = self.client.delete('/rest/v2/datasets/%d' % cr['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # Both are be deleted
+        draft_found = CR.objects_unfiltered.filter(pk=draft_cr['id']).exists()
+        self.assertEqual(draft_found, False)
+
+        original = self.client.get('/rest/v2/datasets/%s?removed=true' % cr['id'], format='json')
+        self.assertEqual(original.status_code, status.HTTP_200_OK, original.data)
+        self.assertEqual(original.data['removed'], True, original.data)
