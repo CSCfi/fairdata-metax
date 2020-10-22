@@ -369,7 +369,7 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
 
         self.cr_test_data['cumulative_state'] = cumulative_state
 
-        if with_files is False:
+        if not with_files:
             self.cr_test_data['research_dataset'].pop('files', None)
             self.cr_test_data['research_dataset'].pop('directories', None)
 
@@ -565,3 +565,26 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         response = self.client.get('/rest/v2/datasets/%s' % cr['id'], format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual('next_draft' in response.data, False, 'next_draft link should be gone')
+
+    def test_deprecated_draft(self):
+        """
+        Draft cannot be published if deprecated
+        """
+        cr = self._create_dataset(with_files=True)
+
+        cr_files = self.client.get('/rest/v2/datasets/%s?include_user_metadata&file_details'
+            % cr['id'], format="json")
+        cr_files = [f['identifier'] for f in cr_files.data['research_dataset']['files']]
+
+        draft_cr = self.client.post('/rpc/v2/datasets/create_draft?identifier=%d' % cr['id'], format="json")
+
+        delete_files = self.client.delete('/rest/v2/files', cr_files, format="json")
+        self.assertEqual(delete_files.status_code, status.HTTP_200_OK, delete_files.data)
+
+        deprecated = self.client.get('/rest/v2/datasets/%s' % cr['id'], format='json')
+        self.assertEqual(deprecated.status_code, status.HTTP_200_OK, deprecated.data)
+        self.assertTrue(deprecated.data['deprecated'], deprecated.data['deprecated'])
+
+        response = self.client.post('/rpc/v2/datasets/merge_draft?identifier=%d' % draft_cr.data['id'], format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('The origin dataset of this draft is deprecated' in response.data['detail'][0], response.data)

@@ -183,6 +183,7 @@ class CatalogRecordV2(CatalogRecord):
 
         if self.state == self.STATE_PUBLISHED:
             raise Http400('Dataset is already published.')
+
         elif self.is_draft_for_another_dataset():
             raise Http400(
                 'This dataset is a draft for another published dataset. To publish the draft changes, '
@@ -344,6 +345,12 @@ class CatalogRecordV2(CatalogRecord):
                 raise Exception('Files have been removed from the draft? This should not have been permitted')
             else:
                 _logger.info('No new files to add in draft')
+
+        if self.draft_of.deprecated:
+            raise Http400(
+                'The origin dataset of this draft is deprecated. Changing files of a deprecated '
+                'dataset is not permitted. Please create a new dataset version first.'
+            )
 
         # cumulative period can be closed. opening it is prevented through
         # versioning related rules elsewhere.
@@ -636,7 +643,7 @@ class CatalogRecordV2(CatalogRecord):
 
         This method is called both when:
         - dataset is first created
-        - when dataset is files are changed using a separate api for that purpse
+        - when dataset in files are changed using a separate api for that purpose
 
         This method should be the sole means of adding or removing files from a dataset. One exception kind of
         remains: When a new version is created from a deprecated dataset, then files with "removed=True" status

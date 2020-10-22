@@ -525,7 +525,7 @@ if executing_in_travis:
     ELASTICSEARCH = {
         'HOSTS': ['metax.fd-test.csc.fi/es'],
         'USE_SSL': True,
-        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': True,
+        'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
     }
 else:
     ELASTICSEARCH = {
