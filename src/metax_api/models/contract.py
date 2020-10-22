@@ -25,7 +25,7 @@ class Contract(Common):
         why direct sql is easier here (individual model level delete() methods are not executed).
         https://docs.djangoproject.com/en/1.11/topics/db/models/#overriding-model-methods
         """
-        super(Contract, self).delete()
+        super(Contract, self).remove()
         sql = 'update metax_api_catalogrecord set removed = true ' \
               'where active = true and removed = false ' \
               'and contract_id = %s'

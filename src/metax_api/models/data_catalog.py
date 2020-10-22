@@ -79,3 +79,6 @@ class DataCatalog(Common):
         if request.method in self.READ_METHODS or request.user.is_service:
             return True
         return False
+
+    def delete(self):
+        super(DataCatalog, self).remove()

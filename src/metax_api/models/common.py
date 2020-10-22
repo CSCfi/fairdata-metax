@@ -87,7 +87,7 @@ class Common(models.Model):
         super(Common, self).save(*args, **kwargs)
         self._update_tracked_field_values()
 
-    def delete(self):
+    def remove(self):
         """
         Mark record as removed, never delete from db.
         """

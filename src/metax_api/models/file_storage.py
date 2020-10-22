@@ -36,3 +36,6 @@ class FileStorage(Common):
             str(self.removed),
             self.file_storage_json['identifier'],
         )
+
+    def delete(self):
+        super(FileStorage, self).remove()

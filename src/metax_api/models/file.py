@@ -83,3 +83,6 @@ class File(Common):
             self.identifier,
             self.file_path
         )
+
+    def delete(self):
+        super(File, self).remove()
