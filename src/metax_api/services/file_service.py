@@ -231,17 +231,17 @@ class FileService(CommonService, ReferenceDataMixin):
                      % (params, '\n'.join(str(id) for id in ids[:10])))
 
         noparams = """
-            SELECT research_dataset->>'preferred_identifier' AS preferred_identifier
+            SELECT cr.identifier
             FROM metax_api_catalogrecord cr
             INNER JOIN metax_api_catalogrecord_files cr_f
                 ON catalogrecord_id = cr.id
             WHERE cr_f.file_id IN %s
                 AND cr.removed = false AND cr.active = true AND cr.deprecated = false
-            GROUP BY preferred_identifier
+            GROUP BY cr.identifier
             """
 
         files = """
-            SELECT f.identifier, json_agg(cr.research_dataset->>'preferred_identifier')
+            SELECT f.identifier, json_agg(cr.identifier)
             FROM metax_api_file f
             JOIN metax_api_catalogrecord_files cr_f
                 ON f.id=cr_f.file_id
@@ -256,7 +256,7 @@ class FileService(CommonService, ReferenceDataMixin):
         files_keysonly = files.replace(", json_agg(cr.research_dataset->>'preferred_identifier')", "")
 
         datasets = """
-            SELECT cr.research_dataset->>'preferred_identifier', json_agg(f.identifier)
+            SELECT cr.identifier, json_agg(f.identifier)
             FROM metax_api_file f
             JOIN metax_api_catalogrecord_files cr_f
                 ON f.id=cr_f.file_id
