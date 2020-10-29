@@ -956,36 +956,37 @@ class CatalogRecord(Common):
             super(Common, self).delete()
             return
 
-        if self.has_alternate_records():
-            self._remove_from_alternate_record_set()
-        if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
-            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
-                                                             'delete'))
+        elif self.state == self.STATE_PUBLISHED:
+            if self.has_alternate_records():
+                self._remove_from_alternate_record_set()
+            if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
+                self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
+                                                                'delete'))
 
-        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
-            self._pre_rems_deletion('dataset deletion')
-            super().save(update_fields=['rems_identifier', 'access_granter'])
+            if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+                self._pre_rems_deletion('dataset deletion')
+                super().save(update_fields=['rems_identifier', 'access_granter'])
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'delete'))
 
-        log_args = {
-            'event': 'dataset_deleted',
-            'user_id': self.user_modified,
-            'catalogrecord': {
-                'identifier': self.identifier,
-                'preferred_identifier': self.preferred_identifier,
-                'data_catalog': self.data_catalog.catalog_json['identifier'],
+            log_args = {
+                'event': 'dataset_deleted',
+                'user_id': self.user_modified,
+                'catalogrecord': {
+                    'identifier': self.identifier,
+                    'preferred_identifier': self.preferred_identifier,
+                    'data_catalog': self.data_catalog.catalog_json['identifier'],
+                }
             }
-        }
-        if self.catalog_is_legacy():
-            # delete permanently instead of only marking as 'removed'
-            super().delete()
-        else:
-            super().remove(*args, **kwargs)
-            log_args['catalogrecord']['date_removed'] = datetime_to_str(self.date_removed)
-            log_args['catalogrecord']['date_modified'] = datetime_to_str(self.date_modified)
+            if self.catalog_is_legacy():
+                # delete permanently instead of only marking as 'removed'
+                super().delete()
+            else:
+                super().remove(*args, **kwargs)
+                log_args['catalogrecord']['date_removed'] = datetime_to_str(self.date_removed)
+                log_args['catalogrecord']['date_modified'] = datetime_to_str(self.date_modified)
 
-        self.add_post_request_callable(DelayedLog(**log_args))
+            self.add_post_request_callable(DelayedLog(**log_args))
 
     def deprecate(self, timestamp=None):
         self.deprecated = True
@@ -1247,7 +1248,8 @@ class CatalogRecord(Common):
 
             super().save()
 
-            self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+            if self.state == self.STATE_PUBLISHED:
+                self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
         _logger.info(
             'Created a new <CatalogRecord id: %d, '
@@ -1439,7 +1441,8 @@ class CatalogRecord(Common):
             self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                              'update'))
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+        if self.state == self.STATE_PUBLISHED:
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
         log_args = {
             'event': 'dataset_updated',
@@ -2451,7 +2454,8 @@ class CatalogRecord(Common):
 
             super().save()
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+        if self.state == self.STATE_PUBLISHED:
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
         return True if new_state == self.CUMULATIVE_STATE_YES else False
 
@@ -2506,7 +2510,8 @@ class CatalogRecord(Common):
             self._create_new_dataset_version()
 
         super().save()
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+        if self.state == self.STATE_PUBLISHED:
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
         return (self.cumulative_state != self.CUMULATIVE_STATE_YES, len(added_file_ids))
 
