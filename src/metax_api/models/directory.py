@@ -43,8 +43,8 @@ class Directory(Common):
         ]
 
     def delete(self):
-        # actual delete
-        super(Common, self).delete()
+        # Actual delete
+        super().delete()
 
     def user_has_access(self, request):
         if request.user.is_service:

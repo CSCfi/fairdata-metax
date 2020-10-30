@@ -349,6 +349,7 @@
                 "format_version":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mfs#formatversion",
                     "title":"Format version",
+                    "minLength":1,
                     "description":"Format version as number. For example 1.0, 1,1 etc.",
                     "@type":"http://www.w3.org/2001/XMLSchema#string",
                     "type":"string"

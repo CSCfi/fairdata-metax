@@ -10,9 +10,9 @@ from copy import deepcopy
 import logging
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
-from django.db.models import Q, Sum
+from django.db.models import JSONField, Q, Sum
 from django.http import Http404
 from rest_framework.serializers import ValidationError
 
@@ -301,7 +301,7 @@ class CatalogRecord(Common):
 
     research_dataset = JSONField()
 
-    next_draft = models.OneToOneField('self', on_delete=models.DO_NOTHING, null=True,
+    next_draft = models.OneToOneField('self', on_delete=models.SET_NULL, null=True,
         related_name='draft_of',
         help_text='A draft of the next changes to be published on this dataset, in order to be able '
                   'to save progress, and continue later. Is created from a published dataset. '
@@ -315,7 +315,7 @@ class CatalogRecord(Common):
         related_name='+')
 
     dataset_version_set = models.ForeignKey(
-        DatasetVersionSet, on_delete=models.SET_NULL, null=True, related_name='records',
+        DatasetVersionSet, on_delete=models.DO_NOTHING, null=True, related_name='records',
         help_text='Records which are different dataset versions of each other.')
 
     cumulative_state = models.IntegerField(choices=CUMULATIVE_STATE_CHOICES, default=CUMULATIVE_STATE_NO)
@@ -979,9 +979,9 @@ class CatalogRecord(Common):
         }
         if self.catalog_is_legacy():
             # delete permanently instead of only marking as 'removed'
-            super(Common, self).delete()
+            super().delete()
         else:
-            super().delete(*args, **kwargs)
+            super().remove(*args, **kwargs)
             log_args['catalogrecord']['date_removed'] = datetime_to_str(self.date_removed)
             log_args['catalogrecord']['date_modified'] = datetime_to_str(self.date_modified)
 

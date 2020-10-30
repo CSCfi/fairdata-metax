@@ -32,4 +32,4 @@ class XmlMetadata(Common):
         """
         Deletes permanently - does not only mark as removed
         """
-        super(Common, self).delete()
+        super().delete()

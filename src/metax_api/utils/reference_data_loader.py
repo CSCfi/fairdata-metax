@@ -179,19 +179,22 @@ class ReferenceDataLoader():
         NOTE: Whenever there is an major version update of the es cluster, this incompatibility
         issue raises. It might be also good to leave this function here and utilize it on
         coming ES updates as well.
+
+        Commented code below to possibly be used again on elasticsearch update.
         """
-        from elasticsearch5 import Elasticsearch as es5
-        from elasticsearch5.helpers import scan as scan5
+        # from elasticsearch5 import Elasticsearch as es5
+        # from elasticsearch5.helpers import scan as scan5
 
-        es = es5(hosts, **conn_params)
-        scan = scan5
+        # es = es5(hosts, **conn_params)
+        # scan = scan5
 
-        # from ES 7.0 onwards, total attribute changed from int to object
-        if isinstance(es.search(index='reference_data')['hits']['total'], dict):
-            from elasticsearch import Elasticsearch as es7
-            from elasticsearch.helpers import scan as scan7
+        # # from ES 7.0 onwards, total attribute changed from int to object
+        # if isinstance(es.search(index='reference_data')['hits']['total'], dict):
 
-            es = es7(hosts, **conn_params)
-            scan = scan7
+        from elasticsearch import Elasticsearch as es7
+        from elasticsearch.helpers import scan as scan7
+
+        es = es7(hosts, **conn_params)
+        scan = scan7
 
         return es, scan

@@ -111,23 +111,23 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         """
         Parameter ?keysonly should return just values
         """
-        response = self.client.post('/rest/files/datasets?keys=files&keysonly', [1, 2, 121], format='json')
+        response = self.client.post('/rest/v2/files/datasets?keys=files&keysonly', [1, 2, 121], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 2) # pid:urn:121 does not belong to any dataset
         self.assertEqual(type(response.data), list, type(response.data)) # no dict keys
 
-        response = self.client.post('/rest/files/datasets?keys=files&keysonly=false', [1, 2], format='json')
+        response = self.client.post('/rest/v2/files/datasets?keys=files&keysonly=false', [1, 2], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(type(response.data), dict, response.data) # Return by keys
 
-        response = self.client.post('/rest/files/datasets?keys=datasets&keysonly', [1, 2, 14], format='json')
+        response = self.client.post('/rest/v2/files/datasets?keys=datasets&keysonly', [1, 2, 14], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self._assert_results_length(response, 2) # Only datasets 1 and 2 have files
         self.assertEqual(type(response.data), list, type(response.data)) # no dict keys
 
     def test_get_detailed_related_datasets_ok_1(self):
         """
-        File identifiers listed below should belong to 5 datasets
+        File identifiers listed below should belong to 3 datasets
         """
         response = self.client.post('/rest/v2/files/datasets?keys=files', [1], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -198,6 +198,47 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
 
         # set of all returned datasets
         self.assertEqual(len(set(sum(response.data.values(), []))), 10, response.data)
+
+    def test_get_right_files_and_datasets(self):
+        """
+        Check that returned files and datasets are the right ones
+        """
+        testfile = self._get_object_from_test_data('file')
+
+        cr = self.client.get('/rest/v2/datasets/10', format='json')
+        self.assertEqual(cr.status_code, status.HTTP_200_OK, cr.data)
+
+        response = self.client.post('/rest/v2/files/datasets?keys=datasets', [cr.data['identifier']], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        # cr 10 has 2 default files
+        self.assertEqual(response.data == {'cr955e904-e3dd-4d7e-99f1-3fed446f9610':
+        ['pid:urn:19', 'pid:urn:20']}, True, response.data)
+
+        response = self.client.post('/rest/v2/files/datasets?keys=files', [testfile['identifier']], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        # file 1 belongs to 3 datasets
+        self.assertEqual(response.data == {'pid:urn:1': ['cr955e904-e3dd-4d7e-99f1-3fed446f96d1',
+            'cr955e904-e3dd-4d7e-99f1-3fed446f9611', 'cr955e904-e3dd-4d7e-99f1-3fed446f9612']}, True, response.data)
+
+        # Dataset 11 has 20 files in a directory
+        cr = self.client.get('/rest/v2/datasets/11', format='json')
+        self.assertEqual(cr.status_code, status.HTTP_200_OK, cr.data)
+
+        # Compare using return from different api
+        files_in_cr11 = self.client.get('/rest/v2/datasets/11/files', format='json')
+        self.assertEqual(files_in_cr11.status_code, status.HTTP_200_OK, files_in_cr11.data)
+        identifiers = []
+        [identifiers.append(i['identifier']) for i in files_in_cr11.data]
+
+        response = self.client.post('/rest/v2/files/datasets?keys=datasets', [11], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        # This should have the same file id's as the return from /rest/v2/datasets/11/files
+        self.assertEqual(response.data['cr955e904-e3dd-4d7e-99f1-3fed446f9611'], identifiers, response.data)
+
+        response = self.client.post('/rest/v2/files/datasets?keys=files', ['pid:urn:20'], format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        # Dataset 11 should be found from results
+        self.assertTrue('cr955e904-e3dd-4d7e-99f1-3fed446f9611' in response.data['pid:urn:20'], response.data)
 
     def test_get_related_datasets_files_not_found(self):
         """

@@ -5,8 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models import JSONField
 from rest_framework.serializers import ValidationError
 
 from .common import Common, CommonManager
@@ -83,3 +83,6 @@ class File(Common):
             self.identifier,
             self.file_path
         )
+
+    def delete(self):
+        super(File, self).remove()
