@@ -491,9 +491,32 @@ paths:
           schema:
             $ref: '#/definitions/StringList'
         - $ref: "#/parameters/dryrun"
+        - name: keys=datasets
+          in: query
+          description: A list of dataset id's (integers) or identifiers (strings).
+                      Returns the files that belong to datasets. If dataset doesn't contain files,
+                      an empty list is returned.
+          required: false
+          schema:
+            $ref: '#/definitions/StringList'
+        - name: keys=files
+          in: query
+          description: A list of file id's (integers) or identifiers (strings).
+                        Returns the datasets that the file belongs to. If a file doesn't belong to any dataset,
+                        an empty list is returned.
+          required: false
+          schema:
+            $ref: '#/definitions/StringList'
+        - name: keysonly
+          in: query
+          description: Returns those files from original input that belong to a dataset,
+                        or in case of keys=datasets, returns those datasets from original list of datasets
+                        that have files.
+          required: false
+          type: boolean
       responses:
         '200':
-          description: A list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
+          description: A list of pids. if the files were not found to belong to any datasets, or dataset didn't contain any files, an empty list is returned
         '403':
           description: Forbidden. Must have permission for resource
         '404':
@@ -617,7 +640,7 @@ paths:
           type: string
         - name: pagination
           in: query
-          description: Sets paging on with default limit of 10 
+          description: Sets paging on with default limit of 10
           required: false
           type: bolean
         - name: offset

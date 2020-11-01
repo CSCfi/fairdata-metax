@@ -5,8 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models import JSONField
 
 from .common import Common
 
@@ -79,3 +79,6 @@ class DataCatalog(Common):
         if request.method in self.READ_METHODS or request.user.is_service:
             return True
         return False
+
+    def delete(self):
+        super(DataCatalog, self).remove()

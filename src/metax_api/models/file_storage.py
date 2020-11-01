@@ -5,8 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from django.contrib.postgres.fields import JSONField
-
+from django.db.models import JSONField
 from .common import Common
 
 
@@ -37,3 +36,6 @@ class FileStorage(Common):
             str(self.removed),
             self.file_storage_json['identifier'],
         )
+
+    def delete(self):
+        super(FileStorage, self).remove()
