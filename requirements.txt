@@ -30,7 +30,7 @@ ipython-genutils==0.2.0   # via traitlets
 ipython==7.16.1           # via ipdb
 jedi==0.17.2              # via ipython
 jsonschema==3.2.0         # via -r requirements.in, datacite
-lxml==4.5.2               # via -r requirements.in, datacite, pyoai
+lxml==4.6.1               # via -r requirements.in, datacite, pyoai
 mccabe==0.6.1             # via flake8
 parso==0.7.1              # via jedi
 pexpect==4.8.0            # via ipython
