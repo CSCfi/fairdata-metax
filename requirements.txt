@@ -57,7 +57,7 @@ simplejson==3.17.2        # via -r requirements.in
 six==1.15.0               # via jsonschema, pip-tools, pyoai, python-dateutil, responses, structlog, traitlets
 sqlparse==0.3.1           # via django
 structlog==20.1.0         # via -r requirements.in
-traitlets==4.3.3          # via ipython
+traitlets==4.3.3          # via -r requirements.in, ipython
 urllib3==1.25.11          # via -r requirements.in, elasticsearch, requests, responses
 wcwidth==0.2.5            # via prompt-toolkit
 xmltodict==0.12.0         # via -r requirements.in
