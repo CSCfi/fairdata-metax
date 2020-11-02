@@ -42,7 +42,7 @@ psycopg2-binary==2.8.6    # via -r requirements.in
 ptyprocess==0.6.0         # via pexpect
 pycodestyle==2.6.0        # via flake8
 pyflakes==2.2.0           # via flake8
-pygments==2.7.1           # via ipython
+pygments==2.7.2           # via ipython
 pyjwt==1.7.1              # via -r requirements.in
 pyoai==2.5.0              # via -r requirements.in
 pyrsistent==0.17.3        # via jsonschema
