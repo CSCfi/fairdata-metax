@@ -290,7 +290,8 @@ class CatalogRecordV2(CatalogRecord):
             % (self.id, self.identifier, self.preferred_identifier)
         )
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+        if self.state == self.STATE_PUBLISHED:
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
     def merge_draft(self):
         """
@@ -1433,7 +1434,8 @@ class CatalogRecordV2(CatalogRecord):
         super(CatalogRecord, self).save()
 
         if publish_update:
-            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+            if self.state == self.STATE_PUBLISHED:
+                self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
     def calculate_directory_byte_sizes_and_file_counts(self):
         """
