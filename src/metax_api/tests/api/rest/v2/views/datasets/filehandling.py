@@ -685,6 +685,46 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('Changing files of a deprecated' in response.data['detail'][0], True, response.data)
 
+    def test_prevent_adding_files_with_normal_update(self):
+        cr_id = self._create_draft()
+
+        cr = self.client.get(f'/rest/v2/datasets/{cr_id}', format="json").data
+
+        for type in ['files', 'directories']:
+            cr['research_dataset'][type] = [
+                {
+                    "identifier": 'pid:urn:%s1' % '' if type == 'files' else 'dir:'
+                }
+            ]
+
+            response = self.client.put(f'/rest/v2/datasets/{cr_id}?include_user_metadata', cr, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(type in response.data['research_dataset'], False, response.data)
+
+            cr['research_dataset'].pop(type)
+
+        # test for published dataset
+        self.cr_test_data.pop('files', None)
+        self.cr_test_data.pop('directories', None)
+
+        response = self.client.post('/rest/v2/datasets/', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+
+        for type in ['files', 'directories']:
+            cr['research_dataset'][type] = [
+                {
+                    "identifier": 'pid:urn:%s1' % '' if type == 'files' else 'dir:'
+                }
+            ]
+
+            response = self.client.put(f'/rest/v2/datasets/{cr["id"]}?include_user_metadata', cr, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(type in response.data['research_dataset'], False, response.data)
+
+            cr['research_dataset'].pop(type)
+
     def test_directory_entries_are_processed_in_order(self):
         """
         Directory entries should executed in the order they are given in the request body.

@@ -27,6 +27,7 @@ END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 EXT_CATALOG = django_settings.EXT_DATA_CATALOG_IDENTIFIER
+DFT_CATALOG = django_settings.DFT_DATA_CATALOG_IDENTIFIER
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
     """
@@ -3729,12 +3730,18 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.assertEqual('selected data catalog' in response.data['detail'][0], True, response.data)
 
         # should work
-        for identifier in END_USER_ALLOWED_DATA_CATALOGS:
+        # draft catalog cannot be used in V1 api so skip them here
+        for identifier in [ dc for dc in END_USER_ALLOWED_DATA_CATALOGS if dc != DFT_CATALOG ]:
             if identifier in LEGACY_CATALOGS:
                 self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
+
             self.cr_test_data['data_catalog'] = identifier
             response = self.client.post('/rest/datasets', self.cr_test_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+            if identifier in LEGACY_CATALOGS:
+                # prevents next test from crashing if legacy catalog is not the last in the list
+                del self.cr_test_data['research_dataset']['preferred_identifier']
 
     @responses.activate
     def test_owner_can_edit_dataset(self):

@@ -211,14 +211,17 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         response = self.client.post('/rest/files/datasets?keys=datasets', [cr.data['identifier']], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         # cr 10 has 2 default files
-        self.assertEqual(response.data == {'cr955e904-e3dd-4d7e-99f1-3fed446f9610':
-        ['pid:urn:19', 'pid:urn:20']}, True, response.data)
+        for keys, values in response.data.items():
+            self.assertEqual(keys == 'cr955e904-e3dd-4d7e-99f1-3fed446f9610', True, response.data)
+            self.assertEqual('pid:urn:19' and 'pid:urn:20' in values, True, response.data)
 
         response = self.client.post('/rest/files/datasets?keys=files', [testfile['identifier']], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         # file 1 belongs to 3 datasets
-        self.assertEqual(response.data == {'pid:urn:1': ['cr955e904-e3dd-4d7e-99f1-3fed446f96d1',
-            'cr955e904-e3dd-4d7e-99f1-3fed446f9611', 'cr955e904-e3dd-4d7e-99f1-3fed446f9612']}, True, response.data)
+        for keys, values in response.data.items():
+            self.assertEqual(keys == 'pid:urn:1', True, response.data)
+            self.assertEqual('cr955e904-e3dd-4d7e-99f1-3fed446f96d1' and 'cr955e904-e3dd-4d7e-99f1-3fed446f9612'
+                and 'cr955e904-e3dd-4d7e-99f1-3fed446f9611' in values, True, response.data)
 
         # Dataset 11 has 20 files in a directory
         cr = self.client.get('/rest/datasets/11', format='json')

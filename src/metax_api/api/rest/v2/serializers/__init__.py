@@ -6,3 +6,4 @@
 # :license: MIT
 
 from .catalog_record_serializer import CatalogRecordSerializerV2
+from .data_catalog_serializer import DataCatalogSerializerV2

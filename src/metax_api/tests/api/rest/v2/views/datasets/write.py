@@ -34,7 +34,7 @@ END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 EXT_CATALOG = django_settings.EXT_DATA_CATALOG_IDENTIFIER
-
+DFT_CATALOG = django_settings.DFT_DATA_CATALOG_IDENTIFIER
 
 def create_end_user_catalogs():
     dc = DataCatalog.objects.get(pk=1)
@@ -1568,9 +1568,15 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         for identifier in END_USER_ALLOWED_DATA_CATALOGS:
             if identifier in LEGACY_CATALOGS:
                 self.cr_test_data['research_dataset']['preferred_identifier'] = 'a'
+
+            params = 'draft' if identifier == DFT_CATALOG else ''
             self.cr_test_data['data_catalog'] = identifier
-            response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+            response = self.client.post(f'/rest/v2/datasets?{params}', self.cr_test_data, format="json")
             self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+            if identifier in LEGACY_CATALOGS:
+                # prevents next test from crashing if legacy catalog is not the last in the list
+                del self.cr_test_data['research_dataset']['preferred_identifier']
 
     @responses.activate
     def test_owner_can_edit_dataset(self):
