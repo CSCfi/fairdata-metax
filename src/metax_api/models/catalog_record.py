@@ -2019,8 +2019,8 @@ class CatalogRecord(Common):
             self.add_post_request_callable(DataciteDOIUpdate(new_version,
                                                              new_version.research_dataset['preferred_identifier'],
                                                              'create'))
-
-        new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
+        if self.state == self.STATE_PUBLISHED:
+            new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
 
         old_version.new_dataset_version_created = new_version.identifiers_dict
         old_version.new_dataset_version_created['version_type'] = 'dataset'
