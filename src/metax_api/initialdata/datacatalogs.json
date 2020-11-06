@@ -71,9 +71,9 @@
         "research_dataset_schema": "ida",
         "logo": "fairdata_tree_logo.svg"
     },
-    "catalog_record_services_edit": "metax,qvain,qvain-light,tpas",
-    "catalog_record_services_create": "metax,qvain,qvain-light,tpas",
-    "catalog_record_services_read": "metax,qvain,qvain-light,etsin,tpas"
+        "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
+        "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
+        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas"
 },
 {
     "catalog_json": {
@@ -148,9 +148,9 @@
         "research_dataset_schema": "att",
         "logo": "fairdata_tree_logo.svg"
     },
-    "catalog_record_services_edit": "metax,qvain,qvain-light,tpas",
-    "catalog_record_services_create": "metax,qvain,qvain-light,tpas",
-    "catalog_record_services_read": "metax,qvain,qvain-light,etsin,tpas"
+        "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
+        "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
+        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas"
 },
 {
     "catalog_json": {
@@ -226,11 +226,11 @@
         "research_dataset_schema": "ida",
         "logo": "fairdata_tree_logo.svg"
     },
-    "catalog_record_group_edit": "pas_edit",
-    "catalog_record_group_create": "pas_create",
-    "catalog_record_services_edit": "metax,tpas",
-    "catalog_record_services_create": "metax,tpas",
-    "catalog_record_services_read": "metax,tpas"
+        "catalog_record_group_edit": "pas_edit",
+        "catalog_record_group_create": "pas_create",
+        "catalog_record_services_edit": "metax,tpas",
+        "catalog_record_services_create": "metax,tpas",
+        "catalog_record_services_read": "metax,tpas"
 },
 {
     "catalog_json": {
@@ -354,7 +354,7 @@
         "dataset_versioning": false,
         "research_dataset_schema": "dft"
       },
-    "catalog_record_services_create": "testuser,api_auth_user,metax",
-    "catalog_record_services_edit": "testuser,api_auth_user,metax",
-    "catalog_record_services_read": "testuser,api_auth_user,metax"
+        "catalog_record_services_edit": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
+        "catalog_record_services_create": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
+        "catalog_record_services_read": "metax,qvain,qvain-light,etsin,tpas, ida, testuser, api_auth_user"
 }]
