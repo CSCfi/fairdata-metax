@@ -248,14 +248,17 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         When the files themselves are not found, 404 should be returned
         """
         response = self.client.post('/rest/files/datasets', ['doesnotexist'], format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 0)
 
         response = self.client.post('/rest/files/datasets?keys=files', ['doesnotexist'], format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 0)
 
         # Support for ?detailed
         response = self.client.post('/rest/files/datasets?detailed', ['doesnotexist'], format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self._assert_results_length(response, 0)
 
     def test_get_related_datasets_records_not_found(self):
         """
