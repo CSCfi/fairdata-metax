@@ -16,7 +16,7 @@ pika
 psycopg2-binary     # LGPL with exceptions or ZPL
 PyJWT               # MIT-license
 pyoai
-python-simplexquery
+# python-simplexquery
 pytz
 pyyaml
 redis
@@ -27,4 +27,10 @@ simplejson          # MIT-license
 urllib3
 xmltodict           # MIT-license
 pip-tools           # keeping dependencies updated
+django-environ
+django-split-settings
+icecream
+rdflib
+django-sslserver
+
 
