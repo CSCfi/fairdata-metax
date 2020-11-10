@@ -35,81 +35,10 @@ class RequestLogging():
         start_time = time()
 
         username, user_type = self.get_username(request)
+        _logger.info(f"request: {request.method} usertype: {user_type}, username: {username} pid: {self._pid}")
 
-        try:
-            json_logger.info(
-                event='request_start',
-                user_id=username,
-                request={
-                    'query_string': request.environ['QUERY_STRING'],
-                    'url_path': request.environ['PATH_INFO'],
-                    'ip': request.environ['HTTP_X_REAL_IP'],
-                    'user_type': user_type,
-                    'http_method': request.environ['REQUEST_METHOD'],
-                    'process_id': self._pid,
-                }
-            )
-        except:
-            _logger.exception('Exception during trying to json-log request start')
-
-        try:
-            _logger.info(
-                '%s - [%s] %s - "%s %s %s" %s'
-                % (
-                    request.environ['HTTP_X_REAL_IP'],
-                    user_type,
-                    username,
-                    request.environ['REQUEST_METHOD'],
-                    request.get_full_path(),
-                    request.environ['SERVER_PROTOCOL'],
-                    request.environ.get('HTTP_USER_AGENT', '(no useragent)')
-                )
-            )
-        except:
-            _logger.exception('Exception during trying to log request start')
 
         response = self.get_response(request)
-
-        try:
-            _logger.info(
-                '%s - [%s] %s - "%s %s" %d %s - %.3fs'
-                % (
-                    request.environ['HTTP_X_REAL_IP'],
-                    user_type,
-                    username,
-                    request.method,
-                    request.get_full_path(),
-                    response.status_code,
-                    response._headers.get('content-length', ['-', '-'])[1],
-                    time() - start_time
-                )
-            )
-        except:
-            _logger.exception('Exception during trying to log request end')
-
-        try:
-            request_info = {
-                'event': 'request_end',
-                'user_id': username,
-                'request': {
-                    'query_string': request.environ['QUERY_STRING'],
-                    'url_path': request.environ['PATH_INFO'],
-                    'ip': request.environ['HTTP_X_REAL_IP'],
-                    'user_type': user_type,
-                    'http_method': request.environ['REQUEST_METHOD'],
-                    'http_status': response.status_code,
-                    'process_id': self._pid,
-                    'request_duration': float('%.3f' % (time() - start_time)),
-                }
-            }
-
-            if response.status_code not in SUCCESS_CODES and hasattr(response, 'data') and \
-                    'error_identifier' in response.data:
-                request_info['error'] = { 'error_identifier': response.data['error_identifier'] }
-
-            json_logger.info(**request_info)
-        except:
-            _logger.exception('Exception during trying to json-log request end')
 
         return response
 
