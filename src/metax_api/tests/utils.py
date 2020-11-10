@@ -4,7 +4,8 @@
 #
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
-
+import logging
+import sys
 from base64 import b64encode
 from json import load as json_load
 from os import path
@@ -13,6 +14,7 @@ from django.conf import settings as django_settings
 import jwt
 import responses
 from rest_framework import status
+from contextlib import contextmanager
 
 datetime_format = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -378,3 +380,23 @@ class TestClassUtils():
         })
         del from_test_data['id']
         return from_test_data
+
+
+@contextmanager
+def streamhandler_to_console(lggr):
+    # Use 'up to date' value of sys.stdout for StreamHandler,
+    # as set by test runner.
+    stream_handler = logging.StreamHandler(sys.stdout)
+    lggr.addHandler(stream_handler)
+    yield
+    lggr.removeHandler(stream_handler)
+
+def testcase_log_console(lggr):
+    def testcase_decorator(func):
+        def testcase_log_console(*args, **kwargs):
+            with streamhandler_to_console(lggr):
+                return func(*args, **kwargs)
+
+        return testcase_log_console
+
+    return testcase_decorator
