@@ -58,7 +58,7 @@ Move the `cert.pem` and `key.pem` to `.certs` folder (create the folder if not p
 
 ### Required environmental variables
 
-Rename `.env.template` as `.env` and fill required variables, you can find examples in ENV_VARS.md
+copy `.env.template` as `.env` and fill required variables, you can find examples in ENV_VARS.md
 
 ### Initial setup commands
 
