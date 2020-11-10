@@ -77,10 +77,9 @@ class _IdentifyApiCaller():
         """
         Services, or other pre-defined api users.
         """
-        with open('/home/metax-user/app_config') as app_config:
-            app_config_dict = yaml.load(app_config, Loader=yaml.FullLoader)
+
         try:
-            return app_config_dict['API_USERS']
+            return django_settings.API_USERS
         except:
             _logger.exception('API_USERS missing from app_config')
             raise

@@ -6,6 +6,7 @@
 # :license: MIT
 
 from base64 import b64encode
+from django.conf import settings
 from json import dumps
 import requests
 from time import sleep
@@ -29,10 +30,9 @@ urllib3.disable_warnings()
 
 
 def get_auth_header():
-    with open('/home/metax-user/app_config') as app_config:
-        app_config_dict = yaml.load(app_config, Loader=yaml.FullLoader)
 
-    for u in app_config_dict['API_USERS']:
+
+    for u in settings['API_USERS']:
         if u['username'] == 'metax':
             return {
                 'Authorization': 'Basic %s'
