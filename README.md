@@ -38,7 +38,7 @@ We will use portainer container management tool for various development dependen
 
 `$ docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce`
 
-Finish the Portainer setup by logging in at http://localhost:9000, create local endpoint from the Portainer interface. Go to Portainer settings and set App Templates url to `https://raw.githubusercontent.com/EarthModule/portainer-templates/master/metax-templates.json`
+Finish the Portainer setup by logging in at http://localhost:9000, create a local endpoint from the Portainer interface. Go to Portainer settings and set App Templates url to: `https://raw.githubusercontent.com/EarthModule/portainer-templates/master/metax-templates.json`
 
 Go to App Templates and start Postgres 9, Redis, ElasticSearch and RabbitMQ images. __NOTICE__: On each template setup click show advanced options and map the image exposed ports to identical host ports.
 
@@ -56,7 +56,7 @@ Rename `.env.template` as `.env` and fill required variables, you can find examp
 
 ### Initial setup commands
 
-Activate your python 3.6 virtulenv, `cd` into `src` folder and run following commands:
+Activate your python 3.6 virtualenv, `cd` into `src` folder and run following commands:
 
 `python manage.py migrate`
 
