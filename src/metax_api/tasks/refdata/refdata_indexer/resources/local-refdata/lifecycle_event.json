@@ -1,0 +1,16 @@
+[{"id":"ordered", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/ordered", "label":{"fi":"Tilattu","en":"Ordered"}},
+{"id":"planned", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/planned", "label":{"fi":"Suunniteltu","en":"Planned"}},
+{"id":"generated", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/generated", "label":{"fi":"Tuotettu","en":"Generated"}},
+{"id":"collected", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected", "label":{"fi":"Kerätty","en":"Collected"}},
+{"id":"received", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/received", "label":{"fi":"Vastaanotettu","en":"Received"}},
+{"id":"checked", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/checked", "label":{"fi":"Tarkistettu","en":"Checked"}},
+{"id":"fixed", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/fixed", "label":{"fi":"Korjattu","en":"Fixed"}},
+{"id":"modified", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/modified", "label":{"fi":"Muokattu","en":"Modified"}},
+{"id":"transferred", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/transferred", "label":{"fi":"Siirretty","en":"Transferred"}},
+{"id":"reused", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/reused", "label":{"fi":"Käytetty","en":"Re-used"}},
+{"id":"cited", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/cited", "label":{"fi":"Viitattu","en":"Cited"}},
+{"id":"archived", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/archived", "label":{"fi":"Arkistoitu","en":"Archived"}},
+{"id":"curated", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/curated", "label":{"fi":"Kuratoitu","en":"Curated"}},
+{"id":"removed", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/removed", "label":{"fi":"Poistettu","en":"Removed"}},
+{"id":"destroyed", "uri":"http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/destroyed", "label":{"fi":"Tuhottu","en":"Destroyed"}}
+]

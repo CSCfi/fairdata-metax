@@ -1,0 +1,3 @@
+[{"id":"Success","uri":"http://uri.suomi.fi/codelist/fairdata/event_outcome/code/success","label":{"en":"Success", "fi":"Onnistunut", "sv":"Framgångsrik"}},
+{"id":"Failure","uri":"http://uri.suomi.fi/codelist/fairdata/event_outcome/code/failure","label":{"en":"Failure", "fi":"Epäonnistunut", "sv":"Misslyckad"}},
+{"id":"Unknown","uri":"http://uri.suomi.fi/codelist/fairdata/event_outcome/code/unknown","label":{"en":"Unknown", "fi":"Tuntematon", "sv":"Okänt"}}]
