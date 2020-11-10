@@ -16,7 +16,7 @@ Licensed under [GNU GPLv2 License](LICENSE)
 
 ## Setting up local development environment
 
-### Prequisits
+### Prerequisites
 
 #### Docker-Engine
 
