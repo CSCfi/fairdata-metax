@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import DataCatalog
-from metax_api.services import RedisCacheService as cache
+from metax_api.services.redis_cache_service import RedisClient
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 
@@ -96,6 +96,7 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to data catalog to their approriate fields
         """
+        cache = RedisClient()
         refdata = cache.get('reference_data')['reference_data']
         orgdata = cache.get('reference_data')['organization_data']
         refs = {}
