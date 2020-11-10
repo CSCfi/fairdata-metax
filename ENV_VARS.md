@@ -1,6 +1,6 @@
 # Required environmental variables
 
-Rename .env.template as .env and fill following variables manually
+copy .env.template to .env and fill following variables manually
 
 | Name                           | Description                              | example                                                                                                       |
 | ------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
