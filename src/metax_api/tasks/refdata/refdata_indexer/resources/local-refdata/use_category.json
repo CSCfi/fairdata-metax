@@ -1,0 +1,8 @@
+[{"id":"source", "uri":"http://uri.suomi.fi/codelist/fairdata/use_category/code/source", "label":{"fi":"Lähdeaineisto","en":"Source material"}},
+{"id":"outcome", "uri":"http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome", "label":{"fi":"Tulosaineisto","en":"Outcome material"}},
+{"id":"publication", "uri":"http://uri.suomi.fi/codelist/fairdata/use_category/code/publication", "label":{"fi":"Julkaisu","en":"Publication"}},
+{"id":"documentation", "uri":"http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation", "label":{"fi":"Dokumentaatio","en":"Documentation"}},
+{"id":"configuration", "uri":"http://uri.suomi.fi/codelist/fairdata/use_category/code/configuration", "label":{"fi":"Konfiguraatiotiedosto","en":"Configuration files"}},
+{"id":"method", "uri":"http://uri.suomi.fi/codelist/fairdata/use_category/code/method", "label":{"fi":"Metodi","en":"Method"}},
+{"id":"rights", "uri":"http://uri.suomi.fi/codelist/fairdata/use_category/code/rights", "label":{"fi":"Oikeuksien kuvaus","en":"Rights statement"}}
+]

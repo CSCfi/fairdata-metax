@@ -1,0 +1,13 @@
+[
+  {"id": "academy-of-finland", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/academy-of-finland", "label": {"fi": "Suomen Akatemia", "en": "Academy of Finland"}},
+  {"id": "tekes", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/tekes", "label": {"fi": "Tekes", "en": "Tekes"}},
+  {"id": "tekes-shok", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/tekes-shok", "label": {"fi": "Tekes SHOK", "en": "Tekes SHOK"}},
+  {"id": "eu-framework-programme",  "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/eu-framework-programme", "label": {"fi": "EU puiteohjelmat", "en": "EU Framework Programme"}},
+  {"id": "eu-eakr", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/eu-eakr", "label": {"fi": "EU Euroopan aluekehitysrahasto EAKR", "en": "EU Regional Development Fund EAKR"}},
+  {"id": "eu-esr", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/eu-esr", "label": {"fi": "EU Euroopan sosiaalirahasto ESR", "en": "EU European Social Fund ESR"}},
+  {"id": "eu-other", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/eu-other", "label": {"fi": "EU muu rahoitus", "en": "EU other funding"}},
+  {"id": "finnish-fof", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/finnish-fof",  "label": {"fi": "Kotimainen rahasto tai säätiö", "en": "Finnish fund or foundation"}},
+  {"id": "foreign-fof", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/foreign-fof", "label": {"fi": "Ulkomainen rahasto tai säätiö", "en": "Foreign fund or foundation"}},
+  {"id": "other-public", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/other-public", "label": {"fi": "Muu julkinen rahoitus", "en": "Other public funding"}},
+  {"id": "commercial", "uri":"http://uri.suomi.fi/codelist/fairdata/funder_type/code/commercial", "label": {"fi": "Yritys", "en": "Commercial"}}
+]
