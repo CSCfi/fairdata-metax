@@ -13,3 +13,5 @@
 ubuntu-xenial-16.04-cloudimg-console.log
 .ropeproject/
 .venv_metax/
+.env
+*.pem
