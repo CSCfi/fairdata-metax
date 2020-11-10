@@ -20,7 +20,9 @@ Licensed under [GNU GPLv2 License](LICENSE)
 
 #### Docker-Engine
 
-Install Docker-Engine either following instructions below for Ubuntu or looking up your platform specific instructions [from docs.docker.com][1] 
+Install Docker-Engine either following instructions below or looking up your platform specific instructions [from docs.docker.com][1] 
+
+##### Linux
 
 `$ curl -fsSL https://get.docker.com -o get-docker.sh`
 
@@ -29,6 +31,10 @@ Install Docker-Engine either following instructions below for Ubuntu or looking 
 `$ sudo usermod -aG docker $USER`
 
 Log out and back in to activate non-sudo docker capabilities
+
+##### Mac
+
+https://docs.docker.com/docker-for-mac/install/
 
 #### Portainer
 
