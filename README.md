@@ -54,11 +54,11 @@ Attach to postgres container, start the postgres cli and create the database for
 
 Install [mkcerts][2] and run `mkcert -install` and after it the following command:
 `mkcert -cert-file cert.pem -key-file key.pem 0.0.0.0 localhost 127.0.0.1 ::1 metax.csc.local 20.20.20.20`
-Move the `cert.pem` and `key.pem` to `src/.certs` folder (create the folder if not present) in the repository root.
+Move the `cert.pem` and `key.pem` to `src/.certs` folder (create the folder if not present).
 
 ### Required environmental variables
 
-copy `.env.template` as `.env` and fill required variables, you can find examples in ENV_VARS.md
+copy `src/metax_api/settings/.env.template` as `src/metax_api/settings/.env` and fill required variables, you can find examples in ENV_VARS.md
 
 ### Initial setup commands
 
