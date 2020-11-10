@@ -7,6 +7,7 @@
 
 from collections import defaultdict
 
+# from icecream import ic
 from rest_framework.serializers import ValidationError
 
 from .reference_data_mixin import ReferenceDataMixin
@@ -30,8 +31,11 @@ class DataCatalogService(ReferenceDataMixin):
         """
 
         reference_data = cls.get_reference_data(cache)
+
         refdata = reference_data['reference_data']
+        # ic(refdata.keys())
         orgdata = reference_data['organization_data']
+        # ic(orgdata.keys())
         errors = defaultdict(list)
 
         for language in data_catalog.get('language', []):

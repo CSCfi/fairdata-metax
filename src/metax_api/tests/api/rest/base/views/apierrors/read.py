@@ -4,7 +4,7 @@
 #
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
-
+import logging
 from os import makedirs
 from shutil import rmtree
 
@@ -13,8 +13,9 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import test_data_file_path, TestClassUtils, testcase_log_console
 
+_logger = logging.getLogger(__name__)
 
 class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
 
@@ -87,6 +88,7 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         self.assertEqual(response.data['data']['research_dataset']['title']['en'], 'Abc',
             response.data['data']['research_dataset']['title'])
 
+    @testcase_log_console(_logger)
     def test_delete_error_details(self):
         cr_1 = self.client.get('/rest/datasets/1').data
         cr_1.pop('id')
@@ -104,6 +106,7 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 0, response.data)
 
+    @testcase_log_console(_logger)
     def test_delete_all_error_details(self):
         cr_1 = self.client.get('/rest/datasets/1').data
         cr_1.pop('id')

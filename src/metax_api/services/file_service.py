@@ -9,6 +9,8 @@ from collections import defaultdict
 import logging
 from os import getpid
 from os.path import dirname, basename
+
+from icecream import ic
 from time import time
 from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
@@ -1252,7 +1254,7 @@ class FileService(CommonService, ReferenceDataMixin):
         but doing the minimum necessary here anyway since we can't count on FileSerializer.is_valid()
         """
         for row in initial_data_list:
-
+            # ic(row)
             if 'file_path' not in row:
                 raise Http400({
                     'file_path': ['file_path is a required parameter (file id: %s)' % row['identifier']]
