@@ -9,8 +9,11 @@ import logging
 from json import dump as dump_json, load as load_json
 from pickle import dumps as pickle_dumps, loads as pickle_loads
 from random import choice as random_choice
+from typing import Any
 
-from django.conf import settings as django_settings
+import redis
+from django.conf import settings as django_settings, settings
+from icecream import ic
 from redis.client import StrictRedis
 from redis.exceptions import TimeoutError, ConnectionError
 from redis.sentinel import MasterNotFoundError
@@ -20,6 +23,50 @@ from metax_api.utils.utils import executing_test_case, executing_travis
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
+
+
+class RedisClient(object):
+    def __init__(self, db=0):
+        if settings.REDIS_USE_PASSWORD is True:
+            self.client = redis.Redis(password=settings.REDIS["PASSWORD"], retry_on_timeout=True)
+        else:
+            self.client = redis.Redis(retry_on_timeout=True)
+        _logger.info("RedisClient created")
+
+    def set(self, key, value, **kwargs):
+        ic()
+        pickled_data = pickle_dumps(value)
+        # ic(key, value)
+        return self.client.set(key, pickled_data, **kwargs)
+
+    def get_or_set(self, key, value, **kwargs):
+        """
+        Atomic set of value only if key did not exist yet.
+
+        Returns True if set was successful, None if set failed (= value existed)
+
+        https://redis.io/commands/setnx Not recommended any longer for distributed locks...
+        https://redis.io/topics/distlock However this is also just a proposal and no official
+        implementation exists yet
+        """
+        return self.set(key, value, nx=True, **kwargs)
+
+    def get(self, key, master=False, **kwargs):
+        value: Any
+        try:
+            value = self.client.get(key)
+        except KeyError as e:
+            _logger.error(f"Redis has no {key} as key: {e}")
+        return pickle_loads(value) if value is not None else None
+
+    def delete(self, *keys):
+        self.client.delete(*keys)
+
+    def get_master(self):
+        """
+        Expose the master node to permit any operation in redis-py
+        """
+        return self.client
 
 
 class _RedisCacheService():
@@ -84,12 +131,6 @@ class _RedisCacheService():
             # no master available
             return
 
-        if self._DEBUG:
-            test = master.get(key)
-            if test:
-                d('cache: set() successful')
-            else:
-                d('cache: set() unsuccessful, could not get saved data?')
 
     def get_or_set(self, key, value, **kwargs):
         """
@@ -275,6 +316,6 @@ class _RedisCacheServiceDummy():
 
 
 if executing_travis():
-    RedisCacheService = _RedisCacheServiceDummy()
+    RedisCacheService = RedisClient
 else:
-    RedisCacheService = _RedisCacheService()
+    RedisCacheService = RedisClient
