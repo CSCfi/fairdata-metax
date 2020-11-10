@@ -9,8 +9,9 @@ import json
 import requests
 import yaml
 import urllib3
-
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from icecream import ic
 
 from metax_api.utils import executing_test_case
 
@@ -60,14 +61,9 @@ class Command(BaseCommand):
         """
         Set metax url to localhost, and get user credentials from app_config.
         """
-        self._metax_api_root = 'https://localhost'
-        try:
-            with open('/home/metax-user/app_config') as app_config:
-                app_config = yaml.load(app_config, Loader=yaml.FullLoader)
-        except FileNotFoundError:
-            raise CommandError('app_config does not exist?')
+        self._metax_api_root = settings.METAX_API_ROOT
 
-        for user in app_config['API_USERS']:
+        for user in settings.API_USERS:
             if user['username'] == 'metax':
                 self._metax_api_user = (user['username'], user['password'])
                 break
@@ -97,6 +93,7 @@ class Command(BaseCommand):
         for dc in data_catalogs:
             response = requests.post('%s/rest/v2/datacatalogs' % self._metax_api_root,
                 json=dc, auth=self._metax_api_user, verify=False)
+            # ic(response)
 
             if response.status_code == 201:
                 self.stdout.write('Created catalog: %s' % dc['catalog_json']['identifier'])

@@ -43,9 +43,9 @@ class _RabbitMQService():
             try:
                 self._connection = pika.BlockingConnection(pika.ConnectionParameters(
                     host,
-                    self._settings['PORT'],
-                    self._settings['VHOST'],
-                    self._credentials))
+                    port=self._settings['PORT'],
+                    # self._settings['VHOST'],
+                    credentials=self._credentials))
             except Exception as e:
                 _logger.error("Problem connecting to RabbitMQ server (%s), trying to reconnect..." % str(e))
                 sleep(sleep_time)
