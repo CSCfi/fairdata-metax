@@ -40,7 +40,7 @@ https://docs.docker.com/docker-for-mac/install/
 
 We will use portainer container management tool for various development dependencies. Command below will start portainer on every system startup.
 
-`$ docker volume create portainer_data`
+`$ docker volume create portainer_data` (optional for mac)
 
 `$ docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce`
 
@@ -48,7 +48,11 @@ Finish the Portainer setup by logging in at http://localhost:9000, create a loca
 
 Go to App Templates and start Postgres 9, Redis, ElasticSearch and RabbitMQ images. __NOTICE__: On each template setup click show advanced options and map the image exposed ports to identical host ports.
 
-Attach to postgres container, start the postgres cli and create the database for Metax
+Attach to postgres container, start the postgres cli with `root` user and create the database for Metax:
+
+`$ psql -U metax_db_user` by default
+
+`$ CREATE DATABASE metax_db;`
 
 #### mkcerts
 
