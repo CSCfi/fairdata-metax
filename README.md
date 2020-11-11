@@ -46,9 +46,9 @@ We will use portainer container management tool for various development dependen
 
 Finish the Portainer setup by logging in at http://localhost:9000, create a local endpoint from the Portainer interface. Go to Portainer settings and set App Templates url to: `https://raw.githubusercontent.com/EarthModule/portainer-templates/master/metax-templates.json`
 
-Go to App Templates and start Postgres 9, Redis, ElasticSearch and RabbitMQ images. __NOTICE__: On each template setup click show advanced options and map the image exposed ports to identical host ports.
+Go to App Templates and deploy Postgres 9, Redis, ElasticSearch and RabbitMQ containers. __NOTICE__: On each template setup click show advanced options and map the image exposed ports to identical host ports.
 
-Attach to postgres container, start the postgres cli with `root` user and create the database for Metax:
+Open Console to postgres container, start the postgres cli with `root` user and create the database for Metax:
 
 `$ psql -U metax_db_user` by default
 
