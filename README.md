@@ -66,14 +66,24 @@ Activate your python 3.6 virtualenv, `cd` into `src` folder and run following co
 
 `python manage.py migrate`
 
+start the development server with:
+`python manage.py runsslserver --certificate .certs/cert.pem --key .certs/key.pem 8008`
+
+Open another terminal, `cd` into `src`, and load the initial data with following commands: 
+
+`python manage.py loadinitialdata`
+
+`python manage.py loaddata metax_api/tests/testdata/test_data.json` 
+
+`python metax_api/tests/testdata/fetch_and_update_datasets.py` 
+
+still in the another terminal: run these commands: 
+
 `python manage.py index_refdata`
 
 `python manage.py reload_refdata_cache`
 
-start the development server with:
-`python manage.py runsslserver --certificate .certs/cert.pem --key .certs/key.pem 8008`
-
-Open another terminal, `cd` into `src`, and load the initial data with `python manage.py loadinitialdata`
+__NOTICE__: Please report any errors while running these commands (They might be in the wrong order)
 
 run the tests with command `DJANGO_ENV=test python manage.py test --failfast --keepdb -v 0`
 
