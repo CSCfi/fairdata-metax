@@ -15,11 +15,13 @@ ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
 PAS_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-pas"
 LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
 EXT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ext"
+DFT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-dft"
 
 END_USER_ALLOWED_DATA_CATALOGS = [
     IDA_DATA_CATALOG_IDENTIFIER,
     ATT_DATA_CATALOG_IDENTIFIER,
     LEGACY_DATA_CATALOG_IDENTIFIER,
+    DFT_DATA_CATALOG_IDENTIFIER
 ]
 
 # catalogs where uniqueness of dataset pids is not enforced.
