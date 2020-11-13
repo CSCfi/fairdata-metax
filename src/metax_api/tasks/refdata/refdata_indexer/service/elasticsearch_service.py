@@ -26,7 +26,7 @@ class ElasticSearchService:
 
     def __init__(self):
         self.es = Elasticsearch(
-            ['http://localhost:9200/']
+            settings.ELASTICSEARCH["HOSTS"]
         )
 
     def index_exists(self, index):

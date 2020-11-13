@@ -22,6 +22,7 @@ Including another URLconf
 """
 from django.conf import settings as django_settings
 from django.conf.urls import url, include
+from django.urls import re_path
 
 from metax_api.api.oaipmh.base.view import oaipmh_view as oaipmh
 from metax_api.api.rest.base.router import api_urlpatterns as rest_api_v1
@@ -51,3 +52,5 @@ if 'v1' in django_settings.API_VERSIONS_ENABLED:
 
 if 'v2' in django_settings.API_VERSIONS_ENABLED:
     urlpatterns += v2_urls
+
+urlpatterns += [re_path(r'^watchman/', include('watchman.urls')),]

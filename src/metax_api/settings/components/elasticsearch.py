@@ -3,7 +3,7 @@ from metax_api.settings.components.common import env
 # INSTALLED_APPS += ["django_elasticsearch_dsl"]
 
 ELASTICSEARCH = {
-    'HOSTS': ['localhost:9200'],
+    'HOSTS': env("ELASTIC_SEARCH_HOSTS"),
     'USE_SSL': False,
     'ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART': False,
 }
