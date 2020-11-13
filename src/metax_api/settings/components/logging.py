@@ -10,6 +10,9 @@ from metax_api.settings import env
 # - Django DEBUG enabled: Print everything from logging level DEBUG and up, to both console, and log file.
 # - Django DEBUG disabled: Print everything from logging level INFO and up, only to log file.
 
+LOGGING_DEBUG_HANDLER_FILE = env("LOGGING_DEBUG_HANDLER_FILE")
+LOGGING_JSON_FILE_HANDLER_FILE = env("LOGGING_JSON_FILE_HANDLER_FILE")
+LOGGING_GENERAL_HANDLER_FILE = env("LOGGING_GENERAL_HANDLER_FILE")
 
 LOGGING = {
     'version': 1,
@@ -38,14 +41,14 @@ LOGGING = {
         'debug': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': env("LOGGING_DEBUG_HANDLER_FILE"),
+            'filename': LOGGING_DEBUG_HANDLER_FILE,
             'formatter': 'standard',
             'filters': ['require_debug_true'],
         },
         'general': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': env("LOGGING_DEBUG_HANDLER_FILE"),
+            'filename': LOGGING_DEBUG_HANDLER_FILE,
             'formatter': 'standard',
             'filters': ['require_debug_false'],
         },
@@ -77,7 +80,7 @@ structlog.configure(
     cache_logger_on_first_use=True,
 )
 
-handler = logging.FileHandler(env("LOGGING_JSON_FILE_HANDLER_FILE"))
+handler = logging.FileHandler(LOGGING_JSON_FILE_HANDLER_FILE)
 handler.setFormatter(logging.Formatter('%(message)s'))
 json_logger = logging.getLogger('structlog')
 json_logger.addHandler(handler)

@@ -28,9 +28,9 @@ d = logging.getLogger(__name__).debug
 class RedisClient(object):
     def __init__(self, db=0):
         if settings.REDIS_USE_PASSWORD is True:
-            self.client = redis.Redis(password=settings.REDIS["PASSWORD"], retry_on_timeout=True)
+            self.client = redis.Redis(password=settings.REDIS["PASSWORD"], retry_on_timeout=True, host=settings.REDIS["HOST"], port=settings.REDIS["PORT"])
         else:
-            self.client = redis.Redis(retry_on_timeout=True)
+            self.client = redis.Redis(retry_on_timeout=True, host=settings.REDIS["HOST"], port=settings.REDIS["PORT"])
         _logger.info("RedisClient created")
 
     def set(self, key, value, **kwargs):

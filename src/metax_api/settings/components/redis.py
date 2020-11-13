@@ -3,6 +3,8 @@ from metax_api.settings import env
 REDIS = {
     'PASSWORD': env("REDIS_PASSWORD"),
     'LOCALHOST_PORT': env("REDIS_LOCALHOST_PORT"),
+    "HOST": env("REDIS_HOST"),
+    "PORT": env("REDIS_PORT"),
 
     # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
     'SOCKET_TIMEOUT': 0.1,
