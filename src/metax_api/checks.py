@@ -1,3 +1,4 @@
+from icecream import ic
 from watchman.decorators import check
 from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service import ElasticSearchService
 from metax_api.services.redis_cache_service import RedisClient
@@ -27,9 +28,10 @@ def redis_check():
     try:
         redis = RedisClient()
         refdata = redis.get("reference_data")
-        return {"redis": [
-            {"key: reference_data":{"ok": refdata}}
-        ]}
+        if len(refdata) > 0:
+            return {"redis": [
+                {"key: reference_data":{"ok": True}}
+            ]}
     except Exception as e:
         logger.error(e)
         return {"redis": {"ok": False, "error": e, "traceback": e.__traceback__}}
