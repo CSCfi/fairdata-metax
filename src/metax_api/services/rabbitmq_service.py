@@ -13,6 +13,7 @@ from time import sleep
 import pika
 from django.conf import settings as django_settings
 from django.core.serializers.json import DjangoJSONEncoder
+from icecream import ic
 
 from metax_api.utils.utils import executing_test_case, executing_travis
 
@@ -27,6 +28,7 @@ class _RabbitMQService():
         self._settings = django_settings.RABBITMQ
         self._credentials = pika.PlainCredentials(self._settings['USER'], self._settings['PASSWORD'])
         self._hosts = self._settings['HOSTS']
+        ic(self._hosts)
         self._connection = None
 
     def _connect(self):

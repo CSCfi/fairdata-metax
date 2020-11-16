@@ -33,6 +33,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        ic(executing_test_case())
         if executing_test_case():
             self._set_test_confs(options)
         else:

@@ -12,7 +12,9 @@ import requests
 from time import sleep
 import yaml
 import urllib3
+import django
 
+django.setup()
 
 """
 Since test data imported into the db using the loaddata command has not had
@@ -30,9 +32,7 @@ urllib3.disable_warnings()
 
 
 def get_auth_header():
-
-
-    for u in settings['API_USERS']:
+    for u in settings.API_USERS:
         if u['username'] == 'metax':
             return {
                 'Authorization': 'Basic %s'
