@@ -2,7 +2,7 @@ from metax_api.settings import env
 
 REDIS = {
     'PASSWORD': env("REDIS_PASSWORD"),
-    'LOCALHOST_PORT': env("REDIS_LOCALHOST_PORT"),
+    'LOCALHOST_PORT': env("REDIS_PORT"),
     "HOST": env("REDIS_HOST"),
     "PORT": env("REDIS_PORT"),
 

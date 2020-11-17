@@ -78,6 +78,10 @@ Move the `cert.pem` and `key.pem` to `src/.certs` folder (create the folder if n
 
 copy `src/metax_api/settings/.env.template` as `src/metax_api/settings/.env` and fill required variables, you can find examples in ENV_VARS.md
 
+### Create log directory 
+
+`mkdir -p src/log/errors`
+
 ### Run Metax inside a container (Optional)
 
 Check the IP addresses of Redis, RabbitMQ, ElasticSearch and Postgres:9 either from Portainer container list (click the link in the container name to see all attributes) or by going to portainer network tab or by typing `docker container ps` followed by `docker network inspect bridge`
