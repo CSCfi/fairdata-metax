@@ -7,6 +7,7 @@ To change settings file:
 """
 from os.path import join
 
+from icecream import ic
 from split_settings.tools import include, optional
 import environ
 from metax_api.settings.components import BASE_DIR # src
@@ -50,6 +51,7 @@ base_settings = [
     # Optionally override some settings:
     # optional('environments/legacy.py'),
 ]
+ic(ENV)
 
 # Include settings:
 include(*base_settings)
