@@ -52,7 +52,7 @@ Run the following docker commands to start services:
 
 ##### Redis
 
-`docker run -d -p 6379:6379 --name metax-redis -v /tmp/:/data --restart=unless-stopped redis`
+`docker run -d -p 6379:6379 --name metax-redis -v metax-redis:/data --restart=unless-stopped redis`
 
 ##### Postgres
 
@@ -102,10 +102,14 @@ setup the database with migrate command:
 
 `python manage.py migrate`
 
+__NOTICE__: Skip following steps if your running metax on container and have terminal open in the container
+
 start the development server with:
 `python manage.py runsslserver --certificate .certs/cert.pem --key .certs/key.pem 8008`
 
-Open another terminal by either repeating the container terminal access step from above or `cd` into `src`, and load the initial data with following commands: 
+Open another terminal and `cd` into `src`, and load the initial data with following commands: 
+
+__These commands must be run in both setups (container/not-container metax)__
 
 `python manage.py index_refdata`
 
@@ -114,9 +118,6 @@ Open another terminal by either repeating the container terminal access step fro
 `python manage.py loadinitialdata`
 
 `python manage.py loaddata metax_api/tests/testdata/test_data.json` 
-
-
-__NOTICE__: Please report any errors while running these commands (They might be in the wrong order)
 
 run the tests with command `DJANGO_ENV=test python manage.py test --failfast --keepdb -v 0`
 
