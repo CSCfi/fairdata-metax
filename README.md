@@ -58,7 +58,7 @@ Run the following docker commands to start services:
 
 `docker run -d -p 5432:5432 --name metax-postgres -v metax-postgres:/var/lib/postgresql96/data -e POSTGRES_USER=metax_db_user -e POSTGRES_PASSWORD=YMDLekQMqrVKcs3 -e POSTGRES_DB=metax_db --restart=unless-stopped  postgres:9`
 
-__NOTICE__: copy values of `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` into your `.env` files as `METAX_DATABASE_USER`, `METAX_DATABASE_PASSWORD` and `METAX_DATABASE`
+__NOTICE: copy values of `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` into your `.env` files as `METAX_DATABASE_USER`, `METAX_DATABASE_PASSWORD` and `METAX_DATABASE`__
 
 ##### Elasticsearch
 
@@ -95,14 +95,15 @@ You should see metax-server starting at port 8008 with hot reload enabled
 
 IF you configured metax-container, access the command line of the container with `docker exec -it metax-web bash`
 
-__NOTICE__: Skip activating virtualenv and navigating to src folder if you have metax running on container 
+__NOTICE: Skip activating virtualenv and navigating to src folder if you have metax running on container__
+
 Activate your python 3.6 virtualenv, `cd` into `src` folder and run following commands:
 
 setup the database with migrate command:
 
 `python manage.py migrate`
 
-__NOTICE__: Skip following steps if your running metax on container and have terminal open in the container
+__NOTICE: Skip following steps if your running metax on container and have terminal open in the container__
 
 start the development server with:
 `python manage.py runsslserver --certificate .certs/cert.pem --key .certs/key.pem 8008`
