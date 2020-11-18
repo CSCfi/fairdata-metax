@@ -15,6 +15,7 @@ RUN pip install --upgrade pip wheel
 RUN pip install -r requirements.txt
 
 EXPOSE 8008
+EXPOSE 8006
 
 ARG METAX_DATABASE_HOST
 ARG REDIS_HOST
@@ -31,4 +32,4 @@ ENV RABBIT_MQ_USER $RABBIT_MQ_USER
 ENV ELASTIC_SEARCH_HOSTS $ELASTIC_SEARCH_HOST
 
 # CMD ["python", "/code/manage.py", "runserver", "0.0.0.0:8008"]
-CMD ["python", "manage.py", "runsslserver", "--certificate", ".certs/cert.pem","--key", ".certs/key.pem", "8008"]
+CMD ["python", "manage.py", "runsslserver", "--certificate", ".certs/cert.pem","--key", ".certs/key.pem", "0.0.0.0:8008"]
