@@ -10,6 +10,7 @@ import sys
 from os import makedirs, getpid
 from shutil import rmtree
 from time import sleep
+from typing import Any
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -42,7 +43,18 @@ class OnAppStart(AppConfig):
         # because the "django apps" have not been loaded yet.
         from metax_api.services import RedisCacheService as cache, RabbitMQService as rabbitmq
         from metax_api.services.redis_cache_service import RedisClient
+        from watchman.utils import get_checks
+        import json
 
+        for check in get_checks():
+            if callable(check):
+                resp:Any
+                try:
+                    resp = json.dumps(check())
+                    ic(resp)
+                except TypeError as e:
+                    e_resp = check()
+                    _logger.error(f"Error in system check: {e}, caused by check:{check.__name__} with return value of {e_resp}")
         _logger.info(f"event='process_started',process_id={self._pid}"
         )
 

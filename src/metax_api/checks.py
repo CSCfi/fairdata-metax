@@ -21,7 +21,7 @@ def elasticsearch_check():
         }
     except Exception as e:
         logger.error(e)
-        return {"elasticsearch": {"ok": False, "error": e, "traceback": e.__traceback__}}
+        return {"elasticsearch": {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}}
 
 @check
 def redis_check():
@@ -34,4 +34,4 @@ def redis_check():
             ]}
     except Exception as e:
         logger.error(e)
-        return {"redis": {"ok": False, "error": e, "traceback": e.__traceback__}}
+        return {"redis": {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}}

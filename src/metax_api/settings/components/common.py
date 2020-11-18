@@ -39,6 +39,8 @@ ERROR_FILES_PATH = env("ERROR_FILES_PATH")
 # Allow only specific hosts to access the app
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
+# SITE_URL = "localhost:8008"
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 for allowed_host in env('ALLOWED_HOSTS'):
