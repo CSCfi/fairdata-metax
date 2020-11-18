@@ -28,7 +28,6 @@ class _RabbitMQService():
         self._settings = django_settings.RABBITMQ
         self._credentials = pika.PlainCredentials(self._settings['USER'], self._settings['PASSWORD'])
         self._hosts = self._settings['HOSTS']
-        ic(self._hosts)
         self._connection = None
 
     def _connect(self):
@@ -36,8 +35,9 @@ class _RabbitMQService():
             return
 
         # Connection retries are needed as long as there is no load balancer in front of rabbitmq-server VMs
-        sleep_time = 2
-        num_conn_retries = 15
+        sleep_time = 1
+        num_conn_retries = 5
+        _logger.info(f"connecting to RabbitMQ host: {self._hosts} port: {self._settings['PORT']}")
 
         for x in range(0, num_conn_retries):
             # Choose host randomly so that different hosts are tried out in case of connection problems
@@ -53,7 +53,7 @@ class _RabbitMQService():
                 sleep(sleep_time)
             else:
                 self._channel = self._connection.channel()
-                _logger.debug('RabbitMQ connected to %s' % host)
+                _logger.info('RabbitMQ connected to %s' % host)
                 break
         else:
             raise Exception("Unable to connect to RabbitMQ")

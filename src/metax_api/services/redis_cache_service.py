@@ -31,7 +31,7 @@ class RedisClient(object):
             self.client = redis.Redis(password=settings.REDIS["PASSWORD"], retry_on_timeout=True, host=settings.REDIS["HOST"], port=settings.REDIS["PORT"])
         else:
             self.client = redis.Redis(retry_on_timeout=True, host=settings.REDIS["HOST"], port=settings.REDIS["PORT"])
-        _logger.info("RedisClient created")
+        _logger.info(f"RedisClient created with host:{settings.REDIS['HOST']} port:{settings.REDIS['PORT']}")
 
     def set(self, key, value, **kwargs):
         ic()
