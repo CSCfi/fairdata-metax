@@ -28,10 +28,21 @@ d = logging.getLogger(__name__).debug
 class RedisClient(object):
     def __init__(self, db=0):
         if settings.REDIS_USE_PASSWORD is True:
-            self.client = redis.Redis(password=settings.REDIS["PASSWORD"], retry_on_timeout=True, host=settings.REDIS["HOST"], port=settings.REDIS["PORT"])
+            self.client = redis.Redis(
+                password=settings.REDIS["PASSWORD"],
+                retry_on_timeout=True,
+                host=settings.REDIS["HOST"],
+                port=settings.REDIS["PORT"],
+            )
         else:
-            self.client = redis.Redis(retry_on_timeout=True, host=settings.REDIS["HOST"], port=settings.REDIS["PORT"])
-        _logger.info(f"RedisClient created with host:{settings.REDIS['HOST']} port:{settings.REDIS['PORT']}")
+            self.client = redis.Redis(
+                retry_on_timeout=True,
+                host=settings.REDIS["HOST"],
+                port=settings.REDIS["PORT"],
+            )
+        _logger.info(
+            f"RedisClient created with host:{settings.REDIS['HOST']} port:{settings.REDIS['PORT']}"
+        )
 
     def set(self, key, value, **kwargs):
         ic()
@@ -69,55 +80,62 @@ class RedisClient(object):
         return self.client
 
 
-class _RedisCacheService():
-
+class _RedisCacheService:
     def __init__(self, db=0):
         """
         db: database index to read/write to. available indexes 0-15.
         """
-        if hasattr(django_settings, 'REDIS'):
+        if hasattr(django_settings, "REDIS"):
             settings = django_settings.REDIS
         else:
-            raise Exception('Missing configuration from settings.py: REDIS')
+            raise Exception("Missing configuration from settings.py: REDIS")
 
-        if not settings.get('SENTINEL', None):
-            raise Exception('Missing configuration from settings for REDIS: SENTINEL')
-        if not settings['SENTINEL'].get('HOSTS', None):
-            raise Exception('Missing configuration from settings for REDIS.SENTINEL: HOSTS')
-        if not settings['SENTINEL'].get('SERVICE', None):
-            raise Exception('Missing configuration from settings for REDIS.SENTINEL: SERVICE')
-        if not settings.get('TEST_DB', None):
-            raise Exception('Missing configuration from settings for REDIS: TEST_DB')
-        if len(settings['SENTINEL']['HOSTS']) < 3:
-            raise Exception('Invalid configuration in settings for REDIS.SENTINEL: HOSTS minimum number of hosts is 3')
+        if not settings.get("SENTINEL", None):
+            raise Exception("Missing configuration from settings for REDIS: SENTINEL")
+        if not settings["SENTINEL"].get("HOSTS", None):
+            raise Exception(
+                "Missing configuration from settings for REDIS.SENTINEL: HOSTS"
+            )
+        if not settings["SENTINEL"].get("SERVICE", None):
+            raise Exception(
+                "Missing configuration from settings for REDIS.SENTINEL: SERVICE"
+            )
+        if not settings.get("TEST_DB", None):
+            raise Exception("Missing configuration from settings for REDIS: TEST_DB")
+        if len(settings["SENTINEL"]["HOSTS"]) < 3:
+            raise Exception(
+                "Invalid configuration in settings for REDIS.SENTINEL: HOSTS minimum number of hosts is 3"
+            )
 
         if executing_test_case():
-            db = settings['TEST_DB']
-        elif db == settings['TEST_DB']:
-            raise Exception('Invalid db: db index %d is reserved for test suite execution.' % db)
+            db = settings["TEST_DB"]
+        elif db == settings["TEST_DB"]:
+            raise Exception(
+                "Invalid db: db index %d is reserved for test suite execution." % db
+            )
 
         self._redis_local = StrictRedis(
-            host='localhost',
-            port=settings['LOCALHOST_PORT'],
-            password=settings['PASSWORD'],
-            socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1),
-            db=db
+            host="localhost",
+            port=settings["LOCALHOST_PORT"],
+            password=settings["PASSWORD"],
+            socket_timeout=settings.get("SOCKET_TIMEOUT", 0.1),
+            db=db,
         )
 
         self._sentinel = Sentinel(
-            settings['SENTINEL']['HOSTS'],
-            password=settings['PASSWORD'],
-            socket_timeout=settings.get('SOCKET_TIMEOUT', 0.1),
-            db=db
+            settings["SENTINEL"]["HOSTS"],
+            password=settings["PASSWORD"],
+            socket_timeout=settings.get("SOCKET_TIMEOUT", 0.1),
+            db=db,
         )
 
-        self._service_name = settings['SENTINEL']['SERVICE']
-        self._DEBUG = settings.get('DEBUG', False)
+        self._service_name = settings["SENTINEL"]["SERVICE"]
+        self._DEBUG = settings.get("DEBUG", False)
         self._node_count = self._count_nodes()
 
     def set(self, key, value, **kwargs):
         if self._DEBUG:
-            d('cache: set()...')
+            d("cache: set()...")
 
         pickled_data = pickle_dumps(value)
         master = self._get_master()
@@ -126,11 +144,12 @@ class _RedisCacheService():
             return master.set(key, pickled_data, **kwargs)
         except (TimeoutError, ConnectionError, MasterNotFoundError) as e:
             if self._DEBUG:
-                d('cache: master timed out or not found, or connection refused. no write instances available. error: %s'
-                  % str(e))
+                d(
+                    "cache: master timed out or not found, or connection refused. no write instances available. error: %s"
+                    % str(e)
+                )
             # no master available
             return
-
 
     def get_or_set(self, key, value, **kwargs):
         """
@@ -155,7 +174,7 @@ class _RedisCacheService():
         master=True to this method for a single get operation.
         """
         if self._DEBUG:
-            d('cache: get()...')
+            d("cache: get()...")
 
         if master:
             return self._get_from_master(key, **kwargs)
@@ -174,7 +193,7 @@ class _RedisCacheService():
 
     def delete(self, *keys):
         if self._DEBUG:
-            d('cache: delete()...')
+            d("cache: delete()...")
 
         master = self._get_master()
 
@@ -182,25 +201,29 @@ class _RedisCacheService():
             master.delete(*keys)
         except (TimeoutError, ConnectionError, MasterNotFoundError) as e:
             if self._DEBUG:
-                d('cache: master timed out or not found, or connection refused. no write instances available. error: %s'
-                  % str(e))
+                d(
+                    "cache: master timed out or not found, or connection refused. no write instances available. error: %s"
+                    % str(e)
+                )
             # no master available
             return
 
         if self._DEBUG:
             test = master.get(keys[0])
             if not test:
-                d('cache: delete() successful')
+                d("cache: delete() successful")
             else:
-                d('cache: delete() unsuccessful, could not delete data?')
+                d("cache: delete() unsuccessful, could not delete data?")
 
     def _get_from_local(self, key, **kwargs):
         try:
             res = self._redis_local.get(key, **kwargs)
         except (TimeoutError, ConnectionError):
             if self._DEBUG:
-                d('cache: _redis_local.get() timed out or connection refused, '
-                  'trying from other slaves instead. fail-over in process?')
+                d(
+                    "cache: _redis_local.get() timed out or connection refused, "
+                    "trying from other slaves instead. fail-over in process?"
+                )
             raise
         else:
             return pickle_loads(res) if res is not None else None
@@ -211,8 +234,10 @@ class _RedisCacheService():
             res = node.get(key, **kwargs)
         except (TimeoutError, ConnectionError):
             if self._DEBUG:
-                d('cache: slave.get() timed out or connection refused, '
-                  'trying from master instead. fail-over in process?')
+                d(
+                    "cache: slave.get() timed out or connection refused, "
+                    "trying from master instead. fail-over in process?"
+                )
             # fail-over propbably happened, and the old slave is now a master
             # (in case there was only one slave). try master instead
             raise
@@ -225,7 +250,9 @@ class _RedisCacheService():
             res = master.get(key, **kwargs)
         except (TimeoutError, MasterNotFoundError):
             if self._DEBUG:
-                d('cache: master timed out also. no read instances available. returning None')
+                d(
+                    "cache: master timed out also. no read instances available. returning None"
+                )
             # uh oh, no master available either. either all redis instances have hit the bucket,
             # or there is a fail-over in process, and a new master will be in line in a moment
             return None
@@ -242,25 +269,27 @@ class _RedisCacheService():
 
     def _get_master(self):
         if self._DEBUG:
-            d('cache: getting master')
+            d("cache: getting master")
         return self._sentinel.master_for(self._service_name, socket_timeout=0.1)
 
     def _get_slave(self):
         if self._DEBUG:
-            d('cache: getting slave')
+            d("cache: getting slave")
         return self._sentinel.slave_for(self._service_name, socket_timeout=0.1)
 
     def _count_nodes(self):
-        return len(self._sentinel.discover_slaves(self._service_name)) + 1 # +1 is master
+        return (
+            len(self._sentinel.discover_slaves(self._service_name)) + 1
+        )  # +1 is master
 
 
-class _RedisCacheServiceDummy():
+class _RedisCacheServiceDummy:
 
     """
     A dummy redis client that writes to a file on disk.
     """
 
-    _storage_path = '/tmp/redis_dummy_storage'
+    _storage_path = "/tmp/redis_dummy_storage"
 
     def __init__(self, *args, **kwargs):
         # d('Note: using dummy cache')
@@ -278,7 +307,10 @@ class _RedisCacheServiceDummy():
         if self.get(key):
             return False
         else:
-            self.set(key, value,)
+            self.set(
+                key,
+                value,
+            )
             return True
 
     def delete(self, key, **kwargs):
@@ -295,24 +327,33 @@ class _RedisCacheServiceDummy():
 
     def _get_storage(self):
         try:
-            with open(self._storage_path, 'r') as f:
+            with open(self._storage_path, "r") as f:
                 return load_json(f)
         except IOError:
             self._save_storage({})
             try:
-                with open(self._storage_path, 'r') as f:
+                with open(self._storage_path, "r") as f:
                     return load_json(f)
             except Exception as e:
-                _logger.error('Could not open dummy cache file for reading at %s: %s' % (self._storage_path, str(e)))
+                _logger.error(
+                    "Could not open dummy cache file for reading at %s: %s"
+                    % (self._storage_path, str(e))
+                )
         except Exception as e:
-            _logger.error('Could not open dummy cache file for reading at %s: %s' % (self._storage_path, str(e)))
+            _logger.error(
+                "Could not open dummy cache file for reading at %s: %s"
+                % (self._storage_path, str(e))
+            )
 
     def _save_storage(self, storage):
         try:
-            with open(self._storage_path, 'w') as f:
+            with open(self._storage_path, "w") as f:
                 dump_json(storage, f)
         except Exception as e:
-            _logger.error('Could not open dummy cache file for writing at %s: %s' % (self._storage_path, str(e)))
+            _logger.error(
+                "Could not open dummy cache file for writing at %s: %s"
+                % (self._storage_path, str(e))
+            )
 
 
 if executing_travis():

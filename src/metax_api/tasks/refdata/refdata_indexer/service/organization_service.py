@@ -4,12 +4,15 @@
 import json
 import os
 
-from metax_api.tasks.refdata.refdata_indexer.domain.organization_data import OrganizationData
+from metax_api.tasks.refdata.refdata_indexer.domain.organization_data import (
+    OrganizationData,
+)
 import metax_api.tasks.refdata.refdata_indexer.organization_csv_parser as org_parser
 
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class OrganizationService:
     """
@@ -28,10 +31,14 @@ class OrganizationService:
             data = json.load(org_data_file)
 
         for org in data:
-            parent_id = org.get('parent_id', '')
-            same_as = org.get('same_as', [])
-            org_csc = org.get('org_csc', '')
-            index_data_models.append(OrganizationData(org['org_id'], org['label'], parent_id, same_as, org_csc))
+            parent_id = org.get("parent_id", "")
+            same_as = org.get("same_as", [])
+            org_csc = org.get("org_csc", "")
+            index_data_models.append(
+                OrganizationData(
+                    org["org_id"], org["label"], parent_id, same_as, org_csc
+                )
+            )
 
         os.remove(self.INPUT_FILE)
         return index_data_models

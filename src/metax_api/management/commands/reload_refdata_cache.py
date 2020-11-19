@@ -7,11 +7,12 @@ from metax_api.utils import ReferenceDataLoader
 
 _logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             cache = RedisClient()
-            cache.set('reference_data', None)
+            cache.set("reference_data", None)
 
             ReferenceDataLoader.populate_cache_reference_data(cache)
             _logger.info(f"event='reference_data_loaded'")

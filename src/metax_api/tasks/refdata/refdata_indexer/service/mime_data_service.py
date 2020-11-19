@@ -19,19 +19,23 @@ class MimeDataService:
     so it is first fetched and parsed.
     """
 
-    IANA_NS = '{http://www.iana.org/assignments}'
-    MIME_TYPE_REF_DATA_SOURCE_URL = 'https://www.iana.org/assignments/media-types/media-types.xml'
-    MIME_TYPE_REGISTRY_IDS = [  'application',
-                                'audio',
-                                'font',
-                                'image',
-                                'message',
-                                'model',
-                                'multipart',
-                                'text',
-                                'video']
+    IANA_NS = "{http://www.iana.org/assignments}"
+    MIME_TYPE_REF_DATA_SOURCE_URL = (
+        "https://www.iana.org/assignments/media-types/media-types.xml"
+    )
+    MIME_TYPE_REGISTRY_IDS = [
+        "application",
+        "audio",
+        "font",
+        "image",
+        "message",
+        "model",
+        "multipart",
+        "text",
+        "video",
+    ]
 
-    TEMP_XML_FILENAME = '/tmp/data.xml'
+    TEMP_XML_FILENAME = "/tmp/data.xml"
 
     def get_data(self):
         self._fetch_mime_data()
@@ -52,32 +56,48 @@ class MimeDataService:
         is_parsing_model_elem = False
         found_valid_file_elem = False
         found_valid_name_elem = False
-        for event, elem in ET.iterparse(self.TEMP_XML_FILENAME, events=("start", "end")):
-            if event == 'start':
-                if elem.tag == (self.IANA_NS + 'registry') and elem.get('id') in self.MIME_TYPE_REGISTRY_IDS:
+        for event, elem in ET.iterparse(
+            self.TEMP_XML_FILENAME, events=("start", "end")
+        ):
+            if event == "start":
+                if (
+                    elem.tag == (self.IANA_NS + "registry")
+                    and elem.get("id") in self.MIME_TYPE_REGISTRY_IDS
+                ):
                     is_parsing_model_elem = True
-                    registry_name = elem.get('id')
-                if is_parsing_model_elem and elem.tag == (self.IANA_NS + 'name'):
+                    registry_name = elem.get("id")
+                if is_parsing_model_elem and elem.tag == (self.IANA_NS + "name"):
                     if elem.text:
                         found_valid_name_elem = True
-                        uri = 'https://www.iana.org/assignments/media-types/' + registry_name + "/" + elem.text
+                        uri = (
+                            "https://www.iana.org/assignments/media-types/"
+                            + registry_name
+                            + "/"
+                            + elem.text
+                        )
                         data_id = registry_name + "/" + elem.text
-                if is_parsing_model_elem and elem.tag == (self.IANA_NS + 'file') and elem.get('type') == 'template':
+                if (
+                    is_parsing_model_elem
+                    and elem.tag == (self.IANA_NS + "file")
+                    and elem.get("type") == "template"
+                ):
                     if elem.text:
                         found_valid_file_elem = True
-                        uri = 'https://www.iana.org/assignments/media-types/' + elem.text
+                        uri = (
+                            "https://www.iana.org/assignments/media-types/" + elem.text
+                        )
                         data_id = elem.text
-            elif event == 'end':
-                if elem.tag == self.IANA_NS + 'registry':
+            elif event == "end":
+                if elem.tag == self.IANA_NS + "registry":
                     is_parsing_model_elem = False
-                if is_parsing_model_elem and elem.tag == (self.IANA_NS + 'record'):
+                if is_parsing_model_elem and elem.tag == (self.IANA_NS + "record"):
                     if found_valid_file_elem or found_valid_name_elem:
                         ref_item = ReferenceData(
                             data_id,
                             data_type,
                             {},
                             uri,
-                            scheme=self.MIME_TYPE_REF_DATA_SOURCE_URL
+                            scheme=self.MIME_TYPE_REF_DATA_SOURCE_URL,
                         )
                         index_data_models.append(ref_item)
                     found_valid_file_elem = False
@@ -106,6 +126,6 @@ class MimeDataService:
                 break
 
         if not str_error and response:
-            with open(self.TEMP_XML_FILENAME, 'wb') as handle:
+            with open(self.TEMP_XML_FILENAME, "wb") as handle:
                 for block in response.iter_content(1024):
                     handle.write(block)

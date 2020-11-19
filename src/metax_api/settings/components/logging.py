@@ -1,4 +1,3 @@
-
 from metax_api.settings.components.common import DEBUG
 import logging.config
 import time
@@ -15,64 +14,64 @@ LOGGING_JSON_FILE_HANDLER_FILE = env("LOGGING_JSON_FILE_HANDLER_FILE")
 LOGGING_GENERAL_HANDLER_FILE = env("LOGGING_GENERAL_HANDLER_FILE")
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
             # timestamp, process id, python module name, loglevel, msg content...
-            'format': '%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s',
-            'datefmt': '%Y-%m-%dT%H:%M:%S.%03dZ',
+            "format": "%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S.%03dZ",
         },
     },
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
         },
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard',
-        },
-        'debug': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': LOGGING_DEBUG_HANDLER_FILE,
-            'formatter': 'standard',
-            'filters': ['require_debug_true'],
-        },
-        'general': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOGGING_DEBUG_HANDLER_FILE,
-            'formatter': 'standard',
-            'filters': ['require_debug_false'],
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['general', 'console', 'debug'],
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
         },
-        'metax_api': {
-            'handlers': ['general', 'console', 'debug'],
+        "debug": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": LOGGING_DEBUG_HANDLER_FILE,
+            "formatter": "standard",
+            "filters": ["require_debug_true"],
+        },
+        "general": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": LOGGING_DEBUG_HANDLER_FILE,
+            "formatter": "standard",
+            "filters": ["require_debug_false"],
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["general", "console", "debug"],
+        },
+        "metax_api": {
+            "handlers": ["general", "console", "debug"],
         },
         "root": {"level": "INFO", "handlers": ["console"]},
-    }
+    },
 }
 
 logging.Formatter.converter = time.gmtime
-logger = logging.getLogger('metax_api')
+logger = logging.getLogger("metax_api")
 logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
 
 structlog.configure(
     processors=[
         structlog.stdlib.add_log_level,
         structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -81,7 +80,7 @@ structlog.configure(
 )
 
 handler = logging.FileHandler(LOGGING_JSON_FILE_HANDLER_FILE)
-handler.setFormatter(logging.Formatter('%(message)s'))
-json_logger = logging.getLogger('structlog')
+handler.setFormatter(logging.Formatter("%(message)s"))
+json_logger = logging.getLogger("structlog")
 json_logger.addHandler(handler)
 json_logger.setLevel(logging.INFO)

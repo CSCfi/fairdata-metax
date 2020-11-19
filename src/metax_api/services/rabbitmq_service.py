@@ -20,14 +20,15 @@ from metax_api.utils.utils import executing_test_case, executing_travis
 _logger = logging.getLogger(__name__)
 
 
-class _RabbitMQService():
-
+class _RabbitMQService:
     def __init__(self):
-        if not hasattr(django_settings, 'RABBITMQ'):
-            raise Exception('Missing configuration from settings.py: RABBITMQ')
+        if not hasattr(django_settings, "RABBITMQ"):
+            raise Exception("Missing configuration from settings.py: RABBITMQ")
         self._settings = django_settings.RABBITMQ
-        self._credentials = pika.PlainCredentials(self._settings['USER'], self._settings['PASSWORD'])
-        self._hosts = self._settings['HOSTS']
+        self._credentials = pika.PlainCredentials(
+            self._settings["USER"], self._settings["PASSWORD"]
+        )
+        self._hosts = self._settings["HOSTS"]
         self._connection = None
 
     def _connect(self):
@@ -37,28 +38,36 @@ class _RabbitMQService():
         # Connection retries are needed as long as there is no load balancer in front of rabbitmq-server VMs
         sleep_time = 1
         num_conn_retries = 5
-        _logger.info(f"connecting to RabbitMQ host: {self._hosts} port: {self._settings['PORT']}")
+        _logger.info(
+            f"connecting to RabbitMQ host: {self._hosts} port: {self._settings['PORT']}"
+        )
 
         for x in range(0, num_conn_retries):
             # Choose host randomly so that different hosts are tried out in case of connection problems
             host = random.choice(self._hosts)
             try:
-                self._connection = pika.BlockingConnection(pika.ConnectionParameters(
-                    host,
-                    port=self._settings['PORT'],
-                    # self._settings['VHOST'],
-                    credentials=self._credentials))
+                self._connection = pika.BlockingConnection(
+                    pika.ConnectionParameters(
+                        host,
+                        port=self._settings["PORT"],
+                        # self._settings['VHOST'],
+                        credentials=self._credentials,
+                    )
+                )
             except Exception as e:
-                _logger.error("Problem connecting to RabbitMQ server (%s), trying to reconnect..." % str(e))
+                _logger.error(
+                    "Problem connecting to RabbitMQ server (%s), trying to reconnect..."
+                    % str(e)
+                )
                 sleep(sleep_time)
             else:
                 self._channel = self._connection.channel()
-                _logger.info('RabbitMQ connected to %s' % host)
+                _logger.info("RabbitMQ connected to %s" % host)
                 break
         else:
             raise Exception("Unable to connect to RabbitMQ")
 
-    def publish(self, body, routing_key='', exchange=None, persistent=True):
+    def publish(self, body, routing_key="", exchange=None, persistent=True):
         """
         Publish a message to an exchange, which might or might not have queues bound to it.
 
@@ -78,7 +87,7 @@ class _RabbitMQService():
 
         additional_args = {}
         if persistent:
-            additional_args['properties'] = pika.BasicProperties(delivery_mode=2)
+            additional_args["properties"] = pika.BasicProperties(delivery_mode=2)
 
         if isinstance(body, list):
             messages = body
@@ -88,10 +97,13 @@ class _RabbitMQService():
         try:
             for message in messages:
                 if isinstance(message, dict):
-                    message = json_dumps(
-                        message,
-                        cls=DjangoJSONEncoder)
-                self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
+                    message = json_dumps(message, cls=DjangoJSONEncoder)
+                self._channel.basic_publish(
+                    body=message,
+                    routing_key=routing_key,
+                    exchange=exchange,
+                    **additional_args,
+                )
         except Exception as e:
             _logger.error(e)
             _logger.error("Unable to publish message to RabbitMQ")
@@ -108,12 +120,15 @@ class _RabbitMQService():
         self._connect()
         ic()
         try:
-            for exchange in self._settings['EXCHANGES']:
+            for exchange in self._settings["EXCHANGES"]:
                 self._channel.exchange_declare(
-                    exchange['NAME'], exchange_type=exchange['TYPE'], durable=exchange.get('DURABLE', True))
+                    exchange["NAME"],
+                    exchange_type=exchange["TYPE"],
+                    durable=exchange.get("DURABLE", True),
+                )
         except Exception as e:
             _logger.error(e)
-            _logger.exception('Failed to initialize RabbitMQ exchanges')
+            _logger.exception("Failed to initialize RabbitMQ exchanges")
             raise
         finally:
             self._connection.close()
@@ -125,14 +140,20 @@ class _RabbitMQService():
         - routing_key is specified when exchange type is direct
         """
         if not exchange_name:
-            raise Exception('Specify exchange to publish message to')
+            raise Exception("Specify exchange to publish message to")
 
-        for exchange in self._settings['EXCHANGES']:
-            if exchange_name == exchange['NAME'] and exchange['TYPE'] == 'direct' and routing_key == '':
-                raise Exception('Messages without routing_key are discarded when exchange type is \'direct\'')
+        for exchange in self._settings["EXCHANGES"]:
+            if (
+                exchange_name == exchange["NAME"]
+                and exchange["TYPE"] == "direct"
+                and routing_key == ""
+            ):
+                raise Exception(
+                    "Messages without routing_key are discarded when exchange type is 'direct'"
+                )
 
 
-class _RabbitMQServiceDummy():
+class _RabbitMQServiceDummy:
 
     """
     A dummy rabbitmq client that doesn't connect anywhere and doesn't do jack actually.
@@ -142,7 +163,7 @@ class _RabbitMQServiceDummy():
         ic()
         pass
 
-    def publish(self, body, routing_key='', exchange='datasets', persistent=True):
+    def publish(self, body, routing_key="", exchange="datasets", persistent=True):
         pass
 
     def init_exchanges(self, *args, **kwargs):

@@ -19,9 +19,9 @@ class InfraDataService:
     so it is first fetched and parsed.
     """
 
-    INFRA_REF_DATA_SOURCE_URL = 'https://avaa.tdata.fi/api/jsonws/tupa-portlet.Infrastructures/get-all-infrastructures'
+    INFRA_REF_DATA_SOURCE_URL = "https://avaa.tdata.fi/api/jsonws/tupa-portlet.Infrastructures/get-all-infrastructures"
 
-    TEMP_FILENAME = '/tmp/data.json'
+    TEMP_FILENAME = "/tmp/data.json"
 
     def get_data(self):
         self._fetch_infra_data()
@@ -38,19 +38,19 @@ class InfraDataService:
         index_data_models = []
 
         _logger.info("Extracting relevant data from the fetched data")
-        with open(self.TEMP_FILENAME, 'r') as f:
+        with open(self.TEMP_FILENAME, "r") as f:
             data = json.load(f)
             for item in data:
-                if item.get('urn', ''):
-                    data_id = self._get_data_id(item['urn'])
+                if item.get("urn", ""):
+                    data_id = self._get_data_id(item["urn"])
                     data_type = ReferenceData.DATA_TYPE_RESEARCH_INFRA
-                    uri = 'http://urn.fi/' + item['urn']
+                    uri = "http://urn.fi/" + item["urn"]
                     same_as = []
                     label = {}
-                    if item.get('name_FI'):
-                        label['fi'] = item['name_FI']
-                    if item.get('name_EN'):
-                        label['en'] = item['name_EN']
+                    if item.get("name_FI"):
+                        label["fi"] = item["name_FI"]
+                    if item.get("name_EN"):
+                        label["en"] = item["name_EN"]
 
                     ref_item = ReferenceData(
                         data_id,
@@ -58,7 +58,7 @@ class InfraDataService:
                         label,
                         uri,
                         same_as=same_as,
-                        scheme=InfraDataService.INFRA_REF_DATA_SOURCE_URL
+                        scheme=InfraDataService.INFRA_REF_DATA_SOURCE_URL,
                     )
                     index_data_models.append(ref_item)
 
@@ -85,9 +85,9 @@ class InfraDataService:
                 break
 
         if not str_error and response:
-            with open(self.TEMP_FILENAME, 'wb') as handle:
+            with open(self.TEMP_FILENAME, "wb") as handle:
                 for block in response.iter_content(1024):
                     handle.write(block)
 
     def _get_data_id(self, urn):
-        return urn.replace(':', '-')
+        return urn.replace(":", "-")

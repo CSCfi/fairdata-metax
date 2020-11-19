@@ -22,10 +22,10 @@ class FintoDataService:
     """
 
     FINTO_REFERENCE_DATA_SOURCE_URLS = {
-        ReferenceData.DATA_TYPE_FIELD_OF_SCIENCE: 'http://finto.fi/rest/v1/okm-tieteenala/data',
-        ReferenceData.DATA_TYPE_LANGUAGE: 'http://finto.fi/rest/v1/lexvo/data',
-        ReferenceData.DATA_TYPE_LOCATION: 'http://finto.fi/rest/v1/yso-paikat/data',
-        ReferenceData.DATA_TYPE_KEYWORD: 'http://finto.fi/rest/v1/koko/data'
+        ReferenceData.DATA_TYPE_FIELD_OF_SCIENCE: "http://finto.fi/rest/v1/okm-tieteenala/data",
+        ReferenceData.DATA_TYPE_LANGUAGE: "http://finto.fi/rest/v1/lexvo/data",
+        ReferenceData.DATA_TYPE_LOCATION: "http://finto.fi/rest/v1/yso-paikat/data",
+        ReferenceData.DATA_TYPE_KEYWORD: "http://finto.fi/rest/v1/koko/data",
     }
 
     WKT_FILENAME = settings.WKT_FILENAME
@@ -52,12 +52,12 @@ class FintoDataService:
                 with open(self.WKT_FILENAME) as c:
                     coordinates = json.load(c)
             else:
-                with open(self.WKT_FILENAME, 'w') as outfile:
-                    outfile.write('{\n')
+                with open(self.WKT_FILENAME, "w") as outfile:
+                    outfile.write("{\n")
 
         _logger.info("Extracting relevant data from the fetched data")
 
-        in_scheme = ''
+        in_scheme = ""
         for concept in graph.subjects(RDF.type, SKOS.Concept):
             for value in graph.objects(concept, SKOS.inScheme):
                 in_scheme = str(value)
@@ -67,24 +67,35 @@ class FintoDataService:
         for concept in graph.subjects(RDF.type, SKOS.Concept):
             uri = str(concept)
             # preferred labels
-            label = dict(((literal.language, str(literal)) for literal in graph.objects(concept, SKOS.prefLabel)))
+            label = dict(
+                (
+                    (literal.language, str(literal))
+                    for literal in graph.objects(concept, SKOS.prefLabel)
+                )
+            )
             # parents (broader)
-            parent_ids = [self._get_uri_end_part(parent) for parent in graph.objects(concept, SKOS.broader)]
+            parent_ids = [
+                self._get_uri_end_part(parent)
+                for parent in graph.objects(concept, SKOS.broader)
+            ]
             # children (narrower)
-            child_ids = [self._get_uri_end_part(child) for child in graph.objects(concept, SKOS.narrower)]
+            child_ids = [
+                self._get_uri_end_part(child)
+                for child in graph.objects(concept, SKOS.narrower)
+            ]
             same_as = []
-            wkt = ''
+            wkt = ""
             if data_type == ReferenceData.DATA_TYPE_LOCATION:
                 # find out the coordinates of matching PNR or Wikidata entities
                 matches = sorted(graph.objects(concept, SKOS.closeMatch))
                 for match in matches:
                     if self.READ_COORDINATES_FROM_FILE:
-                        wkt = coordinates.get(uri, '')
+                        wkt = coordinates.get(uri, "")
                     else:
                         wkt = self._get_coordinates_for_location_from_url(match)
-                        with open(self.WKT_FILENAME, 'a') as outfile:
-                            outfile.write("\"" + uri + "\":\"" + wkt + '\",\n')
-                    if wkt != '':
+                        with open(self.WKT_FILENAME, "a") as outfile:
+                            outfile.write('"' + uri + '":"' + wkt + '",\n')
+                    if wkt != "":
                         # Stop after first success
                         break
 
@@ -99,14 +110,14 @@ class FintoDataService:
                 child_ids=child_ids,
                 same_as=same_as,
                 wkt=wkt,
-                scheme=in_scheme
+                scheme=in_scheme,
             )
             index_data_models.append(ref_item)
 
         if data_type == ReferenceData.DATA_TYPE_LOCATION:
             if not self.READ_COORDINATES_FROM_FILE:
-                with open(self.WKT_FILENAME, 'a') as outfile:
-                    outfile.write('}')
+                with open(self.WKT_FILENAME, "a") as outfile:
+                    outfile.write("}")
 
         _logger.info("Done with all")
         return index_data_models
@@ -134,21 +145,23 @@ class FintoDataService:
         if not str_error:
             return g
         else:
-            _logger.error("Failed to read Finto data of type %s, skipping.." % data_type)
+            _logger.error(
+                "Failed to read Finto data of type %s, skipping.." % data_type
+            )
             return None
 
     def _get_uri_end_part(self, uri):
-        return uri[uri.rindex('/') + 1:].strip()
+        return uri[uri.rindex("/") + 1 :].strip()
 
     def _get_coordinates_for_location_from_url(self, url):
         sleep_time = 2
         num_retries = 4
 
-        if 'wikidata' in url:
+        if "wikidata" in url:
             g = Graph()
             for x in range(0, num_retries):
                 try:
-                    g.parse(url + '.rdf')
+                    g.parse(url + ".rdf")
                     str_error = None
                 except Exception as e:
                     str_error = e
@@ -162,16 +175,16 @@ class FintoDataService:
 
             if not str_error:
                 subject = URIRef(url)
-                predicate = URIRef('http://www.wikidata.org/prop/direct/P625')
+                predicate = URIRef("http://www.wikidata.org/prop/direct/P625")
                 for o in g.objects(subject, predicate):
                     return str(o).upper()
             else:
                 _logger.error("Failed to read wikidata, skipping..")
 
-        elif 'paikkatiedot' in url:
+        elif "paikkatiedot" in url:
             for x in range(0, num_retries):
                 try:
-                    response = requests.get(url + '.jsonld')
+                    response = requests.get(url + ".jsonld")
                     str_error = None
                 except Exception as e:
                     str_error = e
@@ -184,16 +197,28 @@ class FintoDataService:
                     break
 
             if not str_error and response and response.status_code == requests.codes.ok:
-                data_as_str = self._find_between(response.text, '<script type="application/ld+json">', '</script>')
+                data_as_str = self._find_between(
+                    response.text, '<script type="application/ld+json">', "</script>"
+                )
                 if data_as_str:
                     data = json.loads(data_as_str)
-                    if data and data.get('geo', False) and data.get('geo').get('latitude', False) and data.get(
-                            'geo').get('longitude', False):
-                        return 'POINT(' + str(data['geo']['longitude']) + ' ' + str(data['geo']['latitude']) + ')'
+                    if (
+                        data
+                        and data.get("geo", False)
+                        and data.get("geo").get("latitude", False)
+                        and data.get("geo").get("longitude", False)
+                    ):
+                        return (
+                            "POINT("
+                            + str(data["geo"]["longitude"])
+                            + " "
+                            + str(data["geo"]["latitude"])
+                            + ")"
+                        )
             else:
                 _logger.error("Failed to read pakkatiedot, skipping..")
 
-        return ''
+        return ""
 
     def _find_between(self, s, first, last):
         try:

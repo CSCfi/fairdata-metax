@@ -1,27 +1,10 @@
-API_TEST_USER = {
-    'username': 'testuser',
-    'password': 'testuserpassword'
-}
-API_METAX_USER = {
-    'username': 'metax',
-    'password': 'metaxpassword'
-}
-API_AUTH_TEST_USER = {
-    'username': 'api_auth_user',
-    'password': 'password'
-}
+API_TEST_USER = {"username": "testuser", "password": "testuserpassword"}
+API_METAX_USER = {"username": "metax", "password": "metaxpassword"}
+API_AUTH_TEST_USER = {"username": "api_auth_user", "password": "password"}
 
-API_EXT_USER = {
-    'username': 'external',
-    'password': 'externalpassword'
-}
+API_EXT_USER = {"username": "external", "password": "externalpassword"}
 
-API_TEST_USERS = [
-    API_TEST_USER,
-    API_METAX_USER,
-    API_AUTH_TEST_USER,
-    API_EXT_USER
-]
+API_TEST_USERS = [API_TEST_USER, API_METAX_USER, API_AUTH_TEST_USER, API_EXT_USER]
 
 API_ACCESS = {
     "rest": {
@@ -29,25 +12,25 @@ API_ACCESS = {
             "read": ["testuser", "metax"],
             "create": ["testuser", "metax"],
             "update": ["testuser", "metax"],
-            "delete": ["testuser", "metax"]
+            "delete": ["testuser", "metax"],
         },
         "contracts": {
             "read": ["testuser", "metax"],
             "create": ["testuser", "metax"],
             "update": ["testuser", "metax"],
-            "delete": ["testuser", "metax"]
+            "delete": ["testuser", "metax"],
         },
         "datacatalogs": {
             "read": ["all"],
             "create": ["testuser", "metax"],
             "update": ["testuser", "metax"],
-            "delete": ["testuser", "metax"]
+            "delete": ["testuser", "metax"],
         },
         "datasets": {
             "read": ["all"],
             "create": ["testuser", "metax", "api_auth_user", "endusers", "external"],
             "update": ["testuser", "metax", "api_auth_user", "endusers", "external"],
-            "delete": ["testuser", "metax", "api_auth_user", "endusers", "external"]
+            "delete": ["testuser", "metax", "api_auth_user", "endusers", "external"],
         },
         "directories": {
             "read": ["testuser", "metax", "endusers"],
@@ -56,17 +39,17 @@ API_ACCESS = {
             "read": ["testuser", "metax", "api_auth_user", "endusers"],
             "create": ["testuser", "metax"],
             "update": ["testuser", "metax", "endusers"],
-            "delete": ["testuser", "metax"]
+            "delete": ["testuser", "metax"],
         },
         "filestorages": {
             "read": ["testuser", "metax"],
             "create": ["testuser", "metax"],
             "update": ["testuser", "metax"],
-            "delete": ["testuser", "metax"]
+            "delete": ["testuser", "metax"],
         },
         "schemas": {
             "read": ["all"],
-        }
+        },
     },
     "rpc": {
         "datasets": {
@@ -80,9 +63,7 @@ API_ACCESS = {
             "create_draft": {"use": ["all"]},
             "merge_draft": {"use": ["all"]},
         },
-        "files": {
-            "delete_project": {"use": ["testuser", "metax"]}
-        },
+        "files": {"delete_project": {"use": ["testuser", "metax"]}},
         "statistics": {
             "count_datasets": {"use": ["all"]},
             "all_datasets_cumulative": {"use": ["all"]},
@@ -92,18 +73,18 @@ API_ACCESS = {
             "deprecated_datasets_cumulative": {"use": ["all"]},
             "organization_datasets_cumulative": {"use": ["all"]},
             "unused_files": {"use": ["all"]},
-        }
-    }
+        },
+    },
 }
-for api, perms in API_ACCESS['rest'].items():
-    perms['read'] = ['all']
-    perms['create'] = ['all']
-    perms['update'] = ['all']
-    perms['delete'] = ['all']
+for api, perms in API_ACCESS["rest"].items():
+    perms["read"] = ["all"]
+    perms["create"] = ["all"]
+    perms["update"] = ["all"]
+    perms["delete"] = ["all"]
 
-for api, functions in API_ACCESS['rpc'].items():
+for api, functions in API_ACCESS["rpc"].items():
     for function, perms in functions.items():
-        perms['use'] = ['all']
+        perms["use"] = ["all"]
 
 ADDITIONAL_USER_PROJECTS_PATH = "/tmp/user_projects.json"
 EXT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ext"
