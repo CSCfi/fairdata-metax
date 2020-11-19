@@ -10,6 +10,7 @@ from collections import defaultdict
 from os.path import dirname, join
 
 from django.db.models import Q
+import simplexquery as sxq
 from icecream import ic
 from rest_framework.serializers import ValidationError
 import xmltodict
@@ -370,7 +371,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             # mostly for debugging purposes, the 'metax xml' can be returned as well
             return xml_str
 
-        """target_xslt_file_path = join(dirname(dirname(__file__)), 'api/rest/base/xslt/%s.xslt' % target_format)
+        target_xslt_file_path = join(dirname(dirname(__file__)), 'api/rest/base/xslt/%s.xslt' % target_format)
 
         try:
             with open(target_xslt_file_path) as f:
@@ -387,7 +388,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         if include_xml_declaration:
             return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
         else:
-            return transformed_xml"""
+            return transformed_xml
 
     @classmethod
     def validate_reference_data(cls, research_dataset, cache):

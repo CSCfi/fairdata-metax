@@ -16,7 +16,7 @@ pika
 psycopg2-binary     # LGPL with exceptions or ZPL
 PyJWT               # MIT-license
 pyoai
-# python-simplexquery
+python-simplexquery
 pytz
 pyyaml
 redis
