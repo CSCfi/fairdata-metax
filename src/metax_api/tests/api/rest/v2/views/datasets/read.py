@@ -671,7 +671,7 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
     def test_read_dataset_xml_format_error_unknown_format(self):
         response = self.client.get('/rest/v2/datasets/1?dataset_format=doesnotexist')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_read_datacite_xml_format_identifier(self):
         cr = self._create_dataset_with_doi()

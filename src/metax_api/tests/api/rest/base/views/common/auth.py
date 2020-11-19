@@ -66,14 +66,14 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         file['file_format'] = 'text/html'
 
         response = self.client.put('/rest/files/1', file, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_access_error(self):
         """
         User api_auth_user should not have delete access to files api.
         """
         response = self.client.delete('/rest/files/1')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_read_for_datasets_world_ok(self):
         """

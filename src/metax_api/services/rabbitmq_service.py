@@ -72,6 +72,7 @@ class _RabbitMQService():
                     otherwise messages not retrieved by clients before restart will be lost.
                     (still is not 100 % guaranteed to persist!)
         """
+        ic()
         self._connect()
         self._validate_publish_params(routing_key, exchange)
 
@@ -105,6 +106,7 @@ class _RabbitMQService():
         In that case the exchange has to be manually removed first, which can result in lost messages.
         """
         self._connect()
+        ic()
         try:
             for exchange in self._settings['EXCHANGES']:
                 self._channel.exchange_declare(
@@ -137,6 +139,7 @@ class _RabbitMQServiceDummy():
     """
 
     def __init__(self, settings=django_settings):
+        ic()
         pass
 
     def publish(self, body, routing_key='', exchange='datasets', persistent=True):
