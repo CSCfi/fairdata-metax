@@ -48,6 +48,8 @@ Finish the Portainer setup by logging in at http://localhost:9000, create a loca
 
 #### Docker commands
 
+__NOTICE If you want to start the services everytime your computer boots, replace `--restart=unless-stopped` with `--restart=always`__
+
 Run the following docker commands to start services:
 
 ##### Redis
@@ -66,7 +68,7 @@ __NOTICE: copy values of `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` 
 
 ##### RabbitMQ
 
-`docker run -d -p 5671:5671 -p 5672:5672 -v metax-rabbitmq:/var/lib/rabbitmq --name metax-rabbitmq --restart=unless-stopped rabbitmq:latest`
+`docker run -d -p 5671:5671 -p 5672:5672 -p 15672:15672 -v metax-rabbitmq:/var/lib/rabbitmq --name metax-rabbitmq --restart=unless-stopped rabbitmq:3-management`
 
 #### mkcerts
 
@@ -91,7 +93,8 @@ Build new docker image from repository root with this command (change ip-address
 `docker build -t metax-api:latest --build-arg METAX_DATABASE_HOST=xxx.xx.x.x --build-arg REDIS_HOST=xxx.xx.x.x --build-arg RABBITMQ_HOST=xxx.xx.x.x --build-arg ELASTIC_SEARCH_HOST=xxx.xx.x.x:xxxx .`
 
 Run the built container with command:
-`docker run -it --name metax-web --mount type=bind,source="$(pwd)"/src,target=/code -p 8008:8008 metax-api:latest`
+
+`docker run -it --name metax-web --mount type=bind,source="$(pwd)"/src,target=/code -p 8008:8008 --rm metax-api:latest`
 
 You should see metax-server starting at port 8008 with hot reload enabled
 
@@ -131,3 +134,4 @@ Metax api is available from your browser at https://localhost:8008
 
 [1]: https://docs.docker.com/engine/install/
 [2]: https://github.com/FiloSottile/mkcert
+
