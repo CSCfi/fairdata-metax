@@ -11,6 +11,10 @@ branches:
 cache: pip
 
 addons:
+  apt:
+    packages:
+      - xqilla
+      - libxqilla-dev
   postgresql: '9.6'
 
 services:
@@ -26,11 +30,10 @@ before_install:
 - mv deploy-key ~/.ssh/id_rsa
 - eval "$(ssh-agent -s)"
 - ssh-add ~/.ssh/id_rsa
-- sudo apt-get install xqilla libxqilla-dev
+
 
 install:
 - pip install -r requirements.txt
-- sudo service postgresql restart
 
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
@@ -38,7 +41,8 @@ before_script:
 - sudo chown -R $USER:$USER /var/log/metax-api
 
 script:
-- cd src && flake8 . && python manage.py migrate metax_api && coverage run --source="." && python manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
+  - flake8
+# - cd src && flake8 . && python manage.py migrate metax_api && coverage run --source="." && python manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
 
 notifications:
   flowdock:
