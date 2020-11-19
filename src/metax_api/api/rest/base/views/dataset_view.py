@@ -8,6 +8,7 @@
 from json import dump, load
 import logging
 
+from django.conf import settings
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
@@ -18,6 +19,7 @@ from metax_api.exceptions import Http403, Http400
 from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
 from metax_api.renderers import XMLRenderer
 from metax_api.services import CatalogRecordService, CommonService as CS, RabbitMQService as rabbitmq
+from metax_api.settings import env
 from .common_view import CommonViewSet
 from ..serializers import CatalogRecordSerializer, LightFileSerializer
 
@@ -352,16 +354,18 @@ class DatasetViewSet(CommonViewSet):
         """
         Delete all catalog records and files. Requires a password
         """
+        if any(x in settings.ALLOWED_HOSTS for x in ["metax.csc.local", "metax-test", "metax-stable", 'localhost', '127.0.0.1']):
+            if 'password' in request.data:
+                if request.data["password"] == env("flush_password"):
+                    for f in File.objects_unfiltered.all():
+                        super(Common, f).delete()
 
-        for f in File.objects_unfiltered.all():
-            super(Common, f).delete()
+                    for dr in Directory.objects_unfiltered.all():
+                        super(Common, dr).delete()
 
-        for dr in Directory.objects_unfiltered.all():
-            super(Common, dr).delete()
+                    for f in self.object.objects_unfiltered.all():
+                        super(Common, f).delete()
 
-        for f in self.object.objects_unfiltered.all():
-            super(Common, f).delete()
-
-        _logger.debug('FLUSH called by %s' % request.user.username)
-
-        return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+                    _logger.debug('FLUSH called by %s' % request.user.username)
+                    return Response(data=None, status=status.HTTP_204_NO_CONTENT)
+        return Response(data=None, status=status.HTTP_403_FORBIDDEN)
