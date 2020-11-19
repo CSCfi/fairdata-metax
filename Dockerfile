@@ -3,13 +3,11 @@ FROM python:3.6
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
-RUN mkdir /code
-RUN mkdir /code/log
-
 WORKDIR /code
 
 COPY requirements.txt /code/
 
+RUN apt-get update && apt install xqilla libxerces-c-dev build-essential libssl-dev libffi-dev python-dev libxqilla-dev -y
 
 RUN pip install --upgrade pip wheel
 RUN pip install -r requirements.txt
