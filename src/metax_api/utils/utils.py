@@ -11,10 +11,10 @@ from datetime import datetime
 from enum import Enum
 from uuid import uuid4
 
+import structlog
 from dateutil import parser
 from django.conf import settings
 from django.utils import timezone
-import structlog
 
 
 class IdentifierType(Enum):

@@ -2,14 +2,13 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
+import logging
 import os
 
+import metax_api.tasks.refdata.refdata_indexer.organization_csv_parser as org_parser
 from metax_api.tasks.refdata.refdata_indexer.domain.organization_data import (
     OrganizationData,
 )
-import metax_api.tasks.refdata.refdata_indexer.organization_csv_parser as org_parser
-
-import logging
 
 logger = logging.getLogger(__name__)
 

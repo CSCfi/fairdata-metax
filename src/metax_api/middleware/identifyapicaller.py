@@ -5,11 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import json
 import logging
 from base64 import b64decode
 
-import json
-import yaml
 import requests
 from django.conf import settings as django_settings
 from django.http import HttpResponseForbidden

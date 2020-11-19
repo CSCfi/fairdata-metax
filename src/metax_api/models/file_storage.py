@@ -6,6 +6,7 @@
 # :license: MIT
 
 from django.db.models import JSONField
+
 from .common import Common
 
 

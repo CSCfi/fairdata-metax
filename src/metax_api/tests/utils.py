@@ -7,14 +7,14 @@
 import logging
 import sys
 from base64 import b64encode
+from contextlib import contextmanager
 from json import load as json_load
 from os import path
 
-from django.conf import settings as django_settings
 import jwt
 import responses
+from django.conf import settings as django_settings
 from rest_framework import status
-from contextlib import contextmanager
 
 datetime_format = "%Y-%m-%dT%H:%M:%S.%fZ"
 

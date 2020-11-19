@@ -1,10 +1,11 @@
-from icecream import ic
+import logging
+
 from watchman.decorators import check
+
+from metax_api.services.redis_cache_service import RedisClient
 from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service import (
     ElasticSearchService,
 )
-from metax_api.services.redis_cache_service import RedisClient
-import logging
 
 logger = logging.getLogger(__name__)
 

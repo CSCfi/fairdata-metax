@@ -8,11 +8,11 @@
 from copy import deepcopy
 from os.path import dirname
 
-from django.db.models import Sum
+import responses
 from django.core.management import call_command
+from django.db.models import Sum
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
 
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services.redis_cache_service import RedisClient

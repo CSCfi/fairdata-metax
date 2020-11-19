@@ -10,8 +10,8 @@ from collections import defaultdict
 # from icecream import ic
 from rest_framework.serializers import ValidationError
 
-from .reference_data_mixin import ReferenceDataMixin
 from metax_api.models import DataCatalog
+from .reference_data_mixin import ReferenceDataMixin
 
 
 class DataCatalogService(ReferenceDataMixin):

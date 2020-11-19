@@ -6,8 +6,8 @@
 # :license: MIT
 
 import logging
-from json import dumps as json_dumps
 import random
+from json import dumps as json_dumps
 from time import sleep
 
 import pika

@@ -1,5 +1,3 @@
-from icecream import ic
-
 from metax_api.settings import env
 from metax_api.settings.components.common import (
     IDA_DATA_CATALOG_IDENTIFIER,

@@ -24,7 +24,6 @@ Including another URLconf
 from rest_framework.routers import DefaultRouter
 
 from metax_api.api.rpc.base.views import FileRPC, StatisticRPC
-
 from .views import (
     DatasetRPC,
 )

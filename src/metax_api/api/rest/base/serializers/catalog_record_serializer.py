@@ -24,7 +24,6 @@ from .contract_serializer import ContractSerializer
 from .data_catalog_serializer import DataCatalogSerializer
 from .serializer_utils import validate_json
 
-
 _logger = logging.getLogger(__name__)
 
 # when end user creates a record, strip all fields except these

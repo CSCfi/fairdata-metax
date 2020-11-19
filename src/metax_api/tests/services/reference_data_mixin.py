@@ -9,11 +9,10 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from metax_api.services.redis_cache_service import RedisClient
 from metax_api.services import ReferenceDataMixin as RDM
+from metax_api.services.redis_cache_service import RedisClient
 from metax_api.tests.utils import TestClassUtils
 from metax_api.utils import executing_travis, ReferenceDataLoader
-
 
 if executing_travis():
     _RedisCacheClass = RedisClient

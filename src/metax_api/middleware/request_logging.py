@@ -5,14 +5,11 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import logging
+import os
 from base64 import b64decode
 from json import loads as json_loads
 from time import time
-import logging
-import os
-
-from metax_api.utils import json_logger
-
 
 _logger = logging.getLogger("metax_api")
 

@@ -5,8 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from copy import deepcopy
 import unittest
+from copy import deepcopy
 
 import responses
 from django.conf import settings as django_settings
@@ -15,7 +15,6 @@ from rest_framework import status
 from metax_api.services import ReferenceDataMixin as RDM, RedisCacheService as cache
 from metax_api.tests.utils import get_test_oidc_token
 from .write import CatalogRecordApiWriteCommon
-
 
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 

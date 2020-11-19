@@ -1,11 +1,7 @@
 import os
-import sys
-from os.path import abspath, basename, dirname, join, normpath
 
-from django.urls import resolve
-
-from metax_api.settings.components import BASE_DIR
 from metax_api.settings import env
+from metax_api.settings.components import BASE_DIR
 
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")

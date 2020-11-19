@@ -4,8 +4,9 @@
 import json
 import logging
 import os
-import requests
 from time import sleep
+
+import requests
 
 from metax_api.tasks.refdata.refdata_indexer.domain.reference_data import ReferenceData
 from metax_api.tasks.refdata.refdata_indexer.service.service_utils import file_exists

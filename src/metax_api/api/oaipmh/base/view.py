@@ -5,16 +5,15 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import oaipmh.metadata as oaimd
+import oaipmh.server as oaiserver
 from django.conf import settings
 from django.http import HttpResponse
 from lxml import etree
 from lxml.etree import SubElement
-import oaipmh.metadata as oaimd
-import oaipmh.server as oaiserver
 
 from .metax_oai_server import MetaxOAIServer, OAI_DC_MDPREFIX, OAI_DATACITE_MDPREFIX, OAI_FAIRDATA_DATACITE_MDPREFIX, \
     OAI_DC_URNRESOLVER_MDPREFIX
-
 
 NS_OAIDC_DATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
 

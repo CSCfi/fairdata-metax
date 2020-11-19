@@ -1,9 +1,10 @@
-from metax_api.settings.components.common import DEBUG
 import logging.config
 import time
-import structlog
-from metax_api.settings import env
 
+import structlog
+
+from metax_api.settings import env
+from metax_api.settings.components.common import DEBUG
 
 # Logging rules:
 # - Django DEBUG enabled: Print everything from logging level DEBUG and up, to both console, and log file.

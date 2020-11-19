@@ -5,10 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import unittest
 from copy import deepcopy
 from datetime import datetime, timedelta
 from time import sleep
-import unittest
 
 import responses
 from django.conf import settings as django_settings
@@ -17,11 +17,11 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCatalog, Directory, File
+from metax_api.models.catalog_record import ACCESS_TYPES
 from metax_api.services import ReferenceDataMixin as RDM
 from metax_api.services.redis_cache_service import RedisClient
 from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
-from metax_api.models.catalog_record import ACCESS_TYPES
 
 VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS

@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
 import logging
-import requests
 from time import sleep
 
+import requests
 from django.conf import settings
 from rdflib import Graph, URIRef, RDF
 from rdflib.namespace import SKOS

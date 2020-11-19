@@ -5,15 +5,14 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from json import dump, load
 import logging
+from json import dump
 
 from django.conf import settings
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-import yaml
 
 from metax_api.exceptions import Http403, Http400
 from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory

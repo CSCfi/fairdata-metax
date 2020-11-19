@@ -6,13 +6,13 @@
 # :license: MIT
 
 from base64 import b64encode
-from django.conf import settings
 from json import dumps
-import requests
 from time import sleep
-import yaml
-import urllib3
+
 import django
+import requests
+import urllib3
+from django.conf import settings
 
 django.setup()
 

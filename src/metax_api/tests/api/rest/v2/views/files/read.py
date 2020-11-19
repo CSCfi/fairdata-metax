@@ -5,11 +5,11 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import responses
 from django.core.management import call_command
 from django.db import connection
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
 
 from metax_api.models import File
 from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils

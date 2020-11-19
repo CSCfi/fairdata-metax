@@ -13,7 +13,6 @@ from rest_framework.permissions import BasePermission
 
 from metax_api.exceptions import Http400
 
-
 _logger = logging.getLogger(__name__)
 
 METHOD_MAP = {

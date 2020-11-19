@@ -13,7 +13,6 @@ from metax_api.api.rest.base.serializers import validate_json
 from metax_api.models import CatalogRecord
 from metax_api.tests.utils import test_data_file_path, get_json_schema, TestClassUtils
 
-
 schema = get_json_schema('ida_dataset')
 
 

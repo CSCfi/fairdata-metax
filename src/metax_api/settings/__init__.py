@@ -7,9 +7,10 @@ To change settings file:
 """
 from os.path import join
 
-from icecream import ic
-from split_settings.tools import include, optional
 import environ
+from icecream import ic
+from split_settings.tools import include
+
 from metax_api.settings.components import BASE_DIR  # src
 
 # Managing environment via DJANGO_ENV variable:

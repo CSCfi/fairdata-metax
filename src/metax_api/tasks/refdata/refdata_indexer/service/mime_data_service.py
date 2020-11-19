@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging
 import os
-import requests
 from time import sleep
 from xml.etree import cElementTree as ET
+
+import requests
 
 from metax_api.tasks.refdata.refdata_indexer.domain.reference_data import ReferenceData
 from metax_api.tasks.refdata.refdata_indexer.service.service_utils import file_exists

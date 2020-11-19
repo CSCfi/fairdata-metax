@@ -6,15 +6,14 @@
 # :license: MIT
 
 import json
+
 import requests
-import yaml
 import urllib3
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from icecream import ic
 
 from metax_api.utils import executing_test_case
-
 
 urllib3.disable_warnings()
 

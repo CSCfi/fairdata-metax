@@ -5,8 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from copy import deepcopy
 import logging
+from copy import deepcopy
 from os import path
 
 from jsonschema import Draft4Validator, RefResolver
@@ -21,7 +21,6 @@ from metax_api.services import (
     CommonService as CS,
     RedisCacheService as cache,
 )
-
 
 _logger = logging.getLogger(__name__)
 

@@ -11,7 +11,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import DataCatalog
-
 from metax_api.services.redis_cache_service import RedisClient
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 

@@ -1,5 +1,6 @@
-from metax_api.settings.components.common import INSTALLED_APPS, ALLOWED_HOSTS
 from watchman import constants as watchman_constants
+
+from metax_api.settings.components.common import INSTALLED_APPS, ALLOWED_HOSTS
 
 INSTALLED_APPS += ["watchman"]
 

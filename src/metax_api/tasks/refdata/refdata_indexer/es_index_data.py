@@ -1,10 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2018-2019 Ministry of Education and Culture, Finland
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-import json
-import logging
 import logging.config
-import sys
 
 from metax_api.tasks.refdata.refdata_indexer.domain.indexable_data import (
     IndexableData as IdxData,
@@ -18,7 +15,6 @@ from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service impor
 from metax_api.tasks.refdata.refdata_indexer.service.finto_data_service import (
     FintoDataService,
 )
-
 # from service.infra_data_service import InfraDataService
 from metax_api.tasks.refdata.refdata_indexer.service.local_data_service import (
     LocalDataService,

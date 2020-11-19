@@ -5,9 +5,9 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import logging
 from collections import defaultdict
 from copy import deepcopy
-import logging
 
 from django.conf import settings
 from django.db.models import Q
@@ -22,16 +22,15 @@ from metax_api.utils import (
     get_tz_aware_now_without_micros,
     IdentifierType,
 )
-from .common import Common
-from .directory import Directory
-from .file import File
 from .catalog_record import (
     CatalogRecord,
     DataciteDOIUpdate,
     DatasetVersionSet,
     RabbitMQPublishRecord,
 )
-
+from .common import Common
+from .directory import Directory
+from .file import File
 
 _logger = logging.getLogger(__name__)
 

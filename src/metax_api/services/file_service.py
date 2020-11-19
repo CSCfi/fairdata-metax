@@ -5,12 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 from os import getpid
 from os.path import dirname, basename
-
-from icecream import ic
 from time import time
 from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
 
@@ -29,7 +27,6 @@ from metax_api.utils.utils import get_tz_aware_now_without_micros, DelayedLog
 from .callable_service import CallableService
 from .common_service import CommonService
 from .reference_data_mixin import ReferenceDataMixin
-
 
 DEBUG = settings.DEBUG
 _logger = logging.getLogger(__name__)

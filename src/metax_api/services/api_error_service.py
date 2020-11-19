@@ -5,11 +5,11 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import logging
+import traceback
 from json import dump as json_dump, load as json_load
 from os import listdir, remove as remove_file
 from uuid import uuid4
-import logging
-import traceback
 
 from django.conf import settings
 

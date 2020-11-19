@@ -10,6 +10,7 @@ import sys
 from copy import deepcopy
 from json import dump as json_dump
 from json import load as json_load
+
 from jsonschema import validate as json_validate
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

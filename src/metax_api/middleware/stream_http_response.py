@@ -5,8 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from json import dumps as json_dumps
 import logging
+from json import dumps as json_dumps
 
 from django.http import StreamingHttpResponse
 

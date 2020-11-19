@@ -12,7 +12,6 @@ from django.core.management.base import BaseCommand, CommandError
 from metax_api.services.redis_cache_service import RedisClient
 from metax_api.utils import ReferenceDataLoader
 
-
 _logger = logging.getLogger(__name__)
 
 

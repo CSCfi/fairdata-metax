@@ -6,7 +6,6 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 import pika
-import yaml
 from django.conf import settings
 """
 for testing:
