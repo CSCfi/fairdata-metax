@@ -10,29 +10,38 @@ from os.path import join
 from icecream import ic
 from split_settings.tools import include, optional
 import environ
-from metax_api.settings.components import BASE_DIR # src
+from metax_api.settings.components import BASE_DIR  # src
+
 # Managing environment via DJANGO_ENV variable:
-REFDATA_INDEXER_PATH = join(BASE_DIR, "metax_api", "tasks", "refdata", "refdata_indexer")
+REFDATA_INDEXER_PATH = join(
+    BASE_DIR, "metax_api", "tasks", "refdata", "refdata_indexer"
+)
 env = environ.Env(
     # set casting, default value
-    ADDITIONAL_USER_PROJECTS_PATH=(str, ''),
+    ADDITIONAL_USER_PROJECTS_PATH=(str, ""),
     DEBUG=(bool, False),
     DJANGO_ENV=(str, "local"),
     ELASTIC_SEARCH_PORT=(int, 9200),
     ERROR_FILES_PATH=(str, join(BASE_DIR, "log", "errors")),
-    ES_CONFIG_DIR=(str, join(REFDATA_INDEXER_PATH, "resources","es-config/")),
-    LOCAL_REF_DATA_FOLDER=(str, join(REFDATA_INDEXER_PATH,"resources","local-refdata/")),
+    ES_CONFIG_DIR=(str, join(REFDATA_INDEXER_PATH, "resources", "es-config/")),
+    LOCAL_REF_DATA_FOLDER=(
+        str,
+        join(REFDATA_INDEXER_PATH, "resources", "local-refdata/"),
+    ),
     LOGGING_DEBUG_HANDLER_FILE=(str, join(BASE_DIR, "log", "metax_api.log")),
     LOGGING_GENERAL_HANDLER_FILE=(str, join(BASE_DIR, "log", "metax_api.log")),
     LOGGING_JSON_FILE_HANDLER_FILE=(str, join(BASE_DIR, "log", "metax_api.json.log")),
     METAX_ENV=(str, "local_development"),
     METAX_DATABASE_PORT=(str, 5432),
-    ORG_FILE_PATH=(str, join(REFDATA_INDEXER_PATH, "resources","organizations","organizations.csv")),
+    ORG_FILE_PATH=(
+        str,
+        join(REFDATA_INDEXER_PATH, "resources", "organizations", "organizations.csv"),
+    ),
     RABBIT_MQ_PORT=(int, 5672),
     REDIS_HOST=(str, "localhost"),
     REDIS_PORT=(int, 6379),
     TRAVIS=(bool, False),
-    WKT_FILENAME=(str, join(REFDATA_INDEXER_PATH,"resources","uri_to_wkt.json")),
+    WKT_FILENAME=(str, join(REFDATA_INDEXER_PATH, "resources", "uri_to_wkt.json")),
 )
 # reading .env file
 environ.Env.read_env()
