@@ -554,6 +554,12 @@ if not executing_in_travis:
                 'TYPE': 'direct',
                 # make rabbitmq remember queues after restarts
                 'DURABLE': True
+            },
+            {
+                'NAME': 'TTV-datasets',
+                'TYPE': 'fanout',
+                # make rabbitmq remember queues after restarts
+                'DURABLE': True
             }
         ]
     }
