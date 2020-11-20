@@ -39,6 +39,6 @@ script:
   - flake8
 # - cd src && flake8 . && python manage.py migrate metax_api && coverage run --source="." && python manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
 
-notifications:
-  flowdock:
-    secure: j1VbRwvbQVl5IQ38NDFlVGgQOs/gbzfDVb7YF65ouJ/ad6+J/zSOBosD8QLnpz7d3Py97+4oy4ZnL7U6QMyW8hKezSCa7maAB5q/vPI6bDXpA8LQ8vvR8EcGa6gQHaWvgChlorDF2hNlyBCL8/LqU8p8c2sbETA+FCKgPJv9g4Zb9ag9eyq/BTC8YSVXqx8nd2knprLA5R8Wk/V93wJo5DGo4CVVXLba847ovt8NQ+pkVv2LskRA7wN/y7H+Un9fIpTjSFR0spD/JLHwMRRe463U45PZJ3S197leuomSscCpxTDNFFokLFJEird3NoDzR9Ny/2rmk+jsJKOf0P1iTniS7lZHzHG+GmWzoXWZaihJAnxYAyzyjLGkaz8aIJjNi/w5wuIKQXj1yLBaGJvply5O2VmNrr9sdhGmcbNZI0ZDTjKvmwir/uu1KGek1oKCh2M//6Zw/Ht5oCRkID5Qs21U5/onKJFJo/U7ZsVc8AJVKH0SqqVuQR24hYNlMr7aNYznXfVyuMX0oJXXKbtHGb+CPEqoMTRGYGUVMz1oMwlEbO0n51nbmmtF6co+WrzdHCyeHU+lC8MBR1cEpc2ZFIQ89ESJVDImKJw8+pJOpgu8DsiLFwrnwZ0c0xysQXEDS2pR+My0O4e0bY/WnADpA+JBy2e6fR/wVhXdUpRD2vs=
+# notifications:
+#   flowdock:
+#     secure: j1VbRwvbQVl5IQ38NDFlVGgQOs/gbzfDVb7YF65ouJ/ad6+J/zSOBosD8QLnpz7d3Py97+4oy4ZnL7U6QMyW8hKezSCa7maAB5q/vPI6bDXpA8LQ8vvR8EcGa6gQHaWvgChlorDF2hNlyBCL8/LqU8p8c2sbETA+FCKgPJv9g4Zb9ag9eyq/BTC8YSVXqx8nd2knprLA5R8Wk/V93wJo5DGo4CVVXLba847ovt8NQ+pkVv2LskRA7wN/y7H+Un9fIpTjSFR0spD/JLHwMRRe463U45PZJ3S197leuomSscCpxTDNFFokLFJEird3NoDzR9Ny/2rmk+jsJKOf0P1iTniS7lZHzHG+GmWzoXWZaihJAnxYAyzyjLGkaz8aIJjNi/w5wuIKQXj1yLBaGJvply5O2VmNrr9sdhGmcbNZI0ZDTjKvmwir/uu1KGek1oKCh2M//6Zw/Ht5oCRkID5Qs21U5/onKJFJo/U7ZsVc8AJVKH0SqqVuQR24hYNlMr7aNYznXfVyuMX0oJXXKbtHGb+CPEqoMTRGYGUVMz1oMwlEbO0n51nbmmtF6co+WrzdHCyeHU+lC8MBR1cEpc2ZFIQ89ESJVDImKJw8+pJOpgu8DsiLFwrnwZ0c0xysQXEDS2pR+My0O4e0bY/WnADpA+JBy2e6fR/wVhXdUpRD2vs=
