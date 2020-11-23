@@ -615,7 +615,7 @@ class CatalogRecordV2(CatalogRecord):
                 if obj['identifier'] not in delete_entries
             ]
 
-            if len(self.research_dataset[object_type]) == 0:
+            if not self.research_dataset[object_type]:
                 # do not leave empty arrays in the dict
                 del self.research_dataset[object_type]
 

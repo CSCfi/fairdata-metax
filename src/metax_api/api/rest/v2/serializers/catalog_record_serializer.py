@@ -118,6 +118,9 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
 
         validator = Draft4Validator(rd_files_schema, resolver=resolver, format_checker=None)
 
+        if not value:
+            _logger.info('Validating files and/or directories with empty value. Nothing to validate.')
+            return
         try:
             validator.validate(value)
         except JsonValidationError as e:
