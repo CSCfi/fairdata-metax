@@ -126,6 +126,9 @@ class CommonService():
 
         results = None
 
+        if not request.data:
+            raise Http400('Request body is required')
+
         if isinstance(request.data, list):
 
             if len(request.data) == 0:
