@@ -9,6 +9,7 @@ import logging
 from json import dumps as json_dumps
 import random
 from time import sleep
+from django.conf import settings
 
 import pika
 from django.conf import settings as django_settings
@@ -74,9 +75,8 @@ class _RabbitMQService():
         #     port = 5672,
         #     credentials = credentials))
 
-        if self._settings['USER'] != 'ttv':
-            pass
-        else:
+        if settings.RABBITMQ_FOR_TTV_ENABLED:
+            # Choose host randomly so that different hosts are tried out in case of connection problems
             host = random.choice(self._hosts)
             connection = pika.BlockingConnection(pika.ConnectionParameters(
                 host,
