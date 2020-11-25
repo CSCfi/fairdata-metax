@@ -55,7 +55,7 @@ class _RabbitMQService():
         else:
             raise Exception("Unable to connect to RabbitMQ")
 
-    def publish_to_TTV(self, body, routing_key='', persistent=True):
+    def publish_to_TTV(self, body, routing_key='', exchange=None, persistent=True):
         """
         Publish a message to an exchange, which might or might not have queues bound to it.
 
@@ -74,48 +74,55 @@ class _RabbitMQService():
         #     port = 5672,
         #     credentials = credentials))
 
-        self._connect()
-
-        additional_args = {}
-        if persistent:
-            additional_args['properties'] = pika.BasicProperties(delivery_mode=2)
-
-        if isinstance(body, list):
-            messages = body
+        if self._settings['USER'] != 'ttv':
+            pass
         else:
-            messages = [body]
+            host = random.choice(self._hosts)
+            connection = pika.BlockingConnection(pika.ConnectionParameters(
+                host,
+                self._settings['PORT'],
+                self._settings['VHOST_TTV'],
+                self._credentials))
 
-        channel = self._connection.channel()
+            if isinstance(body, list):
+                messages = body
+            else:
+                messages = [body]
 
-        exchange = 'TTV-datasets'
-        queue_4 = 'ttv-create'
-        queue_5 = 'ttv-update'
-        queue_6 = 'ttv-delete'
+            additional_args = {}
+            if persistent:
+                additional_args['properties'] = pika.BasicProperties(delivery_mode=2)
 
-        channel.exchange_declare(exchange=exchange, exchange_type='fanout')
-        channel.queue_declare(queue_4, durable=True)
-        channel.queue_declare(queue_5, durable=True)
-        channel.queue_declare(queue_6, durable=True)
+            channel = connection.channel()
 
-        channel.queue_bind(exchange=exchange, queue=queue_4, routing_key='create')
-        channel.queue_bind(exchange=exchange, queue=queue_5, routing_key='update')
-        channel.queue_bind(exchange=exchange, queue=queue_6, routing_key='delete')
+            exchange = 'TTV-datasets'
+            queue_4 = 'ttv-create'
+            queue_5 = 'ttv-update'
+            queue_6 = 'ttv-delete'
 
-        try:
-            for message in messages:
-                if isinstance(message, dict):
-                    message = json_dumps(
-                        message,
-                        cls=DjangoJSONEncoder)
-                channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
-        except Exception as e:
-            _logger.error(e)
-            _logger.error("Unable to publish message to RabbitMQ")
-            raise
-        finally:
-            self._connection.close()
-            # for testing
-            # connection.close()
+            channel.exchange_declare(exchange=exchange, exchange_type='fanout')
+            channel.queue_declare(queue_4, durable=True)
+            channel.queue_declare(queue_5, durable=True)
+            channel.queue_declare(queue_6, durable=True)
+
+            channel.queue_bind(exchange=exchange, queue=queue_4, routing_key='create')
+            channel.queue_bind(exchange=exchange, queue=queue_5, routing_key='update')
+            channel.queue_bind(exchange=exchange, queue=queue_6, routing_key='delete')
+
+            try:
+                for message in messages:
+                    if isinstance(message, dict):
+                        message = json_dumps(
+                            message,
+                            cls=DjangoJSONEncoder)
+                    channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
+            except Exception as e:
+                _logger.error(e)
+                _logger.error("Unable to publish message to RabbitMQ")
+                raise
+            finally:
+                # for testing
+                connection.close()
 
     def publish(self, body, routing_key='', exchange=None, persistent=True):
         """
@@ -150,7 +157,7 @@ class _RabbitMQService():
                         message,
                         cls=DjangoJSONEncoder)
                 self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
-                self.publish_to_TTV(body=message, routing_key=routing_key, **additional_args)
+                self.publish_to_TTV(body=message, routing_key=routing_key, exchange=None)
         except Exception as e:
             _logger.error(e)
             _logger.error("Unable to publish message to RabbitMQ")

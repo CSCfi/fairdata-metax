@@ -547,6 +547,7 @@ if not executing_in_travis:
         'PORT':     app_config_dict['RABBITMQ']['PORT'],
         'USER':     app_config_dict['RABBITMQ']['USER'],
         'VHOST':    app_config_dict['RABBITMQ']['VHOST'],
+        'VHOST_TTV': app_config_dict['RABBITMQ']['VHOST_TTV'],
         'PASSWORD': app_config_dict['RABBITMQ']['PASSWORD'],
         'EXCHANGES': [
             {
