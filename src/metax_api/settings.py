@@ -647,3 +647,8 @@ if executing_in_test_case or executing_in_travis:
     ]
 else:
     API_VERSIONS_ENABLED = app_config_dict.get('API_VERSIONS_ENABLED', [])
+
+if executing_in_test_case or executing_in_travis:
+    RABBITMQ_FOR_TTV_ENABLED = True
+else:
+    RABBITMQ_FOR_TTV_ENABLED = app_config_dict.get('RABBITMQ_FOR_TTV_ENABLED', False)
