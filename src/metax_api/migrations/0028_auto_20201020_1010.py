@@ -12,16 +12,16 @@ class Migration(migrations.Migration):
         File = apps.get_model('metax_api', 'File')
 
         _logger.info('Checking for empty format_version values..')
-
-        for f in File.objects.all():
+        scanned_rows = File.objects.filter(file_characteristics__format_version="").count()
+        _logger.info(f"query size: {scanned_rows}")
+        for f in File.objects.filter(file_characteristics__format_version=""):
 
             file_changed = False
             if f.file_characteristics:
                 filedata = json.loads(json.dumps(f.file_characteristics))
                 if 'format_version' in filedata:
-                    if filedata['format_version'] == "":
-                        filedata.pop('format_version', None)
-                        file_changed = True
+                    filedata.pop('format_version', None)
+                    file_changed = True
 
             if file_changed:
                 f.file_characteristics = filedata
