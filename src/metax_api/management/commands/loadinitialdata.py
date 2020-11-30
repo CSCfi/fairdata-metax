@@ -95,7 +95,7 @@ class Command(BaseCommand):
         self.stdout.write('Creating %d data catalogs...' % len(data_catalogs))
 
         for dc in data_catalogs:
-            response = requests.post('%s/rest/datacatalogs' % self._metax_api_root,
+            response = requests.post('%s/rest/v2/datacatalogs' % self._metax_api_root,
                 json=dc, auth=self._metax_api_user, verify=False)
 
             if response.status_code == 201:
@@ -111,7 +111,7 @@ class Command(BaseCommand):
                     self.stdout.write('Catalog %s already exists, updating instead...' %
                         dc['catalog_json']['identifier'])
 
-                    response = requests.put('%s/rest/datacatalogs/%s' %
+                    response = requests.put('%s/rest/v2/datacatalogs/%s' %
                         (self._metax_api_root, dc['catalog_json']['identifier']),
                         json=dc, auth=self._metax_api_user, verify=False)
 

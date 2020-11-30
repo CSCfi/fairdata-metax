@@ -48,6 +48,49 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/v2/datasets')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_read_catalog_record_list_by_ids(self):
+        # Successful tests
+
+        cr_id_lists = [
+            [1, 4, 6],
+            [1, 4, 6, 777],
+            ['cr955e904-e3dd-4d7e-99f1-3fed446f96d7',
+            'cr955e904-e3dd-4d7e-99f1-3fed446f96d6',
+            'cr955e904-e3dd-4d7e-99f1-3fed446f96d5'],
+            ['cr955e904-e3dd-4d7e-99f1-3fed446f96d7',
+            'cr955e904-e3dd-4d7e-99f1-3fed446f96d6',
+            'cr955e904-e3dd-4d7e-99f1-3fed446f96d5',
+            'something']
+        ]
+
+        for id_list in cr_id_lists:
+            response = self.client.post('/rest/v2/datasets/list', id_list, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 3)
+
+            # check that fields parameter works
+            response = self.client.post('/rest/v2/datasets/list?fields=id', id_list, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data['results']), 3)
+            self.assertEqual(len(response.data['results'][0].keys()), 1)
+            self.assertEqual(list(response.data['results'][0].keys()), ['id'])
+
+        # Failing/empty tests
+
+        cr_bad_lists = [
+            ['something'],
+            [999, 777]
+        ]
+
+        for bad_list in cr_bad_lists:
+            response = self.client.post('/rest/v2/datasets/list', bad_list, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data['results'], [])
+
+        response = self.client.post('/rest/v2/datasets/list', [], format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('Received empty list of identifiers' in response.data['detail'])
+
     def test_read_catalog_record_details_by_pk(self):
         response = self.client.get('/rest/v2/datasets/%s' % self.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

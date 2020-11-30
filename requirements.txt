@@ -30,19 +30,19 @@ ipython-genutils==0.2.0   # via traitlets
 ipython==7.16.1           # via ipdb
 jedi==0.17.2              # via ipython
 jsonschema==3.2.0         # via -r requirements.in, datacite
-lxml==4.5.2               # via -r requirements.in, datacite, pyoai
+lxml==4.6.1               # via -r requirements.in, datacite, pyoai
 mccabe==0.6.1             # via flake8
 parso==0.7.1              # via jedi
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
 pika==1.1.0               # via -r requirements.in
 pip-tools==5.3.1          # via -r requirements.in
-prompt-toolkit==3.0.7     # via ipython
+prompt-toolkit==3.0.8     # via ipython
 psycopg2-binary==2.8.6    # via -r requirements.in
 ptyprocess==0.6.0         # via pexpect
 pycodestyle==2.6.0        # via flake8
 pyflakes==2.2.0           # via flake8
-pygments==2.7.1           # via ipython
+pygments==2.7.2           # via ipython
 pyjwt==1.7.1              # via -r requirements.in
 pyoai==2.5.0              # via -r requirements.in
 pyrsistent==0.17.3        # via jsonschema
@@ -55,9 +55,9 @@ requests==2.24.0          # via -r requirements.in, coveralls, datacite, respons
 responses==0.12.0         # via -r requirements.in
 simplejson==3.17.2        # via -r requirements.in
 six==1.15.0               # via jsonschema, pip-tools, pyoai, python-dateutil, responses, structlog, traitlets
-sqlparse==0.3.1           # via django
+sqlparse==0.4.1           # via django
 structlog==20.1.0         # via -r requirements.in
-traitlets==4.3.3          # via ipython
+traitlets==4.3.3          # via -r requirements.in, ipython
 urllib3==1.25.11          # via -r requirements.in, elasticsearch, requests, responses
 wcwidth==0.2.5            # via prompt-toolkit
 xmltodict==0.12.0         # via -r requirements.in

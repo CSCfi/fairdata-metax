@@ -70,7 +70,10 @@
         "dataset_versioning": true,
         "research_dataset_schema": "ida",
         "logo": "fairdata_tree_logo.svg"
-    }
+    },
+        "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
+        "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
+        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas"
 },
 {
     "catalog_json": {
@@ -144,7 +147,10 @@
         "dataset_versioning": false,
         "research_dataset_schema": "att",
         "logo": "fairdata_tree_logo.svg"
-    }
+    },
+        "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
+        "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
+        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas"
 },
 {
     "catalog_json": {
@@ -219,7 +225,12 @@
         "dataset_versioning": false,
         "research_dataset_schema": "ida",
         "logo": "fairdata_tree_logo.svg"
-    }
+    },
+        "catalog_record_group_edit": "pas_edit",
+        "catalog_record_group_create": "pas_create",
+        "catalog_record_services_edit": "metax,tpas",
+        "catalog_record_services_create": "metax,tpas",
+        "catalog_record_services_read": "metax,tpas"
 },
 {
     "catalog_json": {
@@ -284,5 +295,66 @@
         },
         "dataset_versioning": false,
         "research_dataset_schema": "att"
-    }
+    },
+    "catalog_record_services_edit": "metax,qvain,qvain-light,tpas",
+    "catalog_record_services_create": "metax,qvain,qvain-light,tpas",
+    "catalog_record_services_read": "metax,qvain,qvain-light,tpas"
+},
+{
+    "catalog_json": {
+        "title": {
+          "en": "Metadata catalog for draft datasets",
+          "fi": "Luonnostilassa olevien aineistojen kuvailutietokatalogi"
+        },
+        "language": [
+          {
+            "title": {
+              "en": "English language",
+              "fi": "Englannin kieli",
+              "sv": "engelska",
+              "und": "Englannin kieli"
+            },
+            "identifier": "http://lexvo.org/id/iso639-3/eng"
+          }
+        ],
+        "harvested": false,
+        "publisher": {
+          "name": {
+            "en": "Ministry of Education and Culture, Finland",
+            "fi": "Opetus- ja kulttuuriministeriö"
+          }
+        },
+        "identifier": "urn:nbn:fi:att:data-catalog-dft",
+        "access_rights": {
+          "license": [
+            {
+              "title": {
+                "en": "Creative Commons CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+                "fi": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma",
+                "und": "Creative Commons Yleismaailmallinen (CC0 1.0) Public Domain -lausuma"
+              },
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC0-1.0"
+            }
+          ],
+          "access_type": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+              "pref_label": {
+                "en": "Open",
+                "fi": "Avoin",
+                "und": "Avoin"
+              }
+            }
+          ],
+          "description": {
+            "en": "Contains metadata about draft datasets. Datasets in this catalog cannot be published.",
+            "fi": "Sisältää kuvailutietoja luonnostilassa olevista tutkimusaineistoista. Tutkimusaineistoja ei pysty julkaisemaan."
+          }
+        },
+        "dataset_versioning": false,
+        "research_dataset_schema": "dft"
+      },
+        "catalog_record_services_edit": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
+        "catalog_record_services_create": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
+        "catalog_record_services_read": "metax,qvain,qvain-light,etsin,tpas, ida, testuser, api_auth_user"
 }]

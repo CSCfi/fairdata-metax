@@ -280,6 +280,19 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         self.assertTrue(len(new_cr.research_dataset['files']) < len(original_cr.research_dataset['files']))
         self.assertTrue(new_cr.files.count() < original_cr.files(manager='objects_unfiltered').count())
 
+    def test_version_from_draft(self):
+        """
+        New versions cannot be created from drafts
+        """
+        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        dft_id = response.data['identifier']
+
+        response = self.client.post(f'/rpc/v2/datasets/create_new_version?identifier={dft_id}', format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('draft' in response.data['detail'][0], response.data)
+
     @responses.activate
     def test_authorization(self):
         """

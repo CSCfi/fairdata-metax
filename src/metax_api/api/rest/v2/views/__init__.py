@@ -6,3 +6,4 @@
 # :license: MIT
 
 from .dataset_view import DatasetViewSet
+from .data_catalog_view import DataCatalogViewSet

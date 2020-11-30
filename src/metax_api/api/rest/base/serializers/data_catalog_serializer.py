@@ -43,9 +43,8 @@ class DataCatalogSerializer(CommonSerializer):
                 })
 
     def validate_catalog_json(self, value):
-        validate_json(value, self.context['view'].json_schema)
         DCS.validate_reference_data(value, self.context['view'].cache)
-        # ensure ref data validation/population did not break anything
+        # Validate against json schema only after reference data has been populated
         validate_json(value, self.context['view'].json_schema)
         if self._operation_is_create:
             self._validate_identifier_uniqueness(value)

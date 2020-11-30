@@ -196,7 +196,7 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
     def _research_dataset_or_file_changes(self, rd_or_file_changes):
         """
         File and dir entries can be added both to research_dataset object, and
-        the more simpke "file changes" object that is sent to /rest/v2/datasets/pid/files.
+        the more simple "file changes" object that is sent to /rest/v2/datasets/pid/files.
         Methods who call this helper can treat the returned object as either, and only
         operate with "files" and "directories" keys.
         """
@@ -685,6 +685,46 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('Changing files of a deprecated' in response.data['detail'][0], True, response.data)
 
+    def test_prevent_adding_files_with_normal_update(self):
+        cr_id = self._create_draft()
+
+        cr = self.client.get(f'/rest/v2/datasets/{cr_id}', format="json").data
+
+        for type in ['files', 'directories']:
+            cr['research_dataset'][type] = [
+                {
+                    "identifier": 'pid:urn:%s1' % '' if type == 'files' else 'dir:'
+                }
+            ]
+
+            response = self.client.put(f'/rest/v2/datasets/{cr_id}?include_user_metadata', cr, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(type in response.data['research_dataset'], False, response.data)
+
+            cr['research_dataset'].pop(type)
+
+        # test for published dataset
+        self.cr_test_data.pop('files', None)
+        self.cr_test_data.pop('directories', None)
+
+        response = self.client.post('/rest/v2/datasets/', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+
+        for type in ['files', 'directories']:
+            cr['research_dataset'][type] = [
+                {
+                    "identifier": 'pid:urn:%s1' % '' if type == 'files' else 'dir:'
+                }
+            ]
+
+            response = self.client.put(f'/rest/v2/datasets/{cr["id"]}?include_user_metadata', cr, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(type in response.data['research_dataset'], False, response.data)
+
+            cr['research_dataset'].pop(type)
+
     def test_directory_entries_are_processed_in_order(self):
         """
         Directory entries should executed in the order they are given in the request body.
@@ -915,6 +955,64 @@ class CatalogRecordUserMetadata(CatalogRecordApiWriteAssignFilesCommonV2):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual('are not included' in response.data['detail'][0], True, response.data)
         self.assertEqual(non_existing_file in response.data['data'], True, response.data)
+
+    def test_delete_all_file_meta_data(self):
+        # create dataset with file
+        self._add_file(self.cr_test_data, '/TestExperiment/Directory_1/Group_1/file_02.txt')
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual('files' in response.data['research_dataset'], False, response.data)
+
+        cr_id = response.data['id']
+
+        # add metadata for one file
+
+        file_changes = {}
+        self._add_file(file_changes, '/TestExperiment/Directory_1/Group_1/file_02.txt', with_metadata=True)
+        response = self.client.put('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        file_data = CR.objects.only('research_dataset').get(pk=cr_id).research_dataset['files'][0]
+        file_id = file_data['identifier']
+
+        # delete data of all files
+        file_changes = {'files': []}
+        file_changes['files'].append({'delete': True})
+        file_changes['files'][0]['identifier'] = file_id
+
+        response = self.client.put('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr = CR.objects.only('research_dataset').get(pk=cr_id)
+
+        self.assertFalse(cr.research_dataset.get('files', False), 'file metadata must not be there')
+
+        # add metadata for one directory
+
+        file_changes = {}
+        self._add_directory(file_changes, '/TestExperiment', with_metadata=True)
+        response = self.client.put('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        dir_data = CR.objects.only('research_dataset').get(pk=cr_id).research_dataset['directories'][0]
+
+        dir_id = dir_data['identifier']
+
+        # delete data of all directories
+        file_changes = {'directories': []}
+        file_changes['directories'].append({'delete': True})
+        file_changes['directories'][0]['identifier'] = dir_id
+
+        response = self.client.put('/rest/v2/datasets/%d/files/user_metadata' % cr_id, file_changes, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        cr = CR.objects.only('research_dataset').get(pk=cr_id)
+
+        self.assertFalse(cr.research_dataset.get('directories', False), 'directory metadata must not be there')
+        self.assertFalse(cr.research_dataset.get('files', False), 'file metadata must not be there')
 
 
 class CatalogRecordFileHandlingCumulativeDatasets(CatalogRecordApiWriteAssignFilesCommonV2):

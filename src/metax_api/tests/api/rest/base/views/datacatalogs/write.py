@@ -4,6 +4,7 @@
 #
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
+from copy import deepcopy
 
 from django.core.management import call_command
 from rest_framework import status
@@ -70,6 +71,19 @@ class DataCatalogApiWriteBasicTests(DataCatalogApiWriteCommon):
         self.assertEqual(dc_deleted.removed, True)
         self.assertEqual(dc_deleted.date_modified, dc_deleted.date_removed, 'date_modified should be updated')
 
+    def test_publisher_name_is_required(self):
+        """
+        Name is required property for publisher what can also be
+        populated from reference data.
+        """
+        catalog = deepcopy(self.new_test_data)
+
+        catalog['catalog_json']['publisher'].pop('identifier', None)
+        catalog['catalog_json']['publisher'].pop('name', None)
+
+        response = self.client.post('/rest/datacatalogs', catalog, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('name' in response.data['catalog_json'][0], response.data)
 
 class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
     """
@@ -134,6 +148,9 @@ class DataCatalogApiWriteReferenceDataTests(DataCatalogApiWriteCommon):
         # these have other required fields, so only update the identifier with code
         dc['publisher']['identifier'] = refs['organization']['code']
         dc['access_rights']['has_rights_related_agent'][0]['identifier'] = refs['organization']['code']
+
+        # ensure that name is not required if reference data is used, i.e. identifier is given
+        dc['publisher'].pop('name', None)
 
         response = self.client.post('/rest/datacatalogs', self.new_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

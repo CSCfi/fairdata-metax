@@ -5,14 +5,16 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from os import path
+from copy import deepcopy
 import logging
+from os import path
 
 from jsonschema import Draft4Validator, RefResolver
 from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ValidationError
 
 from metax_api.api.rest.base.serializers import CatalogRecordSerializer
+from metax_api.api.rest.base.serializers.catalog_record_serializer import DFT_CATALOG
 from metax_api.models import CatalogRecordV2
 from metax_api.services import (
     CatalogRecordService as CRS,
@@ -26,6 +28,12 @@ _logger = logging.getLogger(__name__)
 
 class CatalogRecordSerializerV2(CatalogRecordSerializer):
 
+    class Meta:
+        # deepcopied, so that changes in this model don't affect
+        # the V1 model
+        fields = deepcopy(CatalogRecordSerializer.Meta.fields)
+        extra_kwargs = deepcopy(CatalogRecordSerializer.Meta.extra_kwargs)
+
     # define separately for inherited class, so that schemas are searched
     # from api/rest/v2/schemas, instead of api/rest/v1/schemas
     _schemas_directory_path = path.join(path.dirname(path.dirname(__file__)), 'schemas')
@@ -38,11 +46,14 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
             'next_draft',
         )
         self.Meta.extra_kwargs.update({
-            'draft_of':   { 'required': False },
-            'next_draft': { 'required': False },
+            'draft_of':     { 'required': False },
+            'next_draft':   { 'required': False },
         })
 
     def is_valid(self, raise_exception=False):
+        if CS.get_boolean_query_param(self.context['request'], 'draft') and not self.initial_data.get('data_catalog'):
+            self.initial_data['data_catalog'] = DFT_CATALOG
+
         self.initial_data.pop('draft_of', None)
         self.initial_data.pop('editor', None)
         self.initial_data.pop('next_draft', None)
@@ -107,6 +118,9 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
 
         validator = Draft4Validator(rd_files_schema, resolver=resolver, format_checker=None)
 
+        if not value:
+            _logger.info('Validating files and/or directories with empty value. Nothing to validate.')
+            return
         try:
             validator.validate(value)
         except JsonValidationError as e:
