@@ -101,7 +101,10 @@ def retrieve_and_update_all_data_catalogs_in_db(headers):
 
     data_catalog_ids = []
     for dc in response.json().get('results', []):
-        data_catalog_ids.append(dc.get('id'))
+        if dc['catalog_json']['identifier'] == 'urn:nbn:fi:att:data-catalog-dft':
+            pass
+        else:
+            data_catalog_ids.append(dc.get('id'))
 
     print('retrieving details of data catalogs and updating %d data catalogs...' % len(data_catalog_ids))
 
@@ -109,7 +112,7 @@ def retrieve_and_update_all_data_catalogs_in_db(headers):
         response = requests.get('https://localhost/rest/datacatalogs/%s' % dc_id, headers=headers, verify=False)
 
         if response.status_code == 200:
-            update_response = requests.put('https://localhost/rest/v2/datacatalogs/%s' % dc_id,
+            update_response = requests.put('https://localhost/rest/datacatalogs/%s' % dc_id,
                                            headers=headers, json=response.json(), verify=False)
             if update_response.status_code not in (200, 201, 204):
                 print(response.status_code)
