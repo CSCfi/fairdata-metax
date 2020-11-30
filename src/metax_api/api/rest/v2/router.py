@@ -26,13 +26,13 @@ from metax_api.api.rest.base import CustomRouter
 from metax_api.api.rest.base.views import (
     ApiErrorViewSet,
     ContractViewSet,
-    DataCatalogViewSet,
     DirectoryViewSet,
     FileStorageViewSet,
     FileViewSet,
     SchemaViewSet
 )
 from .views import (
+    DataCatalogViewSet,
     DatasetViewSet,
 )
 
@@ -92,7 +92,6 @@ class CustomRouterV2(CustomRouter):
 router_v1 = CustomRouter(trailing_slash=False)
 router_v1.register(r'apierrors/?', ApiErrorViewSet)
 router_v1.register(r'contracts/?', ContractViewSet)
-router_v1.register(r'datacatalogs/?', DataCatalogViewSet)
 router_v1.register(r'directories/?', DirectoryViewSet)
 router_v1.register(r'files/?', FileViewSet)
 router_v1.register(r'filestorages/?', FileStorageViewSet)
@@ -102,6 +101,7 @@ router_v1.register(r'schemas/?', SchemaViewSet)
 
 router_v2 = CustomRouterV2(trailing_slash=False)
 router_v2.register(r'datasets/?', DatasetViewSet)
+router_v2.register(r'datacatalogs/?', DataCatalogViewSet)
 router_v2.register(
     r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?',
     DatasetViewSet

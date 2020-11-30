@@ -13,7 +13,7 @@ import urllib3
 from django.core.management.base import BaseCommand, CommandError
 
 from metax_api.utils import executing_test_case
-
+from django.conf import settings as django_settings
 
 urllib3.disable_warnings()
 
@@ -95,33 +95,45 @@ class Command(BaseCommand):
         self.stdout.write('Creating %d data catalogs...' % len(data_catalogs))
 
         for dc in data_catalogs:
-            response = requests.post('%s/rest/datacatalogs' % self._metax_api_root,
-                json=dc, auth=self._metax_api_user, verify=False)
-
-            if response.status_code == 201:
-                self.stdout.write('Created catalog: %s' % dc['catalog_json']['identifier'])
+            if dc['catalog_json']['research_dataset_schema'] == 'dft':
+                pass
             else:
-                # update instead
-                try:
-                    errors = response.json()
-                except:
-                    raise CommandError(response.content)
-
-                if self._error_is_already_exists(errors.get('catalog_json', {})):
-                    self.stdout.write('Catalog %s already exists, updating instead...' %
-                        dc['catalog_json']['identifier'])
-
-                    response = requests.put('%s/rest/datacatalogs/%s' %
-                        (self._metax_api_root, dc['catalog_json']['identifier']),
+                if 'v2' in django_settings.API_VERSIONS_ENABLED:
+                    response = requests.post('%s/rest/v2/datacatalogs' % self._metax_api_root,
+                        json=dc, auth=self._metax_api_user, verify=False)
+                else:
+                    response = requests.post('%s/rest/datacatalogs' % self._metax_api_root,
                         json=dc, auth=self._metax_api_user, verify=False)
 
-                    if response.status_code == 200:
-                        self.stdout.write('Updated catalog: %s' % dc['catalog_json']['identifier'])
-                        continue
+                if response.status_code == 201:
+                    self.stdout.write('Created catalog: %s' % dc['catalog_json']['identifier'])
+                else:
+                    # update instead
+                    try:
+                        errors = response.json()
+                    except:
+                        raise CommandError(response.content)
 
-                # create or update ended in error
-                raise CommandError('Failed to process catalog: %s. Reason: %s' %
-                    (dc['catalog_json']['identifier'], errors))
+                    if self._error_is_already_exists(errors.get('catalog_json', {})):
+                        self.stdout.write('Catalog %s already exists, updating instead...' %
+                            dc['catalog_json']['identifier'])
+
+                        if 'v2' in django_settings.API_VERSIONS_ENABLED:
+                            response = requests.put('%s/rest/v2/datacatalogs/%s' %
+                                (self._metax_api_root, dc['catalog_json']['identifier']),
+                                json=dc, auth=self._metax_api_user, verify=False)
+                        else:
+                            response = requests.put('%s/rest/datacatalogs/%s' %
+                                (self._metax_api_root, dc['catalog_json']['identifier']),
+                                json=dc, auth=self._metax_api_user, verify=False)
+
+                        if response.status_code == 200:
+                            self.stdout.write('Updated catalog: %s' % dc['catalog_json']['identifier'])
+                            continue
+
+                    # create or update ended in error
+                    raise CommandError('Failed to process catalog: %s. Reason: %s' %
+                        (dc['catalog_json']['identifier'], errors))
 
     def _load_file_storages(self):
         try:

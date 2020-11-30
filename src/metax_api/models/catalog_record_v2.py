@@ -187,8 +187,11 @@ class CatalogRecordV2(CatalogRecord):
         elif self.is_draft_for_another_dataset():
             raise Http400(
                 'This dataset is a draft for another published dataset. To publish the draft changes, '
-                'use API /rpc/v2/datasets/publish_draft'
+                'use API /rpc/v2/datasets/merge_draft'
             )
+        elif self.catalog_is_dft():
+            raise Http400('Cannot publish dataset in draft catalog. '
+                          'Please use parameter ?draft for adding a draft dataset')
 
         self.state = self.STATE_PUBLISHED
 
@@ -287,7 +290,8 @@ class CatalogRecordV2(CatalogRecord):
             % (self.id, self.identifier, self.preferred_identifier)
         )
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+        if self.state == self.STATE_PUBLISHED:
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
     def merge_draft(self):
         """
@@ -472,15 +476,20 @@ class CatalogRecordV2(CatalogRecord):
             pass
         else:
             # "normal" PUT or PATCH to the record (draft or published). these fields should
-            # normally be updated by using the api /rest/v2/datasets/pid/files/user_metadata,
-            # or when user metadata is included when files new files are added to the dataset
-            # using the api /rest/v2/datasets/pid/files.
+            # be updated by using the api /rest/v2/datasets/pid/files/user_metadata for existing
+            # files, or by using /rest/v2/datasets/pid/files for adding new files with user metadata.
 
-            if 'files' in self._initial_data['research_dataset']:
-                self.research_dataset['files'] = self._initial_data['research_dataset']['files']
+            if self.research_dataset.get('files') != self._initial_data['research_dataset'].get('files'):
+                if 'files' in self._initial_data['research_dataset']:
+                    self.research_dataset['files'] = self._initial_data['research_dataset']['files']
+                else:
+                    del self.research_dataset['files']
 
-            if 'directories' in self._initial_data['research_dataset']:
-                self.research_dataset['directories'] = self._initial_data['research_dataset']['directories']
+            if self.research_dataset.get('directories') != self._initial_data['research_dataset'].get('directories'):
+                if 'directories' in self._initial_data['research_dataset']:
+                    self.research_dataset['directories'] = self._initial_data['research_dataset']['directories']
+                else:
+                    del self.research_dataset['directories']
 
         if self.field_changed('research_dataset') and self.state == self.STATE_PUBLISHED:
 
@@ -606,7 +615,7 @@ class CatalogRecordV2(CatalogRecord):
                 if obj['identifier'] not in delete_entries
             ]
 
-            if len(self.research_dataset[object_type]) == 0:
+            if not self.research_dataset[object_type]:
                 # do not leave empty arrays in the dict
                 del self.research_dataset[object_type]
 
@@ -698,6 +707,9 @@ class CatalogRecordV2(CatalogRecord):
         if not (file_changes.get('files') or file_changes.get('directories')):
             _logger.debug('Received data does not include files or directories - returning')
             return
+
+        if self.catalog_is_dft():
+            raise Http400('Adding files in draft catalog is not permitted. Please select valid datacatalog first.')
 
         # create an instance of the serializer for later validations
         serializer = self.serializer_class(self)
@@ -1198,6 +1210,8 @@ class CatalogRecordV2(CatalogRecord):
             )
         elif not self.catalog_versions_datasets():
             raise Http400('Data catalog does not allow dataset versioning')
+        elif self.state == self.STATE_DRAFT:
+            raise Http400('Cannot create new version from draft dataset')
 
         self._new_version = self._create_new_dataset_version_template()
         self._create_new_dataset_version()
@@ -1420,7 +1434,8 @@ class CatalogRecordV2(CatalogRecord):
         super(CatalogRecord, self).save()
 
         if publish_update:
-            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+            if self.state == self.STATE_PUBLISHED:
+                self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
     def calculate_directory_byte_sizes_and_file_counts(self):
         """

@@ -285,3 +285,18 @@ class ApiWriteQueryParamTests(ApiWriteCommon):
         self.assertEqual('id' in response.data, True)
         found = CatalogRecord.objects.filter(pk=response.data['id']).exists()
         self.assertEqual(found, False, 'record should not get truly created when using parameter dryrun')
+
+
+class ApiWriteCommonOperations(ApiWriteCommon):
+    """
+    Common write operations
+    """
+
+    def test_create_file_with_empty_body_fails(self):
+        response = self.client.post('/rest/datasets')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('Request body is required' in response.data['detail'][0])
+
+        response = self.client.post('/rest/files')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('Request body is required' in response.data['detail'][0])

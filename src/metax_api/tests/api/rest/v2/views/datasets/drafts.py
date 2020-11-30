@@ -21,6 +21,7 @@ from .write import CatalogRecordApiWriteCommon
 CR = CatalogRecordV2
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
+DFT_CATALOG = django_settings.DFT_DATA_CATALOG_IDENTIFIER
 
 class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
     """
@@ -34,12 +35,24 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         catalog_json = dc.catalog_json
         for identifier in END_USER_ALLOWED_DATA_CATALOGS:
             catalog_json['identifier'] = identifier
+            # not all non-draft catalogs are actually ida but that is not tested here
+            catalog_json['research_dataset_schema'] = 'dft' if identifier == DFT_CATALOG else 'ida'
             dc = DataCatalog.objects.create(
                 catalog_json=catalog_json,
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create='testuser,api_auth_user,metax',
                 catalog_record_services_edit='testuser,api_auth_user,metax'
             )
+
+        self.minimal_draft = {
+            "metadata_provider_org": "abc-org-123",
+            "metadata_provider_user": "abc-usr-123",
+            "research_dataset": {
+                "title": {
+                    "en": "Wonderful Title"
+                }
+            }
+        }
 
         self.token = get_test_oidc_token(new_proxy=True)
         self._mock_token_validation_succeeds()
@@ -356,6 +369,58 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
             response = self.client.get(f'/rest/v2/datasets/{identifier}?include_user_metadata', format='json')
             self.assertTrue('use_doi_for_published' not in response.data)
             self.assertTrue('urn' in response.data['research_dataset']['preferred_identifier'], response.data)
+
+    ###
+    # Tests for draft data catalog
+    ###
+
+    def test_minimal_draft_dataset_creation(self):
+        ''' Drafts have different requirements for mandatory fields '''
+        self._use_http_authorization(method='basic', username='metax')
+
+        response = self.client.post('/rest/v2/datasets?draft', self.minimal_draft, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_no_files_or_dirs_in_draft_catalog(self):
+        ''' Files cannot be added to datasets that are in draft catalog '''
+
+        for type in ['files', 'directories']:
+            self.minimal_draft['research_dataset'][type] = [
+                {
+                    "identifier": "pid:urn:{}1".format('' if type == 'files' else 'dir:')
+                }
+            ]
+
+            response = self.client.post('/rest/v2/datasets?draft', self.minimal_draft, format="json")
+            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+            self.assertTrue('files in draft catalog' in response.data['detail'][0], response.data)
+
+            self.minimal_draft['research_dataset'].pop(type)
+
+    def test_publish_in_draft_catalog_is_not_allowed(self):
+        self._use_http_authorization(method='basic', username='metax')
+
+        del self.cr_test_data['data_catalog']
+        del self.cr_test_data['research_dataset']['files']
+
+        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+        response = self.client.post(f'/rpc/v2/datasets/publish_dataset?identifier={cr["id"]}', format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_prevent_update_published_dataset_to_draft_catalog(self):
+        self._use_http_authorization(method='basic', username='metax')
+
+        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+        cr['data_catalog'] = {"identifier": DFT_CATALOG}
+
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
 

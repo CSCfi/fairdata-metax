@@ -519,8 +519,6 @@ paths:
           description: A list of preferred_identifiers. if the files were not found to belong to any datasets, an empty list is returned
         '403':
           description: Forbidden. Must have permission for resource
-        '404':
-          description: Files given in the list not found
       tags:
         - File API
   /rest/v2/files/restore:
@@ -1001,7 +999,7 @@ paths:
           type: string
         - name: api_version
           in: query
-          description: returns datasets that can be edited with certain api version. Possible values are 1 and 2
+          description: Returns datasets that can be edited with certain api version. Possible values are 1 and 2
           type: integer
           required: false
         - $ref: "#/parameters/include_user_metadata"
@@ -1164,6 +1162,26 @@ paths:
       responses:
         "200":
           description: Successful operation, returns a list of all unique dataset preferred identifiers.
+      tags:
+        - Dataset API
+  /rest/datasets/list:
+    post:
+      summary: List datasets corresponding IDs or identifiers given in body
+      parameters:
+        - name: body
+          in: body
+          description: A list of dataset IDs (integers) OR a list of datasets identifiers (strings). Returns datasets corresponding queried IDs.
+          required: true
+          schema:
+            $ref: '#/definitions/StringList'
+        - $ref: "#/parameters/fields"
+      responses:
+        "200":
+          description: Successful operation, returns a list of queried datasets.
+        "400":
+          description: Received empty list of identifiers
+        '403':
+          description: Forbidden. Must have permission for resource
       tags:
         - Dataset API
   /rest/v2/datasets/{PID}:

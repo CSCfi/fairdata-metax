@@ -174,7 +174,7 @@ class CommonViewSet(ModelViewSet):
 
             for field in self.fields:
                 if field not in self.get_serializer_class().Meta.fields:
-                    raise Http400(f'field \'{field}\' is not part of {self.object.__name__}')
+                    raise Http400(f"field '{field}' is not part of {self.object.__name__}")
 
             # causes only requested fields to be loaded from the db
             self.queryset = self.queryset.only(*self.fields)

@@ -101,7 +101,10 @@ def retrieve_and_update_all_data_catalogs_in_db(headers):
 
     data_catalog_ids = []
     for dc in response.json().get('results', []):
-        data_catalog_ids.append(dc.get('id'))
+        if dc['catalog_json']['identifier'] == 'urn:nbn:fi:att:data-catalog-dft':
+            pass
+        else:
+            data_catalog_ids.append(dc.get('id'))
 
     print('retrieving details of data catalogs and updating %d data catalogs...' % len(data_catalog_ids))
 

@@ -11,7 +11,7 @@ from os import path
 from django.conf import settings as django_settings
 from rest_framework.serializers import ValidationError
 
-from metax_api.exceptions import Http403
+from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, DataCatalog, Directory, Contract, Common, File
 from metax_api.services import (
     CatalogRecordService as CRS,
@@ -51,7 +51,7 @@ END_USER_UPDATE_ALLOWED_FIELDS = [
 
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 LEGACY_CATALOGS = django_settings.LEGACY_CATALOGS
-
+DFT_CATALOG = django_settings.DFT_DATA_CATALOG_IDENTIFIER
 
 class CatalogRecordSerializer(CommonSerializer):
 
@@ -145,6 +145,9 @@ class CatalogRecordSerializer(CommonSerializer):
             # in the database, and what the data catalog is being changed to.
             self._validate_research_dataset_uniqueness(self.instance.research_dataset)
 
+            # updating data catalog of published dataset to draft data catalog is restricted
+            self._validate_draft_data_catalog()
+
         # executes other validation related code, such as validate_research_dataset()
         super(CatalogRecordSerializer, self).is_valid(raise_exception=raise_exception)
 
@@ -164,6 +167,10 @@ class CatalogRecordSerializer(CommonSerializer):
         return super(CatalogRecordSerializer, self).update(instance, validated_data)
 
     def create(self, validated_data):
+        if 'V2' not in self.__class__.__name__ and \
+                validated_data['data_catalog'].catalog_json['identifier'] == DFT_CATALOG:
+            raise Http400({ 'detail': [ 'Draft catalog cannot be used in V1 API' ]})
+
         if self._migration_override_requested():
 
             # any custom stuff before create that might be necessary for migration purposes
@@ -390,8 +397,14 @@ class CatalogRecordSerializer(CommonSerializer):
                         files_from_db.pop(i)
                         break
 
-    def validate_research_dataset(self, value):
+    def _validate_draft_data_catalog(self):
+        # catalog object is not yet included to initial_data so have to fetch it
+        dc_pid = DataCatalog.objects.get(pk=self.initial_data['data_catalog']).catalog_json['identifier']
 
+        if dc_pid == DFT_CATALOG and (self.instance.is_published() or self.instance.draft_of):
+            raise ValidationError({ 'detail': ['Catalog cannot be changed back to draft'] })
+
+    def validate_research_dataset(self, value):
         self._populate_file_and_dir_titles(value)
 
         self.validate_json_schema(value)
@@ -422,7 +435,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
         if self._operation_is_create:
             if not value.get('preferred_identifier', None):
-                if DataCatalogService.is_harvested(self.initial_data['data_catalog']):
+                if DataCatalogService.is_harvested(self.initial_data.get('data_catalog')):
                     raise ValidationError({ 'preferred_identifier':
                         ['harvested catalog record must have preferred identifier']})
 
