@@ -295,7 +295,7 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
 
     def test_draft_blocks_version_creation(self):
         """
-        Don't allow new versions if there are unmerged drafts
+        Don't allow new versions if there are unmerged drafts for a dataset
         """
         response = self.client.post('/rpc/v2/datasets/create_draft?identifier=1')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
