@@ -4,10 +4,11 @@ copy .env.template to .env and fill following variables manually
 
 | Name                           | Description                              | example                                                                                                       |
 | ------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| DACITE_PREFIX                  |                                          |                                                                                                               |
-| DACITE_URL                     |                                          |                                                                                                               |
+| DATACITE_PREFIX                  |                                          |                                                                                                               |
+| DATACITE_URL                     |                                          |                                                                                                               |
 | DATACITE_ETSIN_URL_TEMPLATE    |                                          |                                                                                                               |
 | DATACITE_USERNAME              |                                          |                                                                                                               |
+| DATACITE_PASSWORD              |                                          |                                                                                                               |
 | DJANGO_SECRET_KEY              | replace with proper django secret key    |                                                                                                               |
 | ERROR_FILES_PATH               |                                          | /home/user/repo-root/logs/errors                                                                              |
 | ES_CONFIG_DIR                  |                                          | /home/user/repo-root/src/metax_api/tasks/refdata/refdata_indexer/resources/es-config/                         |
@@ -19,7 +20,7 @@ copy .env.template to .env and fill following variables manually
 | METAX_DATABASE_PASSWORD        | postgres owner of the database           |                                                                                                               |
 | METAX_DATABASE_PORT            |                                          | 5432                                                                                                          |
 | METAX_DATABASE_USER            |                                          | username                                                                                                      |
-| OAJ_BASE_URL                   |                                          |                                                                                                               |
+| OAI_BASE_URL                   |                                          |                                                                                                               |
 | ORG_FILE_PATH                  |                                          | /home/user/repo-root/src/metax_api/tasks/refdata/refdata_indexer/resources/organizations/organizations.csv    |
 | RABBIT_MQ_PASSWORD             |                                          | guest                                                                                                         |
 | RABBIT_MQ_USER                 |                                          | guest                                                                                                         |
