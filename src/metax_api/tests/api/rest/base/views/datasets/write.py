@@ -1127,6 +1127,62 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue(cr_depr.deprecated)
         self.assertEqual(cr_depr.date_modified, cr_depr.date_deprecated, 'date_modified should be updated')
 
+    def test_change_datacatalog_ATT_to_IDA(self):
+        cr = self._get_new_full_test_att_cr_data()
+
+        # create ATT data catalog
+        dc_att = self._get_object_from_test_data('datacatalog', 4)
+        dc_att['catalog_json']['identifier'] = 'urn:nbn:fi:att:data-catalog-att'
+        dc_att = self.client.post('/rest/datacatalogs', dc_att, format="json").data
+
+        # create IDA data catalog
+        dc_ida = self._get_object_from_test_data('datacatalog')
+        dc_ida['catalog_json']['identifier'] = 'urn:nbn:fi:att:data-catalog-ida'
+        dc_ida = self.client.post('/rest/datacatalogs', dc_ida, format="json").data
+
+        # create ATT catalog record
+        cr['data_catalog'] = dc_att
+        cr_att = self.client.post('/rest/datasets', cr, format="json").data
+
+        # change data catalog to IDA
+        cr_id = cr_att['id']
+        cr_att['data_catalog']['id'] = dc_ida['id']
+        cr_att['data_catalog']['identifier'] = dc_ida['catalog_json']['identifier']
+        cr_ida = self.client.put('/rest/datasets/%d' % cr_id, cr_att, format="json")
+
+        self.assertEqual(cr_ida.status_code, status.HTTP_200_OK, cr_ida)
+        self.assertTrue(not all(item in cr_ida.data['research_dataset'].keys() for item in
+            ['remote_resources', 'total_remote_resources_byte_size']))
+        self.assertTrue('metadata_version_identifier' in cr_ida.data['research_dataset'].keys())
+
+        cr_ida.data['research_dataset']['files'] = [
+            {
+                "title": "File metadata title 1",
+                "file_type": {
+                    "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/text",
+                    "pref_label": {
+                        "en": "Text",
+                        "fi": "Teksti",
+                        "und": "Teksti"
+                    }
+                },
+                "identifier": "pid:urn:1",
+                "use_category": {
+                    "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
+                    "pref_label": {
+                        "en": "Source material",
+                        "fi": "Lähdeaineisto",
+                        "und": "Lähdeaineisto"
+                    }
+                }
+            }]
+        cr_ida = self.client.put('/rest/datasets/%d' % cr_id, cr_ida.data, format="json")
+
+        self.assertEqual(cr_ida.status_code, status.HTTP_200_OK, cr_ida.data)
+        self.assertTrue(len(cr_ida.data['research_dataset']['files']) == 1, 'Dataset must contain one file')
+
 
 class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
     #

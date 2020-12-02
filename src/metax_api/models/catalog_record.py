@@ -43,6 +43,7 @@ ACCESS_TYPES = {
 
 LEGACY_CATALOGS = settings.LEGACY_CATALOGS
 IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
+ATT_CATALOG = settings.ATT_DATA_CATALOG_IDENTIFIER
 PAS_CATALOG = settings.PAS_DATA_CATALOG_IDENTIFIER
 DFT_CATALOG = settings.DFT_DATA_CATALOG_IDENTIFIER
 
@@ -380,6 +381,7 @@ class CatalogRecord(Common):
             'api_meta',
             'access_granter',
             'cumulative_state',
+            'data_catalog_id',
             'date_deprecated',
             'deprecated',
             'identifier',
@@ -1048,8 +1050,15 @@ class CatalogRecord(Common):
     def catalog_is_legacy(self):
         return self.data_catalog.catalog_json['identifier'] in LEGACY_CATALOGS
 
-    def catalog_is_ida(self):
+    def catalog_is_ida(self, data=None):
+        if data:
+            return DataCatalog.objects.get(pk=data['data_catalog_id']).catalog_json['identifier'] == IDA_CATALOG
         return self.data_catalog.catalog_json['identifier'] == IDA_CATALOG
+
+    def catalog_is_att(self, data=None):
+        if data:
+            return DataCatalog.objects.get(pk=data['data_catalog_id']).catalog_json['identifier'] == ATT_CATALOG
+        return self.data_catalog.catalog_json['identifier'] == ATT_CATALOG
 
     def catalog_is_pas(self):
         return self.data_catalog.catalog_json['identifier'] == PAS_CATALOG
@@ -1351,6 +1360,12 @@ class CatalogRecord(Common):
             # read-only after creating
             self.metadata_provider_user = self._initial_data['metadata_provider_user']
 
+        if self.field_changed('data_catalog_id'):
+            if self.catalog_is_att(self._initial_data) and self.catalog_is_ida():
+                self.research_dataset.pop('remote_resources')
+                self.research_dataset.pop('total_remote_resources_byte_size')
+                self._handle_metadata_versioning()
+
         if settings.REMS['ENABLED']:
             self._pre_update_handle_rems()
 
@@ -1572,7 +1587,7 @@ class CatalogRecord(Common):
 
         if self.dataset_version_set.records.count() > 1:
             # for versioned catalogs, when a record is first created, the record is appended
-            # to dataset_version_set. more than one dataset versions existing implies files
+            # to dataset_version_set. More than one dataset versions existing implies files
             # have changed already in the past.
             return False
 
