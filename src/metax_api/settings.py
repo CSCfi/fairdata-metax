@@ -543,12 +543,12 @@ ELASTICSEARCH['REFERENCE_DATA_RELOAD_INTERVAL'] = 86400
 
 if not executing_in_travis:
     RABBITMQ = {
-        'HOSTS':    app_config_dict['RABBITMQ']['HOSTS'],
-        'PORT':     app_config_dict['RABBITMQ']['PORT'],
-        'USER':     app_config_dict['RABBITMQ']['USER'],
-        'VHOST':    app_config_dict['RABBITMQ']['VHOST'],
-        'VHOST_TTV': app_config_dict['RABBITMQ']['VHOST_TTV'],
-        'PASSWORD': app_config_dict['RABBITMQ']['PASSWORD'],
+        'HOSTS':        app_config_dict['RABBITMQ']['HOSTS'],
+        'PORT':         app_config_dict['RABBITMQ']['PORT'],
+        'USER':         app_config_dict['RABBITMQ']['USER'],
+        'VHOST':        app_config_dict['RABBITMQ']['VHOST'],
+        'VHOST_TTV':    app_config_dict['RABBITMQ']['VHOST_TTV'],
+        'PASSWORD':     app_config_dict['RABBITMQ']['PASSWORD'],
         'EXCHANGES': [
             {
                 'NAME': 'datasets',
