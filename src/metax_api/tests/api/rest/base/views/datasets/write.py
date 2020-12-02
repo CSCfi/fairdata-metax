@@ -131,7 +131,6 @@ class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
         """
         catalog_record_from_test_data = self._get_object_from_test_data('catalogrecord', requested_index=11)
         data_catalog_from_test_data = self._get_object_from_test_data('datacatalog', requested_index=0)
-        data_catalog_from_test_data = self._get_object_from_test_data('datacatalog', requested_index=0)
         return self._get_new_full_test_cr_data(catalog_record_from_test_data, data_catalog_from_test_data)
 
     def _get_new_full_test_att_cr_data(self):
