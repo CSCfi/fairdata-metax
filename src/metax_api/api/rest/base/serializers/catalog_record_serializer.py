@@ -76,7 +76,6 @@ class CatalogRecordSerializer(CommonSerializer):
             'preservation_description',
             'preservation_reason_description',
             'preservation_identifier',
-            'dataset_version_set',
             'next_dataset_version',
             'previous_dataset_version',
             'mets_object_identifier',
@@ -141,7 +140,7 @@ class CatalogRecordSerializer(CommonSerializer):
 
         if self._data_catalog_is_changed():
             # updating data catalog, but not necessarily research_dataset.
-            # here, make sure to validate uniqueness using what is currently saved
+            # Here, make sure to validate uniqueness using what is currently saved
             # in the database, and what the data catalog is being changed to.
             self._validate_research_dataset_uniqueness(self.instance.research_dataset)
 
@@ -524,14 +523,14 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._find_object_using_identifier('preferred_identifier', preferred_identifier_value):
             if self._data_catalog_supports_versioning():
                 raise ValidationError([
-                    'a catalog record with this research_dataset ->> preferred_identifier'
-                    ' already exists in another data catalog. when saving to ATT catalog,'
+                    'A catalog record with this research_dataset ->> preferred_identifier'
+                    ' already exists in another data catalog. When saving to ATT catalog,'
                     ' the preferred_identifier must not already exist in other catalogs.'
                 ])
             else:
                 # harvested catalog
                 raise ValidationError([
-                    'a catalog record with this research_dataset ->> preferred_identifier'
+                    'A catalog record with this research_dataset ->> preferred_identifier'
                     ' already exists in this data catalog.'
                 ])
 
@@ -540,7 +539,7 @@ class CatalogRecordSerializer(CommonSerializer):
         # using metadata_version_identifier also
         if self._find_object_using_identifier('metadata_version_identifier', preferred_identifier_value):
             raise ValidationError([
-                'a catalog record already exists which has the given preferred_identifier'
+                'A catalog record already exists which has the given preferred_identifier'
                 ' value as its metadata_version_identifier value.'
             ])
 

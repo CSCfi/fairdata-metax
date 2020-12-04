@@ -470,6 +470,12 @@ class CatalogRecordV2(CatalogRecord):
                     "Use API /rpc/v2/datasets/change_cumulative_state to change cumulative state."
                 )
 
+        if self.field_changed('data_catalog_id'):
+            if self.catalog_is_att(self._initial_data) and self.catalog_is_ida():
+                self.research_dataset.pop('remote_resources')
+                self.research_dataset.pop('total_remote_resources_byte_size')
+                self._handle_metadata_versioning()
+
         if draft_publish:
             # permit updating files and directories (user metadata) when
             # draft record is being merged into a published record.
