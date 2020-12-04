@@ -73,7 +73,7 @@
     },
         "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
         "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
-        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas"
+        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas,download"
 },
 {
     "catalog_json": {
@@ -150,7 +150,7 @@
     },
         "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
         "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
-        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas"
+        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas,download"
 },
 {
     "catalog_record_group_edit": "pas_edit",
@@ -232,7 +232,7 @@
         "catalog_record_group_create": "pas_create",
         "catalog_record_services_edit": "metax,tpas",
         "catalog_record_services_create": "metax,tpas",
-        "catalog_record_services_read": "metax,tpas"
+        "catalog_record_services_read": "metax,tpas,download"
 },
 {
     "catalog_json": {
@@ -300,7 +300,7 @@
     },
     "catalog_record_services_edit": "metax,qvain,qvain-light,tpas",
     "catalog_record_services_create": "metax,qvain,qvain-light,tpas",
-    "catalog_record_services_read": "metax,qvain,qvain-light,tpas"
+    "catalog_record_services_read": "metax,qvain,qvain-light,tpas,download"
 },
 {
     "catalog_json": {
@@ -358,5 +358,66 @@
       },
         "catalog_record_services_edit": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
         "catalog_record_services_create": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
-        "catalog_record_services_read": "metax,qvain,qvain-light,etsin,tpas, ida, testuser, api_auth_user"
+        "catalog_record_services_read": "metax,qvain,qvain-light,etsin,tpas, ida, testuser, api_auth_user,download"
+},
+{
+	"catalog_json": {
+		"logo": "https://www.jyu.fi/fi/yliopistopalvelut/viestintapalvelut/logot/jyu-keskitetty-kaksikielinen.jpg",
+		"title": {
+			"en": "JYU catalog",
+			"fi": "JYU katalogi",
+			"sv": "JYU register"
+		},
+		"language": [{
+			"title": {
+				"en": "English language",
+				"fi": "Englannin kieli",
+				"sv": "engelska",
+				"und": "Englannin kieli"
+			},
+			"identifier": "http://lexvo.org/id/iso639-3/eng"
+		}],
+		"harvested": true,
+		"publisher": {
+			"name": {
+				"en": "University of Jyväskylä, Finland",
+				"fi": "Jyväskylän Yliopisto"
+			},
+			"homepage": [{
+				"title": {
+					"en": "https://jyx.jyu.fi",
+					"fi": "https://jyx.jyu.fi"
+				},
+				"identifier": "https://jyx.jyu.fi"
+			}]
+		},
+		"identifier": "urn:nbn:fi:att:data-catalog-jyu",
+		"access_rights": {
+			"license": [{
+				"title": {
+					"en": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+					"fi": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)",
+					"und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
+				},
+				"identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+			}],
+			"access_type": [{
+				"identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+				"pref_label": {
+					"en": "Open",
+					"fi": "Avoin",
+					"und": "Avoin"
+				}
+			}],
+			"description": {
+				"en": "Contains datasets of University of Jyväskylä.",
+				"fi": "Sisältää Jyväskylän yliopiston aineistoja."
+			}
+		},
+		"dataset_versioning": false,
+		"research_dataset_schema": "att"
+	},
+	"catalog_record_services_edit": "metax,jyu",
+	"catalog_record_services_create": "metax,jyu",
+	"catalog_record_services_read": "metax,jyu,download"
 }]

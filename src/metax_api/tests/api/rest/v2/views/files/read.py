@@ -236,7 +236,8 @@ class FileApiReadGetRelatedDatasets(FileApiReadCommon):
         response = self.client.post('/rest/v2/files/datasets?keys=datasets', [11], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         # This should have the same file id's as the return from /rest/v2/datasets/11/files
-        self.assertEqual(response.data['cr955e904-e3dd-4d7e-99f1-3fed446f9611'], identifiers, response.data)
+        self.assertEqual(sorted(response.data['cr955e904-e3dd-4d7e-99f1-3fed446f9611']), sorted(identifiers),
+            response.data)
 
         response = self.client.post('/rest/v2/files/datasets?keys=files', ['pid:urn:20'], format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
