@@ -195,18 +195,6 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         cr = self._get_cr(cr['identifier'])
         self.assertEqual(cr['cumulative_state'], CR.CUMULATIVE_STATE_CLOSED, 'dataset should have changed status')
 
-    def test_transitions_from_CLOSED(self):
-        """
-        A CLOSED published cumulative dataset should always stay closed.
-        """
-        cr = self._create_cumulative_dataset(1)
-        self._update_cr_cumulative_state(cr['identifier'], CR.CUMULATIVE_STATE_CLOSED)
-        cr = self._get_cr(cr['identifier'])
-        self.assertEqual(cr['date_cumulation_ended'], cr['date_modified'], cr)
-
-        self._update_cr_cumulative_state(cr['identifier'], CR.CUMULATIVE_STATE_NO, status.HTTP_400_BAD_REQUEST)
-        self._update_cr_cumulative_state(cr['identifier'], CR.CUMULATIVE_STATE_YES, status.HTTP_400_BAD_REQUEST)
-
 class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
 
     """
