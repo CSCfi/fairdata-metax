@@ -293,6 +293,17 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertTrue('draft' in response.data['detail'][0], response.data)
 
+    def test_draft_blocks_version_creation(self):
+        """
+        Don't allow new versions if there are unmerged drafts for a dataset
+        """
+        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=1')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('unmerged draft' in response.data['detail'][0], response.data)
+
     @responses.activate
     def test_authorization(self):
         """
