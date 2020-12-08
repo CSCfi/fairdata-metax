@@ -99,7 +99,7 @@ Run the built container with command:
 You should see metax-server starting at port 8008 with hot reload enabled
 
 ### Initial setup commands
-
+docker network inspect bridge
 IF you configured metax-container, access the command line of the container with `docker exec -it metax-web bash`
 
 __NOTICE: Skip activating virtualenv and navigating to src folder if you have metax running on container__
