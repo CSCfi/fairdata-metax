@@ -5,9 +5,9 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import logging
 from collections import defaultdict
 from copy import deepcopy
-import logging
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -25,7 +25,6 @@ from .contract import Contract
 from .data_catalog import DataCatalog
 from .directory import Directory
 from .file import File
-
 
 READ_METHODS = ('GET', 'HEAD', 'OPTIONS')
 DEBUG = settings.DEBUG

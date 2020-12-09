@@ -7,8 +7,8 @@
 
 import logging
 
-from rest_framework.serializers import ValidationError
 from rest_framework import serializers
+from rest_framework.serializers import ValidationError
 
 from metax_api.models import Directory
 from .common_serializer import CommonSerializer, LightSerializer

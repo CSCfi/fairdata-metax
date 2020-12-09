@@ -8,14 +8,14 @@
 from copy import deepcopy
 from os.path import dirname
 
-from django.db.models import Sum
+import responses
 from django.core.management import call_command
+from django.db.models import Sum
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
 
 from metax_api.models import CatalogRecord, Directory, File
-from metax_api.services import RedisCacheService as cache
+from metax_api.services.redis_cache_service import RedisClient
 from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
 
@@ -109,6 +109,7 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
 
     def setUp(self):
         super().setUp()
+        cache = RedisClient()
         ffv_refdata = cache.get('reference_data')['reference_data']['file_format_version']
 
         # File format version entry in reference data that has some output_format_version
@@ -1285,7 +1286,7 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
         self._use_http_authorization(method='bearer', token=self.token)
 
         response = self.client.post('/rest/files', self.test_new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @responses.activate
     def test_user_can_only_update_permitted_file_fields(self):

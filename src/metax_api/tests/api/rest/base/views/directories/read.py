@@ -5,11 +5,11 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 import copy
-import responses
 
+import responses
+from django.core.management import call_command
 from django.db import transaction
 from django.db.models import Count, Sum
-from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 

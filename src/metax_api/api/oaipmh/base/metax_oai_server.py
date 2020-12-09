@@ -7,8 +7,8 @@
 
 import datetime
 
-from django.utils import timezone
 from django.conf import settings
+from django.utils import timezone
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError, BadArgumentError, NoRecordsMatchError, CannotDisseminateFormatError

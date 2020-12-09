@@ -17,7 +17,6 @@ from metax_api.utils import extract_doi_from_doi_identifier, is_metax_generated_
     executing_test_case, is_metax_generated_urn_identifier, datetime_to_str
 from .common_service import CommonService
 
-
 _logger = logging.getLogger(__name__)
 
 

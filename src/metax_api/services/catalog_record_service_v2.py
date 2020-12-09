@@ -8,7 +8,6 @@ import logging
 
 from .catalog_record_service import CatalogRecordService
 
-
 _logger = logging.getLogger(__name__)
 
 

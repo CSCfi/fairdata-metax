@@ -16,6 +16,9 @@ addons:
 services:
 - postgresql
 
+env:
+  - DJANGO_ENV=travis
+
 before_install:
 - openssl aes-256-cbc -K $encrypted_62ed3fb8af4c_key -iv $encrypted_62ed3fb8af4c_iv -in deploy-key.enc -out deploy-key -d
 - rm deploy-key.enc
@@ -35,7 +38,7 @@ before_script:
 - sudo chown -R $USER:$USER /var/log/metax-api
 
 script:
-- cd src && flake8 . && python manage.py migrate metax_api && coverage run --source="." manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
+- cd src && flake8 . && python manage.py migrate metax_api && coverage run --source="." && python manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
 
 notifications:
   flowdock:

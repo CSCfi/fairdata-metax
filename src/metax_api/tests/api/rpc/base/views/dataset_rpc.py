@@ -5,15 +5,15 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import responses
 from django.conf import settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
 
+from metax_api.models import CatalogRecord, Directory, File
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteAssignFilesCommon, \
     CatalogRecordApiWriteCommon
-from metax_api.models import CatalogRecord, Directory, File
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 

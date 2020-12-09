@@ -13,10 +13,9 @@ from metax_api.models import (
     CatalogRecordV2,
     DataCatalog,
 )
-from metax_api.utils import get_tz_aware_now_without_micros
 from metax_api.tests.utils import get_test_oidc_token
+from metax_api.utils import get_tz_aware_now_without_micros
 from .write import CatalogRecordApiWriteCommon
-
 
 CR = CatalogRecordV2
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS

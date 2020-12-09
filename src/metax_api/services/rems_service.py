@@ -5,10 +5,9 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 import logging
+
 import requests
-
 from django.conf import settings as django_settings
-
 
 _logger = logging.getLogger(__name__)
 
