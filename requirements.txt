@@ -21,11 +21,11 @@ django-rainbowtests==0.6.0  # via -r requirements.in
 django-split-settings==1.0.1  # via -r requirements.in
 django-sslserver==0.22    # via -r requirements.in
 django-watchman==1.2.0    # via -r requirements.in
-django==3.1.2             # via -r requirements.in, django-rainbowtests, django-sslserver, django-watchman, djangorestframework
+django==3.1.4             # via -r requirements.in, django-rainbowtests, django-sslserver, django-watchman, djangorestframework
 djangorestframework==3.12.1  # via -r requirements.in
 docopt==0.6.2             # via coveralls
-executing==0.5.3          # via icecream
 elasticsearch==7.10.0     # via -r requirements.in
+executing==0.5.3          # via icecream
 flake8==3.8.4             # via -r requirements.in
 gevent==20.9.0            # via -r requirements.in
 greenlet==0.4.17          # via gevent
@@ -33,7 +33,6 @@ gunicorn==20.0.4          # via -r requirements.in
 hiredis==1.1.0            # via -r requirements.in
 icecream==2.0.0           # via -r requirements.in
 idna==2.10                # via requests
-importlib-metadata==2.0.0  # via flake8, jsonschema
 ipdb==0.13.4              # via -r requirements.in
 ipython-genutils==0.2.0   # via traitlets
 ipython==7.16.1           # via ipdb
@@ -73,7 +72,6 @@ traitlets==4.3.3          # via -r requirements.in, ipython
 urllib3==1.25.11          # via -r requirements.in, elasticsearch, requests, responses
 wcwidth==0.2.5            # via prompt-toolkit
 xmltodict==0.12.0         # via -r requirements.in
-zipp==3.4.0               # via importlib-metadata
 zope.event==4.5.0         # via gevent
 zope.interface==5.1.2     # via gevent
 
