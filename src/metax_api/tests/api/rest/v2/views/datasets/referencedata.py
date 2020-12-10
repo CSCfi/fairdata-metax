@@ -9,7 +9,8 @@ from copy import deepcopy
 
 from rest_framework import status
 
-from metax_api.services import ReferenceDataMixin as RDM, RedisCacheService as cache
+from metax_api.services import ReferenceDataMixin as RDM
+from metax_api.services.redis_cache_service import RedisClient
 from .write import CatalogRecordApiWriteCommon
 
 
@@ -58,6 +59,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         The API should attempt to reload the reference data if it is missing from
         cache for whatever reason, and successfully finish the request
         """
+        cache = RedisClient()
         cache.delete('reference_data')
         self.assertEqual(cache.get('reference_data', master=True), None,
                          'cache ref data should be missing after cache.delete()')
@@ -139,6 +141,7 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
            codes to uris after a successful create
         3) Check that labels have also been copied to datasets to their approriate fields
         """
+        cache = RedisClient()
         rf = RDM.get_reference_data(cache)
         refdata = rf['reference_data']
         orgdata = rf['organization_data']

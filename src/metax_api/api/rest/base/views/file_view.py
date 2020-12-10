@@ -24,7 +24,6 @@ from metax_api.services import AuthService, CommonService, FileService
 from .common_view import CommonViewSet
 from ..serializers import FileSerializer, XmlMetadataSerializer
 
-
 _logger = logging.getLogger(__name__)
 
 # i.e. /rest/v6/files, but must NOT end in /

@@ -6,20 +6,18 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 import pika
-import yaml
-
+from django.conf import settings
 """
 for testing:
 
 script to listen for messages sent when someone accesses /rest/datasets/pid/rabbitmq
 """
 
-with open('/home/metax-user/app_config') as app_config:
-    settings = yaml.load(app_config, Loader=yaml.FullLoader)['RABBITMQ']
+
 
 
 def get_test_user():
-    for user in settings['CONSUMERS']:
+    for user in settings.CONSUMERS:
         if user['is_test_user']:
             return user
 

@@ -7,10 +7,10 @@
 
 import logging
 
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 from rest_framework.validators import UniqueValidator
-from django.conf import settings
 
 from metax_api.models import Directory, File, FileStorage
 from metax_api.services import FileService as FS
@@ -18,7 +18,6 @@ from .common_serializer import CommonSerializer, LightSerializer
 from .directory_serializer import DirectorySerializer
 from .file_storage_serializer import FileStorageSerializer
 from .serializer_utils import validate_json
-
 
 _logger = logging.getLogger(__name__)
 

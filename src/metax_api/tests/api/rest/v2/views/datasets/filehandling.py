@@ -18,7 +18,6 @@ from metax_api.models import (
 from metax_api.tests.utils import get_test_oidc_token
 from .write import CatalogRecordApiWriteCommon, create_end_user_catalogs
 
-
 CR = CatalogRecordV2
 
 

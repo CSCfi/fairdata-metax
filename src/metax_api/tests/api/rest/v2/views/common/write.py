@@ -16,7 +16,6 @@ from metax_api.models import CatalogRecord
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
-
 """
 Common phenomenas that concern all API's.
 

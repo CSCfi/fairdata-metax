@@ -5,16 +5,15 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from datetime import datetime
-import logging
 import json
+import logging
+from datetime import datetime
 
 from django.conf import settings as django_settings
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 
 from metax_api.utils import json_logger
-
 
 _logger = logging.getLogger(__name__)
 

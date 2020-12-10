@@ -12,7 +12,6 @@ from django.conf import settings as django_settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
-from metax_api.models.catalog_record import ACCESS_TYPES
 
 from metax_api.models import (
     AlternateRecordSet,
@@ -21,11 +20,10 @@ from metax_api.models import (
     DataCatalog,
     File
 )
-
+from metax_api.models.catalog_record import ACCESS_TYPES
+from metax_api.tests.utils import get_test_oidc_token
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 from metax_api.utils import get_tz_aware_now_without_micros
-from metax_api.tests.utils import get_test_oidc_token
-
 
 CR = CatalogRecordV2
 

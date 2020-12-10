@@ -11,7 +11,6 @@ import logging
 from django.conf import settings
 from django.http import Http404
 
-
 _logger = logging.getLogger(__name__)
 
 class AuthService():

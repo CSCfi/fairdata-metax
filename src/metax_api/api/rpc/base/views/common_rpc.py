@@ -7,11 +7,11 @@
 
 import logging
 
-from metax_api.api.rest.base.views import CommonViewSet
-from metax_api.models import File
-from metax_api.exceptions import Http501
-from metax_api.permissions import EndUserPermissions, ServicePermissions
 from metax_api.api.rest.base.serializers import FileSerializer
+from metax_api.api.rest.base.views import CommonViewSet
+from metax_api.exceptions import Http501
+from metax_api.models import File
+from metax_api.permissions import EndUserPermissions, ServicePermissions
 
 _logger = logging.getLogger(__name__)
 

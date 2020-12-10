@@ -13,7 +13,6 @@ from django.db import connection
 from metax_api.exceptions import Http400
 from metax_api.models import CatalogRecord, DataCatalog
 
-
 _logger = logging.getLogger(__name__)
 
 

@@ -9,9 +9,9 @@ import logging
 
 from django.conf import settings as django_settings
 from django.db import connection
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
 
 from metax_api.exceptions import Http400
 from metax_api.services import FileService

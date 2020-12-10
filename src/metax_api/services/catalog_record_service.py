@@ -10,23 +10,22 @@ from collections import defaultdict
 from os.path import dirname, join
 
 import simplexquery as sxq
+import xmltodict
 from django.db.models import Q
 from rest_framework.serializers import ValidationError
-import xmltodict
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.models.catalog_record import ACCESS_TYPES
 from metax_api.utils import \
-    parse_timestamp_string_to_tz_aware_datetime,\
-    get_tz_aware_now_without_micros,\
-    remove_keys_recursively,\
+    parse_timestamp_string_to_tz_aware_datetime, \
+    get_tz_aware_now_without_micros, \
+    remove_keys_recursively, \
     leave_keys_in_dict
 from .common_service import CommonService
 from .datacite_service import DataciteService
 from .file_service import FileService
 from .reference_data_mixin import ReferenceDataMixin
-
 
 _logger = logging.getLogger(__name__)
 
@@ -404,6 +403,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         """
         reference_data = cls.get_reference_data(cache)
+        # ic(reference_data)
         refdata = reference_data['reference_data']
         orgdata = reference_data['organization_data']['organization']
         errors = defaultdict(list)
