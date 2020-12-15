@@ -7,9 +7,9 @@ from metax_api.settings.components.common import (
 OAI = {
     "BASE_URL": env("OAI_BASE_URL"),
     "BATCH_SIZE": 25,
-    "REPOSITORY_NAME": "Metax",
-    "ETSIN_URL_TEMPLATE": "http://etsin.something.fi/dataset/%s",
-    "ADMIN_EMAIL": "noreply@csc.fi",
+    "REPOSITORY_NAME": env("OAI_REPOSITORY_NAME"),
+    "ETSIN_URL_TEMPLATE": env("OAI_ETSIN_URL_TEMPLATE"),
+    "ADMIN_EMAIL": env("OAI_ADMIN_EMAIL"),
     "SET_MAPPINGS": {
         "datasets": [IDA_DATA_CATALOG_IDENTIFIER, ATT_DATA_CATALOG_IDENTIFIER],
         "ida_datasets": [IDA_DATA_CATALOG_IDENTIFIER],
