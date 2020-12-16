@@ -47,13 +47,13 @@ class _RabbitMQService:
             # Choose host randomly so that different hosts are tried out in case of connection problems
             host = random.choice(self._hosts)
             try:
+                kwarg_params = {"port": self._settings["PORT"], "credentials": self._credentials}
+                if settings.RABBIT_MQ_USE_VHOST:
+                    kwarg_params["virtual_host"] = self._settings["VHOST"]
+
+                conn_params = pika.ConnectionParameters(host, **kwarg_params)
                 self._connection = pika.BlockingConnection(
-                    pika.ConnectionParameters(
-                        host,
-                        port=self._settings["PORT"],
-                        # self._settings['VHOST'],
-                        credentials=self._credentials,
-                    )
+                    conn_params
                 )
             except Exception as e:
                 _logger.error(

@@ -15,3 +15,4 @@ RABBITMQ = {
         }
     ],
 }
+RABBIT_MQ_USE_VHOST = env("RABBIT_MQ_USE_VHOST")

@@ -41,6 +41,7 @@ env = environ.Env(
     REDIS_HOST=(str, "localhost"),
     RABBIT_MQ_PASSWORD=(str, "guest"),
     RABBIT_MQ_USER=(str, "guest"),
+    RABBIT_MQ_USE_VHOST=(bool, False),
     REDIS_PORT=(int, 6379),
     REDIS_TEST_DB=(int, 15),
     REDIS_USE_PASSWORD=(bool, False),
