@@ -9,17 +9,14 @@ import logging
 import random
 from json import dumps as json_dumps
 from time import sleep
-from django.conf import settings
 
 import pika
 from django.conf import settings as django_settings
 from django.core.serializers.json import DjangoJSONEncoder
-from icecream import ic
 
 from metax_api.utils.utils import executing_test_case, executing_travis
 
 _logger = logging.getLogger(__name__)
-
 
 class _RabbitMQService:
     def __init__(self):
@@ -55,6 +52,7 @@ class _RabbitMQService:
                 self._connection = pika.BlockingConnection(
                     conn_params
                 )
+
             except Exception as e:
                 _logger.error(
                     "Problem connecting to RabbitMQ server (%s), trying to reconnect..."
@@ -67,74 +65,6 @@ class _RabbitMQService:
                 break
         else:
             raise Exception("Unable to connect to RabbitMQ")
-
-    def publish_to_TTV(self, body, routing_key='', exchange=None, persistent=True):
-        """
-        Publish a message to an exchange, which might or might not have queues bound to it.
-
-        body: body of the message. can be a list of messages, in which case each message is published
-              individually.
-        exchange: exchange to publish in
-        persistent: make message persist in rabbitmq storage over rabbitmq-server restart.
-                    otherwise messages not retrieved by clients before restart will be lost.
-                    (still is not 100 % guaranteed to persist!)
-        """
-        # For testing
-        # credentials = pika.PlainCredentials(self._settings['USER'], self._settings['PASSWORD'])
-        # connection = pika.BlockingConnection(pika.ConnectionParameters(
-        #     host = 'localhost',
-        #     virtual_host = self._settings['VHOST'],
-        #     port = 5672,
-        #     credentials = credentials))
-
-        if settings.RABBITMQ_FOR_TTV_ENABLED:
-            # Choose host randomly so that different hosts are tried out in case of connection problems
-            host = random.choice(self._hosts)
-            connection = pika.BlockingConnection(pika.ConnectionParameters(
-                host,
-                self._settings['PORT'],
-                self._settings['VHOST_TTV'],
-                self._credentials))
-
-            if isinstance(body, list):
-                messages = body
-            else:
-                messages = [body]
-
-            additional_args = {}
-            if persistent:
-                additional_args['properties'] = pika.BasicProperties(delivery_mode=2)
-
-            channel = connection.channel()
-
-            exchange = 'TTV-datasets'
-            queue_4 = 'ttv-create'
-            queue_5 = 'ttv-update'
-            queue_6 = 'ttv-delete'
-
-            channel.exchange_declare(exchange=exchange, exchange_type='fanout')
-            channel.queue_declare(queue_4, durable=True)
-            channel.queue_declare(queue_5, durable=True)
-            channel.queue_declare(queue_6, durable=True)
-
-            channel.queue_bind(exchange=exchange, queue=queue_4, routing_key='create')
-            channel.queue_bind(exchange=exchange, queue=queue_5, routing_key='update')
-            channel.queue_bind(exchange=exchange, queue=queue_6, routing_key='delete')
-
-            try:
-                for message in messages:
-                    if isinstance(message, dict):
-                        message = json_dumps(
-                            message,
-                            cls=DjangoJSONEncoder)
-                    channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
-            except Exception as e:
-                _logger.error(e)
-                _logger.error("Unable to publish message to RabbitMQ")
-                raise
-            finally:
-                # for testing
-                connection.close()
 
     def publish(self, body, routing_key='', exchange=None, persistent=True):
         """
@@ -150,7 +80,6 @@ class _RabbitMQService:
                     otherwise messages not retrieved by clients before restart will be lost.
                     (still is not 100 % guaranteed to persist!)
         """
-        ic()
         self._connect()
         self._validate_publish_params(routing_key, exchange)
 
@@ -170,7 +99,6 @@ class _RabbitMQService:
                         message,
                         cls=DjangoJSONEncoder)
                 self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
-                self.publish_to_TTV(body=message, routing_key=routing_key, exchange=None)
         except Exception as e:
             _logger.error(e)
             _logger.error("Unable to publish message to RabbitMQ")
@@ -185,14 +113,21 @@ class _RabbitMQService:
         In that case the exchange has to be manually removed first, which can result in lost messages.
         """
         self._connect()
-        ic()
         try:
             for exchange in self._settings["EXCHANGES"]:
                 self._channel.exchange_declare(
                     exchange["NAME"],
                     exchange_type=exchange["TYPE"],
-                    durable=exchange.get("DURABLE", True),
+                    durable=exchange["DURABLE"],
                 )
+                for queue in exchange.get("QUEUES", []):
+                    # declare queues in settings
+                    self._channel.queue_declare(queue["NAME"], durable=exchange["DURABLE"])
+                    self._channel.queue_bind(
+                        queue["NAME"],
+                        exchange["NAME"],
+                        queue.get("ROUTING_KEY")
+                    )
         except Exception as e:
             _logger.error(e)
             _logger.exception("Failed to initialize RabbitMQ exchanges")
@@ -227,7 +162,6 @@ class _RabbitMQServiceDummy:
     """
 
     def __init__(self, settings=django_settings):
-        ic()
         pass
 
     def publish(self, body, routing_key="", exchange="datasets", persistent=True):

@@ -12,6 +12,17 @@ RABBITMQ = {
             "TYPE": "direct",
             # make rabbitmq remember queues after restarts
             "DURABLE": True,
+        },
+        {
+            "NAME": "TTV-datasets",
+            "TYPE": "fanout",
+            "DURABLE": True,
+            "QUEUES": [
+                {
+                    "NAME": "ttv-operations",
+                    #"ROUTING_KEY": "some_key"
+                }
+            ]
         }
     ],
 }

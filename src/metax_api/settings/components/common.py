@@ -190,27 +190,3 @@ API_USERS = [
     {"password": "test-etsin", "username": "etsin"},
     {"password": "test-fds", "username": "fds"},
 ]
-CONSUMERS = [
-    {
-        "is_test_user": True,
-        "name": "testaaja",
-        "password": "testaaja",
-        "permissions": {
-            "conf": "^testaaja-.*$",
-            "read": "^(datasets|testaaja-.*)$",
-            "write": "^testaaja-.*$",
-        },
-        "vhost": "metax",
-    },
-    {
-        "is_test_user": False,
-        "name": "etsin",
-        "password": "test-etsin",
-        "permissions": {
-            "conf": "^etsin-.*$",
-            "read": "^(datasets|etsin-.*)$",
-            "write": "^etsin-.*$",
-        },
-        "vhost": "metax",
-    },
-]

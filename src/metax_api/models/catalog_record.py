@@ -2651,7 +2651,8 @@ class RabbitMQPublishRecord():
             cr_json['data_catalog'] = {'catalog_json': self.cr.data_catalog.catalog_json}
 
         try:
-            rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange='datasets')
+            for exchange in settings.RABBITMQ["EXCHANGES"]:
+                rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange=exchange["NAME"])
         except:
             # note: if we'd like to let the request be a success even if this operation fails,
             # we could simply not raise an exception here.
