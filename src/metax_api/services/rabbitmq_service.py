@@ -11,7 +11,7 @@ from json import dumps as json_dumps
 from time import sleep
 
 import pika
-from django.conf import settings as django_settings
+from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 
 from metax_api.utils.utils import executing_test_case, executing_travis
@@ -20,9 +20,9 @@ _logger = logging.getLogger(__name__)
 
 class _RabbitMQService:
     def __init__(self):
-        if not hasattr(django_settings, "RABBITMQ"):
+        if not hasattr(settings, "RABBITMQ"):
             raise Exception("Missing configuration from settings.py: RABBITMQ")
-        self._settings = django_settings.RABBITMQ
+        self._settings = settings.RABBITMQ
         self._credentials = pika.PlainCredentials(
             self._settings["USER"], self._settings["PASSWORD"]
         )
@@ -161,7 +161,7 @@ class _RabbitMQServiceDummy:
     A dummy rabbitmq client that doesn't connect anywhere and doesn't do jack actually.
     """
 
-    def __init__(self, settings=django_settings):
+    def __init__(self, settings=settings):
         pass
 
     def publish(self, body, routing_key="", exchange="datasets", persistent=True):
