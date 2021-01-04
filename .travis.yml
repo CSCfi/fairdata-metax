@@ -51,11 +51,15 @@ install:
 
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
-- sudo mkdir /var/log/metax-api
-- sudo chown -R $USER:$USER /var/log/metax-api
+- sudo mkdir -p src/log
+- sudo chown -R $USER:$USER src/log
 
 script:
-- cd src && flake8 . && python manage.py migrate metax_api && coverage run --source="." && python manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
+- cd src && flake8 .
+- python manage.py migrate metax_api
+- coverage run --source="." manage.py test metax_api
+- COVERALLS_REPO_TOKEN=$coveralls_token coveralls
+- $TRAVIS_BUILD_DIR/.travis-deploy.sh
 
 notifications:
   flowdock:
