@@ -1,4 +1,9 @@
-SECRET_KEY = "^pqn=v2i)%!w1oh=r!m_=wo_#w3)(@-#8%q_8&9z@slu+#q3+b"
-ALLOWED_AUTH_METHODS = ["Basic", "Bearer"]
-SERVER_DOMAIN_NAME = "not set"
-AUTH_SERVER_LOGOUT_URL = "not set"
+from metax_api.settings.environments import test
+
+API_TEST_USER = test.API_TEST_USER
+API_METAX_USER = test.API_METAX_USER
+API_AUTH_TEST_USER = test.API_AUTH_TEST_USER
+API_EXT_USER = test.API_EXT_USER
+API_TEST_USERS = test.API_TEST_USERS
+API_ACCESS = test.API_ACCESS
+ADDITIONAL_USER_PROJECTS_PATH = test.ADDITIONAL_USER_PROJECTS_PATH
