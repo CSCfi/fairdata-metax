@@ -87,4 +87,3 @@ for api, functions in API_ACCESS["rpc"].items():
         perms["use"] = ["all"]
 
 ADDITIONAL_USER_PROJECTS_PATH = "/tmp/user_projects.json"
-EXT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ext"
