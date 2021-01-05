@@ -1,7 +1,7 @@
 from metax_api.settings import env
 
 RABBITMQ = {
-    "HOSTS": [env("RABBIT_MQ_HOSTS")],
+    "HOSTS": env("RABBIT_MQ_HOSTS"),
     "PORT": env("RABBIT_MQ_PORT"),
     "USER": env("RABBIT_MQ_USER"),
     "PASSWORD": env("RABBIT_MQ_PASSWORD"),

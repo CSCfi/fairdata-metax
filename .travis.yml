@@ -24,7 +24,7 @@ env:
     - DATACITE_ETSIN_URL_TEMPLATE=http://mockurl.com/%s
     - DATACITE_PASSWORD=not_set
     - DATACITE_USERNAME=not_set
-    - DEBUG=true
+    - DEBUG=false
     - DJANGO_ENV=travis
     - DJANGO_SECRET_KEY=lxpRfm8.JOUa7K.eOxZGtL*o+.zt.ybj
     - DRAFT_ENABLED=true
@@ -37,15 +37,6 @@ env:
     - OAI_ETSIN_URL_TEMPLATE=http://mockurl.com/%s
     - OAI_ADMIN_EMAIL=mocked@mail.com
     - REMS_ENABLED=true
-
-before_install:
-- openssl aes-256-cbc -K $encrypted_62ed3fb8af4c_key -iv $encrypted_62ed3fb8af4c_iv -in deploy-key.enc -out deploy-key -d
-- rm deploy-key.enc
-- chmod 600 deploy-key
-- mv deploy-key ~/.ssh/id_rsa
-- eval "$(ssh-agent -s)"
-- ssh-add ~/.ssh/id_rsa
-
 
 install:
 - pip install -r requirements.txt
