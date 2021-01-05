@@ -13,7 +13,8 @@ addons:
   postgresql: '9.6'
 
 services:
-- postgresql
+  - postgresql
+  - redis-server
 
 env:
   global:
@@ -59,7 +60,6 @@ script:
 - python manage.py migrate metax_api
 - coverage run --source="." manage.py test metax_api
 - COVERALLS_REPO_TOKEN=$coveralls_token coveralls
-- $TRAVIS_BUILD_DIR/.travis-deploy.sh
 
 notifications:
   flowdock:
