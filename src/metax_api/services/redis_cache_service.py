@@ -13,7 +13,6 @@ from typing import Any
 
 import redis
 from django.conf import settings as django_settings, settings
-from icecream import ic
 from redis.client import StrictRedis
 from redis.exceptions import TimeoutError, ConnectionError
 from redis.sentinel import MasterNotFoundError
@@ -45,9 +44,7 @@ class RedisClient(object):
         )
 
     def set(self, key, value, **kwargs):
-        ic()
         pickled_data = pickle_dumps(value)
-        # ic(key, value)
         return self.client.set(key, pickled_data, **kwargs)
 
     def get_or_set(self, key, value, **kwargs):

@@ -46,6 +46,7 @@ env = environ.Env(
     REDIS_PORT=(int, 6379),
     REDIS_TEST_DB=(int, 15),
     REDIS_USE_PASSWORD=(bool, False),
+    REMS_ENABLED=(bool, False),
     SERVER_DOMAIN_NAME=(str, "metax.csc.local"),
     TRAVIS=(bool, False),
     VALIDATE_TOKEN_URL=(str, "https://127.0.0.1/secure/validate_token"),

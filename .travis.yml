@@ -37,6 +37,13 @@ env:
     - OAI_ETSIN_URL_TEMPLATE=http://mockurl.com/%s
     - OAI_ADMIN_EMAIL=mocked@mail.com
     - REMS_ENABLED=true
+    - REMS_API_KEY=not_set
+    - REMS_BASE_URL=http://mockurl.com
+    - REMS_ETSIN_URL_TEMPLATE=http://mockurl.com/%s
+    - REMS_METAX_USER=not_set
+    - REMS_REPORTER_USER=not_set
+    - REMS_AUTO_APPROVER=not_set
+    - REMS_FORM_ID=99
 
 install:
 - pip install -r requirements.txt
