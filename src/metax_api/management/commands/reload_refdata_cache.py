@@ -15,7 +15,7 @@ class Command(BaseCommand):
             cache.set("reference_data", None)
 
             ReferenceDataLoader.populate_cache_reference_data(cache)
-            _logger.info(f"event='reference_data_loaded'")
+            _logger.info("event='reference_data_loaded'")
         except Exception as e:
             _logger.error(e)
             raise e

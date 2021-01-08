@@ -42,7 +42,8 @@ API_USERS = [
         "username": "download"
     }
 ]
-CONSUMERS=[
+
+CONSUMERS = [
     {
         "is_test_user": True,
         "name": "testaaja",
@@ -77,7 +78,8 @@ CONSUMERS=[
         "vhost": "ttv"
     }
 ]
-END_USER_ALLOWED_DATA_CATALOGS= [
+
+END_USER_ALLOWED_DATA_CATALOGS = [
     "urn:nbn:fi:att:data-catalog-ida",
     "urn:nbn:fi:att:data-catalog-att",
     "urn:nbn:fi:att:data-catalog-legacy",

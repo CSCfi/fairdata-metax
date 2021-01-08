@@ -32,7 +32,6 @@ class ReferenceDataLoader():
         cache: cache object to use for saving
         settings: override elasticsearch settings in settings.py
         """
-        # ic()
         if not cache.get_or_set('reference_data_load_executing', True, ex=120):
             return 'reload_started_by_other'
 
@@ -44,7 +43,6 @@ class ReferenceDataLoader():
 
         try:
             reference_data = cls._fetch_reference_data(settings)
-            ic()
         except:
             _logger.exception('Reference data fetch failed')
             raise
@@ -53,7 +51,6 @@ class ReferenceDataLoader():
 
         errors = None
         reference_data_check = cache.get('reference_data', master=True)
-        # ic(reference_data_check)
         if 'reference_data' not in reference_data_check.keys():
             _logger.warning('Key reference_data missing from reference data - '
                             'something went wrong during cache population?')
@@ -110,7 +107,6 @@ class ReferenceDataLoader():
                     query={'query': {'wildcard': {'id': {'value': f'{type_name}*'}}}},
                     index=index_name
                 )
-                # ic(all_rows)
                 for row in all_rows:
 
                     #
@@ -118,7 +114,6 @@ class ReferenceDataLoader():
                     #
 
                     try:
-                        # ic()
                         # should always be present
                         entry = { 'uri': row['_source']['uri'] }
                     except KeyError:
@@ -174,7 +169,6 @@ class ReferenceDataLoader():
                 conf.update({ 'port': 443, 'use_ssl': True, 'verify_certs': True, })
             if settings.get('PORT', False):
                 conf.update('port', settings['PORT'])
-            # ic(conf)
             return conf
         ic()
         _logger.warning("returning empty connection parameters")

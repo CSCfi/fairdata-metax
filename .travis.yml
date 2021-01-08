@@ -3,42 +3,61 @@ dist: trusty
 language: python
 python: 3.6
 
-branches:
-  only:
-  - test
-  - stable
-
 cache: pip
 
 addons:
+  apt:
+    packages:
+      - xqilla
+      - libxqilla-dev
   postgresql: '9.6'
 
 services:
-- postgresql
+  - postgresql
+  - redis-server
 
 env:
-  - DJANGO_ENV=travis
-
-before_install:
-- openssl aes-256-cbc -K $encrypted_62ed3fb8af4c_key -iv $encrypted_62ed3fb8af4c_iv -in deploy-key.enc -out deploy-key -d
-- rm deploy-key.enc
-- chmod 600 deploy-key
-- mv deploy-key ~/.ssh/id_rsa
-- eval "$(ssh-agent -s)"
-- ssh-add ~/.ssh/id_rsa
-- sudo apt-get install xqilla libxqilla-dev
+  global:
+    - AUTH_SERVER_LOGOUT_URL=http://logout
+    - DATACITE_PREFIX=10.12345
+    - DATACITE_URL=http://mockurl.com
+    - DATACITE_ETSIN_URL_TEMPLATE=http://mockurl.com/%s
+    - DATACITE_PASSWORD=not_set
+    - DATACITE_USERNAME=not_set
+    - DEBUG=false
+    - DJANGO_ENV=travis
+    - DJANGO_SECRET_KEY=lxpRfm8.JOUa7K.eOxZGtL*o+.zt.ybj
+    - DRAFT_ENABLED=true
+    - ELASTIC_SEARCH_HOSTS=https://metax.fd-test.csc.fi/es
+    - ELASTIC_SEARCH_USE_SSL=true
+    - METAX_DATABASE=metax_db_test
+    - METAX_DATABASE_PASSWORD=
+    - METAX_DATABASE_USER=metax_test
+    - OAI_BASE_URL=http://mockurl.com
+    - OAI_ETSIN_URL_TEMPLATE=http://mockurl.com/%s
+    - OAI_ADMIN_EMAIL=mocked@mail.com
+    - REMS_ENABLED=true
+    - REMS_API_KEY=not_set
+    - REMS_BASE_URL=http://mockurl.com
+    - REMS_ETSIN_URL_TEMPLATE=http://mockurl.com/%s
+    - REMS_METAX_USER=not_set
+    - REMS_REPORTER_USER=not_set
+    - REMS_AUTO_APPROVER=not_set
+    - REMS_FORM_ID=99
 
 install:
 - pip install -r requirements.txt
-- sudo service postgresql restart
 
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
-- sudo mkdir /var/log/metax-api
-- sudo chown -R $USER:$USER /var/log/metax-api
+- sudo mkdir -p src/log
+- sudo chown -R $USER:$USER src/log
 
 script:
-- cd src && flake8 . && python manage.py migrate metax_api && coverage run --source="." && python manage.py test metax_api && COVERALLS_REPO_TOKEN=$coveralls_token coveralls && $TRAVIS_BUILD_DIR/.travis-deploy.sh
+- cd src && flake8 .
+- python manage.py migrate metax_api
+- coverage run --source="." manage.py test metax_api
+- COVERALLS_REPO_TOKEN=$coveralls_token coveralls
 
 notifications:
   flowdock:

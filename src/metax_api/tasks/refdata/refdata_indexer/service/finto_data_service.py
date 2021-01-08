@@ -151,7 +151,7 @@ class FintoDataService:
             return None
 
     def _get_uri_end_part(self, uri):
-        return uri[uri.rindex("/") + 1 :].strip()
+        return uri[uri.rindex("/") + 1:].strip()
 
     def _get_coordinates_for_location_from_url(self, url):
         sleep_time = 2

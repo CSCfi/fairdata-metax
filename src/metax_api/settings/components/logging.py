@@ -37,6 +37,7 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "standard",
+            "filters": ["require_debug_true"],
         },
         "debug": {
             "level": "DEBUG",

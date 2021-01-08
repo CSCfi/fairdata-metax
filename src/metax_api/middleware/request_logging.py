@@ -9,7 +9,6 @@ import logging
 import os
 from base64 import b64decode
 from json import loads as json_loads
-from time import time
 
 _logger = logging.getLogger("metax_api")
 
@@ -27,9 +26,6 @@ class RequestLogging:
         self._pid = os.getpid()
 
     def __call__(self, request):
-
-        start_time = time()
-
         username, user_type = self.get_username(request)
         _logger.info(
             f"request: {request.method} usertype: {user_type}, username: {username} pid: {self._pid}"
