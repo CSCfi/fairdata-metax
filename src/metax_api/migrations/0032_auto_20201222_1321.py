@@ -6,8 +6,7 @@ import json
 _logger = logging.getLogger(__name__)
 
 datasets = [
-    '71f0fe7a-bfca-41c3-b9f1-9493f1c4fda9', # Testdata (metax-test)
-    'c7f1cc41-82eb-4ab8-8e1b-7d30582a50fe', # Testdata (metax-test)
+    '3884f2e1-e73f-4c7b-8cab-b71ccc80c4d6', # Testdata
     'a0651f93-1826-4264-8fe4-df39f1ee72ac', # OKM dataset
     '234568cc-a5cb-45cc-8b51-c7828ceb3a46', # Kotus
     '3746a761-b492-4b33-aa87-5a5a364fe877', # Kotus
