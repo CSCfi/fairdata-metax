@@ -960,7 +960,7 @@ class CatalogRecord(Common):
         elif self.state == self.STATE_PUBLISHED:
             if self.has_alternate_records():
                 self._remove_from_alternate_record_set()
-            if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
+            if is_metax_generated_doi_identifier(self.research_dataset['preferred_identifier']):
                 self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                                 'delete'))
 
@@ -1253,6 +1253,7 @@ class CatalogRecord(Common):
             if (get_identifier_type(self.preferred_identifier) == IdentifierType.DOI or
                     self.use_doi_for_published is True):
                 self._validate_cr_against_datacite_schema()
+            if is_metax_generated_doi_identifier(self.research_dataset['preferred_identifier']):
                 self.add_post_request_callable(DataciteDOIUpdate(self,
                                         self.research_dataset['preferred_identifier'], 'create'))
 
@@ -1458,8 +1459,9 @@ class CatalogRecord(Common):
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI and \
                 self.update_datacite:
             self._validate_cr_against_datacite_schema()
-            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
-                                                             'update'))
+            if is_metax_generated_doi_identifier(self.research_dataset['preferred_identifier']):
+                self.add_post_request_callable(DataciteDOIUpdate(self,
+                                                    self.research_dataset['preferred_identifier'], 'update'))
 
         if self.state == self.STATE_PUBLISHED:
             self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
@@ -2035,7 +2037,7 @@ class CatalogRecord(Common):
 
         new_version.calculate_directory_byte_sizes_and_file_counts()
 
-        if pref_id_type == IdentifierType.DOI:
+        if is_metax_generated_doi_identifier(self.research_dataset['preferred_identifier']):
             self.add_post_request_callable(DataciteDOIUpdate(new_version,
                                                              new_version.research_dataset['preferred_identifier'],
                                                              'create'))

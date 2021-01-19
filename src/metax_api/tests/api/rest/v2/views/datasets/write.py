@@ -582,6 +582,20 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True,
                          'The error should be about preferred_identifier already existing')
 
+    def test_remote_doi_dataset_is_validated_against_datacite_format(self):
+        # Remote input DOI ids need to take datasets for datacite validation
+        cr = {'research_dataset': self.cr_test_data['research_dataset']}
+        cr['research_dataset']['preferred_identifier'] = 'doi:10.5061/dryad.10188854'
+        cr['data_catalog'] = 3
+        cr['metadata_provider_org'] = 'metax'
+        cr['metadata_provider_user'] = 'metax'
+        cr['research_dataset'].pop('publisher', None)
+
+        response = self.client.post('/rest/v2/datasets', cr, format="json")
+        # Publisher value is required for datacite format, so this should return Http400
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('a required value for datacite format' in response.data['detail'][0], True, response.data)
+
     #
     # helpers
     #

@@ -14,7 +14,7 @@ from datacite import schema41 as datacite_schema41, DataCiteMDSClient
 from django.conf import settings as django_settings
 
 from metax_api.utils import extract_doi_from_doi_identifier, is_metax_generated_doi_identifier, executing_travis, \
-    executing_test_case, is_metax_generated_urn_identifier, datetime_to_str
+    executing_test_case, is_metax_generated_urn_identifier, datetime_to_str, is_remote_doi_identifier
 from .common_service import CommonService
 
 _logger = logging.getLogger(__name__)
@@ -183,8 +183,9 @@ class _DataciteService(CommonService):
         identifier = cr_json.get('preservation_identifier', None) or pref_id
         is_metax_doi = is_metax_generated_doi_identifier(identifier)
         is_metax_urn = is_metax_generated_urn_identifier(identifier)
+        is_remote_doi = is_remote_doi_identifier(identifier)
 
-        if is_metax_doi:
+        if is_metax_doi or is_remote_doi:
             identifier_value = extract_doi_from_doi_identifier(identifier)
             identifier_type = 'DOI'
         elif dummy_doi:
