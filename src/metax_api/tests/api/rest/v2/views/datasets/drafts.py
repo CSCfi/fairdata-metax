@@ -40,7 +40,8 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
                 catalog_json=catalog_json,
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create='testuser,api_auth_user,metax',
-                catalog_record_services_edit='testuser,api_auth_user,metax'
+                catalog_record_services_edit='testuser,api_auth_user,metax',
+                catalog_record_services_read='testuser,api_auth_user,metax'
             )
 
         self.minimal_draft = {
@@ -380,8 +381,9 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         response = self.client.post('/rest/v2/datasets?draft', self.minimal_draft, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-    def test_no_files_or_dirs_in_draft_catalog(self):
-        ''' Files cannot be added to datasets that are in draft catalog '''
+    def test_allow_files_and_dirs_in_draft_catalog(self):
+        ''' Files can be added to datasets that are in draft catalog '''
+        self._use_http_authorization(method='basic', username='metax')
 
         for type in ['files', 'directories']:
             self.minimal_draft['research_dataset'][type] = [
@@ -391,8 +393,11 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
             ]
 
             response = self.client.post('/rest/v2/datasets?draft', self.minimal_draft, format="json")
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-            self.assertTrue('files in draft catalog' in response.data['detail'][0], response.data)
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+            response = self.client.get(f'/rest/v2/datasets/{response.data["id"]}/files', format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertTrue(response.data, response.data)
 
             self.minimal_draft['research_dataset'].pop(type)
 
@@ -421,6 +426,9 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
+    def test_allow_remote_resources_in_ida_for_drafts(self):
+        """
+        When dataset is in draft state, it should be validated with """
 class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
 
     """

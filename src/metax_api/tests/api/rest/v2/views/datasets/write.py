@@ -5,6 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from copy import deepcopy
 from datetime import timedelta
 
 import responses
@@ -43,7 +44,8 @@ def create_end_user_catalogs():
             catalog_json=catalog_json,
             date_created=get_tz_aware_now_without_micros(),
             catalog_record_services_create='testuser,api_auth_user,metax',
-            catalog_record_services_edit='testuser,api_auth_user,metax'
+            catalog_record_services_edit='testuser,api_auth_user,metax',
+            catalog_record_services_read='testuser,api_auth_user,metax'
         )
 
 
@@ -654,6 +656,31 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         ]
 
         response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_catalog_record_draft_is_validated_with_draft_schema(self):
+        """
+        Ensure that non-published datasets are always validated with draft schema regardless
+        of the chosen datacatalog.
+        """
+        cr = deepcopy(self.cr_test_data)
+        cr['data_catalog'] = 2 # ida catalog
+        response = self.client.post('/rest/v2/datasets?draft', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+        cr['research_dataset']['remote_resources'] = [
+            {
+                'title': 'title',
+                'use_category': {'identifier': 'source'}
+            }
+        ]
+
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure that dataset is validated against correct schema when publishing
+        response = self.client.post(f'/rpc/v2/datasets/publish_dataset?identifier={cr["id"]}', format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_catalog_record_ref_data_validation_with_other_schema(self):

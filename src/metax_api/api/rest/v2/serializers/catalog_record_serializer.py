@@ -126,3 +126,21 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
             raise ValidationError({ 'detail':
                 ['%s. Json path: %s. Schema: %s' % (e.message, [p for p in e.path], e.schema)]
             })
+
+    def _set_dataset_schema(self):
+        if self._validate_as_draft():
+            # drafts only exists for V2 records, otherwise normal rules apply
+            schema_prefix = 'dft'
+            self.json_schema = CS.get_json_schema(self._schemas_directory_path, 'dataset', schema_prefix)
+
+        else:
+            super()._set_dataset_schema()
+
+    def _validate_as_draft(self):
+        if self._operation_is_create and "request" in self.context:
+            return CS.get_boolean_query_param(self.context["request"], 'draft')
+
+        if CS.request_is_create_operation(self.instance.request):
+            return self.instance._save_as_draft()
+
+        return True

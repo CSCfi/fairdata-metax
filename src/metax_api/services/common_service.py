@@ -442,6 +442,10 @@ class CommonService():
     def _request_is_write_operation(request):
         return request.method in ('POST', 'PUT', 'PATCH', 'DELETE')
 
+    @staticmethod
+    def request_is_create_operation(request):
+        return request.method in ('POST')
+
     @classmethod
     def check_if_unmodified_since(cls, request, obj):
         if cls._request_is_write_operation(request) and \

@@ -11,6 +11,7 @@ from copy import deepcopy
 
 from django.conf import settings
 from django.db.models import Q
+from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403
 from metax_api.utils import (
@@ -284,6 +285,15 @@ class CatalogRecordV2(CatalogRecord):
 
         if self.api_version != self.api_meta['version']:
             self._set_api_version()
+
+        try:
+            # drafts are validated with different schema until the publication so check that final result is valid
+            # according to the actual data catalog.
+            serializer = self.serializer_class(self, context={'request': self.request}, data=self._initial_data)
+            serializer.validate_research_dataset(self.research_dataset)
+        except ValidationError as e:
+            # apierrors couldn't handle the validation error thrown by the serializer
+            raise Http400(e)
 
         super(Common, self).save()
 
@@ -715,9 +725,6 @@ class CatalogRecordV2(CatalogRecord):
         if not (file_changes.get('files') or file_changes.get('directories')):
             _logger.debug('Received data does not include files or directories - returning')
             return
-
-        if self.catalog_is_dft():
-            raise Http400('Adding files in draft catalog is not permitted. Please select valid datacatalog first.')
 
         # create an instance of the serializer for later validations
         serializer = self.serializer_class(self)
