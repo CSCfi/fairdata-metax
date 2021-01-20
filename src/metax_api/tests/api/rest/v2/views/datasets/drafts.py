@@ -21,6 +21,7 @@ CR = CatalogRecordV2
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 DFT_CATALOG = django_settings.DFT_DATA_CATALOG_IDENTIFIER
+ATT_CATALOG = django_settings.ATT_DATA_CATALOG_IDENTIFIER
 
 class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
     """
@@ -428,7 +429,34 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
 
     def test_allow_remote_resources_in_ida_for_drafts(self):
         """
-        When dataset is in draft state, it should be validated with """
+        When dataset is in draft state, it should be validated with dft catalog
+        """
+        self.cr_test_data['data_catalog'] = {"identifier": IDA_CATALOG}
+        self.cr_test_data['research_dataset']['remote_resources'] = [
+            {
+                "title": "some title",
+                "use_category": {"identifier": "source"}
+            }
+        ]
+
+        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_allow_file_additions_to_drafts(self):
+        """
+        Files can be added later and the metadata can be modified via RPC apis.
+        """
+        files = {"files": [ {"identifier": "pid:urn:5"} ]}
+        for catalog in [IDA_CATALOG, ATT_CATALOG, DFT_CATALOG]:
+            self.cr_test_data['data_catalog'] = {"identifier": catalog}
+            response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+            cr = response.data
+            response = self.client.post(f'/rest/v2/datasets/{cr["id"]}/files', files, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.data['files_added'], 1, response.data)
+
 class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
 
     """
