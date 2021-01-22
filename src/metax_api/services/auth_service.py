@@ -83,7 +83,7 @@ class AuthService():
         try:
             with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'r') as file:
                 additional_projects = json.load(file)
-        except FileNotFoundError:
+        except FileNotFoundError: # noqa
             _logger.info("No local file for user projects")
         except Exception as e:
             _logger.error(e)

@@ -1314,6 +1314,81 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_bulk_delete_catalog_record_permissions(self):
+        # create catalog with 'metax' edit permissions and create dataset with this catalog as 'metax' user
+        cr = self._get_new_test_cr_data()
+        cr.pop('id')
+        catalog = self._get_object_from_test_data('datacatalog', requested_index=0)
+        catalog.pop('id')
+        catalog['catalog_json']['identifier'] = 'metax-catalog'
+        catalog['catalog_record_services_edit'] = 'metax'
+        catalog = self.client.post('/rest/datacatalogs', catalog, format="json")
+        cr['data_catalog'] = {'id': catalog.data['id'], 'identifier': catalog.data['catalog_json']['identifier']}
+
+        self._use_http_authorization(username='metax')
+        response = self.client.post('/rest/datasets/', cr, format="json")
+        metax_cr = response.data['id']
+
+        # create catalog with 'testuser' edit permissions and create dataset with this catalog as 'testuser' user
+        cr = self._get_new_test_cr_data()
+        cr.pop('id')
+        catalog = self._get_object_from_test_data('datacatalog', requested_index=1)
+        catalog.pop('id')
+        catalog['catalog_json']['identifier'] = 'testuser-catalog'
+        catalog['catalog_record_services_edit'] = 'testuser'
+        catalog = self.client.post('/rest/datacatalogs', catalog, format="json")
+        cr['data_catalog'] = {'id': catalog.data['id'], 'identifier': catalog.data['catalog_json']['identifier']}
+
+        self._use_http_authorization(username='testuser', password='testuserpassword')
+        response = self.client.post('/rest/datasets/', cr, format="json")
+        testuser_cr = response.data['id']
+
+        # after trying to delete as 'testuser' only one catalog is deleted
+        response = self.client.delete('/rest/datasets', [metax_cr, testuser_cr], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [testuser_cr])
+        response = self.client.post('/rest/datasets/list?pagination=false', [metax_cr, testuser_cr], format="json")
+        self.assertTrue(len(response.data), 1)
+
+        response = self.client.delete('/rest/datasets', [metax_cr], format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.post('/rest/datasets/list?pagination=false', [metax_cr, testuser_cr], format="json")
+        self.assertTrue(len(response.data), 1)
+
+    def test_bulk_delete_catalog_record(self):
+        ids = [1, 2, 3]
+        identifiers = CatalogRecord.objects.filter(pk__in=[4, 5, 6]).values_list('identifier', flat=True)
+
+        for crs in [ids, identifiers]:
+            response = self.client.delete('/rest/datasets', crs, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertTrue(response.data == [1, 2, 3] or response.data == [4, 5, 6])
+            response = self.client.post('/rest/datasets/list?pagination=false', crs, format="json")
+            self.assertFalse(response.data)
+
+            for cr in crs:
+                if isinstance(cr, int):
+                    deleted = CatalogRecord.objects_unfiltered.get(id=cr)
+                else:
+                    deleted = CatalogRecord.objects_unfiltered.get(identifier=cr)
+
+                self.assertEqual(deleted.removed, True)
+                self.assertEqual(deleted.date_modified, deleted.date_removed,
+                    'date_modified should be updated')
+
+        # failing tests
+        ids = [1000, 2000]
+        identifiers = ['1000', '2000']
+
+        for crs in [ids, identifiers]:
+            response = self.client.delete('/rest/datasets', ids, format="json")
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        ids = []
+        response = self.client.delete('/rest/datasets', ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('Received empty list of identifiers' in response.data['detail'][0])
+
 
 class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
 

@@ -954,8 +954,9 @@ class CatalogRecord(Common):
                 self.previous_dataset_version.next_dataset_version = None
                 super(Common, self.previous_dataset_version).save()
 
-            super(Common, self).delete()
-            return
+            crid = self.id
+            super().delete()
+            return crid
 
         elif self.state == self.STATE_PUBLISHED:
             if self.has_alternate_records():
@@ -981,13 +982,16 @@ class CatalogRecord(Common):
             }
             if self.catalog_is_legacy():
                 # delete permanently instead of only marking as 'removed'
+                crid = self.id
                 super().delete()
+                return crid
             else:
                 super().remove(*args, **kwargs)
                 log_args['catalogrecord']['date_removed'] = datetime_to_str(self.date_removed)
                 log_args['catalogrecord']['date_modified'] = datetime_to_str(self.date_modified)
 
             self.add_post_request_callable(DelayedLog(**log_args))
+        return self.id
 
     def deprecate(self, timestamp=None):
         self.deprecated = True

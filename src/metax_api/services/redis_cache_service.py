@@ -142,8 +142,8 @@ class _RedisCacheService:
         except (TimeoutError, ConnectionError, MasterNotFoundError) as e:
             if self._DEBUG:
                 d(
-                    "cache: master timed out or not found, or connection refused. no write instances available. "
-                    "error: %s" % str(e)
+                    f"cache: master timed out or not found, or connection refused. \
+                    No write instances available. error: {str(e)}"
                 )
             # no master available
             return
@@ -199,8 +199,8 @@ class _RedisCacheService:
         except (TimeoutError, ConnectionError, MasterNotFoundError) as e:
             if self._DEBUG:
                 d(
-                    "cache: master timed out or not found, or connection refused. no write instances available. "
-                    "error: %s" % str(e)
+                    f"cache: master timed out or not found, or connection refused. \
+                    No write instances available. error: {str(e)}"
                 )
             # no master available
             return

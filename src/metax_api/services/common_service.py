@@ -6,8 +6,9 @@
 # :license: MIT
 
 import logging
-from json import load as json_load
+from typing import List
 
+from json import load as json_load
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import status
@@ -480,7 +481,7 @@ class CommonService():
                 filter_obj['q_filters'] = [flter]
 
     @staticmethod
-    def identifiers_to_ids(identifiers, params=None):
+    def identifiers_to_ids(identifiers: List[any], params=None):
         """
         In case identifiers are identifiers (strings), which they probably are in real use,
         do a query to get a list of pk's instead, since they will be used quite a few times.
