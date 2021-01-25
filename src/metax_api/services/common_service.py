@@ -445,7 +445,13 @@ class CommonService():
 
     @staticmethod
     def request_is_create_operation(request):
-        return request.method in ('POST')
+        """
+        This is fast'n dirty method for correctly choosing the json schema for dataset
+        validation. the if the path contains files, it means that the user is adding
+        files to the dataset thus, not creating the dataset. This might not work for other
+        datatypes out of the box.
+        """
+        return request.method in ('POST') and 'files' not in request.path
 
     @classmethod
     def check_if_unmodified_since(cls, request, obj):

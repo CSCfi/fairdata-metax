@@ -290,7 +290,7 @@ class CatalogRecordV2(CatalogRecord):
             # drafts are validated with different schema until the publication so check that final result is valid
             # according to the actual data catalog.
             serializer = self.serializer_class(self, context={'request': self.request}, data=self._initial_data)
-            serializer.validate_research_dataset(self.research_dataset)
+            serializer.validate_json_schema(self.research_dataset)
         except ValidationError as e:
             # apierrors couldn't handle the validation error thrown by the serializer
             raise Http400(e)
@@ -727,7 +727,7 @@ class CatalogRecordV2(CatalogRecord):
             return
 
         # create an instance of the serializer for later validations
-        serializer = self.serializer_class(self)
+        serializer = self.serializer_class(self, context={'request': self.request}, data=self._initial_data)
 
         if operation_is_create:
             # todo: probably it would be best to leave this timestamp field empty on initial create
