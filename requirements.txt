@@ -24,8 +24,8 @@ django-watchman==1.2.0    # via -r requirements.in
 djangorestframework==3.12.2  # via -r requirements.in
 django==3.1.4             # via -r requirements.in, django-rainbowtests, django-sslserver, django-watchman, djangorestframework
 docopt==0.6.2             # via coveralls
-executing==0.5.3          # via icecream
 elasticsearch==7.10.0     # via -r requirements.in
+executing==0.5.3          # via icecream
 flake8==3.8.4             # via -r requirements.in
 gevent==20.9.0            # via -r requirements.in
 greenlet==0.4.17          # via gevent
@@ -39,7 +39,7 @@ ipython==7.16.1           # via ipdb
 isodate==0.6.0            # via rdflib
 jedi==0.17.2              # via ipython
 jsonschema==3.2.0         # via -r requirements.in, datacite
-lxml==4.6.1               # via -r requirements.in, datacite, pyoai
+lxml==4.6.2               # via -r requirements.in, datacite, pyoai
 mccabe==0.6.1             # via flake8
 parso==0.7.1              # via jedi
 pexpect==4.8.0            # via ipython
