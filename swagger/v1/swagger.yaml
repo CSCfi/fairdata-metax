@@ -1078,7 +1078,31 @@ paths:
         '400':
           description: All updates failed. A list of errors is returned.
         '403':
-          description: Forbidden. Must have permission for resource
+          description: Forbidden. Must have permission for resource.
+      tags:
+        - Dataset API
+    delete:
+      summary: Bulk delete
+      description: Mark datasets as removed en masse.
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          description: A list of ids (integer) OR a list of identifiers (string) to delete.
+          required: true
+          schema:
+            $ref: '#/definitions/StringList'
+        - $ref: "#/parameters/dryrun"
+      responses:
+        '204':
+          description: Operation successful. At least some datasets are marked as removed.
+        '400':
+          description: Parameters contained errors, response includes details.
+        '403':
+          description: Forbidden. Must have permission for resource.
+        '404':
+          description: None of the provided identifiers were found.
       tags:
         - Dataset API
   /rest/datasets/identifiers:

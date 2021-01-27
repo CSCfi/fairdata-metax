@@ -178,7 +178,11 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), "static")
 STATIC_URL = "/static/"
 
-API_VERSIONS_ENABLED = ["v1", "v2"]
+API_VERSIONS_ENABLED = []
+if env("ENABLE_V1_ENDPOINTS"):
+    API_VERSIONS_ENABLED.append("v1")
+if env("ENABLE_V2_ENDPOINTS"):
+    API_VERSIONS_ENABLED.append("v2")
 DRAFT_ENABLED = env("DRAFT_ENABLED")
 
 # Variables related to api credentials
@@ -189,28 +193,4 @@ API_USERS = [
     {"password": "test-tpas", "username": "tpas"},
     {"password": "test-etsin", "username": "etsin"},
     {"password": "test-fds", "username": "fds"},
-]
-CONSUMERS = [
-    {
-        "is_test_user": True,
-        "name": "testaaja",
-        "password": "testaaja",
-        "permissions": {
-            "conf": "^testaaja-.*$",
-            "read": "^(datasets|testaaja-.*)$",
-            "write": "^testaaja-.*$",
-        },
-        "vhost": "metax",
-    },
-    {
-        "is_test_user": False,
-        "name": "etsin",
-        "password": "test-etsin",
-        "permissions": {
-            "conf": "^etsin-.*$",
-            "read": "^(datasets|etsin-.*)$",
-            "write": "^etsin-.*$",
-        },
-        "vhost": "metax",
-    },
 ]

@@ -106,6 +106,18 @@ def is_metax_generated_doi_identifier(identifier):
 
     return identifier.startswith('doi:{0}/'.format(settings.DATACITE.get('PREFIX')))
 
+def is_remote_doi_identifier(identifier):
+    """
+    Check whether given identifier is a remote doi identifier
+
+    :param identifier:
+    :return: boolean
+    """
+    if not identifier or not settings.DATACITE.get('PREFIX', False):
+        return False
+
+    if identifier.startswith('doi:') and not identifier.startswith('doi:{0}/'.format(settings.DATACITE.get('PREFIX'))):
+        return True
 
 def is_metax_generated_urn_identifier(identifier):
     """

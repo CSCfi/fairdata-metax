@@ -7,9 +7,9 @@ from metax_api.settings.components.common import (
 OAI = {
     "BASE_URL": env("OAI_BASE_URL"),
     "BATCH_SIZE": 25,
-    "REPOSITORY_NAME": "Metax",
-    "ETSIN_URL_TEMPLATE": "http://etsin.something.fi/dataset/%s",
-    "ADMIN_EMAIL": "noreply@csc.fi",
+    "REPOSITORY_NAME": env("OAI_REPOSITORY_NAME"),
+    "ETSIN_URL_TEMPLATE": env("OAI_ETSIN_URL_TEMPLATE"),
+    "ADMIN_EMAIL": env("OAI_ADMIN_EMAIL"),
     "SET_MAPPINGS": {
         "datasets": [IDA_DATA_CATALOG_IDENTIFIER, ATT_DATA_CATALOG_IDENTIFIER],
         "ida_datasets": [IDA_DATA_CATALOG_IDENTIFIER],
@@ -22,16 +22,6 @@ DATACITE = {
     "ETSIN_URL_TEMPLATE": env("DATACITE_ETSIN_URL_TEMPLATE"),
     "PREFIX": env("DATACITE_PREFIX"),
     "URL": env("DATACITE_URL"),
-}
-REMS = {
-    "ENABLED": env("REMS_ENABLED"),
-    "API_KEY": env("REMS_API_KEY"),
-    "BASE_URL": env("REMS_BASE_URL"),
-    "ETSIN_URL_TEMPLATE": env("REMS_ETSIN_URL_TEMPLATE"),
-    "METAX_USER": env("REMS_METAX_USER"),
-    "REPORTER_USER": env("REMS_REPORTER_USER"),
-    "AUTO_APPROVER": env("REMS_AUTO_APPROVER"),
-    "FORM_ID": int(env("REMS_FORM_ID")),
 }
 ORG_FILE_PATH = env("ORG_FILE_PATH")
 WKT_FILENAME = env("WKT_FILENAME")

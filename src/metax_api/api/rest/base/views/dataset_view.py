@@ -403,8 +403,11 @@ class DatasetViewSet(CommonViewSet):
         self.queryset_search_params = {"id__in": ids}
         return super(DatasetViewSet, self).list(request)
 
-    @action(detail=False, methods=["post"], url_path="flush_password")
-    def flush_password(self, request):  # pragma: no cover
+    def destroy_bulk(self, request, *args, **kwargs):
+        return self.service_class.destroy_bulk(request)
+
+    @action(detail=False, methods=['post'], url_path="flush_password")
+    def flush_password(self, request): # pragma: no cover
         """
         Set a password for flush api
         """

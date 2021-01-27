@@ -954,13 +954,14 @@ class CatalogRecord(Common):
                 self.previous_dataset_version.next_dataset_version = None
                 super(Common, self.previous_dataset_version).save()
 
-            super(Common, self).delete()
-            return
+            crid = self.id
+            super().delete()
+            return crid
 
         elif self.state == self.STATE_PUBLISHED:
             if self.has_alternate_records():
                 self._remove_from_alternate_record_set()
-            if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI:
+            if is_metax_generated_doi_identifier(self.research_dataset['preferred_identifier']):
                 self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
                                                                 'delete'))
 
@@ -981,13 +982,16 @@ class CatalogRecord(Common):
             }
             if self.catalog_is_legacy():
                 # delete permanently instead of only marking as 'removed'
+                crid = self.id
                 super().delete()
+                return crid
             else:
                 super().remove(*args, **kwargs)
                 log_args['catalogrecord']['date_removed'] = datetime_to_str(self.date_removed)
                 log_args['catalogrecord']['date_modified'] = datetime_to_str(self.date_modified)
 
             self.add_post_request_callable(DelayedLog(**log_args))
+        return self.id
 
     def deprecate(self, timestamp=None):
         self.deprecated = True
@@ -1253,6 +1257,7 @@ class CatalogRecord(Common):
             if (get_identifier_type(self.preferred_identifier) == IdentifierType.DOI or
                     self.use_doi_for_published is True):
                 self._validate_cr_against_datacite_schema()
+            if is_metax_generated_doi_identifier(self.research_dataset['preferred_identifier']):
                 self.add_post_request_callable(DataciteDOIUpdate(self,
                                         self.research_dataset['preferred_identifier'], 'create'))
 
@@ -1458,8 +1463,9 @@ class CatalogRecord(Common):
         if get_identifier_type(self.preferred_identifier) == IdentifierType.DOI and \
                 self.update_datacite:
             self._validate_cr_against_datacite_schema()
-            self.add_post_request_callable(DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'],
-                                                             'update'))
+            if is_metax_generated_doi_identifier(self.research_dataset['preferred_identifier']):
+                self.add_post_request_callable(DataciteDOIUpdate(self,
+                                                    self.research_dataset['preferred_identifier'], 'update'))
 
         if self.state == self.STATE_PUBLISHED:
             self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
@@ -2035,7 +2041,7 @@ class CatalogRecord(Common):
 
         new_version.calculate_directory_byte_sizes_and_file_counts()
 
-        if pref_id_type == IdentifierType.DOI:
+        if is_metax_generated_doi_identifier(self.research_dataset['preferred_identifier']):
             self.add_post_request_callable(DataciteDOIUpdate(new_version,
                                                              new_version.research_dataset['preferred_identifier'],
                                                              'create'))
@@ -2651,7 +2657,8 @@ class RabbitMQPublishRecord():
             cr_json['data_catalog'] = {'catalog_json': self.cr.data_catalog.catalog_json}
 
         try:
-            rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange='datasets')
+            for exchange in settings.RABBITMQ["EXCHANGES"]:
+                rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange=exchange["NAME"])
         except:
             # note: if we'd like to let the request be a success even if this operation fails,
             # we could simply not raise an exception here.

@@ -5,6 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from copy import deepcopy
 from datetime import timedelta
 
 import responses
@@ -43,7 +44,8 @@ def create_end_user_catalogs():
             catalog_json=catalog_json,
             date_created=get_tz_aware_now_without_micros(),
             catalog_record_services_create='testuser,api_auth_user,metax',
-            catalog_record_services_edit='testuser,api_auth_user,metax'
+            catalog_record_services_edit='testuser,api_auth_user,metax',
+            catalog_record_services_read='testuser,api_auth_user,metax'
         )
 
 
@@ -580,6 +582,20 @@ class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
         self.assertEqual('preferred_identifier' in response.data['research_dataset'][0], True,
                          'The error should be about preferred_identifier already existing')
 
+    def test_remote_doi_dataset_is_validated_against_datacite_format(self):
+        # Remote input DOI ids need to take datasets for datacite validation
+        cr = {'research_dataset': self.cr_test_data['research_dataset']}
+        cr['research_dataset']['preferred_identifier'] = 'doi:10.5061/dryad.10188854'
+        cr['data_catalog'] = 3
+        cr['metadata_provider_org'] = 'metax'
+        cr['metadata_provider_user'] = 'metax'
+        cr['research_dataset'].pop('publisher', None)
+
+        response = self.client.post('/rest/v2/datasets', cr, format="json")
+        # Publisher value is required for datacite format, so this should return Http400
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual('a required value for datacite format' in response.data['detail'][0], True, response.data)
+
     #
     # helpers
     #
@@ -654,6 +670,31 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         ]
 
         response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_catalog_record_draft_is_validated_with_draft_schema(self):
+        """
+        Ensure that non-published datasets are always validated with draft schema regardless
+        of the chosen datacatalog.
+        """
+        cr = deepcopy(self.cr_test_data)
+        cr['data_catalog'] = 2 # ida catalog
+        response = self.client.post('/rest/v2/datasets?draft', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+        cr['research_dataset']['remote_resources'] = [
+            {
+                'title': 'title',
+                'use_category': {'identifier': 'source'}
+            }
+        ]
+
+        response = self.client.put(f'/rest/v2/datasets/{cr["id"]}', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # ensure that dataset is validated against correct schema when publishing
+        response = self.client.post(f'/rpc/v2/datasets/publish_dataset?identifier={cr["id"]}', format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
     def test_catalog_record_ref_data_validation_with_other_schema(self):
@@ -1005,6 +1046,80 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_bulk_delete_catalog_record_permissions(self):
+        # create catalog with 'metax' edit permissions and create dataset with this catalog as 'metax' user
+        cr = self._get_new_test_cr_data()
+        cr.pop('id')
+        catalog = self._get_object_from_test_data('datacatalog', requested_index=0)
+        catalog.pop('id')
+        catalog['catalog_json']['identifier'] = 'metax-catalog'
+        catalog['catalog_record_services_edit'] = 'metax'
+        catalog = self.client.post('/rest/v2/datacatalogs', catalog, format="json")
+        cr['data_catalog'] = {'id': catalog.data['id'], 'identifier': catalog.data['catalog_json']['identifier']}
+
+        self._use_http_authorization(username='metax')
+        response = self.client.post('/rest/v2/datasets/', cr, format="json")
+        metax_cr = response.data['id']
+
+        # create catalog with 'testuser' edit permissions and create dataset with this catalog as 'testuser' user
+        cr = self._get_new_test_cr_data()
+        cr.pop('id')
+        catalog = self._get_object_from_test_data('datacatalog', requested_index=1)
+        catalog.pop('id')
+        catalog['catalog_json']['identifier'] = 'testuser-catalog'
+        catalog['catalog_record_services_edit'] = 'testuser'
+        catalog = self.client.post('/rest/v2/datacatalogs', catalog, format="json")
+        cr['data_catalog'] = {'id': catalog.data['id'], 'identifier': catalog.data['catalog_json']['identifier']}
+
+        self._use_http_authorization(username='testuser', password='testuserpassword')
+        response = self.client.post('/rest/v2/datasets/', cr, format="json")
+        testuser_cr = response.data['id']
+
+        # after trying to delete as 'testuser' only one catalog is deleted
+        response = self.client.delete('/rest/v2/datasets', [metax_cr, testuser_cr], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.post('/rest/v2/datasets/list?pagination=false', [metax_cr, testuser_cr], format="json")
+        self.assertTrue(len(response.data), 1)
+
+        # deleting from list of not accessable resource
+        response = self.client.delete('/rest/datasets', [metax_cr], format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        response = self.client.post('/rest/v2/datasets/list?pagination=false', [metax_cr, testuser_cr], format="json")
+        self.assertTrue(len(response.data), 1)
+
+    def test_bulk_delete_catalog_record(self):
+        ids = [1, 2, 3]
+        identifiers = CatalogRecordV2.objects.filter(pk__in=[4, 5, 6]).values_list('identifier', flat=True)
+
+        for crs in [ids, identifiers]:
+            response = self.client.delete('/rest/datasets', crs, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertTrue(response.data == [1, 2, 3] or response.data == [4, 5, 6])
+            response = self.client.post('/rest/datasets/list?pagination=false', crs, format="json")
+            self.assertFalse(response.data)
+
+            for cr in crs:
+                if isinstance(cr, int):
+                    deleted = CatalogRecordV2.objects_unfiltered.get(id=cr)
+                else:
+                    deleted = CatalogRecordV2.objects_unfiltered.get(identifier=cr)
+
+                self.assertEqual(deleted.removed, True)
+                self.assertEqual(deleted.date_modified, deleted.date_removed,
+                    'date_modified should be updated')
+
+        # failing tests
+        ids = [1000, 2000]
+        identifiers = ['1000', '2000']
+
+        for crs in [ids, identifiers]:
+            response = self.client.delete('/rest/datasets', ids, format="json")
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        ids = []
+        response = self.client.delete('/rest/datasets', ids, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('Received empty list of identifiers' in response.data['detail'][0])
 
 class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
 

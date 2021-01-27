@@ -35,8 +35,6 @@ def index_data():
     """
     NO = "no"
     ALL = "all"
-    REMOVE_AND_RECREATE_INDEX = "remove_and_recreate_index"
-    TYPES_TO_REINDEX = "types_to_reindex"
 
     instructions = """
         \nRun the program as metax-user with pyenv activated using
@@ -53,9 +51,6 @@ def index_data():
             + [RefData.DATA_TYPE_RESEARCH_INFRA, RefData.DATA_TYPE_MIME_TYPE]
         ),
     )
-
-    remove_and_recreate_index = ALL
-    types_to_reindex = ALL
 
     es = ESS()
     finto_service = FintoDataService()

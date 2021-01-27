@@ -12,6 +12,8 @@ from os.path import dirname, join
 import simplexquery as sxq
 import xmltodict
 from django.db.models import Q
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
@@ -760,3 +762,33 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         license = rd['access_rights']['license'][0]
 
         return license.get('identifier') or license.get('license')
+
+    @classmethod
+    def destroy_bulk(cls, request):
+        """
+        Mark datasets as deleted en masse. Parameter cr_identifiers can be a list of pk's
+        (integers), or file identifiers (strings).
+        """
+        _logger.info('Begin bulk delete datasets')
+
+        cr_ids = cls.identifiers_to_ids(request.data)
+        cr_deleted = []
+        no_access = []
+        for id in cr_ids:
+            try:
+                cr = CatalogRecord.objects.get(pk=id)
+                if cr.user_has_access(request):
+                    cr_deleted.append(cr.delete())
+                else:
+                    no_access.append(id)
+            except:
+                pass
+
+        if sorted(no_access) == sorted(cr_ids):
+            raise Http403({ 'detail': ['None of datasets exists or are permitted for users']})
+
+        if not cr_deleted:
+            return Response(cr_deleted, status=status.HTTP_404_NOT_FOUND)
+
+        _logger.info(f'Marked datasets {cr_deleted} as deleted')
+        return Response(cr_deleted, status=status.HTTP_200_OK)

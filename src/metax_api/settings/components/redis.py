@@ -1,7 +1,10 @@
+from environ import ImproperlyConfigured
+import logging
 from metax_api.settings import env
 
+logger = logging.getLogger(__name__)
+
 REDIS = {
-    "PASSWORD": env("REDIS_PASSWORD"),
     "LOCALHOST_PORT": env("REDIS_PORT"),
     "HOST": env("REDIS_HOST"),
     "PORT": env("REDIS_PORT"),
@@ -11,9 +14,21 @@ REDIS = {
     "TEST_DB": env("REDIS_TEST_DB"),
     # enables extra logging to console during cache usage
     "DEBUG": False,
-    "SENTINEL": {
-        "HOSTS": [["127.0.0.1", 16379], ["127.0.0.1", 16380], ["127.0.0.1", 16381]],
-        "SERVICE": env("REDIS_SENTINEL_SERVICE"),
-    },
 }
 REDIS_USE_PASSWORD = env("REDIS_USE_PASSWORD")
+REDIS_USE_SENTINEL = False
+
+if REDIS_USE_PASSWORD:
+    try:
+        REDIS["PASSWORD"] = env("REDIS_PASSWORD")
+    except ImproperlyConfigured as e:
+        logger.warning(e)
+
+if REDIS_USE_SENTINEL:
+    try:
+        REDIS["SENTINEL"] = {
+            "HOSTS": [["127.0.0.1", 16379], ["127.0.0.1", 16380], ["127.0.0.1", 16381]],
+            "SERVICE": env("REDIS_SENTINEL_SERVICE"),
+        }
+    except ImproperlyConfigured as e:
+        logger.warning(e)

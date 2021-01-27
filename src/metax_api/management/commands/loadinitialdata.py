@@ -87,7 +87,7 @@ class Command(BaseCommand):
         try:
             with open("metax_api/initialdata/datacatalogs.json", "r") as f:
                 data_catalogs = json.load(f)
-        except FileNotFoundError:
+        except FileNotFoundError: # noqa
             raise CommandError("File initialdata/datacatalogs.json does not exist?")
         except json.decoder.JSONDecodeError as e:
             raise CommandError("Error loading data catalog json: %s" % str(e))
@@ -141,7 +141,7 @@ class Command(BaseCommand):
         try:
             with open("metax_api/initialdata/filestorages.json", "r") as f:
                 storages = json.load(f)
-        except FileNotFoundError:
+        except FileNotFoundError: # noqa
             raise CommandError("File initialdata/filestorages.json does not exist?")
         except json.decoder.JSONDecodeError as e:
             raise CommandError("Error loading file storage json: %s" % str(e))
