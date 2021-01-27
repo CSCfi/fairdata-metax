@@ -6,26 +6,27 @@
 # :license: MIT
 
 import logging
-import sys
 from os import makedirs, getpid
 from shutil import rmtree
 from time import sleep
+from typing import Any
 
 from django.apps import AppConfig
 from django.conf import settings
+from icecream import ic
 
-from metax_api.utils import executing_test_case, json_logger, ReferenceDataLoader
+from metax_api.utils import executing_test_case, ReferenceDataLoader
 
 _logger = logging.getLogger(__name__)
 
 
 class OnAppStart(AppConfig):
 
-    name = 'metax_api'
+    name = "metax_api"
     verbose_name = "Metax API"
     _pid = getpid()
 
-    def ready(self): # pragma: no cover
+    def ready(self):  # pragma: no cover
         """
         Execute various tasks during application startup:
 
@@ -39,45 +40,59 @@ class OnAppStart(AppConfig):
 
         # some imports from metax_api cannot be done at the beginning of the file,
         # because the "django apps" have not been loaded yet.
-        from metax_api.services import RedisCacheService as cache, RabbitMQService as rabbitmq
-
-        json_logger.info(
-            event='process_started',
-            process_id=self._pid
+        from metax_api.services import (
+            RabbitMQService as rabbitmq,
         )
+        from metax_api.services.redis_cache_service import RedisClient
+        from watchman.utils import get_checks
+        import json
 
-        if not executing_test_case() and any(cmd in sys.argv for cmd in ['manage.py']):
+        for check in get_checks():
+            if callable(check):
+                resp: Any
+                try:
+                    resp = json.dumps(check())
+                    ic(resp)
+                except TypeError as e:
+                    e_resp = check()
+                    _logger.error(
+                        f"Error in system check: {e}, caused by check:{check.__name__} with return value of {e_resp}"
+                    )
+        _logger.info(f"event='process_started',process_id={self._pid}")
+
+        """if not executing_test_case() and any(cmd in sys.argv for cmd in ['manage.py']):
+            _logger.info(f"process {self._pid} startapp task returned")
             return
 
         # ex = expiration in seconds
         if not cache.get_or_set('on_app_start_executing', True, ex=120):
-            return
+            _logger.info(f"process {self._pid} startapp tasks returned")
+            return"""
 
         # actual startup tasks ->
-        _logger.info('Metax API startup tasks executing...')
+        _logger.info("Metax API startup tasks executing...")
+        cache = RedisClient()
 
         try:
-            if executing_test_case():
-                cache.get_master().flushdb()
 
-            if settings.ELASTICSEARCH['ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART']:
-                cache.set('reference_data', None)
+            if settings.ELASTICSEARCH["ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART"]:
+                cache.set("reference_data", None)
 
-            if not cache.get('reference_data', master=True) or not cache.get('ref_data_up_to_date', master=True):
+            if not cache.get("reference_data", master=True) or not cache.get(
+                "ref_data_up_to_date", master=True
+            ):
                 ReferenceDataLoader.populate_cache_reference_data(cache)
-                json_logger.info(
-                    event='reference_data_loaded',
-                    process_id=self._pid
-                )
+                _logger.info(f"event='reference_data_loaded',process_id={self._pid}")
             else:
-                pass
-        except:
-            raise
+                ic()
+        except Exception as e:
+            _logger.error(e)
+            # raise e
         finally:
             # ensure other processes have stopped at on_app_start_executing
             # before resetting the flag. (on local this method can be quite fast)
             sleep(2)
-            cache.delete('on_app_start_executing')
+            cache.delete("on_app_start_executing")
 
         if executing_test_case():
             # reset error files location between tests
@@ -94,4 +109,4 @@ class OnAppStart(AppConfig):
             _logger.error(e)
             _logger.error("Unable to initialize RabbitMQ exchanges")
 
-        _logger.info('Metax API startup tasks finished')
+        _logger.info("Metax API startup tasks finished")

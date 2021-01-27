@@ -5,11 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import json
 import logging
 from base64 import b64decode
 
-import json
-import yaml
 import requests
 from django.conf import settings as django_settings
 from django.http import HttpResponseForbidden
@@ -39,15 +38,14 @@ for the lifetime of the process.
 """
 
 
-WRITE_METHODS = ('POST', 'PUT', 'PATCH', 'DELETE')
+WRITE_METHODS = ("POST", "PUT", "PATCH", "DELETE")
 
 
 if not django_settings.TLS_VERIFY:
     requests.packages.urllib3.disable_warnings()
 
 
-class _IdentifyApiCaller():
-
+class _IdentifyApiCaller:
     def __init__(self, get_response):
         self.get_response = get_response
         self.API_USERS = self._get_api_users()
@@ -77,16 +75,15 @@ class _IdentifyApiCaller():
         """
         Services, or other pre-defined api users.
         """
-        with open('/home/metax-user/app_config') as app_config:
-            app_config_dict = yaml.load(app_config, Loader=yaml.FullLoader)
+
         try:
-            return app_config_dict['API_USERS']
+            return django_settings.API_USERS
         except:
-            _logger.exception('API_USERS missing from app_config')
+            _logger.exception("API_USERS missing from app_config")
             raise
 
     def _caller_should_be_identified(self, request):
-        if request.META.get('HTTP_AUTHORIZATION', None):
+        if request.META.get("HTTP_AUTHORIZATION", None):
             return True
         elif request.method in WRITE_METHODS:
             return True
@@ -104,38 +101,47 @@ class _IdentifyApiCaller():
         Valid service users and authentication methods are listed in app_config.
         """
 
-        http_auth_header = request.META.get('HTTP_AUTHORIZATION', None)
+        http_auth_header = request.META.get("HTTP_AUTHORIZATION", None)
 
         if not http_auth_header:
-            _logger.warning('Unauthenticated access attempt from ip: %s. Authorization header missing'
-                            % request.META['REMOTE_ADDR'])
+            _logger.warning(
+                "Unauthenticated access attempt from ip: %s. Authorization header missing"
+                % request.META["REMOTE_ADDR"]
+            )
             raise Http403
 
         try:
-            auth_method, auth_b64 = http_auth_header.split(' ')
+            auth_method, auth_b64 = http_auth_header.split(" ")
         except ValueError:
-            raise Http403({
-                'detail': [
-                    'Invalid HTTP authorization method. Ensure you included on of the following '
-                    'methods inside the auth header: %s' % ', '.join(self.ALLOWED_AUTH_METHODS)
-                ]
-            })
+            raise Http403(
+                {
+                    "detail": [
+                        "Invalid HTTP authorization method. Ensure you included on of the following "
+                        "methods inside the auth header: %s"
+                        % ", ".join(self.ALLOWED_AUTH_METHODS)
+                    ]
+                }
+            )
 
         if auth_method not in self.ALLOWED_AUTH_METHODS:
-            _logger.warning('Invalid HTTP authorization method: %s' % auth_method)
-            raise Http403({
-                'detail': [
-                    'Invalid HTTP authorization method: %s. Allowed auth methods: %s'
-                    % (auth_method, ', '.join(self.ALLOWED_AUTH_METHODS))
-                ]
-            })
+            _logger.warning("Invalid HTTP authorization method: %s" % auth_method)
+            raise Http403(
+                {
+                    "detail": [
+                        "Invalid HTTP authorization method: %s. Allowed auth methods: %s"
+                        % (auth_method, ", ".join(self.ALLOWED_AUTH_METHODS))
+                    ]
+                }
+            )
 
-        if auth_method.lower() == 'basic':
+        if auth_method.lower() == "basic":
             self._auth_basic(request, auth_b64)
-        elif auth_method.lower() == 'bearer':
+        elif auth_method.lower() == "bearer":
             self._auth_bearer(request, auth_b64)
         else:
-            raise Exception('The allowed auth method %s is missing handling' % auth_method)
+            raise Exception(
+                "The allowed auth method %s is missing handling" % auth_method
+            )
 
         return request
 
@@ -144,37 +150,37 @@ class _IdentifyApiCaller():
         Check request user credentials for service-level users.
         """
         try:
-            username, apikey = b64decode(auth_b64).decode('utf-8').split(':')
+            username, apikey = b64decode(auth_b64).decode("utf-8").split(":")
         except:
-            _logger.warning('Malformed HTTP Authorization header (Basic)')
-            raise Http403({ 'detail': [ 'Malformed HTTP Authorization header (Basic)' ]})
+            _logger.warning("Malformed HTTP Authorization header (Basic)")
+            raise Http403({"detail": ["Malformed HTTP Authorization header (Basic)"]})
 
-        user = next(( u for u in self.API_USERS if u['username'] == username), None)
+        user = next((u for u in self.API_USERS if u["username"] == username), None)
 
         if not user:
-            _logger.warning('Failed authnz for user %s: user not found' % username)
+            _logger.warning("Failed authnz for user %s: user not found" % username)
             raise Http403
-        if apikey != user['password']:
-            _logger.warning('Failed authnz for user %s: password mismatch' % username)
+        if apikey != user["password"]:
+            _logger.warning("Failed authnz for user %s: password mismatch" % username)
             raise Http403
 
         request.user.username = username
         request.user.is_service = True
 
     def _auth_bearer(self, request, auth_b64):
-        _logger.debug('validating bearer token...')
+        _logger.debug("validating bearer token...")
 
         response = requests.get(
             # url protected by oidc. the proxy is configured to return 200 OK for any valid token
             django_settings.VALIDATE_TOKEN_URL,
-            headers={ 'Authorization': request.META.get('HTTP_AUTHORIZATION', None) },
-            verify=False
+            headers={"Authorization": request.META.get("HTTP_AUTHORIZATION", None)},
+            verify=False,
         )
 
-        _logger.debug('response from token validation: %s' % str(response))
+        _logger.debug("response from token validation: %s" % str(response))
 
         if response.status_code != 200:
-            _logger.warning('Bearer token validation failed')
+            _logger.warning("Bearer token validation failed")
             raise Http403
 
         try:
@@ -182,13 +188,15 @@ class _IdentifyApiCaller():
         except:
             # the above method should never fail, as this code should not be
             # reachable if the token validation had already failed.
-            _logger.exception('Failed to extract token from id_token string')
+            _logger.exception("Failed to extract token from id_token string")
             raise Http403
 
-        if len(token.get('CSCUserName', '')) > 0:
-            request.user.username = token['CSCUserName']
+        if len(token.get("CSCUserName", "")) > 0:
+            request.user.username = token["CSCUserName"]
         else:
-            _logger.warning('id_token does not contain valid user id: fairdataid or cscusername')
+            _logger.warning(
+                "id_token does not contain valid user id: fairdataid or cscusername"
+            )
             raise Http403
 
         request.user.is_service = False
@@ -199,16 +207,15 @@ class _IdentifyApiCaller():
         Extract the interesting part from the dot-separated string that looks something like
         "asdasd.abcabc.defghi".
         """
-        id_token_payload_b64 = id_token_string.split('.')[1]
+        id_token_payload_b64 = id_token_string.split(".")[1]
 
         # in the dot-separated string, the b64 encoded strings may not be multiples of 4, which
         # complete valid b64 strings should be. add a few trailing '=' characters to ensure
         # requirement is satisfied. the b64decode method knows to discard excess '='.
-        return json.loads(b64decode('%s===' % id_token_payload_b64).decode('utf-8'))
+        return json.loads(b64decode("%s===" % id_token_payload_b64).decode("utf-8"))
 
 
 class _IdentifyApiCallerDummy(_IdentifyApiCaller):
-
     def _get_api_users(self):
         return django_settings.API_TEST_USERS
 

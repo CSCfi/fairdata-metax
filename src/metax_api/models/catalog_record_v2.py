@@ -5,12 +5,13 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import logging
 from collections import defaultdict
 from copy import deepcopy
-import logging
 
 from django.conf import settings
 from django.db.models import Q
+from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403
 from metax_api.utils import (
@@ -22,16 +23,15 @@ from metax_api.utils import (
     get_tz_aware_now_without_micros,
     IdentifierType,
 )
-from .common import Common
-from .directory import Directory
-from .file import File
 from .catalog_record import (
     CatalogRecord,
     DataciteDOIUpdate,
     DatasetVersionSet,
     RabbitMQPublishRecord,
 )
-
+from .common import Common
+from .directory import Directory
+from .file import File
 
 _logger = logging.getLogger(__name__)
 
@@ -158,6 +158,9 @@ class CatalogRecordV2(CatalogRecord):
     def is_draft_for_another_dataset(self):
         return hasattr(self, 'draft_of') and self.draft_of is not None
 
+    def has_next_draft(self):
+        return hasattr(self, 'next_draft') and self.next_draft is not None
+
     def _save_as_draft(self):
         """
         Inherit here to always allow drafts in v2 api since the whole workflow is based on them
@@ -282,6 +285,15 @@ class CatalogRecordV2(CatalogRecord):
 
         if self.api_version != self.api_meta['version']:
             self._set_api_version()
+
+        try:
+            # drafts are validated with different schema until the publication so check that final result is valid
+            # according to the actual data catalog.
+            serializer = self.serializer_class(self, context={'request': self.request}, data=self._initial_data)
+            serializer.validate_json_schema(self.research_dataset)
+        except ValidationError as e:
+            # apierrors couldn't handle the validation error thrown by the serializer
+            raise Http400(e)
 
         super(Common, self).save()
 
@@ -714,11 +726,8 @@ class CatalogRecordV2(CatalogRecord):
             _logger.debug('Received data does not include files or directories - returning')
             return
 
-        if self.catalog_is_dft():
-            raise Http400('Adding files in draft catalog is not permitted. Please select valid datacatalog first.')
-
         # create an instance of the serializer for later validations
-        serializer = self.serializer_class(self)
+        serializer = self.serializer_class(self, context={'request': self.request}, data=self._initial_data)
 
         if operation_is_create:
             # todo: probably it would be best to leave this timestamp field empty on initial create
@@ -1213,6 +1222,11 @@ class CatalogRecordV2(CatalogRecord):
             raise Http400(
                 'Can\'t create new version. Dataset is a draft for another published dataset: %s'
                 % self.draft_of.identifier
+            )
+        elif self.has_next_draft():
+            raise Http400(
+                'Can\'t create new version. Dataset has an unmerged draft: %s'
+                % self.next_draft.identifier
             )
         elif not self.catalog_versions_datasets():
             raise Http400('Data catalog does not allow dataset versioning')

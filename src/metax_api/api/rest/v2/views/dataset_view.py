@@ -12,11 +12,11 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from metax_api.api.rest.base.serializers import LightFileSerializer
+from metax_api.api.rest.base.views import DatasetViewSet
+from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecordV2
-from metax_api.api.rest.base.views import DatasetViewSet
-from metax_api.api.rest.base.serializers import LightFileSerializer
-from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
 from metax_api.services import CommonService as CS, CatalogRecordServiceV2
 
 _logger = logging.getLogger(__name__)

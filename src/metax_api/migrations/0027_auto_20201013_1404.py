@@ -11,26 +11,29 @@ def rename(apps, schema_editor):
     CatalogRecord = apps.get_model('metax_api', 'CatalogRecord')
 
     # Loop through csv
-    with open('metax_api/migrations/datasets/SYKE_csv.csv', newline='') as csvfile:
-        reader = csv.DictReader(csvfile, delimiter=";", quotechar='"')
+    try:
+        with open('metax_api/migrations/datasets/SYKE_csv.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile, delimiter=";", quotechar='"')
 
-        for row in reader:
-            old_guid = row["vanha guid"]
+            for row in reader:
+                old_guid = row["vanha guid"]
 
-            if old_guid == 'vanha guid': # Check if is heade value
-                pass
-            else:
-                # Get dataset
-                try:
-                    cr = CatalogRecord.objects.get(research_dataset__other_identifier__0__notation = old_guid)
-                    new_guid = row["uusi guid"]
-                    cr.research_dataset['other_identifier'][0]['notation'] = new_guid
-                    cr.research_dataset['other_identifier'][0]['old_notation'] = old_guid
-                    cr.user_modified = "migration_0027"
-                    cr.save()
-                    logger.info(f"successful migration of cr {cr.id} with new guid {new_guid} and old guid {old_guid}")
-                except CatalogRecord.DoesNotExist:
+                if old_guid == 'vanha guid': # Check if is heade value
                     pass
+                else:
+                    # Get dataset
+                    try:
+                        cr = CatalogRecord.objects.get(research_dataset__other_identifier__0__notation = old_guid)
+                        new_guid = row["uusi guid"]
+                        cr.research_dataset['other_identifier'][0]['notation'] = new_guid
+                        cr.research_dataset['other_identifier'][0]['old_notation'] = old_guid
+                        cr.user_modified = "migration_0027"
+                        cr.save()
+                        logger.info(f"successful migration of cr {cr.id} with new guid {new_guid} and old guid {old_guid}")
+                    except CatalogRecord.DoesNotExist:
+                        pass
+    except FileNotFoundError as e:
+        logger.error(f"syke csv not found: {e}")
 
 def revert(apps, schema_editor):
     CatalogRecord = apps.get_model('metax_api', 'CatalogRecord')

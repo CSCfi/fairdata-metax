@@ -6,15 +6,14 @@
 # :license: MIT
 
 import logging
-
 from os import listdir
 from os.path import isfile, join, abspath, dirname
 
+from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
-from django.http import Http404
-from metax_api.services import CommonService as CS
 
+from metax_api.services import CommonService as CS
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug

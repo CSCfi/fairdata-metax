@@ -12,11 +12,10 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from metax_api.api.rpc.base.views import DatasetRPC
 from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
+from metax_api.api.rpc.base.views import DatasetRPC
 from metax_api.exceptions import Http400, Http501
 from metax_api.models import CatalogRecordV2
-
 
 _logger = logging.getLogger(__name__)
 

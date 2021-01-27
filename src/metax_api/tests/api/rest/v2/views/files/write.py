@@ -8,14 +8,14 @@
 from copy import deepcopy
 from os.path import dirname
 
-from django.db.models import Sum
+import responses
 from django.core.management import call_command
+from django.db.models import Sum
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
 
 from metax_api.models import CatalogRecord, Directory, File
-from metax_api.services import RedisCacheService as cache
+from metax_api.services.redis_cache_service import RedisClient
 from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
 
 
@@ -109,6 +109,7 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
 
     def setUp(self):
         super().setUp()
+        cache = RedisClient()
         ffv_refdata = cache.get('reference_data')['reference_data']['file_format_version']
 
         # File format version entry in reference data that has some output_format_version

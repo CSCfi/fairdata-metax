@@ -5,9 +5,11 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from rest_framework.test import APITestCase
-from metax_api.tests.utils import TestClassUtils
 from rest_framework import status
+from rest_framework.test import APITestCase
+
+from metax_api.tests.utils import TestClassUtils
+
 
 class SchemaApiReadTests(APITestCase, TestClassUtils):
 

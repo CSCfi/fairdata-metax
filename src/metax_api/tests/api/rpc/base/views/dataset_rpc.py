@@ -5,15 +5,15 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import responses
 from django.conf import settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
 
+from metax_api.models import CatalogRecord, Directory, File
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteAssignFilesCommon, \
     CatalogRecordApiWriteCommon
-from metax_api.models import CatalogRecord, Directory, File
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 
@@ -188,30 +188,6 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         self._update_cr_cumulative_state(cr['identifier'], 2)
         cr = self._get_cr(cr['identifier'])
         self.assertEqual(cr['cumulative_state'], 2, 'dataset should have changed status')
-
-    def test_transitions_from_CLOSED(self):
-        cr = self._create_cumulative_dataset(1)
-        orig_record_count = CatalogRecord.objects.all().count()
-        self._update_cr_cumulative_state(cr['identifier'], 2)
-        cr = self._get_cr(cr['identifier'])
-        self.assertEqual(cr['date_cumulation_ended'], cr['date_modified'], cr)
-
-        self._update_cr_cumulative_state(cr['identifier'], 0, status.HTTP_400_BAD_REQUEST)
-
-        # changing to active cumulative dataset creates a new version
-        self._update_cr_cumulative_state(cr['identifier'], 1, status.HTTP_200_OK)
-        self.assertEqual(CatalogRecord.objects.all().count(), orig_record_count + 1)
-        old_version = self._get_cr(cr['identifier'])
-
-        # Old dataset should not have changed
-        self.assertEqual(old_version['cumulative_state'], 2, 'original status should not changed')
-        self.assertTrue('next_dataset_version' in old_version, 'should have new dataset')
-
-        # new data
-        new_version = self._get_cr(old_version['next_dataset_version']['identifier'])
-        self.assertEqual(new_version['cumulative_state'], 1, 'new version should have changed status')
-        self.assertTrue('date_cumulation_ended' not in new_version, new_version)
-        self._assert_file_counts(new_version)
 
     def test_correct_response_data(self):
         """

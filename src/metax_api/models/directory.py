@@ -8,12 +8,11 @@
 import logging
 
 from django.db import connection, models
-from django.db.models import Prefetch
 from django.db.models import Count, Sum
+from django.db.models import Prefetch
 
 from .common import Common
 from .file import File
-
 
 _logger = logging.getLogger(__name__)
 

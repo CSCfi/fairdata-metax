@@ -5,8 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from os import path
 import logging
+from os import path
 
 from django.http import HttpResponse, Http404
 from rest_framework import status

@@ -5,16 +5,16 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from datetime import timedelta
 import urllib.parse
+from datetime import timedelta
 
+import responses
 from django.conf import settings
 from django.core.management import call_command
 from django.utils import timezone
 from pytz import timezone as tz
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
 
 from metax_api.models import CatalogRecordV2, File
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
