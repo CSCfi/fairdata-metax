@@ -21,11 +21,11 @@ django-rainbowtests==0.6.0  # via -r requirements.in
 django-split-settings==1.0.1  # via -r requirements.in
 django-sslserver==0.22    # via -r requirements.in
 django-watchman==1.2.0    # via -r requirements.in
-django==3.1.2             # via -r requirements.in, django-rainbowtests, django-sslserver, django-watchman, djangorestframework
 djangorestframework==3.12.2  # via -r requirements.in
+django==3.1.4             # via -r requirements.in, django-rainbowtests, django-sslserver, django-watchman, djangorestframework
 docopt==0.6.2             # via coveralls
-elasticsearch==7.10.0     # via -r requirements.in
 executing==0.5.3          # via icecream
+elasticsearch==7.10.0     # via -r requirements.in
 flake8==3.8.4             # via -r requirements.in
 gevent==20.9.0            # via -r requirements.in
 greenlet==0.4.17          # via gevent
