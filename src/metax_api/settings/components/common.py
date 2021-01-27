@@ -178,7 +178,11 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), "static")
 STATIC_URL = "/static/"
 
-API_VERSIONS_ENABLED = ["v1", "v2"]
+API_VERSIONS_ENABLED = []
+if env("ENABLE_V1_ENDPOINTS"):
+    API_VERSIONS_ENABLED.append("v1")
+if env("ENABLE_V2_ENDPOINTS"):
+    API_VERSIONS_ENABLED.append("v2")
 DRAFT_ENABLED = env("DRAFT_ENABLED")
 
 # Variables related to api credentials

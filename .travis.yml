@@ -44,6 +44,8 @@ env:
     - REMS_REPORTER_USER=not_set
     - REMS_AUTO_APPROVER=not_set
     - REMS_FORM_ID=99
+    - ENABLE_V1_ENDPOINTS=true
+    - ENABLE_V2_ENDPOINTS=true
 
 install:
 - pip install -r requirements.txt
