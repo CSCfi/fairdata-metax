@@ -12,6 +12,7 @@ from django.conf import settings as django_settings
 
 from metax_api.exceptions import Http503
 from metax_api.utils import ReferenceDataLoader
+from .redis_cache_service import RedisClient
 
 _logger = logging.getLogger(__name__)
 d = _logger.debug
@@ -47,6 +48,7 @@ class ReferenceDataMixin():
             return next(entry for entry in ref_data_type if field_to_check in (entry['uri'], entry['code']))
         except StopIteration:
             if value_not_found_is_error:
+                _logger.error('Identifier \'%s\' not found in reference data' % field_to_check)
                 errors[relation_name].append('Identifier \'%s\' not found in reference data' % field_to_check)
         return None
 
@@ -61,10 +63,12 @@ class ReferenceDataMixin():
         need to be reloaded from the distributed cache again. Reference data does not change actively
         during normal operation, so saving it in the process should be safe.
         """
+        cache = RedisClient()
         if cls.process_cached_reference_data is not None:
             return cls.process_cached_reference_data
 
         ref_data = cache.get('reference_data')
+        # ref_data += cache.get('reference-data')
 
         if ref_data:
             cls.process_cached_reference_data = ref_data

@@ -5,9 +5,9 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import lxml.etree
 from django.conf import settings
 from django.core.management import call_command
-import lxml.etree
 from lxml.etree import Element
 from oaipmh import common
 from rest_framework import status

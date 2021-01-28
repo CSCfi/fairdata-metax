@@ -10,23 +10,24 @@ from collections import defaultdict
 from os.path import dirname, join
 
 import simplexquery as sxq
-from django.db.models import Q
-from rest_framework.serializers import ValidationError
 import xmltodict
+from django.db.models import Q
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.models.catalog_record import ACCESS_TYPES
 from metax_api.utils import \
-    parse_timestamp_string_to_tz_aware_datetime,\
-    get_tz_aware_now_without_micros,\
-    remove_keys_recursively,\
+    parse_timestamp_string_to_tz_aware_datetime, \
+    get_tz_aware_now_without_micros, \
+    remove_keys_recursively, \
     leave_keys_in_dict
 from .common_service import CommonService
 from .datacite_service import DataciteService
 from .file_service import FileService
 from .reference_data_mixin import ReferenceDataMixin
-
 
 _logger = logging.getLogger(__name__)
 
@@ -404,6 +405,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         """
         reference_data = cls.get_reference_data(cache)
+        # ic(reference_data)
         refdata = reference_data['reference_data']
         orgdata = reference_data['organization_data']['organization']
         errors = defaultdict(list)
@@ -760,3 +762,33 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         license = rd['access_rights']['license'][0]
 
         return license.get('identifier') or license.get('license')
+
+    @classmethod
+    def destroy_bulk(cls, request):
+        """
+        Mark datasets as deleted en masse. Parameter cr_identifiers can be a list of pk's
+        (integers), or file identifiers (strings).
+        """
+        _logger.info('Begin bulk delete datasets')
+
+        cr_ids = cls.identifiers_to_ids(request.data)
+        cr_deleted = []
+        no_access = []
+        for id in cr_ids:
+            try:
+                cr = CatalogRecord.objects.get(pk=id)
+                if cr.user_has_access(request):
+                    cr_deleted.append(cr.delete())
+                else:
+                    no_access.append(id)
+            except:
+                pass
+
+        if sorted(no_access) == sorted(cr_ids):
+            raise Http403({ 'detail': ['None of datasets exists or are permitted for users']})
+
+        if not cr_deleted:
+            return Response(cr_deleted, status=status.HTTP_404_NOT_FOUND)
+
+        _logger.info(f'Marked datasets {cr_deleted} as deleted')
+        return Response(cr_deleted, status=status.HTTP_200_OK)

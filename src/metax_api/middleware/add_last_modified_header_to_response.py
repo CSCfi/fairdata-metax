@@ -39,29 +39,33 @@ class AddLastModifiedHeaderToResponse(object):
         # Code to be executed for each request/response after
         # the view is called.
 
-        if request.method in ['GET', 'POST', 'PUT', 'PATCH']:
+        if request.method in ["GET", "POST", "PUT", "PATCH"]:
             self._add_last_modified_header_to_response(response)
 
         return response
 
     @staticmethod
     def _add_last_modified_header_to_response(response):
-        if hasattr(response, 'data'):
+        if hasattr(response, "data"):
             obj = None
             if isinstance(response.data, dict):
-                obj = response.data.get('success', response.data)
+                obj = response.data.get("success", response.data)
             if isinstance(obj, list) and len(obj) > 0:
-                obj = obj[0].get('object', None)
+                obj = obj[0].get("object", None)
 
             modified = None
             if obj:
-                if 'date_modified' in obj:
-                    modified = obj.get('date_modified')
-                elif 'date_created' in obj:
-                    modified = obj.get('date_created')
+                if "date_modified" in obj:
+                    modified = obj.get("date_modified")
+                elif "date_created" in obj:
+                    modified = obj.get("date_created")
 
             if modified:
                 modified_dt = parse_timestamp_string_to_tz_aware_datetime(modified)
                 if modified_dt:
-                    date_modified_in_gmt = timezone.localtime(modified_dt, timezone=tz('GMT'))
-                    response['Last-Modified'] = date_modified_in_gmt.strftime('%a, %d %b %Y %H:%M:%S GMT')
+                    date_modified_in_gmt = timezone.localtime(
+                        modified_dt, timezone=tz("GMT")
+                    )
+                    response["Last-Modified"] = date_modified_in_gmt.strftime(
+                        "%a, %d %b %Y %H:%M:%S GMT"
+                    )

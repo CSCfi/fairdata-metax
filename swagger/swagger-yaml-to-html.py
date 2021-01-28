@@ -25,7 +25,9 @@ metax-ops/ansible/roles/docs, which automatically generates the index.html swagg
 be useful to manully run the above script
 """
 
-import yaml, json, sys
+import json
+import sys
+import yaml
 
 TEMPLATE = """
 <!DOCTYPE html>

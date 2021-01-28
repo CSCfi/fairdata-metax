@@ -1,30 +1,40 @@
-coveralls               # code coverage reportin in travis
-datacite                # BSD-license. convert datasets to datacite xml. datacite metadata store api wrappers
+coveralls           # code coverage reportin in travis
+datacite            # BSD-license. convert datasets to datacite xml. datacite metadata store api wrappers
 python-dateutil
-django                  # BSD-license
+django              # BSD-license
 elasticsearch>=7.0.0,<8.0.0
-hiredis                 # Used by redis (redis-py) for parser
-djangorestframework     # BSD-license
-django-rainbowtests     # colored test output
-flake8                  # MIT-license
-gevent                  # gunicorn dep
-gunicorn                # MIT-license
-ipdb                    # dev tool
+hiredis             # Used by redis (redis-py) for parser
+djangorestframework # BSD-license
+django-rainbowtests # colored test output
+flake8              # MIT-license
+gevent              # gunicorn dep
+gunicorn            # MIT-license
+ipdb                # dev tool
 jsonschema
 lxml
 pika
-psycopg2-binary         # LGPL with exceptions or ZPL
-PyJWT                   # MIT-license
+psycopg2-binary     # LGPL with exceptions or ZPL
+PyJWT               # MIT-license
 pyoai
 python-simplexquery
 pytz
 pyyaml
 redis
-requests                # Apache 2.0-license
-responses               # Apache 2.0-license
-structlog               # Apache 2.0-license, MIT
-simplejson              # MIT-license
+requests            # Apache 2.0-license
+responses           # Apache 2.0-license
+structlog           # Apache 2.0-license, MIT
+simplejson          # MIT-license
 urllib3
 xmltodict               # MIT-license
 pip-tools               # keeping dependencies updated
 traitlets>=4.3.2,<5.0.0 # via ipython, version 5.0+ is Python 3.7+ only
+xmltodict           # MIT-license
+pip-tools           # keeping dependencies updated
+django-environ
+django-split-settings
+icecream
+rdflib
+django-sslserver
+django-watchman
+
+

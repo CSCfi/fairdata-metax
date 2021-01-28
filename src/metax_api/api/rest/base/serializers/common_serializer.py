@@ -5,10 +5,10 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from copy import deepcopy
-from collections import OrderedDict
-from datetime import datetime
 import logging
+from collections import OrderedDict
+from copy import deepcopy
+from datetime import datetime
 
 from django.db import transaction
 from django.db.models.query import QuerySet
@@ -16,10 +16,9 @@ from rest_framework.fields import SkipField
 from rest_framework.relations import PKOnlyObject
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
+
 from metax_api.exceptions import Http400
-
 from metax_api.models import Common
-
 
 _logger = logging.getLogger(__name__)
 

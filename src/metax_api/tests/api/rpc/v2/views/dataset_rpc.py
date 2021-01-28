@@ -5,14 +5,14 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import responses
 from django.conf import settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
-import responses
 
-from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.models import CatalogRecordV2, DataCatalog
+from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import (
     TestClassUtils,
     get_test_oidc_token,
@@ -195,18 +195,6 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         cr = self._get_cr(cr['identifier'])
         self.assertEqual(cr['cumulative_state'], CR.CUMULATIVE_STATE_CLOSED, 'dataset should have changed status')
 
-    def test_transitions_from_CLOSED(self):
-        """
-        A CLOSED published cumulative dataset should always stay closed.
-        """
-        cr = self._create_cumulative_dataset(1)
-        self._update_cr_cumulative_state(cr['identifier'], CR.CUMULATIVE_STATE_CLOSED)
-        cr = self._get_cr(cr['identifier'])
-        self.assertEqual(cr['date_cumulation_ended'], cr['date_modified'], cr)
-
-        self._update_cr_cumulative_state(cr['identifier'], CR.CUMULATIVE_STATE_NO, status.HTTP_400_BAD_REQUEST)
-        self._update_cr_cumulative_state(cr['identifier'], CR.CUMULATIVE_STATE_YES, status.HTTP_400_BAD_REQUEST)
-
 class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
 
     """
@@ -292,6 +280,17 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         response = self.client.post(f'/rpc/v2/datasets/create_new_version?identifier={dft_id}', format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertTrue('draft' in response.data['detail'][0], response.data)
+
+    def test_draft_blocks_version_creation(self):
+        """
+        Don't allow new versions if there are unmerged drafts for a dataset
+        """
+        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=1')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertTrue('unmerged draft' in response.data['detail'][0], response.data)
 
     @responses.activate
     def test_authorization(self):

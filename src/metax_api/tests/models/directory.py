@@ -5,8 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from django.db.models import Sum
 from django.core.management import call_command
+from django.db.models import Sum
 from rest_framework.test import APITestCase
 
 from metax_api.models import Directory, File

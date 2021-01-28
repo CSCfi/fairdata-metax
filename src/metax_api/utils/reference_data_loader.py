@@ -8,6 +8,7 @@
 import logging
 
 from django.conf import settings as django_settings
+from icecream import ic
 
 from .utils import executing_test_case
 
@@ -15,6 +16,8 @@ _logger = logging.getLogger(__name__)
 
 
 class ReferenceDataLoader():
+
+    REF_DATA_LOAD_NUM = 0
 
     """
     Should optimally be defined in /services/, but services __init__.py cant be loaded during app
@@ -29,13 +32,13 @@ class ReferenceDataLoader():
         cache: cache object to use for saving
         settings: override elasticsearch settings in settings.py
         """
-
         if not cache.get_or_set('reference_data_load_executing', True, ex=120):
             return 'reload_started_by_other'
 
         _logger.info('ReferenceDataLoader - populating cache...')
 
         if executing_test_case():
+
             _logger.info('(Note: populating test suite cache)')
 
         try:
@@ -48,11 +51,11 @@ class ReferenceDataLoader():
 
         errors = None
         reference_data_check = cache.get('reference_data', master=True)
-
         if 'reference_data' not in reference_data_check.keys():
             _logger.warning('Key reference_data missing from reference data - '
                             'something went wrong during cache population?')
             errors = True
+            raise Exception("reference data loading failed")
 
         if 'organization_data' not in reference_data_check.keys():
             _logger.warning('Key organization_data missing from reference data - '
@@ -69,14 +72,18 @@ class ReferenceDataLoader():
 
     @classmethod
     def _fetch_reference_data(cls, settings):
+        cls.REF_DATA_LOAD_NUM += 1
+        _logger.info(f"fetching reference data: {cls.REF_DATA_LOAD_NUM}")
         if not isinstance(settings, dict):
             settings = settings.ELASTICSEARCH
+            # ic(settings)
 
         connection_params = cls.get_connection_parameters(settings)
         esclient, scan = cls.get_es_imports(settings['HOSTS'], connection_params)
 
         reference_data = {}
         for index_name in esclient.indices.get_mapping().keys():
+            # ic(index_name)
             reference_data[index_name] = {}
 
             # a cumbersome way to fetch the types, but supposedly the only way because nginx restricts ES usage
@@ -88,6 +95,7 @@ class ReferenceDataLoader():
                 _source='type',
                 scroll='1m'
             )
+            # ic(aggr_types)
 
             for type_name in [ b['key'] for b in aggr_types['aggregations']['types']['buckets'] ]:
                 reference_data[index_name][type_name] = []
@@ -162,6 +170,8 @@ class ReferenceDataLoader():
             if settings.get('PORT', False):
                 conf.update('port', settings['PORT'])
             return conf
+        ic()
+        _logger.warning("returning empty connection parameters")
         return {}
 
     @staticmethod

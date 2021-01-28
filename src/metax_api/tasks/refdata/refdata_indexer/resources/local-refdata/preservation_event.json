@@ -1,0 +1,21 @@
+[
+{"id":"com", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/com", "label":{"fi":"Pakkaus","en":"Compression"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/com"]},
+{"id":"cre", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/cre", "label":{"fi":"Luonti","en":"Creation"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/cre"]},
+{"id":"dea", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/dea", "label":{"fi":"Käytön estäminen","en":"Deaccession"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/dea"]},
+{"id":"dec", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/dec", "label":{"fi":"Pakkauksen purkaminen","en":"Decompression"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/dec"]},
+{"id":"der", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/der", "label":{"fi":"Salauksen purkaminen","en":"Decryption"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/der"]},
+{"id":"del", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/del", "label":{"fi":"Poistaminen","en":"Deletion"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/del"]},
+{"id":"mes", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/mes", "label":{"fi":"Tarkistussumman laskeminen","en":"Message digest calculation"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/mes"]},
+{"id":"dig", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/dig", "label":{"fi":"Allekirjoituksen validointi","en":"Digital signature validation"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/dig"]},
+{"id":"fix", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/fix", "label":{"fi":"Eheyden tarkistus","en":"Fixity check"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/fix"]},
+{"id":"ing", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/ing", "label":{"fi":"Säilytykseen vastaanottaminen","en":"Ingestion"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/ing"]},
+{"id":"upd", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd", "label":{"fi":"Objektin päivitys","en":"Object update"}},
+{"id":"mod", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/mod", "label":{"fi":"Metatiedon päivitys","en":"Metadata modification"}},
+{"id":"mig", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/mig", "label":{"fi":"Migrointi","en":"Migration"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/mig"]},
+{"id":"rsp", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/rsp", "label":{"fi":"Säilytysvastuun siirto","en":"Preservation responsibility change"}},
+{"id":"pro", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/pro", "label":{"fi":"Prosessointi","en":"Processing"}},
+{"id":"rep", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/rep", "label":{"fi":"Replikointi","en":"Replication"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/rep"]},
+{"id":"val", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/val", "label":{"fi":"Validointi","en":"Validation"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/val"]},
+{"id":"vir", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/vir", "label":{"fi":"Virustarkistus","en":"Virus check"}, "same_as":["http://id.loc.gov/vocabulary/preservation/eventType/vir"]},
+{"id":"cge", "uri":"http://uri.suomi.fi/codelist/fairdata/preservation_event/code/cge", "label":{"fi":"Tiedostonimen muutos","en":"Filename change"}}
+]

@@ -5,8 +5,8 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from json import load
 import logging
+from json import load
 
 from django.conf import settings as django_settings
 from django.http import Http404

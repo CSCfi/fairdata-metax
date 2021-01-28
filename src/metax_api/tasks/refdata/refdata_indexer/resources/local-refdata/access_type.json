@@ -1,0 +1,7 @@
+[
+{"id": "open", "uri":"http://uri.suomi.fi/codelist/fairdata/access_type/code/open", "label": {"fi": "Avoin", "en": "Open"}, "same_as":["http://publications.europa.eu/resource/authority/access-right/PUBLIC"]},
+{"id": "login", "uri":"http://uri.suomi.fi/codelist/fairdata/access_type/code/login", "label": {"fi": "Vaatii kirjautumisen Fairdata-palvelussa", "en": "Requires login in Fairdata service"}, "same_as":["http://publications.europa.eu/resource/authority/access-right/RESTRICTED"]},
+{"id": "permit", "uri":"http://uri.suomi.fi/codelist/fairdata/access_type/code/permit", "label": {"fi": "Vaatii luvan hakemista Fairdata-palvelussa", "en": "Requires applying permission in Fairdata service"}, "same_as":["http://publications.europa.eu/resource/authority/access-right/RESTRICTED"], "internal_code": "hide"},
+{"id": "restricted", "uri":"http://uri.suomi.fi/codelist/fairdata/access_type/code/restricted", "label": {"fi": "Saatavuutta rajoitettu", "en": "Restricted use"}, "same_as":["http://publications.europa.eu/resource/authority/access-right/RESTRICTED"]},
+{"id": "embargo", "uri":"http://uri.suomi.fi/codelist/fairdata/access_type/code/embargo", "label": {"fi": "Embargo", "en": "Embargo"}, "same_as":["http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC"]}
+]

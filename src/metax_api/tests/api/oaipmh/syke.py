@@ -5,13 +5,13 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from django.core.management import call_command
 import lxml.etree
+from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
-from metax_api.models import CatalogRecord
-from metax_api.api.oaipmh.base.metax_oai_server import SYKE_URL_PREFIX_TEMPLATE
 
+from metax_api.api.oaipmh.base.metax_oai_server import SYKE_URL_PREFIX_TEMPLATE
+from metax_api.models import CatalogRecord
 from metax_api.tests.utils import test_data_file_path, TestClassUtils
 
 

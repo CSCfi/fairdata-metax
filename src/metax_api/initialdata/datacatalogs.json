@@ -362,7 +362,7 @@
 },
 {
 	"catalog_json": {
-		"logo": "https://www.jyu.fi/fi/yliopistopalvelut/viestintapalvelut/logot/jyu-keskitetty-kaksikielinen.jpg",
+		"logo": "jyu_keskitetty_kaksikielinen.png",
 		"title": {
 			"en": "JYU catalog",
 			"fi": "JYU katalogi",
