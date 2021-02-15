@@ -33,12 +33,12 @@ API_ACCESS = {
                 "metax",
                 "etsin"
             ],
+
             "delete": [
                 "metax",
                 "etsin"
             ],
             "read": [
-                "metax",
                 "all"
             ],
             "update": [
@@ -54,6 +54,7 @@ API_ACCESS = {
                 "qvain-light",
                 "etsin",
                 "tpas",
+                "jyu",
                 "endusers"
             ],
             "delete": [
@@ -63,8 +64,10 @@ API_ACCESS = {
                 "qvain-light",
                 "etsin",
                 "tpas",
+                "jyu",
                 "endusers"
             ],
+
             "read": [
                 "all"
             ],
@@ -75,14 +78,15 @@ API_ACCESS = {
                 "qvain-light",
                 "etsin",
                 "tpas",
+                "jyu",
                 "endusers"
             ]
         },
         "directories": {
             "read": [
                 "metax",
-                "qvain",
                 "ida",
+                "qvain",
                 "qvain-light",
                 "etsin",
                 "tpas",
@@ -101,6 +105,7 @@ API_ACCESS = {
                 "ida",
                 "tpas"
             ],
+
             "read": [
                 "metax",
                 "ida",
@@ -121,20 +126,16 @@ API_ACCESS = {
         },
         "filestorages": {
             "create": [
-                "metax",
-                "ida"
+                "metax"
             ],
             "delete": [
-                "metax",
-                "ida"
+                "metax"
             ],
             "read": [
-                "metax",
-                "ida"
+                "metax"
             ],
             "update": [
-                "metax",
-                "ida"
+                "metax"
             ]
         },
         "schemas": {
@@ -240,6 +241,7 @@ API_ACCESS = {
                     "all"
                 ]
             },
+
             "deprecated_datasets_cumulative": {
                 "use": [
                     "all"
