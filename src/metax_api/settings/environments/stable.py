@@ -33,6 +33,7 @@ API_ACCESS = {
                 "metax",
                 "etsin"
             ],
+
             "delete": [
                 "metax",
                 "etsin"
@@ -54,6 +55,7 @@ API_ACCESS = {
                 "qvain-light",
                 "etsin",
                 "tpas",
+                "jyu",
                 "endusers"
             ],
             "delete": [
@@ -63,8 +65,10 @@ API_ACCESS = {
                 "qvain-light",
                 "etsin",
                 "tpas",
+                "jyu",
                 "endusers"
             ],
+
             "read": [
                 "all"
             ],
@@ -75,14 +79,15 @@ API_ACCESS = {
                 "qvain-light",
                 "etsin",
                 "tpas",
+                "jyu",
                 "endusers"
             ]
         },
         "directories": {
             "read": [
                 "metax",
-                "qvain",
                 "ida",
+                "qvain",
                 "qvain-light",
                 "etsin",
                 "tpas",
@@ -101,6 +106,7 @@ API_ACCESS = {
                 "ida",
                 "tpas"
             ],
+
             "read": [
                 "metax",
                 "ida",
@@ -121,6 +127,16 @@ API_ACCESS = {
         },
         "filestorages": {
             "create": [
+                "metax"
+            ],
+            "delete": [
+                "metax"
+            ],
+            "read": [
+                "metax"
+            ],
+            "update": [
+                "metax"
                 "metax",
                 "ida"
             ],
@@ -240,6 +256,7 @@ API_ACCESS = {
                     "all"
                 ]
             },
+
             "deprecated_datasets_cumulative": {
                 "use": [
                     "all"

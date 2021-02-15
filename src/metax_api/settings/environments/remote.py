@@ -40,6 +40,10 @@ API_USERS = [
     {
         "password": env("DOWNLOAD_USER_PASSWORD"),
         "username": "download"
+    },
+    {
+        "password": env("JYU_USER_PASSWORD"),
+        "username": "jyu"
     }
 ]
 
