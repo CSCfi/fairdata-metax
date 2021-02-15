@@ -3,6 +3,7 @@ import os
 from metax_api.settings import env
 from metax_api.settings.components import BASE_DIR
 
+METAX_ENV=(str, "local_development")
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 METAX_API_ROOT = env("METAX_API_ROOT")
