@@ -4,7 +4,7 @@
 #
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
-
+import json
 import logging
 from collections import defaultdict
 from os import getpid
@@ -845,6 +845,27 @@ class FileService(CommonService, ReferenceDataMixin):
                     contents['files'] += sub_dir_contents['files']
 
         return contents
+
+    def add_files_in_dir(self, dir, arr, cr_files):
+        a = arr
+        for f in dir.files:
+            record = f.id, f.id in cr_files
+            a.append(record)
+        for child_dir in dir:
+            self.add_files_in_dir(child_dir, a)
+
+
+    def files_in_directory_that_belong_to_catalog_record(self, cr_id, directory_id):
+        dir = Directory.objects.get(id=directory_id)
+        catalog_record = CatalogRecord.objects.get(id=cr_id)
+        cr_files = catalog_record.research_dataset.files
+        cr_file_ids = []
+        for cr_f in cr_files:
+            cr_f_json = json.load(cr_f)
+            cr_file_ids.append(cr_f_json.identifier)
+        files = []
+        self.add_files_in_dir(dir, files, cr_file_ids)
+        return files
 
     @classmethod
     def _get_directory_contents_for_catalog_record(cls, directory_id, cr_id, not_cr_id, file_name, directory_name,
