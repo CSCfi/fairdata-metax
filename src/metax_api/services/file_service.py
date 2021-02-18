@@ -4,7 +4,6 @@
 #
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
-
 import logging
 from collections import defaultdict
 from os import getpid
