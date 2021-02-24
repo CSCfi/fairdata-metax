@@ -10,7 +10,7 @@ services:
       - ./src:/code
     environment:
       DEBUG: 'true'
-      DJANGO_ENV: 'test'
+      DJANGO_ENV: 'local'
       METAX_DATABASE: 'metax_db_test'
       METAX_DATABASE_PASSWORD: 'YMDLekQMqrVKcs3'
       METAX_DATABASE_USER: 'metax_test'
