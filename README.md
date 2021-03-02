@@ -91,11 +91,15 @@ Check the IP addresses of Redis, RabbitMQ, ElasticSearch and Postgres:9 either f
 
 Build new docker image from repository root with this command (change ip-addresses to real ones:
 
-`docker build -t metax-api:latest --build-arg METAX_DATABASE_HOST=xxx.xx.x.x --build-arg REDIS_HOST=xxx.xx.x.x --build-arg RABBITMQ_HOST=xxx.xx.x.x --build-arg ELASTIC_SEARCH_HOST=xxx.xx.x.x:xxxx .`
+`docker build -t metax-api:latest .`
 
 Run the built container with command:
 
 `docker run -it --name metax-web --mount type=bind,source="$(pwd)"/src,target=/code -p 8008:8008 --rm metax-api:latest`
+
+Run Metax with Docker Stack: 
+`docker stack deploy -c docker-compose.yml metax-dev`
+
 
 You should see metax-server starting at port 8008 with hot reload enabled
 

@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   metax:
-    image: metax-api
+    image: fairdata-metax-web
     ports:
       - 8008:8008
       - 8000:8000
