@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   metax:
-    image: fairdata-metax-web
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-web
     ports:
       - 8008:8008
       - 8000:8000
@@ -10,39 +10,47 @@ services:
       - ./src:/code
     environment:
       DEBUG: 'true'
-      DJANGO_ENV: 'local'
       METAX_DATABASE: 'metax_db_test'
       METAX_DATABASE_PASSWORD: 'YMDLekQMqrVKcs3'
       METAX_DATABASE_USER: 'metax_test'
-      OAI_BASE_URL: 'http://mockurl.com'
-      OAI_ETSIN_URL_TEMPLATE: 'http://mockurl.com/%s'
-      OAI_ADMIN_EMAIL: 'mocked@mail.com'
-      REMS_ENABLED: 'true'
-      REMS_API_KEY: 'not_set'
-      REMS_BASE_URL: 'http://mockurl.com'
-      REMS_ETSIN_URL_TEMPLATE: 'http://mockurl.com/%s'
-      REMS_METAX_USER: 'not_set'
-      REMS_REPORTER_USER: 'not_set'
-      REMS_AUTO_APPROVER: 'not_set'
-      REMS_FORM_ID: 99
-      ENABLE_V1_ENDPOINTS: 'true'
-      ENABLE_V2_ENDPOINTS: 'true'
       REDIS_HOST: redis
       RABBIT_MQ_HOSTS: rabbitmq
       ELASTIC_SEARCH_HOSTS: elasticsearch
       METAX_DATABASE_HOST: db
+    configs:
+      - source: metax-config
+        target: '/code/metax_api/settings/.env'
+
   redis:
     image: redis
+    volumes:
+      - metax-redis:/data
   db:
     image: postgres:9
     environment:
       POSTGRES_USER: 'metax_test'
       POSTGRES_PASSWORD: 'YMDLekQMqrVKcs3'
       POSTGRES_DB: 'metax_db_test'
+    volumes:
+      - metax-postgres:/var/lib/postgresql96/data
   elasticsearch:
     image: elasticsearch:7.9.2
     environment:
       discovery.type: 'single-node'
+    volumes:
+      - metax-es:/usr/share/elasticsearch/data
   rabbitmq:
     image: rabbitmq:3-management
+    volumes:
+      - metax-rabbitmq:/var/lib/rabbitmq
+configs:
+  metax-config:
+    external: True
+volumes:
+  metax-rabbitmq:
+  metax-es:
+  metax-postgres:
+  metax-redis:
+
+
 
