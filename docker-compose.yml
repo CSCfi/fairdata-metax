@@ -18,7 +18,7 @@ services:
       ELASTIC_SEARCH_HOSTS: elasticsearch
       METAX_DATABASE_HOST: db
     configs:
-      - source: metax-config
+      - source: metax-web-config
         target: '/code/metax_api/settings/.env'
 
   redis:
