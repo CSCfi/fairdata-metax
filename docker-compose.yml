@@ -44,7 +44,7 @@ services:
     volumes:
       - metax-rabbitmq:/var/lib/rabbitmq
 configs:
-  metax-config:
+  metax-web-config:
     external: True
 volumes:
   metax-rabbitmq:
