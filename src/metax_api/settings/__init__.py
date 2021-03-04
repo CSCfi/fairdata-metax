@@ -73,6 +73,5 @@ base_settings = [
     # optional('environments/legacy.py'),
 ]
 ic(ENV)
-ic(env("LOGGING_GENERAL_HANDLER_FILE"))
 # Include settings:
 include(*base_settings)

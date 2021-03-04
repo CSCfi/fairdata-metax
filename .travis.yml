@@ -52,7 +52,7 @@ install:
 
 before_script:
 - psql -U postgres < resources/sql/init_test.sql
-- sudo mkdir -p src/log
+- sudo mkdir -p var/log/metax-api/errors
 - sudo chown -R $USER:$USER src/log
 
 script:
