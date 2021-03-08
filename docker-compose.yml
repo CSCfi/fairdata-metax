@@ -61,7 +61,8 @@ configs:
     external: True
   fairdata-ssl-certificate-key:
     external: True
-  
+  metax-nginx-config:
+    external: True
 volumes:
   metax-rabbitmq:
   metax-es:
