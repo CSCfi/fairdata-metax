@@ -20,7 +20,6 @@ services:
     configs:
       - source: metax-web-config
         target: '/code/metax_api/settings/.env'
-
   redis:
     image: redis
     volumes:
@@ -43,9 +42,26 @@ services:
     image: rabbitmq:3-management
     volumes:
       - metax-rabbitmq:/var/lib/rabbitmq
+  nginx:
+    image: nginx:latest
+    configs:
+      - source: metax-nginx-config
+        target: '/etc/nginx/nginx.conf'
+      - source: fairdata-ssl-certificate
+        target: '/etc/nginx/ssl_certs/fd-dev.csc.fi.crt.pem'
+      - source: fairdata-ssl-certificate-key
+        target: '/etc/nginx/ssl_certs/fd-dev.csc.fi.key.pem'
+    ports:
+      - 4433:443
+
 configs:
   metax-web-config:
     external: True
+  fairdata-ssl-certificate:
+    external: True
+  fairdata-ssl-certificate-key:
+    external: True
+  
 volumes:
   metax-rabbitmq:
   metax-es:
