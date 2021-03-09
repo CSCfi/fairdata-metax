@@ -48,9 +48,9 @@ services:
       - source: metax-nginx-config
         target: '/etc/nginx/nginx.conf'
       - source: fairdata-ssl-certificate
-        target: '/etc/nginx/ssl_certs/fd-dev.csc.fi.crt.pem'
+        target: '/etc/nginx/ssl_certs/fd-test.csc.fi.crt.pem'
       - source: fairdata-ssl-certificate-key
-        target: '/etc/nginx/ssl_certs/fd-dev.csc.fi.key.pem'
+        target: '/etc/nginx/ssl_certs/fd-test.csc.fi.key.pem'
       - source: metax-nginx-elastic-headers-config
         target: '/etc/nginx/elastic_headers.conf'
       - source: metax-nginx-shared-headers-config
@@ -59,6 +59,8 @@ services:
         target: '/etc/nginx/api_response_headers.conf'
       - source: metax-nginx-static-file-headers-config
         target: '/etc/nginx/static_file_headers.conf'
+      - source: metax-nginx-dh-param-config
+        target: '/etc/nginx/ssl_certs/nginx_dhparam.pem'
     ports:
       - 4433:443
 
@@ -78,6 +80,8 @@ configs:
   metax-nginx-api-response-headers-config:
     external: True
   metax-nginx-static-file-headers-config:
+    external: True
+  metax-nginx-dh-param-config:
     external: True
 
 volumes:
