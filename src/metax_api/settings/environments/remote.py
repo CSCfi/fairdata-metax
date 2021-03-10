@@ -1,4 +1,7 @@
 from metax_api.settings import env
+from metax_api.settings.components.common import API_USERS
+
+API_USERS.clear()
 
 API_USERS = [
     {

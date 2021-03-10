@@ -10,7 +10,7 @@ import logging
 from base64 import b64decode
 
 import requests
-from django.conf import settings as django_settings
+from django.conf import settings as django_settings, settings
 from django.http import HttpResponseForbidden
 
 from metax_api.exceptions import Http403
@@ -162,6 +162,9 @@ class _IdentifyApiCaller:
             raise Http403
         if apikey != user["password"]:
             _logger.warning("Failed authnz for user %s: password mismatch" % username)
+            if settings.DEBUG:
+                _logger.warning(f"Auth password mismatch with apikey {apikey} != {user['password']}")
+
             raise Http403
 
         request.user.username = username
