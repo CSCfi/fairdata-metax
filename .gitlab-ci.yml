@@ -7,6 +7,7 @@ stages:
   - deploy
   - test
   - clean_test
+  - clean_env
   - update
   - clean_build
 
@@ -26,12 +27,27 @@ clean_test:
   stage: clean_test
   environment:
     name: $CI_COMMIT_REF_NAME
+    on_stop: clean_gitlab_env
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_SHORT_SHA"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
     - when: on_failure
+
+clean_gitlab_env:
+  stage: clean_env
+  variables:
+    GIT_STRATEGY: none
+  environment:
+    name: $CI_COMMIT_REF_NAME
+    action: stop
+  script:
+    - echo "Cleaning deleted branches from environments"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+    - when: never
 
 update_proxy:
   stage: update
