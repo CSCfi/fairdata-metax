@@ -11,7 +11,7 @@ produces:
 paths:
 
 # File Storage API
-  /filestorages:
+  /rest/filestorages:
     get:
       summary: List File Storages
       parameters:
@@ -43,7 +43,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - File Storage API
-  /filestorages/{PID}:
+  /rest/filestorages/{PID}:
     get:
       summary: Get File Storage metadata
       parameters:
@@ -125,7 +125,7 @@ paths:
 
 
 # File API
-  /files:
+  /rest/files:
     get:
       summary: Get list of files
       parameters:
@@ -264,7 +264,7 @@ paths:
           description: None of the provided identifiers were found.
       tags:
         - File API
-  /files/{PID}:
+  /rest/files/{PID}:
     get:
       summary: Get file metadata
       parameters:
@@ -363,7 +363,7 @@ paths:
           description: Object not found
       tags:
         - File API
-  /files/{PID}/XML:
+  /rest/files/{PID}/XML:
     get:
       summary: Get XML metadata from file
       produces:
@@ -474,7 +474,7 @@ paths:
           description: File or namespace does not exist
       tags:
         - File API
-  /files/datasets:
+  /rest/files/datasets:
     post:
       summary: Get datasets where files belong to
       description: |
@@ -521,7 +521,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - File API
-  /files/restore:
+  /rest/files/restore:
     post:
       summary: Restore removed files back to "not removed" state.
       description: |
@@ -545,7 +545,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - File API
-  /directories/{PID}:
+  /rest/directories/{PID}:
     get:
       summary: Get details of a directory
       description: Does not contain the directory's files and sub-directories. For that, use /rest/directories/{PID}/files
@@ -565,7 +565,7 @@ paths:
           description: Not found. Also when not authenticated request
       tags:
         - File API
-  /directories/{PID}/files:
+  /rest/directories/{PID}/files:
     get:
       summary: Get list of files and directories contained by a directory
       parameters:
@@ -661,7 +661,7 @@ paths:
           description: Directory not found. Also when not authenticated request
       tags:
         - File API
-  /directories/files:
+  /rest/directories/files:
     get:
       summary: Get list of files and directories contained by a directory, queried by dir path and project
       description: |
@@ -733,7 +733,7 @@ paths:
           description: Directory not found. Also when not authenticated request
       tags:
         - File API
-  /directories/root:
+  /rest/directories/root:
     get:
       summary: Return root directory for a project, and its files and directories
       description: Useful when starting to browse files for a project, when individual root-level directory identifier is not yet known.
@@ -757,7 +757,7 @@ paths:
 
 
 # Data Catalog API
-  /datacatalogs:
+  /rest/datacatalogs:
     get:
       summary: List of data catalogs
       parameters:
@@ -795,7 +795,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - Data Catalog API
-  /datacatalogs/{PID}:
+  /rest/datacatalogs/{PID}:
     get:
       summary: Get data catalog metadata
       parameters:
@@ -895,7 +895,7 @@ paths:
 
 
 # Dataset API
-  /datasets:
+  /rest/datasets:
     # some of the parameters and returned fields are for TPAS usage only
     get:
       summary: List datasets
@@ -1105,7 +1105,7 @@ paths:
           description: None of the provided identifiers were found.
       tags:
         - Dataset API
-  /datasets/identifiers:
+  /rest/datasets/identifiers:
     get:
       summary: List all dataset identifiers
       parameters:
@@ -1139,7 +1139,7 @@ paths:
           description: Successful operation, returns a list of all dataset metadata version identifiers.
       tags:
         - Dataset API
-  /datasets/unique_preferred_identifiers:
+  /rest/datasets/unique_preferred_identifiers:
     get:
       summary: List all unique dataset preferred identifiers
       parameters:
@@ -1173,7 +1173,7 @@ paths:
           description: Successful operation, returns a list of all unique dataset preferred identifiers.
       tags:
         - Dataset API
-  /datasets/list:
+  /rest/datasets/list:
     post:
       summary: List datasets corresponding IDs or identifiers given in body
       parameters:
@@ -1193,7 +1193,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - Dataset API
-  /datasets/{PID}:
+  /rest/datasets/{PID}:
     get:
       summary: Get dataset metadata
       parameters:
@@ -1341,7 +1341,7 @@ paths:
           description: Not found
       tags:
         - Dataset API
-  /datasets/{PID}/files:
+  /rest/datasets/{PID}/files:
     get:
       summary: Get list of files in a dataset
       parameters:
@@ -1365,7 +1365,7 @@ paths:
           description: Successful operation, return list of full files metadata
       tags:
         - Dataset API
-  /datasets/{PID}/metadata_versions:
+  /rest/datasets/{PID}/metadata_versions:
     get:
       summary: List old research_dataset entries of a record
       parameters:
@@ -1381,7 +1381,7 @@ paths:
             $ref: '#/definitions/StringList'
       tags:
         - Dataset API
-  /datasets/{PID}/metadata_versions/{MVI}:
+  /rest/datasets/{PID}/metadata_versions/{MVI}:
     get:
       summary: Get contents of a specific old research_dataset of a record.
       parameters:
@@ -1405,7 +1405,7 @@ paths:
 
 
 # Contract API
-  /contracts:
+  /rest/contracts:
     get:
       summary: List contracts
       parameters:
@@ -1452,7 +1452,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - Contract API
-  /contracts/{PID}:
+  /rest/contracts/{PID}:
     get:
       summary: Get contract metadata
       parameters:
@@ -1529,7 +1529,7 @@ paths:
 
 
 # ApiErrors API
-  /apierrors:
+  /rest/apierrors:
     get:
       summary: List errors produced during api requests
       responses:
@@ -1539,7 +1539,7 @@ paths:
           description: Forbidden. Must have permission for resource
       tags:
         - ApiErrors API
-  /apierrors/{identifier}:
+  /rest/apierrors/{identifier}:
     get:
       summary: Get details of a single error entry
       parameters:
@@ -1574,7 +1574,7 @@ paths:
           description: Not found
       tags:
         - ApiErrors API
-  /apierrors/flush:
+  /rest/apierrors/flush:
     post:
       summary: "Delete all error entries"
       responses:
@@ -1587,7 +1587,7 @@ paths:
 
 
 # Schema API
-  /schemas:
+  /rest/schemas:
     get:
       summary: "List schemas"
       responses:
@@ -1595,7 +1595,7 @@ paths:
           description: Successful operation, return list of schema names
       tags:
         - Schema API
-  /schemas/{name}:
+  /rest/schemas/{name}:
     get:
       summary: Get schema content
       parameters:
