@@ -510,7 +510,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         from metax_api.models.catalog_record import RabbitMQPublishRecord
         for cr in deprecated_records:
-            CallableService.add_post_request_callable(RabbitMQPublishRecord(cr, 'update'))
+            cr.add_post_request_callable(RabbitMQPublishRecord(cr, 'update'))
 
     @classmethod
     def get_directory_contents(cls, identifier=None, path=None, project_identifier=None,
