@@ -1267,8 +1267,7 @@ class CatalogRecord(Common):
 
             super().save()
 
-            if self.state == self.STATE_PUBLISHED:
-                self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+            self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
         _logger.info(
             'Created a new <CatalogRecord id: %d, '
@@ -1467,8 +1466,7 @@ class CatalogRecord(Common):
                 self.add_post_request_callable(DataciteDOIUpdate(self,
                                                     self.research_dataset['preferred_identifier'], 'update'))
 
-        if self.state == self.STATE_PUBLISHED:
-            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
         log_args = {
             'event': 'dataset_updated',
@@ -2045,8 +2043,8 @@ class CatalogRecord(Common):
             self.add_post_request_callable(DataciteDOIUpdate(new_version,
                                                              new_version.research_dataset['preferred_identifier'],
                                                              'create'))
-        if self.state == self.STATE_PUBLISHED:
-            new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
+
+        new_version.add_post_request_callable(RabbitMQPublishRecord(new_version, 'create'))
 
         old_version.new_dataset_version_created = new_version.identifiers_dict
         old_version.new_dataset_version_created['version_type'] = 'dataset'
@@ -2368,12 +2366,17 @@ class CatalogRecord(Common):
         # note: save to db occurs in delete()
         self.alternate_record_set = None
 
-    def add_post_request_callable(self, *args, **kwargs):
+    def add_post_request_callable(self, callable):
         """
         Wrapper in order to import CommonService in one place only...
+        In case of drafts, skip other than logging
         """
+        if not self.is_published() and not isinstance(callable, DelayedLog):
+            _logger.debug(f'{self.identifier} is a draft, skipping non-logging post request callables')
+            return
+
         from metax_api.services import CallableService
-        CallableService.add_post_request_callable(*args, **kwargs)
+        CallableService.add_post_request_callable(callable)
 
     def __repr__(self):
         return '<%s: %d, removed: %s, data_catalog: %s, metadata_version_identifier: %s, ' \
@@ -2480,8 +2483,7 @@ class CatalogRecord(Common):
 
             super().save()
 
-        if self.state == self.STATE_PUBLISHED:
-            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
         return True if new_state == self.CUMULATIVE_STATE_YES else False
 
@@ -2536,8 +2538,8 @@ class CatalogRecord(Common):
             self._create_new_dataset_version()
 
         super().save()
-        if self.state == self.STATE_PUBLISHED:
-            self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
         return (self.cumulative_state != self.CUMULATIVE_STATE_YES, len(added_file_ids))
 

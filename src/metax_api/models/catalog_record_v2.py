@@ -302,8 +302,7 @@ class CatalogRecordV2(CatalogRecord):
             % (self.id, self.identifier, self.preferred_identifier)
         )
 
-        if self.state == self.STATE_PUBLISHED:
-            self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
 
     def merge_draft(self):
         """
@@ -1375,12 +1374,10 @@ class CatalogRecordV2(CatalogRecord):
             self.user_modified = self.user_created
 
         comparison_cr = self
-        publish_update = True
 
         if self.is_draft_for_another_dataset():
             # draft of a published dataset
             comparison_cr = self.draft_of
-            publish_update = False
 
         elif self.state == self.STATE_DRAFT:
 
@@ -1453,9 +1450,8 @@ class CatalogRecordV2(CatalogRecord):
 
         super(CatalogRecord, self).save()
 
-        if publish_update:
-            if self.state == self.STATE_PUBLISHED:
-                self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+        # Handles with drafts
+        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
 
     def calculate_directory_byte_sizes_and_file_counts(self):
         """
