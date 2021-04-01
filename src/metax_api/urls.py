@@ -22,7 +22,7 @@ Including another URLconf
 """
 from django.conf import settings as django_settings
 from django.conf.urls import url, include
-from django.urls import re_path
+from django.urls import re_path, path
 
 from metax_api.api.oaipmh.base.view import oaipmh_view as oaipmh
 from metax_api.api.rest.base.router import api_urlpatterns as rest_api_v1
@@ -30,6 +30,8 @@ from metax_api.api.rest.v2.router import api_urlpatterns as rest_api_v2
 from metax_api.api.rpc.base.router import api_urlpatterns as rpc_api_v1
 from metax_api.api.rpc.v2.router import api_urlpatterns as rpc_api_v2
 from metax_api.views.router import view_urlpatterns
+import debug_toolbar
+
 
 v1_urls = [
     url('', include(view_urlpatterns)),
@@ -55,4 +57,5 @@ if 'v2' in django_settings.API_VERSIONS_ENABLED:
 
 urlpatterns += [
     re_path(r'^watchman/', include('watchman.urls')),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]

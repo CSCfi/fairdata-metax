@@ -5,7 +5,7 @@ info:
 host: __METAX_ENV_DOMAIN__
 schemes:
   - https
-basePath: /rest/v1/
+basePath: ''
 produces:
   - application/json
 paths:

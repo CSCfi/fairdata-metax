@@ -39,7 +39,6 @@ API_ACCESS = {
                 "etsin"
             ],
             "read": [
-                "metax",
                 "all"
             ],
             "update": [
@@ -137,20 +136,6 @@ API_ACCESS = {
             ],
             "update": [
                 "metax"
-                "metax",
-                "ida"
-            ],
-            "delete": [
-                "metax",
-                "ida"
-            ],
-            "read": [
-                "metax",
-                "ida"
-            ],
-            "update": [
-                "metax",
-                "ida"
             ]
         },
         "schemas": {

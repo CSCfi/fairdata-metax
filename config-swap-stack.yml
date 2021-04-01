@@ -17,15 +17,11 @@ services:
       RABBIT_MQ_HOSTS: metax-rabbitmq
       ELASTIC_SEARCH_HOSTS: metax-elasticsearch
       METAX_DATABASE_HOST: metax-db
-    configs:
-      - source: metax-web-config
-        target: '/code/metax_api/settings/.env'
 
   metax-redis:
     image: redis
     volumes:
       - metax-redis:/data
-
   metax-db:
     image: postgres:9
     environment:
@@ -34,14 +30,12 @@ services:
       POSTGRES_DB: 'metax_db_test'
     volumes:
       - metax-postgres:/var/lib/postgresql/data
-
   metax-elasticsearch:
     image: elasticsearch:7.9.2
     environment:
       discovery.type: 'single-node'
     volumes:
       - metax-es:/usr/share/elasticsearch/data
-
   metax-rabbitmq:
     image: rabbitmq:3-management
     volumes:
@@ -56,7 +50,6 @@ volumes:
     external: true
   metax-redis:
     external: true
-configs:
-  metax-web-config:
-    external: True
+
+
 

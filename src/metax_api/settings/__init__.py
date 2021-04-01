@@ -27,12 +27,12 @@ env = environ.Env(
     ELASTIC_SEARCH_USE_SSL=(bool, False),
     ENABLE_V1_ENDPOINTS=(bool, True),
     ENABLE_V2_ENDPOINTS=(bool, True),
-    ERROR_FILES_PATH=(str, join(BASE_DIR, "log", "errors")),
+    ERROR_FILES_PATH=(str, join("/var", "log", "metax-api", "errors")),
     ES_CONFIG_DIR=(str, join(REFDATA_INDEXER_PATH, "resources", "es-config/")),
     LOCAL_REF_DATA_FOLDER=(str,join(REFDATA_INDEXER_PATH, "resources", "local-refdata/"),),
-    LOGGING_DEBUG_HANDLER_FILE=(str, join(BASE_DIR, "log", "metax_api.log")),
-    LOGGING_GENERAL_HANDLER_FILE=(str, join(BASE_DIR, "log", "metax_api.log")),
-    LOGGING_JSON_FILE_HANDLER_FILE=(str, join(BASE_DIR, "log", "metax_api.json.log")),
+    LOGGING_DEBUG_HANDLER_FILE=(str, join("/var", "log", "metax-api", "metax_api.log")),
+    LOGGING_GENERAL_HANDLER_FILE=(str, join("/var", "log", "metax-api", "metax_api.log")),
+    LOGGING_JSON_FILE_HANDLER_FILE=(str, join("/var", "log", "metax-api", "metax_api.json.log")),
     METAX_DATABASE_HOST=(str, "localhost"),
     METAX_DATABASE_PORT=(str, 5432),
     METAX_ENV=(str, "local_development"),
@@ -73,6 +73,5 @@ base_settings = [
     # optional('environments/legacy.py'),
 ]
 ic(ENV)
-
 # Include settings:
 include(*base_settings)
