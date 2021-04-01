@@ -8,9 +8,15 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        dirs_with_no_files = Directory.objects.filter(file_count=0, parent_directory=None)
-        logger.info(f"fix_file_counts command found {dirs_with_no_files.count()} directories with file_count=0")
+        dirs_with_no_files = Directory.objects_unfiltered.all()
+        dir_sum = dirs_with_no_files.count()
+        logger.info(f"fix_file_counts command found {dir_sum} directories")
+        i=0
         for dir in dirs_with_no_files:
-            dir.calculate_byte_size_and_file_count()
-            logger.info(f"folder has {dir.file_count} files after recalculation")
+            i += 1
+            try:
+                dir.calculate_byte_size_and_file_count()
+            except Exception as e:
+                logger.error(f"can't fix filecount for directory {i}/{dir_sum}")
+            logger.info(f"folder {i}/{dir_sum} has {dir.file_count} files after recalculation")
         logger.info(f"fix_file_counts command executed successfully")

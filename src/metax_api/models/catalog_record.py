@@ -2097,9 +2097,13 @@ class CatalogRecord(Common):
         if self.research_dataset.get('directories', None):
             dir_identifiers = [d['identifier'] for d in self.research_dataset['directories']]
 
+        file_dir_identifiers = []
         if self.research_dataset.get('files', None):
-            file_dir_identifiers = [File.objects.get(identifier=f['identifier']).parent_directory.identifier
-                for f in self.research_dataset['files']]
+            try:
+                file_dir_identifiers = [File.objects.get(identifier=f['identifier']).parent_directory.identifier
+                    for f in self.research_dataset['files']]
+            except Exception as e:
+                _logger.error(e)
 
         if not dir_identifiers and not file_dir_identifiers:
             return
@@ -2107,6 +2111,9 @@ class CatalogRecord(Common):
         dir_identifiers = set(dir_identifiers + file_dir_identifiers)
 
         highest_level_dirs_by_project = self._get_top_level_parent_dirs_by_project(dir_identifiers)
+
+        if len(highest_level_dirs_by_project) == 0:
+            return
 
         directory_data = {}
 
