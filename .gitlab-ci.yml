@@ -31,7 +31,9 @@ clean_test:
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_SHORT_SHA"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^(demo|stable|staging|test)$/
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: always
     - when: on_failure
 
@@ -45,7 +47,7 @@ clean_gitlab_env:
   script:
     - echo "Cleaning deleted branches from environments"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|stable|staging|test)$/
       when: manual
     - when: never
 
