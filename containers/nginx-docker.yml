@@ -1,15 +1,15 @@
 version: "3.8"
 
 services:
-  metax-nginx:
+  fairdata-nginx:
     image: nginx:latest
     configs:
-      - source: metax-nginx-config
-        target: '/etc/nginx/nginx.conf'
+      - source: fairdata-nginx
+        target: /etc/nginx/nginx.conf
       - source: fairdata-ssl-certificate
-        target: '/etc/nginx/ssl_certs/fd-dev.csc.fi.crt.pem'
+        target: /etc/pki/tls/certs/ssl.crt.pem
       - source: fairdata-ssl-certificate-key
-        target: '/etc/nginx/ssl_certs/fd-dev.csc.fi.key.pem'
+        target: /etc/pki/tls/private/ssl.key.pem
       - source: metax-nginx-elastic-headers-config
         target: '/etc/nginx/elastic_headers.conf'
       - source: metax-nginx-shared-headers-config
@@ -20,15 +20,19 @@ services:
         target: '/etc/nginx/static_file_headers.conf'
       - source: metax-nginx-dh-param-config
         target: '/etc/nginx/ssl_certs/nginx_dhparam.pem'
+      - source: metax-nginx-config
+        target: /etc/nginx/sites-enabled/metax
     ports:
       - 443:443
 
 configs:
+  metax-nginx-config:
+    external: True
   fairdata-ssl-certificate:
     external: True
   fairdata-ssl-certificate-key:
     external: True
-  metax-nginx-config:
+  fairdata-nginx:
     external: True
   metax-nginx-elastic-headers-config:
     external: True
