@@ -1,7 +1,7 @@
 workflow:
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|master|stable|staging|test)$/
 
 stages:
   - deploy
@@ -31,11 +31,9 @@ clean_test:
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_SHORT_SHA"
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^(demo|stable|staging|test)$/
-      when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: always
-    - when: on_failure
+    - when: never
 
 clean_gitlab_env:
   stage: clean_env
@@ -47,7 +45,7 @@ clean_gitlab_env:
   script:
     - echo "Cleaning deleted branches from environments"
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|stable|staging|test)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
     - when: never
 
@@ -57,9 +55,9 @@ update_proxy:
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK -e "build_id=$CI_COMMIT_SHORT_SHA"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: never
-    - when: always
+    - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
+      when: always
+    - when: never
 
 clean_previous_build:
   stage: clean_build
@@ -67,6 +65,6 @@ clean_previous_build:
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=${CI_COMMIT_BEFORE_SHA:0:8}"
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: never
-    - when: always
+    - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
+      when: always
+    - when: never
