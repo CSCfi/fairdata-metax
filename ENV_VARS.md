@@ -55,7 +55,6 @@ copy .env.template to .env and fill the required values from below table. Requir
 | REMS_METAX_USER                | no       |
 | REMS_REPORTER_USER             | no       |
 | SERVER_DOMAIN_NAME             | no       |
-| TRAVIS                         | no       | false                                                                                 | Metax internal used to figure out if Metax is running on Travis virtual machine                            |
 | V1_ENABLED                     | no       |                                                                                       |
 | V2_ENABLED                     | no       |                                                                                       |
 | VALIDATE_TOKEN_URL             | yes      |                                                                                       |

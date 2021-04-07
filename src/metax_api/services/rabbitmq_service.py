@@ -14,7 +14,7 @@ import pika
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 
-from metax_api.utils.utils import executing_test_case, executing_travis
+from metax_api.utils.utils import executing_test_case
 
 _logger = logging.getLogger(__name__)
 
@@ -171,7 +171,7 @@ class _RabbitMQServiceDummy:
         pass
 
 
-if executing_travis() or executing_test_case():
+if executing_test_case():
     RabbitMQService = _RabbitMQServiceDummy()
 else:
     RabbitMQService = _RabbitMQService()

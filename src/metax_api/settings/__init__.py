@@ -50,7 +50,6 @@ env = environ.Env(
     REDIS_USE_PASSWORD=(bool, False),
     REMS_ENABLED=(bool, False),
     SERVER_DOMAIN_NAME=(str, "metax.csc.local"),
-    TRAVIS=(bool, False),
     VALIDATE_TOKEN_URL=(str, "https://127.0.0.1/secure/validate_token"),
     WKT_FILENAME=(str, join(REFDATA_INDEXER_PATH, "resources", "uri_to_wkt.json")),
 )
