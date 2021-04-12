@@ -7,20 +7,22 @@ services:
     ports:
       - 8008:8008
       - 8000:8000
-    volumes:
-      - ./src:/code
     environment:
       DEBUG: 'true'
-      METAX_DATABASE: 'metax_db_test'
-      METAX_DATABASE_PASSWORD: 'YMDLekQMqrVKcs3'
-      METAX_DATABASE_USER: 'metax_test'
+      METAX_DATABASE: metax_db_test
+      METAX_DATABASE_PASSWORD: YMDLekQMqrVKcs3
+      METAX_DATABASE_USER: metax_test
       METAX_DATABASE_HOST: metax-db
       ELASTIC_SEARCH_HOSTS: metax-elasticsearch
       RABBIT_MQ_HOSTS: metax-rabbitmq
       REDIS_HOST: metax-redis
+    volumes:
+      - ./src:/code
     configs:
       - source: metax-web-config
-        target: '/code/metax_api/settings/.env'
+        target: /code/metax_api/settings/.env
+    stdin_open: True
+    tty: True
 
   metax-redis:
     image: redis
@@ -32,9 +34,9 @@ services:
     image: postgres:9
     hostname: metax-db
     environment:
-      POSTGRES_USER: 'metax_test'
-      POSTGRES_PASSWORD: 'YMDLekQMqrVKcs3'
-      POSTGRES_DB: 'metax_db_test'
+      POSTGRES_USER: metax_test
+      POSTGRES_PASSWORD: YMDLekQMqrVKcs3
+      POSTGRES_DB: metax_db_test
     volumes:
       - metax-postgres:/var/lib/postgresql/data
 
@@ -42,7 +44,7 @@ services:
     image: elasticsearch:7.9.2
     hostname: metax-elasticsearch
     environment:
-      discovery.type: 'single-node'
+      discovery.type: single-node
     volumes:
       - metax-es:/usr/share/elasticsearch/data
 
@@ -68,13 +70,13 @@ services:
 
 volumes:
   metax-rabbitmq:
-    external: true
+    external: True
   metax-es:
-    external: true
+    external: True
   metax-postgres:
-    external: true
+    external: True
   metax-redis:
-    external: true
+    external: True
 
 configs:
   metax-web-config:
