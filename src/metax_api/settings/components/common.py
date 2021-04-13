@@ -5,7 +5,6 @@ from metax_api.settings.components import BASE_DIR
 
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
-METAX_API_ROOT = env("METAX_API_ROOT")
 ADDITIONAL_USER_PROJECTS_PATH = env("ADDITIONAL_USER_PROJECTS_PATH")
 IDA_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ida"
 ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"

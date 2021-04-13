@@ -35,7 +35,6 @@ env = environ.Env(
     LOGGING_JSON_FILE_HANDLER_FILE=(str, join("/var", "log", "metax-api", "metax_api.json.log")),
     METAX_DATABASE_HOST=(str, "localhost"),
     METAX_DATABASE_PORT=(str, 5432),
-    METAX_API_ROOT=(str, "https://localhost:8008"),
     ORG_FILE_PATH=(str, join(REFDATA_INDEXER_PATH, "resources", "organizations", "organizations.csv"),),
     OAI_REPOSITORY_NAME=(str, "Metax"),
     RABBIT_MQ_HOSTS=(list, ["localhost"]),
