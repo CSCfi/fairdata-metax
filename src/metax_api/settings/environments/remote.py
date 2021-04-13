@@ -1,7 +1,4 @@
 from metax_api.settings import env
-from metax_api.settings.components.common import API_USERS
-
-API_USERS.clear()
 
 API_USERS = [
     {
@@ -48,14 +45,6 @@ API_USERS = [
         "password": env("JYU_USER_PASSWORD"),
         "username": "jyu"
     }
-]
-
-END_USER_ALLOWED_DATA_CATALOGS = [
-    "urn:nbn:fi:att:data-catalog-ida",
-    "urn:nbn:fi:att:data-catalog-att",
-    "urn:nbn:fi:att:data-catalog-legacy",
-    "urn:nbn:fi:att:data-catalog-pas",
-    "urn:nbn:fi:att:data-catalog-dft"
 ]
 
 API_ACCESS = {

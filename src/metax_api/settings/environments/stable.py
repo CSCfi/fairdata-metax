@@ -1,4 +1,4 @@
-from metax_api.settings.environments.remote import *
+from metax_api.settings.environments.remote import API_USERS # noqa: F401
 
 API_ACCESS = {
     "rest": {

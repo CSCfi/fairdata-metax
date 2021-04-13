@@ -31,8 +31,6 @@ ERROR_FILES_PATH = env("ERROR_FILES_PATH")
 # Allow only specific hosts to access the app
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 
-# SITE_URL = "localhost:8008"
-
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 for allowed_host in env("ALLOWED_HOSTS"):
@@ -136,7 +134,6 @@ DATABASES = {
 DATABASES["default"]["ENGINE"] = "django.db.backends.postgresql"
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
-
 # Colorize automated test console output
 RAINBOWTESTS_HIGHLIGHT_PATH = str(BASE_DIR)
 TEST_RUNNER = "rainbowtests.test.runner.RainbowDiscoverRunner"
@@ -166,7 +163,6 @@ USE_L10N = False
 USE_TZ = True
 
 DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S.%fZ"]
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
