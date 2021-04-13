@@ -6,7 +6,6 @@
 # :license: MIT
 
 import logging
-from json import dump as dump_json, load as load_json
 from pickle import dumps as pickle_dumps, loads as pickle_loads
 from random import choice as random_choice
 from typing import Any
@@ -18,7 +17,7 @@ from redis.exceptions import TimeoutError, ConnectionError
 from redis.sentinel import MasterNotFoundError
 from redis.sentinel import Sentinel
 
-from metax_api.utils.utils import executing_test_case, executing_travis
+from metax_api.utils.utils import executing_test_case
 
 _logger = logging.getLogger(__name__)
 d = logging.getLogger(__name__).debug
@@ -279,81 +278,4 @@ class _RedisCacheService:
             len(self._sentinel.discover_slaves(self._service_name)) + 1
         )  # +1 is master
 
-
-class _RedisCacheServiceDummy:
-
-    """
-    A dummy redis client that writes to a file on disk.
-    """
-
-    _storage_path = "/tmp/redis_dummy_storage"
-
-    def __init__(self, *args, **kwargs):
-        # d('Note: using dummy cache')
-        pass
-
-    def set(self, key, value, **kwargs):
-        storage = self._get_storage()
-        storage[key] = value
-        self._save_storage(storage)
-
-    def get(self, key, **kwargs):
-        return self._get_storage().get(key, None)
-
-    def get_or_set(self, key, value, **kwargs):
-        if self.get(key):
-            return False
-        else:
-            self.set(
-                key,
-                value,
-            )
-            return True
-
-    def delete(self, key, **kwargs):
-        storage = self._get_storage()
-        storage.pop(key, False)
-        self._save_storage(storage)
-
-    def get_master(self):
-        return self
-
-    def flushdb(self):
-        self._save_storage({})
-        return True
-
-    def _get_storage(self):
-        try:
-            with open(self._storage_path, "r") as f:
-                return load_json(f)
-        except IOError:
-            self._save_storage({})
-            try:
-                with open(self._storage_path, "r") as f:
-                    return load_json(f)
-            except Exception as e:
-                _logger.error(
-                    "Could not open dummy cache file for reading at %s: %s"
-                    % (self._storage_path, str(e))
-                )
-        except Exception as e:
-            _logger.error(
-                "Could not open dummy cache file for reading at %s: %s"
-                % (self._storage_path, str(e))
-            )
-
-    def _save_storage(self, storage):
-        try:
-            with open(self._storage_path, "w") as f:
-                dump_json(storage, f)
-        except Exception as e:
-            _logger.error(
-                "Could not open dummy cache file for writing at %s: %s"
-                % (self._storage_path, str(e))
-            )
-
-
-if executing_travis():
-    RedisCacheService = RedisClient
-else:
-    RedisCacheService = RedisClient
+RedisCacheService = RedisClient
