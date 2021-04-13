@@ -20,7 +20,7 @@ REFDATA_INDEXER_PATH = join(
 env = environ.Env(
     # set casting, default value
     ADDITIONAL_USER_PROJECTS_PATH=(str, ""),
-    ALLOWED_HOSTS=(list, ["metax.csc.local", "20.20.20.20"]),
+    ALLOWED_HOSTS=(list, ["metax.fd-dev.csc.fi"]),
     DEBUG=(bool, False),
     DJANGO_ENV=(str, "local"),
     ELASTIC_SEARCH_PORT=(int, 9200),
@@ -47,7 +47,7 @@ env = environ.Env(
     REDIS_TEST_DB=(int, 15),
     REDIS_USE_PASSWORD=(bool, False),
     REMS_ENABLED=(bool, False),
-    SERVER_DOMAIN_NAME=(str, "metax.csc.local"),
+    SERVER_DOMAIN_NAME=(str, "metax.fd-dev.csc.fi"),
     VALIDATE_TOKEN_URL=(str, "https://127.0.0.1/secure/validate_token"),
     WKT_FILENAME=(str, join(REFDATA_INDEXER_PATH, "resources", "uri_to_wkt.json")),
 )
