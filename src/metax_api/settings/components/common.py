@@ -183,7 +183,6 @@ if env("ENABLE_V1_ENDPOINTS"):
     API_VERSIONS_ENABLED.append("v1")
 if env("ENABLE_V2_ENDPOINTS"):
     API_VERSIONS_ENABLED.append("v2")
-DRAFT_ENABLED = env("DRAFT_ENABLED")
 
 # Variables related to api credentials
 API_USERS = [

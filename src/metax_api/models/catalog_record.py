@@ -1076,8 +1076,8 @@ class CatalogRecord(Common):
         return bool(self.alternate_record_set)
 
     def _save_as_draft(self):
-        from metax_api.services import CommonService
-        return CommonService.get_boolean_query_param(self.request, 'draft') and settings.DRAFT_ENABLED
+        # Drafts are only available for V2 datasets
+        return False
 
     def _generate_issued_date(self):
         if not (self.catalog_is_harvested()):

@@ -15,7 +15,6 @@ copy .env.template to .env and fill the required values from below table. Requir
 | DEBUG                          | no       | False                                                                                 |
 | DJANGO_ENV                     | no       | local                                                                                 | Specifies the environment, corresponds with the environments found in src/metax_api/settings/environments/ |
 | DJANGO_SECRET_KEY              | yes      |                                                                                       |
-| DRAFT_ENABLED                  | no       |                                                                                       |
 | ELASTIC_SEARCH_HOSTS           | yes      |                                                                                       | Elastic Search instance IP and port                                                                        |
 | ELASTIC_SEARCH_PORT            | no       | 9200                                                                                  | Is not used currently, but should be in the future                                                         |
 | ELASTIC_SEARCH_USE_SSL         | yes      |                                                                                       | Should Elastic Search queries use https                                                                    |
