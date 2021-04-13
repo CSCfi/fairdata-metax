@@ -50,42 +50,6 @@ API_USERS = [
     }
 ]
 
-CONSUMERS = [
-    {
-        "is_test_user": True,
-        "name": "testaaja",
-        "password": env("TESTAAJA_CONSUMER_PASSWORD"),
-        "permissions": {
-            "conf": "^testaaja-.*$",
-            "read": "^(datasets|testaaja-.*)$",
-            "write": "^testaaja-.*$"
-        },
-        "vhost": "metax"
-    },
-    {
-        "is_test_user": False,
-        "name": "etsin",
-        "password": env("ETSIN_CONSUMER_PASSWORD"),
-        "permissions": {
-            "conf": "^etsin-.*$",
-            "read": "^(datasets|etsin-.*)$",
-            "write": "^etsin-.*$"
-        },
-        "vhost": "metax"
-    },
-    {
-        "is_test_user": False,
-        "name": "ttv",
-        "password": env("TTV_CONSUMER_PASSWORD"),
-        "permissions": {
-            "conf": "^ttv-.*$",
-            "read": "^(TTV-datasets|ttv-.*)$",
-            "write": "^ttv-.*$"
-        },
-        "vhost": "ttv"
-    }
-]
-
 END_USER_ALLOWED_DATA_CATALOGS = [
     "urn:nbn:fi:att:data-catalog-ida",
     "urn:nbn:fi:att:data-catalog-att",

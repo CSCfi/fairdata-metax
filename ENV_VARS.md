@@ -30,13 +30,12 @@ copy .env.template to .env and fill the required values from below table. Requir
 | METAX_DATABASE_USER            | yes      |                                                                                       | Postgres user which owns the database                                                                      |
 | OAI_BASE_URL                   | yes      |                                                                                       |
 | ORG_FILE_PATH                  | yes      | src/metax_api/tasks/refdata/refdata_indexer/resources/organizations/organizations.csv | metax-ops compatibility                                                                                    |
-| RABBIT_MQ_HOSTS                | yes      |                                                                                       | RabbitMQ instance IP                                                                                       |
+| RABBIT_MQ_HOSTS                | no       | localhost                                                                             | RabbitMQ instance IPs                                                                                       |
 | RABBIT_MQ_PASSWORD             | no       | guest                                                                                 |
 | RABBIT_MQ_PORT                 | no       | 5672                                                                                  |
-| RABBIT_MQ_TTV_ENABLED          | no       |                                                                                       |
 | RABBIT_MQ_USER                 | no       | guest                                                                                 |
-| RABBIT_MQ_VHOST                | no       |                                                                                       |
-| RABBIT_MQ_VHOST_TTV            | no       |                                                                                       |
+| RABBIT_MQ_USE_VHOST            | no       | False
+| RABBIT_MQ_VHOST                | no       |                                                                                       | Required if RABBIT_MQ_USE_VHOST is True
 | REDIS_HOST                     | yes      |                                                                                       | Redis instance IP                                                                                          |
 | REDIS_LOCALHOST_PORT           | unknown  | 6379                                                                                  | Not sure if all references to this are gone                                                                |
 | REDIS_PASSWORD                 | no       |                                                                                       |
