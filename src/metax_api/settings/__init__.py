@@ -23,6 +23,7 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, ["metax.fd-dev.csc.fi"]),
     DEBUG=(bool, False),
     DJANGO_ENV=(str, "local"),
+    ELASTIC_SEARCH_HOSTS=(list, ['localhost']),
     ELASTIC_SEARCH_PORT=(int, 9200),
     ELASTIC_SEARCH_USE_SSL=(bool, False),
     ENABLE_V1_ENDPOINTS=(bool, True),
