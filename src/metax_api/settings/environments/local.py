@@ -1,16 +1,10 @@
+from metax_api.settings.components.common import INSTALLED_APPS, ALLOWED_HOSTS, MIDDLEWARE, DEBUG
 from watchman import constants as watchman_constants
 
 from metax_api.settings.components.access_control import Role, api_permissions, prepare_perm_values
 from metax_api.settings.components.common import ALLOWED_HOSTS, DEBUG, INSTALLED_APPS, MIDDLEWARE
 
-INSTALLED_APPS += ["watchman"]
-
 ALLOWED_HOSTS += ["*"]
-
-WATCHMAN_CHECKS = watchman_constants.DEFAULT_CHECKS + (
-    "metax_api.checks.elasticsearch_check",
-    "metax_api.checks.redis_check",
-)
 
 if 'debug_toolbar' not in INSTALLED_APPS:
     INSTALLED_APPS += ['debug_toolbar']
