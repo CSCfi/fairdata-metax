@@ -35,13 +35,12 @@ copy .env.template to .env and fill the required values from below table. Requir
 | RABBIT_MQ_PORT                 | no       | 5672                                                                                  |
 | RABBIT_MQ_USER                 | no       | guest                                                                                 |
 | RABBIT_MQ_USE_VHOST            | no       | False
-| RABBIT_MQ_VHOST                | no       |                                                                                       | Required if RABBIT_MQ_USE_VHOST is True
-| REDIS_HOST                     | yes      |                                                                                       | Redis instance IP                                                                                          |
-| REDIS_LOCALHOST_PORT           | unknown  | 6379                                                                                  | Not sure if all references to this are gone                                                                |
-| REDIS_PASSWORD                 | no       |                                                                                       |
+| RABBIT_MQ_VHOST                | no       |                                                                                       | Required if RABBIT_MQ_USE_VHOST is True                                                                                | Required if RABBIT_MQ_USE_VHOST is True                                                                    |
+| REDIS_HOST                     | no       | localhost                                                                             | Redis instance IPs                                                                                         |
+| REDIS_PASSWORD                 | no       |                                                                                       | Required if REDIS_USE_PASSWORD is True
 | REDIS_PORT                     | no       | 6379                                                                                  |
-| REDIS_TEST_DB                  | yes      |                                                                                       | Pick a number, any number                                                                                  |
-| REDIS_USE_PASSWORD             | no       | false                                                                                 |
+| REDIS_TEST_DB                  | no       | 15                                                                                    | Pick a number, any number                                                                                  |
+| REDIS_USE_PASSWORD             | no       | False                                                                                 |
 | REMS_API_KEY                   | no       |                                                                                       | Required if REMS is enabled                                                                                |
 | REMS_AUTO_APPROVER             | no       |                                                                                       | Required if REMS is enabled                                                                                |
 | REMS_BASE_URL                  | no       |                                                                                       | Required if REMS is enabled                                                                                |
