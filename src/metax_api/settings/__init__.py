@@ -20,7 +20,7 @@ REFDATA_INDEXER_PATH = join(
 env = environ.Env(
     # set casting, default value
     ADDITIONAL_USER_PROJECTS_PATH=(str, ""),
-    ALLOWED_HOSTS=(list, ["metax.fd-dev.csc.fi"]),
+    ALLOWED_HOSTS=(list, []),
     DEBUG=(bool, False),
     DJANGO_ENV=(str, "local"),
     ELASTIC_SEARCH_HOSTS=(list, ['localhost']),
