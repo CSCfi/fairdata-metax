@@ -21,6 +21,7 @@ env = environ.Env(
     # set casting, default value
     ADDITIONAL_USER_PROJECTS_PATH=(str, ""),
     ALLOWED_HOSTS=(list, []),
+    ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART=(bool, True),
     DEBUG=(bool, False),
     DJANGO_ENV=(str, "local"),
     ELASTIC_SEARCH_HOSTS=(list, ['localhost']),

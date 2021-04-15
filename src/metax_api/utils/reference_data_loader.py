@@ -64,7 +64,7 @@ class ReferenceDataLoader():
         if not errors:
             if not isinstance(settings, dict):
                 settings = settings.ELASTICSEARCH
-            cache.set('ref_data_up_to_date', True, ex=settings['REFERENCE_DATA_RELOAD_INTERVAL'])
+            cache.set('ref_data_up_to_date', True, ex=django_settings.REFERENCE_DATA_RELOAD_INTERVAL)
 
         _logger.info('ReferenceDataLoader - %s' % ('failed to populate cache' if errors else 'cache populated'))
         cache.delete('reference_data_load_executing')
