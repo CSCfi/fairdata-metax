@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "metax-api"
+version = "2.2.3"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+Django = "<3.2"
+datacite = "^1.0.1"
+djangorestframework = "^3.12.4"
+gunicorn = "^20.1.0"
+pika = "^1.2.0"
+elasticsearch = "^7.12.0"
+jsonschema = "^3.2.0"
+lxml = "^4.6.3"
+psycopg2-binary = "^2.8.6"
+redis = "^3.5.3"
+structlog = "^21.1.0"
+xmltodict = "^0.12.0"
+django-environ = "^0.4.5"
+django-split-settings = "^1.0.1"
+rdflib = "^5.0.0"
+python-dateutil = "^2.8.1"
+pyoai = "^2.5.0"
+python-simplexquery = {version = "*", optional = true}
+# These are here because of: https://github.com/python-poetry/poetry/issues/1644
+Sphinx = {version = "^3.5.4", optional = true}
+sphinx-autobuild = {version = "^2021.3.14", optional = true}
+sphinx-rtd-theme = {version = "^0.5.2", optional = true}
+
+[tool.poetry.dev-dependencies]
+responses = "^0.13.2"
+django-watchman = "^1.2.0"
+icecream = "^2.1.0"
+black = {version = "^20.8b1", allow-prereleases = true}
+tblib = "^1.7.0"
+django-rainbowtests = "^0.6.0"
+django-debug-toolbar = "^3.2"
+PyJWT = "^2.0.1"
+
+[tool.poetry.extras]
+simplexquery = ["python-simplexquery"]
+docs = ["Sphinx", "sphinx-autobuild", "sphinx-rtd-theme"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
