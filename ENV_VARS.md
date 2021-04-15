@@ -51,7 +51,7 @@ copy .env.template to .env and fill the required values from below table. Requir
 | REMS_METAX_USER                | no       |
 | REMS_REPORTER_USER             | no       |
 | SERVER_DOMAIN_NAME             | no       |
-| V1_ENABLED                     | no       |                                                                                       |
-| V2_ENABLED                     | no       |                                                                                       |
+| ENABLE_V1_ENDPOINTS            | no       | True
+| ENABLE_V2_ENDPOINTS            | no       | True
 | VALIDATE_TOKEN_URL             | yes      |                                                                                       |
 | WKT_FILENAME                   | no       | src/metax_api/tasks/refdata/refdata_indexer/resources/uri_to_wkt.json                 |
