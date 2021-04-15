@@ -42,14 +42,14 @@ copy .env.template to .env and fill the required values from below table. Requir
 | REDIS_PORT                     | no       | 6379                                                                                  |
 | REDIS_TEST_DB                  | yes      |                                                                                       | Pick a number, any number                                                                                  |
 | REDIS_USE_PASSWORD             | no       | false                                                                                 |
-| REMS_API_KEY                   | no       |
-| REMS_AUTO_APPROVER             | no       |
-| REMS_BASE_URL                  | no       |
-| REMS_ENABLED                   | no       |
-| REMS_ETSIN_URL_TEMPLATE        | yes      |                                                                                       |
-| REMS_FORM_ID                   | yes      |                                                                                       |
-| REMS_METAX_USER                | no       |
-| REMS_REPORTER_USER             | no       |
+| REMS_API_KEY                   | no       |                                                                                       | Required if REMS is enabled                                                                                |
+| REMS_AUTO_APPROVER             | no       |                                                                                       | Required if REMS is enabled                                                                                |
+| REMS_BASE_URL                  | no       |                                                                                       | Required if REMS is enabled                                                                                |
+| REMS_ENABLED                   | no       | False
+| REMS_ETSIN_URL_TEMPLATE        | no       |                                                                                       | Required if REMS is enabled                                                                                |
+| REMS_FORM_ID                   | no       |                                                                                       | Required if REMS is enabled                                                                                |
+| REMS_METAX_USER                | no       |                                                                                       | Required if REMS is enabled                                                                                |
+| REMS_REPORTER_USER             | no       |                                                                                       | Required if REMS is enabled                                                                                |
 | SERVER_DOMAIN_NAME             | no       |
 | ENABLE_V1_ENDPOINTS            | no       | True
 | ENABLE_V2_ENDPOINTS            | no       | True
