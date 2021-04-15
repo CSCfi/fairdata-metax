@@ -139,7 +139,6 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
 
         response = self.client.get('/rest/v2/apierrors')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data), 1, response.data)
 
         response = self.client.get('/rest/v2/apierrors/%s' % response.data[0]['identifier'])
         self._assert_fields_presence(response)
