@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "rest_framework",
     "metax_api",
-    "sslserver",
 ]
 
 if DEBUG:
