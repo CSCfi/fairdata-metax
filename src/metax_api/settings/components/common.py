@@ -194,4 +194,5 @@ API_USERS = [
     {"password": "test-tpas", "username": "tpas"},
     {"password": "test-etsin", "username": "etsin"},
     {"password": "test-fds", "username": "fds"},
+    {"password": "test-download", "username": "download"},
 ]
