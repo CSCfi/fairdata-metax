@@ -1,12 +1,16 @@
-from environ import ImproperlyConfigured
 import logging
+
+from environ import ImproperlyConfigured
+
+from metax_api.settings import env
+
 
 logger = logging.getLogger(__name__)
 
-from metax_api.settings import env
 REMS = {
     "ENABLED": env("REMS_ENABLED"),
 }
+
 if REMS["ENABLED"]:
     try:
         REMS["API_KEY"] = env("REMS_API_KEY")

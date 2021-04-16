@@ -78,3 +78,6 @@ API_ACCESS = {
 }
 
 ADDITIONAL_USER_PROJECTS_PATH = "/tmp/user_projects.json"
+
+# represents an organizational (such as jyu) catalog in test cases
+EXT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ext"

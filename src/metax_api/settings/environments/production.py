@@ -1,51 +1,4 @@
-from metax_api.settings import env
-
-API_USERS = [
-    {
-        "password": env("METAX_USER_PASSWORD"),
-        "username": "metax"
-    },
-    {
-        "password": env("QVAIN_USER_PASSWORD"),
-        "username": "qvain"
-    },
-    {
-        "password": env("IDA_USER_PASSWORD"),
-        "username": "ida"
-    },
-    {
-        "password": env("TPAS_USER_PASSWORD"),
-        "username": "tpas"
-    },
-    {
-        "password": env("ETSIN_USER_PASSWORD"),
-        "username": "etsin"
-    },
-    {
-        "password": env("FDS_USER_PASSWORD"),
-        "username": "fds"
-    },
-    {
-        "password": env("QVAIN_LIGHT_USER_PASSWORD"),
-        "username": "qvain-light"
-    },
-    {
-        "password": env("QVAIN_JORI_USER_PASSWORD"),
-        "username": "qvain-jori"
-    },
-    {
-        "password": env("TTV_USER_PASSWORD"),
-        "username": "ttv"
-    },
-    {
-        "password": env("DOWNLOAD_USER_PASSWORD"),
-        "username": "download"
-    },
-    {
-        "password": env("JYU_USER_PASSWORD"),
-        "username": "jyu"
-    }
-]
+from metax_api.settings.environments.remote import API_USERS # noqa: F401
 
 API_ACCESS = {
     "rest": {
@@ -54,101 +7,151 @@ API_ACCESS = {
                 "metax"
             ],
             "read": [
-                "all"
+                "metax"
             ]
         },
         "contracts": {
             "create": [
-                "all"
+                "metax",
+                "tpas"
             ],
             "delete": [
-                "all"
+                "metax",
+                "tpas"
             ],
             "read": [
-                "all"
+                "metax",
+                "tpas"
             ],
             "update": [
-                "all"
+                "metax",
+                "tpas"
             ]
         },
         "datacatalogs": {
             "create": [
-                "all"
+                "metax",
+                "etsin"
             ],
+
             "delete": [
-                "all"
+                "metax",
+                "etsin"
             ],
             "read": [
                 "all"
             ],
             "update": [
-                "all"
+                "metax",
+                "etsin"
             ]
         },
         "datasets": {
             "create": [
-                "all"
+                "metax",
+                "ida",
+                "qvain",
+                "qvain-light",
+                "etsin",
+                "tpas",
+                "jyu",
+                "endusers"
             ],
             "delete": [
-                "all"
+                "metax",
+                "ida",
+                "qvain",
+                "qvain-light",
+                "etsin",
+                "tpas",
+                "jyu",
+                "endusers"
             ],
+
             "read": [
                 "all"
             ],
             "update": [
-                "all"
+                "metax",
+                "ida",
+                "qvain",
+                "qvain-light",
+                "etsin",
+                "tpas",
+                "jyu",
+                "endusers"
             ]
         },
         "directories": {
-            "create": [],
-            "delete": [],
             "read": [
-                "all"
-            ],
-            "update": []
+                "metax",
+                "ida",
+                "qvain",
+                "qvain-light",
+                "etsin",
+                "tpas",
+                "fds",
+                "endusers"
+            ]
         },
         "files": {
             "create": [
-                "all"
+                "metax",
+                "ida",
+                "tpas"
             ],
             "delete": [
-                "all"
+                "metax",
+                "ida",
+                "tpas"
             ],
+
             "read": [
-                "all"
+                "metax",
+                "ida",
+                "fds",
+                "tpas",
+                "qvain",
+                "qvain-light",
+                "endusers"
             ],
             "update": [
-                "all"
+                "metax",
+                "ida",
+                "tpas",
+                "qvain",
+                "qvain-light",
+                "endusers"
             ]
         },
         "filestorages": {
             "create": [
-                "all"
+                "metax"
             ],
             "delete": [
-                "all"
+                "metax"
             ],
             "read": [
-                "all"
+                "metax"
             ],
             "update": [
-                "all"
+                "metax"
             ]
         },
         "schemas": {
-            "create": [],
-            "delete": [],
             "read": [
                 "all"
-            ],
-            "update": []
+            ]
         }
     },
     "rpc": {
         "datasets": {
             "change_cumulative_state": {
                 "use": [
-                    "all"
+                    "metax",
+                    "qvain",
+                    "qvain-light",
+                    "endusers"
                 ]
             },
             "create_draft": {
@@ -163,7 +166,10 @@ API_ACCESS = {
             },
             "fix_deprecated": {
                 "use": [
-                    "all"
+                    "metax",
+                    "qvain",
+                    "qvain-light",
+                    "endusers"
                 ]
             },
             "get_minimal_dataset_template": {
@@ -183,12 +189,16 @@ API_ACCESS = {
             },
             "refresh_directory_content": {
                 "use": [
-                    "all"
+                    "metax",
+                    "qvain",
+                    "qvain-light",
+                    "endusers"
                 ]
             },
             "set_preservation_identifier": {
                 "use": [
-                    "all"
+                    "metax",
+                    "tpas"
                 ]
             }
         },
@@ -202,13 +212,13 @@ API_ACCESS = {
         "files": {
             "delete_project": {
                 "use": [
-                    "all"
+                    "metax",
+                    "ida",
+                    "tpas"
                 ]
             },
             "flush_project": {
-                "use": [
-                    "all"
-                ]
+                "use": []
             }
         },
         "statistics": {
@@ -227,6 +237,7 @@ API_ACCESS = {
                     "all"
                 ]
             },
+
             "deprecated_datasets_cumulative": {
                 "use": [
                     "all"

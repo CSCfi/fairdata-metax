@@ -13,13 +13,12 @@ for testing:
 script to listen for messages sent when someone accesses /rest/datasets/pid/rabbitmq
 """
 
-def get_test_user():
-    for user in settings.CONSUMERS:
-        if user['is_test_user']:
-            return user
+test_user = {
+    'name': 'testaaja',
+    'password': 'testaaja',
+    'vhost': 'metax'
+}
 
-
-test_user = get_test_user()
 credentials = pika.PlainCredentials(test_user['name'], test_user['password'])
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(

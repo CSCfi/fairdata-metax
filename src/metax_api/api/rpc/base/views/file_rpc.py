@@ -7,7 +7,7 @@
 
 import logging
 
-from django.conf import settings as django_settings
+from django.conf import settings
 from django.db import connection
 from rest_framework import status
 from rest_framework.decorators import action
@@ -39,7 +39,7 @@ class FileRPC(CommonRPC):
 
         WARNING! Does not check file association with datasets! Not meant for active production use!!
         """
-        if django_settings.METAX_ENV == 'production':
+        if settings.ENV == 'production':
             raise Http400({ 'detail': ['API currently allowed only in test environments'] })
 
         if 'project_identifier' not in request.query_params:

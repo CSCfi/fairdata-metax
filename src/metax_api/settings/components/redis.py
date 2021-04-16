@@ -5,7 +5,6 @@ from metax_api.settings import env
 logger = logging.getLogger(__name__)
 
 REDIS = {
-    "LOCALHOST_PORT": env("REDIS_PORT"),
     "HOST": env("REDIS_HOST"),
     "PORT": env("REDIS_PORT"),
     # https://github.com/andymccurdy/redis-py/issues/485#issuecomment-44555664
@@ -15,14 +14,16 @@ REDIS = {
     # enables extra logging to console during cache usage
     "DEBUG": False,
 }
+
 REDIS_USE_PASSWORD = env("REDIS_USE_PASSWORD")
-REDIS_USE_SENTINEL = False
 
 if REDIS_USE_PASSWORD:
     try:
         REDIS["PASSWORD"] = env("REDIS_PASSWORD")
     except ImproperlyConfigured as e:
         logger.warning(e)
+
+REDIS_USE_SENTINEL = False
 
 if REDIS_USE_SENTINEL:
     try:
