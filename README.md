@@ -17,6 +17,14 @@ Install [Poetry](https://python-poetry.org/docs/) for your OS. Navigate to the r
 
 You can generate traditional requirements.txt file with `poetry export --dev -E simplexquery --without-hashes -f requirements.txt --output requirements.txt`
 
+### Managing dependencies
+
+Developer dependencies can be added with command `poetry add -D <package>`
+Application dependencies can be added with command `poetry add <package>`
+
+Dependencies can be removed with `poetry remove (-D) <package>`
+
+
 ### Required environmental variables
 
 copy `src/metax_api/settings/.env.template` as `src/metax_api/settings/.env` and fill required variables, you can find examples in ENV_VARS.md
