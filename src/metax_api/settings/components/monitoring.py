@@ -10,10 +10,10 @@ if ENABLE_DJANGO_WATCHMAN:
         from watchman import constants as watchman_constants
         if "watchman" not in INSTALLED_APPS:
             INSTALLED_APPS += ["watchman"]
-            WATCHMAN_CHECKS = watchman_constants.DEFAULT_CHECKS + (
-                "metax_api.checks.elasticsearch_check",
-                "metax_api.checks.redis_check",
-            )
+        WATCHMAN_CHECKS = watchman_constants.DEFAULT_CHECKS + (
+            "metax_api.checks.elasticsearch_check",
+            "metax_api.checks.redis_check",
+        )
         WATCHMAN_CONFIGURED = True
     except ImportError as e:
         logger.error(e)
