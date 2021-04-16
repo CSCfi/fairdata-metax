@@ -19,8 +19,12 @@ You can generate traditional requirements.txt file with `poetry export --dev -E 
 
 ### Managing dependencies
 
+__NOTICE: Please remember to execute `poetry export --dev -E simplexquery --without-hashes -f requirements.txt --output requirements.txt` after any additions, updates or removals.__
+
 Developer dependencies can be added with command `poetry add -D <package>`
 Application dependencies can be added with command `poetry add <package>`
+
+Dependencies can be updated using `poetry update`. Please notice that this will update all packages and their dependencies, respecting the dependency constraints defined in pyproject.toml 
 
 Dependencies can be removed with `poetry remove (-D) <package>`
 
