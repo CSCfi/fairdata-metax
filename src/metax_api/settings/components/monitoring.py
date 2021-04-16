@@ -14,6 +14,6 @@ if ENABLE_DJANGO_WATCHMAN:
                 "metax_api.checks.elasticsearch_check",
                 "metax_api.checks.redis_check",
             )
-            WATCHMAN_CONFIGURED = True
+        WATCHMAN_CONFIGURED = True
     except ImportError as e:
         logger.error(e)
