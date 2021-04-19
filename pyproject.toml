@@ -46,6 +46,7 @@ docs = ["Sphinx", "sphinx-autobuild", "sphinx-rtd-theme"]
 
 [tool.black]
 target-version = ['py38']
+line-length = 120
 exclude = "/migrations/"
 
 [build-system]
