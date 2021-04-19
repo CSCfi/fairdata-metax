@@ -47,8 +47,8 @@ docs = ["Sphinx", "sphinx-autobuild", "sphinx-rtd-theme"]
 [tool.isort]
 profile = "black"
 src_paths = ["src"]
-known_first_party = ["src/metax_api"]
-skip_glob = "*/models/__init__.py"
+known_first_party = ["metax_api", "src/metax_api"]
+skip_glob = "*/models/__init__.py,__init__.py"
 include_trailing_comma = true
 combine_as_imports = true
 line_length = 120
