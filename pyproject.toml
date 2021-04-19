@@ -39,6 +39,7 @@ django-rainbowtests = "^0.6.0"
 django-debug-toolbar = "^3.2"
 PyJWT = "^2.0.1"
 ipdb = "^0.13.7"
+isort = "^5.8.0"
 
 [tool.poetry.extras]
 simplexquery = ["python-simplexquery"]
