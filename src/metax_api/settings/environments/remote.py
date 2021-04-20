@@ -1,51 +1,9 @@
+import json
+
 from metax_api.settings import env
 
-API_USERS = [
-    {
-        "password": env("METAX_USER_PASSWORD"),
-        "username": "metax"
-    },
-    {
-        "password": env("QVAIN_USER_PASSWORD"),
-        "username": "qvain"
-    },
-    {
-        "password": env("IDA_USER_PASSWORD"),
-        "username": "ida"
-    },
-    {
-        "password": env("TPAS_USER_PASSWORD"),
-        "username": "tpas"
-    },
-    {
-        "password": env("ETSIN_USER_PASSWORD"),
-        "username": "etsin"
-    },
-    {
-        "password": env("FDS_USER_PASSWORD"),
-        "username": "fds"
-    },
-    {
-        "password": env("QVAIN_LIGHT_USER_PASSWORD"),
-        "username": "qvain-light"
-    },
-    {
-        "password": env("QVAIN_JORI_USER_PASSWORD"),
-        "username": "qvain-jori"
-    },
-    {
-        "password": env("TTV_USER_PASSWORD"),
-        "username": "ttv"
-    },
-    {
-        "password": env("DOWNLOAD_USER_PASSWORD"),
-        "username": "download"
-    },
-    {
-        "password": env("JYU_USER_PASSWORD"),
-        "username": "jyu"
-    }
-]
+with open(env("API_USERS_PATH")) as users_file:
+    API_USERS = json.load(users_file)
 
 API_ACCESS = {
     "rest": {
