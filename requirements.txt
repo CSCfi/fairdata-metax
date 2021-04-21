@@ -3,30 +3,34 @@ appnope==0.1.2; sys_platform == "darwin" and python_version >= "3.7"
 asgiref==3.3.4; python_version >= "3.6"
 asttokens==2.0.4
 attrs==20.3.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0"
+autosemver==0.5.5
 backcall==0.2.0; python_version >= "3.7"
 black==20.8b1; python_version >= "3.6"
 certifi==2020.12.5; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version < "4"
 chardet==4.0.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 click==7.1.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 colorama==0.4.4; python_version >= "3.7" and python_full_version < "3.0.0" and sys_platform == "win32" or sys_platform == "win32" and python_version >= "3.7" and python_full_version >= "3.5.0"
-datacite==1.0.1
+datacite==1.1.0
 decorator==5.0.7; python_version >= "3.7"
-django-debug-toolbar==3.2; python_version >= "3.6"
+django-debug-toolbar==3.2.1; python_version >= "3.6"
 django-environ==0.4.5
 django-rainbowtests==0.6.0
 django-split-settings==1.0.1; python_version >= "3.6" and python_version < "4.0"
 django-watchman==1.2.0
 django==3.1.8; python_version >= "3.6"
 djangorestframework==3.12.4; python_version >= "3.5"
+dulwich==0.19.16
 elasticsearch==7.12.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.4.0" and python_version < "4")
-executing==0.5.4
+executing==0.6.0
 gunicorn==20.1.0; python_version >= "3.5"
 icecream==2.1.0
 idna==2.10; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
-importlib-metadata==3.10.1; python_version >= "3.6" and python_version < "3.8"
+idutils==1.1.8
+importlib-metadata==4.0.0; python_version >= "3.6" and python_version < "3.8"
 ipdb==0.13.7; python_version >= "2.7"
 ipython-genutils==0.2.0; python_version >= "3.7"
 ipython==7.22.0; python_version >= "3.7"
+isbnid-fork==0.5.2
 isodate==0.6.0
 jedi==0.18.0; python_version >= "3.7"
 jsonschema==3.2.0
