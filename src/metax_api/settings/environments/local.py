@@ -1,6 +1,7 @@
 from watchman import constants as watchman_constants
 
 from metax_api.settings.components.common import INSTALLED_APPS, ALLOWED_HOSTS, MIDDLEWARE, DEBUG
+from metax_api.settings.components.access_control import Role, api_permissions, prepare_perm_values
 
 INSTALLED_APPS += ["watchman"]
 
@@ -30,3 +31,6 @@ def show_toolbar(request):
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": show_toolbar,
 }
+api_permissions.rest.apierrors.create += [Role.METAX]
+
+API_ACCESS = prepare_perm_values(api_permissions.to_dict())

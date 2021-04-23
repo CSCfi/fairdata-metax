@@ -28,6 +28,7 @@ python-simplexquery = {version = "*", optional = true}
 Sphinx = {version = "^3.5.4", optional = true}
 sphinx-autobuild = {version = "^2021.3.14", optional = true}
 sphinx-rtd-theme = {version = "^0.5.2", optional = true}
+python-box = "^5.3.0"
 
 [tool.poetry.dev-dependencies]
 responses = "^0.13.2"
