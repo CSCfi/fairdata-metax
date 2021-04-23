@@ -60,3 +60,4 @@ copy .env.template to .env and fill the required values from below table. Requir
 | ENABLE_V2_ENDPOINTS                     | no       | True
 | VALIDATE_TOKEN_URL                      | no       | https://127.0.0.1/secure/validate_token                                               | URL where bearer tokens get validated
 | WKT_FILENAME                            | no       | src/metax_api/tasks/refdata/refdata_indexer/resources/uri_to_wkt.json                 |
+| ENABLE_DJANGO_WATCHMAN                  | no       | False                                                                                 | Should watchman monitoring be enabled                                                                      |
