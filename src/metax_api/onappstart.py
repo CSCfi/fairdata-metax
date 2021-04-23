@@ -86,11 +86,6 @@ class OnAppStart(AppConfig):
                 ic()
         except Exception as e:
             _logger.error(e)
-            # raise e
-        finally:
-            # ensure other processes have stopped at on_app_start_executing
-            # before resetting the flag. (on local this method can be quite fast)
-            cache.delete("on_app_start_executing")
 
         if executing_test_case():
             # reset error files location between tests
