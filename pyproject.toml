@@ -44,6 +44,11 @@ ipdb = "^0.13.7"
 simplexquery = ["python-simplexquery"]
 docs = ["Sphinx", "sphinx-autobuild", "sphinx-rtd-theme"]
 
+[tool.black]
+target-version = ['py38']
+line-length = 120
+exclude = "/migrations/"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
