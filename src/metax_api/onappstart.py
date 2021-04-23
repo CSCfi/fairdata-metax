@@ -8,8 +8,6 @@
 import logging
 from os import getpid, makedirs
 from shutil import rmtree
-from time import sleep
-from typing import Any
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -51,7 +49,6 @@ class OnAppStart(AppConfig):
 
             for check in get_checks():
                 if callable(check):
-                    resp: Any
                     try:
                         resp = json.dumps(check())
                         ic(resp)
