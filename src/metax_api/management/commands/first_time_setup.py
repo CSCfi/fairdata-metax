@@ -11,5 +11,5 @@ class Command(BaseCommand):
         call_command("index_refdata")
         call_command("reload_refdata_cache")
         call_command("loadinitialdata")
-        call_command("loaddata" "metax_api/tests/testdata/test_data.json")
+        call_command("loaddata", "metax_api/tests/testdata/test_data.json")
         logger.info("All first time setup commands completed successfully")
