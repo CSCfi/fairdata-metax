@@ -332,7 +332,6 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(
             "metax"
         )
@@ -386,7 +385,6 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(
             "metax"
         )
