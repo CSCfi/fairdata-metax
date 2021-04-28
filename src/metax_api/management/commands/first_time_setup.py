@@ -8,8 +8,9 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        call_command("migrate")
         call_command("index_refdata")
         call_command("reload_refdata_cache")
-        call_command("loadinitialdata")
         call_command("loaddata", "metax_api/tests/testdata/test_data.json")
+        call_command("loadinitialdata")
         logger.info("All first time setup commands completed successfully")
