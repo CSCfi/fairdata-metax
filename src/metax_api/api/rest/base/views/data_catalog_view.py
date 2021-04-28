@@ -38,7 +38,7 @@ class DataCatalogViewSet(CommonViewSet):
         identifiers, if there are matches
         """
 
-        lookup_value = self.kwargs.pop(self.lookup_field)
+        lookup_value = self.kwargs.get(self.lookup_field)
         try:
             obj = self._search_from_catalog_json({'identifier': lookup_value}, True)
         except Exception:
