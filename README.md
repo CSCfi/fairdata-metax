@@ -41,23 +41,15 @@ copy `src/metax_api/settings/.env.template` as `src/metax_api/settings/.env` and
 
 Activate your python 3.8 virtualenv, install requirements with `pip install -r requirements.txt`
 
-`cd` into `src` folder and run following commands:
+`cd` into `src` folder and run following command:
 
-`python manage.py migrate`
+`python manage.py first_time_setup`
 
 start the development server with:
 
 `python manage.py runserver 8008`
 
 Open another terminal and `cd` into `src`, and load the initial data with following commands:
-
-`python manage.py index_refdata`
-
-`python manage.py reload_refdata_cache`
-
-`python manage.py loadinitialdata`
-
-`python manage.py loaddata metax_api/tests/testdata/test_data.json`
 
 Metax api is available from your browser at http://localhost:8008
 
