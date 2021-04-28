@@ -49,8 +49,6 @@ start the development server with:
 
 `python manage.py runserver 8008`
 
-Open another terminal and `cd` into `src`, and load the initial data with following commands:
-
 Metax api is available from your browser at http://localhost:8008
 
 ## Running tests
