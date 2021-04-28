@@ -1,4 +1,4 @@
-from metax_api.settings.environments.demo import api_permissions, prepare_perm_values
+from metax_api.settings.environments.stable import api_permissions, prepare_perm_values
 
 api_permissions.rpc.files.flush_project.use.clear()
 
