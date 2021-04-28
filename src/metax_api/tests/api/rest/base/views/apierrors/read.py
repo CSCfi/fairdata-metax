@@ -36,9 +36,8 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         super(ApiErrorReadBasicTests, self).setUp()
         rmtree(settings.ERROR_FILES_PATH, ignore_errors=True)
         makedirs(settings.ERROR_FILES_PATH)
-        metax_user = settings.API_METAX_USER
         self._use_http_authorization(
-            username=metax_user["username"], password=metax_user["password"]
+            username="metax"
         )
 
     def _assert_fields_presence(self, response):
