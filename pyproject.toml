@@ -41,6 +41,7 @@ django-debug-toolbar = "^3.2"
 PyJWT = "^2.0.1"
 ipdb = "^0.13.7"
 isort = "^5.8.0"
+coverage = {version = "^5.5", extras = ["toml"]}
 
 [tool.poetry.extras]
 simplexquery = ["python-simplexquery"]

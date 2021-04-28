@@ -2,12 +2,13 @@
 omit =
     */migrations/*
     */__init__.py
-    metax_api/settings.py
     metax_api/wsgi.py
-    metax_api/tests/testdata/generate_test_data.py
-    metax_api/tests/testdata/request_test.py
-    metax_api/tests/testdata/fetch_and_update_datasets.py
-    metax_api/cron/update_reference_data.py
+    */tests/*
+    */settings/components/*
+    */settings/environments/*
+    */manage.py
+    */urls.py
+    */router.py
 
 [report]
 exclude_lines =
