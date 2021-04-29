@@ -8,9 +8,9 @@
 import logging
 from os import path
 
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from rest_framework import status
-from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, APIException
+from rest_framework.exceptions import APIException, MethodNotAllowed, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import set_rollback
@@ -18,7 +18,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from metax_api.exceptions import Http400, Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
-from metax_api.services import CommonService as CS, ApiErrorService, CallableService, RedisCacheService
+from metax_api.services import ApiErrorService, CallableService, CommonService as CS, RedisCacheService
 
 _logger = logging.getLogger(__name__)
 

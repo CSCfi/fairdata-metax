@@ -1,5 +1,7 @@
-from environ import ImproperlyConfigured
 import logging
+
+from environ import ImproperlyConfigured
+
 from metax_api.settings import env
 
 logger = logging.getLogger(__name__)

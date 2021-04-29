@@ -5,4 +5,4 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from .utils import datetime_format, get_json_schema, generate_test_identifier
+from .utils import datetime_format, generate_test_identifier, get_json_schema

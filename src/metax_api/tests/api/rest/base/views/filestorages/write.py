@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import FileStorage
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 
 class FileStorageApiWriteCommon(APITestCase, TestClassUtils):

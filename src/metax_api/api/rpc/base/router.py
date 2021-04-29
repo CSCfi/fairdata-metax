@@ -23,12 +23,7 @@ Including another URLconf
 
 from rest_framework.routers import DefaultRouter
 
-from .views import (
-    DatasetRPC,
-    FileRPC,
-    StatisticRPC,
-    ElasticsearchRPC,
-)
+from .views import DatasetRPC, ElasticsearchRPC, FileRPC, StatisticRPC
 
 
 class CustomRouter(DefaultRouter):

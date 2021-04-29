@@ -6,9 +6,9 @@
 # :license: MIT
 
 import logging
+from json import load as json_load
 from typing import List
 
-from json import load as json_load
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework import status
@@ -16,8 +16,8 @@ from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http412
-from metax_api.models import File, CatalogRecord as cr
-from metax_api.utils import parse_timestamp_string_to_tz_aware_datetime, get_tz_aware_now_without_micros
+from metax_api.models import CatalogRecord as cr, File
+from metax_api.utils import get_tz_aware_now_without_micros, parse_timestamp_string_to_tz_aware_datetime
 
 _logger = logging.getLogger(__name__)
 

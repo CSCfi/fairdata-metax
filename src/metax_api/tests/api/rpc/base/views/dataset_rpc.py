@@ -12,8 +12,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord, Directory, File
-from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteAssignFilesCommon, \
-    CatalogRecordApiWriteCommon
+from metax_api.tests.api.rest.base.views.datasets.write import (
+    CatalogRecordApiWriteAssignFilesCommon,
+    CatalogRecordApiWriteCommon,
+)
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 

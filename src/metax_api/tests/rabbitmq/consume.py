@@ -7,6 +7,7 @@
 # :license: MIT
 import pika
 from django.conf import settings
+
 """
 for testing:
 

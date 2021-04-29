@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from metax_api.tasks.refdata.refdata_indexer.service.service_utils import (
-    set_default_label,
-)
+from metax_api.tasks.refdata.refdata_indexer.service.service_utils import set_default_label
 
 
 class IndexableData:

@@ -9,8 +9,8 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import Contract, CatalogRecord
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.models import CatalogRecord, Contract
+from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 
 class ContractApiReadTestV1(APITestCase, TestClassUtils):

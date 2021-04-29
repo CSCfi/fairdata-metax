@@ -5,15 +5,14 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-import json
 import datetime
+import json
 import logging
 
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 
-from metax_api.models import DataCatalog
-from metax_api.models import FileStorage
+from metax_api.models import DataCatalog, FileStorage
 
 logger = logging.getLogger(__name__)
 

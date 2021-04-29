@@ -12,6 +12,7 @@ from rest_framework import status
 
 from metax_api.models import CatalogRecordV2, Contract, DataCatalog
 from metax_api.utils import get_tz_aware_now_without_micros
+
 from .read import CatalogRecordApiReadCommon
 from .write import CatalogRecordApiWriteCommon
 

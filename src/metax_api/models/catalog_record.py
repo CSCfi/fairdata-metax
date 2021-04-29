@@ -17,9 +17,20 @@ from django.http import Http404
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
-from metax_api.utils import get_tz_aware_now_without_micros, generate_doi_identifier, generate_uuid_identifier, \
-    executing_test_case, extract_doi_from_doi_identifier, IdentifierType, get_identifier_type, \
-    parse_timestamp_string_to_tz_aware_datetime, datetime_to_str, DelayedLog, is_metax_generated_doi_identifier
+from metax_api.utils import (
+    DelayedLog,
+    IdentifierType,
+    datetime_to_str,
+    executing_test_case,
+    extract_doi_from_doi_identifier,
+    generate_doi_identifier,
+    generate_uuid_identifier,
+    get_identifier_type,
+    get_tz_aware_now_without_micros,
+    is_metax_generated_doi_identifier,
+    parse_timestamp_string_to_tz_aware_datetime,
+)
+
 from .common import Common, CommonManager
 from .contract import Contract
 from .data_catalog import DataCatalog
@@ -1482,8 +1493,11 @@ class CatalogRecord(Common):
         self.add_post_request_callable(DelayedLog(**log_args))
 
     def _validate_cr_against_datacite_schema(self):
-        from metax_api.services.datacite_service import DataciteService, DataciteException, \
-            convert_cr_to_datacite_cr_json
+        from metax_api.services.datacite_service import (
+            DataciteException,
+            DataciteService,
+            convert_cr_to_datacite_cr_json,
+        )
         try:
             DataciteService().get_validated_datacite_json(
                 convert_cr_to_datacite_cr_json(self), True)

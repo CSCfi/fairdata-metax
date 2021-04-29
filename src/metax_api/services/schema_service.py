@@ -7,7 +7,7 @@
 
 import logging
 from os import listdir
-from os.path import isfile, join, abspath, dirname
+from os.path import abspath, dirname, isfile, join
 
 from django.http import Http404
 from rest_framework import status

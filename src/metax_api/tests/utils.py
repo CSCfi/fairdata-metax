@@ -123,8 +123,8 @@ class TestClassUtils:
     api_version = "v1"
 
     def create_end_user_data_catalogs(self):
-        from metax_api.utils import get_tz_aware_now_without_micros
         from metax_api.models import DataCatalog
+        from metax_api.utils import get_tz_aware_now_without_micros
 
         dc = DataCatalog.objects.get(pk=1)
         catalog_json = dc.catalog_json

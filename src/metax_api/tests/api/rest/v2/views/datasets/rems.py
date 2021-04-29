@@ -12,8 +12,9 @@ import responses
 from django.conf import settings as django_settings
 from rest_framework import status
 
-from metax_api.services import ReferenceDataMixin as RDM, RedisCacheService as cache
+from metax_api.services import RedisCacheService as cache, ReferenceDataMixin as RDM
 from metax_api.tests.utils import get_test_oidc_token
+
 from .write import CatalogRecordApiWriteCommon
 
 IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER

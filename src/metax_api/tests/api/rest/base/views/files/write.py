@@ -16,7 +16,7 @@ from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.services.redis_cache_service import RedisClient
-from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
+from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 
 class FileApiWriteCommon(APITestCase, TestClassUtils):
