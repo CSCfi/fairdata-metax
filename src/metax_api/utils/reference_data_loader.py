@@ -8,7 +8,6 @@
 import logging
 
 from django.conf import settings as django_settings
-from icecream import ic
 
 from .utils import executing_test_case
 
@@ -65,7 +64,7 @@ class ReferenceDataLoader():
         if not errors:
             if not isinstance(settings, dict):
                 settings = settings.ELASTICSEARCH
-            cache.set('ref_data_up_to_date', True, ex=settings['REFERENCE_DATA_RELOAD_INTERVAL'])
+            cache.set('ref_data_up_to_date', True, ex=django_settings.REFERENCE_DATA_RELOAD_INTERVAL)
 
         _logger.info('ReferenceDataLoader - %s' % ('failed to populate cache' if errors else 'cache populated'))
         cache.delete('reference_data_load_executing')
@@ -76,14 +75,12 @@ class ReferenceDataLoader():
         _logger.info(f"fetching reference data: {cls.REF_DATA_LOAD_NUM}")
         if not isinstance(settings, dict):
             settings = settings.ELASTICSEARCH
-            # ic(settings)
 
         connection_params = cls.get_connection_parameters(settings)
         esclient, scan = cls.get_es_imports(settings['HOSTS'], connection_params)
 
         reference_data = {}
         for index_name in esclient.indices.get_mapping().keys():
-            # ic(index_name)
             reference_data[index_name] = {}
 
             # a cumbersome way to fetch the types, but supposedly the only way because nginx restricts ES usage
@@ -95,7 +92,6 @@ class ReferenceDataLoader():
                 _source='type',
                 scroll='1m'
             )
-            # ic(aggr_types)
 
             for type_name in [ b['key'] for b in aggr_types['aggregations']['types']['buckets'] ]:
                 reference_data[index_name][type_name] = []
@@ -168,9 +164,8 @@ class ReferenceDataLoader():
             if settings.get('USE_SSL', False):
                 conf.update({ 'port': 443, 'use_ssl': True, 'verify_certs': True, })
             if settings.get('PORT', False):
-                conf.update('port', settings['PORT'])
+                conf.update({ 'port': settings['PORT'] })
             return conf
-        ic()
         _logger.warning("returning empty connection parameters")
         return {}
 

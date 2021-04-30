@@ -16,6 +16,8 @@ import responses
 from django.conf import settings as django_settings
 from rest_framework import status
 
+logger = logging.getLogger(__name__)
+
 datetime_format = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 # path to data used by automatic tests
@@ -104,7 +106,11 @@ def generate_test_token(payload):
     supported in the PyJWT lib, and since we are mocking the responses anyway, it does not matter,
     as long as the token otherwise looks legit, can be parse etc.
     """
-    return jwt.encode(payload, "secret", "HS256").decode("utf-8")
+    try:
+        return jwt.encode(payload, "secret", "HS256").decode("utf-8")
+    except AttributeError as e:
+        logger.error(e)
+        return jwt.encode(payload, "secret", "HS256")
 
 
 class TestClassUtils:

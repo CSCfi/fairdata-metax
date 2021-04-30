@@ -11,6 +11,24 @@ Licensed under [GNU GPLv2 License](LICENSE)
 
 You can also set up the development environment with [Docker-swarm setup](/docs/docker-stack.md) or with [standalone Docker-containers setup](/docs/single-docker-images.md).
 
+### Python dependencies
+
+Install [Poetry](https://python-poetry.org/docs/) for your OS. Navigate to the repository root and run command `poetry install`. this will create and activate new Python virtualenv, installing all necessary Python packages to it.
+
+You can generate traditional requirements.txt file with `poetry export --dev -E simplexquery --without-hashes -f requirements.txt --output requirements.txt`
+
+### Managing dependencies
+
+__NOTICE: Please remember to execute `poetry export --dev -E simplexquery --without-hashes -f requirements.txt --output requirements.txt` after any additions, updates or removals.__
+
+Developer dependencies can be added with command `poetry add -D <package>`
+Application dependencies can be added with command `poetry add <package>`
+
+Dependencies can be updated using `poetry update`. Please notice that this will update all packages and their dependencies, respecting the dependency constraints defined in pyproject.toml 
+
+Dependencies can be removed with `poetry remove (-D) <package>`
+
+
 ### Required environmental variables
 
 copy `src/metax_api/settings/.env.template` as `src/metax_api/settings/.env` and fill required variables, you can find examples in ENV_VARS.md

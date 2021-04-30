@@ -317,14 +317,6 @@ class CatalogRecordApiLock(CatalogRecordApiWriteCommon):
         self._assert_api_version(cr_v1["identifier"], 2)
         self._assert_api_version(new_dataset["identifier"], 2)
 
-        # test publish dataset
-
-        cr_v1 = self._create_v1_dataset(draft=True)
-
-        params = f'identifier={cr_v1["identifier"]}'
-        response = self.client.post(f'/rpc/v2/datasets/publish_dataset?{params}', format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
-        self._assert_api_version(cr_v1['identifier'], 2)
+        # publish dataset does not need to be checked because v1 datasets cannot be drafts
 
         # merge draft does not need to be checked because v1 datasets cannot have "parent" dataset

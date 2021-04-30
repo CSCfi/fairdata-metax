@@ -75,7 +75,7 @@ class OnAppStart(AppConfig):
 
         try:
 
-            if settings.ELASTICSEARCH["ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART"]:
+            if settings.ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART:
                 cache.set("reference_data", None)
 
             if not cache.get("reference_data", master=True) or not cache.get(

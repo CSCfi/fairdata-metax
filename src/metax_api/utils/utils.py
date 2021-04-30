@@ -5,7 +5,6 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-import os
 import sys
 from datetime import datetime
 from enum import Enum
@@ -42,13 +41,6 @@ def executing_test_case():
     Returns True whenever code is being executed by automatic test cases
     """
     return 'test' in sys.argv
-
-
-def executing_travis():
-    """
-    Returns True whenever code is being executed by travis
-    """
-    return True if os.getenv('TRAVIS', False) else False
 
 
 def datetime_to_str(date_obj):
@@ -207,7 +199,7 @@ def leave_keys_in_dict(dict_obj, fields_to_leave):
             del dict_obj[key]
 
 
-if executing_test_case() or executing_travis():
+if executing_test_case():
     class TestJsonLogger():
 
         def info(self, *args, **kwargs):

@@ -30,4 +30,4 @@
 
 ## Execute management commands against docker swarm metax-api container
 
-`docker exec $(docker ps -q -f name=metax-dev_metax) python manage.py check`
+`docker exec $(docker ps -q -f name=metax-dev_metax-web) python manage.py check`
