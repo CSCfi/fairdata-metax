@@ -13,7 +13,7 @@ import requests
 from datacite import schema41 as datacite_schema41, DataCiteMDSClient
 from django.conf import settings as django_settings
 
-from metax_api.utils import extract_doi_from_doi_identifier, is_metax_generated_doi_identifier, executing_travis, \
+from metax_api.utils import extract_doi_from_doi_identifier, is_metax_generated_doi_identifier, \
     executing_test_case, is_metax_generated_urn_identifier, datetime_to_str, is_remote_doi_identifier
 from .common_service import CommonService
 
@@ -35,7 +35,7 @@ def DataciteService(*args, **kwargs):
     A factory for the Datacite service, which is capable of interacting with Datacite API and converting catalog records
     into datacite format.
     """
-    if executing_travis() or executing_test_case() or kwargs.pop('dummy', False):
+    if executing_test_case() or kwargs.pop('dummy', False):
         return _DataciteServiceDummy(*args, **kwargs)
     else:
         return _DataciteService(*args, **kwargs)

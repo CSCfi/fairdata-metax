@@ -9,7 +9,6 @@ import urllib.parse
 from collections import defaultdict
 from os.path import dirname, join
 
-import simplexquery as sxq
 import xmltodict
 from django.db.models import Q
 from rest_framework import status
@@ -31,6 +30,12 @@ from .reference_data_mixin import ReferenceDataMixin
 
 _logger = logging.getLogger(__name__)
 
+# simplexquery requires dependencies outside Python packages and is not that important
+# it also blocks debugging if not present
+try:
+    import simplexquery as sxq
+except ImportError as e:
+    _logger.error(e)
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
 

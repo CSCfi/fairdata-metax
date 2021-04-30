@@ -3,16 +3,13 @@ import os
 from metax_api.settings import env
 from metax_api.settings.components import BASE_DIR
 
-METAX_ENV=(str, "local_development")
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
-METAX_API_ROOT = env("METAX_API_ROOT")
 ADDITIONAL_USER_PROJECTS_PATH = env("ADDITIONAL_USER_PROJECTS_PATH")
 IDA_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ida"
 ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
 PAS_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-pas"
 LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
-EXT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ext"
 DFT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-dft"
 
 END_USER_ALLOWED_DATA_CATALOGS = [
@@ -32,8 +29,6 @@ ERROR_FILES_PATH = env("ERROR_FILES_PATH")
 
 # Allow only specific hosts to access the app
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
-
-# SITE_URL = "localhost:8008"
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
@@ -55,7 +50,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "rest_framework",
     "metax_api",
-    "sslserver",
 ]
 
 if DEBUG:
@@ -139,7 +133,6 @@ DATABASES = {
 DATABASES["default"]["ENGINE"] = "django.db.backends.postgresql"
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
-
 # Colorize automated test console output
 RAINBOWTESTS_HIGHLIGHT_PATH = str(BASE_DIR)
 TEST_RUNNER = "rainbowtests.test.runner.RainbowDiscoverRunner"
@@ -170,7 +163,6 @@ USE_TZ = True
 
 DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S.%fZ"]
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
@@ -184,7 +176,6 @@ if env("ENABLE_V1_ENDPOINTS"):
     API_VERSIONS_ENABLED.append("v1")
 if env("ENABLE_V2_ENDPOINTS"):
     API_VERSIONS_ENABLED.append("v2")
-DRAFT_ENABLED = env("DRAFT_ENABLED")
 
 # Variables related to api credentials
 API_USERS = [
@@ -194,4 +185,5 @@ API_USERS = [
     {"password": "test-tpas", "username": "tpas"},
     {"password": "test-etsin", "username": "etsin"},
     {"password": "test-fds", "username": "fds"},
+    {"password": "test-download", "username": "download"},
 ]

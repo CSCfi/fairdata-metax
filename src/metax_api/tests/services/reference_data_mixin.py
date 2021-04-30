@@ -12,15 +12,10 @@ from django.test import TestCase
 from metax_api.services import ReferenceDataMixin as RDM
 from metax_api.services.redis_cache_service import RedisClient
 from metax_api.tests.utils import TestClassUtils
-from metax_api.utils import executing_travis, ReferenceDataLoader
-
-if executing_travis():
-    _RedisCacheClass = RedisClient
-else:
-    _RedisCacheClass = RedisClient
+from metax_api.utils import ReferenceDataLoader
 
 
-class MockRedisCacheService(_RedisCacheClass):
+class MockRedisCacheService(RedisClient):
     def __init__(self, return_data_after_retries=0, *args, **kwargs):
         self.call_count = 0
         self.return_data_after_retries = return_data_after_retries

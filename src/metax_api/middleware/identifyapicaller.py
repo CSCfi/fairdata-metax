@@ -14,7 +14,7 @@ from django.conf import settings as django_settings
 from django.http import HttpResponseForbidden
 
 from metax_api.exceptions import Http403
-from metax_api.utils import executing_test_case, executing_travis
+from metax_api.utils import executing_test_case
 
 _logger = logging.getLogger(__name__)
 
@@ -220,7 +220,7 @@ class _IdentifyApiCallerDummy(_IdentifyApiCaller):
         return django_settings.API_TEST_USERS
 
 
-if executing_test_case() or executing_travis():
+if executing_test_case():
     IdentifyApiCaller = _IdentifyApiCallerDummy
 else:
     IdentifyApiCaller = _IdentifyApiCaller

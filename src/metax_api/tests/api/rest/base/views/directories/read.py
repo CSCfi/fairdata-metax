@@ -385,7 +385,7 @@ class DirectoryApiReadFileBrowsingRetrieveSpecificFieldsTests(DirectoryApiReadCo
         allowed_dir_fields = set(DirectorySerializer.Meta.fields)
         allowed_file_fields = set(FileSerializer.Meta.fields)
 
-        response = self.client.get('/rest/directories/3/files?file_fields=parent,id&directory_fields=;;drop db;')
+        response = self.client.get('/rest/directories/3/files?file_fields=parent,id&directory_fields=;;drop db;,id')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(any(field in response.data['files'][0].keys() for field in allowed_file_fields))
