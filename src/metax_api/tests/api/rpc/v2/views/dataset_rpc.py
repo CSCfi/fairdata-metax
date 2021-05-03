@@ -13,14 +13,8 @@ from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecordV2, DataCatalog
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
-from metax_api.tests.utils import (
-    TestClassUtils,
-    get_test_oidc_token,
-    test_data_file_path,
-)
-from metax_api.utils import (
-    get_tz_aware_now_without_micros,
-)
+from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
+from metax_api.utils import get_tz_aware_now_without_micros
 
 CR = CatalogRecordV2
 END_USER_ALLOWED_DATA_CATALOGS = settings.END_USER_ALLOWED_DATA_CATALOGS

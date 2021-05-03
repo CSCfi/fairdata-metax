@@ -27,6 +27,7 @@ be useful to manully run the above script
 
 import json
 import sys
+
 import yaml
 
 TEMPLATE = """

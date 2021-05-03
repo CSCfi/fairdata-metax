@@ -6,9 +6,7 @@ import logging
 import os
 
 import metax_api.tasks.refdata.refdata_indexer.organization_csv_parser as org_parser
-from metax_api.tasks.refdata.refdata_indexer.domain.organization_data import (
-    OrganizationData,
-)
+from metax_api.tasks.refdata.refdata_indexer.domain.organization_data import OrganizationData
 
 logger = logging.getLogger(__name__)
 

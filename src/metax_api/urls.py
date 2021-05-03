@@ -20,9 +20,10 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+import debug_toolbar
 from django.conf import settings as django_settings
-from django.conf.urls import url, include
-from django.urls import re_path, path
+from django.conf.urls import include, url
+from django.urls import path, re_path
 
 from metax_api.api.oaipmh.base.view import oaipmh_view as oaipmh
 from metax_api.api.rest.base.router import api_urlpatterns as rest_api_v1
@@ -30,8 +31,6 @@ from metax_api.api.rest.v2.router import api_urlpatterns as rest_api_v2
 from metax_api.api.rpc.base.router import api_urlpatterns as rpc_api_v1
 from metax_api.api.rpc.v2.router import api_urlpatterns as rpc_api_v2
 from metax_api.views.router import view_urlpatterns
-import debug_toolbar
-
 
 v1_urls = [
     url('', include(view_urlpatterns)),

@@ -7,7 +7,7 @@
 
 import re
 
-from jsonschema import validate as json_validate, FormatChecker
+from jsonschema import FormatChecker, validate as json_validate
 from jsonschema.compat import str_types
 from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ValidationError

@@ -16,11 +16,7 @@ from rest_framework.serializers import ValidationError
 from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.api.rest.base.serializers.catalog_record_serializer import DFT_CATALOG
 from metax_api.models import CatalogRecordV2
-from metax_api.services import (
-    CatalogRecordService as CRS,
-    CommonService as CS,
-    RedisCacheService as cache,
-)
+from metax_api.services import CatalogRecordService as CRS, CommonService as CS, RedisCacheService as cache
 
 _logger = logging.getLogger(__name__)
 

@@ -8,6 +8,7 @@
 import logging
 
 from metax_api.api.rest.base.views import DataCatalogViewSet as DCVS
+
 from ..serializers import DataCatalogSerializerV2
 
 _logger = logging.getLogger(__name__)

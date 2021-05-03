@@ -8,6 +8,7 @@
 from rest_framework.serializers import ValidationError
 
 from metax_api.models import FileStorage
+
 from .common_serializer import CommonSerializer
 from .serializer_utils import validate_json
 

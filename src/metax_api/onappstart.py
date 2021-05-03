@@ -6,7 +6,7 @@
 # :license: MIT
 
 import logging
-from os import makedirs, getpid
+from os import getpid, makedirs
 from shutil import rmtree
 from time import sleep
 from typing import Any
@@ -15,7 +15,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from icecream import ic
 
-from metax_api.utils import executing_test_case, ReferenceDataLoader
+from metax_api.utils import ReferenceDataLoader, executing_test_case
 
 _logger = logging.getLogger(__name__)
 
@@ -40,12 +40,12 @@ class OnAppStart(AppConfig):
 
         # some imports from metax_api cannot be done at the beginning of the file,
         # because the "django apps" have not been loaded yet.
-        from metax_api.services import (
-            RabbitMQService as rabbitmq,
-        )
-        from metax_api.services.redis_cache_service import RedisClient
-        from watchman.utils import get_checks
         import json
+
+        from watchman.utils import get_checks
+
+        from metax_api.services import RabbitMQService as rabbitmq
+        from metax_api.services.redis_cache_service import RedisClient
 
         for check in get_checks():
             if callable(check):

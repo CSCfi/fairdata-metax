@@ -13,11 +13,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.tests.utils import (
-    test_data_file_path,
-    TestClassUtils,
-    testcase_log_console,
-)
+from metax_api.tests.utils import TestClassUtils, test_data_file_path, testcase_log_console
 
 _logger = logging.getLogger(__name__)
 

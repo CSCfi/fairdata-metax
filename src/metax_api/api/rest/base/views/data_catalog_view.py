@@ -8,8 +8,9 @@
 from django.http import Http404
 
 from metax_api.models import DataCatalog
-from .common_view import CommonViewSet
+
 from ..serializers import DataCatalogSerializer
+from .common_view import CommonViewSet
 
 
 class DataCatalogViewSet(CommonViewSet):

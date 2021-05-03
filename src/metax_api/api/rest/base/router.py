@@ -23,14 +23,14 @@ Including another URLconf
 from rest_framework.routers import DefaultRouter, Route
 
 from .views import (
+    ApiErrorViewSet,
     ContractViewSet,
     DataCatalogViewSet,
     DatasetViewSet,
     DirectoryViewSet,
-    ApiErrorViewSet,
-    FileViewSet,
     FileStorageViewSet,
-    SchemaViewSet
+    FileViewSet,
+    SchemaViewSet,
 )
 
 

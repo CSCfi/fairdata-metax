@@ -1,7 +1,7 @@
 import json
 
-from metax_api.settings.components.access_control import Role, api_permissions, prepare_perm_values
 from metax_api.settings import env
+from metax_api.settings.components.access_control import Role, api_permissions, prepare_perm_values
 
 api_permissions.rest.apierrors.read = [Role.ALL]
 

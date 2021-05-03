@@ -12,13 +12,14 @@ from django.conf import settings as django_settings
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403
-from metax_api.models import CatalogRecord, DataCatalog, Directory, Contract, Common, File
+from metax_api.models import CatalogRecord, Common, Contract, DataCatalog, Directory, File
 from metax_api.services import (
     CatalogRecordService as CRS,
     CommonService,
     DataCatalogService,
     RedisCacheService as cache,
 )
+
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
 from .data_catalog_serializer import DataCatalogSerializer

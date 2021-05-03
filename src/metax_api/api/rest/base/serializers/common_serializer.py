@@ -14,8 +14,7 @@ from django.db import transaction
 from django.db.models.query import QuerySet
 from rest_framework.fields import SkipField
 from rest_framework.relations import PKOnlyObject
-from rest_framework.serializers import ModelSerializer
-from rest_framework.serializers import ValidationError
+from rest_framework.serializers import ModelSerializer, ValidationError
 
 from metax_api.exceptions import Http400
 from metax_api.models import Common

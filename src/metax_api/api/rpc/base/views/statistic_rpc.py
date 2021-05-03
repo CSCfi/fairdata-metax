@@ -12,7 +12,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from metax_api.exceptions import Http400
-from metax_api.services import StatisticService, CommonService as CS
+from metax_api.services import CommonService as CS, StatisticService
+
 from .common_rpc import CommonRPC
 
 _logger = logging.getLogger(__name__)

@@ -15,20 +15,16 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403
 from metax_api.utils import (
-    datetime_to_str,
     DelayedLog,
+    IdentifierType,
+    datetime_to_str,
     generate_doi_identifier,
     generate_uuid_identifier,
     get_identifier_type,
     get_tz_aware_now_without_micros,
-    IdentifierType,
 )
-from .catalog_record import (
-    CatalogRecord,
-    DataciteDOIUpdate,
-    DatasetVersionSet,
-    RabbitMQPublishRecord,
-)
+
+from .catalog_record import CatalogRecord, DataciteDOIUpdate, DatasetVersionSet, RabbitMQPublishRecord
 from .common import Common
 from .directory import Directory
 from .file import File

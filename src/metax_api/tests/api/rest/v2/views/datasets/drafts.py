@@ -9,12 +9,10 @@ import responses
 from django.conf import settings as django_settings
 from rest_framework import status
 
-from metax_api.models import (
-    CatalogRecordV2,
-    DataCatalog,
-)
+from metax_api.models import CatalogRecordV2, DataCatalog
 from metax_api.tests.utils import get_test_oidc_token
 from metax_api.utils import get_tz_aware_now_without_micros
+
 from .write import CatalogRecordApiWriteCommon
 
 CR = CatalogRecordV2

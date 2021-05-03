@@ -20,8 +20,8 @@ from metax_api.models import AlternateRecordSet, CatalogRecord, Contract, DataCa
 from metax_api.models.catalog_record import ACCESS_TYPES
 from metax_api.services import ReferenceDataMixin as RDM
 from metax_api.services.redis_cache_service import RedisClient
-from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
-from metax_api.utils import get_tz_aware_now_without_micros, get_identifier_type, IdentifierType
+from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
+from metax_api.utils import IdentifierType, get_identifier_type, get_tz_aware_now_without_micros
 
 VALIDATE_TOKEN_URL = django_settings.VALIDATE_TOKEN_URL
 END_USER_ALLOWED_DATA_CATALOGS = django_settings.END_USER_ALLOWED_DATA_CATALOGS

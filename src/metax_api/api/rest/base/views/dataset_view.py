@@ -14,17 +14,14 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from metax_api.exceptions import Http403, Http400
-from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
+from metax_api.exceptions import Http400, Http403
+from metax_api.models import CatalogRecord, Common, DataCatalog, Directory, File
 from metax_api.renderers import XMLRenderer
-from metax_api.services import (
-    CatalogRecordService,
-    CommonService as CS,
-    RabbitMQService as rabbitmq,
-)
+from metax_api.services import CatalogRecordService, CommonService as CS, RabbitMQService as rabbitmq
 from metax_api.settings import env
-from .common_view import CommonViewSet
+
 from ..serializers import CatalogRecordSerializer, LightFileSerializer
+from .common_view import CommonViewSet
 
 _logger = logging.getLogger(__name__)
 

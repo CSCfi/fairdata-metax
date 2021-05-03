@@ -3,28 +3,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import logging.config
 
-from metax_api.tasks.refdata.refdata_indexer.domain.indexable_data import (
-    IndexableData as IdxData,
-)
-from metax_api.tasks.refdata.refdata_indexer.domain.reference_data import (
-    ReferenceData as RefData,
-)
-from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service import (
-    ElasticSearchService as ESS,
-)
-from metax_api.tasks.refdata.refdata_indexer.service.finto_data_service import (
-    FintoDataService,
-)
+from metax_api.tasks.refdata.refdata_indexer.domain.indexable_data import IndexableData as IdxData
+from metax_api.tasks.refdata.refdata_indexer.domain.reference_data import ReferenceData as RefData
+from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service import ElasticSearchService as ESS
+from metax_api.tasks.refdata.refdata_indexer.service.finto_data_service import FintoDataService
+
 # from service.infra_data_service import InfraDataService
-from metax_api.tasks.refdata.refdata_indexer.service.local_data_service import (
-    LocalDataService,
-)
-from metax_api.tasks.refdata.refdata_indexer.service.mime_data_service import (
-    MimeDataService,
-)
-from metax_api.tasks.refdata.refdata_indexer.service.organization_service import (
-    OrganizationService,
-)
+from metax_api.tasks.refdata.refdata_indexer.service.local_data_service import LocalDataService
+from metax_api.tasks.refdata.refdata_indexer.service.mime_data_service import MimeDataService
+from metax_api.tasks.refdata.refdata_indexer.service.organization_service import OrganizationService
 
 _logger = logging.getLogger(__name__)
 

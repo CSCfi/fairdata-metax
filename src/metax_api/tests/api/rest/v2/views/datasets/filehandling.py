@@ -10,12 +10,9 @@ from copy import deepcopy
 import responses
 from rest_framework import status
 
-from metax_api.models import (
-    CatalogRecordV2,
-    Directory,
-    File
-)
+from metax_api.models import CatalogRecordV2, Directory, File
 from metax_api.tests.utils import get_test_oidc_token
+
 from .write import CatalogRecordApiWriteCommon, create_end_user_catalogs
 
 CR = CatalogRecordV2

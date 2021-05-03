@@ -11,6 +11,7 @@ from collections import defaultdict
 from rest_framework.serializers import ValidationError
 
 from metax_api.models import DataCatalog
+
 from .reference_data_mixin import ReferenceDataMixin
 
 

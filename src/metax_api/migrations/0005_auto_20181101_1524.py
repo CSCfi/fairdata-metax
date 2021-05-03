@@ -2,7 +2,6 @@
 
 from django.db import migrations, models
 
-
 """
 Change file_name and directory_name fields from CharField with max_length to TextField, which has
 max length of whatever the db supports.
