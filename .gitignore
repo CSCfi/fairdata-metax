@@ -18,4 +18,18 @@ ubuntu-xenial-16.04-cloudimg-console.log
 !.env.template
 *.pem
 /src/log
+
+# Unit test / coverage reports
 htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytestdebug.log
