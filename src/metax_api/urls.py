@@ -57,6 +57,7 @@ if 'v2' in django_settings.API_VERSIONS_ENABLED:
 if django_settings.WATCHMAN_CONFIGURED:
     urlpatterns += [re_path(r'^watchman/', include('watchman.urls'))]
 
-urlpatterns += [
-    path('__debug__/', include(debug_toolbar.urls)),
-]
+if django_settings.DEBUG:
+    urlpatterns += [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ]
