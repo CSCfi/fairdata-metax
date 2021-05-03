@@ -220,13 +220,6 @@ class CommonViewSet(ModelViewSet):
                 # replace original field name with field name in lookup_field_other
                 self.kwargs[lookup_url_kwarg] = self.kwargs.get(self.lookup_field)
 
-            assert lookup_url_kwarg in self.kwargs, (
-                'Expected view %s to be called with a URL keyword argument '
-                'named "%s". Fix your URL conf, or set the `.lookup_field` '
-                'attribute on the view correctly.' %
-                (self.__class__.__name__, lookup_url_kwarg)
-            )
-
             filter_kwargs = { lookup_url_kwarg: self.kwargs[lookup_url_kwarg] }
 
         queryset = self.filter_queryset(self.get_queryset())
