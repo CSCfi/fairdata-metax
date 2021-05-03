@@ -1,6 +1,7 @@
-from metax_api.settings.components.common import INSTALLED_APPS
-from metax_api.settings import env
 import logging
+
+from metax_api.settings import env
+from metax_api.settings.components.common import INSTALLED_APPS
 
 logger = logging.getLogger(__name__)
 

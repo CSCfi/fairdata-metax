@@ -38,11 +38,10 @@ class OnAppStart(AppConfig):
 
         # some imports from metax_api cannot be done at the beginning of the file,
         # because the "django apps" have not been loaded yet.
-        from metax_api.services import (
-            RabbitMQService as rabbitmq,
-        )
-        from metax_api.services.redis_cache_service import RedisClient
         import json
+
+        from metax_api.services import RabbitMQService as rabbitmq
+        from metax_api.services.redis_cache_service import RedisClient
 
         if settings.WATCHMAN_CONFIGURED:
             from watchman.utils import get_checks
