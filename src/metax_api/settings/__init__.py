@@ -30,6 +30,7 @@ env = environ.Env(
     ELASTIC_SEARCH_USE_SSL=(bool, False),
     ENABLE_V1_ENDPOINTS=(bool, True),
     ENABLE_V2_ENDPOINTS=(bool, True),
+    ENABLE_DJANGO_WATCHMAN=(bool, False),
     ERROR_FILES_PATH=(str, join("/var", "log", "metax-api", "errors")),
     ES_CONFIG_DIR=(str, join(REFDATA_INDEXER_PATH, "resources", "es-config/")),
     LOCAL_REF_DATA_FOLDER=(str, join(REFDATA_INDEXER_PATH, "resources", "local-refdata/")),
@@ -69,6 +70,7 @@ base_settings = [
     "components/elasticsearch.py",
     "components/rabbitmq.py",
     "components/externals.py",
+    "components/monitoring.py",
     "components/rems.py",
     "environments/{0}.py".format(ENV),
     # Optionally override some settings:
