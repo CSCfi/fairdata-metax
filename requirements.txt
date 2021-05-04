@@ -32,6 +32,7 @@ ipython-genutils==0.2.0; python_version >= "3.7"
 ipython==7.22.0; python_version >= "3.7"
 isbnid-fork==0.5.2
 isodate==0.6.0
+isort==5.8.0; python_version >= "3.6" and python_version < "4.0"
 jedi==0.18.0; python_version >= "3.7"
 jsonschema==3.2.0
 lxml==4.6.3; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
