@@ -9,7 +9,9 @@ omit =
     */manage.py
     */urls.py
     */router.py
+    metax_api/onappstart.py
 branch = True
+concurrency = multiprocessing
 
 [report]
 exclude_lines =
@@ -27,3 +29,14 @@ exclude_lines =
     if 0:
     if __name__ == .__main__.:
 skip_covered = True
+omit =
+    */migrations/*
+    */__init__.py
+    metax_api/wsgi.py
+    */tests/*
+    */settings/components/*
+    */settings/environments/*
+    */manage.py
+    */urls.py
+    */router.py
+    metax_api/onappstart.py
