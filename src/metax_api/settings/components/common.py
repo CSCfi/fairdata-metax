@@ -6,11 +6,13 @@ from metax_api.settings.components import BASE_DIR
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 ADDITIONAL_USER_PROJECTS_PATH = env("ADDITIONAL_USER_PROJECTS_PATH")
+
 IDA_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ida"
 ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
 PAS_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-pas"
 LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
 DFT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-dft"
+REPOTRONIC_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-repotronic"
 
 END_USER_ALLOWED_DATA_CATALOGS = [
     IDA_DATA_CATALOG_IDENTIFIER,
@@ -23,7 +25,9 @@ END_USER_ALLOWED_DATA_CATALOGS = [
 # catalogs where uniqueness of dataset pids is not enforced.
 LEGACY_CATALOGS = [
     LEGACY_DATA_CATALOG_IDENTIFIER,
+    REPOTRONIC_DATA_CATALOG_IDENTIFIER,
 ]
+
 VALIDATE_TOKEN_URL = env("VALIDATE_TOKEN_URL")
 CHECKSUM_ALGORITHMS = ["SHA-256", "MD5", "SHA-512"]
 ERROR_FILES_PATH = env("ERROR_FILES_PATH")
