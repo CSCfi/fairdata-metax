@@ -9,7 +9,8 @@ Licensed under [GNU GPLv2 License](LICENSE)
 
 ## Setting up local development environment
 
-You can also set up the development environment with [Docker-swarm setup](/docs/docker-stack.md) or with [standalone Docker-containers setup](/docs/single-docker-images.md).
+The recommended way to run the development setup is to use [Docker-swarm setup](/docs/docker-stack.md). You can also set up the development environment with
+[standalone Docker-containers setup](/docs/single-docker-images.md) or local install documented below.
 
 ### Python dependencies
 
@@ -27,7 +28,6 @@ Application dependencies can be added with command `poetry add <package>`
 Dependencies can be updated using `poetry update`. Please notice that this will update all packages and their dependencies, respecting the dependency constraints defined in pyproject.toml 
 
 Dependencies can be removed with `poetry remove (-D) <package>`
-
 
 ### Required environmental variables
 
@@ -49,8 +49,7 @@ start the development server with:
 
 `python manage.py runserver 8008`
 
-Metax api is available from your browser at http://localhost:8008
-
+Metax api is available from your browser at http://localhost:8008. To use https refer the [ssl-setup](/docs/local-ssl-setup.md).
 ## Running tests
 
 run the tests with command `DJANGO_ENV=unittests python manage.py test --parallel --failfast --keepdb -v 0`
@@ -63,4 +62,6 @@ run the tests with command `DJANGO_ENV=unittests python manage.py test --paralle
 
 cli-report:`docker exec -it $(docker ps -q -f name="metax-web*") coverage report`
 
+## Running tests
 
+Run all tests with command `DJANGO_ENV=unittests python manage.py test --parallel --failfast`
