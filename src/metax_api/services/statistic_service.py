@@ -131,13 +131,7 @@ class StatisticService:
 
         if legacy is not None:
             where_args.append(
-                "".join(
-                    [
-                        "and dc.catalog_json->>'identifier'",
-                        " = " if legacy else " != ",
-                        "any(%s)",
-                    ]
-                )
+                ''.join(["and", " " if legacy else " NOT ", "dc.catalog_json->>'identifier'", " = ", "any(%s)"])
             )
             sql_args.append(settings.LEGACY_CATALOGS)
 
@@ -210,13 +204,7 @@ class StatisticService:
 
         if legacy is not None:
             filter_sql.append(
-                "".join(
-                    [
-                        "and dc.catalog_json->>'identifier'",
-                        " = " if legacy else " != ",
-                        "any(%s)",
-                    ]
-                )
+                ''.join(["and", " " if legacy else " NOT ", "dc.catalog_json->>'identifier'", " = ", "any(%s)"])
             )
             filter_args.append(settings.LEGACY_CATALOGS)
 
