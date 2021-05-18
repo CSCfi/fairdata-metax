@@ -53,9 +53,14 @@ Metax api is available from your browser at http://localhost:8008
 
 ## Running tests
 
-run the tests with command `DJANGO_ENV=test python manage.py test --parallel --failfast --keepdb -v 0`
+run the tests with command `DJANGO_ENV=unittests python manage.py test --parallel --failfast --keepdb -v 0`
 
+### Running coverage (Docker)
 
+`docker exec -it -e DJANGO_ENV=unittests $(docker ps -q -f name="metax-web*") coverage run manage.py test --parallel`
 
+### Generating coverage report
+
+cli-report:`docker exec -it $(docker ps -q -f name="metax-web*") coverage report`
 
 
