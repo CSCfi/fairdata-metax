@@ -11,26 +11,11 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import CatalogRecordV2, DataCatalog
+from metax_api.models import CatalogRecordV2
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
-from metax_api.utils import get_tz_aware_now_without_micros
 
 CR = CatalogRecordV2
-END_USER_ALLOWED_DATA_CATALOGS = settings.END_USER_ALLOWED_DATA_CATALOGS
-
-
-def create_end_user_catalogs():
-    dc = DataCatalog.objects.get(pk=1)
-    catalog_json = dc.catalog_json
-    for identifier in END_USER_ALLOWED_DATA_CATALOGS:
-        catalog_json['identifier'] = identifier
-        dc = DataCatalog.objects.create(
-            catalog_json=catalog_json,
-            date_created=get_tz_aware_now_without_micros(),
-            catalog_record_services_create='testuser,api_auth_user,metax',
-            catalog_record_services_edit='testuser,api_auth_user,metax'
-        )
 
 
 class DatasetRPCTests(APITestCase, TestClassUtils):
@@ -355,9 +340,9 @@ class CatalogRecordPublishing(CatalogRecordApiWriteCommon):
         self.token = get_test_oidc_token(new_proxy=True)
         self._mock_token_validation_succeeds()
         self._use_http_authorization(method='bearer', token=self.token)
-        create_end_user_catalogs()
+        self.create_end_user_data_catalogs()
 
-        self.cr_test_data['data_catalog'] = END_USER_ALLOWED_DATA_CATALOGS[0]
+        self.cr_test_data['data_catalog'] = settings.END_USER_ALLOWED_DATA_CATALOGS[0]
         self.cr_test_data['research_dataset'].pop('files', None)
         self.cr_test_data['research_dataset'].pop('directories', None)
 

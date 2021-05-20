@@ -28,19 +28,6 @@ IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 EXT_CATALOG = django_settings.EXT_DATA_CATALOG_IDENTIFIER
 DFT_CATALOG = django_settings.DFT_DATA_CATALOG_IDENTIFIER
 
-def create_end_user_catalogs():
-    dc = DataCatalog.objects.get(pk=1)
-    catalog_json = dc.catalog_json
-    for identifier in END_USER_ALLOWED_DATA_CATALOGS:
-        catalog_json['identifier'] = identifier
-        dc = DataCatalog.objects.create(
-            catalog_json=catalog_json,
-            date_created=get_tz_aware_now_without_micros(),
-            catalog_record_services_create='testuser,api_auth_user,metax',
-            catalog_record_services_edit='testuser,api_auth_user,metax',
-            catalog_record_services_read='testuser,api_auth_user,metax'
-        )
-
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
     """
@@ -1538,7 +1525,7 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         modify = response.data
         real_pid = CatalogRecordV2.objects.get(pk=1).preferred_identifier
         modify['research_dataset']['preferred_identifier'] = real_pid
-        response = self.client.put('/rest/v2/datasets/%s' % modify['id'], modify, format="json")
+        response = self.client.put('/rest/v2/datasets/%s?include_legacy' % modify['id'], modify, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_delete_legacy_catalog_dataset(self):
@@ -1555,7 +1542,7 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         cr_id = response.data['id']
 
         # delete record
-        response = self.client.delete('/rest/v2/datasets/%s' % cr_id, format="json")
+        response = self.client.delete('/rest/v2/datasets/%s?include_legacy' % cr_id, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         results_count = CatalogRecordV2.objects_unfiltered.filter(pk=cr_id).count()
         self.assertEqual(results_count, 0, 'record should have been deleted permantly')

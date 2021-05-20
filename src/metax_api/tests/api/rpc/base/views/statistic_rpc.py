@@ -210,13 +210,13 @@ class StatisticRPCCommon(APITestCase, TestClassUtils):
         Finds the latest version of given dataset, deletes one file from it and updates.
         Does not check if there are files to be deleted.
         """
-        cr = self.client.get(f'/rest/datasets/{id}', format='json').data
+        cr = self.client.get(f'/rest/datasets/{id}?include_legacy', format='json').data
         while cr.get('next_dataset_version', False):
             id = cr['next_dataset_version']['id']
-            cr = self.client.get(f'/rest/datasets/{id}', format='json').data
+            cr = self.client.get(f'/rest/datasets/{id}?include_legacy', format='json').data
 
         cr['research_dataset']['files'].pop()
-        response = self.client.put(f'/rest/datasets/{id}', cr, format="json")
+        response = self.client.put(f'/rest/datasets/{id}?include_legacy', cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         return response.data['next_dataset_version']['id']
