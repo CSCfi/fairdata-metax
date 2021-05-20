@@ -65,6 +65,14 @@ class DatasetViewSet(CommonViewSet):
 
         return cr
 
+    def get_queryset(self):
+        if not CS.get_boolean_query_param(self.request, 'include_legacy'):
+            self.queryset = self.queryset.exclude(
+                data_catalog__catalog_json__identifier__in=settings.LEGACY_CATALOGS
+            )
+
+        return super().get_queryset()
+
     def retrieve(self, request, *args, **kwargs):
         from metax_api.services.datacite_service import DataciteException
 

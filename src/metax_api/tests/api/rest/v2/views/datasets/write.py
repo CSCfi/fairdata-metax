@@ -1538,7 +1538,7 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         modify = response.data
         real_pid = CatalogRecordV2.objects.get(pk=1).preferred_identifier
         modify['research_dataset']['preferred_identifier'] = real_pid
-        response = self.client.put('/rest/v2/datasets/%s' % modify['id'], modify, format="json")
+        response = self.client.put('/rest/v2/datasets/%s?include_legacy' % modify['id'], modify, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     def test_delete_legacy_catalog_dataset(self):
@@ -1555,7 +1555,7 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
         cr_id = response.data['id']
 
         # delete record
-        response = self.client.delete('/rest/v2/datasets/%s' % cr_id, format="json")
+        response = self.client.delete('/rest/v2/datasets/%s?include_legacy' % cr_id, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
         results_count = CatalogRecordV2.objects_unfiltered.filter(pk=cr_id).count()
         self.assertEqual(results_count, 0, 'record should have been deleted permantly')

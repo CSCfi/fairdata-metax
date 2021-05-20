@@ -5,6 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+from copy import deepcopy
 import urllib.parse
 from datetime import timedelta
 
@@ -36,6 +37,18 @@ class CatalogRecordApiReadCommon(APITestCase, TestClassUtils):
         self.preferred_identifier = self.cr_from_test_data['research_dataset']['preferred_identifier']
         self.identifier = self.cr_from_test_data['identifier']
         self._use_http_authorization()
+
+    def create_legacy_dataset(self):
+        cr = deepcopy(self.cr_from_test_data)
+        cr['data_catalog'] = settings.LEGACY_CATALOGS[0]
+        cr.pop('identifier')
+        cr['research_dataset']['preferred_identifier'] = 'ldhkrfdwam'
+        cr['research_dataset'].pop('files')
+        cr['research_dataset'].pop('total_files_byte_size')
+        response = self.client.post('/rest/v2/datasets', cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        return response.data['id']
 
 
 class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
@@ -769,6 +782,24 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         response = self.client.get('/rest/datasets?api_version=not_int')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertTrue('not an integer' in response.data['api_version'][0], response.data)
+
+    def test_filter_by_legacy(self):
+        self.create_legacy_data_catalogs()
+        self.create_legacy_dataset()
+
+        # by default, legacy datasets are excluded
+        non_legacy_count = CatalogRecord.objects.exclude(
+            data_catalog__catalog_json__identifier__in=settings.LEGACY_CATALOGS
+        ).count()
+        response = self.client.get('/rest/datasets')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(non_legacy_count, response.data['count'], response.data)
+
+        # legacy datasets can be included with a parameter
+        count_all = CatalogRecord.objects.count()
+        response = self.client.get('/rest/datasets?include_legacy')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(count_all, response.data['count'], response.data)
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 

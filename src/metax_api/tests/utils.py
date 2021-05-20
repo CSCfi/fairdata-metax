@@ -135,6 +135,25 @@ class TestClassUtils:
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create="testuser,api_auth_user,metax",
                 catalog_record_services_edit="testuser,api_auth_user,metax",
+                catalog_record_services_read='testuser,api_auth_user,metax'
+            )
+
+    def create_legacy_data_catalogs(self):
+        from metax_api.models import DataCatalog
+        from metax_api.utils import get_tz_aware_now_without_micros
+
+        dc = DataCatalog.objects.get(pk=1)
+        catalog_json = dc.catalog_json
+        for identifier in django_settings.LEGACY_CATALOGS:
+            catalog_json["identifier"] = identifier
+            catalog_json["dataset_versioning"] = False
+            catalog_json["research_dataset_schema"] = "att"
+            DataCatalog.objects.create(
+                catalog_json=catalog_json,
+                date_created=get_tz_aware_now_without_micros(),
+                catalog_record_services_create="testuser,api_auth_user,metax",
+                catalog_record_services_edit="testuser,api_auth_user,metax",
+                catalog_record_services_read='testuser,api_auth_user,metax'
             )
 
     def _set_http_authorization(self, credentials_type):
