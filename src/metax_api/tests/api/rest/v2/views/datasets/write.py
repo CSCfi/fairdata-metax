@@ -28,19 +28,6 @@ IDA_CATALOG = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 EXT_CATALOG = django_settings.EXT_DATA_CATALOG_IDENTIFIER
 DFT_CATALOG = django_settings.DFT_DATA_CATALOG_IDENTIFIER
 
-def create_end_user_catalogs():
-    dc = DataCatalog.objects.get(pk=1)
-    catalog_json = dc.catalog_json
-    for identifier in END_USER_ALLOWED_DATA_CATALOGS:
-        catalog_json['identifier'] = identifier
-        dc = DataCatalog.objects.create(
-            catalog_json=catalog_json,
-            date_created=get_tz_aware_now_without_micros(),
-            catalog_record_services_create='testuser,api_auth_user,metax',
-            catalog_record_services_edit='testuser,api_auth_user,metax',
-            catalog_record_services_read='testuser,api_auth_user,metax'
-        )
-
 
 class CatalogRecordApiWriteCommon(APITestCase, TestClassUtils):
     """
