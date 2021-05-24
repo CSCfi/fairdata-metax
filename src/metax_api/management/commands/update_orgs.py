@@ -1,5 +1,6 @@
 import csv
 import logging
+from collections import OrderedDict
 from dataclasses import asdict, dataclass, field
 from typing import List
 
@@ -10,7 +11,7 @@ from django.core.management.base import BaseCommand
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass()
 class Organization:
     org_name_fi: str = field()
     org_name_en: str = field()
@@ -51,6 +52,9 @@ class Organization:
 
         return match, changes
 
+    def __str__(self):
+        return f"{self.org_code}-{self.unit_sub_code}-{self.unit_name}"
+
 
 def get_orgs_from_api() -> List[Organization]:
     res = requests.get("https://researchfi-api-production-researchfi.rahtiapp.fi/portalapi/organization/_search")
@@ -89,7 +93,21 @@ def get_orgs_from_api() -> List[Organization]:
 def get_local_orgs() -> List[Organization]:
     local_orgs = []
     with open(settings.ORG_FILE_PATH, "r") as f:
-        reader = csv.DictReader(f, delimiter=",")
+        reader = csv.DictReader(
+            f,
+            delimiter=",",
+            fieldnames=[
+                "org_name_fi",
+                "org_name_en",
+                "org_name_sv",
+                "org_code",
+                "unit_main_code",
+                "unit_sub_code",
+                "unit_name",
+                "org_isni",
+                "org_csc",
+            ],
+        )
         for row in reader:
             o = Organization(**row)
             local_orgs.append(o)
@@ -120,9 +138,14 @@ class Command(BaseCommand):
                 added += 1
         logger.info(f"Added {added} organisations from research.fi to local org list")
 
+        s = sorted(union, key=lambda i: (i.org_name_fi, i.unit_name))
         with open(settings.ORG_FILE_PATH, "w") as f:
             logger.info("writing updated csv")
-            csv_serialized = [asdict(i) for i in union]
+            no_duplicates = OrderedDict()
+            for c in s:
+                no_duplicates[str(c)] = c
+
+            csv_serialized = [asdict(v) for k, v in no_duplicates.items()]
             writer = csv.DictWriter(
                 f,
                 fieldnames=[
