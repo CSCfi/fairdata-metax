@@ -129,7 +129,7 @@ class Command(BaseCommand):
             for a in api_orgs:
                 match, changes = i.compare_and_update(a)
                 if match and changes > 0:
-                    logger.info(f"updated org {i.org_code} with {changes} changes")
+                    logger.info(f"updated org {i.org_name_fi} with {changes} changes in unit: {a.unit_name}")
             union.append(i)
         # add missing orgs to local ones
         added = 0
@@ -138,6 +138,7 @@ class Command(BaseCommand):
             for a in loc_orgs:
                 match = i.compare(a)
             if not match:
+                logger.info(f"adding missing org {i.org_name_fi}, {i.unit_name}")
                 union.append(i)
                 added += 1
         logger.info(f"Added {added} organisations from research.fi to local org list")
