@@ -46,23 +46,27 @@ To change existing configuration in metax-web container:
 
 `docker service update --config-rm <CONFIG-NAME> --config-add source=<NEW-CONFIG-NAME>,target=/code/metax_api/settings/.env metax-dev_metax-web`
 
-## Building metax-image
+## Building related images
 
 Docker image for metax-web can be built with the following command:
 
 `docker build -t fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-web .`
 
-<!-- ## Building httpd-image 
+Image for metax-httpd can be build with:
 
-`docker build -t fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-httpd -f containers/apache-image.Dockerfile .` -->
+`docker build -t fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-httpd -f httpd.dockerfile .`
 
-## Pushing metax-image to Artifactory
+## Pushing images to Artifactory
+
+Ensure that you are logged in to Artifactory:
+
+`docker login fairdata-docker.artifactory.ci.csc.fi`
+
+Push commands for metax-web and metax-httpd respectively:
 
 `docker push fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-web`
 
-<!-- ## Pushing httpd-image to Artifactory
-
-`docker push fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-httpd` -->
+`docker push fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-httpd`
 
 ## Running Metax management commands
 

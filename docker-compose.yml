@@ -54,6 +54,13 @@ services:
     volumes:
       - metax-rabbitmq:/var/lib/rabbitmq
 
+  metax-auth:
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-httpd
+    configs:
+      - source: metax-httpd-config
+        target: /usr/local/apache2/conf/extra/httpd-metax.conf
+    hostname: metax-auth
+
   fairdata-nginx:
     image: nginx:latest
     configs:
@@ -80,6 +87,8 @@ volumes:
 
 configs:
   metax-web-config:
+    external: True
+  metax-httpd-config:
     external: True
 
   fairdata-nginx-config:
