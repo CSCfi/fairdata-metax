@@ -10,6 +10,18 @@ from django.core.management.base import BaseCommand
 
 logger = logging.getLogger(__name__)
 
+CSV_HEADERS = [
+    "org_name_fi",
+    "org_name_en",
+    "org_name_sv",
+    "org_code",
+    "unit_main_code",
+    "unit_sub_code",
+    "unit_name",
+    "org_isni",
+    "org_csc",
+]
+
 
 @dataclass()
 class Organization:
@@ -96,17 +108,7 @@ def get_local_orgs() -> List[Organization]:
         reader = csv.DictReader(
             f,
             delimiter=",",
-            fieldnames=[
-                "org_name_fi",
-                "org_name_en",
-                "org_name_sv",
-                "org_code",
-                "unit_main_code",
-                "unit_sub_code",
-                "unit_name",
-                "org_isni",
-                "org_csc",
-            ],
+            fieldnames=CSV_HEADERS,
         )
         for row in reader:
             o = Organization(**row)
@@ -148,17 +150,7 @@ class Command(BaseCommand):
             csv_serialized = [asdict(v) for k, v in no_duplicates.items()]
             writer = csv.DictWriter(
                 f,
-                fieldnames=[
-                    "org_name_fi",
-                    "org_name_en",
-                    "org_name_sv",
-                    "org_code",
-                    "unit_main_code",
-                    "unit_sub_code",
-                    "unit_name",
-                    "org_isni",
-                    "org_csc",
-                ],
+                fieldnames=CSV_HEADERS,
             )
             writer.writeheader()
             for i in csv_serialized:
