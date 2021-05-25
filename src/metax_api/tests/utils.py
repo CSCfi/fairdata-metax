@@ -161,9 +161,9 @@ class TestClassUtils:
         if credentials_type == "no":
             self.client.credentials()
         elif credentials_type == "service":
-            metax_user = django_settings.API_METAX_USER
+
             self._use_http_authorization(
-                username=metax_user["username"], password=metax_user["password"]
+                username="metax"
             )
         elif credentials_type == "owner":
             self._use_http_authorization(method="bearer", token=self.token)
@@ -295,9 +295,8 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(
-            username=metax_user["username"], password=metax_user["password"]
+            username="metax"
         )
         pk = 13
 
@@ -352,9 +351,8 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(
-            username=metax_user["username"], password=metax_user["password"]
+            "metax"
         )
         pk = 13
 
@@ -406,9 +404,8 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(
-            username=metax_user["username"], password=metax_user["password"]
+            "metax"
         )
         pk = 13
 
