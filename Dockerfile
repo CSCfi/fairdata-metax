@@ -7,11 +7,10 @@ RUN mkdir -p /var/log/metax-api/errors && touch /var/log/metax-api/metax-api.jso
 
 RUN apt-get update && apt install xqilla libxerces-c-dev build-essential libssl-dev libffi-dev python-dev libxqilla-dev -y
 
-RUN pip install --upgrade pip wheel poetry
-COPY pyproject.toml poetry.lock requirements.txt /code/
+RUN pip install --upgrade pip wheel
+COPY requirements.txt /code/
 WORKDIR /code
 
-# RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi --extras "docs simplexquery"
 RUN pip install -r requirements.txt
 
 EXPOSE 8008
