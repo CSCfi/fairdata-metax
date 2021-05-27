@@ -1,6 +1,5 @@
 import csv
 import logging
-from collections import OrderedDict
 from dataclasses import asdict, dataclass, field
 from typing import List
 
