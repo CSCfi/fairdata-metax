@@ -10,9 +10,11 @@ from metax_api.settings.components.common import DEBUG
 # - Django DEBUG enabled: Print everything from logging level DEBUG and up, to both console, and log file.
 # - Django DEBUG disabled: Print everything from logging level INFO and up, only to log file.
 
-LOGGING_DEBUG_HANDLER_FILE = env("LOGGING_DEBUG_HANDLER_FILE")
-LOGGING_JSON_FILE_HANDLER_FILE = env("LOGGING_JSON_FILE_HANDLER_FILE")
-LOGGING_GENERAL_HANDLER_FILE = env("LOGGING_GENERAL_HANDLER_FILE")
+LOGGING_PATH = env("LOGGING_PATH")
+LOGGING_DEBUG_HANDLER_FILE = f"{LOGGING_PATH}/metax_api.log"
+LOGGING_JSON_FILE_HANDLER_FILE = f"{LOGGING_PATH}/metax_api.json.log"
+LOGGING_GENERAL_HANDLER_FILE = f"{LOGGING_PATH}/metax_api.log"
+LOGGING_LEVEL = env("LOGGING_LEVEL")
 
 LOGGING = {
     "version": 1,
@@ -34,20 +36,20 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "DEBUG",
+            "level": LOGGING_LEVEL,
             "class": "logging.StreamHandler",
             "formatter": "standard",
             "filters": ["require_debug_true"],
         },
         "debug": {
-            "level": "DEBUG",
+            "level": LOGGING_LEVEL,
             "class": "logging.FileHandler",
             "filename": LOGGING_DEBUG_HANDLER_FILE,
             "formatter": "standard",
             "filters": ["require_debug_true"],
         },
         "general": {
-            "level": "INFO",
+            "level": LOGGING_LEVEL,
             "class": "logging.FileHandler",
             "filename": LOGGING_DEBUG_HANDLER_FILE,
             "formatter": "standard",
@@ -61,13 +63,13 @@ LOGGING = {
         "metax_api": {
             "handlers": ["general", "console", "debug"],
         },
-        "root": {"level": "INFO", "handlers": ["console"]},
+        "root": {"level": LOGGING_LEVEL, "handlers": ["console"]},
     },
 }
 
 logging.Formatter.converter = time.gmtime
 logger = logging.getLogger("metax_api")
-logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+logger.setLevel(LOGGING_LEVEL)
 
 structlog.configure(
     processors=[
@@ -85,4 +87,4 @@ handler = logging.FileHandler(LOGGING_JSON_FILE_HANDLER_FILE)
 handler.setFormatter(logging.Formatter("%(message)s"))
 json_logger = logging.getLogger("structlog")
 json_logger.addHandler(handler)
-json_logger.setLevel(logging.INFO)
+json_logger.setLevel(LOGGING_LEVEL)
