@@ -65,7 +65,7 @@ class Organization:
                 changes += 1
             elif self.org_csc is not None and other.org_csc is None:
                 other.org_csc = self.org_csc
-                changes +=1
+                changes += 1
         if self.unit_name.endswith(";;"):
             self.unit_name = self.unit_name[:-2]
 
@@ -81,7 +81,7 @@ class Organization:
 
 def get_orgs_from_api() -> List[Organization]:
     res = requests.get(
-        "https://researchfi-api-production-researchfi.rahtiapp.fi/portalapi/organization/_search"
+        "https://researchfi-api-production-researchfi.rahtiapp.fi/portalapi/organization/_search?size=100"
     )
     data = res.json()
 
