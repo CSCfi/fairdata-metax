@@ -66,6 +66,8 @@ class Organization:
             elif self.org_csc is not None and other.org_csc is None:
                 other.org_csc = self.org_csc
                 changes +=1
+        if self.unit_name.endswith(";;"):
+            self.unit_name = self.unit_name[:-2]
 
         return match, changes
 
