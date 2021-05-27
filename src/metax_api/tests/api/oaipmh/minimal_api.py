@@ -15,7 +15,7 @@ from rest_framework.test import APITestCase
 
 from metax_api.api.oaipmh.base.metax_oai_server import MetaxOAIServer
 from metax_api.models import CatalogRecord, DataCatalog
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
 ATT_CATALOG = settings.ATT_DATA_CATALOG_IDENTIFIER

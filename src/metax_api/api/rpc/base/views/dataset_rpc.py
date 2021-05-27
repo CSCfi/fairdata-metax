@@ -20,6 +20,7 @@ from metax_api.models import CatalogRecord
 from metax_api.models.catalog_record import DataciteDOIUpdate
 from metax_api.services.datacite_service import DataciteException, DataciteService, convert_cr_to_datacite_cr_json
 from metax_api.utils import generate_doi_identifier, is_metax_generated_doi_identifier
+
 from .common_rpc import CommonRPC
 
 _logger = logging.getLogger(__name__)

@@ -1,6 +1,6 @@
 
 from metax_api.settings.components.access_control import Role, api_permissions, prepare_perm_values
-from metax_api.settings.environments.staging import API_USERS # noqa: F401
+from metax_api.settings.environments.staging import API_USERS  # noqa: F401
 
 api_permissions.rest.datasets.create += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU]
 api_permissions.rest.datasets["update"] += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU]

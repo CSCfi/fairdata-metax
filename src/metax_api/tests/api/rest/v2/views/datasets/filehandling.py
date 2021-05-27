@@ -10,18 +10,15 @@ from copy import deepcopy
 import responses
 from rest_framework import status
 
-from metax_api.models import (
-    CatalogRecordV2,
-    Directory,
-    File
-)
-from metax_api.tests.utils import get_test_oidc_token
-from .write import CatalogRecordApiWriteCommon, create_end_user_catalogs
+from metax_api.models import CatalogRecordV2, Directory, File
+from metax_api.tests.utils import TestClassUtils, get_test_oidc_token
+
+from .write import CatalogRecordApiWriteCommon
 
 CR = CatalogRecordV2
 
 
-class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
+class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon, TestClassUtils):
     """
     Helper class to test file assignment in Metax. Does not include any tests itself.
     """
@@ -454,7 +451,7 @@ class CatalogRecordApiWriteAssignFilesCommonV2(CatalogRecordApiWriteAssignFilesC
 class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
 
     def _set_token_authentication(self):
-        create_end_user_catalogs()
+        self.create_end_user_data_catalogs()
         self.token = get_test_oidc_token()
         self.token['group_names'].append('IDA01:testproject')
         self._use_http_authorization(method='bearer', token=self.token)

@@ -11,8 +11,9 @@ from rest_framework.response import Response
 
 from metax_api.models import Contract
 from metax_api.services import CommonService
+
+from ..serializers import CatalogRecordSerializer, ContractSerializer
 from .common_view import CommonViewSet
-from ..serializers import ContractSerializer, CatalogRecordSerializer
 
 
 class ContractViewSet(CommonViewSet):

@@ -13,7 +13,7 @@ from uuid import uuid4
 
 from django.conf import settings
 
-from metax_api.utils import get_tz_aware_now_without_micros, executing_test_case, json_logger
+from metax_api.utils import executing_test_case, get_tz_aware_now_without_micros, json_logger
 
 _logger = logging.getLogger(__name__)
 

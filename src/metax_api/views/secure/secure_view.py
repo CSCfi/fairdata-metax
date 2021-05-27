@@ -26,9 +26,6 @@ class SecureLoginView(TemplateView):
         Parse the received id_token, and show selected contents of it to the user
         on a web page.
         """
-        # from pprint import pprint
-        # pprint(request.META)
-
         _logger.debug('extracting information from token')
 
         token_payload = json.loads(request.META['HTTP_OIDC_ID_TOKEN_PAYLOAD'])

@@ -209,12 +209,12 @@ class StatisticRPCCommon(APITestCase, TestClassUtils):
         """
         Finds the latest version of given dataset, and creates a new version of it.
         """
-        response = self.client.get(f'/rest/v2/datasets/{id}', format='json')
+        response = self.client.get(f'/rest/v2/datasets/{id}?include_legacy', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         cr = response.data
         while cr.get('next_dataset_version', False):
             id = cr['next_dataset_version']['id']
-            response = self.client.get(f'/rest/v2/datasets/{id}', format='json')
+            response = self.client.get(f'/rest/v2/datasets/{id}?include_legacy', format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
             cr = response.data
 

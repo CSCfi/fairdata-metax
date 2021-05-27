@@ -8,6 +8,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
+
 from metax_api.models import CatalogRecord
 from metax_api.services import RabbitMQService
 

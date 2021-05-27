@@ -10,7 +10,7 @@ from django.test import TestCase
 from rest_framework.serializers import ValidationError
 
 from metax_api.models import File
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 d = print
 

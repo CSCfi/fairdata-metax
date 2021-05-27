@@ -1,5 +1,9 @@
 # Metax management commands
 
+## Run all relevant commands for first time setup
+
+`python manage.py first_time_setup`
+
 ## Create and migrate database
 
 `python manage.py migrate`
@@ -22,12 +26,14 @@
 
 ## Run all tests
 
-`DJANGO_ENV=test python manage.py test --parallel --failfast --keepdb -v 0`
+`DJANGO_ENV=unittests python manage.py test --parallel --failfast`
 
 ## Inspect current application settings
 
 `python manage.py diffsettings --output unified --force-color`
 
 ## Execute management commands against docker swarm metax-api container
+
+This command assumes the default name `metax-dev` for the stack.
 
 `docker exec $(docker ps -q -f name=metax-dev_metax-web) python manage.py check`

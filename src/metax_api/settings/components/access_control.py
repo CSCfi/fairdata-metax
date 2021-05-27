@@ -1,6 +1,7 @@
 # specify read and write access of services per api, or if an api is readable by world
 
 from enum import Enum
+
 from box import Box
 
 api_permissions = Box({

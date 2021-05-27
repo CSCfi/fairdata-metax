@@ -14,17 +14,14 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from metax_api.exceptions import Http403, Http400
-from metax_api.models import CatalogRecord, Common, DataCatalog, File, Directory
+from metax_api.exceptions import Http400, Http403
+from metax_api.models import CatalogRecord, Common, DataCatalog, Directory, File
 from metax_api.renderers import XMLRenderer
-from metax_api.services import (
-    CatalogRecordService,
-    CommonService as CS,
-    RabbitMQService as rabbitmq,
-)
+from metax_api.services import CatalogRecordService, CommonService as CS, RabbitMQService as rabbitmq
 from metax_api.settings import env
-from .common_view import CommonViewSet
+
 from ..serializers import CatalogRecordSerializer, LightFileSerializer
+from .common_view import CommonViewSet
 
 _logger = logging.getLogger(__name__)
 
@@ -67,6 +64,14 @@ class DatasetViewSet(CommonViewSet):
         cr.request = self.request
 
         return cr
+
+    def get_queryset(self):
+        if not CS.get_boolean_query_param(self.request, 'include_legacy'):
+            self.queryset = self.queryset.exclude(
+                data_catalog__catalog_json__identifier__in=settings.LEGACY_CATALOGS
+            )
+
+        return super().get_queryset()
 
     def retrieve(self, request, *args, **kwargs):
         from metax_api.services.datacite_service import DataciteException

@@ -8,13 +8,12 @@
 import os
 import sys
 from copy import deepcopy
-from json import dump as json_dump
-from json import load as json_load
+from json import dump as json_dump, load as json_load
 
 from jsonschema import validate as json_validate
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils import get_json_schema, generate_test_identifier
+from utils import generate_test_identifier, get_json_schema
 
 """
 A script to generate test data. Loaded for automated tests, and as content for

@@ -10,11 +10,18 @@ from os.path import dirname, join
 
 import jsonschema
 import requests
-from datacite import schema41 as datacite_schema41, DataCiteMDSClient
+from datacite import DataCiteMDSClient, schema41 as datacite_schema41
 from django.conf import settings as django_settings
 
-from metax_api.utils import extract_doi_from_doi_identifier, is_metax_generated_doi_identifier, \
-    executing_test_case, is_metax_generated_urn_identifier, datetime_to_str, is_remote_doi_identifier
+from metax_api.utils import (
+    datetime_to_str,
+    executing_test_case,
+    extract_doi_from_doi_identifier,
+    is_metax_generated_doi_identifier,
+    is_metax_generated_urn_identifier,
+    is_remote_doi_identifier,
+)
+
 from .common_service import CommonService
 
 _logger = logging.getLogger(__name__)

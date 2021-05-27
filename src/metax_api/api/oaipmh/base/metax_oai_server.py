@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils import timezone
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
-from oaipmh.error import IdDoesNotExistError, BadArgumentError, NoRecordsMatchError, CannotDisseminateFormatError
+from oaipmh.error import BadArgumentError, CannotDisseminateFormatError, IdDoesNotExistError, NoRecordsMatchError
 
 from metax_api.models.catalog_record import CatalogRecord, DataCatalog
 from metax_api.services import CatalogRecordService as CRS

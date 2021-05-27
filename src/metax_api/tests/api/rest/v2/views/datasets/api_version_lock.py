@@ -9,10 +9,8 @@ from copy import deepcopy
 
 from rest_framework import status
 
-from metax_api.models import (
-    CatalogRecord,
-    CatalogRecordV2
-)
+from metax_api.models import CatalogRecord, CatalogRecordV2
+
 from .write import CatalogRecordApiWriteCommon
 
 CR = CatalogRecordV2

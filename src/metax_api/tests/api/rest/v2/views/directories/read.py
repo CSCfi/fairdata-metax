@@ -15,7 +15,7 @@ from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.models.catalog_record import ACCESS_TYPES
-from metax_api.tests.utils import get_test_oidc_token, test_data_file_path, TestClassUtils
+from metax_api.tests.utils import TestClassUtils, get_test_oidc_token, test_data_file_path
 
 
 class DirectoryApiReadCommon(APITestCase, TestClassUtils):

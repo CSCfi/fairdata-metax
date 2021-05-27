@@ -12,8 +12,13 @@ from django.http import HttpResponse
 from lxml import etree
 from lxml.etree import SubElement
 
-from .metax_oai_server import MetaxOAIServer, OAI_DC_MDPREFIX, OAI_DATACITE_MDPREFIX, OAI_FAIRDATA_DATACITE_MDPREFIX, \
-    OAI_DC_URNRESOLVER_MDPREFIX
+from .metax_oai_server import (
+    OAI_DATACITE_MDPREFIX,
+    OAI_DC_MDPREFIX,
+    OAI_DC_URNRESOLVER_MDPREFIX,
+    OAI_FAIRDATA_DATACITE_MDPREFIX,
+    MetaxOAIServer,
+)
 
 NS_OAIDC_DATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
 

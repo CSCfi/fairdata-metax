@@ -11,11 +11,10 @@ from random import choice as random_choice
 from typing import Any
 
 import redis
-from django.conf import settings as django_settings, settings
+from django.conf import settings, settings as django_settings
 from redis.client import StrictRedis
-from redis.exceptions import TimeoutError, ConnectionError
-from redis.sentinel import MasterNotFoundError
-from redis.sentinel import Sentinel
+from redis.exceptions import ConnectionError, TimeoutError
+from redis.sentinel import MasterNotFoundError, Sentinel
 
 from metax_api.utils.utils import executing_test_case
 

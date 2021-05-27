@@ -19,7 +19,8 @@ REFDATA_INDEXER_PATH = join(
 )
 env = environ.Env(
     # set casting, default value
-    ADDITIONAL_USER_PROJECTS_PATH=(str, ""),
+    LOGGING_LEVEL=(str, "INFO"),
+    ADDITIONAL_USER_PROJECTS_PATH=(str, "/tmp/metax"),
     ALLOWED_HOSTS=(list, []),
     ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART=(bool, True),
     API_USERS_PATH=(str, "/etc/fairdata-metax/api_users"),
@@ -30,12 +31,11 @@ env = environ.Env(
     ELASTIC_SEARCH_USE_SSL=(bool, False),
     ENABLE_V1_ENDPOINTS=(bool, True),
     ENABLE_V2_ENDPOINTS=(bool, True),
+    ENABLE_DJANGO_WATCHMAN=(bool, False),
     ERROR_FILES_PATH=(str, join("/var", "log", "metax-api", "errors")),
     ES_CONFIG_DIR=(str, join(REFDATA_INDEXER_PATH, "resources", "es-config/")),
     LOCAL_REF_DATA_FOLDER=(str, join(REFDATA_INDEXER_PATH, "resources", "local-refdata/")),
-    LOGGING_DEBUG_HANDLER_FILE=(str, join("/var", "log", "metax-api", "metax_api.log")),
-    LOGGING_GENERAL_HANDLER_FILE=(str, join("/var", "log", "metax-api", "metax_api.log")),
-    LOGGING_JSON_FILE_HANDLER_FILE=(str, join("/var", "log", "metax-api", "metax_api.json.log")),
+    LOGGING_PATH=(str, join("/var", "log", "metax-api")),
     METAX_DATABASE_HOST=(str, "localhost"),
     METAX_DATABASE_PORT=(str, 5432),
     ORG_FILE_PATH=(str, join(REFDATA_INDEXER_PATH, "resources", "organizations", "organizations.csv"),),
@@ -69,6 +69,7 @@ base_settings = [
     "components/elasticsearch.py",
     "components/rabbitmq.py",
     "components/externals.py",
+    "components/monitoring.py",
     "components/rems.py",
     "environments/{0}.py".format(ENV),
     # Optionally override some settings:

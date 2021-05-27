@@ -13,8 +13,9 @@ from rest_framework.response import Response
 
 from metax_api.exceptions import Http403, Http501
 from metax_api.services import ApiErrorService
-from .common_view import CommonViewSet
+
 from ..serializers import FileSerializer
+from .common_view import CommonViewSet
 
 """
 An API to browse error files and retrieve complete error details.

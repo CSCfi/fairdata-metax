@@ -123,8 +123,8 @@ class TestClassUtils:
     api_version = "v1"
 
     def create_end_user_data_catalogs(self):
-        from metax_api.utils import get_tz_aware_now_without_micros
         from metax_api.models import DataCatalog
+        from metax_api.utils import get_tz_aware_now_without_micros
 
         dc = DataCatalog.objects.get(pk=1)
         catalog_json = dc.catalog_json
@@ -135,6 +135,25 @@ class TestClassUtils:
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create="testuser,api_auth_user,metax",
                 catalog_record_services_edit="testuser,api_auth_user,metax",
+                catalog_record_services_read='testuser,api_auth_user,metax'
+            )
+
+    def create_legacy_data_catalogs(self):
+        from metax_api.models import DataCatalog
+        from metax_api.utils import get_tz_aware_now_without_micros
+
+        dc = DataCatalog.objects.get(pk=1)
+        catalog_json = dc.catalog_json
+        for identifier in django_settings.LEGACY_CATALOGS:
+            catalog_json["identifier"] = identifier
+            catalog_json["dataset_versioning"] = False
+            catalog_json["research_dataset_schema"] = "att"
+            DataCatalog.objects.create(
+                catalog_json=catalog_json,
+                date_created=get_tz_aware_now_without_micros(),
+                catalog_record_services_create="testuser,api_auth_user,metax",
+                catalog_record_services_edit="testuser,api_auth_user,metax",
+                catalog_record_services_read='testuser,api_auth_user,metax'
             )
 
     def _set_http_authorization(self, credentials_type):
@@ -142,9 +161,9 @@ class TestClassUtils:
         if credentials_type == "no":
             self.client.credentials()
         elif credentials_type == "service":
-            metax_user = django_settings.API_METAX_USER
+
             self._use_http_authorization(
-                username=metax_user["username"], password=metax_user["password"]
+                username="metax"
             )
         elif credentials_type == "owner":
             self._use_http_authorization(method="bearer", token=self.token)
@@ -276,9 +295,8 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(
-            username=metax_user["username"], password=metax_user["password"]
+            username="metax"
         )
         pk = 13
 
@@ -333,9 +351,8 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(
-            username=metax_user["username"], password=metax_user["password"]
+            "metax"
         )
         pk = 13
 
@@ -387,9 +404,8 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        metax_user = django_settings.API_METAX_USER
         self._use_http_authorization(
-            username=metax_user["username"], password=metax_user["password"]
+            "metax"
         )
         pk = 13
 

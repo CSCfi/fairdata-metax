@@ -12,7 +12,7 @@ from rest_framework.test import APITestCase
 
 from metax_api.api.rest.base.serializers import FileSerializer, LightFileSerializer
 from metax_api.models import File
-from metax_api.tests.utils import test_data_file_path, TestClassUtils
+from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 
 class LightFileSerializerTests(APITestCase, TestClassUtils):
