@@ -63,9 +63,7 @@ class AddLastModifiedHeaderToResponse(object):
             if modified:
                 modified_dt = parse_timestamp_string_to_tz_aware_datetime(modified)
                 if modified_dt:
-                    date_modified_in_gmt = timezone.localtime(
-                        modified_dt, timezone=tz("GMT")
-                    )
+                    date_modified_in_gmt = timezone.localtime(modified_dt, timezone=tz("GMT"))
                     response["Last-Modified"] = date_modified_in_gmt.strftime(
                         "%a, %d %b %Y %H:%M:%S GMT"
                     )

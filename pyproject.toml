@@ -54,11 +54,11 @@ known_first_party = ["metax_api", "src/metax_api"]
 skip_glob = "*/models/__init__.py,__init__.py"
 include_trailing_comma = true
 combine_as_imports = true
-line_length = 120
+line_length = 100
 
 [tool.black]
 target-version = ['py38']
-line-length = 120
+line-length = 100
 exclude = "/migrations/"
 
 [build-system]

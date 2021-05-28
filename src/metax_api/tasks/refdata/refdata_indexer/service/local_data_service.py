@@ -19,7 +19,9 @@ class LocalDataService:
     # move infra here beacuse the fetch API for it is broken and there is no estimate when it could be fixed.
     # to keep the reference data unchanged, use the old scheme until some fix for it has been invented and
     # validated.
-    INFRA_SCHEME = "https://avaa.tdata.fi/api/jsonws/tupa-portlet.Infrastructures/get-all-infrastructures"
+    INFRA_SCHEME = (
+        "https://avaa.tdata.fi/api/jsonws/tupa-portlet.Infrastructures/get-all-infrastructures"
+    )
 
     def get_data(self, data_type):
         return self._parse_local_reference_data(data_type)
