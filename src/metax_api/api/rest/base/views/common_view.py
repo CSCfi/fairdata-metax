@@ -18,12 +18,17 @@ from rest_framework.viewsets import ModelViewSet
 
 from metax_api.exceptions import Http400, Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
-from metax_api.services import ApiErrorService, CallableService, CommonService as CS, RedisCacheService
+from metax_api.services import (
+    ApiErrorService,
+    CallableService,
+    CommonService as CS,
+    RedisCacheService,
+)
 
 _logger = logging.getLogger(__name__)
 
 RESPONSE_SUCCESS_CODES = (200, 201, 204)
-WRITE_OPERATIONS = ('PUT', 'PATCH', 'POST')
+WRITE_OPERATIONS = ("PUT", "PATCH", "POST")
 
 
 class CommonViewSet(ModelViewSet):
@@ -33,7 +38,7 @@ class CommonViewSet(ModelViewSet):
     which include fields like modified and created timestamps, uuid, active flags etc.
     """
 
-    api_type = 'rest'
+    api_type = "rest"
     authentication_classes = ()
     permission_classes = [EndUserPermissions, ServicePermissions]
 
@@ -53,7 +58,9 @@ class CommonViewSet(ModelViewSet):
 
     def __init__(self, *args, **kwargs):
         super(CommonViewSet, self).__init__(*args, **kwargs)
-        if (hasattr(self, 'object') and self.object) and (not hasattr(self, 'queryset') or self.queryset is None):
+        if (hasattr(self, "object") and self.object) and (
+            not hasattr(self, "queryset") or self.queryset is None
+        ):
             # ^ must have attribute 'object' set, AND queryset not set.
 
             # the primary location where a queryset is initialized for
@@ -67,7 +74,7 @@ class CommonViewSet(ModelViewSet):
         res = super().dispatch(request, **kwargs)
 
         if res.status_code in RESPONSE_SUCCESS_CODES:
-            if CS.get_boolean_query_param(self.request, 'dryrun'):
+            if CS.get_boolean_query_param(self.request, "dryrun"):
                 # with dryrun parameter:
                 # - nothing must be saved into db
                 # - no events must escape from metax to other services, such as rabbitmq
@@ -87,7 +94,8 @@ class CommonViewSet(ModelViewSet):
         Instantiates and returns the list of permissions that this view requires.
         """
         return [
-            permission() for permission in self.permission_classes
+            permission()
+            for permission in self.permission_classes
             if permission.service_permission == self.request.user.is_service
         ]
 
@@ -111,8 +119,8 @@ class CommonViewSet(ModelViewSet):
             # must convert any standard python exceptions to framework-recognized
             # exceptions, so that the following handle_exception() goes the expected
             # path, and prepares for db dollback, sets some headers etc.
-            _logger.exception('Internal Server Error')
-            exc = Http500({ 'detail': ['Internal Server Error'] })
+            _logger.exception("Internal Server Error")
+            exc = Http500({"detail": ["Internal Server Error"]})
 
         try:
             # fyi: when an error occurs during a request, and ATOMIC_REQUESTS=True,
@@ -121,9 +129,12 @@ class CommonViewSet(ModelViewSet):
             response = super(CommonViewSet, self).handle_exception(exc)
         except:
             # for when absolutely everything has gone wrong...
-            _logger.exception('Exception while trying to handle original exception: %s' % str(exc))
+            _logger.exception("Exception while trying to handle original exception: %s" % str(exc))
             set_rollback()
-            response = Response({ 'detail': ['Internal Server Error'] }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            response = Response(
+                {"detail": ["Internal Server Error"]},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         if type(exc) not in (Http403, Http404, PermissionDenied, MethodNotAllowed):
             ApiErrorService.store_error_details(self.request, response, exc)
@@ -133,12 +144,12 @@ class CommonViewSet(ModelViewSet):
     # TODO: supporting both parameters over a transition period and eventually will get rid of no_pagination.
     def paginate_queryset(self, queryset):
         keys = self.request.query_params.keys()
-        if 'pagination' in keys:
-            if not CS.get_boolean_query_param(self.request, 'pagination'):
+        if "pagination" in keys:
+            if not CS.get_boolean_query_param(self.request, "pagination"):
                 return None
             return super(CommonViewSet, self).paginate_queryset(queryset)
-        elif 'no_pagination' in keys:
-            if CS.get_boolean_query_param(self.request, 'no_pagination'):
+        elif "no_pagination" in keys:
+            if CS.get_boolean_query_param(self.request, "no_pagination"):
                 return None
             return super(CommonViewSet, self).paginate_queryset(queryset)
         else:
@@ -156,21 +167,21 @@ class CommonViewSet(ModelViewSet):
 
         CS.set_if_modified_since_filter(self.request, additional_filters)
 
-        if hasattr(self, 'queryset_search_params'):
+        if hasattr(self, "queryset_search_params"):
             additional_filters.update(**self.queryset_search_params)
 
-        if 'q_filters' in additional_filters:
+        if "q_filters" in additional_filters:
             # Q-filter objects, which can contain more complex filter options such as OR-clauses
-            q_filters = additional_filters.pop('q_filters')
+            q_filters = additional_filters.pop("q_filters")
 
-        if CS.get_boolean_query_param(self.request, 'removed'):
-            additional_filters.update({'removed': True})
+        if CS.get_boolean_query_param(self.request, "removed"):
+            additional_filters.update({"removed": True})
             self.queryset = self.queryset_unfiltered
 
-        if 'fields' in self.request.query_params:
+        if "fields" in self.request.query_params:
             if not self.fields:
                 # save fields when no inheriting view has done it yet
-                self.fields = self.request.query_params['fields'].split(',')
+                self.fields = self.request.query_params["fields"].split(",")
 
             for field in self.fields:
                 if field not in self.get_serializer_class().Meta.fields:
@@ -181,18 +192,18 @@ class CommonViewSet(ModelViewSet):
 
             # check if requested fields are relations, so that we know to include them in select_related.
             # if no fields is relation, select_related will be made empty.
-            self.select_related = [ rel for rel in self.select_related if rel in self.fields ]
+            self.select_related = [rel for rel in self.select_related if rel in self.fields]
 
         queryset = super().get_queryset().filter(*q_filters, **additional_filters)
 
-        if self.request.META['REQUEST_METHOD'] in WRITE_OPERATIONS:
+        if self.request.META["REQUEST_METHOD"] in WRITE_OPERATIONS:
             # for update operations, do not select relations in the original queryset
             # so that select_for_update() can be used to lock the row for the duration
             # of the update-operation. when the full object is returned, it is possible
             # that additional queres need to be executed to the db to retrieve relation
             # data, but that seems to be the price to pay to be able the lock rows being
             # written to.
-            queryset = queryset.select_for_update(nowait=False, of=('self',))
+            queryset = queryset.select_for_update(nowait=False, of=("self",))
         else:
             queryset = queryset.select_related(*self.select_related)
 
@@ -205,12 +216,14 @@ class CommonViewSet(ModelViewSet):
 
         param search_params: pass a custom filter instead of using the default search mechanism
         """
-        if CS.get_boolean_query_param(self.request, 'removed'):
+        if CS.get_boolean_query_param(self.request, "removed"):
             return self.get_removed_object(search_params=search_params)
         elif search_params:
             filter_kwargs = search_params
         else:
-            if CS.is_primary_key(self.kwargs.get(self.lookup_field, False)) or not hasattr(self, 'lookup_field_other'):
+            if CS.is_primary_key(self.kwargs.get(self.lookup_field, False)) or not hasattr(
+                self, "lookup_field_other"
+            ):
                 # lookup by originak lookup_field. standard django procedure
                 lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
             else:
@@ -220,7 +233,7 @@ class CommonViewSet(ModelViewSet):
                 # replace original field name with field name in lookup_field_other
                 self.kwargs[lookup_url_kwarg] = self.kwargs.get(self.lookup_field)
 
-            filter_kwargs = { lookup_url_kwarg: self.kwargs[lookup_url_kwarg] }
+            filter_kwargs = {lookup_url_kwarg: self.kwargs[lookup_url_kwarg]}
 
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -248,9 +261,9 @@ class CommonViewSet(ModelViewSet):
         if not search_params:
             lookup_value = self.kwargs.get(self.lookup_field)
             if CS.is_primary_key(lookup_value):
-                search_params = { 'pk': lookup_value }
-            elif hasattr(self, 'lookup_field_other'):
-                search_params = { self.lookup_field_other: lookup_value }
+                search_params = {"pk": lookup_value}
+            elif hasattr(self, "lookup_field_other"):
+                search_params = {self.lookup_field_other: lookup_value}
             else:
                 raise Http404
 
@@ -266,7 +279,7 @@ class CommonViewSet(ModelViewSet):
 
     def update_bulk(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
-        kwargs['context'] = self.get_serializer_context()
+        kwargs["context"] = self.get_serializer_context()
         results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
         response = Response(results, status=http_status)
         self._check_and_store_bulk_error(request, response)
@@ -274,14 +287,14 @@ class CommonViewSet(ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         CS.update_common_info(request)
-        kwargs['partial'] = True
+        kwargs["partial"] = True
         res = super(CommonViewSet, self).update(request, *args, **kwargs)
         return res
 
     def partial_update_bulk(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
-        kwargs['context'] = self.get_serializer_context()
-        kwargs['partial'] = True
+        kwargs["context"] = self.get_serializer_context()
+        kwargs["partial"] = True
         results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
         response = Response(results, status=http_status)
         self._check_and_store_bulk_error(request, response)
@@ -289,7 +302,7 @@ class CommonViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
-        kwargs['context'] = self.get_serializer_context()
+        kwargs["context"] = self.get_serializer_context()
         results, http_status = self.create_bulk_method(request, serializer_class, **kwargs)
         response = Response(results, status=http_status)
         self._check_and_store_bulk_error(request, response)
@@ -308,9 +321,9 @@ class CommonViewSet(ModelViewSet):
         Overrided from rest_framework to preserve the username and other variables
         set during identifyapicaller middleware.
         """
-        username = request.user.username if hasattr(request.user, 'username') else None
-        is_service = request.user.is_service if hasattr(request.user, 'is_service') else False
-        token = request.user.token if hasattr(request.user, 'token') else None
+        username = request.user.username if hasattr(request.user, "username") else None
+        is_service = request.user.is_service if hasattr(request.user, "is_service") else False
+        token = request.user.token if hasattr(request.user, "token") else None
 
         drf_req = super(CommonViewSet, self).initialize_request(request, *args, **kwargs)
 
@@ -330,8 +343,10 @@ class CommonViewSet(ModelViewSet):
         always looks for the schema from a directory relative to the view's location,
         taking into account its version.
         """
-        self.json_schema = CS.get_json_schema(path.dirname(view_file) + '/../schemas',
-                                              self.__class__.__name__.lower()[:-(len('viewset'))])
+        self.json_schema = CS.get_json_schema(
+            path.dirname(view_file) + "/../schemas",
+            self.__class__.__name__.lower()[: -(len("viewset"))],
+        )
 
     def _check_and_store_bulk_error(self, request, response):
         """
@@ -339,8 +354,8 @@ class CommonViewSet(ModelViewSet):
         error data is not saved. Separately check presence of failures in bulk operations responses,
         and save data if necessary.
         """
-        if 'failed' in response.data and len(response.data['failed']):
-            ApiErrorService.store_error_details(request, response, other={ 'bulk_request': True })
+        if "failed" in response.data and len(response.data["failed"]):
+            ApiErrorService.store_error_details(request, response, other={"bulk_request": True})
 
     def get_api_name(self):
         """
@@ -349,4 +364,4 @@ class CommonViewSet(ModelViewSet):
         (for example, directories-api), will inherit this and return a customized
         result.
         """
-        return '%ss' % self.__class__.__name__.split('ViewSet')[0].lower()
+        return "%ss" % self.__class__.__name__.split("ViewSet")[0].lower()

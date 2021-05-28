@@ -10,7 +10,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class _CallableService():
+class _CallableService:
 
     """
     Methods to handle adding and executing callable objects, which will be executed
@@ -40,13 +40,13 @@ class _CallableService():
         if not self.post_request_callables:
             return
 
-        _logger.debug('Executing %d post_request_callables...' % len(self.post_request_callables))
+        _logger.debug("Executing %d post_request_callables..." % len(self.post_request_callables))
 
         for callable_obj in self.post_request_callables:
             try:
                 callable_obj()
             except:
-                _logger.exception('Failed to execute post_request_callables')
+                _logger.exception("Failed to execute post_request_callables")
                 # failure to execute a callable should fail the entire request
                 self.clear_callables()
                 raise

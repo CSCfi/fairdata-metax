@@ -5,4 +5,4 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-default_app_config = 'metax_api.onappstart.OnAppStart'
+default_app_config = "metax_api.onappstart.OnAppStart"

@@ -18,8 +18,7 @@ from metax_api.utils import executing_test_case, get_tz_aware_now_without_micros
 _logger = logging.getLogger(__name__)
 
 
-class ApiErrorService():
-
+class ApiErrorService:
     @staticmethod
     def flush_errors():
         """
@@ -28,7 +27,7 @@ class ApiErrorService():
         error_files = listdir(settings.ERROR_FILES_PATH)
         file_count = len(error_files)
         for ef in error_files:
-            remove_file('%s/%s' % (settings.ERROR_FILES_PATH, ef))
+            remove_file("%s/%s" % (settings.ERROR_FILES_PATH, ef))
         return file_count
 
     @staticmethod
@@ -36,14 +35,14 @@ class ApiErrorService():
         """
         Delete a single error file.
         """
-        remove_file('%s/%s.json' % (settings.ERROR_FILES_PATH, error_identifier))
+        remove_file("%s/%s.json" % (settings.ERROR_FILES_PATH, error_identifier))
 
     @staticmethod
     def retrieve_error_details(error_identifier):
         """
         Retrieve complete data about a single error
         """
-        with open('%s/%s.json' % (settings.ERROR_FILES_PATH, error_identifier), 'r') as f:
+        with open("%s/%s.json" % (settings.ERROR_FILES_PATH, error_identifier), "r") as f:
             return json_load(f)
 
     @staticmethod
@@ -56,13 +55,17 @@ class ApiErrorService():
         error_list = []
 
         for ef in error_files:
-            with open('%s/%s' % (settings.ERROR_FILES_PATH, ef), 'r') as f:
+            with open("%s/%s" % (settings.ERROR_FILES_PATH, ef), "r") as f:
                 error_details = json_load(f)
-                error_details.pop('data', None)
-                error_details.pop('headers', None)
-                if len(str(error_details['response'])) > 200:
-                    error_details['response'] = '%s ...(first 200 characters)' % str(error_details['response'])[:200]
-                error_details['traceback'] = '(last 200 characters) ...%s' % error_details['traceback'][-200:]
+                error_details.pop("data", None)
+                error_details.pop("headers", None)
+                if len(str(error_details["response"])) > 200:
+                    error_details["response"] = (
+                        "%s ...(first 200 characters)" % str(error_details["response"])[:200]
+                    )
+                error_details["traceback"] = (
+                    "(last 200 characters) ...%s" % error_details["traceback"][-200:]
+                )
                 error_list.append(error_details)
         return error_list
 
@@ -71,12 +74,12 @@ class ApiErrorService():
         """
         Store error and request details to disk to specified error file location.
         """
-        current_time = str(get_tz_aware_now_without_micros()).replace(' ', 'T')
+        current_time = str(get_tz_aware_now_without_micros()).replace(" ", "T")
 
-        if request.method in ('POST', 'PUT', 'PATCH'):
+        if request.method in ("POST", "PUT", "PATCH"):
             # cast possible datetime objects to strings, because those cant be json-serialized...
             request_data = request.data
-            for date_field in ('date_modified', 'date_created'):
+            for date_field in ("date_modified", "date_created"):
                 if isinstance(request_data, list):
                     for item in request_data:
                         if isinstance(item, dict) and date_field in item:
@@ -89,47 +92,51 @@ class ApiErrorService():
             request_data = None
 
         error_info = {
-            'method':      request.method,
-            'user':        request.user.username or 'guest',
-            'data':        request_data,
-            'headers':     {
-                k: v for k, v in request.META.items()
-                if k.startswith('HTTP_') and k != 'HTTP_AUTHORIZATION'
+            "method": request.method,
+            "user": request.user.username or "guest",
+            "data": request_data,
+            "headers": {
+                k: v
+                for k, v in request.META.items()
+                if k.startswith("HTTP_") and k != "HTTP_AUTHORIZATION"
             },
-            'status_code': response.status_code,
-            'response':    response.data,
-            'traceback':   traceback.format_exc(),
+            "status_code": response.status_code,
+            "response": response.data,
+            "traceback": traceback.format_exc(),
             # during test case execution, RAW_URI is not set
-            'url':         request.META.get('RAW_URI', request.META.get('PATH_INFO', '???')),
-            'identifier':  '%s-%s' % (current_time[:19], str(uuid4())[:8]),
-            'exception_time': current_time,
+            "url": request.META.get("RAW_URI", request.META.get("PATH_INFO", "???")),
+            "identifier": "%s-%s" % (current_time[:19], str(uuid4())[:8]),
+            "exception_time": current_time,
         }
 
         if other:
             # may contain info that the request was a bulk operation
-            error_info['other'] = { k: v for k, v in other.items() }
-            if 'bulk_request' in other:
-                error_info['other']['data_row_count'] = len(request_data)
+            error_info["other"] = {k: v for k, v in other.items()}
+            if "bulk_request" in other:
+                error_info["other"]["data_row_count"] = len(request_data)
 
         try:
-            with open('%s/%s.json' % (settings.ERROR_FILES_PATH, error_info['identifier']), 'w') as f:
+            with open(
+                "%s/%s.json" % (settings.ERROR_FILES_PATH, error_info["identifier"]),
+                "w",
+            ) as f:
                 json_dump(error_info, f)
         except:
-            _logger.exception('Failed to save error info...')
+            _logger.exception("Failed to save error info...")
         else:
 
-            response.data['error_identifier'] = error_info['identifier']
+            response.data["error_identifier"] = error_info["identifier"]
 
             if response.status_code == 500:
 
                 json_logger.error(
-                    event='api_exception',
+                    event="api_exception",
                     error={
-                        'error_identifier': error_info['identifier'],
-                        'status_code': response.status_code,
-                        'traceback': error_info['traceback'],
-                    }
+                        "error_identifier": error_info["identifier"],
+                        "status_code": response.status_code,
+                        "traceback": error_info["traceback"],
+                    },
                 )
 
                 if executing_test_case():
-                    response.data['traceback'] = traceback.format_exc()
+                    response.data["traceback"] = traceback.format_exc()

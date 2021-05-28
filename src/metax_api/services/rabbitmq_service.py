@@ -18,6 +18,7 @@ from metax_api.utils.utils import executing_test_case
 
 _logger = logging.getLogger(__name__)
 
+
 class _RabbitMQService:
     def __init__(self):
         if not hasattr(settings, "RABBITMQ"):
@@ -36,27 +37,25 @@ class _RabbitMQService:
         # Connection retries are needed as long as there is no load balancer in front of rabbitmq-server VMs
         sleep_time = 1
         num_conn_retries = 5
-        _logger.info(
-            f"connecting to RabbitMQ host: {self._hosts} port: {self._settings['PORT']}"
-        )
+        _logger.info(f"connecting to RabbitMQ host: {self._hosts} port: {self._settings['PORT']}")
 
         for x in range(0, num_conn_retries):
             # Choose host randomly so that different hosts are tried out in case of connection problems
             host = random.choice(self._hosts)
             try:
-                kwarg_params = {"port": self._settings["PORT"], "credentials": self._credentials}
+                kwarg_params = {
+                    "port": self._settings["PORT"],
+                    "credentials": self._credentials,
+                }
                 if settings.RABBIT_MQ_USE_VHOST:
                     kwarg_params["virtual_host"] = self._settings["VHOST"]
 
                 conn_params = pika.ConnectionParameters(host, **kwarg_params)
-                self._connection = pika.BlockingConnection(
-                    conn_params
-                )
+                self._connection = pika.BlockingConnection(conn_params)
 
             except Exception as e:
                 _logger.error(
-                    "Problem connecting to RabbitMQ server (%s), trying to reconnect..."
-                    % str(e)
+                    "Problem connecting to RabbitMQ server (%s), trying to reconnect..." % str(e)
                 )
                 sleep(sleep_time)
             else:
@@ -66,7 +65,7 @@ class _RabbitMQService:
         else:
             raise Exception("Unable to connect to RabbitMQ")
 
-    def publish(self, body, routing_key='', exchange=None, persistent=True):
+    def publish(self, body, routing_key="", exchange=None, persistent=True):
         """
         Publish a message to an exchange, which might or might not have queues bound to it.
 
@@ -95,10 +94,13 @@ class _RabbitMQService:
         try:
             for message in messages:
                 if isinstance(message, dict):
-                    message = json_dumps(
-                        message,
-                        cls=DjangoJSONEncoder)
-                self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
+                    message = json_dumps(message, cls=DjangoJSONEncoder)
+                self._channel.basic_publish(
+                    body=message,
+                    routing_key=routing_key,
+                    exchange=exchange,
+                    **additional_args,
+                )
         except Exception as e:
             _logger.error(e)
             _logger.error("Unable to publish message to RabbitMQ")
@@ -124,9 +126,7 @@ class _RabbitMQService:
                     # declare queues in settings
                     self._channel.queue_declare(queue["NAME"], durable=exchange["DURABLE"])
                     self._channel.queue_bind(
-                        queue["NAME"],
-                        exchange["NAME"],
-                        queue.get("ROUTING_KEY")
+                        queue["NAME"], exchange["NAME"], queue.get("ROUTING_KEY")
                     )
         except Exception as e:
             _logger.error(e)

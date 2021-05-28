@@ -29,18 +29,17 @@ from .views import DatasetRPC
 
 
 class CustomRouter(DefaultRouter):
-
     def get_default_basename(self, viewset):
         """
         When a viewset has no queryset set, or base_name is not passed to a router as the
         3rd parameter, automatically determine base name.
         """
-        return viewset.__class__.__name__.split('RPC')[0]
+        return viewset.__class__.__name__.split("RPC")[0]
 
 
 router = CustomRouter(trailing_slash=False)
-router.register(r'datasets/?', DatasetRPC)
-router.register(r'files/?', FileRPC)
-router.register(r'statistics/?', StatisticRPC)
+router.register(r"datasets/?", DatasetRPC)
+router.register(r"files/?", FileRPC)
+router.register(r"statistics/?", StatisticRPC)
 
 api_urlpatterns = router.urls

@@ -39,7 +39,7 @@ class ApiErrorViewSet(CommonViewSet):
     serializer_class = FileSerializer
 
     def initial(self, request, *args, **kwargs):
-        if request.user.username != 'metax':
+        if request.user.username != "metax":
             raise Http403
         return super(ApiErrorViewSet, self).initial(request, *args, **kwargs)
 
@@ -48,7 +48,7 @@ class ApiErrorViewSet(CommonViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         try:
-            error_details = ApiErrorService.retrieve_error_details(kwargs['pk'])
+            error_details = ApiErrorService.retrieve_error_details(kwargs["pk"])
         except:
             raise Http404
         return Response(data=error_details, status=200)
@@ -58,15 +58,15 @@ class ApiErrorViewSet(CommonViewSet):
         return Response(data=error_list, status=200)
 
     def destroy(self, request, *args, **kwargs):
-        _logger.info('DELETE %s called by %s' % (request.META['PATH_INFO'], request.user.username))
-        ApiErrorService.remove_error_file(kwargs['pk'])
+        _logger.info("DELETE %s called by %s" % (request.META["PATH_INFO"], request.user.username))
+        ApiErrorService.remove_error_file(kwargs["pk"])
         return Response(status=204)
 
-    @action(detail=False, methods=['post'], url_path="flush")
+    @action(detail=False, methods=["post"], url_path="flush")
     def flush_errors(self, request):
-        _logger.info('%s called by %s' % (request.META['PATH_INFO'], request.user.username))
+        _logger.info("%s called by %s" % (request.META["PATH_INFO"], request.user.username))
         files_deleted_count = ApiErrorService.flush_errors()
-        return Response(data={ 'files_deleted': files_deleted_count }, status=200)
+        return Response(data={"files_deleted": files_deleted_count}, status=200)
 
     def update(self, request, *args, **kwargs):
         raise Http501()

@@ -12,15 +12,12 @@ from jsonschema.compat import str_types
 from jsonschema.exceptions import ValidationError as JsonValidationError
 from rest_framework.serializers import ValidationError
 
-date_re = re.compile(
-    r'^\d{4}-\d{2}-\d{2}$'
-)
+date_re = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 datetime_re = re.compile(
-    r'^\d{4}-\d{2}-\d{2}T'
-    r'\d{2}:\d{2}:\d{2}(\.\d{1,9})?'
-    r'(Z|[+-]\d{2}:\d{2})$'
+    r"^\d{4}-\d{2}-\d{2}T" r"\d{2}:\d{2}:\d{2}(\.\d{1,9})?" r"(Z|[+-]\d{2}:\d{2})$"
 )
+
 
 def validate_json(value, schema):
     """
@@ -41,10 +38,13 @@ def validate_json(value, schema):
             path = e.path
             schema = e.schema
 
-        raise ValidationError('%s. Json path: %s. Schema: %s' % (message, [p for p in path], schema))
+        raise ValidationError(
+            "%s. Json path: %s. Schema: %s" % (message, [p for p in path], schema)
+        )
+
 
 # helper methods for date and datetime validation
-@FormatChecker.checks(FormatChecker, format='date')
+@FormatChecker.checks(FormatChecker, format="date")
 def date(value):
     if isinstance(value, str_types):
         match = date_re.match(value)
@@ -53,7 +53,8 @@ def date(value):
 
     return False
 
-@FormatChecker.checks(FormatChecker, format='date-time')
+
+@FormatChecker.checks(FormatChecker, format="date-time")
 def date_time(value):
     if isinstance(value, str_types):
         match = datetime_re.match(value)

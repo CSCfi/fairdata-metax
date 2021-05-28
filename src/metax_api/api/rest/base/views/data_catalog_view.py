@@ -17,7 +17,7 @@ class DataCatalogViewSet(CommonViewSet):
 
     serializer_class = DataCatalogSerializer
     object = DataCatalog
-    lookup_field = 'pk'
+    lookup_field = "pk"
 
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)
@@ -41,7 +41,7 @@ class DataCatalogViewSet(CommonViewSet):
 
         lookup_value = self.kwargs.get(self.lookup_field)
         try:
-            obj = self._search_from_catalog_json({'identifier': lookup_value}, True)
+            obj = self._search_from_catalog_json({"identifier": lookup_value}, True)
         except Exception:
             raise
 
@@ -50,7 +50,8 @@ class DataCatalogViewSet(CommonViewSet):
     def _search_from_catalog_json(self, search_json, raise_on_404):
         try:
             return super(DataCatalogViewSet, self).get_object(
-                search_params={'catalog_json__contains': search_json})
+                search_params={"catalog_json__contains": search_json}
+            )
         except Http404:
             if raise_on_404:
                 raise

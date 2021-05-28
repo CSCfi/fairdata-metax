@@ -24,7 +24,12 @@ from metax_api.utils import (
     get_tz_aware_now_without_micros,
 )
 
-from .catalog_record import CatalogRecord, DataciteDOIUpdate, DatasetVersionSet, RabbitMQPublishRecord
+from .catalog_record import (
+    CatalogRecord,
+    DataciteDOIUpdate,
+    DatasetVersionSet,
+    RabbitMQPublishRecord,
+)
 from .common import Common
 from .directory import Directory
 from .file import File
@@ -49,7 +54,6 @@ Not sure if there is a better way to handle this...
 
 
 class CatalogRecordV2(CatalogRecord):
-
     class Meta:
         # CatalogRecordV2 operates on the same database table as CatalogRecord model. Only the class
         # behaviour may differ from base class.
@@ -58,6 +62,7 @@ class CatalogRecordV2(CatalogRecord):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
+
         self.serializer_class = CatalogRecordSerializerV2
         self.api_version = 2
 
@@ -66,14 +71,14 @@ class CatalogRecordV2(CatalogRecord):
         Note: keys are popped from kwargs, because super().save() will complain if it receives
         unknown keyword arguments.
         """
-        pid_type = kwargs.pop('pid_type', None)
+        pid_type = kwargs.pop("pid_type", None)
 
         if self._operation_is_create():
             self._pre_create_operations()
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_create_operations(pid_type=pid_type)
         else:
-            self._pre_update_operations(draft_publish=kwargs.pop('draft_publish', False))
+            self._pre_update_operations(draft_publish=kwargs.pop("draft_publish", False))
             super(CatalogRecord, self).save(*args, **kwargs)
             self._post_update_operations()
 
@@ -84,16 +89,20 @@ class CatalogRecordV2(CatalogRecord):
         elif self.is_draft_for_another_dataset():
             draft_of = self.draft_of
             draft_of.next_draft = None
-            super(CatalogRecord, draft_of).save(update_fields=['next_draft'])
+            super(CatalogRecord, draft_of).save(update_fields=["next_draft"])
 
         super().delete(*args, **kwargs)
 
     def _pre_create_operations(self):
-        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_create,
-                self.data_catalog.catalog_record_services_create):
-            raise Http403({ 'detail': [ 'You are not permitted to create datasets in this data catalog.' ]})
+        if not self._check_catalog_permissions(
+            self.data_catalog.catalog_record_group_create,
+            self.data_catalog.catalog_record_services_create,
+        ):
+            raise Http403(
+                {"detail": ["You are not permitted to create datasets in this data catalog."]}
+            )
 
-        self.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+        self.research_dataset["metadata_version_identifier"] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
 
         if not self._save_as_draft():
@@ -102,33 +111,33 @@ class CatalogRecordV2(CatalogRecord):
         self._set_api_version()
 
     def _post_create_operations(self, pid_type=None):
-        if 'files' in self.research_dataset or 'directories' in self.research_dataset:
+        if "files" in self.research_dataset or "directories" in self.research_dataset:
 
             # files must be added after the record itself has been created, to be able
             # to insert into a many2many relation.
 
             file_changes = {
-                'files': self.research_dataset.get('files', []),
-                'directories': self.research_dataset.get('directories', []),
+                "files": self.research_dataset.get("files", []),
+                "directories": self.research_dataset.get("directories", []),
             }
 
             self.change_files(file_changes, operation_is_create=True)
 
         if self._save_as_draft():
 
-            _logger.debug('Saving new dataset as draft')
+            _logger.debug("Saving new dataset as draft")
 
-            self.research_dataset['preferred_identifier'] = 'draft:%s' % self.identifier
+            self.research_dataset["preferred_identifier"] = "draft:%s" % self.identifier
 
             if self._get_preferred_identifier_type_from_request() == IdentifierType.DOI:
                 self.use_doi_for_published = True
             else:
                 self.use_doi_for_published = False
 
-            super(Common, self).save(update_fields=['research_dataset', 'use_doi_for_published'])
+            super(Common, self).save(update_fields=["research_dataset", "use_doi_for_published"])
 
             _logger.info(
-                'Created a new <CatalogRecord id: %d, identifier: %s, state: draft>'
+                "Created a new <CatalogRecord id: %d, identifier: %s, state: draft>"
                 % (self.id, self.identifier)
             )
 
@@ -138,24 +147,24 @@ class CatalogRecordV2(CatalogRecord):
         # logs correctly whether dataset is created into draft state, or also published
 
         log_args = {
-            'catalogrecord': {
-                'identifier': self.identifier,
-                'preferred_identifier': self.preferred_identifier,
-                'data_catalog': self.data_catalog.catalog_json['identifier'],
-                'date_created': datetime_to_str(self.date_created),
-                'metadata_owner_org': self.metadata_owner_org,
-                'state': self.state,
+            "catalogrecord": {
+                "identifier": self.identifier,
+                "preferred_identifier": self.preferred_identifier,
+                "data_catalog": self.data_catalog.catalog_json["identifier"],
+                "date_created": datetime_to_str(self.date_created),
+                "metadata_owner_org": self.metadata_owner_org,
+                "state": self.state,
             },
-            'user_id': self.user_created or self.service_created,
+            "user_id": self.user_created or self.service_created,
         }
 
         self.add_post_request_callable(DelayedLog(**log_args))
 
     def is_draft_for_another_dataset(self):
-        return hasattr(self, 'draft_of') and self.draft_of is not None
+        return hasattr(self, "draft_of") and self.draft_of is not None
 
     def has_next_draft(self):
-        return hasattr(self, 'next_draft') and self.next_draft is not None
+        return hasattr(self, "next_draft") and self.next_draft is not None
 
     def _save_as_draft(self):
         """
@@ -163,7 +172,8 @@ class CatalogRecordV2(CatalogRecord):
         and to be able to differentiate between v1 and v2 drafts.
         """
         from metax_api.services import CommonService
-        return CommonService.get_boolean_query_param(self.request, 'draft')
+
+        return CommonService.get_boolean_query_param(self.request, "draft")
 
     def publish_dataset(self, pid_type=None):
         """
@@ -178,26 +188,28 @@ class CatalogRecordV2(CatalogRecord):
         Note: The last three steps are executed at the very end of the HTTP request, but they are
         queued in this method.
         """
-        _logger.info('Publishing dataset...')
+        _logger.info("Publishing dataset...")
 
         if self.state == self.STATE_PUBLISHED:
-            raise Http400('Dataset is already published.')
+            raise Http400("Dataset is already published.")
 
         elif self.is_draft_for_another_dataset():
             raise Http400(
-                'This dataset is a draft for another published dataset. To publish the draft changes, '
-                'use API /rpc/v2/datasets/merge_draft'
+                "This dataset is a draft for another published dataset. To publish the draft changes, "
+                "use API /rpc/v2/datasets/merge_draft"
             )
         elif self.catalog_is_dft():
-            raise Http400('Cannot publish dataset in draft catalog. '
-                          'Please use parameter ?draft for adding a draft dataset')
+            raise Http400(
+                "Cannot publish dataset in draft catalog. "
+                "Please use parameter ?draft for adding a draft dataset"
+            )
 
         self.state = self.STATE_PUBLISHED
 
         self._generate_issued_date()
 
         if self.catalog_is_pas():
-            _logger.debug('Catalog is PAS - Using DOI as pref_id_type')
+            _logger.debug("Catalog is PAS - Using DOI as pref_id_type")
             # todo: default identifier type could probably be a parameter of the data catalog
             pref_id_type = IdentifierType.DOI
         elif self.use_doi_for_published is True:
@@ -208,53 +220,59 @@ class CatalogRecordV2(CatalogRecord):
         self.use_doi_for_published = None
 
         if self.catalog_is_harvested():
-            _logger.debug('Note: Catalog is harvested')
+            _logger.debug("Note: Catalog is harvested")
             # in harvested catalogs, the harvester is allowed to set the preferred_identifier.
             # do not overwrite.
             pass
 
         elif self.catalog_is_legacy():
-            if 'preferred_identifier' not in self.research_dataset:
+            if "preferred_identifier" not in self.research_dataset:
                 raise Http400(
-                    'Selected catalog %s is a legacy catalog. Preferred identifiers are not '
-                    'automatically generated for datasets stored in legacy catalogs, nor is '
-                    'their uniqueness enforced. Please provide a value for dataset field '
-                    'preferred_identifier.' % self.data_catalog.catalog_json['identifier']
+                    "Selected catalog %s is a legacy catalog. Preferred identifiers are not "
+                    "automatically generated for datasets stored in legacy catalogs, nor is "
+                    "their uniqueness enforced. Please provide a value for dataset field "
+                    "preferred_identifier." % self.data_catalog.catalog_json["identifier"]
                 )
             _logger.info(
-                'Catalog %s is a legacy catalog - not generating pid'
-                % self.data_catalog.catalog_json['identifier']
+                "Catalog %s is a legacy catalog - not generating pid"
+                % self.data_catalog.catalog_json["identifier"]
             )
         else:
             if pref_id_type == IdentifierType.URN:
-                self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
+                self.research_dataset["preferred_identifier"] = generate_uuid_identifier(
+                    urn_prefix=True
+                )
             elif pref_id_type == IdentifierType.DOI:
                 if not (self.catalog_is_ida() or self.catalog_is_pas()):
                     raise Http400("Cannot create DOI for other than datasets in IDA or PAS catalog")
 
-                _logger.debug('pref_id_type == %s, generating doi' % pref_id_type)
+                _logger.debug("pref_id_type == %s, generating doi" % pref_id_type)
                 doi_id = generate_doi_identifier()
-                self.research_dataset['preferred_identifier'] = doi_id
+                self.research_dataset["preferred_identifier"] = doi_id
                 self.preservation_identifier = doi_id
             else:
-                _logger.info("Identifier type not specified in the request. Using URN identifier for pref id")
+                _logger.info(
+                    "Identifier type not specified in the request. Using URN identifier for pref id"
+                )
                 # todo better to raise validation error instead
-                self.research_dataset['preferred_identifier'] = generate_uuid_identifier(urn_prefix=True)
+                self.research_dataset["preferred_identifier"] = generate_uuid_identifier(
+                    urn_prefix=True
+                )
 
         if not self.metadata_owner_org:
             # field metadata_owner_org is optional, but must be set. in case it is omitted,
             # derive from metadata_provider_org.
             self.metadata_owner_org = self.metadata_provider_org
 
-        if 'remote_resources' in self.research_dataset:
+        if "remote_resources" in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
         if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
-            raise Http400('Cannot publish cumulative dataset with state closed')
+            raise Http400("Cannot publish cumulative dataset with state closed")
 
         elif self.cumulative_state == self.CUMULATIVE_STATE_YES:
             if self.preservation_state > self.PRESERVATION_STATE_INITIALIZED:
-                raise Http400('Dataset cannot be cumulative if it is in PAS process')
+                raise Http400("Dataset cannot be cumulative if it is in PAS process")
 
             self.date_cumulation_started = self.date_created
 
@@ -273,19 +291,21 @@ class CatalogRecordV2(CatalogRecord):
             self._validate_cr_against_datacite_schema()
 
             self.add_post_request_callable(
-                DataciteDOIUpdate(self, self.research_dataset['preferred_identifier'], 'create')
+                DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "create")
             )
 
-        if self._dataset_has_rems_managed_access() and settings.REMS['ENABLED']:
+        if self._dataset_has_rems_managed_access() and settings.REMS["ENABLED"]:
             self._pre_rems_creation()
 
-        if self.api_version != self.api_meta['version']:
+        if self.api_version != self.api_meta["version"]:
             self._set_api_version()
 
         try:
             # drafts are validated with different schema until the publication so check that final result is valid
             # according to the actual data catalog.
-            serializer = self.serializer_class(self, context={'request': self.request}, data=self._initial_data)
+            serializer = self.serializer_class(
+                self, context={"request": self.request}, data=self._initial_data
+            )
             serializer.validate_json_schema(self.research_dataset)
         except ValidationError as e:
             # apierrors couldn't handle the validation error thrown by the serializer
@@ -294,11 +314,11 @@ class CatalogRecordV2(CatalogRecord):
         super(Common, self).save()
 
         _logger.info(
-            'Published <CatalogRecord id: %d, identifier: %s, preferred_identifier: %s, state: published>'
+            "Published <CatalogRecord id: %d, identifier: %s, preferred_identifier: %s, state: published>"
             % (self.id, self.identifier, self.preferred_identifier)
         )
 
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'create'))
+        self.add_post_request_callable(RabbitMQPublishRecord(self, "create"))
 
     def merge_draft(self):
         """
@@ -306,10 +326,10 @@ class CatalogRecordV2(CatalogRecord):
         published dataset. The draft record is destroyed once changes have been successfully
         merged.
         """
-        _logger.info('Publishing changes from draft to a published record...')
+        _logger.info("Publishing changes from draft to a published record...")
 
         if not self.is_draft_for_another_dataset():
-            raise Http400('Dataset is not a draft for another published dataset.')
+            raise Http400("Dataset is not a draft for another published dataset.")
 
         # by default retrieves the CatalogRecord object (not CatalogRecordV2!!) which behaves differently!!
         origin_cr = CatalogRecordV2.objects.get(next_draft_id=self.id)
@@ -319,7 +339,10 @@ class CatalogRecordV2(CatalogRecord):
         origin_cr.date_modified = get_tz_aware_now_without_micros()
         origin_cr.user_modified = draft_cr.user_modified
 
-        if origin_cr.cumulative_state == self.CUMULATIVE_STATE_YES or origin_cr._files_added_for_first_time():
+        if (
+            origin_cr.cumulative_state == self.CUMULATIVE_STATE_YES
+            or origin_cr._files_added_for_first_time()
+        ):
             # ^ these checks should already be in place when files are added using change_files() method,
             # but checking here again.
 
@@ -328,20 +351,20 @@ class CatalogRecordV2(CatalogRecord):
 
             if self.draft_of.removed:
                 _logger.info(
-                    'Origin dataset is marked as removed - merging other changes to the published dataset, '
-                    'but not adding files'
+                    "Origin dataset is marked as removed - merging other changes to the published dataset, "
+                    "but not adding files"
                 )
             elif self.draft_of.deprecated:
                 _logger.info(
-                    'Origin dataset is deprecated - merging other changes to the published dataset, '
-                    'but not adding files'
+                    "Origin dataset is deprecated - merging other changes to the published dataset, "
+                    "but not adding files"
                 )
             elif draft_files_count > origin_files_count:
                 # ^ note: it should not be possible that the draft has lesser files, since
                 # removing files is not permitted in any case.
 
                 _logger.info(
-                    'Draft record has %d new files. Adding files to published record'
+                    "Draft record has %d new files. Adding files to published record"
                     % (draft_files_count - origin_files_count)
                 )
 
@@ -351,16 +374,18 @@ class CatalogRecordV2(CatalogRecord):
                 # files should now match, so it should be ok to just copy the directory data for file browsing
                 origin_cr._directory_data = draft_cr._directory_data
 
-            elif draft_files_count < origin_files_count: # pragma: no cover
+            elif draft_files_count < origin_files_count:  # pragma: no cover
                 # should never happen
-                raise Exception('Files have been removed from the draft? This should not have been permitted')
+                raise Exception(
+                    "Files have been removed from the draft? This should not have been permitted"
+                )
             else:
-                _logger.info('No new files to add in draft')
+                _logger.info("No new files to add in draft")
 
         if self.draft_of.deprecated:
             raise Http400(
-                'The origin dataset of this draft is deprecated. Changing files of a deprecated '
-                'dataset is not permitted. Please create a new dataset version first.'
+                "The origin dataset of this draft is deprecated. Changing files of a deprecated "
+                "dataset is not permitted. Please create a new dataset version first."
             )
 
         # cumulative period can be closed. opening it is prevented through
@@ -369,9 +394,9 @@ class CatalogRecordV2(CatalogRecord):
 
         # replace the "draft:<identifier>" of the draft with the original pid so that
         # the save will not raise errors about it
-        draft_cr.research_dataset['preferred_identifier'] = origin_cr.preferred_identifier
+        draft_cr.research_dataset["preferred_identifier"] = origin_cr.preferred_identifier
 
-        if 'issued' not in draft_cr.research_dataset:
+        if "issued" not in draft_cr.research_dataset:
             draft_cr._generate_issued_date()
 
         # other than that, all values from research_dataset should be copied over
@@ -392,80 +417,91 @@ class CatalogRecordV2(CatalogRecord):
 
     def _pre_update_operations(self, draft_publish=False):
 
-        if not self._check_catalog_permissions(self.data_catalog.catalog_record_group_edit,
-                self.data_catalog.catalog_record_services_edit):
-            raise Http403({ 'detail': [ 'You are not permitted to edit datasets in this data catalog.' ]})
+        if not self._check_catalog_permissions(
+            self.data_catalog.catalog_record_group_edit,
+            self.data_catalog.catalog_record_services_edit,
+        ):
+            raise Http403(
+                {"detail": ["You are not permitted to edit datasets in this data catalog."]}
+            )
 
-        if self.field_changed('api_meta'):
-            self.api_meta = self._initial_data['api_meta']
+        if self.field_changed("api_meta"):
+            self.api_meta = self._initial_data["api_meta"]
 
         self._set_api_version()
 
-        if self.field_changed('identifier'):
+        if self.field_changed("identifier"):
             # read-only
-            self.identifier = self._initial_data['identifier']
+            self.identifier = self._initial_data["identifier"]
 
-        if self.field_changed('research_dataset.metadata_version_identifier'):
+        if self.field_changed("research_dataset.metadata_version_identifier"):
             # read-only
-            self.research_dataset['metadata_version_identifier'] = \
-                self._initial_data['research_dataset']['metadata_version_identifier']
+            self.research_dataset["metadata_version_identifier"] = self._initial_data[
+                "research_dataset"
+            ]["metadata_version_identifier"]
 
-        if self.field_changed('research_dataset.preferred_identifier'):
+        if self.field_changed("research_dataset.preferred_identifier"):
             if not (self.catalog_is_harvested() or self.catalog_is_legacy()):
-                raise Http400("Cannot change preferred_identifier in datasets in non-harvested catalogs")
+                raise Http400(
+                    "Cannot change preferred_identifier in datasets in non-harvested catalogs"
+                )
 
-        if self.field_changed('research_dataset.total_files_byte_size'):
+        if self.field_changed("research_dataset.total_files_byte_size"):
             if draft_publish:
                 # allow update when merging changes from draft to published record
                 pass
-            elif 'total_files_byte_size' in self._initial_data['research_dataset']:
+            elif "total_files_byte_size" in self._initial_data["research_dataset"]:
                 # read-only
-                self.research_dataset['total_files_byte_size'] = \
-                    self._initial_data['research_dataset']['total_files_byte_size']
+                self.research_dataset["total_files_byte_size"] = self._initial_data[
+                    "research_dataset"
+                ]["total_files_byte_size"]
             else:
-                self.research_dataset.pop('total_files_byte_size')
+                self.research_dataset.pop("total_files_byte_size")
 
-        if self.field_changed('research_dataset.total_remote_resources_byte_size'):
+        if self.field_changed("research_dataset.total_remote_resources_byte_size"):
             if draft_publish:
                 # allow update when merging changes from draft to published record
                 pass
-            elif 'total_remote_resources_byte_size' in self._initial_data['research_dataset']:
+            elif "total_remote_resources_byte_size" in self._initial_data["research_dataset"]:
                 # read-only
-                self.research_dataset['total_remote_resources_byte_size'] = \
-                    self._initial_data['research_dataset']['total_remote_resources_byte_size']
+                self.research_dataset["total_remote_resources_byte_size"] = self._initial_data[
+                    "research_dataset"
+                ]["total_remote_resources_byte_size"]
             else:
-                self.research_dataset.pop('total_remote_resources_byte_size')
+                self.research_dataset.pop("total_remote_resources_byte_size")
 
-        if self.field_changed('preservation_state'):
+        if self.field_changed("preservation_state"):
             if self.cumulative_state == self.CUMULATIVE_STATE_YES:
-                raise Http400('Changing preservation state is not allowed while dataset cumulation is active')
+                raise Http400(
+                    "Changing preservation state is not allowed while dataset cumulation is active"
+                )
             self._handle_preservation_state_changed()
 
-        if self.field_changed('deprecated') and self._initial_data['deprecated'] is True:
+        if self.field_changed("deprecated") and self._initial_data["deprecated"] is True:
             raise Http400("Cannot change dataset deprecation state from true to false")
 
-        if self.field_changed('date_deprecated') and self._initial_data['date_deprecated']:
+        if self.field_changed("date_deprecated") and self._initial_data["date_deprecated"]:
             raise Http400("Cannot change dataset deprecation date when it has been once set")
 
-        if self.field_changed('preservation_identifier'):
-            self.preservation_identifier = self._initial_data['preservation_identifier']
+        if self.field_changed("preservation_identifier"):
+            self.preservation_identifier = self._initial_data["preservation_identifier"]
 
         if not self.metadata_owner_org:
             # can not be updated to null
-            self.metadata_owner_org = self._initial_data['metadata_owner_org']
+            self.metadata_owner_org = self._initial_data["metadata_owner_org"]
 
-        if self.field_changed('metadata_provider_org'):
+        if self.field_changed("metadata_provider_org"):
             # read-only after creating
-            self.metadata_provider_org = self._initial_data['metadata_provider_org']
+            self.metadata_provider_org = self._initial_data["metadata_provider_org"]
 
-        if self.field_changed('metadata_provider_user'):
+        if self.field_changed("metadata_provider_user"):
             # read-only after creating
-            self.metadata_provider_user = self._initial_data['metadata_provider_user']
+            self.metadata_provider_user = self._initial_data["metadata_provider_user"]
 
-        if settings.REMS['ENABLED']:
+        if settings.REMS["ENABLED"]:
             self._pre_update_handle_rems()
 
-        if self.field_changed('cumulative_state'):
+        if self.field_changed("cumulative_state"):
             if draft_publish:
                 # let cumulative state be updated if it is being changed when
                 # draft record is being merged into a published record.
@@ -477,10 +513,10 @@ class CatalogRecordV2(CatalogRecord):
                     "Use API /rpc/v2/datasets/change_cumulative_state to change cumulative state."
                 )
 
-        if self.field_changed('data_catalog_id'):
+        if self.field_changed("data_catalog_id"):
             if self.catalog_is_att(self._initial_data) and self.catalog_is_ida():
-                self.research_dataset.pop('remote_resources')
-                self.research_dataset.pop('total_remote_resources_byte_size')
+                self.research_dataset.pop("remote_resources")
+                self.research_dataset.pop("total_remote_resources_byte_size")
                 self._handle_metadata_versioning()
 
         if draft_publish:
@@ -492,29 +528,36 @@ class CatalogRecordV2(CatalogRecord):
             # be updated by using the api /rest/v2/datasets/pid/files/user_metadata for existing
             # files, or by using /rest/v2/datasets/pid/files for adding new files with user metadata.
 
-            if self.research_dataset.get('files') != self._initial_data['research_dataset'].get('files'):
-                if 'files' in self._initial_data['research_dataset']:
-                    self.research_dataset['files'] = self._initial_data['research_dataset']['files']
+            if self.research_dataset.get("files") != self._initial_data["research_dataset"].get(
+                "files"
+            ):
+                if "files" in self._initial_data["research_dataset"]:
+                    self.research_dataset["files"] = self._initial_data["research_dataset"]["files"]
                 else:
-                    del self.research_dataset['files']
+                    del self.research_dataset["files"]
 
-            if self.research_dataset.get('directories') != self._initial_data['research_dataset'].get('directories'):
-                if 'directories' in self._initial_data['research_dataset']:
-                    self.research_dataset['directories'] = self._initial_data['research_dataset']['directories']
+            if self.research_dataset.get("directories") != self._initial_data[
+                "research_dataset"
+            ].get("directories"):
+                if "directories" in self._initial_data["research_dataset"]:
+                    self.research_dataset["directories"] = self._initial_data["research_dataset"][
+                        "directories"
+                    ]
                 else:
-                    del self.research_dataset['directories']
+                    del self.research_dataset["directories"]
 
-        if self.field_changed('research_dataset') and self.state == self.STATE_PUBLISHED:
+        if self.field_changed("research_dataset") and self.state == self.STATE_PUBLISHED:
 
             self.update_datacite = True
 
             if self.preservation_state in (
-                    self.PRESERVATION_STATE_INVALID_METADATA,           # 40
-                    self.PRESERVATION_STATE_METADATA_VALIDATION_FAILED, # 50
-                    self.PRESERVATION_STATE_VALID_METADATA):            # 70
+                self.PRESERVATION_STATE_INVALID_METADATA,  # 40
+                self.PRESERVATION_STATE_METADATA_VALIDATION_FAILED,  # 50
+                self.PRESERVATION_STATE_VALID_METADATA,
+            ):  # 70
 
                 # notifies the user in Hallintaliittyma that the metadata needs to be re-validated
-                self.preservation_state = self.PRESERVATION_STATE_VALIDATED_METADATA_UPDATED # 60
+                self.preservation_state = self.PRESERVATION_STATE_VALIDATED_METADATA_UPDATED  # 60
                 self.preservation_state_modified = self.date_modified
 
             if self.catalog_versions_datasets():
@@ -525,7 +568,7 @@ class CatalogRecordV2(CatalogRecord):
                     self._handle_metadata_versioning()
 
             elif self.catalog_is_harvested():
-                if self.field_changed('research_dataset.preferred_identifier'):
+                if self.field_changed("research_dataset.preferred_identifier"):
                     self._handle_preferred_identifier_changed()
 
         else:
@@ -540,34 +583,37 @@ class CatalogRecordV2(CatalogRecord):
         schema. For existing entries, the existing entry is updated either by replacing it, or field by field,
         if using PATCH.
         """
-        _logger.debug('Updating files dataset-specific metadata...')
+        _logger.debug("Updating files dataset-specific metadata...")
 
-        for object_type in ('files', 'directories'):
+        for object_type in ("files", "directories"):
 
             if not file_changes.get(object_type):
-                _logger.debug('No objects of type %s - continuing' % object_type)
+                _logger.debug("No objects of type %s - continuing" % object_type)
                 continue
 
             # filter in only entries that ADD files. makes no sense to keep entries that exclude stuff
             add_entries = [
-                obj for obj in file_changes[object_type]
-                if obj.get('exclude', False) is False
-                and obj.get('delete', False) is False
+                obj
+                for obj in file_changes[object_type]
+                if obj.get("exclude", False) is False and obj.get("delete", False) is False
             ]
 
             # remove the exclude and delete -keys, if they happen to exist. after that, if the obj contains
             # more than 1 key (the obj identifier), we know that it must contain dataset-specific metadata too.
             for obj in add_entries:
-                obj.pop('exclude', None)
-                obj.pop('delete', None)
+                obj.pop("exclude", None)
+                obj.pop("delete", None)
 
-            add_entries = [ obj for obj in add_entries if len(obj) > 1 ]
+            add_entries = [obj for obj in add_entries if len(obj) > 1]
 
-            _logger.debug('Received %d add entries' % len(add_entries))
+            _logger.debug("Received %d add entries" % len(add_entries))
 
             if operation_is_create:
 
-                _logger.debug('Note: operation_is_create=True - replacing all %s with received entries' % object_type)
+                _logger.debug(
+                    "Note: operation_is_create=True - replacing all %s with received entries"
+                    % object_type
+                )
 
                 if add_entries:
                     # if there are no entries to add, do NOT set an empty array!
@@ -577,14 +623,16 @@ class CatalogRecordV2(CatalogRecord):
 
             # else -> update type operation
 
-            _logger.debug('Update operation type = %s' % self.request.META['REQUEST_METHOD'])
+            _logger.debug("Update operation type = %s" % self.request.META["REQUEST_METHOD"])
 
             # take entries that delete metadata, and process them at the end
             delete_entries = set(
-                obj['identifier'] for obj in file_changes[object_type] if obj.get('delete', False) is True
+                obj["identifier"]
+                for obj in file_changes[object_type]
+                if obj.get("delete", False) is True
             )
 
-            _logger.debug('Received %d delete entries' % len(delete_entries))
+            _logger.debug("Received %d delete entries" % len(delete_entries))
 
             new_entries = []
 
@@ -597,9 +645,9 @@ class CatalogRecordV2(CatalogRecord):
 
                 for current_obj in self.research_dataset.get(object_type, []):
 
-                    if received_obj['identifier'] == current_obj['identifier']:
+                    if received_obj["identifier"] == current_obj["identifier"]:
 
-                        if self.request.META['REQUEST_METHOD'] in ('POST', 'PUT'):
+                        if self.request.META["REQUEST_METHOD"] in ("POST", "PUT"):
                             # replace object: drop all keys, and add only received keys below since re-assigning the
                             # current_obj a new reference does not change the actual object in the array.
                             current_obj.clear()
@@ -624,19 +672,24 @@ class CatalogRecordV2(CatalogRecord):
 
             # finally, delete all dataset-specific metadata entries as requested
             self.research_dataset[object_type] = [
-                obj for obj in self.research_dataset[object_type]
-                if obj['identifier'] not in delete_entries
+                obj
+                for obj in self.research_dataset[object_type]
+                if obj["identifier"] not in delete_entries
             ]
 
             if not self.research_dataset[object_type]:
                 # do not leave empty arrays in the dict
                 del self.research_dataset[object_type]
 
-            _logger.debug('Number of %s metadata entries added: %d' % (object_type, len(new_entries)))
-            _logger.debug('Number of %s metadata entries updated: %d' % (object_type, num_updated))
-            _logger.debug('Number of %s metadata entries deleted: %d' % (object_type, len(delete_entries)))
+            _logger.debug(
+                "Number of %s metadata entries added: %d" % (object_type, len(new_entries))
+            )
+            _logger.debug("Number of %s metadata entries updated: %d" % (object_type, num_updated))
+            _logger.debug(
+                "Number of %s metadata entries deleted: %d" % (object_type, len(delete_entries))
+            )
 
-        super(Common, self).save(update_fields=['research_dataset'])
+        super(Common, self).save(update_fields=["research_dataset"])
 
     def _files_added_for_first_time(self):
         """
@@ -651,12 +704,12 @@ class CatalogRecordV2(CatalogRecord):
         raising an error and stopping the operation altogether should be the path of
         least astonishment.
         """
-        for object_type in ('files', 'directories'):
+        for object_type in ("files", "directories"):
             for obj in file_changes.get(object_type, []):
-                if obj.get('exclude', False) is True:
+                if obj.get("exclude", False) is True:
                     raise Http400(
-                        'Excluding files from a cumulative dataset is not permitted. '
-                        'Please create a new dataset version first.'
+                        "Excluding files from a cumulative dataset is not permitted. "
+                        "Please create a new dataset version first."
                     )
 
     def change_files(self, file_changes, operation_is_create=False):
@@ -706,23 +759,25 @@ class CatalogRecordV2(CatalogRecord):
             Here we can't trust in method _operation_is_create(), since it tries to detect creating phase from
             presence of self.id, which in this case is already there since we are so late in the create process.
         """
-        _logger.debug('Changing dataset included files...')
-        _logger.debug('Note: operation_is_create=%r' % operation_is_create)
+        _logger.debug("Changing dataset included files...")
+        _logger.debug("Note: operation_is_create=%r" % operation_is_create)
 
         if self.deprecated:
             raise Http400(
-                'Changing files of a deprecated dataset is not permitted. Please create a new dataset version first.'
+                "Changing files of a deprecated dataset is not permitted. Please create a new dataset version first."
             )
 
         assert type(file_changes) is dict
-        assert hasattr(self, 'request') and self.request is not None
+        assert hasattr(self, "request") and self.request is not None
 
-        if not (file_changes.get('files') or file_changes.get('directories')):
-            _logger.debug('Received data does not include files or directories - returning')
+        if not (file_changes.get("files") or file_changes.get("directories")):
+            _logger.debug("Received data does not include files or directories - returning")
             return
 
         # create an instance of the serializer for later validations
-        serializer = self.serializer_class(self, context={'request': self.request}, data=self._initial_data)
+        serializer = self.serializer_class(
+            self, context={"request": self.request}, data=self._initial_data
+        )
 
         if operation_is_create:
             # todo: probably it would be best to leave this timestamp field empty on initial create
@@ -734,7 +789,7 @@ class CatalogRecordV2(CatalogRecord):
             # a published dataset. draft datasets in general allow for much greater freedom
             # in making changes to the files of a dataset.
 
-            _logger.debug('self.state == %s' % self.state)
+            _logger.debug("self.state == %s" % self.state)
 
             if self.state == self.STATE_DRAFT:
 
@@ -749,8 +804,8 @@ class CatalogRecordV2(CatalogRecord):
 
                     if self.draft_of.deprecated:
                         raise Http400(
-                            'The origin dataset of this draft is deprecated. Changing files of a deprecated '
-                            'dataset is not permitted. Please create a new dataset version first.'
+                            "The origin dataset of this draft is deprecated. Changing files of a deprecated "
+                            "dataset is not permitted. Please create a new dataset version first."
                         )
 
                     elif self.draft_of._files_added_for_first_time():
@@ -764,10 +819,10 @@ class CatalogRecordV2(CatalogRecord):
                         self._cumulative_add_check_excludes(file_changes)
                     else:
                         raise Http400(
-                            'Changing files of a published dataset is not permitted. '
-                            'Please create a new dataset version first. '
-                            'If you need to continuously add new files to a published dataset, '
-                            'consider creating a new cumulative dataset.'
+                            "Changing files of a published dataset is not permitted. "
+                            "Please create a new dataset version first. "
+                            "If you need to continuously add new files to a published dataset, "
+                            "consider creating a new cumulative dataset."
                         )
                 else:
                     # "normal case": a new dataset in draft state. file changes are generally
@@ -781,8 +836,8 @@ class CatalogRecordV2(CatalogRecord):
 
                 if self.next_draft:
                     raise Http400(
-                        'The dataset has an existing unmerged draft. While the draft exists, new files can only be '
-                        'added to the draft record.'
+                        "The dataset has an existing unmerged draft. While the draft exists, new files can only be "
+                        "added to the draft record."
                     )
                 elif self._files_added_for_first_time():
                     # first update from 0 to n files should be allowed even for a published dataset, and
@@ -796,10 +851,10 @@ class CatalogRecordV2(CatalogRecord):
                 else:
                     # published dataset with no special status. changing files is not permitted.
                     raise Http400(
-                        'Changing files of a published dataset is not permitted. '
-                        'Please create a new dataset version first. '
-                        'If you need to continuously add new files to a published dataset, '
-                        'consider creating a new cumulative dataset.'
+                        "Changing files of a published dataset is not permitted. "
+                        "Please create a new dataset version first. "
+                        "If you need to continuously add new files to a published dataset, "
+                        "consider creating a new cumulative dataset."
                     )
 
             # validating received data in this method is only necessary for update operations. for
@@ -815,50 +870,63 @@ class CatalogRecordV2(CatalogRecord):
                 self.date_last_cumulative_addition = self.date_modified
 
         # for counting changes at the end
-        files_before_set = set(id for id in self.files.all().values_list('id', flat=True))
+        files_before_set = set(id for id in self.files.all().values_list("id", flat=True))
 
         files_excluded = False
 
-        for dr in file_changes.get('directories', []):
+        for dr in file_changes.get("directories", []):
 
             # process directory add end exclude entries in the order they are provided
 
             files = self._get_dataset_selected_file_ids(
-                dr['identifier'], 'directory', exclude=dr.get('exclude', False))
+                dr["identifier"], "directory", exclude=dr.get("exclude", False)
+            )
 
-            if dr.get('exclude', False) is False:
-                _logger.debug('Found %d files to add based on received directory objects' % len(files))
+            if dr.get("exclude", False) is False:
+                _logger.debug(
+                    "Found %d files to add based on received directory objects" % len(files)
+                )
                 self.files.add(*files)
             else:
-                _logger.debug('Found %d files to exclude based on received directory objects' % len(files))
+                _logger.debug(
+                    "Found %d files to exclude based on received directory objects" % len(files)
+                )
                 files_excluded = True
                 self.files.remove(*files)
 
         # process individual file add and exclude entries. order does not matter.
 
         files_add = [
-            f['identifier'] for f in file_changes.get('files', [])
-            if f.get('exclude', False) is False
+            f["identifier"]
+            for f in file_changes.get("files", [])
+            if f.get("exclude", False) is False
         ]
 
         files_exclude = [
-            f['identifier'] for f in file_changes.get('files', [])
-            if f.get('exclude', False) is True
+            f["identifier"]
+            for f in file_changes.get("files", [])
+            if f.get("exclude", False) is True
         ]
 
-        file_ids_add = self._get_dataset_selected_file_ids(files_add, 'file', exclude=False)
-        file_ids_exclude = self._get_dataset_selected_file_ids(files_exclude, 'file', exclude=True)
+        file_ids_add = self._get_dataset_selected_file_ids(files_add, "file", exclude=False)
+        file_ids_exclude = self._get_dataset_selected_file_ids(files_exclude, "file", exclude=True)
 
-        _logger.debug('Found %d files to add based on received file objects' % len(file_ids_add))
-        _logger.debug('Found %d files to exclude based on received file objects' % len(file_ids_exclude))
+        _logger.debug("Found %d files to add based on received file objects" % len(file_ids_add))
+        _logger.debug(
+            "Found %d files to exclude based on received file objects" % len(file_ids_exclude)
+        )
 
         self.files.add(*file_ids_add)
         self.files.remove(*file_ids_exclude)
 
         # do final checking that resulting dataset contains files only from a single project
-        projects = self.files.all().values_list('project_identifier', flat=True).distinct('project_identifier')
+        projects = (
+            self.files.all()
+            .values_list("project_identifier", flat=True)
+            .distinct("project_identifier")
+        )
         if len(projects) > 1:
-            raise Http400('All added files must be from the same project')
+            raise Http400("All added files must be from the same project")
 
         if file_ids_exclude:
             files_excluded = True
@@ -870,7 +938,9 @@ class CatalogRecordV2(CatalogRecord):
             self._clear_non_included_file_metadata_entries()
 
         # when adding new files, the entries can contain dataset-specific metadata
-        self._update_dataset_specific_metadata(file_changes, operation_is_create=operation_is_create)
+        self._update_dataset_specific_metadata(
+            file_changes, operation_is_create=operation_is_create
+        )
 
         # update total file size, and numbers for directories that are shown when browsing files
         self._calculate_total_files_byte_size()
@@ -886,7 +956,7 @@ class CatalogRecordV2(CatalogRecord):
         super(Common, self).save()
 
         # count effect of performed actions: number of files added and excluded
-        file_ids_after = self.files.all().values_list('id', flat=True)
+        file_ids_after = self.files.all().values_list("id", flat=True)
 
         if operation_is_create:
             files_added_count = len(file_ids_after)
@@ -896,12 +966,12 @@ class CatalogRecordV2(CatalogRecord):
             files_excluded_count = len(files_before_set.difference(files_after_set))
 
         ret = {
-            'files_added': files_added_count,
+            "files_added": files_added_count,
         }
 
         if not operation_is_create:
             # operation is update. for a create operation, there would never be removed files
-            ret['files_removed'] = files_excluded_count
+            ret["files_removed"] = files_excluded_count
 
         return ret
 
@@ -909,19 +979,19 @@ class CatalogRecordV2(CatalogRecord):
         """
         Return a list of ids of all unique individual files currently in the db.
         """
-        assert identifier_type in ('file', 'directory')
+        assert identifier_type in ("file", "directory")
 
         if type(identifier_list) is not list:
             # this method can accept a single identifier too
             identifier_list = [identifier_list]
 
         file_ids = []
-        file_changes = { 'changed_projects': defaultdict(set) }
+        file_changes = {"changed_projects": defaultdict(set)}
 
-        if identifier_type == 'file':
+        if identifier_type == "file":
             file_ids = self._get_file_ids_from_file_list(identifier_list, file_changes, exclude)
 
-        elif identifier_type == 'directory':
+        elif identifier_type == "directory":
             file_ids = self._get_file_ids_from_dir_list(identifier_list, file_changes, exclude)
 
         self._check_changed_files_permissions(file_changes)
@@ -938,25 +1008,28 @@ class CatalogRecordV2(CatalogRecord):
 
         if exclude:
             # retrieve files for the purpose excluding files from the dataset. search only from current dataset files
-            files = self.files \
-                .filter(identifier__in=file_identifiers) \
-                .values('id', 'identifier', 'project_identifier')
+            files = self.files.filter(identifier__in=file_identifiers).values(
+                "id", "identifier", "project_identifier"
+            )
         else:
             # retrieve files for the purpose of adding new files. search only from files not already part of the dataset
-            files = File.objects \
-                .filter(identifier__in=file_identifiers) \
-                .exclude(id__in=self.files.all()) \
-                .values('id', 'identifier', 'project_identifier')
+            files = (
+                File.objects.filter(identifier__in=file_identifiers)
+                .exclude(id__in=self.files.all())
+                .values("id", "identifier", "project_identifier")
+            )
 
         if len(files) != len(file_identifiers):
 
             missing_identifiers = [
-                pid for pid in file_identifiers if pid not in set([f['identifier'] for f in files])
+                pid for pid in file_identifiers if pid not in set([f["identifier"] for f in files])
             ]
 
             # ensure these were not already included in the dataset
 
-            from_record = self.files.filter(identifier__in=missing_identifiers).values_list('identifier', flat=True)
+            from_record = self.files.filter(identifier__in=missing_identifiers).values_list(
+                "identifier", flat=True
+            )
 
             if len(missing_identifiers) == len(from_record):
                 # all files were already part of the dataset. no files to add
@@ -964,16 +1037,18 @@ class CatalogRecordV2(CatalogRecord):
 
             # otherwise, some were actually not found
 
-            missing_identifiers = [ f for f in missing_identifiers if f not in from_record ]
+            missing_identifiers = [f for f in missing_identifiers if f not in from_record]
 
-            raise Http400({
-                'detail': ['Some requested files were not found. File identifiers not found:'],
-                'data': missing_identifiers
-            })
+            raise Http400(
+                {
+                    "detail": ["Some requested files were not found. File identifiers not found:"],
+                    "data": missing_identifiers,
+                }
+            )
 
-        file_changes['changed_projects']['files_added'].add(files[0]['project_identifier'])
+        file_changes["changed_projects"]["files_added"].add(files[0]["project_identifier"])
 
-        return [ f['id'] for f in files ]
+        return [f["id"] for f in files]
 
     def _get_file_ids_from_dir_list(self, dir_identifiers, file_changes, exclude):
         """
@@ -984,54 +1059,59 @@ class CatalogRecordV2(CatalogRecord):
         if not dir_identifiers:
             return []
 
-        dirs = Directory.objects.filter(identifier__in=dir_identifiers).values('project_identifier', 'directory_path')
+        dirs = Directory.objects.filter(identifier__in=dir_identifiers).values(
+            "project_identifier", "directory_path"
+        )
 
         if len(dirs) == 0:
-            raise Http400('no directories matched given identifiers')
+            raise Http400("no directories matched given identifiers")
 
         elif len(dirs) != len(dir_identifiers):
             missing_identifiers = [
-                pid for pid in dir_identifiers if pid not in set([dr['identifier'] for dr in dirs])
+                pid for pid in dir_identifiers if pid not in set([dr["identifier"] for dr in dirs])
             ]
 
-            raise Http400({
-                'detail': ['Some requested directories were not found. Directory identifiers not found:'],
-                'data': missing_identifiers
-            })
+            raise Http400(
+                {
+                    "detail": [
+                        "Some requested directories were not found. Directory identifiers not found:"
+                    ],
+                    "data": missing_identifiers,
+                }
+            )
 
-        project_identifier = dirs[0]['project_identifier']
+        project_identifier = dirs[0]["project_identifier"]
 
         file_filter = Q()
 
         for dr in dirs:
 
-            if dr['project_identifier'] != project_identifier:
-                raise Http400('All added files must be from the same project')
+            if dr["project_identifier"] != project_identifier:
+                raise Http400("All added files must be from the same project")
 
-            if dr['directory_path'] == '/':
+            if dr["directory_path"] == "/":
                 file_filter = Q()
                 break
             else:
-                file_filter |= Q(file_path__startswith='%s/' % dr['directory_path'])
+                file_filter |= Q(file_path__startswith="%s/" % dr["directory_path"])
 
         # results in ((path like x or path like y...) and project = z)
         file_filter &= Q(project_identifier=project_identifier)
 
-        file_changes['changed_projects']['files_added'].add(project_identifier)
+        file_changes["changed_projects"]["files_added"].add(project_identifier)
 
         if exclude:
             # retrieve files for the purpose excluding files from the dataset. search only from current dataset files
-            file_ids = self.files \
-                .filter(file_filter) \
-                .values_list('id', flat=True)
+            file_ids = self.files.filter(file_filter).values_list("id", flat=True)
         else:
             # retrieve files for the purpose of adding new files. search only from files not already part of the dataset
-            file_ids = File.objects \
-                .filter(file_filter) \
-                .exclude(id__in=self.files.all()) \
-                .values_list('id', flat=True)
+            file_ids = (
+                File.objects.filter(file_filter)
+                .exclude(id__in=self.files.all())
+                .values_list("id", flat=True)
+            )
 
-        return [ id for id in file_ids ]
+        return [id for id in file_ids]
 
     def _clear_non_included_file_metadata_entries(self, raise_on_not_found=False):
         """
@@ -1041,73 +1121,86 @@ class CatalogRecordV2(CatalogRecord):
         Parameter raise_on_not_found on can be used to raise an error if any metadata entry is
         not actually an included file in the dataset.
         """
-        _logger.debug('Clearing non-included file metadata entries...')
-        _logger.debug('Note: raise_on_not_found=%r' % raise_on_not_found)
+        _logger.debug("Clearing non-included file metadata entries...")
+        _logger.debug("Note: raise_on_not_found=%r" % raise_on_not_found)
 
         # files
-        file_identifiers = [ f['identifier'] for f in self.research_dataset.get('files', []) ]
+        file_identifiers = [f["identifier"] for f in self.research_dataset.get("files", [])]
 
         if file_identifiers:
 
             included_files = set(
-                idf for idf in self.files.filter(identifier__in=file_identifiers).values_list('identifier', flat=True)
+                idf
+                for idf in self.files.filter(identifier__in=file_identifiers).values_list(
+                    "identifier", flat=True
+                )
             )
 
             if raise_on_not_found:
 
                 # note: use of this parameter should only be relevant when updating dataset-specific metadata.
 
-                not_included_files = [ idf for idf in file_identifiers if idf not in included_files ]
+                not_included_files = [idf for idf in file_identifiers if idf not in included_files]
 
                 if not_included_files:
-                    raise Http400({
-                        'detail': [
-                            'The following files are not included in the dataset, or the files may '
-                            'have been marked as removed.'
-                        ],
-                        'data': not_included_files
-                    })
+                    raise Http400(
+                        {
+                            "detail": [
+                                "The following files are not included in the dataset, or the files may "
+                                "have been marked as removed."
+                            ],
+                            "data": not_included_files,
+                        }
+                    )
 
-            self.research_dataset['files'] = [
-                f for f in self.research_dataset['files'] if f['identifier'] in included_files
+            self.research_dataset["files"] = [
+                f for f in self.research_dataset["files"] if f["identifier"] in included_files
             ]
 
         # dirs
-        dir_identifiers = [ dr['identifier'] for dr in self.research_dataset.get('directories', []) ]
+        dir_identifiers = [dr["identifier"] for dr in self.research_dataset.get("directories", [])]
 
         if dir_identifiers:
 
             current_dir_entries = [
-                dr for dr
-                in Directory.objects.filter(identifier__in=dir_identifiers).values('identifier', 'directory_path')
+                dr
+                for dr in Directory.objects.filter(identifier__in=dir_identifiers).values(
+                    "identifier", "directory_path"
+                )
             ]
 
             included_dirs = set()
 
             for dr in current_dir_entries:
 
-                dir_has_files = self.files.filter(file_path__startswith='%s/' % dr['directory_path']).exists()
+                dir_has_files = self.files.filter(
+                    file_path__startswith="%s/" % dr["directory_path"]
+                ).exists()
 
                 if dir_has_files:
                     # directory or one of its sub directories has at least one file. therefore
                     # this directory metadata entry should remain.
-                    included_dirs.add(dr['identifier'])
+                    included_dirs.add(dr["identifier"])
 
             if raise_on_not_found:
 
                 # note: use of this parameter should only be relevant when updating dataset-specific metadata.
 
-                not_included_dirs = [ idf for idf in dir_identifiers if idf not in included_dirs ]
+                not_included_dirs = [idf for idf in dir_identifiers if idf not in included_dirs]
 
                 if not_included_dirs:
-                    raise Http400({
-                        'detail': 'The following directories do not contain any files in the dataset. '
-                                  'Please add files to the dataset first.',
-                        'data': not_included_dirs
-                    })
+                    raise Http400(
+                        {
+                            "detail": "The following directories do not contain any files in the dataset. "
+                            "Please add files to the dataset first.",
+                            "data": not_included_dirs,
+                        }
+                    )
 
-            self.research_dataset['directories'] = [
-                dr for dr in self.research_dataset['directories'] if dr['identifier'] in included_dirs
+            self.research_dataset["directories"] = [
+                dr
+                for dr in self.research_dataset["directories"]
+                if dr["identifier"] in included_dirs
             ]
 
     def update_files_dataset_specific_metadata(self, md_changes):
@@ -1115,21 +1208,21 @@ class CatalogRecordV2(CatalogRecord):
         Update contents of fields research_dataset.files and research_dataset.directories, i.e. "user metadata"
         or "dataset-specific metadata".
         """
-        _logger.info('Updating dataset file metadata...')
+        _logger.info("Updating dataset file metadata...")
 
         serializer = self.serializer_class(self)
 
         # note: this does json schema validation, and its output from the api is not user friendly
         # at all, but its better than nothing...
 
-        if self.request.META['REQUEST_METHOD'] == 'PUT':
+        if self.request.META["REQUEST_METHOD"] == "PUT":
             # do not validate for patch, since it can contain only partial fields
             serializer.validate_research_dataset_files(md_changes)
 
-        for object_type in ('files', 'directories'):
+        for object_type in ("files", "directories"):
             for obj in md_changes.get(object_type, []):
-                if 'identifier' not in obj:
-                    raise Http400('\'identifier\' is a required field in all metadata entries.')
+                if "identifier" not in obj:
+                    raise Http400("'identifier' is a required field in all metadata entries.")
 
         self._update_dataset_specific_metadata(md_changes, operation_is_create=False)
         self._clear_non_included_file_metadata_entries(raise_on_not_found=True)
@@ -1138,7 +1231,7 @@ class CatalogRecordV2(CatalogRecord):
 
         files_and_dirs = {}
 
-        for object_type in ('files', 'directories'):
+        for object_type in ("files", "directories"):
             if object_type in self.research_dataset:
                 files_and_dirs[object_type] = self.research_dataset[object_type]
 
@@ -1156,18 +1249,20 @@ class CatalogRecordV2(CatalogRecord):
         """
         Create a new draft of a published dataset, that can later be merged back to the original published dataset.
         """
-        _logger.info('Creating a draft of a published dataset...')
+        _logger.info("Creating a draft of a published dataset...")
 
         if self.is_draft_for_another_dataset():
-            raise Http400('Dataset is already a draft for another published dataset.')
+            raise Http400("Dataset is already a draft for another published dataset.")
 
         elif self.state == self.STATE_DRAFT:
             # a new dataset in draft state
-            raise Http400('Dataset is already draft.')
+            raise Http400("Dataset is already draft.")
 
         if self.next_draft:
             raise Http400(
-                'The dataset already has an existing unmerged draft: {}'.format(self.next_draft.preferred_identifier)
+                "The dataset already has an existing unmerged draft: {}".format(
+                    self.next_draft.preferred_identifier
+                )
             )
 
         origin_cr = self
@@ -1176,7 +1271,7 @@ class CatalogRecordV2(CatalogRecord):
         draft_cr.date_created = get_tz_aware_now_without_micros()
         draft_cr.state = self.STATE_DRAFT
         draft_cr.cumulative_state = origin_cr.cumulative_state
-        draft_cr.research_dataset['preferred_identifier'] = 'draft:%s' % draft_cr.identifier
+        draft_cr.research_dataset["preferred_identifier"] = "draft:%s" % draft_cr.identifier
 
         super(CatalogRecord, draft_cr).save()
 
@@ -1192,16 +1287,16 @@ class CatalogRecordV2(CatalogRecord):
         super(CatalogRecord, origin_cr).save()
 
         log_args = {
-            'event': 'dataset_draft_created',
-            'user_id': draft_cr.user_created or draft_cr.service_created,
-            'catalogrecord': {
-                'identifier': draft_cr.identifier,
-                'preferred_identifier': draft_cr.preferred_identifier,
-                'data_catalog': draft_cr.data_catalog.catalog_json['identifier'],
-                'date_created': datetime_to_str(draft_cr.date_created),
-                'metadata_owner_org': draft_cr.metadata_owner_org,
-                'state': draft_cr.state,
-            }
+            "event": "dataset_draft_created",
+            "user_id": draft_cr.user_created or draft_cr.service_created,
+            "catalogrecord": {
+                "identifier": draft_cr.identifier,
+                "preferred_identifier": draft_cr.preferred_identifier,
+                "data_catalog": draft_cr.data_catalog.catalog_json["identifier"],
+                "date_created": datetime_to_str(draft_cr.date_created),
+                "metadata_owner_org": draft_cr.metadata_owner_org,
+                "state": draft_cr.state,
+            },
         }
 
         self.add_post_request_callable(DelayedLog(**log_args))
@@ -1211,22 +1306,22 @@ class CatalogRecordV2(CatalogRecord):
         A method to "explicitly" create a new version of a dataset, which is called from a particular
         RPC API endpoint.
         """
-        _logger.info('Creating a new dataset version...')
+        _logger.info("Creating a new dataset version...")
 
         if self.is_draft_for_another_dataset():
             raise Http400(
-                'Can\'t create new version. Dataset is a draft for another published dataset: %s'
+                "Can't create new version. Dataset is a draft for another published dataset: %s"
                 % self.draft_of.identifier
             )
         elif self.has_next_draft():
             raise Http400(
-                'Can\'t create new version. Dataset has an unmerged draft: %s'
+                "Can't create new version. Dataset has an unmerged draft: %s"
                 % self.next_draft.identifier
             )
         elif not self.catalog_versions_datasets():
-            raise Http400('Data catalog does not allow dataset versioning')
+            raise Http400("Data catalog does not allow dataset versioning")
         elif self.state == self.STATE_DRAFT:
-            raise Http400('Cannot create new version from draft dataset')
+            raise Http400("Cannot create new version from draft dataset")
 
         self._new_version = self._create_new_dataset_version_template()
         self._create_new_dataset_version()
@@ -1235,16 +1330,21 @@ class CatalogRecordV2(CatalogRecord):
         """
         Create a new dataset version of the record who calls this method.
         """
-        assert hasattr(self, '_new_version'), 'self._new_version should have been set in a previous step'
+        assert hasattr(
+            self, "_new_version"
+        ), "self._new_version should have been set in a previous step"
 
         old_version = self
 
         if old_version.next_dataset_version_id:
             raise Http400(
-                'Dataset already has a next version: %s' % old_version.next_dataset_version.identifier
+                "Dataset already has a next version: %s"
+                % old_version.next_dataset_version.identifier
             )
 
-        _logger.info('Creating new dataset version from old CatalogRecord: %s' % old_version.identifier)
+        _logger.info(
+            "Creating new dataset version from old CatalogRecord: %s" % old_version.identifier
+        )
 
         new_version = self._new_version
         new_version.state = self.STATE_DRAFT
@@ -1275,10 +1375,10 @@ class CatalogRecordV2(CatalogRecord):
             new_version.user_created = self.request.user.username
 
         new_version.research_dataset = deepcopy(old_version.research_dataset)
-        new_version.research_dataset['metadata_version_identifier'] = generate_uuid_identifier()
+        new_version.research_dataset["metadata_version_identifier"] = generate_uuid_identifier()
 
         # temporary "pid" until draft is published
-        new_version.research_dataset['preferred_identifier'] = 'draft:%s' % self.identifier
+        new_version.research_dataset["preferred_identifier"] = "draft:%s" % self.identifier
 
         if old_version.files.exists():
             # copy all files from previous version to new version.
@@ -1302,13 +1402,13 @@ class CatalogRecordV2(CatalogRecord):
             # they see as relevant. we also dont want null values in there
             old_editor = deepcopy(new_version.editor)
             new_version.editor = {}
-            if 'owner_id' in old_editor:
-                new_version.editor['owner_id'] = old_editor['owner_id']
-            if 'creator_id' in old_editor:
-                new_version.editor['creator_id'] = old_editor['creator_id']
-            if 'identifier' in old_editor:
+            if "owner_id" in old_editor:
+                new_version.editor["owner_id"] = old_editor["owner_id"]
+            if "creator_id" in old_editor:
+                new_version.editor["creator_id"] = old_editor["creator_id"]
+            if "identifier" in old_editor:
                 # todo this probably does not make sense... ?
-                new_version.editor['identifier'] = old_editor['identifier']
+                new_version.editor["identifier"] = old_editor["identifier"]
 
         # v2 api successfully invoked, change the api version to prevent further updates on v1 api
         self._set_api_version()
@@ -1316,23 +1416,24 @@ class CatalogRecordV2(CatalogRecord):
         super(Common, new_version).save()
         super(Common, old_version).save()
 
-        _logger.info('New dataset version draft created, identifier %s' % new_version.identifier)
+        _logger.info("New dataset version draft created, identifier %s" % new_version.identifier)
 
         log_args = {
-            'catalogrecord': {
-                'identifier': new_version.identifier,
-                'preferred_identifier': new_version.preferred_identifier,
-                'data_catalog': new_version.data_catalog.catalog_json['identifier'],
-                'date_created': datetime_to_str(new_version.date_created),
-                'metadata_owner_org': new_version.metadata_owner_org,
-                'state': new_version.state,
+            "catalogrecord": {
+                "identifier": new_version.identifier,
+                "preferred_identifier": new_version.preferred_identifier,
+                "data_catalog": new_version.data_catalog.catalog_json["identifier"],
+                "date_created": datetime_to_str(new_version.date_created),
+                "metadata_owner_org": new_version.metadata_owner_org,
+                "state": new_version.state,
             },
-            'user_id': new_version.user_created or new_version.service_created,
+            "user_id": new_version.user_created or new_version.service_created,
         }
 
-        log_args['event'] = 'dataset_version_created'
-        log_args['catalogrecord']['previous_version_preferred_identifier'] \
-            = new_version.previous_dataset_version.preferred_identifier
+        log_args["event"] = "dataset_version_created"
+        log_args["catalogrecord"][
+            "previous_version_preferred_identifier"
+        ] = new_version.previous_dataset_version.preferred_identifier
 
         self.add_post_request_callable(DelayedLog(**log_args))
 
@@ -1344,23 +1445,24 @@ class CatalogRecordV2(CatalogRecord):
           creating a new version into draft state first.
         """
         if self.next_dataset_version:
-            raise Http400('Cannot change cumulative_state on old dataset version')
+            raise Http400("Cannot change cumulative_state on old dataset version")
 
-        cumulative_state_valid_values = [ choice[0] for choice in self.CUMULATIVE_STATE_CHOICES ]
+        cumulative_state_valid_values = [choice[0] for choice in self.CUMULATIVE_STATE_CHOICES]
 
         try:
             new_state = int(new_state)
             assert new_state in cumulative_state_valid_values
         except:
             raise Http400(
-                'cumulative_state must be one of: %s' % ', '.join(str(x) for x in cumulative_state_valid_values)
+                "cumulative_state must be one of: %s"
+                % ", ".join(str(x) for x in cumulative_state_valid_values)
             )
 
         if self.cumulative_state == new_state:
-            _logger.info('No change in cumulative_state')
+            _logger.info("No change in cumulative_state")
             return
 
-        _logger.info('Changing cumulative_state from %d to %d' % (self.cumulative_state, new_state))
+        _logger.info("Changing cumulative_state from %d to %d" % (self.cumulative_state, new_state))
 
         self.date_modified = get_tz_aware_now_without_micros()
         self.service_modified = self.request.user.username if self.request.user.is_service else None
@@ -1385,7 +1487,9 @@ class CatalogRecordV2(CatalogRecord):
                 self.date_last_cumulative_addition = None
 
             elif new_state == self.CUMULATIVE_STATE_CLOSED:
-                raise Http400('For a new dataset, cumulative_state must be \'not cumulative\' or \'open\'')
+                raise Http400(
+                    "For a new dataset, cumulative_state must be 'not cumulative' or 'open'"
+                )
 
             elif new_state == self.CUMULATIVE_STATE_YES:
                 # start date is set during publishing
@@ -1403,16 +1507,16 @@ class CatalogRecordV2(CatalogRecord):
 
         if new_state == self.CUMULATIVE_STATE_NO:
             raise Http400(
-                'Cumulative dataset cannot be set to non-cumulative dataset. '
-                'If you want to stop active cumulation, set cumulative status to closed.'
+                "Cumulative dataset cannot be set to non-cumulative dataset. "
+                "If you want to stop active cumulation, set cumulative status to closed."
             )
 
         elif new_state == self.CUMULATIVE_STATE_CLOSED:
 
             if comparison_cr.cumulative_state == self.CUMULATIVE_STATE_NO:
-                raise Http400('Cumulation cannot be closed for non-cumulative dataset')
+                raise Http400("Cumulation cannot be closed for non-cumulative dataset")
             elif self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
-                _logger.info('Note: cumulative_state is already CLOSED. Doing nothing')
+                _logger.info("Note: cumulative_state is already CLOSED. Doing nothing")
                 return
 
             self.date_cumulation_ended = self.date_modified
@@ -1423,18 +1527,18 @@ class CatalogRecordV2(CatalogRecord):
 
             if comparison_cr.preservation_state > self.PRESERVATION_STATE_INITIALIZED:
                 raise Http400(
-                    'Cumulative datasets are not allowed in PAS process. Change preservation_state '
-                    'to 0 in order to change the dataset to cumulative.'
+                    "Cumulative datasets are not allowed in PAS process. Change preservation_state "
+                    "to 0 in order to change the dataset to cumulative."
                 )
             elif comparison_cr.files.count() > 0:
                 # permits opening cumulativity for a published dataset that does not yet
                 # have any files.
                 raise Http400(
-                    'Can\'t set dataset cumulative: Dataset already has files. Please create '
-                    'a new dataset version first.'
+                    "Can't set dataset cumulative: Dataset already has files. Please create "
+                    "a new dataset version first."
                 )
             elif self.cumulative_state == self.CUMULATIVE_STATE_YES:
-                _logger.info('Note: cumulative_state is already YES. Doing nothing')
+                _logger.info("Note: cumulative_state is already YES. Doing nothing")
                 return
 
             self.date_cumulation_started = self.date_modified
@@ -1447,7 +1551,7 @@ class CatalogRecordV2(CatalogRecord):
         super(CatalogRecord, self).save()
 
         # Handles with drafts
-        self.add_post_request_callable(RabbitMQPublishRecord(self, 'update'))
+        self.add_post_request_callable(RabbitMQPublishRecord(self, "update"))
 
     def calculate_directory_byte_sizes_and_file_counts(self):
         """
@@ -1456,7 +1560,7 @@ class CatalogRecordV2(CatalogRecord):
         if not self.files.exists():
             return
 
-        _logger.info('Calculating directory byte_sizes and file_counts...')
+        _logger.info("Calculating directory byte_sizes and file_counts...")
 
         parent_dir = self.files.first().parent_directory
 
@@ -1470,4 +1574,4 @@ class CatalogRecordV2(CatalogRecord):
         root_dir.calculate_byte_size_and_file_count_for_cr(self.id, directory_data)
 
         self._directory_data = directory_data
-        super(Common, self).save(update_fields=['_directory_data'])
+        super(Common, self).save(update_fields=["_directory_data"])

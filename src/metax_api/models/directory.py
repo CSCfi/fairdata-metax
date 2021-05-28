@@ -27,17 +27,19 @@ class Directory(Common):
     directory_path = models.TextField()
     identifier = models.CharField(max_length=200, unique=True)
     file_count = models.BigIntegerField(default=0)
-    parent_directory = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, related_name='child_directories')
+    parent_directory = models.ForeignKey(
+        "self", on_delete=models.SET_NULL, null=True, related_name="child_directories"
+    )
     project_identifier = models.CharField(max_length=200)
 
     # END OF MODEL FIELD DEFINITIONS #
 
     class Meta:
         indexes = [
-            models.Index(fields=['directory_path']),
-            models.Index(fields=['identifier']),
-            models.Index(fields=['parent_directory']),
-            models.Index(fields=['project_identifier']),
+            models.Index(fields=["directory_path"]),
+            models.Index(fields=["identifier"]),
+            models.Index(fields=["parent_directory"]),
+            models.Index(fields=["project_identifier"]),
         ]
 
     def delete(self):
@@ -48,6 +50,7 @@ class Directory(Common):
         if request.user.is_service:
             return True
         from metax_api.services import AuthService
+
         return self.project_identifier in AuthService.get_user_projects(request)
 
     def calculate_byte_size_and_file_count(self):
@@ -58,17 +61,20 @@ class Directory(Common):
         """
         if self.parent_directory_id:
             raise Exception(
-                'while this is a recursive method, it is intended to be initially called by '
-                'project root directories only.'
+                "while this is a recursive method, it is intended to be initially called by "
+                "project root directories only."
             )
 
-        _logger.info('Calculating directory byte sizes and file counts for project %s...' % self.project_identifier)
+        _logger.info(
+            "Calculating directory byte sizes and file counts for project %s..."
+            % self.project_identifier
+        )
 
         update_statements = []
 
         self._calculate_byte_size_and_file_count(update_statements)
 
-        sql_update_all_directories = '''
+        sql_update_all_directories = """
             update metax_api_directory as d set
                 byte_size = results.byte_size,
                 file_count = results.file_count
@@ -76,19 +82,21 @@ class Directory(Common):
                 %s
             ) as results(byte_size, file_count, id)
             where results.id = d.id;
-            ''' % ','.join(update_statements)
+            """ % ",".join(
+            update_statements
+        )
 
         with connection.cursor() as cursor:
             cursor.execute(sql_update_all_directories)
 
         _logger.info(
-            'Project %s directory tree calculations complete. Total byte_size: '
-            '%d bytes (%.3f GB), total file_count: %d files'
+            "Project %s directory tree calculations complete. Total byte_size: "
+            "%d bytes (%.3f GB), total file_count: %d files"
             % (
                 self.project_identifier,
                 self.byte_size,
                 self.byte_size / 1024 / 1024 / 1024,
-                self.file_count
+                self.file_count,
             )
         )
 
@@ -101,10 +109,16 @@ class Directory(Common):
         self.file_count = 0
 
         # fields id, parent_directory_id must be specified for joining for Prefetch-object to work properly
-        sub_dirs = self.child_directories.all() \
-            .only('byte_size', 'parent_directory_id') \
+        sub_dirs = (
+            self.child_directories.all()
+            .only("byte_size", "parent_directory_id")
             .prefetch_related(
-                Prefetch('files', queryset=File.objects.only('id', 'byte_size', 'parent_directory_id')))
+                Prefetch(
+                    "files",
+                    queryset=File.objects.only("id", "byte_size", "parent_directory_id"),
+                )
+            )
+        )
 
         if sub_dirs:
             for sub_dir in sub_dirs:
@@ -118,10 +132,7 @@ class Directory(Common):
         self.byte_size += sum(f.byte_size for f in self.files.all()) or 0
         self.file_count += len(self.files.all()) or 0
 
-        update_statements.append(
-            '(%d, %d, %d)'
-            % (self.byte_size, self.file_count, self.id)
-        )
+        update_statements.append("(%d, %d, %d)" % (self.byte_size, self.file_count, self.id))
 
     def calculate_byte_size_and_file_count_for_cr(self, cr_id, directory_data):
         """
@@ -130,13 +141,20 @@ class Directory(Common):
         file count for each directory into parameter directory_data. Intended to be called
         for the top-level directories of a project in a dataset.
         """
-        _logger.debug('Calculating directory byte sizes and file counts for project %s, directory %s...' %
-            (self.project_identifier, self.directory_path))
+        _logger.debug(
+            "Calculating directory byte sizes and file counts for project %s, directory %s..."
+            % (self.project_identifier, self.directory_path)
+        )
 
-        stats = File.objects.filter(record__pk=cr_id).values_list('parent_directory_id').annotate(
-            Sum('byte_size'), Count('id'))
+        stats = (
+            File.objects.filter(record__pk=cr_id)
+            .values_list("parent_directory_id")
+            .annotate(Sum("byte_size"), Count("id"))
+        )
 
-        grouped_by_dir = {parent_id: (byte_size, file_count) for parent_id, byte_size, file_count in stats}
+        grouped_by_dir = {
+            parent_id: (byte_size, file_count) for parent_id, byte_size, file_count in stats
+        }
 
         self._calculate_byte_size_and_file_count_for_cr(grouped_by_dir, directory_data)
 
@@ -155,7 +173,7 @@ class Directory(Common):
         self.byte_size = 0
         self.file_count = 0
 
-        sub_dirs = self.child_directories.all().only('id')
+        sub_dirs = self.child_directories.all().only("id")
 
         if sub_dirs:
             for sub_dir in sub_dirs:
@@ -172,14 +190,17 @@ class Directory(Common):
         self.file_count += current_dir[1]
 
         # the accumulated numbers that exist in the directory for given cr
-        directory_data[self.id] = [ self.byte_size, self.file_count ]
+        directory_data[self.id] = [self.byte_size, self.file_count]
 
     def __repr__(self):
-        return '<%s: %d, removed: %s, project_identifier: %s, identifier: %s, directory_path: %s >' % (
-            'Directory',
-            self.id,
-            str(self.removed),
-            self.project_identifier,
-            self.identifier,
-            self.directory_path
+        return (
+            "<%s: %d, removed: %s, project_identifier: %s, identifier: %s, directory_path: %s >"
+            % (
+                "Directory",
+                self.id,
+                str(self.removed),
+                self.project_identifier,
+                self.identifier,
+                self.directory_path,
+            )
         )

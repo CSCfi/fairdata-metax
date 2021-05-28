@@ -19,10 +19,10 @@ RABBITMQ = {
             "QUEUES": [
                 {
                     "NAME": "ttv-operations",
-                    #"ROUTING_KEY": "some_key"
+                    # "ROUTING_KEY": "some_key"
                 }
-            ]
-        }
+            ],
+        },
     ],
 }
 RABBIT_MQ_USE_VHOST = env("RABBIT_MQ_USE_VHOST")

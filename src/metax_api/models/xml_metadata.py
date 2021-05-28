@@ -22,10 +22,10 @@ class XmlMetadata(Common):
     # END OF MODEL FIELD DEFINITIONS #
 
     class Meta:
-        unique_together = ('namespace', 'file')
+        unique_together = ("namespace", "file")
 
     indexes = [
-        models.Index(fields=['namespace']),
+        models.Index(fields=["namespace"]),
     ]
 
     def delete(self):

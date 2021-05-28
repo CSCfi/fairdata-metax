@@ -12,12 +12,11 @@ from metax_api.tests.utils import TestClassUtils
 
 
 class CommonRPCTests(APITestCase, TestClassUtils):
-
     def test_list_valid_methods(self):
         """
         When an invalid (or mistyped) method name is attempted, the api should list valid methods
         names for that RPC endpoint.
         """
-        response = self.client.get('/rpc/datasets/nonexisting')
+        response = self.client.get("/rpc/datasets/nonexisting")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual('methods are: ' in response.data['detail'][0], True, response.content)
+        self.assertEqual("methods are: " in response.data["detail"][0], True, response.content)

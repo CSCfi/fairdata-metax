@@ -6,12 +6,13 @@ from metax_api.models import Directory
 
 logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     def handle(self, *args, **options):
         dirs_with_no_files = Directory.objects_unfiltered.all()
         dir_sum = dirs_with_no_files.count()
         logger.info(f"fix_file_counts command found {dir_sum} directories")
-        i=0
+        i = 0
         for dir in dirs_with_no_files:
             i += 1
             try:

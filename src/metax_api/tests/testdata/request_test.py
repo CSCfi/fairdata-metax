@@ -12,7 +12,7 @@ from urllib import request
 d = print
 d("STARTING MEASUREMENTS")
 
-url = 'https://metax.csc.local/rest/files/urn:nbn:fi:csc-ida201401200000100000'
+url = "https://metax.csc.local/rest/files/urn:nbn:fi:csc-ida201401200000100000"
 # url = 'https://metax.csc.local/rest/files/d1a53535-2adb-5184-a10b-8dd7338d0a41'
 times = []
 run_times = 20

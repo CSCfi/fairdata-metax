@@ -18,7 +18,7 @@ class DataCatalogModelTests(TestCase, TestClassUtils):
         """
         Loaded only once for test cases inside this class.
         """
-        call_command('loaddata', test_data_file_path, verbosity=0)
+        call_command("loaddata", test_data_file_path, verbosity=0)
         super(DataCatalogModelTests, cls).setUpClass()
 
     def setUp(self):
@@ -26,7 +26,7 @@ class DataCatalogModelTests(TestCase, TestClassUtils):
 
     def test_disallow_identifier_manual_update(self):
         dc = self.dc
-        old = dc.catalog_json['identifier']
-        dc.catalog_json['identifier'] = 'changed value'
+        old = dc.catalog_json["identifier"]
+        dc.catalog_json["identifier"] = "changed value"
         dc.save()
-        self.assertEqual(old, dc.catalog_json['identifier'])
+        self.assertEqual(old, dc.catalog_json["identifier"])

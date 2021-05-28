@@ -28,10 +28,7 @@ def assert_catalog_record_is_open_access(cr):
     from metax_api.models.catalog_record import ACCESS_TYPES
 
     access_type = (
-        cr["research_dataset"]
-        .get("access_rights", {})
-        .get("access_type", {})
-        .get("identifier", "")
+        cr["research_dataset"].get("access_rights", {}).get("access_type", {}).get("identifier", "")
     )
     assert access_type == ACCESS_TYPES["open"]
 
@@ -40,10 +37,7 @@ def assert_catalog_record_not_open_access(cr):
     from metax_api.models.catalog_record import ACCESS_TYPES
 
     access_type = (
-        cr["research_dataset"]
-        .get("access_rights", {})
-        .get("access_type", {})
-        .get("identifier", "")
+        cr["research_dataset"].get("access_rights", {}).get("access_type", {}).get("identifier", "")
     )
     assert access_type != ACCESS_TYPES["open"]
 
@@ -135,7 +129,7 @@ class TestClassUtils:
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create="testuser,api_auth_user,metax",
                 catalog_record_services_edit="testuser,api_auth_user,metax",
-                catalog_record_services_read='testuser,api_auth_user,metax'
+                catalog_record_services_read="testuser,api_auth_user,metax",
             )
 
     def create_legacy_data_catalogs(self):
@@ -153,7 +147,7 @@ class TestClassUtils:
                 date_created=get_tz_aware_now_without_micros(),
                 catalog_record_services_create="testuser,api_auth_user,metax",
                 catalog_record_services_edit="testuser,api_auth_user,metax",
-                catalog_record_services_read='testuser,api_auth_user,metax'
+                catalog_record_services_read="testuser,api_auth_user,metax",
             )
 
     def _set_http_authorization(self, credentials_type):
@@ -162,9 +156,7 @@ class TestClassUtils:
             self.client.credentials()
         elif credentials_type == "service":
 
-            self._use_http_authorization(
-                username="metax"
-            )
+            self._use_http_authorization(username="metax")
         elif credentials_type == "owner":
             self._use_http_authorization(method="bearer", token=self.token)
             self._mock_token_validation_succeeds()
@@ -207,18 +199,14 @@ class TestClassUtils:
                 password = user["password"]
             else:
                 if not password:
-                    raise Exception(
-                        "Missing parameter 'password' for HTTP Authorization header"
-                    )
+                    raise Exception("Missing parameter 'password' for HTTP Authorization header")
 
             header_value = "Basic %s" % b64encode(
                 bytes("%s:%s" % (username, password), "utf-8")
             ).decode("utf-8")
 
         elif method == "bearer":
-            assert (
-                token is not None
-            ), "token (dictionary) is required when using auth method bearer"
+            assert token is not None, "token (dictionary) is required when using auth method bearer"
             header_value = "Bearer %s" % generate_test_token(token)
 
         self.client.credentials(HTTP_AUTHORIZATION=header_value)
@@ -275,16 +263,12 @@ class TestClassUtils:
         data["metadata_provider_user"] = self.token["CSCUserName"]
         data["metadata_provider_org"] = self.token["schacHomeOrganization"]
         data["metadata_owner_org"] = self.token["schacHomeOrganization"]
-        data["data_catalog"][
-            "identifier"
-        ] = django_settings.END_USER_ALLOWED_DATA_CATALOGS[0]
+        data["data_catalog"]["identifier"] = django_settings.END_USER_ALLOWED_DATA_CATALOGS[0]
 
         data.pop("identifier", None)
         data["research_dataset"].pop("preferred_identifier", None)
 
-        response = self.client.post(
-            f"/rest/{self.api_version}/datasets", data, format="json"
-        )
+        response = self.client.post(f"/rest/{self.api_version}/datasets", data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         return response.data["id"]
 
@@ -295,9 +279,7 @@ class TestClassUtils:
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        self._use_http_authorization(
-            username="metax"
-        )
+        self._use_http_authorization(username="metax")
         pk = 13
 
         if set_owner:
@@ -306,9 +288,7 @@ class TestClassUtils:
             )
             pk = self._create_cr_for_owner(pk, response.data)
 
-        CatalogRecord.objects.get(
-            pk=pk
-        ).calculate_directory_byte_sizes_and_file_counts()
+        CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
 
         if use_login_access_type:
             response_data = self.client.get(
@@ -344,28 +324,22 @@ class TestClassUtils:
 
         return response.data
 
-    def get_restricted_cr_with_files_and_dirs_from_api_with_file_details(
-        self, set_owner=False
-    ):
+    def get_restricted_cr_with_files_and_dirs_from_api_with_file_details(self, set_owner=False):
         from metax_api.models import CatalogRecord
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        self._use_http_authorization(
-            "metax"
-        )
+        self._use_http_authorization("metax")
         pk = 13
 
-        response = self.client.get(
-            f"/rest/{self.api_version}/datasets/{pk}?include_user_metadata"
-        )
+        response = self.client.get(f"/rest/{self.api_version}/datasets/{pk}?include_user_metadata")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         data = response.data
 
         # Set access_type to restricted
-        data["research_dataset"]["access_rights"]["access_type"][
-            "identifier"
-        ] = ACCESS_TYPES["restricted"]
+        data["research_dataset"]["access_rights"]["access_type"]["identifier"] = ACCESS_TYPES[
+            "restricted"
+        ]
 
         if set_owner:
             pk = self._create_cr_for_owner(pk, data)
@@ -377,9 +351,7 @@ class TestClassUtils:
             )
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        CatalogRecord.objects.get(
-            pk=pk
-        ).calculate_directory_byte_sizes_and_file_counts()
+        CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
         response = self.client.get(
             f"/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details"
         )
@@ -397,42 +369,32 @@ class TestClassUtils:
 
         return response.data
 
-    def get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(
-        self, is_available
-    ):
+    def get_embargoed_cr_with_files_and_dirs_from_api_with_file_details(self, is_available):
         from metax_api.models import CatalogRecord
         from metax_api.models.catalog_record import ACCESS_TYPES
 
         # Use http auth to get complete details of the catalog record
-        self._use_http_authorization(
-            "metax"
-        )
+        self._use_http_authorization("metax")
         pk = 13
 
-        response = self.client.get(
-            f"/rest/{self.api_version}/datasets/{pk}?include_user_metadata"
-        )
+        response = self.client.get(f"/rest/{self.api_version}/datasets/{pk}?include_user_metadata")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         data = response.data
 
         # Set access_type to embargo
-        data["research_dataset"]["access_rights"]["access_type"][
-            "identifier"
-        ] = ACCESS_TYPES["embargo"]
+        data["research_dataset"]["access_rights"]["access_type"]["identifier"] = ACCESS_TYPES[
+            "embargo"
+        ]
 
         if is_available:
             data["research_dataset"]["access_rights"]["available"] = "2000-01-01"
         else:
             data["research_dataset"]["access_rights"]["available"] = "3000-01-01"
 
-        response = self.client.put(
-            f"/rest/{self.api_version}/datasets/13", data, format="json"
-        )
+        response = self.client.put(f"/rest/{self.api_version}/datasets/13", data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        CatalogRecord.objects.get(
-            pk=pk
-        ).calculate_directory_byte_sizes_and_file_counts()
+        CatalogRecord.objects.get(pk=pk).calculate_directory_byte_sizes_and_file_counts()
         response = self.client.get(
             f"/rest/{self.api_version}/datasets/{pk}?include_user_metadata&file_details"
         )
@@ -475,9 +437,7 @@ class TestClassUtils:
         if not project:
             project = "research_project_112"
         if not directory_path:
-            directory_path = (
-                "/prj_112_root/science_data_C/phase_2/2017/10/dir_" + file_n
-            )
+            directory_path = "/prj_112_root/science_data_C/phase_2/2017/10/dir_" + file_n
         if not file_path:
             file_path = directory_path + "/file_" + file_n
 

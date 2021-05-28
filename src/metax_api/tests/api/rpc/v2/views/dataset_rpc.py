@@ -19,14 +19,13 @@ CR = CatalogRecordV2
 
 
 class DatasetRPCTests(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
         Loaded only once for test cases inside this class.
         """
         super().setUpClass()
-        call_command('loaddata', test_data_file_path, verbosity=0)
+        call_command("loaddata", test_data_file_path, verbosity=0)
 
     def setUp(self):
         super().setUp()
@@ -39,81 +38,87 @@ class DatasetRPCTests(APITestCase, TestClassUtils):
         """
 
         # query param type is missing, should return error and description what to do.
-        response = self.client.get('/rpc/v2/datasets/get_minimal_dataset_template')
+        response = self.client.get("/rpc/v2/datasets/get_minimal_dataset_template")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # test preventing typos
-        response = self.client.get('/rpc/v2/datasets/get_minimal_dataset_template?type=wrong')
+        response = self.client.get("/rpc/v2/datasets/get_minimal_dataset_template?type=wrong")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # test minimal dataset for service use
-        response = self.client.get('/rpc/v2/datasets/get_minimal_dataset_template?type=service')
+        response = self.client.get("/rpc/v2/datasets/get_minimal_dataset_template?type=service")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue('metadata_provider_org' in response.data)
-        self.assertTrue('metadata_provider_user' in response.data)
-        self._use_http_authorization(username='testuser')
-        response = self.client.post('/rest/v2/datasets', response.data, format="json")
+        self.assertTrue("metadata_provider_org" in response.data)
+        self.assertTrue("metadata_provider_user" in response.data)
+        self._use_http_authorization(username="testuser")
+        response = self.client.post("/rest/v2/datasets", response.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # test minimal dataset for end user use
-        response = self.client.get('/rpc/v2/datasets/get_minimal_dataset_template?type=enduser')
+        response = self.client.get("/rpc/v2/datasets/get_minimal_dataset_template?type=enduser")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue('metadata_provider_org' not in response.data)
-        self.assertTrue('metadata_provider_user' not in response.data)
-        self._use_http_authorization(method='bearer', token=get_test_oidc_token())
+        self.assertTrue("metadata_provider_org" not in response.data)
+        self.assertTrue("metadata_provider_user" not in response.data)
+        self._use_http_authorization(method="bearer", token=get_test_oidc_token())
         self._mock_token_validation_succeeds()
-        response = self.client.post('/rest/v2/datasets', response.data, format="json")
+        response = self.client.post("/rest/v2/datasets", response.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_set_preservation_identifier(self):
-        self._set_http_authorization('service')
+        self._set_http_authorization("service")
 
         # Parameter 'identifier' is required
-        response = self.client.post('/rpc/v2/datasets/set_preservation_identifier')
+        response = self.client.post("/rpc/v2/datasets/set_preservation_identifier")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Nonexisting identifier should return 404
-        response = self.client.post('/rpc/v2/datasets/set_preservation_identifier?identifier=nonexisting')
+        response = self.client.post(
+            "/rpc/v2/datasets/set_preservation_identifier?identifier=nonexisting"
+        )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         # Create ida data catalog
-        dc = self._get_object_from_test_data('datacatalog', requested_index=0)
+        dc = self._get_object_from_test_data("datacatalog", requested_index=0)
         dc_id = settings.IDA_DATA_CATALOG_IDENTIFIER
-        dc['catalog_json']['identifier'] = dc_id
-        self.client.post('/rest/v2/datacatalogs', dc, format="json")
+        dc["catalog_json"]["identifier"] = dc_id
+        self.client.post("/rest/v2/datacatalogs", dc, format="json")
 
         # Test OK ops
 
         # Create new ida cr without doi
-        cr_json = self.client.get('/rest/v2/datasets/1').data
-        cr_json.pop('preservation_identifier', None)
-        cr_json.pop('identifier')
-        cr_json['research_dataset'].pop('preferred_identifier', None)
-        cr_json['data_catalog'] = dc_id
-        cr_json['research_dataset']['issued'] = '2018-01-01'
-        cr_json['research_dataset']['publisher'] = {
-            '@type': 'Organization',
-            'name': { 'en': 'publisher' }
+        cr_json = self.client.get("/rest/v2/datasets/1").data
+        cr_json.pop("preservation_identifier", None)
+        cr_json.pop("identifier")
+        cr_json["research_dataset"].pop("preferred_identifier", None)
+        cr_json["data_catalog"] = dc_id
+        cr_json["research_dataset"]["issued"] = "2018-01-01"
+        cr_json["research_dataset"]["publisher"] = {
+            "@type": "Organization",
+            "name": {"en": "publisher"},
         }
 
-        response = self.client.post('/rest/v2/datasets?pid_type=urn', cr_json, format="json")
+        response = self.client.post("/rest/v2/datasets?pid_type=urn", cr_json, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        identifier = response.data['identifier']
+        identifier = response.data["identifier"]
 
         # Verify rpc api returns the same doi as the one that is set to the datasets' preservation identifier
-        response = self.client.post(f'/rpc/v2/datasets/set_preservation_identifier?identifier={identifier}')
+        response = self.client.post(
+            f"/rpc/v2/datasets/set_preservation_identifier?identifier={identifier}"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        response2 = self.client.get(f'/rest/v2/datasets/{identifier}')
+        response2 = self.client.get(f"/rest/v2/datasets/{identifier}")
         self.assertEqual(response2.status_code, status.HTTP_200_OK, response2.data)
-        self.assertEqual(response.data, response2.data['preservation_identifier'], response2.data)
+        self.assertEqual(response.data, response2.data["preservation_identifier"], response2.data)
 
         # Return 400 if request is not correct datacite format
-        response2.data['research_dataset'].pop('issued')
-        response = self.client.put(f'/rest/v2/datasets/{identifier}', response2.data, format="json")
+        response2.data["research_dataset"].pop("issued")
+        response = self.client.put(f"/rest/v2/datasets/{identifier}", response2.data, format="json")
         self.assertEqual(response2.status_code, status.HTTP_200_OK, response2.data)
 
-        response = self.client.post(f'/rpc/v2/datasets/set_preservation_identifier?identifier={identifier}')
+        response = self.client.post(
+            f"/rpc/v2/datasets/set_preservation_identifier?identifier={identifier}"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 
@@ -125,40 +130,49 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
     """
 
     def _create_cumulative_dataset(self, state):
-        self.cr_test_data['cumulative_state'] = state
+        self.cr_test_data["cumulative_state"] = state
 
-        response = self.client.post('/rest/v2/datasets', self.cr_test_data, format="json")
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual(response.data['cumulative_state'], state, response.data)
+        self.assertEqual(response.data["cumulative_state"], state, response.data)
 
         return response.data
 
     def _update_cr_cumulative_state(self, identifier, state, result=status.HTTP_204_NO_CONTENT):
         response = self.client.post(
-            '/rpc/v2/datasets/change_cumulative_state?identifier=%s&cumulative_state=%d' % (identifier, state),
-            format="json"
+            "/rpc/v2/datasets/change_cumulative_state?identifier=%s&cumulative_state=%d"
+            % (identifier, state),
+            format="json",
         )
         self.assertEqual(response.status_code, result, response.data)
         return response.data
 
     def _get_cr(self, identifier):
-        response = self.client.get('/rest/v2/datasets/%s' % identifier, format="json")
+        response = self.client.get("/rest/v2/datasets/%s" % identifier, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         return response.data
 
     def _assert_file_counts(self, new_version):
-        new_count = CatalogRecordV2.objects.get(pk=new_version['id']).files.count()
-        old_count = CatalogRecordV2.objects.get(pk=new_version['previous_dataset_version']['id']).files.count()
-        self.assertEqual(new_count, old_count, 'file count between versions should match')
+        new_count = CatalogRecordV2.objects.get(pk=new_version["id"]).files.count()
+        old_count = CatalogRecordV2.objects.get(
+            pk=new_version["previous_dataset_version"]["id"]
+        ).files.count()
+        self.assertEqual(new_count, old_count, "file count between versions should match")
 
     def test_transitions_from_NO(self):
         """
         If dataset is published, and it has files, state can't be changed from NO to anything.
         """
         cr_orig = self._create_cumulative_dataset(0)
-        self._update_cr_cumulative_state(cr_orig['identifier'], CR.CUMULATIVE_STATE_YES, status.HTTP_400_BAD_REQUEST)
-        self._update_cr_cumulative_state(cr_orig['identifier'], CR.CUMULATIVE_STATE_CLOSED, status.HTTP_400_BAD_REQUEST)
+        self._update_cr_cumulative_state(
+            cr_orig["identifier"], CR.CUMULATIVE_STATE_YES, status.HTTP_400_BAD_REQUEST
+        )
+        self._update_cr_cumulative_state(
+            cr_orig["identifier"],
+            CR.CUMULATIVE_STATE_CLOSED,
+            status.HTTP_400_BAD_REQUEST,
+        )
 
     def test_transitions_from_YES(self):
         """
@@ -166,13 +180,20 @@ class ChangeCumulativeStateRPC(CatalogRecordApiWriteCommon):
         """
         cr = self._create_cumulative_dataset(1)
         orig_record_count = CatalogRecordV2.objects.all().count()
-        self._update_cr_cumulative_state(cr['identifier'], CR.CUMULATIVE_STATE_NO, status.HTTP_400_BAD_REQUEST)
+        self._update_cr_cumulative_state(
+            cr["identifier"], CR.CUMULATIVE_STATE_NO, status.HTTP_400_BAD_REQUEST
+        )
         self.assertEqual(CatalogRecordV2.objects.all().count(), orig_record_count)
 
         # active to non-active cumulation is legal
-        self._update_cr_cumulative_state(cr['identifier'], CR.CUMULATIVE_STATE_CLOSED)
-        cr = self._get_cr(cr['identifier'])
-        self.assertEqual(cr['cumulative_state'], CR.CUMULATIVE_STATE_CLOSED, 'dataset should have changed status')
+        self._update_cr_cumulative_state(cr["identifier"], CR.CUMULATIVE_STATE_CLOSED)
+        cr = self._get_cr(cr["identifier"])
+        self.assertEqual(
+            cr["cumulative_state"],
+            CR.CUMULATIVE_STATE_CLOSED,
+            "dataset should have changed status",
+        )
+
 
 class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
 
@@ -185,49 +206,67 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         """
         A new dataset version can be created for datasets in data catalogs that support versioning.
         """
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        next_version_identifier = response.data.get('identifier')
+        next_version_identifier = response.data.get("identifier")
 
-        response = self.client.get('/rest/v2/datasets/1', format="json")
+        response = self.client.get("/rest/v2/datasets/1", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data.get('next_dataset_version', {}).get('identifier'), next_version_identifier)
+        self.assertEqual(
+            response.data.get("next_dataset_version", {}).get("identifier"),
+            next_version_identifier,
+        )
 
-        response2 = self.client.get('/rest/v2/datasets/%s' % next_version_identifier, format="json")
+        response2 = self.client.get("/rest/v2/datasets/%s" % next_version_identifier, format="json")
         self.assertEqual(response2.status_code, status.HTTP_200_OK, response2.data)
         self.assertEqual(
-            response2.data.get('previous_dataset_version', {}).get('identifier'), response.data['identifier']
+            response2.data.get("previous_dataset_version", {}).get("identifier"),
+            response.data["identifier"],
         )
 
     def test_delete_new_version_draft(self):
         """
         Ensure a new version that is created into draft state can be deleted, and is permanently deleted.
         """
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        next_version_identifier = response.data.get('identifier')
+        next_version_identifier = response.data.get("identifier")
 
-        response = self.client.delete('/rest/v2/datasets/%s' % next_version_identifier, format="json")
+        response = self.client.delete(
+            "/rest/v2/datasets/%s" % next_version_identifier, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
-        num_found = CatalogRecordV2.objects_unfiltered.filter(identifier=next_version_identifier).count()
-        self.assertEqual(num_found, 0, 'draft should have been permanently deleted')
+        num_found = CatalogRecordV2.objects_unfiltered.filter(
+            identifier=next_version_identifier
+        ).count()
+        self.assertEqual(num_found, 0, "draft should have been permanently deleted")
         self.assertEqual(CatalogRecordV2.objects.get(pk=1).next_dataset_version, None)
 
     def test_version_already_exists(self):
         """
         If a dataset already has a next version, then a new version cannot be created.
         """
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         response = self.client.post(
-            '/rpc/v2/datasets/create_new_version?identifier=1', format="json"
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual('already has a next version' in response.data['detail'][0], True, response.data)
+        self.assertEqual(
+            "already has a next version" in response.data["detail"][0],
+            True,
+            response.data,
+        )
 
     def test_new_version_removes_deprecated_files(self):
         """
@@ -236,40 +275,48 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         """
         original_cr = CatalogRecordV2.objects.get(pk=1)
 
-        response = self.client.delete('/rest/v2/files/1', format="json")
+        response = self.client.delete("/rest/v2/files/1", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        new_cr = CatalogRecordV2.objects.get(pk=response.data['id'])
+        new_cr = CatalogRecordV2.objects.get(pk=response.data["id"])
         self.assertEqual(new_cr.deprecated, False)
-        self.assertTrue(len(new_cr.research_dataset['files']) < len(original_cr.research_dataset['files']))
-        self.assertTrue(new_cr.files.count() < original_cr.files(manager='objects_unfiltered').count())
+        self.assertTrue(
+            len(new_cr.research_dataset["files"]) < len(original_cr.research_dataset["files"])
+        )
+        self.assertTrue(
+            new_cr.files.count() < original_cr.files(manager="objects_unfiltered").count()
+        )
 
     def test_version_from_draft(self):
         """
         New versions cannot be created from drafts
         """
-        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+        response = self.client.post("/rest/v2/datasets?draft", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        dft_id = response.data['identifier']
+        dft_id = response.data["identifier"]
 
-        response = self.client.post(f'/rpc/v2/datasets/create_new_version?identifier={dft_id}', format="json")
+        response = self.client.post(
+            f"/rpc/v2/datasets/create_new_version?identifier={dft_id}", format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('draft' in response.data['detail'][0], response.data)
+        self.assertTrue("draft" in response.data["detail"][0], response.data)
 
     def test_draft_blocks_version_creation(self):
         """
         Don't allow new versions if there are unmerged drafts for a dataset
         """
-        response = self.client.post('/rpc/v2/datasets/create_draft?identifier=1')
+        response = self.client.post("/rpc/v2/datasets/create_draft?identifier=1")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1')
+        response = self.client.post("/rpc/v2/datasets/create_new_version?identifier=1")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertTrue('unmerged draft' in response.data['detail'][0], response.data)
+        self.assertTrue("unmerged draft" in response.data["detail"][0], response.data)
 
     @responses.activate
     def test_authorization(self):
@@ -278,45 +325,54 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         """
 
         # service use should be OK
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=2', format="json")
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=2", format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         # test with end user, should fail
         self.token = get_test_oidc_token(new_proxy=True)
         self._mock_token_validation_succeeds()
-        self._use_http_authorization(method='bearer', token=self.token)
+        self._use_http_authorization(method="bearer", token=self.token)
 
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
         # change owner, try again. should be OK
         cr = CatalogRecordV2.objects.get(pk=1)
-        cr.metadata_provider_user = self.token['CSCUserName']
+        cr.metadata_provider_user = self.token["CSCUserName"]
         cr.editor = None
         cr.force_save()
 
-        response = self.client.post('/rpc/v2/datasets/create_new_version?identifier=1', format="json")
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
 
 class CatalogRecordPublishing(CatalogRecordApiWriteCommon):
-
     def test_publish_new_dataset_draft(self):
 
-        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+        response = self.client.post("/rest/v2/datasets?draft", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
-        cr_id = response.data['id']
+        cr_id = response.data["id"]
 
-        response = self.client.post('/rpc/v2/datasets/publish_dataset?identifier=%d' % cr_id, format="json")
+        response = self.client.post(
+            "/rpc/v2/datasets/publish_dataset?identifier=%d" % cr_id, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertTrue(response.data.get('preferred_identifier') is not None)
+        self.assertTrue(response.data.get("preferred_identifier") is not None)
 
-        response = self.client.get('/rest/v2/datasets/%d' % cr_id, format="json")
+        response = self.client.get("/rest/v2/datasets/%d" % cr_id, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data['state'], 'published')
+        self.assertEqual(response.data["state"], "published")
         self.assertEqual(
-            response.data['research_dataset']['preferred_identifier'] == response.data['identifier'], False
+            response.data["research_dataset"]["preferred_identifier"]
+            == response.data["identifier"],
+            False,
         )
 
     @responses.activate
@@ -328,36 +384,37 @@ class CatalogRecordPublishing(CatalogRecordApiWriteCommon):
         """
 
         # test with service
-        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+        response = self.client.post("/rest/v2/datasets?draft", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         response = self.client.post(
-            '/rpc/v2/datasets/publish_dataset?identifier=%d' % response.data['id'], format="json"
+            "/rpc/v2/datasets/publish_dataset?identifier=%d" % response.data["id"],
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         # test with end user
         self.token = get_test_oidc_token(new_proxy=True)
         self._mock_token_validation_succeeds()
-        self._use_http_authorization(method='bearer', token=self.token)
+        self._use_http_authorization(method="bearer", token=self.token)
         self.create_end_user_data_catalogs()
 
-        self.cr_test_data['data_catalog'] = settings.END_USER_ALLOWED_DATA_CATALOGS[0]
-        self.cr_test_data['research_dataset'].pop('files', None)
-        self.cr_test_data['research_dataset'].pop('directories', None)
+        self.cr_test_data["data_catalog"] = settings.END_USER_ALLOWED_DATA_CATALOGS[0]
+        self.cr_test_data["research_dataset"].pop("files", None)
+        self.cr_test_data["research_dataset"].pop("directories", None)
 
-        response = self.client.post('/rest/v2/datasets?draft', self.cr_test_data, format="json")
+        response = self.client.post("/rest/v2/datasets?draft", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         response = self.client.post(
-            '/rpc/v2/datasets/publish_dataset?identifier=%d' % response.data['id'], format="json"
+            "/rpc/v2/datasets/publish_dataset?identifier=%d" % response.data["id"],
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
 
 class CatalogRecordV1APIs(CatalogRecordApiWriteCommon):
-
     def test_ensure_v1_apis_dont_work(self):
-        for endpoint in ('fix_deprecated', 'refresh_directory_content'):
-            response = self.client.post(f'/rpc/v2/datasets/{endpoint}', format="json")
+        for endpoint in ("fix_deprecated", "refresh_directory_content"):
+            response = self.client.post(f"/rpc/v2/datasets/{endpoint}", format="json")
             self.assertEqual(response.status_code, 501, response.data)
