@@ -13,11 +13,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.tests.utils import (
-    test_data_file_path,
-    TestClassUtils,
-    testcase_log_console,
-)
+from metax_api.tests.utils import TestClassUtils, test_data_file_path, testcase_log_console
 
 _logger = logging.getLogger(__name__)
 
@@ -40,9 +36,8 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         super(ApiErrorReadBasicTests, self).setUp()
         rmtree(settings.ERROR_FILES_PATH, ignore_errors=True)
         makedirs(settings.ERROR_FILES_PATH)
-        metax_user = settings.API_METAX_USER
         self._use_http_authorization(
-            username=metax_user["username"], password=metax_user["password"]
+            username="metax"
         )
 
     def _assert_fields_presence(self, response):

@@ -6,16 +6,14 @@
 # :license: MIT
 
 import logging
-from os import makedirs, getpid
+from os import getpid, makedirs
 from shutil import rmtree
-from time import sleep
-from typing import Any
 
 from django.apps import AppConfig
 from django.conf import settings
 from icecream import ic
 
-from metax_api.utils import executing_test_case, ReferenceDataLoader
+from metax_api.utils import ReferenceDataLoader, executing_test_case
 
 _logger = logging.getLogger(__name__)
 
@@ -40,24 +38,24 @@ class OnAppStart(AppConfig):
 
         # some imports from metax_api cannot be done at the beginning of the file,
         # because the "django apps" have not been loaded yet.
-        from metax_api.services import (
-            RabbitMQService as rabbitmq,
-        )
-        from metax_api.services.redis_cache_service import RedisClient
-        from watchman.utils import get_checks
         import json
 
-        for check in get_checks():
-            if callable(check):
-                resp: Any
-                try:
-                    resp = json.dumps(check())
-                    ic(resp)
-                except TypeError as e:
-                    e_resp = check()
-                    _logger.error(
-                        f"Error in system check: {e}, caused by check:{check.__name__} with return value of {e_resp}"
-                    )
+        from metax_api.services import RabbitMQService as rabbitmq
+        from metax_api.services.redis_cache_service import RedisClient
+
+        if settings.WATCHMAN_CONFIGURED:
+            from watchman.utils import get_checks
+
+            for check in get_checks():
+                if callable(check):
+                    try:
+                        resp = json.dumps(check())
+                        ic(resp)
+                    except TypeError as e:
+                        e_resp = check()
+                        _logger.error(
+                            f"Error in system check: {e}, caused by check:{check.__name__} with return value of {e_resp}"
+                        )
         _logger.info(f"event='process_started',process_id={self._pid}")
 
         """if not executing_test_case() and any(cmd in sys.argv for cmd in ['manage.py']):
@@ -87,12 +85,6 @@ class OnAppStart(AppConfig):
                 ic()
         except Exception as e:
             _logger.error(e)
-            # raise e
-        finally:
-            # ensure other processes have stopped at on_app_start_executing
-            # before resetting the flag. (on local this method can be quite fast)
-            sleep(2)
-            cache.delete("on_app_start_executing")
 
         if executing_test_case():
             # reset error files location between tests

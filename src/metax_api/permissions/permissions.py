@@ -95,8 +95,9 @@ class MetaxAPIPermissions(BasePermission):
         elif api_type == 'rpc':
             has_perm = self._check_rpc_perms(request, api_name)
         else:
-            _logger.info('Unknown api %s' % request.path)
-            raise NotImplementedError
+            _logger.error('Unknown api %s' % request.path)
+            raise Exception("request path not available")
+
 
         _logger.debug(
             'user %s has_perm for api %s == %r'
@@ -116,6 +117,8 @@ class MetaxAPIPermissions(BasePermission):
                 has_perm = True
             else:
                 has_perm = self._check_user_rest_perms(request, api_name, operation_type)
+                if not has_perm:
+                    _logger.error(f"access denied for user {request.user.username} in {api_name} with operation {operation_type}")
         else:
             raise MethodNotAllowed
         return has_perm
@@ -176,8 +179,9 @@ class ServicePermissions(MetaxAPIPermissions):
 
     def has_permission(self, request, view):
         has_perm = super().has_permission(request, view)
+
         if not has_perm:
-            self.message = self.message % request.user.username
+            self.message = f"permission denied for user {request.user.username} in {view.api_type} view {view.get_api_name()}"
         return has_perm
 
     def _check_user_rest_perms(self, request, api_name, operation_type):

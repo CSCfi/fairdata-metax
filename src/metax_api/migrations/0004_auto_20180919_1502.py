@@ -2,7 +2,6 @@
 
 from django.db import migrations, models
 
-
 """
 Add new preservation_state option in CatalogRecord: 75 (Metadata confirmed)
 """

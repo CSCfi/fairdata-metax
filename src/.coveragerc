@@ -2,12 +2,16 @@
 omit =
     */migrations/*
     */__init__.py
-    metax_api/settings.py
     metax_api/wsgi.py
-    metax_api/tests/testdata/generate_test_data.py
-    metax_api/tests/testdata/request_test.py
-    metax_api/tests/testdata/fetch_and_update_datasets.py
-    metax_api/cron/update_reference_data.py
+    */tests/*
+    */settings/components/*
+    */settings/environments/*
+    */manage.py
+    */urls.py
+    */router.py
+    metax_api/onappstart.py
+branch = True
+concurrency = multiprocessing
 
 [report]
 exclude_lines =
@@ -24,3 +28,15 @@ exclude_lines =
     raise NotImplementedError
     if 0:
     if __name__ == .__main__.:
+skip_covered = True
+omit =
+    */migrations/*
+    */__init__.py
+    metax_api/wsgi.py
+    */tests/*
+    */settings/components/*
+    */settings/environments/*
+    */manage.py
+    */urls.py
+    */router.py
+    metax_api/onappstart.py

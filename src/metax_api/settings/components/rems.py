@@ -4,7 +4,6 @@ from environ import ImproperlyConfigured
 
 from metax_api.settings import env
 
-
 logger = logging.getLogger(__name__)
 
 REMS = {

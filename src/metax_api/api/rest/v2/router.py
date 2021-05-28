@@ -29,12 +29,10 @@ from metax_api.api.rest.base.views import (
     DirectoryViewSet,
     FileStorageViewSet,
     FileViewSet,
-    SchemaViewSet
+    SchemaViewSet,
 )
-from .views import (
-    DataCatalogViewSet,
-    DatasetViewSet,
-)
+
+from .views import DataCatalogViewSet, DatasetViewSet
 
 
 class CustomRouterV2(CustomRouter):

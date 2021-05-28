@@ -11,8 +11,9 @@ from django.http import Http404
 
 from metax_api.models import FileStorage
 from metax_api.services import CommonService as CS
-from .common_view import CommonViewSet
+
 from ..serializers import FileStorageSerializer
+from .common_view import CommonViewSet
 
 
 class FileStorageViewSet(CommonViewSet):

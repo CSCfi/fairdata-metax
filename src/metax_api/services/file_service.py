@@ -7,9 +7,9 @@
 import logging
 from collections import defaultdict
 from os import getpid
-from os.path import dirname, basename
+from os.path import basename, dirname
 from time import time
-from uuid import uuid3, NAMESPACE_DNS as UUID_NAMESPACE_DNS
+from uuid import NAMESPACE_DNS as UUID_NAMESPACE_DNS, uuid3
 
 from django.conf import settings
 from django.db import connection
@@ -22,7 +22,8 @@ from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Directory, File, FileStorage
 from metax_api.services import AuthService
 from metax_api.services.pagination import DirectoryPagination
-from metax_api.utils.utils import get_tz_aware_now_without_micros, DelayedLog
+from metax_api.utils.utils import DelayedLog, get_tz_aware_now_without_micros
+
 from .callable_service import CallableService
 from .common_service import CommonService
 from .reference_data_mixin import ReferenceDataMixin
@@ -698,8 +699,7 @@ class FileService(CommonService, ReferenceDataMixin):
         Find out if only specific fields were requested to be returned, and return those fields
         for directories and files respectively.
         """
-        from metax_api.api.rest.base.serializers import LightDirectorySerializer
-        from metax_api.api.rest.base.serializers import LightFileSerializer
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer, LightFileSerializer
         directory_fields = []
         file_fields = []
 

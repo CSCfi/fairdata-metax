@@ -17,7 +17,7 @@ from metax_api.api.rest.base.views import DatasetViewSet
 from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecordV2
-from metax_api.services import CommonService as CS, CatalogRecordServiceV2
+from metax_api.services import CatalogRecordServiceV2, CommonService as CS
 
 _logger = logging.getLogger(__name__)
 

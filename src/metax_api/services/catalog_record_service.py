@@ -18,11 +18,13 @@ from rest_framework.serializers import ValidationError
 from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.models.catalog_record import ACCESS_TYPES
-from metax_api.utils import \
-    parse_timestamp_string_to_tz_aware_datetime, \
-    get_tz_aware_now_without_micros, \
-    remove_keys_recursively, \
-    leave_keys_in_dict
+from metax_api.utils import (
+    get_tz_aware_now_without_micros,
+    leave_keys_in_dict,
+    parse_timestamp_string_to_tz_aware_datetime,
+    remove_keys_recursively,
+)
+
 from .common_service import CommonService
 from .datacite_service import DataciteService
 from .file_service import FileService
@@ -267,8 +269,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         Note: Some of these results may be very useful to cache, or cache the entire dataset
         if feasible.
         """
-        from metax_api.api.rest.base.serializers import LightDirectorySerializer
-        from metax_api.api.rest.base.serializers import LightFileSerializer
+        from metax_api.api.rest.base.serializers import LightDirectorySerializer, LightFileSerializer
 
         rd = cr_json['research_dataset']
         file_identifiers = [f['identifier'] for f in rd.get('files', [])]

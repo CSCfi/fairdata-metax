@@ -2,7 +2,6 @@
 
 from django.db import migrations, models
 
-
 """
 End User Access is added to Metax.
 

@@ -13,9 +13,7 @@ import responses
 from django.conf import settings
 from rest_framework import status
 
-from metax_api.tests.api.rest.base.views.datasets.write import (
-    CatalogRecordApiWriteCommon,
-)
+from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import get_test_oidc_token
 
 _logger = logging.getLogger(__name__)

@@ -7,7 +7,7 @@ from time import sleep
 
 import requests
 from django.conf import settings
-from rdflib import Graph, URIRef, RDF
+from rdflib import RDF, Graph, URIRef
 from rdflib.namespace import SKOS
 
 from metax_api.tasks.refdata.refdata_indexer.domain.reference_data import ReferenceData

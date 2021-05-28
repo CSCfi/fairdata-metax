@@ -21,8 +21,9 @@ from metax_api.exceptions import Http400, Http403
 from metax_api.models import File, XmlMetadata
 from metax_api.renderers import XMLRenderer
 from metax_api.services import AuthService, CommonService, FileService
-from .common_view import CommonViewSet
+
 from ..serializers import FileSerializer, XmlMetadataSerializer
+from .common_view import CommonViewSet
 
 _logger = logging.getLogger(__name__)
 
