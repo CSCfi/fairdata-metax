@@ -28,7 +28,13 @@
     "value": 0.111,
     "language": [
       {
-        "identifier": "http://lexvo.org/id/iso639-3/eng"
+        "identifier": "http://lexvo.org/id/iso639-3/eng",
+        "title": {
+          "en": "English",
+          "sv": "engelska",
+          "fi": "englanti",
+          "und": "englanti"
+        }
       }
     ],
     "temporal": [
@@ -49,7 +55,14 @@
           "POLYGON((0 0, 0 20, 40 20, 40 0, 0 0))"
         ],
         "place_uri": {
-          "identifier": "http://www.yso.fi/onto/yso/p107966"
+          "identifier": "http://www.yso.fi/onto/yso/p107966",
+          "pref_label": {
+            "en": "Olostunturi",
+            "fi": "Olostunturi",
+            "sv": "Olostunturi",
+            "und": "Olostunturi"
+          },
+          "in_scheme": "http://www.yso.fi/onto/yso/places"
         }
       },
       {
@@ -57,13 +70,26 @@
         "alt": "60",
         "full_address": "The complete address written as a string, with or without formatting",
         "place_uri": {
-          "identifier": "http://www.yso.fi/onto/yso/p107966"
+          "identifier": "http://www.yso.fi/onto/yso/p107966",
+          "pref_label": {
+            "en": "Olostunturi",
+            "fi": "Olostunturi",
+            "sv": "Olostunturi",
+            "und": "Olostunturi"
+          },
+          "in_scheme": "http://www.yso.fi/onto/yso/places"
         }
       }
     ],
     "infrastructure": [
       {
-        "identifier": "urn-nbn-fi-research-infras-2016072530"
+        "identifier": "urn-nbn-fi-research-infras-2016072530",
+        "pref_label": {
+          "fi": "Jyväskylän yliopiston fysiikan laitoksen Kiihdytinlaboratorio",
+          "en": "Accelerator laboratory of the university of Jyväskylä",
+          "und": "Jyväskylän yliopiston fysiikan laitoksen Kiihdytinlaboratorio"
+        },
+        "in_scheme": "https://avaa.tdata.fi/api/jsonws/tupa-portlet.Infrastructures/get-all-infrastructures"
       }
     ],
     "access_rights": {
@@ -72,43 +98,58 @@
       },
       "available": "2014-01-15",
       "access_type": {
-        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
-        "pref_label": {
-          "en": "pref label for this type"
-        },
+        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/access_type",
         "definition": {
           "en": "A statement or formal explanation of the meaning of a concept."
         },
-        "in_scheme": "http://uri.of.filetype.concept/scheme"
+        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+        "pref_label": {
+          "fi": "Avoin",
+          "en": "Open",
+          "und": "Avoin"
+        }
       },
       "restriction_grounds": [{
-        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other"
+        "identifier": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds/code/other",
+          "pref_label": {
+            "fi": "Saatavuutta rajoitettu muulla perusteella",
+            "en": "Restricted access due to other reasons",
+            "sv": "Begränsad åtkomst av övriga skäl",
+            "und": "Saatavuutta rajoitettu muulla perusteella"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/restriction_grounds"
       }],
       "license": [
         {
+          "title": {
+            "en": "Apache Software License 2.0",
+            "und": "Apache Software License 2.0"
+          },
+          "license": "https://url.of.license.which.applies.here.org",
           "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/Apache-2.0",
-          "title": {
-            "en": "A name given to the resource"
-          },
           "description": {
             "en": "Free account of the rights"
-          },
-          "license": "https://url.of.license.which.applies.here.org"
+          }
         },
         {
+          "title": {
+            "fi": "Creative Commons Nimeä-EiKaupallinen 2.0 Yleinen (CC BY-NC 2.0)",
+            "en": "Creative Commons Attribution-NonCommercial 2.0 Generic (CC BY-NC 2.0",
+            "und": "Creative Commons Nimeä-EiKaupallinen 2.0 Yleinen (CC BY-NC 2.0)"
+          },
           "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-NC-2.0",
-          "title": {
-            "en": "A name given to the resource"
-          },
           "description": {
             "en": "Free account of the rights"
-          }
+          },
+          "license": "https://creativecommons.org/licenses/by-nc/2.0/"
         },
         {
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/other",
           "title": {
-            "en": "A name given to the resource"
-          }
+            "fi": "Muu",
+            "en": "Other",
+            "und": "Muu"
+          },
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/other"
         }
       ],
       "access_url": {
@@ -137,7 +178,14 @@
             "+358501231235"
           ],
           "contributor_type": [{
-            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ContactPerson"
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ContactPerson",
+            "pref_label": {
+              "en": "Point of contact",
+              "fi": "Yhteystiedot",
+              "sv": "Kontaktuppgifter",
+              "und": "Yhteystiedot"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
           }]
         },
         "type": {
@@ -166,7 +214,14 @@
             "+358501231235"
           ],
           "contributor_type": [{
-            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCollector"
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCollector",
+            "pref_label": {
+              "en": "Data Collector",
+              "fi": "Aineiston kerääjä",
+              "sv": "Datainsamling",
+              "und": "Aineiston kerääjä"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
           }]
         },
         "type": {
@@ -232,15 +287,27 @@
           "alt": "11.111",
           "full_address": "The complete address written as a string, with or without formatting",
           "place_uri": {
-            "identifier": "http://www.yso.fi/onto/yso/p107966"
+            "identifier": "http://www.yso.fi/onto/yso/p107966",
+            "pref_label": {
+              "en": "Olostunturi",
+              "fi": "Olostunturi",
+              "sv": "Olostunturi",
+              "und": "Olostunturi"
+            },
+            "in_scheme": "http://www.yso.fi/onto/yso/places"
           }
         },
         "lifecycle_event": {
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected",
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event",
           "definition": {
             "en": "A statement or formal explanation of the meaning of a concept."
           },
-          "in_scheme": "http://uri.of.filetype.concept/scheme"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/lifecycle_event/code/collected",
+          "pref_label": {
+            "fi": "Kerätty",
+            "en": "Collected",
+            "und": "Kerätty"
+          }
         },
         "used_entity": [
           {
@@ -276,7 +343,14 @@
               "+358501231235"
             ],
             "contributor_type": [{
-              "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCurator"
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataCurator",
+              "pref_label": {
+                "en": "Data Curator",
+                "fi": "Aineiston käsittelijä",
+                "sv": "Databehandling",
+                "und": "Aineiston käsittelijä"
+              },
+              "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
             }]
           }
         ],
@@ -312,7 +386,14 @@
           }
         ],
         "event_outcome": {
-          "identifier": "Success"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/event_outcome/code/success",
+          "pref_label": {
+            "en": "Success",
+            "fi": "Onnistunut",
+            "sv": "Framgångsrik",
+            "und": "Onnistunut"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/event_outcome"
         },
         "outcome_description": {"fi": "Onnistui hyvin", "en": "A grand success"}
       },
@@ -332,14 +413,34 @@
           "alt": "11.111",
           "full_address": "The complete address written as a string, with or without formatting",
           "place_uri": {
-            "identifier": "http://www.yso.fi/onto/yso/p105917"
+            "identifier": "http://www.yso.fi/onto/yso/p105917",
+            "pref_label": {
+              "fi": "Etelä-Suomi",
+              "sv": "Södra Finland",
+              "en": "Southern Finland Province",
+              "und": "Etelä-Suomi"
+            },
+            "in_scheme": "http://www.yso.fi/onto/yso/places"
           }
         },
         "preservation_event": {
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/preservation_event/code/upd",
+          "pref_label": {
+            "fi": "Objektin päivitys",
+            "en": "Object update",
+            "und": "Objektin päivitys"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/preservation_event"
         },
         "event_outcome": {
-          "identifier": "Failure"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/event_outcome/code/failure",
+          "pref_label": {
+            "en": "Failure",
+            "fi": "Epäonnistunut",
+            "sv": "Misslyckad",
+            "und": "Epäonnistunut"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/event_outcome"
         },
         "outcome_description": {"fi": "Epäonnistui", "en": "A grand failure"}
       }
@@ -364,7 +465,14 @@
         }
       },
       "contributor_type": [{
-        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataManager"
+        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/DataManager",
+        "pref_label": {
+          "en": "Data Manager",
+          "fi": "Aineiston hallinnoija",
+          "sv": "Dataadministration",
+          "und": "Aineiston hallinnoija"
+        },
+        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
       }]
     }],
     "creator": [
@@ -380,7 +488,14 @@
           }
         },
         "contributor_role": [{
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/conceptualization"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/conceptualization",
+          "pref_label": {
+            "en": "Conceptualization",
+            "fi": "Tutkimuksen muotoilu",
+            "sv": "Formulering av forskningen",
+            "und": "Tutkimuksen muotoilu"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_role"
         }]
       }
     ],
@@ -402,10 +517,24 @@
         },
         "contributor_type": [
           {
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor",
+            "pref_label": {
+              "en": "Distributor",
+              "fi": "Jakelija",
+              "sv": "Distributör",
+              "und": "Jakelija"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
           },
           {
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Sponsor"
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Sponsor",
+            "pref_label": {
+              "en": "Sponsor",
+              "fi": "Sponsori",
+              "sv": "Sponsor",
+              "und": "Sponsori"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
           }
         ]
       }
@@ -448,7 +577,14 @@
         }
       },
       "contributor_type": [{
-        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor"
+        "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Distributor",
+          "pref_label": {
+            "en": "Distributor",
+            "fi": "Jakelija",
+            "sv": "Distributör",
+            "und": "Jakelija"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
       }]
     },
     "contributor": [
@@ -473,7 +609,14 @@
           ]
         },
         "contributor_role": [{
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/funding_acquisition"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/funding_acquisition",
+          "pref_label": {
+            "en": "Funding acquisition",
+            "fi": "Rahoituksen hankinta",
+            "sv": "Anskaffande av finansiering",
+            "und": "Rahoituksen hankinta"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_role"
         }]
       },
       {
@@ -497,7 +640,14 @@
           ]
         },
         "contributor_type": [{
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ProjectLeader"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ProjectLeader",
+          "pref_label": {
+            "en": "Project Leader",
+            "fi": "Projektin johtaja",
+            "sv": "Projektledare",
+            "und": "Projektin johtaja"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
         }]
       }
     ],
@@ -521,7 +671,14 @@
               "+358501232233"
             ],
             "contributor_type": [{
-              "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Editor"
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/Editor",
+              "pref_label": {
+                "en": "Editor",
+                "fi": "Julkaisutoimittaja",
+                "sv": "Redaktör",
+                "und": "Julkaisutoimittaja"
+              },
+              "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
             }]
           }
         ],
@@ -538,7 +695,14 @@
               "+358501231235"
             ],
             "contributor_type": [{
-              "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/HostingInstitution"
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/HostingInstitution",
+              "pref_label": {
+                "en": "Hosting Institution",
+                "fi": "Säilyttävä organisaatio",
+                "sv": "Bevarande organisation",
+                "und": "Säilyttävä organisaatio"
+              },
+              "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
             }]
           }
         ],
