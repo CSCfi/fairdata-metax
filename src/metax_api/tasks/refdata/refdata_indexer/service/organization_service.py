@@ -32,9 +32,7 @@ class OrganizationService:
             same_as = org.get("same_as", [])
             org_csc = org.get("org_csc", "")
             index_data_models.append(
-                OrganizationData(
-                    org["org_id"], org["label"], parent_id, same_as, org_csc
-                )
+                OrganizationData(org["org_id"], org["label"], parent_id, same_as, org_csc)
             )
 
         os.remove(self.INPUT_FILE)

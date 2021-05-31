@@ -21,7 +21,7 @@ class ContractViewSet(CommonViewSet):
     serializer_class = ContractSerializer
     object = Contract
 
-    lookup_field = 'pk'
+    lookup_field = "pk"
 
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)
@@ -31,7 +31,7 @@ class ContractViewSet(CommonViewSet):
         lookup_value = self.kwargs.get(self.lookup_field, False)
         search_params = None
         if not CommonService.is_primary_key(lookup_value):
-            search_params = { 'contract_json__contains': { 'identifier': lookup_value }}
+            search_params = {"contract_json__contains": {"identifier": lookup_value}}
         return super(ContractViewSet, self).get_object(search_params=search_params)
 
     def get_queryset(self):
@@ -40,13 +40,14 @@ class ContractViewSet(CommonViewSet):
         else:
             query_params = self.request.query_params
             additional_filters = {}
-            if query_params.get('organization', False):
-                additional_filters['contract_json__contains'] = {
-                    'organization': { 'organization_identifier': query_params['organization'] }}
+            if query_params.get("organization", False):
+                additional_filters["contract_json__contains"] = {
+                    "organization": {"organization_identifier": query_params["organization"]}
+                }
             return super(ContractViewSet, self).get_queryset().filter(**additional_filters)
 
-    @action(detail=True, methods=['get'], url_path="datasets")
+    @action(detail=True, methods=["get"], url_path="datasets")
     def datasets_get(self, request, pk=None):
         contract = self.get_object()
-        catalog_records = [ CatalogRecordSerializer(f).data for f in contract.records.all() ]
+        catalog_records = [CatalogRecordSerializer(f).data for f in contract.records.all()]
         return Response(data=catalog_records, status=status.HTTP_200_OK)

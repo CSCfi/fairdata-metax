@@ -29,7 +29,7 @@ _logger = logging.getLogger(__name__)
 
 # i.e. /rest/v6/files, but must NOT end in /
 # or: /rest/files, but must NOT end in /
-RE_PATTERN_FILES_CREATE = re.compile(r'^/rest/(v\d/)?files(?!/)')
+RE_PATTERN_FILES_CREATE = re.compile(r"^/rest/(v\d/)?files(?!/)")
 
 
 # none of the methods in this class use atomic requests by default! see method dispatch()
@@ -38,12 +38,12 @@ class FileViewSet(CommonViewSet):
 
     serializer_class = FileSerializer
     object = File
-    select_related = ['file_storage', 'parent_directory']
+    select_related = ["file_storage", "parent_directory"]
 
-    lookup_field = 'pk'
+    lookup_field = "pk"
 
     # allow search by external identifier (urn, or whatever string in practice) as well
-    lookup_field_other = 'identifier'
+    lookup_field_other = "identifier"
 
     # customized create_bulk which handles both directories and files in the same
     # bulk_create request.
@@ -55,9 +55,9 @@ class FileViewSet(CommonViewSet):
 
     def _use_transaction(self, request):
         # todo add checking of ?atomic parameter too?
-        if CommonService.get_boolean_query_param(self.request, 'dryrun'):
+        if CommonService.get_boolean_query_param(self.request, "dryrun"):
             return True
-        elif request.method == 'POST' and RE_PATTERN_FILES_CREATE.match(request.META['PATH_INFO']):
+        elif request.method == "POST" and RE_PATTERN_FILES_CREATE.match(request.META["PATH_INFO"]):
             # for POST /files only (creating), do not use a transaction !
             return False
         return True
@@ -78,10 +78,10 @@ class FileViewSet(CommonViewSet):
         """
         if self._use_transaction(request):
             with transaction.atomic():
-                _logger.debug('Note: Request in transaction')
+                _logger.debug("Note: Request in transaction")
                 return super().dispatch(request, **kwargs)
         else:
-            _logger.debug('Note: Request not in transaction')
+            _logger.debug("Note: Request not in transaction")
             return super().dispatch(request, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -89,20 +89,20 @@ class FileViewSet(CommonViewSet):
         if not request.user.is_service:
             # end users can only retrieve their own files
             user_projects = AuthService.get_user_projects(request)
-            self.queryset_search_params['project_identifier__in'] = user_projects
+            self.queryset_search_params["project_identifier__in"] = user_projects
         return super().list(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        #This have to be checked before updating common info
+        # This have to be checked before updating common info
         if not isinstance(self.request.data, dict):
-            raise Http400('request message body must be a single json object')
+            raise Http400("request message body must be a single json object")
 
         return super().update(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
-        #This have to be checked before updating common info
+        # This have to be checked before updating common info
         if not isinstance(self.request.data, dict):
-            raise Http400('request message body must be a single json object')
+            raise Http400("request message body must be a single json object")
 
         return super().partial_update(request, *args, **kwargs)
 
@@ -115,15 +115,15 @@ class FileViewSet(CommonViewSet):
         checksum:value --> checksum_value
         checksum --> checksum_algorithm/checked/value
         """
-        if 'fields' in self.request.query_params:
+        if "fields" in self.request.query_params:
             self.fields = []
-            for field in self.request.query_params['fields'].split(','):
-                field_names = field.split(':')
-                if 'checksum' == field_names[0] and len(field_names) > 1:
-                    self.fields.append(f'{field_names[0]}_{field_names[1]}')
+            for field in self.request.query_params["fields"].split(","):
+                field_names = field.split(":")
+                if "checksum" == field_names[0] and len(field_names) > 1:
+                    self.fields.append(f"{field_names[0]}_{field_names[1]}")
 
-                elif 'checksum' == field_names[0]:
-                    self.fields.extend([f'checksum_{k}' for k in FileSerializer.checksum_fields])
+                elif "checksum" == field_names[0]:
+                    self.fields.extend([f"checksum_{k}" for k in FileSerializer.checksum_fields])
 
                 else:
                     self.fields.append(field_names[0])
@@ -137,9 +137,9 @@ class FileViewSet(CommonViewSet):
         """
         obj = super().get_object(search_params)
         if self.request.user.is_service:
-            allowed_projects = CommonService.get_list_query_param(self.request, 'allowed_projects')
+            allowed_projects = CommonService.get_list_query_param(self.request, "allowed_projects")
             if allowed_projects is not None and obj.project_identifier not in allowed_projects:
-                raise Http403('You do not have permission to update this file')
+                raise Http403("You do not have permission to update this file")
 
         return obj
 
@@ -163,7 +163,7 @@ class FileViewSet(CommonViewSet):
 
         return super().partial_update_bulk(request, *args, **kwargs)
 
-    @action(detail=False, methods=['post'], url_path="datasets")
+    @action(detail=False, methods=["post"], url_path="datasets")
     def datasets(self, request):
         """
         keys=files: Find out which datasets a list of files belongs to, and return their
@@ -180,24 +180,26 @@ class FileViewSet(CommonViewSet):
         requests to query parameters, so using POST instead is more guaranteed to work.
         """
 
-        keysonly = CommonService.get_boolean_query_param(request, 'keysonly')
-        detailed = CommonService.get_boolean_query_param(request, 'detailed')
+        keysonly = CommonService.get_boolean_query_param(request, "keysonly")
+        detailed = CommonService.get_boolean_query_param(request, "detailed")
 
         params = request.query_params
 
         if not params.keys():
-            return FileService.get_identifiers(request.data, 'noparams', True)
+            return FileService.get_identifiers(request.data, "noparams", True)
 
-        if 'keys' in params.keys():
-            if params['keys'] in ['files', 'datasets']:
-                return FileService.get_identifiers(request.data, params['keys'], keysonly)
+        if "keys" in params.keys():
+            if params["keys"] in ["files", "datasets"]:
+                return FileService.get_identifiers(request.data, params["keys"], keysonly)
 
-        if detailed: # This can be removed as soon as front can listen to ?keys=files which returns the same
-            return FileService.get_identifiers(request.data, 'files', False)
+        if (
+            detailed
+        ):  # This can be removed as soon as front can listen to ?keys=files which returns the same
+            return FileService.get_identifiers(request.data, "files", False)
 
-        raise Http403({ 'detail': [ 'Invalid parameters' ]})
+        raise Http403({"detail": ["Invalid parameters"]})
 
-    @action(detail=False, methods=['post'], url_path="restore")
+    @action(detail=False, methods=["post"], url_path="restore")
     def restore_files(self, request):
         """
         Restore removed files.
@@ -210,30 +212,30 @@ class FileViewSet(CommonViewSet):
     def destroy_bulk(self, request, *args, **kwargs):
         return FileService.destroy_bulk(request.data)
 
-    @action(detail=True, methods=['get', 'post', 'put', 'delete'], url_path='xml')
+    @action(detail=True, methods=["get", "post", "put", "delete"], url_path="xml")
     def xml_handler(self, request, pk=None):
         file = self.get_object()
 
-        if request.method == 'GET':
+        if request.method == "GET":
             return self._get_xml(request, file)
         else:
-            if 'namespace' not in request.query_params:
-                raise Http400('namespace is a required query parameter')
+            if "namespace" not in request.query_params:
+                raise Http400("namespace is a required query parameter")
 
-            if request.method == 'PUT':
+            if request.method == "PUT":
                 return self._update_xml(request, file)
-            elif request.method == 'POST':
+            elif request.method == "POST":
                 return self._create_xml(request, file)
-            elif request.method == 'DELETE':
+            elif request.method == "DELETE":
                 return self._delete_xml(request, file)
             else:
                 raise Http404
 
     def _get_xml(self, request, file):
-        if 'namespace' in request.query_params:
+        if "namespace" in request.query_params:
             # get single requested xml metadata by namespace
             try:
-                xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params['namespace'])
+                xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params["namespace"])
             except XmlMetadata.DoesNotExist:
                 raise Http404
             request.accepted_renderer = XMLRenderer()
@@ -241,18 +243,20 @@ class FileViewSet(CommonViewSet):
 
         else:
             # return list of namespaces of xml metadatas associated with the file
-            xml_namespaces = file.xmlmetadata_set.all().values_list('namespace', flat=True)
+            xml_namespaces = file.xmlmetadata_set.all().values_list("namespace", flat=True)
             request.accepted_renderer = JSONRenderer()
-            return Response(data=[ ns for ns in xml_namespaces ], status=status.HTTP_200_OK)
+            return Response(data=[ns for ns in xml_namespaces], status=status.HTTP_200_OK)
 
     def _create_xml(self, request, file):
         try:
-            file.xmlmetadata_set.get(namespace=request.query_params['namespace'])
+            file.xmlmetadata_set.get(namespace=request.query_params["namespace"])
         except XmlMetadata.DoesNotExist:
             # good - create for the first time
             pass
         else:
-            raise Http400('xml metadata with namespace %s already exists' % request.query_params['namespace'])
+            raise Http400(
+                "xml metadata with namespace %s already exists" % request.query_params["namespace"]
+            )
 
         new_xml_metadata = self._xml_request_to_dict_data(request, file)
         serializer = XmlMetadataSerializer(data=new_xml_metadata)
@@ -268,7 +272,7 @@ class FileViewSet(CommonViewSet):
 
     def _update_xml(self, request, file):
         try:
-            xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params['namespace'])
+            xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params["namespace"])
         except XmlMetadata.DoesNotExist:
             raise Http404
 
@@ -285,7 +289,7 @@ class FileViewSet(CommonViewSet):
 
     def _delete_xml(self, request, file):
         try:
-            xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params['namespace'])
+            xml_metadata = file.xmlmetadata_set.get(namespace=request.query_params["namespace"])
         except XmlMetadata.DoesNotExist:
             raise Http404
         xml_metadata.delete()
@@ -298,14 +302,16 @@ class FileViewSet(CommonViewSet):
         """
         common_info = CommonService.update_common_info(request, return_only=True)
         new_xml_metadata = {
-            'file': file.id,
-            'xml': request.data,
-            'namespace': request.query_params['namespace']
+            "file": file.id,
+            "xml": request.data,
+            "namespace": request.query_params["namespace"],
         }
         new_xml_metadata.update(common_info)
         return new_xml_metadata
 
-    @action(detail=False, methods=['post'], url_path="flush_project")
-    def flush_project(self, request): # pragma: no cover
+    @action(detail=False, methods=["post"], url_path="flush_project")
+    def flush_project(self, request):  # pragma: no cover
         # todo remove api when comfortable
-        raise ValidationError({ 'detail': ['API has been moved to RPC API: /rpc/files/flush_project'] })
+        raise ValidationError(
+            {"detail": ["API has been moved to RPC API: /rpc/files/flush_project"]}
+        )

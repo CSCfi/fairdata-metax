@@ -117,8 +117,7 @@ class _IdentifyApiCaller:
                 {
                     "detail": [
                         "Invalid HTTP authorization method. Ensure you included on of the following "
-                        "methods inside the auth header: %s"
-                        % ", ".join(self.ALLOWED_AUTH_METHODS)
+                        "methods inside the auth header: %s" % ", ".join(self.ALLOWED_AUTH_METHODS)
                     ]
                 }
             )
@@ -139,9 +138,7 @@ class _IdentifyApiCaller:
         elif auth_method.lower() == "bearer":
             self._auth_bearer(request, auth_b64)
         else:
-            raise Exception(
-                "The allowed auth method %s is missing handling" % auth_method
-            )
+            raise Exception("The allowed auth method %s is missing handling" % auth_method)
 
         return request
 
@@ -194,9 +191,7 @@ class _IdentifyApiCaller:
         if len(token.get("CSCUserName", "")) > 0:
             request.user.username = token["CSCUserName"]
         else:
-            _logger.warning(
-                "id_token does not contain valid user id: fairdataid or cscusername"
-            )
+            _logger.warning("id_token does not contain valid user id: fairdataid or cscusername")
             raise Http403
 
         request.user.is_service = False

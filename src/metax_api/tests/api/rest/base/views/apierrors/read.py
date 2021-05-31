@@ -36,9 +36,7 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         super(ApiErrorReadBasicTests, self).setUp()
         rmtree(settings.ERROR_FILES_PATH, ignore_errors=True)
         makedirs(settings.ERROR_FILES_PATH)
-        self._use_http_authorization(
-            username="metax"
-        )
+        self._use_http_authorization(username="metax")
 
     def _assert_fields_presence(self, response):
         """
@@ -87,9 +85,7 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual("identifier" in response.data[0], True, response.data)
 
-        response = self.client.get(
-            "/rest/apierrors/%s" % response.data[0]["identifier"]
-        )
+        response = self.client.get("/rest/apierrors/%s" % response.data[0]["identifier"])
         self._assert_fields_presence(response)
         self.assertEqual(
             "data_catalog" in response.data["response"], True, response.data["response"]
@@ -111,12 +107,8 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         response = self.client.get("/rest/apierrors")
-        response = self.client.delete(
-            "/rest/apierrors/%s" % response.data[0]["identifier"]
-        )
-        self.assertEqual(
-            response.status_code, status.HTTP_204_NO_CONTENT, response.data
-        )
+        response = self.client.delete("/rest/apierrors/%s" % response.data[0]["identifier"])
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
         response = self.client.get("/rest/apierrors")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -129,13 +121,9 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         cr_1.pop("data_catalog")  # causes an error
 
         response = self.client.post("/rest/datasets", cr_1, format="json")
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         response = self.client.post("/rest/datasets", cr_1, format="json")
-        self.assertEqual(
-            response.status_code, status.HTTP_400_BAD_REQUEST, response.data
-        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
         # ensure something was produced...
         response = self.client.get("/rest/apierrors")
@@ -160,15 +148,11 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         response = self.client.get("/rest/apierrors")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
-        response = self.client.get(
-            "/rest/apierrors/%s" % response.data[0]["identifier"]
-        )
+        response = self.client.get("/rest/apierrors/%s" % response.data[0]["identifier"])
         self._assert_fields_presence(response)
         self.assertEqual("other" in response.data, True, response.data)
         self.assertEqual("bulk_request" in response.data["other"], True, response.data)
-        self.assertEqual(
-            "data_row_count" in response.data["other"], True, response.data
-        )
+        self.assertEqual("data_row_count" in response.data["other"], True, response.data)
 
     def test_api_permitted_only_to_metax_user(self):
         # uses testuser by default

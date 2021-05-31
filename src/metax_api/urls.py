@@ -33,31 +33,31 @@ from metax_api.api.rpc.v2.router import api_urlpatterns as rpc_api_v2
 from metax_api.views.router import view_urlpatterns
 
 v1_urls = [
-    url('', include(view_urlpatterns)),
-    url(r'^oai/', oaipmh, name='oai'),
-    url(r'^rest/', include(rest_api_v1)),
-    url(r'^rest/v1/', include(rest_api_v1)),
-    url(r'^rpc/', include(rpc_api_v1)),
-    url(r'^rpc/v1/', include(rpc_api_v1)),
+    url("", include(view_urlpatterns)),
+    url(r"^oai/", oaipmh, name="oai"),
+    url(r"^rest/", include(rest_api_v1)),
+    url(r"^rest/v1/", include(rest_api_v1)),
+    url(r"^rpc/", include(rpc_api_v1)),
+    url(r"^rpc/v1/", include(rpc_api_v1)),
 ]
 
 v2_urls = [
-    url(r'^rest/v2/', include(rest_api_v2)),
-    url(r'^rpc/v2/', include(rpc_api_v2)),
+    url(r"^rest/v2/", include(rest_api_v2)),
+    url(r"^rpc/v2/", include(rpc_api_v2)),
 ]
 
 urlpatterns = []
 
-if 'v1' in django_settings.API_VERSIONS_ENABLED:
+if "v1" in django_settings.API_VERSIONS_ENABLED:
     urlpatterns += v1_urls
 
-if 'v2' in django_settings.API_VERSIONS_ENABLED:
+if "v2" in django_settings.API_VERSIONS_ENABLED:
     urlpatterns += v2_urls
 
 if django_settings.WATCHMAN_CONFIGURED:
-    urlpatterns += [re_path(r'^watchman/', include('watchman.urls'))]
+    urlpatterns += [re_path(r"^watchman/", include("watchman.urls"))]
 
 if django_settings.DEBUG:
     urlpatterns += [
-        path('__debug__/', include(debug_toolbar.urls)),
+        path("__debug__/", include(debug_toolbar.urls)),
     ]

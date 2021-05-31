@@ -23,7 +23,7 @@ class CommonRPC(CommonViewSet):
     common tricks, such as saving errors to /apierrors, request modifications, permission objects...
     """
 
-    api_type = 'rpc'
+    api_type = "rpc"
 
     # serves no purpose, but satisfies the ViewSet basic requirements
     serializer_class = FileSerializer
@@ -37,7 +37,7 @@ class CommonRPC(CommonViewSet):
         Some views where the below formula does not produce a sensible result
         will inherit this and return a customized result.
         """
-        return '%ss' % self.__class__.__name__.split('RPC')[0].lower()
+        return "%ss" % self.__class__.__name__.split("RPC")[0].lower()
 
     def create(self, request, *args, **kwargs):
         raise Http501()

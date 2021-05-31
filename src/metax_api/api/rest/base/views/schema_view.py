@@ -16,13 +16,13 @@ class SchemaViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = ()
     authentication_classes = ()
     permission_classes = (ServicePermissions,)
-    api_type = 'rest'
+    api_type = "rest"
 
     def list(self, request, *args, **kwargs):
         return SchemaService.get_all_schemas()
 
     def retrieve(self, request, *args, **kwargs):
-        return SchemaService.get_schema_content(kwargs.get('pk'))
+        return SchemaService.get_schema_content(kwargs.get("pk"))
 
     def get_queryset(self):
         return self.list(None)
@@ -31,4 +31,4 @@ class SchemaViewSet(viewsets.ReadOnlyModelViewSet):
         """
         Does not inherit from common...
         """
-        return 'schemas'
+        return "schemas"

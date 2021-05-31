@@ -22,9 +22,10 @@ from metax_api.services import CatalogRecordServiceV2, CommonService as CS
 _logger = logging.getLogger(__name__)
 
 
-UNAUTHORIZED_TO_SEE_FILES_MSG = \
-    'You do not have permission to see this information because the dataset access type ' \
-    'is not open and you are not the owner of the catalog record.'
+UNAUTHORIZED_TO_SEE_FILES_MSG = (
+    "You do not have permission to see this information because the dataset access type "
+    "is not open and you are not the owner of the catalog record."
+)
 
 
 class DatasetViewSet(DatasetViewSet):
@@ -33,7 +34,7 @@ class DatasetViewSet(DatasetViewSet):
     serializer_class = CatalogRecordSerializerV2
     object = CatalogRecordV2
 
-    @action(detail=True, methods=['get'], url_path="projects")
+    @action(detail=True, methods=["get"], url_path="projects")
     def projects_list(self, request, pk=None):
 
         # note: checks permissions
@@ -43,7 +44,10 @@ class DatasetViewSet(DatasetViewSet):
             raise Http403
 
         projects = [
-            p for p in cr.files.all().values_list('project_identifier', flat=True).distinct('project_identifier')
+            p
+            for p in cr.files.all()
+            .values_list("project_identifier", flat=True)
+            .distinct("project_identifier")
         ]
 
         return Response(data=projects, status=status.HTTP_200_OK)
@@ -53,7 +57,7 @@ class DatasetViewSet(DatasetViewSet):
         """
         Retrieve technical metadata of a single file associated with a dataset.
         """
-        _logger.debug('Retrieving metadata of single file: %r' % file_pk)
+        _logger.debug("Retrieving metadata of single file: %r" % file_pk)
 
         # note: checks permissions
         cr = self.get_object()
@@ -62,19 +66,19 @@ class DatasetViewSet(DatasetViewSet):
             raise Http403(UNAUTHORIZED_TO_SEE_FILES_MSG)
 
         try:
-            params = { 'pk': int(file_pk) }
+            params = {"pk": int(file_pk)}
         except ValueError:
-            params = { 'identifier': file_pk }
+            params = {"identifier": file_pk}
 
-        manager = 'objects'
+        manager = "objects"
 
-        if CS.get_boolean_query_param(request, 'removed_files'):
-            params['removed'] = True
-            manager = 'objects_unfiltered'
+        if CS.get_boolean_query_param(request, "removed_files"):
+            params["removed"] = True
+            manager = "objects_unfiltered"
 
         file_fields = []
-        if 'file_fields' in request.query_params:
-            file_fields = request.query_params['file_fields'].split(',')
+        if "file_fields" in request.query_params:
+            file_fields = request.query_params["file_fields"].split(",")
 
         file_fields = LightFileSerializer.ls_field_list(file_fields)
 
@@ -96,7 +100,7 @@ class DatasetViewSet(DatasetViewSet):
         NOTE! Take a look at api/rest/v2/router.py to see how this method is mapped to HTTP verb
         """
         params = {}
-        manager = 'objects'
+        manager = "objects"
         # TODO: This applies only to IDA files, not remote resources.
         # TODO: Should this apply also to remote resources?
         cr = self.get_object()
@@ -104,13 +108,13 @@ class DatasetViewSet(DatasetViewSet):
         if not cr.authorized_to_see_catalog_record_files(request):
             raise Http403(UNAUTHORIZED_TO_SEE_FILES_MSG)
 
-        if CS.get_boolean_query_param(request, 'removed_files'):
-            params['removed'] = True
-            manager = 'objects_unfiltered'
+        if CS.get_boolean_query_param(request, "removed_files"):
+            params["removed"] = True
+            manager = "objects_unfiltered"
 
         file_fields = []
-        if 'file_fields' in request.query_params:
-            file_fields = request.query_params['file_fields'].split(',')
+        if "file_fields" in request.query_params:
+            file_fields = request.query_params["file_fields"].split(",")
 
         file_fields = LightFileSerializer.ls_field_list(file_fields)
         queryset = cr.files(manager=manager).filter(**params).values(*file_fields)
@@ -126,7 +130,7 @@ class DatasetViewSet(DatasetViewSet):
         NOTE! Take a look at api/rest/v2/router.py to see how this method is mapped to HTTP verb
         """
         if not request.data:
-            raise Http400('No data received')
+            raise Http400("No data received")
 
         # note: checks permissions
         cr = self.get_object()
@@ -149,7 +153,7 @@ class DatasetViewSet(DatasetViewSet):
 
         data = {}
 
-        for object_type in ('files', 'directories'):
+        for object_type in ("files", "directories"):
             if object_type in cr.research_dataset:
                 data[object_type] = cr.research_dataset[object_type]
 
@@ -163,7 +167,7 @@ class DatasetViewSet(DatasetViewSet):
         This API does not add or remove files! Only updates metadata.
         """
         if not request.data:
-            raise Http400('No data received')
+            raise Http400("No data received")
 
         # note: checks permissions
         cr = self.get_object()
@@ -172,7 +176,11 @@ class DatasetViewSet(DatasetViewSet):
 
         return Response(data=None, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], url_path="files/(?P<obj_identifier>.+)/user_metadata")
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="files/(?P<obj_identifier>.+)/user_metadata",
+    )
     def files_user_metadata_retrieve(self, request, pk=None, obj_identifier=None):
         """
         Retrieve user-provided dataset-specific metadata for a file or a directory associated with a dataset.
@@ -184,14 +192,14 @@ class DatasetViewSet(DatasetViewSet):
         if not cr.authorized_to_see_catalog_record_files(request):
             raise Http403(UNAUTHORIZED_TO_SEE_FILES_MSG)
 
-        if CS.get_boolean_query_param(request, 'directory'):
+        if CS.get_boolean_query_param(request, "directory"):
             # search from directories only if special query parameter is given
-            object_type = 'directories'
+            object_type = "directories"
         else:
-            object_type = 'files'
+            object_type = "files"
 
         for obj in cr.research_dataset.get(object_type, []):
-            if obj['identifier'] == obj_identifier:
+            if obj["identifier"] == obj_identifier:
                 return Response(data=obj, status=status.HTTP_200_OK)
 
         raise Http404

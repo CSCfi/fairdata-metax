@@ -18,8 +18,8 @@ class HTMLToJSONRenderer(renderers.JSONRenderer):
     This renderer catches the 'text/html' Accept header, but returns JSON instead of html.
     """
 
-    media_type = 'text/html'
-    charset = 'utf-8'
+    media_type = "text/html"
+    charset = "utf-8"
 
 
 class XMLRenderer(renderers.BaseRenderer):
@@ -29,8 +29,8 @@ class XMLRenderer(renderers.BaseRenderer):
     just isnt complicated enough in django's opinion.
     """
 
-    media_type = 'application/xml'
-    format = 'xml'
+    media_type = "application/xml"
+    format = "xml"
 
     def render(self, data, media_type=None, renderer_context=None):
         return data

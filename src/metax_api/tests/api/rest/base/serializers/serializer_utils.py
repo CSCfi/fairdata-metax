@@ -13,7 +13,7 @@ from metax_api.api.rest.base.serializers import validate_json
 from metax_api.models import CatalogRecord
 from metax_api.tests.utils import TestClassUtils, get_json_schema, test_data_file_path
 
-schema = get_json_schema('ida_dataset')
+schema = get_json_schema("ida_dataset")
 
 
 class ValidateJsonTests(APITestCase, TestClassUtils):
@@ -24,7 +24,7 @@ class ValidateJsonTests(APITestCase, TestClassUtils):
 
     @classmethod
     def setUpClass(cls):
-        call_command('loaddata', test_data_file_path, verbosity=0)
+        call_command("loaddata", test_data_file_path, verbosity=0)
         super().setUpClass()
 
     def test_validate_date_field(self):
@@ -33,27 +33,27 @@ class ValidateJsonTests(APITestCase, TestClassUtils):
         have the optional "format": "date" applied, and use a format checker during schema validation.
         Ensure it works.
         """
-        rd = CatalogRecord.objects.values('research_dataset').get(pk=1)['research_dataset']
+        rd = CatalogRecord.objects.values("research_dataset").get(pk=1)["research_dataset"]
 
-        rd['issued'] = '2018-09-29'
+        rd["issued"] = "2018-09-29"
         try:
             validate_json(rd, schema)
         except ValidationError:
-            self.fail('Validation raised ValidationError - should have validated ok')
+            self.fail("Validation raised ValidationError - should have validated ok")
 
-        rd['issued'] = 'absolutely should fail'
+        rd["issued"] = "absolutely should fail"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)
 
-        rd['issued'] = '2018-09-29T20:20:20+03:00'
+        rd["issued"] = "2018-09-29T20:20:20+03:00"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)
 
-        rd['issued'] = '2018-09-29T20:20:20'
+        rd["issued"] = "2018-09-29T20:20:20"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)
 
-        rd['issued'] = '2018-09-29 20:20:20'
+        rd["issued"] = "2018-09-29 20:20:20"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)
 
@@ -63,37 +63,37 @@ class ValidateJsonTests(APITestCase, TestClassUtils):
         have the optional "format": "date-time" applied, and use a format checker during schema validation.
         Ensure it works.
         """
-        rd = CatalogRecord.objects.values('research_dataset').get(pk=1)['research_dataset']
+        rd = CatalogRecord.objects.values("research_dataset").get(pk=1)["research_dataset"]
 
-        rd['modified'] = '2018-09-29T20:20:20+03:00'
+        rd["modified"] = "2018-09-29T20:20:20+03:00"
         try:
             validate_json(rd, schema)
         except ValidationError:
-            self.fail('Validation raised ValidationError - should have validated ok')
+            self.fail("Validation raised ValidationError - should have validated ok")
 
         # note: jsonschema.FormatChecker accepts below also
-        rd['modified'] = '2018-09-29T20:20:20.123456789+03:00'
+        rd["modified"] = "2018-09-29T20:20:20.123456789+03:00"
         try:
             validate_json(rd, schema)
         except ValidationError:
-            self.fail('Validation raised ValidationError - should have validated ok')
+            self.fail("Validation raised ValidationError - should have validated ok")
 
-        rd['modified'] = 'absolutely should fail'
+        rd["modified"] = "absolutely should fail"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)
 
-        rd['modified'] = '2018-09-29'
+        rd["modified"] = "2018-09-29"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)
 
-        rd['modified'] = '2018-09-29 20:20:20'
+        rd["modified"] = "2018-09-29 20:20:20"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)
 
-        rd['modified'] = '2018-09-29T20:20:20'
+        rd["modified"] = "2018-09-29T20:20:20"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)
 
-        rd['modified'] = '2018-09-29 20:20:20+03:00'
+        rd["modified"] = "2018-09-29 20:20:20+03:00"
         with self.assertRaises(ValidationError):
             validate_json(rd, schema)

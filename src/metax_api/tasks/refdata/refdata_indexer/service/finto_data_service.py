@@ -75,13 +75,11 @@ class FintoDataService:
             )
             # parents (broader)
             parent_ids = [
-                self._get_uri_end_part(parent)
-                for parent in graph.objects(concept, SKOS.broader)
+                self._get_uri_end_part(parent) for parent in graph.objects(concept, SKOS.broader)
             ]
             # children (narrower)
             child_ids = [
-                self._get_uri_end_part(child)
-                for child in graph.objects(concept, SKOS.narrower)
+                self._get_uri_end_part(child) for child in graph.objects(concept, SKOS.narrower)
             ]
             same_as = []
             wkt = ""
@@ -145,13 +143,11 @@ class FintoDataService:
         if not str_error:
             return g
         else:
-            _logger.error(
-                "Failed to read Finto data of type %s, skipping.." % data_type
-            )
+            _logger.error("Failed to read Finto data of type %s, skipping.." % data_type)
             return None
 
     def _get_uri_end_part(self, uri):
-        return uri[uri.rindex("/") + 1:].strip()
+        return uri[uri.rindex("/") + 1 :].strip()
 
     def _get_coordinates_for_location_from_url(self, url):
         sleep_time = 2

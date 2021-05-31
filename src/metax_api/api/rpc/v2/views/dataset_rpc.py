@@ -30,15 +30,17 @@ class DatasetRPC(DatasetRPC):
         RPC api does not handle parameters the exact same way as REST api, so need to re-define get_object()
         to work properly.
         """
-        if not self.request.query_params.get('identifier', False):
-            raise Http400('Query param \'identifier\' missing. Please specify ?identifier=<catalog record identifier>')
+        if not self.request.query_params.get("identifier", False):
+            raise Http400(
+                "Query param 'identifier' missing. Please specify ?identifier=<catalog record identifier>"
+            )
 
         params = {}
 
         try:
-            params['pk'] = int(self.request.query_params['identifier'])
+            params["pk"] = int(self.request.query_params["identifier"])
         except ValueError:
-            params['identifier'] = self.request.query_params['identifier']
+            params["identifier"] = self.request.query_params["identifier"]
 
         try:
             cr = self.object.objects.get(**params)
@@ -51,13 +53,13 @@ class DatasetRPC(DatasetRPC):
 
         return cr
 
-    @action(detail=False, methods=['post'], url_path="change_cumulative_state")
+    @action(detail=False, methods=["post"], url_path="change_cumulative_state")
     def change_cumulative_state(self, request):
 
-        state_value = request.query_params.get('cumulative_state', False)
+        state_value = request.query_params.get("cumulative_state", False)
 
         if not state_value:
-            raise Http400('Query param \'cumulative_state\' missing')
+            raise Http400("Query param 'cumulative_state' missing")
 
         cr = self.get_object()
 
@@ -67,7 +69,7 @@ class DatasetRPC(DatasetRPC):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['post'], url_path="create_draft")
+    @action(detail=False, methods=["post"], url_path="create_draft")
     def create_draft(self, request):
 
         cr = self.get_object()
@@ -75,14 +77,11 @@ class DatasetRPC(DatasetRPC):
         cr.create_draft()
 
         return Response(
-            data={
-                'id': cr.next_draft.id,
-                'identifier': cr.next_draft.identifier
-            },
-            status=status.HTTP_201_CREATED
+            data={"id": cr.next_draft.id, "identifier": cr.next_draft.identifier},
+            status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=False, methods=['post'], url_path="create_new_version")
+    @action(detail=False, methods=["post"], url_path="create_new_version")
     def create_new_version(self, request):
 
         cr = self.get_object()
@@ -91,13 +90,13 @@ class DatasetRPC(DatasetRPC):
 
         return Response(
             data={
-                'id': cr.next_dataset_version.id,
-                'identifier': cr.next_dataset_version.identifier
+                "id": cr.next_dataset_version.id,
+                "identifier": cr.next_dataset_version.identifier,
             },
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=False, methods=['post'], url_path="publish_dataset")
+    @action(detail=False, methods=["post"], url_path="publish_dataset")
     def publish_dataset(self, request):
 
         cr = self.get_object()
@@ -105,11 +104,11 @@ class DatasetRPC(DatasetRPC):
         cr.publish_dataset()
 
         return Response(
-            data={ 'preferred_identifier': cr.preferred_identifier },
-            status=status.HTTP_200_OK
+            data={"preferred_identifier": cr.preferred_identifier},
+            status=status.HTTP_200_OK,
         )
 
-    @action(detail=False, methods=['post'], url_path="merge_draft")
+    @action(detail=False, methods=["post"], url_path="merge_draft")
     def merge_draft(self, request):
 
         cr = self.get_object()
@@ -118,17 +117,14 @@ class DatasetRPC(DatasetRPC):
         # the identifier points to the original published dataset.
         identifier_of_published = cr.merge_draft()
 
-        return Response(
-            data={ 'identifier': identifier_of_published },
-            status=status.HTTP_200_OK
-        )
+        return Response(data={"identifier": identifier_of_published}, status=status.HTTP_200_OK)
 
     # ensure some v1 api endpoints cant be called in v2 api
 
-    @action(detail=False, methods=['post'], url_path="refresh_directory_content")
+    @action(detail=False, methods=["post"], url_path="refresh_directory_content")
     def refresh_directory_content(self, request):
         raise Http501()
 
-    @action(detail=False, methods=['post'], url_path="fix_deprecated")
+    @action(detail=False, methods=["post"], url_path="fix_deprecated")
     def fix_deprecated(self, request):
         raise Http501()

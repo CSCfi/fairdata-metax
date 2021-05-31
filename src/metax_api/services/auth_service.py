@@ -13,8 +13,8 @@ from django.http import Http404
 
 _logger = logging.getLogger(__name__)
 
-class AuthService():
 
+class AuthService:
     @classmethod
     def get_user_projects(cls, request):
         """
@@ -26,12 +26,12 @@ class AuthService():
             # in order to not leak the user any information.
             raise Http404
 
-        if hasattr(request.user, 'user_projects'):
+        if hasattr(request.user, "user_projects"):
             return request.user.user_projects
 
         user_projects = cls.extract_file_projects_from_token(request.user.token)
 
-        username = request.user.token.get('CSCUserName', '')
+        username = request.user.token.get("CSCUserName", "")
         additional_projects = cls.get_additional_user_projects_from_file(username)
         user_projects.update(additional_projects)
 
@@ -40,7 +40,7 @@ class AuthService():
 
     @staticmethod
     def extract_file_projects_from_token(token):
-        '''
+        """
         Extract user's project identifiers from token claims.
 
         The user's token (request.user.token), when the user has access to some
@@ -55,17 +55,17 @@ class AuthService():
         ]
 
         Valid group names for IDA projects look like: IDA01:2001036.
-        '''
+        """
         if not token:
             return set()
 
         user_projects = set()
 
-        project_prefix = 'IDA01:'
+        project_prefix = "IDA01:"
 
         user_projects = set(
-            group.split(':')[-1]
-            for group in token.get('group_names', [])
+            group.split(":")[-1]
+            for group in token.get("group_names", [])
             if group.startswith(project_prefix)
         )
 
@@ -81,9 +81,9 @@ class AuthService():
         additional_projects = None
 
         try:
-            with open(settings.ADDITIONAL_USER_PROJECTS_PATH, 'r') as file:
+            with open(settings.ADDITIONAL_USER_PROJECTS_PATH, "r") as file:
                 additional_projects = json.load(file)
-        except FileNotFoundError: # noqa
+        except FileNotFoundError:  # noqa
             _logger.info("No local file for user projects")
         except Exception as e:
             _logger.error(e)
@@ -91,8 +91,9 @@ class AuthService():
         if additional_projects:
             if not additional_projects.get(username, False):
                 _logger.info("No projects for user '%s' on local file" % username)
-            elif not isinstance(additional_projects[username], list) \
-                    or not isinstance(additional_projects[username][0], str):
+            elif not isinstance(additional_projects[username], list) or not isinstance(
+                additional_projects[username][0], str
+            ):
                 _logger.error("Projects on file are not list of strings")
             else:
                 user_projects.update(p for p in additional_projects[username])
@@ -107,12 +108,11 @@ class AuthService():
 
         Return True if there is a match, otherwise False.
         """
-        assert request.user is not None, 'request.user is None'
-        assert request.user.token is not None, 'request.user.token is None'
+        assert request.user is not None, "request.user is None"
+        assert request.user.token is not None, "request.user.token is None"
 
         user_projects = set(
-            group.split(':')[-1]
-            for group in request.user.token.get('group_names', [])
+            group.split(":")[-1] for group in request.user.token.get("group_names", [])
         )
 
         user_projects.update(cls.get_additional_user_projects_from_file(request.user.username))
@@ -131,7 +131,7 @@ class AuthService():
 
         Return True if there is a match, otherwise False.
         """
-        assert request.user.username is not None, 'request.user.username is None'
+        assert request.user.username is not None, "request.user.username is None"
 
         authenticated_service = request.user.username
 

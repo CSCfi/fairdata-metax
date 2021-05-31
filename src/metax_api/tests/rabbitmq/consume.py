@@ -14,26 +14,21 @@ for testing:
 script to listen for messages sent when someone accesses /rest/datasets/pid/rabbitmq
 """
 
-test_user = {
-    'name': 'testaaja',
-    'password': 'testaaja',
-    'vhost': 'metax'
-}
+test_user = {"name": "testaaja", "password": "testaaja", "vhost": "metax"}
 
-credentials = pika.PlainCredentials(test_user['name'], test_user['password'])
+credentials = pika.PlainCredentials(test_user["name"], test_user["password"])
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
-        settings['HOSTS'][0],
-        settings['PORT'],
-        test_user['vhost'],
-        credentials))
+        settings["HOSTS"][0], settings["PORT"], test_user["vhost"], credentials
+    )
+)
 
 channel = connection.channel()
 
-exchange = 'datasets'
-queue_1 = 'testaaja-create'
-queue_2 = 'testaaja-update'
-queue_3 = 'testaaja-delete'
+exchange = "datasets"
+queue_1 = "testaaja-create"
+queue_2 = "testaaja-update"
+queue_3 = "testaaja-delete"
 
 # note: requires write permission to exchanges
 # channel.exchange_declare(exchange=exchange, type='fanout')
@@ -41,9 +36,9 @@ channel.queue_declare(queue_1, durable=True)
 channel.queue_declare(queue_2, durable=True)
 channel.queue_declare(queue_3, durable=True)
 
-channel.queue_bind(exchange=exchange, queue=queue_1, routing_key='create')
-channel.queue_bind(exchange=exchange, queue=queue_2, routing_key='update')
-channel.queue_bind(exchange=exchange, queue=queue_3, routing_key='delete')
+channel.queue_bind(exchange=exchange, queue=queue_1, routing_key="create")
+channel.queue_bind(exchange=exchange, queue=queue_2, routing_key="update")
+channel.queue_bind(exchange=exchange, queue=queue_3, routing_key="delete")
 
 
 def callback_1(ch, method, properties, body):
@@ -62,5 +57,5 @@ channel.basic_consume(queue_1, callback_1, auto_ack=True)
 channel.basic_consume(queue_2, callback_2, auto_ack=True)
 channel.basic_consume(queue_3, callback_3, auto_ack=True)
 
-print('[*] Waiting for logs. To exit press CTRL+C')
+print("[*] Waiting for logs. To exit press CTRL+C")
 channel.start_consuming()

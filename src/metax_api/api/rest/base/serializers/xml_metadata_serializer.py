@@ -11,23 +11,20 @@ from .common_serializer import CommonSerializer
 
 
 class XmlMetadataSerializer(CommonSerializer):
-
     class Meta:
         model = XmlMetadata
         fields = (
-            'id',
-            'namespace',
-            'xml',
-            'file',
+            "id",
+            "namespace",
+            "xml",
+            "file",
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = CommonSerializer.Meta.extra_kwargs
 
     def to_representation(self, instance):
         res = super(XmlMetadataSerializer, self).to_representation(instance)
-        res['file'] = {
-            'identifier': self.instance.file.identifier
-        }
+        res["file"] = {"identifier": self.instance.file.identifier}
         return res
 
     def validate_xml(self, value):

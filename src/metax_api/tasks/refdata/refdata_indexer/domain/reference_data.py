@@ -77,9 +77,7 @@ class ReferenceData(IndexableData):
         internal_code="",
     ):
 
-        super(ReferenceData, self).__init__(
-            data_id, data_type, label, uri, same_as, scheme
-        )
+        super(ReferenceData, self).__init__(data_id, data_type, label, uri, same_as, scheme)
 
         self.wkt = wkt
         self.input_file_format = input_file_format
