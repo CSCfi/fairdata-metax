@@ -34,8 +34,6 @@ class Organization:
     org_csc: str = field(default="", compare=False)
     unit_main_code: str = field(default="", compare=True)
 
-
-
     def compare_and_update(self, other):
         changes = 0
         match = self == other
@@ -168,5 +166,15 @@ class Command(BaseCommand):
             )
             writer.writeheader()
             for i in csv_serialized:
+                # Don't write header as row
+                if i["org_name_fi"] == "org_name_fi":
+                    continue
+                # Malformed values from TTV api
+                if i["unit_name"] == "LÃ„Ã„KETIETEELLINEN TIEDEKUNTA":
+                    continue
+                if "Ã…bo" in i["unit_name"]:
+                    i["unit_name"] = str(i["unit_name"]).replace("Ã…bo", "Åbo")
+                if "Ã–S" in i["unit_name"]:
+                    i["unit_name"] = str(i["unit_name"]).replace("Ã–S", "Ö")
                 writer.writerow(i)
             logger.info("successfully updated organization csv")
