@@ -20,7 +20,7 @@ Data model visualization
 
 The dataset data model visualization can be seen here https://tietomallit.suomi.fi/model/mrd. The data model visualization is very helpful to keep open when creating dataset metadata descriptions, as it shows all the different possible fields and relations, which can be used, which fields are mandatory, and so on.
 
-Additionally, the chosen data catalog may have some additional restrictions to the schema, such as reduced relations, or reduced mandatory fields. Read more about data catalogs and their implications here :ref:`rst-data-catalogs`.
+Additionally, the chosen data catalog may have some additional restrictions to the schema, such as reduced relations, or reduced mandatory fields. Read more about data catalogs and their implications here :ref:`rst-data-catalogs-v1`.
 
 
 
@@ -74,7 +74,7 @@ Preferred identifier is the "public" identifier of a dataset. When referring to 
 
 
 
-.. _rst-data-catalogs:
+.. _rst-data-catalogs-v1:
 
 Data Catalogs
 ^^^^^^^^^^^^^^
@@ -146,7 +146,7 @@ When creating a new dataset and wishing to use for example the ATT catalog, the 
     assert response.status_code == 201, response.content
 
 
-For more involving examples, see the :ref:`rst-dataset-examples` section for datasets.
+For more involving examples, see the :ref:`examples<rst-dataset-examples-v1>` section for datasets.
 
 
 
@@ -201,7 +201,7 @@ If the requested resource has not been modified after the date specified in the 
 
 
 
-.. _rst-dataset-versioning:
+.. _rst-dataset-versioning-v1:
 
 Dataset versioning
 -------------------
@@ -262,7 +262,7 @@ New metadata versions are not visible in the returned response in any way, excep
 
 **How do I know beforehand if a new dataset version is going to be created?**
 
-Take a look at the topic :ref:`rst-describing-and-adding-files`.
+Take a look at the topic :ref:`rst-describing-and-adding-files-v1`.
 
 
 
@@ -329,12 +329,12 @@ If the field ``alternate_record_set`` is missing from a record, it means there a
 
 
 
-.. _rst-describing-and-adding-files:
+.. _rst-describing-and-adding-files-v1:
 
 Describing files vs. adding and removing files
 -----------------------------------------------
 
-A distinction needs to be made between *describing* files in a dataset, and *adding or removing* files. As explained in the topic :ref:`rst-dataset-versioning`, just editing a dataset's metadata (including the dataset-specific file metadata in fields ``research_dataset.files`` and ``research_dataset.directories``) does not produce new dataset versions, while *adding* new files will produce new dataset versions, as will *removing* files. Yet, both describing the files, and adding or removing files, happens by inserting objects inside the fields ``research_dataset.files`` and ``research_dataset.directories``, or by removing the same objects when wishing to remove files from a dataset. How to know which is which, and what to expect when updating datasets and dealing with files?
+A distinction needs to be made between *describing* files in a dataset, and *adding or removing* files. As explained in the topic :ref:`rst-dataset-versioning-v1`, just editing a dataset's metadata (including the dataset-specific file metadata in fields ``research_dataset.files`` and ``research_dataset.directories``) does not produce new dataset versions, while *adding* new files will produce new dataset versions, as will *removing* files. Yet, both describing the files, and adding or removing files, happens by inserting objects inside the fields ``research_dataset.files`` and ``research_dataset.directories``, or by removing the same objects when wishing to remove files from a dataset. How to know which is which, and what to expect when updating datasets and dealing with files?
 
 
 **Adding and describing single files**
@@ -389,7 +389,7 @@ If you want to use an existing dataset as a template for a new dataset, you can 
 
 
 
-.. _rst-datasets-reference-data:
+.. _rst-datasets-reference-data-v1:
 
 Reference data guide
 ---------------------
@@ -448,7 +448,7 @@ All this needs to be taken into account when looking which reference data to use
 
 
 
-.. _rst-datasets-reference-data-table:
+.. _rst-datasets-reference-data-table-v1:
 
 Reference data table
 ^^^^^^^^^^^^^^^^^^^^^
@@ -463,7 +463,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
 
 .. note::
 
-    Below reference data urls contain the ``?pretty=true`` parameter, which formats the output into a more readable form. The default page only shows a few results, so be sure to check out :ref:`rst-reference-data-query-examples` for more examples how to browse reference data in general.
+    Below reference data urls contain the ``?pretty=true`` parameter, which formats the output into a more readable form. The default page only shows a few results, so be sure to check out :ref:`rst-reference-data-query-examples-v1` for more examples how to browse reference data in general.
 
 
 .. code-block:: python
@@ -564,7 +564,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
         }
         # ... other fields
 
-    More information about updating a dataset can be found in :ref:`Update examples<rst-dataset-examples-update>`.
+    More information about updating a dataset can be found in :ref:`Update examples<rst-dataset-examples-update-v1>`.
 
 
     **Changing license**
@@ -584,7 +584,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
         }
         # ... other fields
 
-    Please refer to :ref:`Update examples<rst-dataset-examples-update>` for more information about update process.
+    Please refer to :ref:`Update examples<rst-dataset-examples-update-v1>` for more information about update process.
 
     .. note:: Changing the license for REMS managed dataset closes all existing download accesses to the dataset.
 
@@ -601,7 +601,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
         }
 
 
-.. _rst-dataset-examples:
+.. _rst-dataset-examples-v1:
 
 Examples
 ---------
@@ -918,14 +918,14 @@ Retrieving an existing dataset using a dataset's internal Metax identifier:
 The retrieved content should look exactly the same as when creating a dataset. See above.
 
 
-.. _rst-dataset-examples-update:
+.. _rst-dataset-examples-update-v1:
 
 Updating datasets
 ^^^^^^^^^^^^^^^^^^
 
 There are two important cases to consider when updating datasets in Metax, and both of them are related to dataset versioning. In the below examples, both cases of updating only dataset metadata, and adding files to a datatset and removing files from a dataset will be covered.
 
-Read more about dataset versioning in :ref:`rst-dataset-versioning`.
+Read more about dataset versioning in :ref:`rst-dataset-versioning-v1`.
 
 
 
@@ -1162,7 +1162,7 @@ First way is to retrieve a flat list of file metadata of all the files included 
     assert response.status_code == 200, response.content
 
 
-The second way is by using the same API as is used to generally browse the files of a project (see :ref:`rst-browsing-files`). Browsing the files of a dataset works the same way, except that an additional query parameter ``cr_identifier=<dataset_identifer>`` should be provided, in order to retrieve only those files and directories, which are included in the specified dataset.
+The second way is by using the same API as is used to generally browse the files of a project (see :ref:`rst-browsing-files-v1`). Browsing the files of a dataset works the same way, except that an additional query parameter ``cr_identifier=<dataset_identifer>`` should be provided, in order to retrieve only those files and directories, which are included in the specified dataset.
 
 Example:
 
@@ -1186,14 +1186,14 @@ Using reference data
 
 Modifying ``research_dataset`` to contain data that depends on reference data.
 
-Be sure to also check out :ref:`rst-reference-data-query-examples` for useful examples how to browse reference data in general.
+Be sure to also check out :ref:`rst-reference-data-query-examples-v1` for useful examples how to browse reference data in general.
 
 
 
 Add a directory
 ~~~~~~~~~~~~~~~~
 
-Below example assumes an existing bare minimum dataset, to which a directory of files is being added. The directory-object has a mandatory field called ``use_category``, which requires using a value from reference data in its ``identifier`` field. In the dataset reference data table on this same page(:ref:`rst-datasets-reference-data-table`), we should be able to find this row:
+Below example assumes an existing bare minimum dataset, to which a directory of files is being added. The directory-object has a mandatory field called ``use_category``, which requires using a value from reference data in its ``identifier`` field. In the dataset reference data table on this same page(:ref:`rst-datasets-reference-data-table-v1`), we should be able to find this row:
 
 
 .. code-block:: python

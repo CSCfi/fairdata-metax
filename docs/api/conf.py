@@ -28,6 +28,7 @@ version = ""
 # The full version, including alpha/beta/rc tags
 release = ""
 
+fqdn = "metax.fairdata.fi"
 
 # -- General configuration ---------------------------------------------------
 
@@ -111,6 +112,7 @@ html_static_path = ["_static"]
 #
 # html_sidebars = {}
 
+rst_prolog = f".. |__METAX_ENV_DOMAIN__| replace:: {fqdn}"
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -169,4 +171,4 @@ texinfo_documents = [
 
 
 def setup(app):
-    app.add_stylesheet("custom.css")
+    app.add_css_file("custom.css")

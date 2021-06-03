@@ -11,7 +11,7 @@ The ``/rest/files`` API supports creating, retrieving, updating, and deleting fi
 
 Write-operations to the ``/rest/files`` API is generally limited only to Fairdata services. In practice, new file metadata only appears to Metax as a result of freezing files in the Fairdata IDA service, or during some PAS processes.
 
-End users will only be able to browse file metadata of projects where they are a member, end edit a limited set of metadata fields. Details about browsing files using the Metax API can be found later in this document :ref:`here <rst-browsing-files>`, and in swagger.
+End users will only be able to browse file metadata of projects where they are a member, end edit a limited set of metadata fields. Details about browsing files using the Metax API can be found later in this document :ref:`here <rst-browsing-files-v1>`, and in swagger.
 
 
 
@@ -65,7 +65,7 @@ This is just a quick overview, below code examples include some use of them, and
 In the public browse API's, a dataset's access restrictions or embargoes may apply, and only limited metadata may be returned. Authentication for these public API's is optional, but by authenticating access restrictions may be lifted, for example due to ownership of the published dataset, etc.
 
 
-.. _rst-files-reference-data:
+.. _rst-files-reference-data-v1:
 
 Reference data guide
 ---------------------
@@ -102,7 +102,7 @@ Example payload to create a file in Metax (``POST /rest/files``).
 
 .. important::
 
-    The possibility to create new file metadata entries in Metax is reserved for selected Fairdata services only.
+    The possibility to create new file metadata entries in Metax is reserved for selected Fairdata services only. Currently, the only service that can do this, is the IDA service (https://www.fairdata.fi/en/ida/).
 
 .. code-block:: python
 
@@ -110,26 +110,27 @@ Example payload to create a file in Metax (``POST /rest/files``).
         "identifier": "abc123",
         "file_name": "file.pdf",
         "file_path": "/some/file/path/file.pdf",
+        "replication_path": "/path/of/replication/file.pdf",
         "file_uploaded": "2017-09-27T12:38:18.700Z",
         "file_modified": "2017-09-27T12:38:18.700Z",
         "file_frozen": "2017-09-27T12:38:18.700Z",
         "file_format": "string",
         "byte_size": 1024,
-        "file_storage": "urn:nbn:fi:att:file-storage-ida",
+        "file_storage": 1,
         "project_identifier": "string",
         "checksum": {
             "value": "string",
             "algorithm": "md5",
             "checked": "2017-09-27T12:38:18.701Z"
         },
-        "open_access": false,
+        "open_access": true,
         "user_created": "string",
         "service_created": "string"
     }
 
 
 
-.. _rst-browsing-files:
+.. _rst-browsing-files-v1:
 
 Browsing files
 ^^^^^^^^^^^^^^^

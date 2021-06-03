@@ -6,13 +6,12 @@ End Users are able to interact with certain Metax APIs by utilizing Bearer Token
 
 Compared to public users, end users have extra access to the following APIs:
 
-* ``/rest/v2/datasets`` write access (create, update and delete), read access (owners can see sensitive data fields)
-* ``/rest/v2/files`` write access (update only), read access for files in user's projects
-* ``/rest/v2/directories`` read access for files in user's projects
-* ``/rpc/v2/datasets`` write access to owned datasets
+* ``/rest/datasets`` write access (create, update and delete), read access (owners can see sensitive data fields)
+* ``/rest/files`` write access (update only), read access for files in user's projects
+* ``/rest/directories`` read access for files in user's projects
 
 
-.. _rst-end-user-authentication:
+.. _rst-end-user-authentication-v1:
 
 Authentication
 ---------------
@@ -29,8 +28,8 @@ Real tokens in encoded form are very long, but above is an example what the HTTP
 
     headers = { 'Authorization': 'Bearer eyJraWQiOiJ.0ZXN0a2V5I.iwiYWxnIjoi' }
 
-    # retrieve a file by its identifier. using the /rest/v2/files API, its possible to only retrieve metadata
+    # retrieve a file by its identifier. using the /rest/files API, its possible to only retrieve metadata
     # of files where you are a member the file's project.
-    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/v2/files/abc123def', headers=headers)
+    response = requests.get('https://__METAX_ENV_DOMAIN__/rest/files/abc123def', headers=headers)
 
     print(response.json())

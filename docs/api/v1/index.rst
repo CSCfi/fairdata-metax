@@ -4,14 +4,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-=======================
-Metax API Documentation
-=======================
+==========================
+Metax API V1 Documentation
+==========================
 
 .. toctree::
    :numbered:
    :maxdepth: 5
-   :caption: Metax API Contents:
+   :caption: Contents:
 
    metax_api
    quick_start
@@ -21,8 +21,6 @@ Metax API Documentation
    datasets
    files
    reference_data
-   .. oai_pmh
-
 
 
 Indices and tables
@@ -31,4 +29,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
