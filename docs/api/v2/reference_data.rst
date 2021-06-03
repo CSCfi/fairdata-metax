@@ -15,53 +15,30 @@ Reference Data Indexes
 
 Below table contains a full list of the different indexes stored in the reference data.
 
-+----------------------------------------------------------------------------------------+
-| Url to browse reference data                                                           |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/access_type/_search?pretty=true         | 
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true    |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true    |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/event_outcome/_search?pretty=true       |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science/_search?pretty=true    |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/file_format_version/_search?pretty=true |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/file_type/_search?pretty=true           |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/funder_type/_search?pretty=true         |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/identifier_type/_search?pretty=true     |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/keyword/_search?pretty=true             |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/language/_search?pretty=true            |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/license/_search?pretty=true             |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/lifecycle_event/_search?pretty=true     |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/location/_search?pretty=true            |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/mime_type/_search?pretty=true           |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/preservation_event/_search?pretty=true  |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/relation_type/_search?pretty=true       |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/research_infra/_search?pretty=true      |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true       |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/restriction_grounds/_search?pretty=true |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true        |
-+----------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true     |
-+----------------------------------------------------------------------------------------+
+.. list-table::
+
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/access_type/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_role/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/contributor_type/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/event_outcome/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/field_of_science/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/file_format_version/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/file_type/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/funder_type/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/identifier_type/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/keyword/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/language/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/license/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/lifecycle_event/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/location/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/mime_type/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/preservation_event/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/relation_type/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/research_infra/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/resource_type/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/restriction_grounds/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/reference_data/use_category/_search?pretty=true
+    * - https://__METAX_ENV_DOMAIN__/es/organization_data/organization/_search?pretty=true
 
 
 

@@ -17,12 +17,14 @@ Any Python code examples in the API documentation are written using Python versi
 
 Below is a rough outline what type of APIs Metax is currently providing. The rest of the documentation will cover how to interact with them.
 
-+-------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
-| API                                 | Description                                                                                                                                 |
-+-------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/rest   | The main API to interact with most resources inside Metax, such as datasets, files, and data catalogs.                                      |
-+-------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/rpc    | A Remote Procedure Call -API, to execute various actions in Metax, or retrieve data that otherwise does not fit into the REST api.          |
-+-------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
-| https://__METAX_ENV_DOMAIN__/oaipmh | Implements the OAI-PMH specification. The specification defines a way to harvest filtered sets of data (datasets) in an incremental manner. |
-+-------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------+
+.. list-table::
+    :header-rows: 1
+
+    * - API
+      - Description
+    * - https://__METAX_ENV_DOMAIN__/rest/v1
+      - The main API to interact with most resources inside Metax, such as datasets, files, and data catalogs.
+    * - https://__METAX_ENV_DOMAIN__/rpc/v1
+      - A Remote Procedure Call -API, to execute various actions in Metax, or retrieve data that otherwise does not fit into the REST api.
+    * - https://__METAX_ENV_DOMAIN__/oai/
+      - Implements the OAI-PMH specification. The specification defines a way to harvest filtered sets of data (datasets) in an incremental manner.
