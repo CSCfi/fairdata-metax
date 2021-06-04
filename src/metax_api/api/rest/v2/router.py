@@ -93,7 +93,6 @@ class CustomRouterV2(CustomRouter):
 # v2 urls, but using v1 view classes, because nothing changes
 
 router_v1 = CustomRouter(trailing_slash=False)
-# router_v1.register(r"apierrors/?", ApiErrorViewSet)
 router_v1.register(r"contracts/?", ContractViewSet)
 router_v1.register(r"directories/?", DirectoryViewSet)
 router_v1.register(r"files/?", FileViewSet)
