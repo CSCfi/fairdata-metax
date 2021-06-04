@@ -662,7 +662,13 @@
           }
         ],
         "funder_type": {
-          "identifier": "tekes"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/funder_type/code/tekes",
+          "pref_label": {
+            "fi": "Tekes",
+            "en": "Tekes",
+            "und": "Tekes"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/funder_type"
         }
       }
     ],
@@ -774,11 +780,22 @@
           },
           "identifier": "external:dataset:identifier",
           "type": {
-            "identifier": "physical_object"
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/physical_object",
+            "pref_label": {
+              "fi": "Fyysinen objekti",
+              "en": "Physical object",
+              "und": "Fyysinen objekti"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/resource_type"
           }
         },
         "relation_type": {
-          "identifier": "wasDerivedFrom"
+          "identifier": "http://www.w3.org/ns/prov#wasDerivedFrom",
+          "pref_label": {
+            "fi": "Johdettu aineistosta",
+            "en": "Was derived from",
+            "und": "Johdettu aineistosta"
+          }
         }
       },
       {
@@ -792,11 +809,22 @@
           },
           "identifier": "external:thing:identifier",
           "type": {
-            "identifier": "collection"
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/collection",
+            "pref_label": {
+              "fi": "Kokoelma",
+              "en": "Collection",
+              "und": "Kokoelma"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/resource_type"
           }
         },
         "relation_type": {
-          "identifier": "cites"
+          "identifier": "http://purl.org/spar/cito/cites",
+          "pref_label": {
+            "fi": "Viittaa",
+            "en": "Cites",
+            "und": "Viittaa"
+          }
         }
       },
       {
@@ -810,11 +838,22 @@
           },
           "identifier": "external:dataset_2:identifier",
           "type": {
-            "identifier": "service"
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/service",
+            "pref_label": {
+              "fi": "Palvelu",
+              "en": "Service",
+              "und": "Palvelu"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/resource_type"
           }
         },
         "relation_type": {
-          "identifier": "isPartOf"
+          "identifier": "http://purl.org/dc/terms/isPartOf",
+          "pref_label": {
+            "fi": "Kuuluu aineistoon",
+            "en": "Is part of",
+            "und": "Kuuluu aineistoon"
+          }
         }
       },
       {
@@ -828,11 +867,22 @@
           },
           "identifier": "external:thing_2:identifier",
           "type": {
-            "identifier": "ui"
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/resource_type/code/ui",
+            "pref_label": {
+              "fi": "Käyttöliittymä",
+              "en": "User interface",
+              "und": "Käyttöliittymä"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/resource_type"
           }
         },
         "relation_type": {
-          "identifier": "hasPreviousVersion"
+          "identifier": "http://www.w3.org/ns/adms#previous",
+          "pref_label": {
+            "fi": "Edellinen versio",
+            "en": "Has previous version",
+            "und": "Edellinen versio"
+          }
         }
       }
     ]
