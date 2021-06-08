@@ -35,6 +35,8 @@ TEMPLATE = """
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="fdwe-service" content="METAX"> 
+  <script src=" https://matomo.fd-test.csc.fi/fdwe.js"></script>
   <title>Swagger UI</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.24.2/swagger-ui.css" >
