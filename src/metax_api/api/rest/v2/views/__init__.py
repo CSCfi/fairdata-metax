@@ -7,4 +7,4 @@
 
 from .data_catalog_view import DataCatalogViewSet
 from .dataset_view import DatasetViewSet
-from .api_error_view import ApiErrorViewSet
+from .api_error_view import ApiErrorViewSetV2

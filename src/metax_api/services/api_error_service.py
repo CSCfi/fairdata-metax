@@ -54,6 +54,9 @@ class ApiErrorService:
         error_files = listdir(settings.ERROR_FILES_PATH)
         error_list = []
 
+        # serializer to representation
+        # apierrorlistserializer, apierrorsingleserializer
+
         for ef in error_files:
             with open("%s/%s" % (settings.ERROR_FILES_PATH, ef), "r") as f:
                 error_details = json_load(f)
@@ -124,7 +127,7 @@ class ApiErrorService:
         except:
             _logger.exception("Failed to save error info...")
         else:
-
+            # jos ei mene exceptiin
             response.data["error_identifier"] = error_info["identifier"]
 
             if response.status_code == 500:

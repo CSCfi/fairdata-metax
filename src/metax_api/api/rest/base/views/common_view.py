@@ -18,8 +18,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from metax_api.exceptions import Http400, Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
+from metax_api.models import ApiError
 from metax_api.services import (
-    ApiErrorService,
     CallableService,
     CommonService as CS,
     RedisCacheService,
@@ -137,7 +137,9 @@ class CommonViewSet(ModelViewSet):
             )
 
         if type(exc) not in (Http403, Http404, PermissionDenied, MethodNotAllowed):
-            ApiErrorService.store_error_details(self.request, response, exc)
+            # ApiErrorViewSet.store_error_details(self.request, response, exc)
+            # luo serializer
+            ApiError.objects.store_error_details(self.request, response, exc)
 
         return response
 
@@ -355,7 +357,8 @@ class CommonViewSet(ModelViewSet):
         and save data if necessary.
         """
         if "failed" in response.data and len(response.data["failed"]):
-            ApiErrorService.store_error_details(request, response, other={"bulk_request": True})
+            # ApiErrorViewSet.store_error_details(request, response, other={"bulk_request": True})
+            ApiError.objects.store_error_details(request, response, other={"bulk_request": True})
 
     def get_api_name(self):
         """

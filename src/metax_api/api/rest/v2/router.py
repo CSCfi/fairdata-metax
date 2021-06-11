@@ -30,7 +30,7 @@ from metax_api.api.rest.base.views import (
     FileViewSet,
     SchemaViewSet,
 )
-from metax_api.api.rest.v2.views import ApiErrorViewSet
+from metax_api.api.rest.v2.views import ApiErrorViewSetV2
 
 from .views import DataCatalogViewSet, DatasetViewSet
 
@@ -102,7 +102,7 @@ router_v1.register(r"schemas/?", SchemaViewSet)
 # v2 urls, using v2 view classes with changes
 
 router_v2 = CustomRouterV2(trailing_slash=False)
-router_v2.register(r"apierrors/?", ApiErrorViewSet)
+router_v2.register(r"apierrors/?", ApiErrorViewSetV2)
 router_v2.register(r"datasets/?", DatasetViewSet)
 router_v2.register(r"datacatalogs/?", DataCatalogViewSet)
 router_v2.register(
