@@ -18,6 +18,7 @@ ubuntu-xenial-16.04-cloudimg-console.log
 !.env.template
 *.pem
 /src/log
+/src/metax_api/templates/swagger
 
 # Unit test / coverage reports
 htmlcov/

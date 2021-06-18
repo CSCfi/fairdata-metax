@@ -99,9 +99,9 @@ def yaml_to_html_convert():
             with open(outpath, 'w') as outfile:
                 try:
                     with open(inpath, 'r') as infile:
-                        spec = yaml.load(infile, Loader=yaml.FullLoader)
-                        if spec.get("host") == "__METAX_ENV_DOMAIN__":
-                            spec["host"] = settings.SERVER_DOMAIN_NAME
+                        readdata = infile.read()
+                        indata = readdata.replace("__METAX_ENV_DOMAIN__", settings.SERVER_DOMAIN_NAME)
+                        spec = yaml.load(indata, Loader=yaml.FullLoader)
                         outfile.write(TEMPLATE % json.dumps(spec))
 
                 except FileNotFoundError:
