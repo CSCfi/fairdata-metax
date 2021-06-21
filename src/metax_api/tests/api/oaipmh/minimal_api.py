@@ -110,16 +110,23 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         ms = settings.OAI["BATCH_SIZE"]
         allRecords = CatalogRecord.objects.filter(
             data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter()
-        )[:ms]
+        )
         response = self.client.get("/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         headers = self._get_results(response.content, "//o:header")
-        self.assertTrue(len(headers) == len(allRecords), len(headers))
+        self.assertTrue(len(headers) == ms, len(headers))
+
+        token = self._get_single_result(response.content, '//o:resumptionToken')
+        response = self.client.get(f"/oai/?verb=ListIdentifiers&resumptionToken={token.text}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        headers = self._get_results(response.content, "//o:header")
+        self.assertEqual(len(allRecords) - ms, len(headers))
 
         response = self.client.get("/oai/?verb=ListIdentifiers&metadataPrefix=oai_datacite")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         headers = self._get_results(response.content, "//o:header")
-        self.assertTrue(len(headers) == len(allRecords), len(headers))
+        self.assertTrue(len(headers) == ms, len(headers))
 
         response = self.client.get("/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc_urnresolver")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -157,22 +164,29 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         ms = settings.OAI["BATCH_SIZE"]
         allRecords = CatalogRecord.objects.filter(
             data_catalog__catalog_json__identifier__in=MetaxOAIServer._get_default_set_filter()
-        )[:ms]
+        )
 
         response = self.client.get("/oai/?verb=ListRecords&metadataPrefix=oai_dc")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, "//o:record")
-        self.assertTrue(len(records) == len(allRecords))
+        self.assertTrue(len(records) == ms)
+
+        token = self._get_single_result(response.content, '//o:resumptionToken')
+        response = self.client.get(f"/oai/?verb=ListRecords&resumptionToken={token.text}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        records = self._get_results(response.content, "//o:record")
+        self.assertTrue(len(allRecords) - ms == len(records))
 
         response = self.client.get("/oai/?verb=ListRecords&metadataPrefix=oai_fairdata_datacite")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, "//o:record")
-        self.assertTrue(len(records) == len(allRecords))
+        self.assertTrue(len(records) == ms)
 
         response = self.client.get("/oai/?verb=ListRecords&metadataPrefix=oai_dc_urnresolver")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         records = self._get_results(response.content, "//o:record")
-        self.assertTrue(len(records) == len(allRecords))
+        self.assertTrue(len(records) == ms)
 
     def test_list_records_for_drafts(self):
         """ Tests that drafts are not returned from ListRecords """

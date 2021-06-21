@@ -22,7 +22,7 @@ django-environ = "^0.4.5"
 django-split-settings = "^1.0.1"
 rdflib = "^5.0.0"
 python-dateutil = "^2.8.1"
-pyoai = "^2.5.0"
+pyoai = {git = "https://github.com/infrae/pyoai", rev = "5f6eba12"}
 python-simplexquery = {version = "*", optional = true}
 # These are here because of: https://github.com/python-poetry/poetry/issues/1644
 Sphinx = {version = "^3.5.4", optional = true}
