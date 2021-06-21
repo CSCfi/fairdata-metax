@@ -9,10 +9,22 @@
     "harvested": false,
     "language": [
       {
-        "identifier": "http://lexvo.org/id/iso639-3/fin"
+        "identifier": "http://lexvo.org/id/iso639-3/fin",
+        "title": {
+          "sv": "finska",
+          "en": "Finnish",
+          "fi": "suomi",
+          "und": "suomi"
+        }
       },
       {
-        "identifier": "http://lexvo.org/id/iso639-3/eng"
+        "identifier": "http://lexvo.org/id/iso639-3/eng",
+        "title": {
+          "en": "English",
+          "sv": "engelska",
+          "fi": "englanti",
+          "und": "englanti"
+        }
       }
     ],
     "homepage": [
@@ -76,7 +88,8 @@
           "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
           "pref_label": {
             "fi": "Avoin",
-            "en": "Open"
+            "en": "Open",
+            "und": "Avoin"
           }
         }
       ],
@@ -84,8 +97,9 @@
         {
           "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
           "title": {
-            "fi": "CC BY 4.0",
-            "en": "CC BY 4.0"
+            "fi": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)",
+            "en": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+            "und": "Creative Commons Nimeä 4.0 Kansainvälinen (CC BY 4.0)"
           }
         }
       ]

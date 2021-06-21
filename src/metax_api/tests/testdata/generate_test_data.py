@@ -454,34 +454,82 @@ def generate_catalog_records(
                     # first fifth of files
                     dataset_files[-1]["file_type"] = {
                         "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/text",
+                        "pref_label": {
+                            "fi": "Teksti",
+                            "en": "Text",
+                            "und": "Teksti"
+                        },
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type"
                     }
                     dataset_files[-1]["use_category"] = {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
+                        "pref_label": {
+                            "fi": "Lähdeaineisto",
+                            "en": "Source material",
+                            "und": "Lähdeaineisto"
+                        },
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category"
                     }
 
                 elif file_divider <= j < (file_divider * 2):
                     # second fifth of files
                     dataset_files[-1]["file_type"] = {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video",
+                        "pref_label": {
+                            "fi": "Video",
+                            "en": "Video",
+                            "und": "Video"
+                        },
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type"
                     }
                     dataset_files[-1]["use_category"] = {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome",
+                        "pref_label": {
+                            "fi": "Tulosaineisto",
+                            "en": "Outcome material",
+                            "und": "Tulosaineisto"
+                        },
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category"
                     }
                 elif (file_divider * 2) <= j < (file_divider * 3):
                     # third fifth of files
                     dataset_files[-1]["file_type"] = {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image",
+                        "pref_label": {
+                            "fi": "Kuva",
+                            "en": "Image",
+                            "und": "Kuva"
+                        },
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type"
                     }
                     dataset_files[-1]["use_category"] = {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication",
+                        "pref_label": {
+                            "fi": "Julkaisu",
+                            "en": "Publication",
+                            "und": "Julkaisu"
+                        },
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category"
                     }
                 elif (file_divider * 3) <= j < (file_divider * 4):
                     # fourth fifth of files
                     dataset_files[-1]["file_type"] = {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/source_code"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/source_code",
+                        "pref_label": {
+                            "fi": "Lähdekoodi",
+                            "en": "Source code",
+                            "und": "Lähdekoodi"
+                        },
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type"
                     }
                     dataset_files[-1]["use_category"] = {
-                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation"
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation",
+                        "pref_label": {
+                            "fi": "Dokumentaatio",
+                            "en": "Documentation",
+                            "und": "Dokumentaatio"
+                        },
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category"
                     }
                 else:
                     # the rest of files
