@@ -28,11 +28,13 @@ class _RabbitMQService:
             self._settings["USER"], self._settings["PASSWORD"]
         )
         self._hosts = self._settings["HOSTS"]
-        self._connection = None
 
     def _connect(self):
-        if self._connection and self._connection.is_open:
-            return
+        """
+        Creates and returns a new BlockingConnection for the caller. Creating a new connection enables multiple
+        threads (i.e. requests) to access RabbitMQ in parallel using synchronous connection. Even though initializing
+        a new connection for each request is slow and has some overhead, thread-safety is more important.
+        """
 
         # Connection retries are needed as long as there is no load balancer in front of rabbitmq-server VMs
         sleep_time = 1
@@ -51,7 +53,7 @@ class _RabbitMQService:
                     kwarg_params["virtual_host"] = self._settings["VHOST"]
 
                 conn_params = pika.ConnectionParameters(host, **kwarg_params)
-                self._connection = pika.BlockingConnection(conn_params)
+                connection = pika.BlockingConnection(conn_params)
 
             except Exception as e:
                 _logger.error(
@@ -59,9 +61,9 @@ class _RabbitMQService:
                 )
                 sleep(sleep_time)
             else:
-                self._channel = self._connection.channel()
                 _logger.info("RabbitMQ connected to %s" % host)
-                break
+
+                return connection
         else:
             raise Exception("Unable to connect to RabbitMQ")
 
@@ -79,7 +81,8 @@ class _RabbitMQService:
                     otherwise messages not retrieved by clients before restart will be lost.
                     (still is not 100 % guaranteed to persist!)
         """
-        self._connect()
+        connection = self._connect()
+        channel = connection.channel()
         self._validate_publish_params(routing_key, exchange)
 
         additional_args = {}
@@ -95,7 +98,7 @@ class _RabbitMQService:
             for message in messages:
                 if isinstance(message, dict):
                     message = json_dumps(message, cls=DjangoJSONEncoder)
-                self._channel.basic_publish(
+                channel.basic_publish(
                     body=message,
                     routing_key=routing_key,
                     exchange=exchange,
@@ -106,7 +109,7 @@ class _RabbitMQService:
             _logger.error("Unable to publish message to RabbitMQ")
             raise
         finally:
-            self._connection.close()
+            connection.close()
 
     def init_exchanges(self):
         """
@@ -114,18 +117,23 @@ class _RabbitMQService:
         an error will occur if an exchange existed, and it is being re-declared with different settings.
         In that case the exchange has to be manually removed first, which can result in lost messages.
         """
-        self._connect()
+        connection = self._connect()
+
+        if connection is None:
+            return
+
+        channel = connection.channel()
         try:
             for exchange in self._settings["EXCHANGES"]:
-                self._channel.exchange_declare(
+                channel.exchange_declare(
                     exchange["NAME"],
                     exchange_type=exchange["TYPE"],
                     durable=exchange["DURABLE"],
                 )
                 for queue in exchange.get("QUEUES", []):
                     # declare queues in settings
-                    self._channel.queue_declare(queue["NAME"], durable=exchange["DURABLE"])
-                    self._channel.queue_bind(
+                    channel.queue_declare(queue["NAME"], durable=exchange["DURABLE"])
+                    channel.queue_bind(
                         queue["NAME"], exchange["NAME"], queue.get("ROUTING_KEY")
                     )
         except Exception as e:
@@ -133,7 +141,7 @@ class _RabbitMQService:
             _logger.exception("Failed to initialize RabbitMQ exchanges")
             raise
         finally:
-            self._connection.close()
+            connection.close()
 
     def _validate_publish_params(self, routing_key, exchange_name):
         """
