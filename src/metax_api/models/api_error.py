@@ -92,6 +92,6 @@ class ApiError(models.Model):
     id = models.BigAutoField(primary_key=True, editable=False)
     identifier = models.CharField(max_length=200, unique=True, null=False)
     error = JSONField(null=False)
-    date_created = models.DateTimeField()
+    date_created = models.DateTimeField(default=get_tz_aware_now_without_micros)
 
     objects = ApiErrorManager()
