@@ -7,13 +7,15 @@
 
 import logging
 import random
-from json import dumps as json_dumps
+from json import dumps as json_dumps, loads
 from time import sleep
 
 import pika
+from django.db import DatabaseError
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 
+from metax_api.models import ApiError
 from metax_api.utils.utils import executing_test_case
 
 _logger = logging.getLogger(__name__)
@@ -111,6 +113,29 @@ class _RabbitMQService:
         finally:
             connection.close()
 
+    def consume_api_errors(self):
+        connection = self._connect()
+        channel = connection.channel()
+
+        try:
+            for method, _, body in channel.consume("metax-apierrors", inactivity_timeout=1):
+                if method is None and body is None:
+                    channel.cancel()
+                    break
+                try:
+                    error = loads(body)
+                    ApiError.objects.create(identifier=error["identifier"], error=error)
+                except DatabaseError as e:
+                    _logger.error("cannot create API Error. Discarding..")
+                    _logger.debug(f"error: {e}")
+                finally:
+                    channel.basic_ack(method.delivery_tag)
+        except Exception as e:
+            _logger.error(e)
+        finally:
+            _logger.debug("All ApiErrors were handled")
+            connection.close()
+
     def init_exchanges(self):
         """
         Declare the exchanges specified in settings. Re-declaring existing exchanges does no harm, but
@@ -176,6 +201,9 @@ class _RabbitMQServiceDummy:
         pass
 
     def init_exchanges(self, *args, **kwargs):
+        pass
+
+    def consume_api_errors(self):
         pass
 
 

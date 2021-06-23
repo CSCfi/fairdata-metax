@@ -23,6 +23,16 @@ RABBITMQ = {
                 }
             ],
         },
+        {
+            "NAME": "apierrors",
+            "TYPE": "fanout",
+            "DURABLE": True,
+            "QUEUES": [
+                {
+                    "NAME": "metax-apierrors"
+                }
+            ]
+        }
     ],
 }
 RABBIT_MQ_USE_VHOST = env("RABBIT_MQ_USE_VHOST")
