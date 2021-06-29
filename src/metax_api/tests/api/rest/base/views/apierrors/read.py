@@ -63,19 +63,19 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
 
         ApiError.objects.create(identifier=error["identifier"], error=error)
 
-    def _assert_fields_presence(self, response):
+    def _assert_fields_presence(self, error_json):
         """
         Check presence and absence of some key information.
         """
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual("data" in response.data, True, response.data)
-        self.assertEqual("response" in response.data, True, response.data)
-        self.assertEqual("traceback" in response.data, True, response.data)
-        self.assertEqual("url" in response.data, True, response.data)
+        self.assertEqual("identifier" in error_json, True, error_json)
+        self.assertEqual("data" in error_json, True, error_json)
+        self.assertEqual("response" in error_json, True, error_json)
+        self.assertEqual("traceback" in error_json, True, error_json)
+        self.assertEqual("url" in error_json, True, error_json)
         self.assertEqual(
-            "HTTP_AUTHORIZATION" in response.data["headers"],
+            "HTTP_AUTHORIZATION" in error_json["headers"],
             False,
-            response.data["headers"],
+            error_json["headers"],
         )
 
     def test_list_errors(self):
@@ -107,20 +107,13 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # list errors in order to get error identifier
-        response = self.client.get("/rest/v2/apierrors")
+        response = self.client.get("/rest/v2/apierrors/1")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual("identifier" in response.data[0], True, response.data)
 
-        response = self.client.get("/rest/v2/apierrors/%s" % response.data[0]["identifier"])
-        self._assert_fields_presence(response)
-        self.assertEqual(
-            "data_catalog" in response.data["response"], True, response.data["response"]
-        )
-        self.assertEqual(
-            response.data["data"]["research_dataset"]["title"]["en"],
-            "Abc",
-            response.data["data"]["research_dataset"]["title"],
-        )
+        error_json = response.data["error"]
+
+        self._assert_fields_presence(error_json)
+        self.assertTrue("data_catalog" in error_json["response"], error_json["response"])
 
     @testcase_log_console(_logger)
     def test_delete_error_details(self):
