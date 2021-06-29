@@ -5,14 +5,14 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 import logging
-from os import makedirs
-from shutil import rmtree
+from unittest.mock import patch
+from uuid import uuid4
 
-from django.conf import settings
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from metax_api.models import ApiError
 from metax_api.tests.utils import TestClassUtils, test_data_file_path, testcase_log_console
 
 _logger = logging.getLogger(__name__)
@@ -34,9 +34,34 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
 
     def setUp(self):
         super(ApiErrorReadBasicTests, self).setUp()
-        rmtree(settings.ERROR_FILES_PATH, ignore_errors=True)
-        makedirs(settings.ERROR_FILES_PATH)
         self._use_http_authorization(username="metax")
+
+    def mock_api_error_consume(self):
+        """
+        ApiErrors are created when fetching Rabbitmq queue but when running testcases Rabbitmq is not available.
+        This mocks the consume part while the publishing part is actually not doing anything.
+        """
+        error = {
+            "method": "POST",
+            "user": "metax",
+            "data": { "metadata_owner_org": "abc-org-123" },
+            "headers": {
+                "HTTP_COOKIE": ""
+            },
+            "status_code": 400,
+            "response": {
+                "data_catalog": [
+                    "ErrorDetail(string=This field is required., code=required)"
+                ]
+            },
+            "traceback":
+                "Traceback(most recent call last): File/usr/local/lib/python3.8/site-packages/rest_framework/views.py",
+            "url": "/rest/datasets",
+            "identifier": f"2021-06-29T11:10:54-{str(uuid4())[:8]}",
+            "exception_time": "2021-06-29T11:10:54+00:00"
+        }
+
+        ApiError.objects.create(identifier=error["identifier"], error=error)
 
     def _assert_fields_presence(self, response):
         """
@@ -70,6 +95,7 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         response = self.client.get("/rest/apierrors")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
+    @patch("metax_api.services.rabbitmq_service._RabbitMQServiceDummy.consume_api_errors", mock_api_error_consume)
     def test_get_error_details(self):
         cr_1 = self.client.get("/rest/datasets/1").data
         cr_1.pop("id")
@@ -81,11 +107,11 @@ class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # list errors in order to get error identifier
-        response = self.client.get("/rest/apierrors")
+        response = self.client.get("/rest/v2/apierrors")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual("identifier" in response.data[0], True, response.data)
 
-        response = self.client.get("/rest/apierrors/%s" % response.data[0]["identifier"])
+        response = self.client.get("/rest/v2/apierrors/%s" % response.data[0]["identifier"])
         self._assert_fields_presence(response)
         self.assertEqual(
             "data_catalog" in response.data["response"], True, response.data["response"]
