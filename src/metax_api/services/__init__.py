@@ -5,7 +5,6 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from .api_error_service import ApiErrorService
 from .auth_service import AuthService
 from .callable_service import CallableService
 from .catalog_record_service import CatalogRecordService

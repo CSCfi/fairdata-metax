@@ -23,7 +23,6 @@ Including another URLconf
 from rest_framework.routers import DefaultRouter, Route
 
 from .views import (
-    ApiErrorViewSet,
     ContractViewSet,
     DataCatalogViewSet,
     DatasetViewSet,
@@ -32,6 +31,7 @@ from .views import (
     FileViewSet,
     SchemaViewSet,
 )
+from metax_api.api.rest.v2.views import ApiErrorViewSetV2
 
 
 class CustomRouter(DefaultRouter):
@@ -67,7 +67,7 @@ class CustomRouter(DefaultRouter):
 
 
 router = CustomRouter(trailing_slash=False)
-router.register(r"apierrors/?", ApiErrorViewSet)
+router.register(r"apierrors/?", ApiErrorViewSetV2)
 router.register(r"contracts/?", ContractViewSet)
 router.register(r"datasets/?", DatasetViewSet)
 router.register(r"datacatalogs/?", DataCatalogViewSet)

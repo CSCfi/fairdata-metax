@@ -1,3 +1,10 @@
+# This file is part of the Metax API service
+#
+# Copyright 2017-2018 Ministry of Education and Culture, Finland
+#
+# :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
+# :license: MIT
+
 import traceback
 from uuid import uuid4
 
@@ -19,7 +26,7 @@ class ApiErrorSerializerV2(ModelSerializer):
         )
 
     @staticmethod
-    def to_rabbitmq_json(request, response, other={}):
+    def request_to_json(request, response, other={}):
         current_time = str(get_tz_aware_now_without_micros()).replace(" ", "T")
 
         if request.method in ("POST", "PUT", "PATCH"):

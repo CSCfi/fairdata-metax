@@ -124,6 +124,7 @@ class _RabbitMQService:
                     break
                 try:
                     error = loads(body)
+                    print(error)
                     ApiError.objects.create(identifier=error["identifier"], error=error)
                 except DatabaseError as e:
                     _logger.error("cannot create API Error. Discarding..")
@@ -205,7 +206,6 @@ class _RabbitMQServiceDummy:
 
     def consume_api_errors(self):
         pass
-
 
 if executing_test_case():
     RabbitMQService = _RabbitMQServiceDummy()
