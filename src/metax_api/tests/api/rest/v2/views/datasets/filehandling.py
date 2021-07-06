@@ -468,6 +468,7 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
 
     def _create_draft(self):
         self.cr_test_data["research_dataset"].pop("files", None)
+        self.cr_test_data["research_dataset"].pop("directories", None)
         self.cr_test_data["research_dataset"].pop("total_files_byte_size", None)
         response = self.client.post("/rest/v2/datasets?draft", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -820,31 +821,18 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         cr_id = response.data["id"]
         self.assertEqual(response.data.get("total_files_byte_size"), None)
 
-        # add first file
+        # add file to dataset
         file_changes = {}
 
         self._add_file(file_changes, "/TestExperiment/Directory_1/Group_1/file_01.txt")
         response = self.client.post(
-            "/rest/v2/datasets/%d/files" % cr_id, file_changes, format="json"
+            f"/rest/v2/datasets/{cr_id}/files", file_changes, format="json"
         )
         self.assertEqual(response.data.get("files_added"), 1, response.data)
         self.assert_file_count(cr_id, 1)
 
         response = self.client.get(f"/rest/v2/datasets/{cr_id}")
         self.assert_total_files_byte_size(response.data, 100)
-
-        # add second file
-        file_changes = {}
-
-        self._add_file(file_changes, "/TestExperiment/Directory_1/Group_1/file_02.txt")
-        response = self.client.post(
-            "/rest/v2/datasets/%d/files" % cr_id, file_changes, format="json"
-        )
-        self.assertEqual(response.data.get("files_added"), 1, response.data)
-        self.assert_file_count(cr_id, 2)
-
-        response = self.client.get(f"/rest/v2/datasets/{cr_id}")
-        self.assert_total_files_byte_size(response.data, 200)
 
 
 class CatalogRecordUserMetadata(CatalogRecordApiWriteAssignFilesCommonV2):
