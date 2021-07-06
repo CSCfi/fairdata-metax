@@ -59,6 +59,8 @@ env = environ.Env(
     SERVER_DOMAIN_NAME=(str, "metax.fd-dev.csc.fi"),
     VALIDATE_TOKEN_URL=(str, "https://127.0.0.1/secure/validate_token"),
     WKT_FILENAME=(str, join(REFDATA_INDEXER_PATH, "resources", "uri_to_wkt.json")),
+    SWAGGER_YAML_PATH=(str, join(BASE_DIR, "metax_api", "swagger")),
+    SWAGGER_HTML_PATH=(str, join(BASE_DIR, "metax_api", "templates", "swagger")),
 )
 # reading .env file
 environ.Env.read_env()

@@ -188,3 +188,6 @@ API_USERS = [
     {"password": "test-fds", "username": "fds"},
     {"password": "test-download", "username": "download"},
 ]
+
+SWAGGER_YAML_PATH = env('SWAGGER_YAML_PATH')
+SWAGGER_HTML_PATH = env('SWAGGER_HTML_PATH')
