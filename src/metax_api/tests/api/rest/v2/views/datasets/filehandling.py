@@ -469,6 +469,7 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
     def _create_draft(self):
         self.cr_test_data["research_dataset"].pop("files", None)
         self.cr_test_data["research_dataset"].pop("directories", None)
+        self.cr_test_data["research_dataset"].pop("total_files_byte_size", None)
         response = self.client.post("/rest/v2/datasets?draft", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         return response.data["id"]
@@ -812,6 +813,26 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
             True,
             response.data,
         )
+
+    def test_total_files_byte_size_is_updated_after_adding_files(self):
+        # create a draft dataset with zero files
+        cr_id = self._create_draft()
+        response = self.client.get(f"/rest/v2/datasets/{cr_id}")
+        cr_id = response.data["id"]
+        self.assertEqual(response.data.get("total_files_byte_size"), None)
+
+        # add file to dataset
+        file_changes = {}
+
+        self._add_file(file_changes, "/TestExperiment/Directory_1/Group_1/file_01.txt")
+        response = self.client.post(
+            f"/rest/v2/datasets/{cr_id}/files", file_changes, format="json"
+        )
+        self.assertEqual(response.data.get("files_added"), 1, response.data)
+        self.assert_file_count(cr_id, 1)
+
+        response = self.client.get(f"/rest/v2/datasets/{cr_id}")
+        self.assert_total_files_byte_size(response.data, 100)
 
 
 class CatalogRecordUserMetadata(CatalogRecordApiWriteAssignFilesCommonV2):

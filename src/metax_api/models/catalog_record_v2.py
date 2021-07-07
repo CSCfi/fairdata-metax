@@ -10,7 +10,7 @@ from collections import defaultdict
 from copy import deepcopy
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Sum
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403
@@ -573,6 +573,14 @@ class CatalogRecordV2(CatalogRecord):
 
         else:
             self.update_datacite = False
+
+    def _calculate_total_files_byte_size(self):
+        rd = self.research_dataset
+        rd["total_files_byte_size"] = 0
+        if self.files.count() > 0:
+            rd["total_files_byte_size"] = (
+                self.files.aggregate(Sum("byte_size"))["byte_size__sum"] or 0
+            )
 
     def _update_dataset_specific_metadata(self, file_changes, operation_is_create=False):
         """
