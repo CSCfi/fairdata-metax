@@ -298,7 +298,7 @@ https = ["urllib3[secure] (>=1.24.1)"]
 
 [[package]]
 name = "elasticsearch"
-version = "7.13.2"
+version = "7.13.3"
 description = "Python client for Elasticsearch"
 category = "main"
 optional = false
@@ -1297,8 +1297,8 @@ dulwich = [
     {file = "dulwich-0.19.16.tar.gz", hash = "sha256:f74561c448bfb6f04c07de731c1181ae4280017f759b0bb04fa5770aa84ca850"},
 ]
 elasticsearch = [
-    {file = "elasticsearch-7.13.2-py2.py3-none-any.whl", hash = "sha256:583459eaa864d0e4c11b4e0314569999fa780748856bfaeb8d714fc9243c26a2"},
-    {file = "elasticsearch-7.13.2.tar.gz", hash = "sha256:fd8b3a267da279ae78f7923c549d488403cdbf83a98299bb130feb832d014b8f"},
+    {file = "elasticsearch-7.13.3-py2.py3-none-any.whl", hash = "sha256:76cc7670449676138acbab8872eb34867db033701310d9b01fb2ecfba5fb7234"},
+    {file = "elasticsearch-7.13.3.tar.gz", hash = "sha256:d539d82552804b3d41033377b9adf11c39c749ee1764af3d74b56f42177e3281"},
 ]
 executing = [
     {file = "executing-0.7.0-py2.py3-none-any.whl", hash = "sha256:1971c98963857f2c03f4b688d93fc4b28ce756bd102955ea8ea7ce0a7fd9a28f"},
