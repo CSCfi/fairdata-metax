@@ -60,7 +60,7 @@ An URL of the form https://__METAX_ENV_DOMAIN__/rest/datasets (no API version sp
 API Authentication
 -------------------
 
-Basic Authentication and Bearer Tokens are used for access control for certain APIs. Basic Authentication credentials are distributed only to known Fairdata services. End Users are able to utilize Bearer tokens in order to interact with certain APIs. Read more about End User authentication and token use at :ref:`rst-end-user-authentication`.
+Basic Authentication and Bearer Tokens are used for access control for certain APIs. Basic Authentication credentials are distributed only to known Fairdata services. End Users are able to utilize Bearer tokens in order to interact with certain APIs. Read more about End User authentication and token use at :ref:`rst-end-user-authentication-v2`.
 
 Write operations (``POST``, ``PUT``, ``PATCH``, ``DELETE``) always require authentication. Some APIs require no authentication when reading (``GET`` operations), while others do. Authentication-related errors will result in a HTTP 401 or 403 error.
 

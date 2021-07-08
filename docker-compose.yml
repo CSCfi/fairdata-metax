@@ -61,6 +61,16 @@ services:
         target: /usr/local/apache2/conf/extra/httpd-metax.conf
     hostname: metax-auth
 
+  metax-docs:
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-sphinx
+    hostname: metax-docs
+    environment:
+      DOMAIN: metax.fd-dev.csc.fi
+    ports:
+      - 8088:8000
+    volumes:
+      - ./docs/api:/sphinx
+
   fairdata-nginx:
     image: nginx:latest
     configs:

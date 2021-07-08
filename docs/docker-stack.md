@@ -48,13 +48,13 @@ To change existing configuration in metax-web container:
 
 ## Building related images
 
-Docker image for metax-web can be built with the following command:
+Docker images needed in the development can be built with the following commands:
 
 `docker build -t fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-web .`
 
-Image for metax-httpd can be build with:
-
 `docker build -t fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-httpd -f httpd.dockerfile .`
+
+`docker build -t fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-sphinx -f sphinx.dockerfile .`
 
 ## Pushing images to Artifactory
 
@@ -62,11 +62,13 @@ Ensure that you are logged in to Artifactory:
 
 `docker login fairdata-docker.artifactory.ci.csc.fi`
 
-Push commands for metax-web and metax-httpd respectively:
+Push commands for docker images:
 
 `docker push fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-web`
 
 `docker push fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-httpd`
+
+`docker push fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-sphinx`
 
 ## Running Metax management commands
 
@@ -74,3 +76,7 @@ To run Metax management commands, locate the running metax-dev_metax-web contain
 and open terminal inside it with:
 
 `docker exec -it <container-name> bash`
+
+## Developing API documentation
+
+The stack also contains a Sphinx autobuild server for documentation development. More specific instructions can be found from [here](api/README.md).

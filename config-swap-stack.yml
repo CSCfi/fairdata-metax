@@ -51,6 +51,16 @@ services:
     volumes:
       - metax-rabbitmq:/var/lib/rabbitmq
 
+  metax-docs:
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-sphinx
+    hostname: metax-docs
+    environment:
+      DOMAIN: 0.0.0.0:8008
+    ports:
+      - 8088:8000
+    volumes:
+      - ./docs/api:/sphinx
+
 volumes:
   metax-rabbitmq:
     external: true

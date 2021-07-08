@@ -12,7 +12,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -28,6 +28,9 @@ version = ""
 # The full version, including alpha/beta/rc tags
 release = ""
 
+domain = os.getenv("DOMAIN", "metax.fairdata.fi")
+branch = os.getenv("BRANCH", "master")
+etsin_url = os.getenv("ETSIN_URL", "etsin.fairdata.fi")
 
 # -- General configuration ---------------------------------------------------
 
@@ -67,6 +70,11 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
+replacements = {
+    "__METAX_ENV_DOMAIN__": f"{domain}",
+    "__METAX_ENV_BRANCH__": f"{branch}",
+    "__ETSIN_ENV_BASE_URL__": f"{etsin_url}"
+}
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -167,6 +175,13 @@ texinfo_documents = [
     ),
 ]
 
+# from https://github.com/sphinx-doc/sphinx/issues/4054
+def replace(app, docname, source):
+    for key, value in app.config.replacements.items():
+        source[0] = source[0].replace(key, value)
+
 
 def setup(app):
-    app.add_stylesheet("custom.css")
+    app.add_config_value('replacements', {}, True)
+    app.connect('source-read', replace)
+    app.add_css_file("custom.css")

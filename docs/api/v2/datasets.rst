@@ -22,7 +22,7 @@ Data model visualization
 
 The dataset data model visualization can be seen here https://tietomallit.suomi.fi/model/mrd. The data model visualization is very helpful to keep open when creating dataset metadata descriptions, as it shows all the different possible fields and relations, which can be used, which fields are mandatory, and so on.
 
-Additionally, the chosen data catalog may have some additional restrictions to the schema, such as reduced relations, or reduced mandatory fields. Read more about data catalogs and their implications here :ref:`rst-data-catalogs`.
+Additionally, the chosen data catalog may have some additional restrictions to the schema, such as reduced relations, or reduced mandatory fields. Read more about data catalogs and their implications here :ref:`rst-data-catalogs-v2`.
 
 
 
@@ -80,7 +80,7 @@ Preferred identifier is the "public" identifier of a dataset. When referring to 
 When a user has added some files to a dataset, the user can choose to write additional descriptions to those files. The files already include various automatically generated technical metadata, such as byte sizes, mime types, checksum values and algorithms and such, but any extra metadata that the user wishes to enter about some file is called "user metadata".
 
 
-.. _rst-data-catalogs:
+.. _rst-data-catalogs-v2:
 
 Data Catalogs
 ^^^^^^^^^^^^^^
@@ -160,7 +160,7 @@ When creating a new dataset and wishing to use for example the ATT catalog, the 
     assert response.status_code == 201, response.content
 
 
-For more involving examples, see the :ref:`rst-dataset-examples` section for datasets.
+For more involving examples, see the :ref:`examples<rst-dataset-examples-v2>` section for datasets.
 
 
 
@@ -174,7 +174,7 @@ Dataset lifecycle in Metax
     * The dataset can be premanently deleted at any time by the user.
 2) A dataset is published. When the dataset is published:
     * The dataset's metadata descriptions can still be updated at any time.
-    * Files can no longer be freely added or removed (a couple of exceptions remain, see :ref:`rst-dataset-versioning`).
+    * Files can no longer be freely added or removed (a couple of exceptions remain, see :ref:`rst-dataset-versioning-v2`).
     * The dataset becomes publicly findable (any selected access restrictions, such as embargo, applies).
     * Dataset receives permanent resolvable identifiers.
     * Dataset can no longer be premanently deleted. A tombstone page will remain after deletion.
@@ -231,7 +231,7 @@ If the requested resource has not been modified after the date specified in the 
 
 
 
-.. _rst-dataset-versioning:
+.. _rst-dataset-versioning-v2:
 
 Dataset versioning
 -------------------
@@ -360,7 +360,7 @@ If you want to use an existing dataset as a template for a new dataset, you can 
 
 
 
-.. _rst-datasets-reference-data:
+.. _rst-datasets-reference-data-v2:
 
 Reference data guide
 ---------------------
@@ -419,7 +419,7 @@ All this needs to be taken into account when looking which reference data to use
 
 
 
-.. _rst-datasets-reference-data-table:
+.. _rst-datasets-reference-data-table-v2:
 
 Reference data table
 ^^^^^^^^^^^^^^^^^^^^^
@@ -434,7 +434,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
 
 .. note::
 
-    Below reference data urls contain the ``?pretty=true`` parameter, which formats the output into a more readable form. The default page only shows a few results, so be sure to check out :ref:`rst-reference-data-query-examples` for more examples how to browse reference data in general.
+    Below reference data urls contain the ``?pretty=true`` parameter, which formats the output into a more readable form. The default page only shows a few results, so be sure to check out :ref:`rst-reference-data-query-examples-v2` for more examples how to browse reference data in general.
 
 
 .. code-block:: python
@@ -535,7 +535,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
         }
         # ... other fields
 
-    More information about updating a dataset can be found in :ref:`Update examples<rst-dataset-examples-update>`.
+    More information about updating a dataset can be found in :ref:`Update examples<rst-dataset-examples-v2>`.
 
 
     **Changing license**
@@ -555,7 +555,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
         }
         # ... other fields
 
-    Please refer to :ref:`Update examples<rst-dataset-examples-update>` for more information about update process.
+    Please refer to :ref:`Update examples<rst-dataset-examples-v2>` for more information about update process.
 
     .. note:: Changing the license for REMS managed dataset closes all existing download accesses to the dataset.
 
@@ -572,7 +572,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
         }
 
 
-.. _rst-dataset-examples:
+.. _rst-dataset-examples-v2:
 
 Examples
 ---------
@@ -1410,7 +1410,7 @@ In addition to above, individual files can be retrieved in the following manner:
     assert response.status_code == 200, response.content
 
 
-The second way is by using the same API as is used to generally browse the files of a project (see :ref:`rst-browsing-files`). Browsing the files of a dataset works the same way, except that an additional query parameter ``cr_identifier=<dataset_identifer>`` should be provided, in order to retrieve only those files and directories, which are included in the specified dataset.
+The second way is by using the same API as is used to generally browse the files of a project (see :ref:`rst-browsing-files-v2`). Browsing the files of a dataset works the same way, except that an additional query parameter ``cr_identifier=<dataset_identifer>`` should be provided, in order to retrieve only those files and directories, which are included in the specified dataset.
 
 Example:
 
@@ -1446,14 +1446,14 @@ Using reference data
 
 Modifying ``research_dataset`` to contain data that depends on reference data.
 
-Be sure to also check out :ref:`rst-reference-data-query-examples` for useful examples how to browse reference data in general.
+Be sure to also check out :ref:`rst-reference-data-query-examples-v2` for useful examples how to browse reference data in general.
 
 
 
 Add a directory
 ~~~~~~~~~~~~~~~~
 
-Below example assumes an existing bare minimum draft dataset, to which some files have already been added. This example adds some user metadata to that directory. The directory-object has a mandatory field called ``use_category``, which requires using a value from reference data in its ``identifier`` field. In the dataset reference data table on this same page(:ref:`rst-datasets-reference-data-table`), we should be able to find this row:
+Below example assumes an existing bare minimum draft dataset, to which some files have already been added. This example adds some user metadata to that directory. The directory-object has a mandatory field called ``use_category``, which requires using a value from reference data in its ``identifier`` field. In the dataset reference data table on this same page(:ref:`rst-datasets-reference-data-table-v2`), we should be able to find this row:
 
 
 .. code-block:: python
