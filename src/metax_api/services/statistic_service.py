@@ -6,7 +6,7 @@
 # :license: MIT
 
 import logging
-
+from collections import OrderedDict
 from django.conf import settings
 from django.db import connection
 from django.db.models import Count, Sum
@@ -611,12 +611,16 @@ class StatisticService:
         return file_stats
 
     @classmethod
-    def count_files(cls, projects):
+    def count_files(cls, projects, removed=None):
+        kwargs = OrderedDict()
         file_query = File.objects_unfiltered.filter()
 
+        kwargs['project_identifier__in'] = projects
+        kwargs['record__state'] = "published"
+        if removed is not None:
+            kwargs['removed'] = removed
         # "record" is defined for CatalogRecord to enable lookups from Files to CatalogRecord
-        file_query = file_query.filter(project_identifier__in=projects) \
-                               .filter(record__state="published") \
+        file_query = file_query.filter(**kwargs) \
                                .values("id", "byte_size") \
                                .distinct()
 
