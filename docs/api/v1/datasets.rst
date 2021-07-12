@@ -538,7 +538,7 @@ It helps to have the `research_dataset data model visualization <https://tietoma
     A special note for the relations ``contributor_type`` and ``contributor_role``. In ``ResearchAgent`` relations of type ``Organization``, only the relation ``contributor_type`` can be used. For same relations where type ``Person`` is being used instead, both ``contributor_type`` and ``contributor_role`` can be used. This is also communicated in the schema, but since persons and organizations can often be used in place of each other, this small difference can slip unnoticed! There are other differences in the schema as well of course, but this can be less obvious.
 
 
-.. only:: local_development or test
+.. ifconfig:: rems_enabled == 'true'
 
     Using REMS
     -----------

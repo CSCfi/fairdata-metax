@@ -31,6 +31,7 @@ release = ""
 domain = os.getenv("DOMAIN", "metax.fairdata.fi")
 branch = os.getenv("BRANCH", "master")
 etsin_url = os.getenv("ETSIN_URL", "etsin.fairdata.fi")
+rems_enabled = os.getenv("REMS_ENABLED", 'false')
 
 # -- General configuration ---------------------------------------------------
 
@@ -41,7 +42,7 @@ etsin_url = os.getenv("ETSIN_URL", "etsin.fairdata.fi")
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = ['sphinx.ext.ifconfig']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -183,5 +184,6 @@ def replace(app, docname, source):
 
 def setup(app):
     app.add_config_value('replacements', {}, True)
+    app.add_config_value('rems_enabled', 'false', 'env')
     app.connect('source-read', replace)
     app.add_css_file("custom.css")

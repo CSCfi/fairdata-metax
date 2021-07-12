@@ -56,6 +56,7 @@ services:
     hostname: metax-docs
     environment:
       DOMAIN: 0.0.0.0:8008
+      REMS_ENABLED: 'true'
     ports:
       - 8088:8000
     volumes:
