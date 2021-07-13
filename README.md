@@ -57,7 +57,11 @@ run the tests with command `DJANGO_ENV=unittests python manage.py test --paralle
 
 ### Running coverage (Docker)
 
-`docker exec -it -e DJANGO_ENV=unittests $(docker ps -q -f name="metax-web*") coverage run manage.py test --parallel`
+Collect data: `docker exec -it -e DJANGO_ENV=unittests $(docker ps -q -f name="metax-web*") coverage run manage.py test --parallel`
+
+Combine it: `docker exec -it $(docker ps -q -f name="metax-web*") coverage combine`
+
+Report: `docker exec -it $(docker ps -q -f name="metax-web*") coverage report`
 
 ### Generating coverage report
 

@@ -12,6 +12,7 @@ omit =
     metax_api/onappstart.py
 branch = True
 concurrency = multiprocessing
+data_file = coverage_data/coverage.db
 
 [report]
 exclude_lines =
