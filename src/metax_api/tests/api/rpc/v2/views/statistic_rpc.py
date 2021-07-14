@@ -9,10 +9,12 @@ from copy import deepcopy
 
 from django.conf import settings
 from django.core.management import call_command
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import CatalogRecord, DataCatalog
+from metax_api.models import CatalogRecord, DataCatalog, File
 from metax_api.models.catalog_record import ACCESS_TYPES
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import TestClassUtils, test_data_file_path

@@ -618,7 +618,7 @@ class StatisticService:
         kwargs['project_identifier__in'] = projects
         kwargs['record__state'] = "published"
         if removed is not None:
-            kwargs['removed'] = removed
+            kwargs['removed'] = False if removed == 'false' else True
         # "record" is defined for CatalogRecord to enable lookups from Files to CatalogRecord
         file_query = file_query.filter(**kwargs) \
                                .values("id", "byte_size") \
