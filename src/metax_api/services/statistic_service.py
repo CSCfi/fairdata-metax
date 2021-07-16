@@ -613,7 +613,7 @@ class StatisticService:
     @classmethod
     def count_files(cls, projects, removed=None):
         kwargs = OrderedDict()
-        file_query = File.objects_unfiltered.filter()
+        file_query = File.objects_unfiltered.all()
 
         kwargs['project_identifier__in'] = projects
         kwargs['record__state'] = "published"
