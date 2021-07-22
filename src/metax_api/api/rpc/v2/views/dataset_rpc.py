@@ -7,6 +7,7 @@
 
 import logging
 
+from django.db import DatabaseError, transaction
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
@@ -71,15 +72,18 @@ class DatasetRPC(DatasetRPC):
 
     @action(detail=False, methods=["post"], url_path="create_draft")
     def create_draft(self, request):
+        try:
+            with transaction.atomic():
+                cr = self.get_object()
 
-        cr = self.get_object()
+                cr.create_draft()
 
-        cr.create_draft()
-
-        return Response(
-            data={"id": cr.next_draft.id, "identifier": cr.next_draft.identifier},
-            status=status.HTTP_201_CREATED,
-        )
+                return Response(
+                    data={"id": cr.next_draft.id, "identifier": cr.next_draft.identifier},
+                    status=status.HTTP_201_CREATED,
+                )
+        except DatabaseError:
+            return Response({'error': 'Failed to create draft'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["post"], url_path="create_new_version")
     def create_new_version(self, request):
@@ -98,15 +102,18 @@ class DatasetRPC(DatasetRPC):
 
     @action(detail=False, methods=["post"], url_path="publish_dataset")
     def publish_dataset(self, request):
+        try:
+            with transaction.atomic():
+                cr = self.get_object()
 
-        cr = self.get_object()
+                cr.publish_dataset()
 
-        cr.publish_dataset()
-
-        return Response(
-            data={"preferred_identifier": cr.preferred_identifier},
-            status=status.HTTP_200_OK,
-        )
+                return Response(
+                    data={"preferred_identifier": cr.preferred_identifier},
+                    status=status.HTTP_200_OK,
+                )
+        except DatabaseError:
+            return Response({'error': 'Failed to publish dataset'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["post"], url_path="merge_draft")
     def merge_draft(self, request):
