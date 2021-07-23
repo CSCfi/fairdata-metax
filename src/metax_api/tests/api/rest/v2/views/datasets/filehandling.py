@@ -818,7 +818,7 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         cr_id = self._create_draft()
         response = self.client.get(f"/rest/v2/datasets/{cr_id}")
         cr_id = response.data["id"]
-        self.assertEqual(response.data.get("total_files_byte_size"), None)
+        self.assertEqual(response.data.get("research_dataset").get("total_files_byte_size"), None)
 
         # add file to dataset
         file_changes = {}
