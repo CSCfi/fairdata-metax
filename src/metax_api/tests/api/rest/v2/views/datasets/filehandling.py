@@ -469,7 +469,6 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
     def _create_draft(self):
         self.cr_test_data["research_dataset"].pop("files", None)
         self.cr_test_data["research_dataset"].pop("directories", None)
-        self.cr_test_data["research_dataset"].pop("total_files_byte_size", None)
         response = self.client.post("/rest/v2/datasets?draft", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         return response.data["id"]
@@ -830,9 +829,21 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         )
         self.assertEqual(response.data.get("files_added"), 1, response.data)
         self.assert_file_count(cr_id, 1)
-
         response = self.client.get(f"/rest/v2/datasets/{cr_id}")
         self.assert_total_files_byte_size(response.data, 100)
+
+    def test_total_files_byte_size_field_is_dropped_from_drafts_with_no_files(self):
+        # draft with no files/dirs does not have total_files_byte_size field
+        cr_id = self._create_draft()
+        response = self.client.get(f"/rest/v2/datasets/{cr_id}")
+        self.assertEqual(response.data.get("research_dataset").get("total_files_byte_size"), None)
+
+    def test_total_files_byte_size_field_is_dropped_from_datasets_with_no_files(self):
+        # dataset with no files/dirs does not have total_files_byte_size field
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        cr_id = response.data["id"]
+        response = self.client.get(f"/rest/v2/datasets/{cr_id}")
+        self.assertEqual(response.data.get("research_dataset").get("total_files_byte_size"), None)
 
 
 class CatalogRecordUserMetadata(CatalogRecordApiWriteAssignFilesCommonV2):
