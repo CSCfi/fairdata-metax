@@ -31,7 +31,6 @@ release = ""
 domain = os.getenv("DOMAIN", "metax.fairdata.fi")
 branch = os.getenv("BRANCH", "master")
 etsin_url = os.getenv("ETSIN_URL", "etsin.fairdata.fi")
-rems_enabled = os.getenv("REMS_ENABLED", 'false')
 
 # -- General configuration ---------------------------------------------------
 
@@ -75,6 +74,10 @@ replacements = {
     "__METAX_ENV_DOMAIN__": f"{domain}",
     "__METAX_ENV_BRANCH__": f"{branch}",
     "__ETSIN_ENV_BASE_URL__": f"{etsin_url}"
+}
+
+tags = {
+    'rems_enabled': os.getenv("REMS_ENABLED", 'false')
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -181,9 +184,13 @@ def replace(app, docname, source):
     for key, value in app.config.replacements.items():
         source[0] = source[0].replace(key, value)
 
+def add_tags(app):
+    for key, value in app.config.tags.items():
+        if value:
+            app.tags.add(key)
 
 def setup(app):
     app.add_config_value('replacements', {}, True)
-    app.add_config_value('rems_enabled', 'false', 'env')
+    add_tags(app)
     app.connect('source-read', replace)
     app.add_css_file("custom.css")
