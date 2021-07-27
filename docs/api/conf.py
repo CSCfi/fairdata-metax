@@ -76,7 +76,7 @@ replacements = {
 }
 
 tags = {
-    'rems_enabled': os.getenv("REMS_ENABLED", False)
+    'rems_enabled': os.getenv("REMS_ENABLED", 'False')
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -185,7 +185,7 @@ def replace(app, docname, source):
 
 def add_tags(app):
     for key, value in tags.items():
-        if value:
+        if value.lower() in ('true'):
             app.tags.add(key)
 
 def setup(app):
