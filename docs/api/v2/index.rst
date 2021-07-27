@@ -9,7 +9,7 @@ Metax API V2 Documentation
 ==========================
 
 .. toctree::
-   :numbered:
+   :titlesonly:
    :maxdepth: 5
    :caption: Contents:
 

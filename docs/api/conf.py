@@ -185,7 +185,7 @@ def replace(app, docname, source):
         source[0] = source[0].replace(key, value)
 
 def add_tags(app):
-    for key, value in app.config.tags.items():
+    for key, value in tags.items():
         if value:
             app.tags.add(key)
 
