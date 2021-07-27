@@ -254,18 +254,6 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
             file_byte_size_before, file_size_after, self._single_file_byte_size * 2
         )
 
-        # freeze two files to /TestExperiment/Directory_2/Group_3
-        self._freeze_new_files()
-        response = self.client.post(self.url % (new_version.identifier, dir_id), format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data["number_of_files_added"], 2)
-
-        new_version = CatalogRecord.objects.get(id=response.data["new_version_created"]["id"])
-        self.assertEqual(
-            new_version.files.count(),
-            new_version.previous_dataset_version.files.count() + 2,
-        )
-
     def test_adding_parent_dir_allows_refreshes_to_child_dirs(self):
         """
         When parent directory is added to dataset, refreshes to child directories are also possible.
@@ -398,12 +386,9 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
         response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         cr_id = response.data["identifier"]
-
-        # create another dataset so that dir /SecondExperiment/Data_Config will be created
-        self._add_directory(self.cr_test_data, "/SecondExperiment/Data_Config")
-        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        dir_id = response.data["research_dataset"]["directories"][1]["identifier"]
+        dir_id = Directory.objects.filter(
+            directory_path="/SecondExperiment/Data_Config"
+        ).first().identifier
 
         response = self.client.post(self.url % (cr_id, dir_id), format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
