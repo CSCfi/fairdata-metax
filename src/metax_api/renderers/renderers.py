@@ -21,6 +21,11 @@ class HTMLToJSONRenderer(renderers.JSONRenderer):
     media_type = "text/html"
     charset = "utf-8"
 
+    def render(self, data, media_type=None, renderer_context=None):
+        rendered_data = super().render(data, media_type, renderer_context)
+        renderer_context['response']['Content-Type'] = "application/json; charset=utf-8"
+        return rendered_data
+
 
 class XMLRenderer(renderers.BaseRenderer):
 
