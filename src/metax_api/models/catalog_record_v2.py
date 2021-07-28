@@ -105,6 +105,9 @@ class CatalogRecordV2(CatalogRecord):
         self.research_dataset["metadata_version_identifier"] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
 
+        if not ("files" in self.research_dataset or "directories" in self.research_dataset) and "total_files_byte_size" in self.research_dataset:
+            self.research_dataset.pop("total_files_byte_size")
+
         if not self._save_as_draft():
             self._generate_issued_date()
 

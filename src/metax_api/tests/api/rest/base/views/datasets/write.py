@@ -3324,6 +3324,15 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
             "there should be no new datasets",
         )
 
+    def test_total_files_byte_size_field_is_dropped_from_datasets_with_no_files(self):
+        # dataset with no files/dirs does not have total_files_byte_size field
+        self.cr_test_data["research_dataset"].pop("files", None)
+        self.cr_test_data["research_dataset"].pop("directories", None)
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        cr_id = response.data["id"]
+        response = self.client.get(f"/rest/datasets/{cr_id}")
+        self.assertEqual(response.data.get("research_dataset").get("total_files_byte_size"), None)
+
     def test_adding_files_to_cumulative_dataset_creates_no_new_versions(self):
         """
         Tests the basic idea of cumulative dataset: add files with no new version

@@ -1445,6 +1445,9 @@ class CatalogRecord(Common):
         if "remote_resources" in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
+        if not ("files" in self.research_dataset or "directories" in self.research_dataset) and "total_files_byte_size" in self.research_dataset:
+            self.research_dataset.pop("total_files_byte_size")
+
         if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
             raise Http400("Cannot create cumulative dataset with state closed")
 
