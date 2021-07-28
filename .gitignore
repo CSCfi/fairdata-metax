@@ -6,6 +6,7 @@
 /src/__pycache__/*
 /src/static/*
 /src/.coverage
+/src/coverage_data
 /swagger/*index.html
 /swagger/*/index.html
 .idea/
@@ -34,5 +35,3 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 pytestdebug.log
-
-venv
