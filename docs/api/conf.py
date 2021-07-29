@@ -41,7 +41,6 @@ etsin_url = os.getenv("ETSIN_URL", "etsin.fairdata.fi")
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -74,6 +73,10 @@ replacements = {
     "__METAX_ENV_DOMAIN__": f"{domain}",
     "__METAX_ENV_BRANCH__": f"{branch}",
     "__ETSIN_ENV_BASE_URL__": f"{etsin_url}"
+}
+
+tags = {
+    'rems_enabled': os.getenv("REMS_ENABLED", 'False')
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -180,8 +183,13 @@ def replace(app, docname, source):
     for key, value in app.config.replacements.items():
         source[0] = source[0].replace(key, value)
 
+def add_tags(app):
+    for key, value in tags.items():
+        if value.lower() in ('true'):
+            app.tags.add(key)
 
 def setup(app):
     app.add_config_value('replacements', {}, True)
+    add_tags(app)
     app.connect('source-read', replace)
     app.add_css_file("custom.css")
