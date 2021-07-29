@@ -87,18 +87,21 @@ class DatasetRPC(DatasetRPC):
 
     @action(detail=False, methods=["post"], url_path="create_new_version")
     def create_new_version(self, request):
+        try:
+            with transaction.atomic():
+                cr = self.get_object()
 
-        cr = self.get_object()
+                cr.create_new_version()
 
-        cr.create_new_version()
-
-        return Response(
-            data={
-                "id": cr.next_dataset_version.id,
-                "identifier": cr.next_dataset_version.identifier,
-            },
-            status=status.HTTP_201_CREATED,
-        )
+                return Response(
+                    data={
+                        "id": cr.next_dataset_version.id,
+                        "identifier": cr.next_dataset_version.identifier,
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+        except DatabaseError:
+            return Response({'error': 'Failed to create a new version'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["post"], url_path="publish_dataset")
     def publish_dataset(self, request):
