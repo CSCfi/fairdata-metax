@@ -48,34 +48,35 @@ class ApiErrorViewSetV2(CommonViewSet):
         Delete a single error from database.
         """
         _logger.info("DELETE %s called by %s" % (request.META["PATH_INFO"], request.user.username))
+
+        pk = kwargs["pk"]
+        error: ApiError
         try:
-            error = ApiError.objects.get(pk=kwargs["pk"])
+            error = ApiError.objects.filter(pk=int(pk)).first()
+        except ValueError:
+            error = ApiError.objects.filter(identifier=pk).first()
+
+        if error:
             error.delete()
             return Response(status=204)
-        except:
-            pass
-        try:
-            error = ApiError.objects.get(identifier=kwargs["pk"])
-            error.delete()
-            return Response(status=204)
-        except:
+        else:
             raise Http404
 
     def retrieve(self, request, *args, **kwargs):
         """
         Retrieve complete data about a single error.
         """
+        pk = kwargs["pk"]
+        error: ApiError
         try:
-            error_details = ApiError.objects.get(pk=kwargs["pk"])
-            serializer = ApiErrorSerializerV2(error_details)
+            error = ApiError.objects.filter(pk=int(pk)).first()
+        except ValueError:
+            error = ApiError.objects.filter(identifier=pk).first()
+
+        if error:
+            serializer = ApiErrorSerializerV2(error)
             return Response(data=serializer.data, status=200)
-        except:
-            pass
-        try:
-            error_details = ApiError.objects.get(identifier=kwargs["pk"])
-            serializer = ApiErrorSerializerV2(error_details)
-            return Response(data=serializer.data, status=200)
-        except:
+        else:
             raise Http404
 
     def list(self, request, *args, **kwargs):
