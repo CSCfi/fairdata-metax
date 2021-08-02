@@ -586,7 +586,7 @@ When services accounts interact with Metax, services have the additional respons
 Retrieve minimal valid dataset template
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The API ``GET /rpc/datasets/get_minimal_dataset_template`` returns a valid minimal dataset, that can be used as-is to create a dataset into Metax.
+The API ``GET /rpc/datasets/get_minimal_dataset_template`` returns a valid minimal dataset, that can be used as-is to create a dataset into Metax. PAS template can be fetched with type ``enduser_pas``.
 
 
 .. code-block:: python

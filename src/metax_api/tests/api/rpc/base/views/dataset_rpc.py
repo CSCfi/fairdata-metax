@@ -65,6 +65,29 @@ class DatasetRPCTests(APITestCase, TestClassUtils):
         response = self.client.post("/rest/datasets", response.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+        # test minimal dataset for PAS service use
+        response = self.client.get("/rpc/datasets/get_minimal_dataset_template?type=service_pas")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue("metadata_provider_org" in response.data)
+        self.assertTrue("metadata_provider_user" in response.data)
+        self.assertEqual(response.data["research_dataset"]["issued"], "2019-01-01")
+        self.assertEqual(response.data["research_dataset"]["publisher"], response.data["research_dataset"]["creator"][0])
+        self._use_http_authorization(username="testuser")
+        response = self.client.post("/rest/datasets", response.data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # test minimal dataset for PAS end user use
+        response = self.client.get("/rpc/datasets/get_minimal_dataset_template?type=enduser_pas")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue("metadata_provider_org" not in response.data)
+        self.assertTrue("metadata_provider_user" not in response.data)
+        self.assertEqual(response.data["research_dataset"]["issued"], "2019-01-01")
+        self.assertEqual(response.data["research_dataset"]["publisher"], response.data["research_dataset"]["creator"][0])
+        self._use_http_authorization(method="bearer", token=get_test_oidc_token())
+        self._mock_token_validation_succeeds()
+        response = self.client.post("/rest/datasets", response.data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_set_preservation_identifier(self):
         self._set_http_authorization("service")
 
