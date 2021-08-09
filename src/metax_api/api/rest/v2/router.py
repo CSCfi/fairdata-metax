@@ -24,13 +24,13 @@ from rest_framework.routers import Route
 
 from metax_api.api.rest.base import CustomRouter
 from metax_api.api.rest.base.views import (
-    ApiErrorViewSet,
     ContractViewSet,
     DirectoryViewSet,
     FileStorageViewSet,
     FileViewSet,
     SchemaViewSet,
 )
+from metax_api.api.rest.v2.views import ApiErrorViewSetV2
 
 from .views import DataCatalogViewSet, DatasetViewSet
 
@@ -93,7 +93,6 @@ class CustomRouterV2(CustomRouter):
 # v2 urls, but using v1 view classes, because nothing changes
 
 router_v1 = CustomRouter(trailing_slash=False)
-router_v1.register(r"apierrors/?", ApiErrorViewSet)
 router_v1.register(r"contracts/?", ContractViewSet)
 router_v1.register(r"directories/?", DirectoryViewSet)
 router_v1.register(r"files/?", FileViewSet)
@@ -103,6 +102,7 @@ router_v1.register(r"schemas/?", SchemaViewSet)
 # v2 urls, using v2 view classes with changes
 
 router_v2 = CustomRouterV2(trailing_slash=False)
+router_v2.register(r"apierrors/?", ApiErrorViewSetV2)
 router_v2.register(r"datasets/?", DatasetViewSet)
 router_v2.register(r"datacatalogs/?", DataCatalogViewSet)
 router_v2.register(

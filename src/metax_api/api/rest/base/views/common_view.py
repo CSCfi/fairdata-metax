@@ -16,12 +16,13 @@ from rest_framework.response import Response
 from rest_framework.views import set_rollback
 from rest_framework.viewsets import ModelViewSet
 
+from metax_api.api.rest.v2.serializers import ApiErrorSerializerV2
 from metax_api.exceptions import Http400, Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
 from metax_api.services import (
-    ApiErrorService,
     CallableService,
     CommonService as CS,
+    RabbitMQService as rabbitmq,
     RedisCacheService,
 )
 
@@ -137,7 +138,12 @@ class CommonViewSet(ModelViewSet):
             )
 
         if type(exc) not in (Http403, Http404, PermissionDenied, MethodNotAllowed):
-            ApiErrorService.store_error_details(self.request, response, exc)
+            try:
+                error_json = ApiErrorSerializerV2.request_to_json(self.request, response)
+                response.data["error_identifier"] = error_json["identifier"]
+                rabbitmq.publish(error_json, exchange="apierrors")
+            except Exception as e:
+                _logger.error(f"could not send api error to rabbitmq. Error: {e}")
 
         return response
 
@@ -355,7 +361,12 @@ class CommonViewSet(ModelViewSet):
         and save data if necessary.
         """
         if "failed" in response.data and len(response.data["failed"]):
-            ApiErrorService.store_error_details(request, response, other={"bulk_request": True})
+            try:
+                error_json = ApiErrorSerializerV2.request_to_json(self.request, response, other={"bulk_request": True})
+                response.data["error_identifier"] = error_json["identifier"]
+                rabbitmq.publish(error_json, exchange="apierrors")
+            except Exception as e:
+                _logger.error(f"could not send api error to rabbitmq. Error: {e}")
 
     def get_api_name(self):
         """

@@ -9,12 +9,14 @@ RABBITMQ = {
         {
             "NAME": "datasets",
             "TYPE": "direct",
+            "EXC_TYPE": "dataset",
             # make rabbitmq remember queues after restarts
             "DURABLE": True,
         },
         {
             "NAME": "TTV-datasets",
             "TYPE": "fanout",
+            "EXC_TYPE": "dataset",
             "DURABLE": True,
             "QUEUES": [
                 {
@@ -23,6 +25,17 @@ RABBITMQ = {
                 }
             ],
         },
+        {
+            "NAME": "apierrors",
+            "TYPE": "fanout",
+            "EXC_TYPE": "other",
+            "DURABLE": True,
+            "QUEUES": [
+                {
+                    "NAME": "metax-apierrors"
+                }
+            ]
+        }
     ],
 }
 RABBIT_MQ_USE_VHOST = env("RABBIT_MQ_USE_VHOST")
