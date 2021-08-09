@@ -11,6 +11,7 @@ from .catalog_record_v2 import CatalogRecordV2
 from .common import Common
 from .contract import Contract
 from .data_catalog import DataCatalog
+from .deleted_object import DeletedObject
 from .directory import Directory
 from .file import File
 from .file_storage import FileStorage

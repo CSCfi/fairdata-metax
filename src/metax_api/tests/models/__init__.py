@@ -14,3 +14,4 @@ from .common import *
 from .data_catalog import DataCatalogModelTests
 from .directory import DirectoryModelTests
 from .file import FileModelBasicTest, FileManagerTests
+from .signals import SignalTests

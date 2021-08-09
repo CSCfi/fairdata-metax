@@ -91,5 +91,8 @@ class File(Common):
             self.file_path,
         )
 
-    def delete(self):
-        super(File, self).remove()
+    def delete(self, *args, **kwargs):
+        if kwargs.get("hard"):
+            super().delete()
+        else:
+            super(File, self).remove()
