@@ -1155,6 +1155,10 @@ class CatalogRecord(Common):
         )
 
     def delete(self, *args, **kwargs):
+        if kwargs.get("hard"):
+            super().delete()
+            return self.id
+
         if self.state == self.STATE_DRAFT:
             _logger.info("Deleting draft dataset %s permanently" % self.identifier)
 

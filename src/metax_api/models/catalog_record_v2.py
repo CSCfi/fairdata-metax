@@ -83,6 +83,10 @@ class CatalogRecordV2(CatalogRecord):
             self._post_update_operations()
 
     def delete(self, *args, **kwargs):
+        if kwargs.get("hard"):
+            super().delete(*args, **kwargs)
+            return self.id
+
         if self.next_draft:
             self.next_draft.delete()
             self.next_draft = None
