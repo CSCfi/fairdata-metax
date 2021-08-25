@@ -141,7 +141,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         """
         state_filter = None
 
-        if request.user.username is None:  # unauthenticated user
+        if request.user.username == "":  # unauthenticated user
             state_filter = Q(state="published")
         elif request.user.is_service:  # service account
             pass

@@ -75,6 +75,15 @@ class ApiServiceAccessAuthorization(CatalogRecordApiWriteCommon):
         response = self.client.delete("/rest/files/1")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_published(self):
+        """
+        Unauthenticated users should only be able to see published datasets.
+        """
+        self.client._credentials = {}
+        response = self.client.get("/rest/datasets")
+        for cr in response.data['results']:
+            self.assertEqual(cr['state'], 'published')
+
     def test_read_for_datasets_world_ok(self):
         """
         Reading datasets api should be permitted even without any authorization.
