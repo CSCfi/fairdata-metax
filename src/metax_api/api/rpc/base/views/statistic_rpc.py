@@ -131,6 +131,11 @@ class StatisticRPC(CommonRPC):
             "to_date": request.query_params.get("to_date", None),
             "metadata_owner_org": request.query_params.get("metadata_owner_org", None),
         }
+
+        for boolean_param in ["latest", "legacy", "removed"]:
+            if boolean_param in request.query_params:
+                params[boolean_param] = CS.get_boolean_query_param(request, boolean_param)
+
         return Response(StatisticService.total_organization_datasets(**params))
 
     @action(detail=False, methods=["get"], url_path="unused_files")
