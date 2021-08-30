@@ -8,15 +8,18 @@
 import logging
 from collections import defaultdict
 from copy import deepcopy
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
 from django.db.models import JSONField, Q, Sum
 from django.http import Http404
+from django.utils.crypto import get_random_string
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
+from metax_api.tasks.refdata.refdata_indexer import service
 from metax_api.utils import (
     DelayedLog,
     IdentifierType,
@@ -56,6 +59,76 @@ IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
 ATT_CATALOG = settings.ATT_DATA_CATALOG_IDENTIFIER
 PAS_CATALOG = settings.PAS_DATA_CATALOG_IDENTIFIER
 DFT_CATALOG = settings.DFT_DATA_CATALOG_IDENTIFIER
+
+
+class EditorPermissions(models.Model):
+    """
+    Shared permissions between linked copies of same dataset.
+
+    Attaches a set of EditorUserPermission objects to a set of CatalogRecords.
+    """
+    id = models.BigAutoField(primary_key=True, editable=False)
+
+class PermissionRole(models.TextChoices):
+    CREATOR = "creator"
+    EDITOR = "editor"
+
+class EditorUserPermission(Common):
+    """
+    Table for attaching user roles to an EditorPermissions object.
+    """
+
+    # MODEL FIELD DEFINITIONS #
+    editor_permissions = models.ForeignKey(
+        EditorPermissions, related_name="users", on_delete=models.CASCADE
+    )
+    user_id = models.CharField(max_length=200)
+    role = models.CharField(max_length=16, choices=PermissionRole.choices)
+    verified = models.BooleanField(default=False)
+    verification_token = models.CharField(max_length=32, null=True)
+    verification_token_expires = models.DateTimeField(null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=[
+                    "user_id",
+                ]
+            ),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["editor_permissions", "user_id"], name="unique_dataset_user_permission"
+            ),
+            models.CheckConstraint(check=~models.Q(user_id=""), name="require_user_id"),
+            models.CheckConstraint(check=models.Q(role__in=PermissionRole.values), name="require_role"),
+        ]
+
+    def __repr__(self):
+        return f"<UserPermission user:{self.user_id} role:{self.role} verified:{self.verified} editor_permissions:{self.editor_permissions_id} >"
+
+    def clear_verification_token(self):
+        self.verification_token = None
+        self.verification_token_expires = None
+
+    def generate_verification_token(self):
+        self.verification_token = get_random_string(length=32)
+        self.verification_token_expires = datetime.now() + timedelta(days=14)
+
+    def verify(self, token):
+        if not token or token != self.verification_token or self.removed:
+            _logger.error("Invalid token or already used")
+            return False
+        if datetime.now() >= self.verification_token_expires:
+            _logger.error("Token expired")
+            return False
+
+        self.verified = True
+        self.clear_verification_token()
+
+    def delete(self, *args, **kwargs):
+        self.clear_verification_token()
+        super().remove(*args, **kwargs)
 
 
 class DiscardRecord(Exception):
@@ -443,6 +516,10 @@ class CatalogRecord(Common):
         null=True,
         default=dict,
         help_text="Saves api related info about the dataset. E.g. api version",
+    )
+
+    editor_permissions = models.ForeignKey(
+        EditorPermissions, related_name="catalog_records", null=False, on_delete=models.PROTECT
     )
 
     # END OF MODEL FIELD DEFINITIONS #
@@ -1461,6 +1538,12 @@ class CatalogRecord(Common):
         self._generate_issued_date()
 
         self._set_api_version()
+
+        # only new datasets need new EditorPermissions, copies already have one
+        if not self.editor_permissions_id:
+            self._add_editor_permissions()
+            if self.metadata_provider_user:
+                self._add_creator_editor_user_permission()
 
     def _post_create_operations(self):
         if "files" in self.research_dataset or "directories" in self.research_dataset:
@@ -3036,6 +3119,28 @@ class CatalogRecord(Common):
 
         if DEBUG:
             _logger.debug("Added %d files to dataset %s" % (n_files_copied, self._new_version.id))
+
+    def _add_editor_permissions(self):
+        permissions = EditorPermissions.objects.create()
+        self.editor_permissions = permissions
+
+    def _add_creator_editor_user_permission(self):
+        """
+        Add creator permission to a newly created CatalogRecord.
+        """
+        perm = EditorUserPermission(
+            editor_permissions=self.editor_permissions,
+            user_id=self.metadata_provider_user,
+            verified=True,
+            role=PermissionRole.CREATOR,
+            date_created=self.date_created,
+            date_modified=self.date_modified,
+            user_created=self.user_created,
+            user_modified=self.user_modified,
+            service_created=self.service_created,
+            service_modified=self.service_modified,
+        )
+        perm.save()
 
 
 class RabbitMQPublishRecord:

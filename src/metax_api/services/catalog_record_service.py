@@ -130,7 +130,27 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
             queryset_search_params["api_meta__contains"] = {"version": value}
 
+        if request.query_params.get("editor_permissions_user"):
+            cls.filter_by_editor_permissions_user(request, queryset_search_params)
+
         return queryset_search_params
+
+    @staticmethod
+    def filter_by_editor_permissions_user(request, queryset_search_params):
+        """
+        Add filter for querying datasets where user has verified editor user permissions.
+        """
+        user_id = request.query_params["editor_permissions_user"]
+
+        # non-service users can only query their own datasets
+        if not request.user.is_service:
+            if request.user.username == '':
+                raise Http403({"detail": ["Query by editor_permissions_user is only supported for authenticated users"]})
+            if request.user.username != user_id:
+                raise Http403({"detail": ["Provided editor_permissions_user does not match current user"]})
+
+        queryset_search_params["editor_permissions__users__user_id"] = user_id
+        queryset_search_params["editor_permissions__users__verified"] = True
 
     @staticmethod
     def filter_by_state(request, queryset_search_params):
