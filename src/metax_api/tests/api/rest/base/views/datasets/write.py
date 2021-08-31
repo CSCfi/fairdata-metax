@@ -556,6 +556,26 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             response.data["research_dataset"]["preferred_identifier"].startswith("urn:")
         )
 
+    def test_create_catalog_record_adds_creator_permission(self):
+        response = self.client.post(
+            "/rest/datasets",
+            self.cr_test_data,
+            format="json",
+        )
+        cr = CatalogRecord.objects.get(id=response.data["id"])
+        import json
+        print(json.dumps(response.data, indent=2))
+        self.assertEqual(
+            list(cr.editor_permissions.users.values("user_id", "role", "verified")),
+            [
+                {
+                    "user_id": self.cr_test_data["metadata_provider_user"],
+                    "role": "creator",
+                    "verified": True,
+                }
+            ],
+        )
+
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
     """
