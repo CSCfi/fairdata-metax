@@ -480,15 +480,6 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(len(response.data["success"]), 0)
         self.assertEqual(len(response.data["failed"]), 2)
 
-    def test_create_catalog_record_editor_field_is_optional(self):
-        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        new = response.data
-        new["research_dataset"]["title"]["en"] = "updated title"
-        new.pop("editor")
-        response = self.client.put("/rest/datasets/%d" % new["id"], new, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-
     def test_parameter_migration_override_preferred_identifier_when_creating(self):
         """
         Normally, when saving to att/ida catalogs, providing a custom preferred_identifier is not
@@ -4232,7 +4223,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         cr = CatalogRecord.objects.get(pk=cr_id)
         cr.user_created = self.token["CSCUserName"]
         cr.metadata_provider_user = self.token["CSCUserName"]
-        cr.editor = None  # pretend the record was created by user directly
         cr.force_save()
 
     def _set_cr_to_permitted_catalog(self, cr_id):
@@ -4256,7 +4246,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
 
         self.cr_test_data["data_catalog"] = END_USER_ALLOWED_DATA_CATALOGS[0]  # ida
         self.cr_test_data["contract"] = 1
-        self.cr_test_data["editor"] = {"nope": "discarded by metax"}
         self.cr_test_data["preservation_description"] = "discarded by metax"
         self.cr_test_data["preservation_reason_description"] = "discarded by metax"
         self.cr_test_data["preservation_state"] = 10
@@ -4276,7 +4265,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data["metadata_provider_org"], metadata_provider_org)
         self.assertEqual(response.data["metadata_owner_org"], metadata_owner_org)
         self.assertEqual("contract" in response.data, False)
-        self.assertEqual("editor" in response.data, False)
         self.assertEqual("preservation_description" in response.data, False)
         self.assertEqual("preservation_reason_description" in response.data, False)
         self.assertEqual(response.data["preservation_state"], 0)
@@ -4334,7 +4322,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         # research_dataset is the only permitted field to edit
         modified_data["research_dataset"]["value"] = 112233
         modified_data["contract"] = 1
-        modified_data["editor"] = {"nope": "discarded by metax"}
         modified_data["preservation_description"] = "discarded by metax"
         modified_data["preservation_reason_description"] = "discarded by metax"
         modified_data["preservation_state"] = 10
@@ -4348,7 +4335,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
 
         # none of these should have been affected
         self.assertEqual("contract" in response.data, False)
-        self.assertEqual("editor" in response.data, False)
         self.assertEqual("preservation_description" in response.data, False)
         self.assertEqual("preservation_reason_description" in response.data, False)
         self.assertEqual(response.data["preservation_state"], 0)
@@ -4364,7 +4350,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
         self.cr_test_data["data_catalog"] = 1
         self.cr_test_data["user_created"] = self.token["CSCUserName"]
         self.cr_test_data["metadata_provider_user"] = self.token["CSCUserName"]
-        self.cr_test_data.pop("editor", None)
 
         self._use_http_authorization()  # create cr as a service-user
         response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
@@ -4378,33 +4363,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
             "/rest/datasets/%d" % modified_data["id"], modified_data, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
-
-    @responses.activate
-    def test_owner_can_edit_dataset_check_perms_from_editor_field(self):
-        """
-        Ensure end user perms are also checked from the field 'editor', which may be
-        set by .e.g. qvain.
-        """
-        self.cr_test_data["data_catalog"] = END_USER_ALLOWED_DATA_CATALOGS[0]
-        self.cr_test_data[
-            "user_created"
-        ] = "editor field is checked before this field, so should be ok"
-        self.cr_test_data["editor"] = {"owner_id": self.token["CSCUserName"]}
-
-        self._use_http_authorization()  # create cr as a service-user to ensure editor-field is set
-
-        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        self._use_http_authorization(method="bearer", token=self.token)
-        response = self.client.get("/rest/datasets/%d" % response.data["id"], format="json")
-        modified_data = response.data
-        modified_data["research_dataset"]["value"] = 112233
-
-        response = self.client.put(
-            "/rest/datasets/%d" % response.data["id"], modified_data, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @responses.activate
     def test_other_users_cant_edit_dataset(self):
@@ -4562,7 +4520,6 @@ class CatalogRecordExternalServicesAccess(CatalogRecordApiWriteCommon):
         cr.user_created = "#### Some owner who is not you ####"
         cr.metadata_provider_user = "#### Some owner who is not you ####"
         cr.data_catalog = dc2
-        cr.editor = None
         cr.research_dataset["access_rights"]["access_type"]["identifier"] = ACCESS_TYPES[
             "restricted"
         ]

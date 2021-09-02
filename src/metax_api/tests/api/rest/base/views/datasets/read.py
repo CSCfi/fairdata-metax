@@ -750,15 +750,6 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(len(response.data["results"]), 0)
 
-    def test_read_catalog_record_search_by_owner_id(self):
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.editor = {"owner_id": "123"}
-        cr.save()
-        response = self.client.get("/rest/datasets?owner_id=123")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.data["results"][0]["editor"]["owner_id"], "123")
-
     def test_read_catalog_record_search_by_creator_id(self):
         cr = CatalogRecord.objects.get(pk=1)
         cr.user_created = "123"
@@ -767,23 +758,6 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["results"]), 1)
         self.assertEqual(response.data["results"][0]["user_created"], "123")
-
-    def test_read_catalog_record_search_by_editor(self):
-        response = self.client.get("/rest/datasets?editor=mspaint")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["count"], 0)
-
-        response = self.client.get("/rest/datasets?editor=qvain")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        qvain_records_count = response.data["count"]
-        self.assertEqual(qvain_records_count > 0, True)
-
-        response = self.client.get("/rest/datasets")
-        self.assertNotEqual(
-            response.data["count"],
-            qvain_records_count,
-            "looks like filtering had no effect",
-        )
 
     def test_read_catalog_record_search_by_metadata_provider_user(self):
         response = self.client.get("/rest/datasets?metadata_provider_user=123")

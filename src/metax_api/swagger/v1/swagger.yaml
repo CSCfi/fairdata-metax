@@ -953,10 +953,6 @@ paths:
           description: A specific filter that targets the following fields; research_dataset['title'], research_dataset['curator'][n]['name'], contract['contract_json']['title']. Restricted to permitted users.
           required: false
           type: string
-        - name: editor
-          in: query
-          description: Identifier of the editor used to modify the record, i.e. qvain.
-          type: string
         - name: data_catalog
           in: query
           description: Filter by data catalog urn identifier

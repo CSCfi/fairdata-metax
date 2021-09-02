@@ -5727,12 +5727,6 @@
             "dataset_version_set": 1,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "identifier": "qvain",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9001"
-            },
             "files": [
                 1,
                 2
@@ -5888,12 +5882,6 @@
             "dataset_version_set": 2,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
-                "identifier": "qvain",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9002"
-            },
             "files": [
                 3,
                 4
@@ -6049,12 +6037,6 @@
             "dataset_version_set": 3,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "05593961536b76fa825281ccaedd4d4f",
-                "identifier": "qvain",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9003"
-            },
             "files": [
                 5,
                 6
@@ -6210,12 +6192,6 @@
             "dataset_version_set": 4,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
-                "identifier": "qvain",
-                "owner_id": "055ea4dade5ab2145954f56d4b51cef0",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9004"
-            },
             "files": [
                 7,
                 8
@@ -6371,12 +6347,6 @@
             "dataset_version_set": 5,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea531a6cac569425bed94459266ee",
-                "identifier": "qvain",
-                "owner_id": "055ea531a6cac569425bed94459266ee",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9005"
-            },
             "files": [
                 9,
                 10
@@ -6532,12 +6502,6 @@
             "dataset_version_set": 6,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "identifier": "qvain",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9006"
-            },
             "files": [
                 11,
                 12
@@ -6693,12 +6657,6 @@
             "dataset_version_set": 7,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
-                "identifier": "qvain",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9007"
-            },
             "files": [
                 13,
                 14
@@ -6854,12 +6812,6 @@
             "dataset_version_set": 8,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "05593961536b76fa825281ccaedd4d4f",
-                "identifier": "qvain",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9008"
-            },
             "files": [
                 15,
                 16
@@ -7000,12 +6952,6 @@
             "dataset_version_set": 9,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
-                "identifier": "qvain",
-                "owner_id": "055ea4dade5ab2145954f56d4b51cef0",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9009"
-            },
             "files": [
                 17,
                 18
@@ -7132,12 +7078,6 @@
             "dataset_version_set": 10,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea531a6cac569425bed94459266ee",
-                "identifier": "qvain",
-                "owner_id": "055ea531a6cac569425bed94459266ee",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9010"
-            },
             "files": [
                 19,
                 20
@@ -7261,12 +7201,6 @@
             "dataset_version_set": 11,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "identifier": "qvain",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9011"
-            },
             "files": [
                 1,
                 2,
@@ -8218,12 +8152,6 @@
             "dataset_version_set": 12,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053d18ecb29e752cb7a35cd77b34f5fd",
-                "identifier": "qvain",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9012"
-            },
             "files": [
                 1,
                 2,
@@ -9175,12 +9103,6 @@
             "dataset_version_set": 13,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
-            "editor": {
-                "creator_id": "05593961536b76fa825281ccaedd4d4f",
-                "identifier": "qvain",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9013"
-            },
             "files": [
                 22,
                 23,
@@ -11577,10 +11499,6 @@
             "data_catalog": 5,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "owner_id": "053bffbcc41edad4853bea91fc42ea18"
-            },
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9624",
             "metadata_owner_org": "abc-org-123",
             "metadata_provider_org": "abc-org-123",
@@ -12515,10 +12433,6 @@
             "data_catalog": 5,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "owner_id": "053d18ecb29e752cb7a35cd77b34f5fd"
-            },
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9625",
             "metadata_owner_org": "abc-org-123",
             "metadata_provider_org": "abc-org-123",
@@ -13453,10 +13367,6 @@
             "data_catalog": 5,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
-            "editor": {
-                "creator_id": "053bffbcc41edad4853bea91fc42ea18",
-                "owner_id": "05593961536b76fa825281ccaedd4d4f"
-            },
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9626",
             "metadata_owner_org": "abc-org-123",
             "metadata_provider_org": "abc-org-123",
@@ -14394,12 +14304,6 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
-            "editor": {
-                "creator_id": "055ea4dade5ab2145954f56d4b51cef0",
-                "identifier": "qvain",
-                "owner_id": "055ea4dade5ab2145954f56d4b51cef0",
-                "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9027"
-            },
             "files": [
                 19,
                 20

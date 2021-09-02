@@ -345,11 +345,6 @@ class CatalogRecord(Common):
         max_length=200, null=False, help_text="Non-modifiable after creation"
     )
 
-    editor = JSONField(
-        null=True,
-        help_text="Editor specific fields, such as owner_id, modified, record_identifier",
-    )
-
     preservation_dataset_version = models.OneToOneField(
         "self",
         on_delete=models.DO_NOTHING,
@@ -564,9 +559,7 @@ class CatalogRecord(Common):
             _logger.debug("request.user.username = %s", request.user.username)
             raise Http404
 
-        if self.editor and "owner_id" in self.editor:
-            return request.user.username == self.editor["owner_id"]
-        elif self.metadata_provider_user:
+        if self.metadata_provider_user:
             return request.user.username == self.metadata_provider_user
 
         # note: once access control plans evolve, user_created may not be a legit field ever
@@ -2364,20 +2357,6 @@ class CatalogRecord(Common):
         # from _initial_data so that super().save() does not change it later.
         old_version.research_dataset = deepcopy(old_version._initial_data["research_dataset"])
         old_version.next_dataset_version = new_version
-
-        if new_version.editor:
-            # some of the old editor fields cant be true in the new version, so keep
-            # only the ones that make sense. it is up to the editor, to update other fields
-            # they see as relevant. we also dont want null values in there
-            old_editor = deepcopy(new_version.editor)
-            new_version.editor = {}
-            if "owner_id" in old_editor:
-                new_version.editor["owner_id"] = old_editor["owner_id"]
-            if "creator_id" in old_editor:
-                new_version.editor["creator_id"] = old_editor["creator_id"]
-            if "identifier" in old_editor:
-                # todo this probably does not make sense... ?
-                new_version.editor["identifier"] = old_editor["identifier"]
 
         super(Common, new_version).save()
 

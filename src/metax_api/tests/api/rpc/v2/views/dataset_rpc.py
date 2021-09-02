@@ -237,7 +237,6 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         # change owner, try again. should be OK
         cr = CatalogRecordV2.objects.get(pk=1)
         cr.metadata_provider_user = self.token["CSCUserName"]
-        cr.editor = None
         cr.force_save()
 
         response = self.client.post(

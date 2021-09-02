@@ -57,7 +57,6 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
             self.initial_data["data_catalog"] = DFT_CATALOG
 
         self.initial_data.pop("draft_of", None)
-        self.initial_data.pop("editor", None)
         self.initial_data.pop("next_draft", None)
         super().is_valid(raise_exception=raise_exception)
 
@@ -85,8 +84,6 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
                 res["next_draft"] = instance.next_draft.identifiers_dict
             else:
                 del res["next_draft"]
-
-        res.pop("editor", None)
 
         return res
 
