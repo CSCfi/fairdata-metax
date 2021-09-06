@@ -563,8 +563,6 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             format="json",
         )
         cr = CatalogRecord.objects.get(id=response.data["id"])
-        import json
-        print(json.dumps(response.data, indent=2))
         self.assertEqual(
             list(cr.editor_permissions.users.values("user_id", "role", "verified")),
             [

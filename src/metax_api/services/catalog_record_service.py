@@ -151,6 +151,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         queryset_search_params["editor_permissions__users__user_id"] = user_id
         queryset_search_params["editor_permissions__users__verified"] = True
+        queryset_search_params["editor_permissions__users__removed"] = False
 
     @staticmethod
     def filter_by_state(request, queryset_search_params):
