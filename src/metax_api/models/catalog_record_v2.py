@@ -1411,20 +1411,6 @@ class CatalogRecordV2(CatalogRecord):
         old_version.dataset_version_set.records.add(new_version)
         old_version.next_dataset_version = new_version
 
-        if new_version.editor:
-            # some of the old editor fields cant be true in the new version, so keep
-            # only the ones that make sense. it is up to the editor, to update other fields
-            # they see as relevant. we also dont want null values in there
-            old_editor = deepcopy(new_version.editor)
-            new_version.editor = {}
-            if "owner_id" in old_editor:
-                new_version.editor["owner_id"] = old_editor["owner_id"]
-            if "creator_id" in old_editor:
-                new_version.editor["creator_id"] = old_editor["creator_id"]
-            if "identifier" in old_editor:
-                # todo this probably does not make sense... ?
-                new_version.editor["identifier"] = old_editor["identifier"]
-
         # v2 api successfully invoked, change the api version to prevent further updates on v1 api
         self._set_api_version()
 

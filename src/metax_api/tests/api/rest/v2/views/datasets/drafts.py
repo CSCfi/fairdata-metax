@@ -72,7 +72,6 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         cr.state = state
         cr.user_created = owner
         cr.metadata_provider_user = owner
-        cr.editor = None  # pretend the record was created by user directly
         cr.data_catalog_id = DataCatalog.objects.get(
             catalog_json__identifier=END_USER_ALLOWED_DATA_CATALOGS[0]
         ).id

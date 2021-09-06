@@ -753,7 +753,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         try:
             cr = CatalogRecord.objects.only(
-                "id", "_directory_data", "editor", "user_created", "research_dataset"
+                "id", "_directory_data", "user_created", "research_dataset"
             ).get(**cr_params)
         except CatalogRecord.DoesNotExist:
             # raise 400 instead of 404, to distinguish from the error

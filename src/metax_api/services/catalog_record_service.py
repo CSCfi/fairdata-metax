@@ -85,18 +85,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 "curator": [{"identifier": request.query_params["curator"]}]
             }
 
-        if request.query_params.get("owner_id", False):
-            queryset_search_params["editor__contains"] = {
-                "owner_id": request.query_params["owner_id"]
-            }
-
         if request.query_params.get("user_created", False):
             queryset_search_params["user_created"] = request.query_params["user_created"]
-
-        if request.query_params.get("editor", False):
-            queryset_search_params["editor__contains"] = {
-                "identifier": request.query_params["editor"]
-            }
 
         if request.query_params.get("metadata_provider_user", False):
             queryset_search_params["metadata_provider_user"] = request.query_params[
