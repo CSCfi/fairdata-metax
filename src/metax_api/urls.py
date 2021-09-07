@@ -60,6 +60,6 @@ if django_settings.WATCHMAN_CONFIGURED:
 
 if django_settings.DEBUG:
     urlpatterns += [
+        path("test_view/", TestView.as_view(), name="test_view"),
         path("__debug__/", include(debug_toolbar.urls)),
-        path("test_view/", TestView.as_view(), name="test_view")
     ]
