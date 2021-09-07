@@ -37,11 +37,11 @@ class DatasetRPC(CommonRPC):
 
     @action(detail=False, methods=["get"], url_path="get_minimal_dataset_template")
     def get_minimal_dataset_template(self, request):
-        if request.query_params.get("type", None) not in ["service", "enduser"]:
+        if request.query_params.get("type", None) not in ["service", "enduser", "service_pas", "enduser_pas"]:
             raise Http400(
                 {
                     "detail": [
-                        "query param 'type' missing or wrong. please specify ?type= as one of: service, enduser"
+                        "query param 'type' missing or wrong. please specify ?type= as one of: service, enduser, service_pas, enduser_pas"
                     ]
                 }
             )
@@ -51,7 +51,13 @@ class DatasetRPC(CommonRPC):
 
         example_ds["data_catalog"] = django_settings.END_USER_ALLOWED_DATA_CATALOGS[0]
 
-        if request.query_params["type"] == "enduser":
+        if request.query_params["type"].endswith("_pas"):
+            if 'issued' not in example_ds['research_dataset']:
+                example_ds['research_dataset']['issued'] = '2019-01-01'
+            if 'publisher' not in example_ds['research_dataset']:
+                example_ds['research_dataset']['publisher'] = example_ds['research_dataset']['creator'][0]
+
+        if request.query_params["type"].startswith("enduser"):
             example_ds.pop("metadata_provider_org", None)
             example_ds.pop("metadata_provider_user", None)
 
