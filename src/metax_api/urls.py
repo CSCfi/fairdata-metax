@@ -31,6 +31,7 @@ from metax_api.api.rest.v2.router import api_urlpatterns as rest_api_v2
 from metax_api.api.rpc.base.router import api_urlpatterns as rpc_api_v1
 from metax_api.api.rpc.v2.router import api_urlpatterns as rpc_api_v2
 from metax_api.views.router import view_urlpatterns
+from metax_api.views.test_view import TestView
 
 v1_urls = [
     url("", include(view_urlpatterns)),
@@ -60,4 +61,5 @@ if django_settings.WATCHMAN_CONFIGURED:
 if django_settings.DEBUG:
     urlpatterns += [
         path("__debug__/", include(debug_toolbar.urls)),
+        path("test_view/", TestView.as_view(), name="test_view")
     ]
