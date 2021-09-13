@@ -170,6 +170,7 @@ class CommonViewSet(ModelViewSet):
         """
         additional_filters = {}
         q_filters = []
+        deduplicated_q_filters = []
 
         CS.set_if_modified_since_filter(self.request, additional_filters)
 
@@ -179,6 +180,10 @@ class CommonViewSet(ModelViewSet):
         if "q_filters" in additional_filters:
             # Q-filter objects, which can contain more complex filter options such as OR-clauses
             q_filters = additional_filters.pop("q_filters")
+
+        if "deduplicated_q_filters" in additional_filters:
+            # Q-filter objects that may produce duplicate results
+            deduplicated_q_filters = additional_filters.pop("deduplicated_q_filters")
 
         if CS.get_boolean_query_param(self.request, "removed"):
             additional_filters.update({"removed": True})
@@ -200,7 +205,13 @@ class CommonViewSet(ModelViewSet):
             # if no fields is relation, select_related will be made empty.
             self.select_related = [rel for rel in self.select_related if rel in self.fields]
 
-        queryset = super().get_queryset().filter(*q_filters, **additional_filters)
+        queryset = super().get_queryset()
+        if deduplicated_q_filters:
+            # run filters that may produce duplicates and deduplicate the results. deduplicating just the ids
+            # in a subquery is faster than deduplicating the full results when there are a lot of duplicates.
+            id_query = queryset.filter(*deduplicated_q_filters).values("id").distinct()
+            queryset = queryset.filter(id__in=id_query)
+        queryset = queryset.filter(*q_filters, **additional_filters)
 
         if self.request.META["REQUEST_METHOD"] in WRITE_OPERATIONS:
             # for update operations, do not select relations in the original queryset
