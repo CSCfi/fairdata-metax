@@ -836,6 +836,48 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(len(response.data["results"]), 1)
         self.assertEqual(response.data["results"][0]["data_catalog"]["identifier"], dc_id)
 
+    def test_filter_by_projects_for_service(self):
+        """Filter datasets by projects. Services can access all projects."""
+        user = settings.API_TEST_USER
+        self._use_http_authorization(username=user["username"], password=user["password"])
+        response = self.client.get("/rest/datasets?projects=project_x&pagination=false")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 14)
+
+        response = self.client.get("/rest/datasets?projects=research_project_112&pagination=false")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        response = self.client.get(
+            "/rest/datasets?projects=research_project_112,project_x&pagination=false"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 15)
+
+        response = self.client.get("/rest/datasets?projects=no_datasets_here&pagination=false")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    @responses.activate
+    def test_filter_by_projects_for_end_user(self):
+        """Filter datasets by projects. End users can only access their own projects."""
+        self._mock_token_validation_succeeds()
+        self._use_http_authorization(
+            method="bearer",
+            token={"group_names": ["IDA01:project_x", "IDA01:no_datasets_here"], "CSCUserName": "testi"}
+        )
+
+        response = self.client.get("/rest/datasets?projects=project_x&pagination=false")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 14)
+
+        response = self.client.get("/rest/datasets?projects=no_datasets_here&pagination=false")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+        response = self.client.get("/rest/datasets?projects=research_project_112&pagination=false")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_filter_by_deprecated(self):
         cr = CatalogRecord.objects.get(pk=1)
         cr.deprecated = True
