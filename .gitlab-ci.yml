@@ -59,6 +59,16 @@ update_proxy:
       when: always
     - when: never
 
+update_run_manage_cmd:
+  stage: update
+  environment: $CI_COMMIT_REF_NAME
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK -e "build_id=$CI_COMMIT_SHORT_SHA"
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
+      when: always
+    - when: never
+
 clean_previous_build:
   stage: clean_build
   environment: $CI_COMMIT_REF_NAME
